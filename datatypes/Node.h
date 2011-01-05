@@ -1,3 +1,6 @@
+#ifndef _GCM_NODE_H
+#define _GCM_NODE_H  1
+
 #include <string>
 #include <vector>
 
@@ -19,5 +22,6 @@ protected:
 private:
 };
 
-Node::Node() { }
-Node::~Node() { }
+#include "Node.inl"
+
+#endif

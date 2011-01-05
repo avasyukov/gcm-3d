@@ -1,3 +1,6 @@
+#ifndef _GCM_ELEMENT_H
+#define _GCM_ELEMENT_H  1
+
 #include <string>
 #include <vector>
 
@@ -15,5 +18,6 @@ protected:
 private:
 };
 
-Element::Element() { }
-Element::~Element() { }
+#include "Element.inl"
+
+#endif

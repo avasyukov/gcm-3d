@@ -1,0 +1,2 @@
+Node::Node() { };
+Node::~Node() { };

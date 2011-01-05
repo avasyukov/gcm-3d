@@ -1,0 +1,2 @@
+Element::Element() { };
+Element::~Element() { };

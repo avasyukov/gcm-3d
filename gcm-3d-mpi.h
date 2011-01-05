@@ -2,6 +2,8 @@
 #include <vector>
 
 #include "datatypes.h"
+#include "methods.h"
+#include "system.h"
 
 using std::string;
 using std::vector;
@@ -30,15 +32,7 @@ class SnapshotWriter
 {
 };
 
-class Logger
-{
-};
-
 class Scheduler
-{
-};
-
-class NumericalMethod
 {
 };
 
