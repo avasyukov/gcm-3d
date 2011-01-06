@@ -4,6 +4,8 @@
 #include "datatypes.h"
 #include "methods.h"
 #include "system.h"
+#include "rheology.h"
+#include "grids.h"
 
 using std::string;
 using std::vector;
@@ -33,10 +35,6 @@ class SnapshotWriter
 };
 
 class Scheduler
-{
-};
-
-class RheologyCalculator
 {
 };
 
