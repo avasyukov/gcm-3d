@@ -7,6 +7,9 @@
 #include "rheology.h"
 #include "grids.h"
 
+//#define NDEBUG
+#include <cassert>
+
 using std::string;
 using std::vector;
 
