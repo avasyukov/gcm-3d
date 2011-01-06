@@ -14,10 +14,12 @@ class RheologyCalculator
 public:
 	RheologyCalculator();
 	~RheologyCalculator();
-	int do_calc(Node* cur_node, Node* new_node);
+	virtual int do_calc(Node* cur_node, Node* new_node);
 	void attach(Logger* new_logger);
+	string* get_rheology_type();
 protected:
 	Logger* logger;
+	string rheology_type;
 };
 
 #include "RheologyCalculator.inl"

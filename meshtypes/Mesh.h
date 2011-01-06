@@ -1,5 +1,5 @@
-#ifndef _GCM_GRID_H
-#define _GCM_GRID_H  1
+#ifndef _GCM_MESH_H
+#define _GCM_MESH_H  1
 
 #include <string>
 #include <vector>
@@ -11,20 +11,27 @@
 using std::string;
 using std::vector;
 
-class Grid
+class Mesh
 {
 public:
-	Grid();
-	~Grid();
+	Mesh();
+	~Mesh();
 	void attach(Logger* new_logger);
 	void attach(NumericalMethod* new_numerical_method);
 	void attach(RheologyCalculator* new_rheology);
+	virtual int step(); // TODO check if it is universal
+
+	int zone_num;
+	int mesh_num;
+	string mesh_type;
+	vector<Node> nodes;
+	vector<Element> elems;
 protected:
 	Logger* logger;
 	RheologyCalculator* rheology;
 	NumericalMethod* method;
 };
 
-#include "Grid.inl"
+#include "Mesh.inl"
 
 #endif

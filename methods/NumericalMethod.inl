@@ -1,4 +1,8 @@
-NumericalMethod::NumericalMethod() { logger = NULL; };
+NumericalMethod::NumericalMethod()
+{
+	logger = NULL;
+	num_method_type.assign("Generic method");
+};
 
 NumericalMethod::~NumericalMethod() { };
 
@@ -12,3 +16,8 @@ int NumericalMethod::do_next_part_step(Node* cur_node, Node* new_node, float tim
 };
 
 int NumericalMethod::get_number_of_stages() { return -1; };
+
+string* NumericalMethod::get_num_method_type()
+{
+	return &num_method_type;
+}

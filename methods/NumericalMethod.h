@@ -15,10 +15,12 @@ public:
 	NumericalMethod();
 	~NumericalMethod();
 	void attach(Logger* new_logger);
-	int do_next_part_step(Node* cur_node, Node* new_node, float time_step, int stage);
-	int get_number_of_stages();
+	virtual int do_next_part_step(Node* cur_node, Node* new_node, float time_step, int stage);
+	virtual int get_number_of_stages();
+	string* get_num_method_type();
 protected:
 	Logger* logger;
+	string num_method_type;
 };
 
 #include "NumericalMethod.inl"

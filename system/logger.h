@@ -16,6 +16,9 @@ public:
 	Logger();
 	~Logger();
 	void write(string str);
+	string* get_logger_type();
+protected:
+	string logger_type;
 };
 
 #include "logger.inl"

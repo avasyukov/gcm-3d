@@ -14,12 +14,12 @@ int main()
 	nm->attach(log);
 	cout << nm->get_number_of_stages() << endl;
 	nm->do_next_part_step(en, en, 0.1, 1);
-	VoidRheologyCalculator* rc = new VoidRheologyCalculator();
+	RheologyCalculator* rc = new VoidRheologyCalculator();
 	rc->attach(log);
 	rc->do_calc(en, en);
-	Grid* grid = new Grid();
-	grid->attach(log);
-	grid->attach(rc);
-	grid->attach(nm);
+	Mesh* mesh = new Mesh();
+	mesh->attach(log);
+	mesh->attach(rc);
+	mesh->attach(nm);
 	return 0;
 }
