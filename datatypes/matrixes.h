@@ -1,3 +1,6 @@
+#ifndef _GCM_MATRIXES_H
+#define _GCM_MATRIXES_H  1
+
 #include <iostream>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
@@ -35,3 +38,5 @@ float determinant( ublas_matrix& m ) {
     }
     return det;
 }
+
+#endif
