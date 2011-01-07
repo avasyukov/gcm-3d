@@ -17,6 +17,7 @@ public:
 	void attach(Logger* new_logger);
 	virtual int do_next_part_step(Node* cur_node, Node* new_node, float time_step, int stage);
 	virtual int get_number_of_stages();
+	virtual float get_max_lambda(Node* node);
 	string* get_num_method_type();
 protected:
 	Logger* logger;

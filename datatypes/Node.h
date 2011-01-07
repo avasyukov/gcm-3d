@@ -7,6 +7,10 @@
 using std::string;
 using std::vector;
 
+#define LOCAL 1
+#define REMOTE 0
+#define UNUSED -1
+
 class Node
 {
 public:
@@ -16,6 +20,7 @@ public:
 	int local_num;
 	int remote_num;
 	int absolute_num;
+	int placement_type; // TODO Do we need this? Do we can replace it with zone_num check?
 	float coords[3];
 	float fixed_coords[3];
 protected:

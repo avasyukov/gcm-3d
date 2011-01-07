@@ -3,6 +3,10 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
+#include <cstring>
+
+using std::ifstream;
 
 #include "../system/logger.h"
 #include "../rheotypes/RheologyCalculator.h"
@@ -19,14 +23,17 @@ public:
 	void attach(Logger* new_logger);
 	void attach(NumericalMethod* new_numerical_method);
 	void attach(RheologyCalculator* new_rheology);
+	string* get_mesh_type();
 	virtual int step(); // TODO check if it is universal
+	virtual int get_index_of_element_owner(Node* node); // TODO check if it is universal
 
 	int zone_num;
 	int mesh_num;
-	string mesh_type;
-	vector<Node> nodes;
-	vector<Element> elems;
+	//vector<Node> nodes; // TODO do we need these vectors?
+	//vector<Element> elems; // TODO or will they be replaced any time with specific datatypes?
+
 protected:
+	string mesh_type;
 	Logger* logger;
 	RheologyCalculator* rheology;
 	NumericalMethod* method;

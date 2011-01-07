@@ -34,4 +34,19 @@ void Mesh::attach(RheologyCalculator* new_rheology)
 
 int Mesh::step()
 {
+	if(logger != NULL)
+		logger->write(string("ERROR: Called unimplemented next step on mesh!"));
+	return -1;
+};
+
+int Mesh::get_index_of_element_owner(Node* node)
+{
+	if(logger != NULL)
+		logger->write(string("ERROR: Called unimplemented element search on mesh!"));
+	return -1;
+};
+
+string* Mesh::get_mesh_type()
+{
+	return &mesh_type;
 };

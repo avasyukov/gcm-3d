@@ -8,7 +8,11 @@ class TestCubicMesh : public Mesh
 public:
 	TestCubicMesh();
 	~TestCubicMesh();
-	int create(int points_per_edge);
+	int create(int points_per_edge, float h);
+private:
+	int get_point_index(int i, int j, int k);
+	int _points_per_edge;
+	vector<ElasticNode> nodes;
 };
 
 #include "TestCubicMesh.inl"
