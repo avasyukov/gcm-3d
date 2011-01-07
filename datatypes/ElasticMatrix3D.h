@@ -13,6 +13,9 @@ public:
 	int prepare_matrix(float la, float mu, float ro, int stage, Logger* logger);
 	float max_lambda();
 
+	int self_check(float la, float mu, float ro, Logger* logger);
+	int check_current(Logger* logger);
+
 	ublas_matrix A;
 	ublas_matrix L;
 	ublas_matrix U;

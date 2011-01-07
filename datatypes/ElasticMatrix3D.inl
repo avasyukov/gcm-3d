@@ -20,7 +20,7 @@ int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, int stage, Log
 	{
 		if(logger != NULL) {
 			logger->write(string("ERROR: ElasticMatrix3D::prepare_matrix - bad rheology"));
-			// TODO add details and diagnostics
+			// TODO add details and diagnostics - stage, la, mu, ro
 		}
 		return -1;
 	}
@@ -40,6 +40,35 @@ int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, int stage, Log
 	}
 	return 0;
 };
+
+int ElasticMatrix3D::self_check(float la, float mu, float ro, Logger* logger)
+{
+	for (int i = 0; i < 3; i++)
+	{
+		if (prepare_matrix(la, mu, ro, i, logger) < 0) return -1;
+		if (check_current(logger) < 0) return -1;
+	}
+	if(logger != NULL)
+		logger->write(string("INFO: ElasticMatrix3D::self_check - OK"));
+	return 0;
+};
+
+int ElasticMatrix3D::check_current(Logger* logger)
+{
+	ublas_matrix Z(9,9);
+	Z = (prod(U1, ublas_matrix(prod(L,U)) ) - A);
+	float max_l = max_lambda();
+	for (unsigned i = 0; i < 9; ++i)
+		for (unsigned j = 0; j < 9; ++j)
+			if(fabs(Z(i,j)) > 0.0001 * max_l) {
+				if(logger != NULL) {
+					logger->write(string("ERROR: ElasticMatrix3D::check_current failed"));
+					// TODO add details and diagnostics
+				}	
+				return -1;
+			}
+	return 0;
+}
 
 float ElasticMatrix3D::max_lambda()
 {
