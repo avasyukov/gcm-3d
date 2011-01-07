@@ -19,18 +19,10 @@ class MeshSet
 	vector<Mesh> meshes;
 };
 
-class Stresser
-{
-};
-
 class SnapshotWriter
 {
 };
 
 class Scheduler
-{
-};
-
-class TaskPreparator
 {
 };
