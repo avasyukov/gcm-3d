@@ -8,7 +8,7 @@
 
 using std::ifstream;
 
-#include "../system/logger.h"
+#include "../system/Logger.h"
 #include "../rheotypes/RheologyCalculator.h"
 #include "../methods/NumericalMethod.h"
 

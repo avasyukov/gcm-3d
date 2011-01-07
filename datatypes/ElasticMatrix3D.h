@@ -2,7 +2,7 @@
 #define _GCM_ELASTIC_MATRIX_3D_H  1
 
 #include "matrixes.h"
-#include "../system/logger.h"
+#include "../system/Logger.h"
 
 class ElasticMatrix3D
 {
