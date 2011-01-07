@@ -13,6 +13,7 @@ public:
 	TaskPreparator();
 	~TaskPreparator();
 	string* get_task_preparator_type();
+	void set_fixed_elastic_rheology(vector<ElasticNode>* nodes, float la, float mu, float rho);
 protected:
 	string task_preparator_type;
 };

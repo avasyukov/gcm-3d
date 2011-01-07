@@ -11,6 +11,8 @@ public:
 	~BasicTetrMesh();
 	int load_mesh(char* file_name);
 
+	vector<ElasticNode> nodes;
+
 private:
 	void do_next_part_step(float tau, int stage);
 	void move_coords(float tau);
@@ -21,7 +23,6 @@ private:
 	int interpolate(ElasticNode* node, Tetrahedron_1st_order* tetr);
 
 	vector<Tetrahedron_1st_order> tetrs;
-	vector<ElasticNode> nodes;
 	vector<ElasticNode> new_nodes;
 
 	quick_math qm_engine;
