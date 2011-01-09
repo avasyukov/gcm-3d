@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "../datatypes/ElasticNode.h"
+
 using std::string;
 using std::vector;
 

@@ -15,9 +15,8 @@ public:
 	NumericalMethod();
 	~NumericalMethod();
 	void attach(Logger* new_logger);
-	virtual int do_next_part_step(Node* cur_node, Node* new_node, float time_step, int stage);
-	virtual int get_number_of_stages();
-	virtual float get_max_lambda(Node* node);
+	virtual int get_number_of_stages() = 0;
+	virtual float get_max_lambda(ElasticNode* node) = 0;
 	string* get_num_method_type();
 protected:
 	Logger* logger;

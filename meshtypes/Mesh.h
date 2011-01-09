@@ -11,6 +11,7 @@ using std::ifstream;
 #include "../system/Logger.h"
 #include "../rheotypes/RheologyCalculator.h"
 #include "../methods/NumericalMethod.h"
+#include "../system/DataBus.h"
 
 using std::string;
 using std::vector;
@@ -23,20 +24,22 @@ public:
 	void attach(Logger* new_logger);
 	void attach(NumericalMethod* new_numerical_method);
 	void attach(RheologyCalculator* new_rheology);
+	void attach(DataBus* new_data_bus); // TODO what should be attach to what?
 	string* get_mesh_type();
-	virtual int step(); // TODO check if it is universal
-	virtual int get_index_of_element_owner(Node* node); // TODO check if it is universal
+	float get_current_time();
+	virtual int do_next_step() = 0;
+	virtual float get_max_possible_tau() = 0;
 
 	int zone_num;
 	int mesh_num;
-	//vector<Node> nodes; // TODO do we need these vectors?
-	//vector<Element> elems; // TODO or will they be replaced any time with specific datatypes?
 
 protected:
 	string mesh_type;
+	float current_time;
 	Logger* logger;
 	RheologyCalculator* rheology;
 	NumericalMethod* method;
+	DataBus* data_bus; // TODO implement at least draft structure
 };
 
 #include "Mesh.inl"

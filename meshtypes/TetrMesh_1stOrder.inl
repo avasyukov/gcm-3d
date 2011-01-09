@@ -1,9 +1,9 @@
-BasicTetrMesh::BasicTetrMesh()
+TetrMesh_1stOrder::TetrMesh_1stOrder()
 {
-	mesh_type.assign("Basic tetrahedron mesh");
+	mesh_type.assign("Tetrahedron mesh 1st order");
 };
 
-BasicTetrMesh::~BasicTetrMesh()
+TetrMesh_1stOrder::~TetrMesh_1stOrder()
 {
 	for(int i = 0; i < nodes.size(); i++)
 		nodes[i].elements->clear();
@@ -13,7 +13,7 @@ BasicTetrMesh::~BasicTetrMesh()
 };
 
 // TODO move actual file and string operations into TaskPreparator or MshFileReader
-int BasicTetrMesh::load_mesh(char* file_name)
+int TetrMesh_1stOrder::load_mesh(char* file_name)
 {
 	string str;
 	int tmp_int;
@@ -26,17 +26,17 @@ int BasicTetrMesh::load_mesh(char* file_name)
 	infile.open(file_name, ifstream::in);
 	if(!infile.is_open()) {
 		if(logger != NULL)
-			logger->write(string("ERROR: BasicTetrMesh::load_mesh - can not open file"));
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - can not open file"));
 		return -1;
 	}
 
 	if(logger != NULL)
-		logger->write(string("INFO: BasicTetrMesh::load_mesh - Reading file..."));
+		logger->write(string("INFO: TetrMesh_1stOrder::load_mesh - Reading file..."));
 
 	infile >> str;
 	if(strcmp(str.c_str(),"$MeshFormat") != 0) {
 		if(logger != NULL)
-			logger->write(string("ERROR: BasicTetrMesh::load_mesh - wrong file format. '$MeshFormat' expected."));
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$MeshFormat' expected."));
 		return -1;
 	}
 
@@ -45,14 +45,14 @@ int BasicTetrMesh::load_mesh(char* file_name)
 	infile >> str;
 	if(strcmp(str.c_str(),"$EndMeshFormat") != 0) {
 		if(logger != NULL)
-			logger->write(string("ERROR: BasicTetrMesh::load_mesh - wrong file format. '$EndMeshFormat' expected."));
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$EndMeshFormat' expected."));
 		return -1;
 	}
 
 	infile >> str;
 	if(strcmp(str.c_str(),"$Nodes") != 0) {
 		if(logger != NULL)
-			logger->write(string("ERROR: BasicTetrMesh::load_mesh - wrong file format. '$Nodes' expected."));
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$Nodes' expected."));
 		return -1;
 	}
 
@@ -90,7 +90,7 @@ int BasicTetrMesh::load_mesh(char* file_name)
 		else
 		{
 			if(logger != NULL)
-				logger->write(string("ERROR: BasicTetrMesh::load_mesh - wrong file format. Node number can not be 0."));
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. Node number can not be 0."));
 			return -1;
 		}
 		nodes.push_back(new_node);
@@ -100,14 +100,14 @@ int BasicTetrMesh::load_mesh(char* file_name)
 	infile >> str;
 	if(strcmp(str.c_str(),"$EndNodes") != 0) {
 		if(logger != NULL)
-			logger->write(string("ERROR: BasicTetrMesh::load_mesh - wrong file format. '$EndNodes' expected."));
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$EndNodes' expected."));
 		return -1;
 	}
 
 	infile >> str;
 	if(strcmp(str.c_str(),"$Elements") != 0) {
 		if(logger != NULL)
-			logger->write(string("ERROR: BasicTetrMesh::load_mesh - wrong file format. '$Elements' expected."));
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$Elements' expected."));
 		return -1;
 	}
 
@@ -125,7 +125,7 @@ int BasicTetrMesh::load_mesh(char* file_name)
 
 		if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) ) {
 			if(logger != NULL)
-				logger->write(string("ERROR: BasicTetrMesh::load_mesh - wrong file format. Vert number must be positive."));
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. Vert number must be positive."));
 			return -1;
 		}
 
@@ -137,12 +137,12 @@ int BasicTetrMesh::load_mesh(char* file_name)
 	infile >> str;
 	if(strcmp(str.c_str(),"$EndElements") != 0) {
 		if(logger != NULL)
-			logger->write(string("ERROR: BasicTetrMesh::load_mesh - wrong file format. '$EndElements' expected."));
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$EndElements' expected."));
 		return -1;
 	}
 
 	if(logger != NULL)
-		logger->write(string("INFO: BasicTetrMesh::load_mesh - File read."));
+		logger->write(string("INFO: TetrMesh_1stOrder::load_mesh - File read."));
 
 	infile.close();
 
@@ -152,7 +152,7 @@ int BasicTetrMesh::load_mesh(char* file_name)
 	{
 		if(nodes[i].local_num != i) {
 			if(logger != NULL)
-				logger->write(string("ERROR: BasicTetrMesh::load_mesh - Invalid nodes numbering!"));
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - Invalid nodes numbering!"));
 			return -1;
 		}
 	}
@@ -160,7 +160,7 @@ int BasicTetrMesh::load_mesh(char* file_name)
 	{
 		if(tetrs[i].local_num != i) {
 			if(logger != NULL)
-				logger->write(string("ERROR: BasicTetrMesh::load_mesh - Invalid tetrahedron numbering!"));
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - Invalid tetrahedron numbering!"));
 			return -1;
 		}
 	}
@@ -209,7 +209,7 @@ int BasicTetrMesh::load_mesh(char* file_name)
 };
 
 // Finds minimum h over mesh
-float BasicTetrMesh::get_min_h()
+float TetrMesh_1stOrder::get_min_h()
 {
 	float min_h = -1;
 	// Go through tetrahedrons
@@ -279,7 +279,7 @@ float BasicTetrMesh::get_min_h()
 		// Check if all nodes are already loaded from other CPUs and tetrahadron is correct
 		if(vol == 0) {
 			if(logger != NULL)
-				logger->write(string("ERROR: BasicTetrMesh::min_h - Volume is zero!"));
+				logger->write(string("ERROR: TetrMesh_1stOrder::min_h - Volume is zero!"));
 			return -1;
 		}
 
@@ -287,7 +287,7 @@ float BasicTetrMesh::get_min_h()
 		{
 			if(area[j] == 0) {
 				if(logger != NULL)
-					logger->write(string("ERROR: BasicTetrMesh::min_h - Face area is zero!"));
+					logger->write(string("ERROR: TetrMesh_1stOrder::min_h - Face area is zero!"));
 				return -1;
 			}
 		}
@@ -307,7 +307,7 @@ float BasicTetrMesh::get_min_h()
 	return min_h;
 };
 
-bool BasicTetrMesh::point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr)
+bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr)
 {
 	float d1,d2;
 	d1 = qm_engine.determinant(
@@ -409,7 +409,7 @@ bool BasicTetrMesh::point_in_tetr(float x, float y, float z, Tetrahedron_1st_ord
 	return true;
 };
 
-Tetrahedron_1st_order* BasicTetrMesh::find_owner_tetr(float x, float y, float z, ElasticNode* node)
+Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(float x, float y, float z, ElasticNode* node)
 {
 	for(int i = 0; i < (node->elements)->size(); i++)
 	{
@@ -421,7 +421,20 @@ Tetrahedron_1st_order* BasicTetrMesh::find_owner_tetr(float x, float y, float z,
 	return NULL;
 };
 
-int BasicTetrMesh::interpolate(ElasticNode* node, Tetrahedron_1st_order* tetr)
+/*int TetrMesh_1stOrder::interpolate(ElasticNode* node, Element* tetr)
+{
+	if(logger != NULL)
+		logger->write(string("WARNING: TetrMesh_1stOrder::interpolate - call through proxy with generic Element* type."));
+
+	if( (*tetr) is Tetrahedron_1st_order )
+		return interpolate(node, (Tetrahedron_1st_order*) tetr);
+
+	if(logger != NULL)
+		logger->write(string("ERROR: TetrMesh_1stOrder::interpolate - bad pointer type!"));
+	return -1;
+};*/
+
+int TetrMesh_1stOrder::interpolate(ElasticNode* node, Tetrahedron* tetr)
 {
 	float Vol = qm_engine.tetr_volume(
 		(nodes[tetr->vert[1]].coords[0])-(nodes[tetr->vert[0]].coords[0]),
@@ -487,7 +500,7 @@ int BasicTetrMesh::interpolate(ElasticNode* node, Tetrahedron_1st_order* tetr)
 
 	if(factor[0] + factor[1] + factor[2] + factor[3] > 1.01) {
 		if(logger != NULL)
-			logger->write(string("ERROR: BasicTetrMesh::interpolate - Sum of factors is greater than 1.01!"));
+			logger->write(string("ERROR: TetrMesh_1stOrder::interpolate - Sum of factors is greater than 1.01!"));
 		return -1;
 	}
 
@@ -514,7 +527,7 @@ int BasicTetrMesh::interpolate(ElasticNode* node, Tetrahedron_1st_order* tetr)
 	return 0;
 };
 
-float BasicTetrMesh::get_max_possible_tau()
+float TetrMesh_1stOrder::get_max_possible_tau()
 {
 	float min_h = get_min_h();
 	float max_l = 0;
@@ -525,6 +538,11 @@ float BasicTetrMesh::get_max_possible_tau()
 		if(nodes[i].placement_type == LOCAL)
 		{
 			l = method->get_max_lambda(&nodes[i]);
+			if(l < 0) {
+				if(logger != NULL)
+					logger->write(string("ERROR: TetrMesh_1stOrder::get_max_possible_tau - got error from method on method->get_max_lambda"));
+				return -1;
+			}
 			if(l > max_l) { max_l = l; }
 		}
 	}
@@ -532,13 +550,18 @@ float BasicTetrMesh::get_max_possible_tau()
 	return min_h/max_l;
 };
 
-void BasicTetrMesh::do_next_part_step(float tau, int stage)
+int TetrMesh_1stOrder::do_next_part_step(float tau, int stage)
 {
 	for(int i = 0; i < nodes.size(); i++)
 	{
 		if(nodes[i].placement_type == LOCAL)
 		{
-			method->do_next_part_step(&nodes[i],&new_nodes[i],tau,stage);
+			if (method->do_next_part_step(&nodes[i], &new_nodes[i], tau, stage, this) < 0) {
+				if(logger != NULL)
+					logger->write(string("ERROR: TetrMesh_1stOrder::do_next_part_step - got error from method on method->do_next_part_step"));
+				return -1;
+			}
+			// TODO Add details
 		}
 	}
 	for(int i = 0; i < nodes.size(); i++)
@@ -549,9 +572,10 @@ void BasicTetrMesh::do_next_part_step(float tau, int stage)
 				nodes[i].values[j] = new_nodes[i].values[j];
 		}
 	}
+	return 0;
 };
 
-void BasicTetrMesh::move_coords(float tau)
+void TetrMesh_1stOrder::move_coords(float tau)
 {
 	for(int i = 0; i < nodes.size(); i++)
 	{
@@ -563,4 +587,83 @@ void BasicTetrMesh::move_coords(float tau)
 			}
 		}
 	}
+};
+
+int TetrMesh_1stOrder::proceed_rheology()
+{
+	if(rheology == NULL) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::step - can not do step without RheologyCalculator attached"));
+		return -1;
+	}
+	// TODO if rheology is void we can skip this step
+	for(int i = 0; i < nodes.size(); i++)
+	{
+		if(nodes[i].placement_type == LOCAL)
+		{
+			rheology->do_calc(&nodes[i], &nodes[i]);
+		}
+	}
+	return 0;
+};
+
+int TetrMesh_1stOrder::do_next_step()
+{
+	int number_of_stages;
+
+	if(method == NULL){
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - can not do step without NumericalMethod attached"));
+		return -1;
+	}
+	if(rheology == NULL) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - can not do step without RheologyCalculator attached"));
+		return -1;
+	}
+
+	float time_step = get_max_possible_tau();
+	if(time_step < 0) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - error on determining time step!"));
+		return -1;
+	}
+
+	if(data_bus != NULL)
+		time_step = data_bus->get_max_possible_tau(time_step);
+
+	if( (number_of_stages = method->get_number_of_stages()) <= 0 )
+	{
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - can not do step, number of stages incorrect!"));
+		return -1;
+	}
+
+	for(int i = 0; i < number_of_stages; i++)
+	{
+		if(data_bus != NULL)
+			data_bus->sync_nodes(); // TODO Add error handling
+
+		// TODO Add interaction with scheduler
+
+		if(do_next_part_step(time_step, i) < 0) {
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - do_next_part_step failed!"));
+			return -1;
+		}
+	}
+
+	move_coords(time_step);
+
+	if(proceed_rheology() < 0) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - proceed_rheology failed!"));
+		return -1;
+	}
+
+	// TODO Call Stresser
+
+	current_time += time_step;
+
+	return 0;
 };

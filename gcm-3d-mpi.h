@@ -1,11 +1,11 @@
 #include <string>
 #include <vector>
 
+#include "system.h"
 #include "datatypes.h"
 #include "rheotypes.h"
 #include "meshtypes.h"
 #include "methods.h"
-#include "system.h"
 
 //#define NDEBUG
 #include <cassert>
