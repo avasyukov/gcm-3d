@@ -2,7 +2,7 @@ Mesh::Mesh()
 {
 	logger = NULL;
 	rheology = NULL;
-	method = NULL;
+//	method = NULL;
 	data_bus = NULL;
 	mesh_type.assign("Generic mesh");
 	current_time = 0;
@@ -18,13 +18,13 @@ void Mesh::attach(Logger* new_logger)
 
 	if(rheology != NULL)
 		rheology->attach(logger);
-	if(method != NULL)
-		method->attach(logger);
+//	if(method != NULL)
+//		method->attach(logger);
 	if(data_bus != NULL)
 		data_bus->attach(logger);
 };
 
-void Mesh::attach(NumericalMethod* new_numerical_method)
+/*void Mesh::attach(NumericalMethod* new_numerical_method)
 {
 	method = new_numerical_method;
 	if(method != NULL)
@@ -35,7 +35,7 @@ void Mesh::attach(NumericalMethod* new_numerical_method)
 			logger->write(string("Attached numerical method. Type: ") + *(method->get_num_method_type()));
 		}
 	}
-};
+};*/
 
 void Mesh::attach(DataBus* new_data_bus)
 {

@@ -33,8 +33,6 @@ private:
 	vector<ElasticNode> new_nodes;
 
 	quick_math qm_engine;
-
-	TetrNumericalMethod* method;
 };
 
 #include "TetrMesh_1stOrder.inl"

@@ -22,7 +22,7 @@ public:
 	Mesh();
 	~Mesh();
 	void attach(Logger* new_logger);
-	void attach(NumericalMethod* new_numerical_method);
+//	void attach(NumericalMethod* new_numerical_method);
 	void attach(RheologyCalculator* new_rheology);
 	void attach(DataBus* new_data_bus); // TODO what should be attach to what?
 	string* get_mesh_type();
@@ -38,7 +38,7 @@ protected:
 	float current_time;
 	Logger* logger;
 	RheologyCalculator* rheology;
-	NumericalMethod* method;
+//	NumericalMethod* method;
 	DataBus* data_bus; // TODO implement at least draft structure
 };
 

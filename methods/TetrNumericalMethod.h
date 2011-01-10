@@ -2,6 +2,9 @@
 #define _GCM_TETR_NUMERICAL_METHOD_H  1
 
 #include "NumericalMethod.h"
+#include "../datatypes/ElasticNode.h"
+#include "../meshtypes/TetrMesh.h"
+class TetrMesh;
 
 class TetrNumericalMethod : public NumericalMethod
 {
