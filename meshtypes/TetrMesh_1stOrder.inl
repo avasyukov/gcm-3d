@@ -607,6 +607,24 @@ int TetrMesh_1stOrder::proceed_rheology()
 	return 0;
 };
 
+int TetrMesh_1stOrder::set_stress(float tau)
+{
+	if(stresser == NULL) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::set_stress - can not do step without Stresser attached"));
+		return -1;
+	}
+	// TODO if stress has ended at all we can skip this step
+	for(int i = 0; i < nodes.size(); i++)
+	{
+		if(nodes[i].placement_type == LOCAL)
+		{
+			stresser->set_current_stress(&nodes[i], &nodes[i], tau);
+		}
+	}
+	return 0;
+};
+
 int TetrMesh_1stOrder::do_next_step()
 {
 	int number_of_stages;
@@ -661,7 +679,11 @@ int TetrMesh_1stOrder::do_next_step()
 		return -1;
 	}
 
-	// TODO Call Stresser
+	if(set_stress(time_step) < 0) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - set_stress failed!"));
+		return -1;
+	}
 
 	current_time += time_step;
 

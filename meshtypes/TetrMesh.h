@@ -15,6 +15,7 @@ public:
 	void attach(Logger* new_logger);
 	void attach(TetrNumericalMethod* new_numerical_method);
 	void attach(RheologyCalculator* new_rheology);
+	void attach(Stresser* new_stresser);
 	virtual Tetrahedron* find_owner_tetr(float x, float y, float z, ElasticNode* node) = 0;
 	virtual int interpolate(ElasticNode* node, Tetrahedron* tetr) = 0;
 protected:

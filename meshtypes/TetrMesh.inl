@@ -27,3 +27,8 @@ void TetrMesh::attach(RheologyCalculator* new_rheology)
 {
 	Mesh::attach(new_rheology);
 };
+
+void TetrMesh::attach(Stresser* new_stresser)
+{
+	Mesh::attach(new_stresser);
+};

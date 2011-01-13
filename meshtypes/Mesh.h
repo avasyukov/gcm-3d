@@ -12,6 +12,7 @@ using std::ifstream;
 #include "../rheotypes/RheologyCalculator.h"
 #include "../methods/NumericalMethod.h"
 #include "../system/DataBus.h"
+#include "../system/Stresser.h"
 
 using std::string;
 using std::vector;
@@ -25,6 +26,7 @@ public:
 //	void attach(NumericalMethod* new_numerical_method);
 	void attach(RheologyCalculator* new_rheology);
 	void attach(DataBus* new_data_bus); // TODO what should be attach to what?
+	void attach(Stresser* new_stresser);
 	string* get_mesh_type();
 	float get_current_time();
 	virtual int do_next_step() = 0;
@@ -40,6 +42,7 @@ protected:
 	RheologyCalculator* rheology;
 //	NumericalMethod* method;
 	DataBus* data_bus; // TODO implement at least draft structure
+	Stresser* stresser;
 };
 
 #include "Mesh.inl"
