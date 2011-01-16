@@ -5,3 +5,7 @@ gmc-3d is a set of libraries implementing grid-characteristic methods to model m
 2. License
 
 The code is licensed under BSD license.
+
+3. Build
+
+Just run make. Build requires gcc-c++, boost-devel, gsl-devel.
