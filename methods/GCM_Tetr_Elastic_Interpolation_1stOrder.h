@@ -1,5 +1,5 @@
-#ifndef _GCM_METHOD_1ST_ORDER_INTERPOLATION_H
-#define _GCM_METHOD_1ST_ORDER_INTERPOLATION_H  1
+#ifndef _GCM_TETR_ELASTIC_INTERPOLATION_1ST_ORDER_H
+#define _GCM_TETR_ELASTIC_INTERPOLATION_1ST_ORDER_H  1
 
 #include "TetrNumericalMethod.h"
 #include "../datatypes/ElasticMatrix3D.h"
@@ -8,11 +8,11 @@
 using std::string;
 using std::vector;
 
-class GCM_1stOrderInterpolation : public TetrNumericalMethod
+class GCM_Tetr_Elastic_Interpolation_1stOrder : public TetrNumericalMethod
 {
 public:
-	GCM_1stOrderInterpolation();
-	~GCM_1stOrderInterpolation();
+	GCM_Tetr_Elastic_Interpolation_1stOrder();
+	~GCM_Tetr_Elastic_Interpolation_1stOrder();
 	int do_next_part_step(ElasticNode* cur_node, ElasticNode* new_node, float time_step, int stage, TetrMesh* mesh);
 	int get_number_of_stages();
 	float get_max_lambda(ElasticNode* node);
@@ -25,6 +25,6 @@ protected:
 	int prepare_part_step(ElasticNode* cur_node, int stage);
 };
 
-#include "GCM_1stOrderInterpolation.inl"
+#include "GCM_Tetr_Elastic_Interpolation_1stOrder.inl"
 
 #endif

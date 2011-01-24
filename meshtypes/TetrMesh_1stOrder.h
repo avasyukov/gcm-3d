@@ -5,7 +5,7 @@
 #include "../system/quick_math.h"
 #include "../datatypes/ElasticNode.h"
 #include "../datatypes/Tetrahedron_1st_order.h"
-#include "../methods/GCM_1stOrderInterpolation.h"
+#include "../methods/GCM_Tetr_Elastic_Interpolation_1stOrder.h"
 #include "../rheotypes/VoidRheologyCalculator.h"
 
 class TetrMesh_1stOrder : public TetrMesh

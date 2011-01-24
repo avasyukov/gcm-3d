@@ -1,4 +1,4 @@
-GCM_1stOrderInterpolation::GCM_1stOrderInterpolation()
+GCM_Tetr_Elastic_Interpolation_1stOrder::GCM_Tetr_Elastic_Interpolation_1stOrder()
 {
 	num_method_type.assign("1st order interpolation on tetr mesh");
 	elastic_matrix3d[0] = new ElasticMatrix3D();
@@ -10,7 +10,7 @@ GCM_1stOrderInterpolation::GCM_1stOrderInterpolation()
 	p_gsl = gsl_permutation_alloc (9);
 };
 
-GCM_1stOrderInterpolation::~GCM_1stOrderInterpolation()
+GCM_Tetr_Elastic_Interpolation_1stOrder::~GCM_Tetr_Elastic_Interpolation_1stOrder()
 {
 	delete(elastic_matrix3d[0]);
 	delete(elastic_matrix3d[1]);
@@ -21,14 +21,14 @@ GCM_1stOrderInterpolation::~GCM_1stOrderInterpolation()
 	gsl_permutation_free(p_gsl);
 };
 
-int GCM_1stOrderInterpolation::prepare_part_step(ElasticNode* cur_node, int stage)
+int GCM_Tetr_Elastic_Interpolation_1stOrder::prepare_part_step(ElasticNode* cur_node, int stage)
 {
 	if(elastic_matrix3d[stage]->prepare_matrix(cur_node->la,cur_node->mu,cur_node->rho,stage,logger) < 0)
 		return -1;
 	return 0;
 };
 
-int GCM_1stOrderInterpolation::do_next_part_step(ElasticNode* cur_node, ElasticNode* new_node, float time_step, int stage, TetrMesh* mesh)
+int GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_node, ElasticNode* new_node, float time_step, int stage, TetrMesh* mesh)
 {
 	//  Prepare matrixes  A, Lambda, Omega, Omega^(-1)
 	if (prepare_part_step(cur_node, stage) < 0)
@@ -96,7 +96,7 @@ int GCM_1stOrderInterpolation::do_next_part_step(ElasticNode* cur_node, ElasticN
 				previous_nodes[count].coords[2] = cur_node->coords[2] + dx[i];
 			} else {
 				if(logger != NULL)
-					logger->write(string("Error: GCM_1stOrderInterpolation::do_next_part_step - wrong stage number!"));
+					logger->write(string("Error: GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step - wrong stage number!"));
 				return -1;
 			}
 
@@ -213,7 +213,7 @@ int GCM_1stOrderInterpolation::do_next_part_step(ElasticNode* cur_node, ElasticN
 				else 
 				{
 					if(logger != NULL)
-						logger->write(string("Error: GCM_1stOrderInterpolation::do_next_part_step - wrong stage number!"));
+						logger->write(string("Error: GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step - wrong stage number!"));
 					return -1;
 				}
 			}
@@ -230,19 +230,19 @@ int GCM_1stOrderInterpolation::do_next_part_step(ElasticNode* cur_node, ElasticN
 	else
 	{
 		if(logger != NULL)
-			logger->write(string("Error: GCM_1stOrderInterpolation::do_next_part_step - too many 'outer' values!"));
+			logger->write(string("Error: GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step - too many 'outer' values!"));
 		return -1;
 	}
 
 	return 0;
 };
 
-int GCM_1stOrderInterpolation::get_number_of_stages()
+int GCM_Tetr_Elastic_Interpolation_1stOrder::get_number_of_stages()
 {
 	return 3;
 };
 
-float GCM_1stOrderInterpolation::get_max_lambda(ElasticNode* node)
+float GCM_Tetr_Elastic_Interpolation_1stOrder::get_max_lambda(ElasticNode* node)
 {
 	// TODO To think - if we can just return sqrt((la+2*mu)/rho) or we should leave to matrix calculation?
 

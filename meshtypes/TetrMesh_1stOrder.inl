@@ -421,19 +421,6 @@ Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(float x, float y, floa
 	return NULL;
 };
 
-/*int TetrMesh_1stOrder::interpolate(ElasticNode* node, Element* tetr)
-{
-	if(logger != NULL)
-		logger->write(string("WARNING: TetrMesh_1stOrder::interpolate - call through proxy with generic Element* type."));
-
-	if( (*tetr) is Tetrahedron_1st_order )
-		return interpolate(node, (Tetrahedron_1st_order*) tetr);
-
-	if(logger != NULL)
-		logger->write(string("ERROR: TetrMesh_1stOrder::interpolate - bad pointer type!"));
-	return -1;
-};*/
-
 int TetrMesh_1stOrder::interpolate(ElasticNode* node, Tetrahedron* tetr)
 {
 	float Vol = qm_engine.tetr_volume(

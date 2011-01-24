@@ -6,7 +6,7 @@ using std::cout;
 int main()
 {
 	Logger* log = new Logger();
-	GCM_1stOrderInterpolation* nm = new GCM_1stOrderInterpolation();
+	GCM_Tetr_Elastic_Interpolation_1stOrder* nm = new GCM_Tetr_Elastic_Interpolation_1stOrder();
 	VoidRheologyCalculator* rc = new VoidRheologyCalculator();
 	TetrMesh_1stOrder* mesh = new TetrMesh_1stOrder();
 	Stresser* stresser = new Stresser();

@@ -1,2 +1,1 @@
-#include "methods/NumericalMethod.h"
-#include "methods/GCM_1stOrderInterpolation.h"
+#include "methods/GCM_Tetr_Elastic_Interpolation_1stOrder.h"
