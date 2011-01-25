@@ -309,6 +309,11 @@ float TetrMesh_1stOrder::get_min_h()
 
 bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr)
 {
+	return point_in_tetr(x, y, z, (Tetrahedron*) tetr);
+};
+
+bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* tetr)
+{
 	float d1,d2;
 	d1 = qm_engine.determinant(
 		nodes[tetr->vert[1]].coords[0] - nodes[tetr->vert[0]].coords[0],

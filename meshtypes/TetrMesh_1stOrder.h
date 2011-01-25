@@ -14,12 +14,16 @@ public:
 	TetrMesh_1stOrder();
 	~TetrMesh_1stOrder();
 	int load_mesh(char* file_name);
+	bool point_in_tetr(float x, float y, float z, Tetrahedron* tetr);
+	bool point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr);
 	Tetrahedron_1st_order* find_owner_tetr(float x, float y, float z, ElasticNode* node);
 	int interpolate(ElasticNode* node, Tetrahedron* tetr);
 	int do_next_step();
 	float get_max_possible_tau();
+	float get_min_h();
 
 	vector<ElasticNode> nodes;
+	vector<Tetrahedron_1st_order> tetrs;
 
 private:
 	int do_next_part_step(float tau, int stage);
@@ -27,10 +31,6 @@ private:
 	int set_stress(float tau);
 	int proceed_rheology();
 
-	float get_min_h();
-	bool point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr);
-
-	vector<Tetrahedron_1st_order> tetrs;
 	vector<ElasticNode> new_nodes;
 
 	quick_math qm_engine;

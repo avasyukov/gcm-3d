@@ -19,10 +19,6 @@ class MeshSet
 	vector<Mesh> meshes;
 };
 
-class SnapshotWriter
-{
-};
-
 class Scheduler
 {
 };

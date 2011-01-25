@@ -1,5 +1,5 @@
 #include <iostream>
-#include "gcm-3d-mpi.h"
+#include "gcm-3d.h"
 
 using std::cout;
 
