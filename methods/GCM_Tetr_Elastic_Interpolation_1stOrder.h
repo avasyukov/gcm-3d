@@ -5,6 +5,9 @@
 #include "../datatypes/ElasticMatrix3D.h"
 #include <gsl/gsl_linalg.h>
 
+#include <sstream>
+using std::stringstream;
+
 using std::string;
 using std::vector;
 

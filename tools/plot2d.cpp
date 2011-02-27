@@ -3,6 +3,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 using namespace std;
 
@@ -96,26 +97,30 @@ int main(int argc, char* argv[])
 
 	char str[255];
 	int dimensions[3];
-	int spacing[3];
-	int origin[3];
+	float spacing[3];
+	float origin[3];
 	int num_of_points;
 
 	int count = 0;
 	while (strcmp(str,"LOOKUP_TABLE default") != 0)
 	{
 		infile.getline(str, 255, '\n');
-		sscanf(str, "DIMENSIONS %d %d %d", &dimensions[0], &dimensions[1], &dimensions[2]);
-		sscanf(str, "SPACING %d %d %d", &spacing[0], &spacing[1], &spacing[2]);
-		sscanf(str, "ORIGIN %d %d %d", &origin[0], &origin[1], &origin[2]);
-		sscanf(str, "POINT_DATA %d", &num_of_points);
+		if(strncmp(str,"DIMENSIONS",10) == 0)
+			sscanf(str, "DIMENSIONS %d %d %d", &dimensions[0], &dimensions[1], &dimensions[2]);
+		if(strncmp(str,"SPACING",7) == 0)
+			sscanf(str, "SPACING %f %f %f", &spacing[0], &spacing[1], &spacing[2]);
+		if(strncmp(str,"ORIGIN",6) == 0)
+			sscanf(str, "ORIGIN %f %f %f", &origin[0], &origin[1], &origin[2]);
+		if(strncmp(str,"POINT DATA",10) == 0)
+			sscanf(str, "POINT_DATA %d", &num_of_points);
 		count++;
 	}
 
 	float data[dimensions[0]][dimensions[1]][dimensions[2]];
 
 	printf("DIMENSIONS %d %d %d\n", dimensions[0], dimensions[1], dimensions[2]);
-	printf("SPACING %d %d %d\n", spacing[0], spacing[1], spacing[2]);
-	printf("ORIGIN %d %d %d\n", origin[0], origin[1], origin[2]);
+	printf("SPACING %f %f %f\n", spacing[0], spacing[1], spacing[2]);
+	printf("ORIGIN %f %f %f\n", origin[0], origin[1], origin[2]);
 	printf("POINT_DATA %d\n", num_of_points);
 
 	for(int k = 0; k < dimensions[2]; k++)
@@ -127,9 +132,9 @@ int main(int argc, char* argv[])
                 for(int j = 0; j < dimensions[1]; j++)
                         for(int i = 0; i < dimensions[0]; i++)
 			{
-				if( ((axis == 0) || (base_coords[0] == origin[0] + i) )
-					&& ((axis == 1) || (base_coords[1] == origin[1] + j) )
-					&& ((axis == 2) || (base_coords[2] == origin[2] + k) ) )
+				if( ((axis == 0) || (fabs(base_coords[0] - origin[0] - spacing[0]*i) < fabs(spacing[0]/10)))
+				&& ((axis == 1) || (fabs(base_coords[1] - origin[1] - spacing[1]*j) < fabs(spacing[1]/10)) )
+				&& ((axis == 2) || (fabs(base_coords[2] - origin[2] - spacing[2]*k) < fabs(spacing[2]/10))) )
 				{
 					if (axis == 0) cout << origin[0] + i;
 					else if (axis == 1) cout << origin[1] + j;

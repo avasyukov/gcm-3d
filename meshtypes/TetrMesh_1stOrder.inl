@@ -813,7 +813,7 @@ int TetrMesh_1stOrder::do_next_step()
 		}
 	}
 
-	move_coords(time_step);
+//	move_coords(time_step); // FIXME temporary disable move
 
 	if(proceed_rheology() < 0) {
 		if(logger != NULL)

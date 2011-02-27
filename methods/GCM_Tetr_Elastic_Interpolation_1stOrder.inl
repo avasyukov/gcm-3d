@@ -235,7 +235,11 @@ int GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_
 	else
 	{
 		if(logger != NULL)
-			logger->write(string("Error: GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step - too many 'outer' values!"));
+		{
+			stringstream ss;
+			ss << "Error: GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step - 'outer' values do not match. There are " << outer_count << " of them.";
+			logger->write(ss.str());
+		}
 		return -1;
 	}
 

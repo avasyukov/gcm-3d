@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <math.h>
 
 using std::string;
 using std::vector;

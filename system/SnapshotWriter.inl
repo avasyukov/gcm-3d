@@ -54,7 +54,7 @@ int SnapshotWriter::dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, 
 		return -1;
 	}
 
-//	cout << "DEBUG: h=" << step_h << " max_h=" << tetr_mesh->get_max_h() << " min_h=" << tetr_mesh->get_min_h() << endl;
+	cout << "DEBUG: h=" << step_h << " max_h=" << tetr_mesh->get_max_h() << " min_h=" << tetr_mesh->get_min_h() << endl;
 
 	if(step_h < tetr_mesh->get_max_h() * 2) // TODO it is slow... and avoid magick number
 	{
