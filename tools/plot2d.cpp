@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	}
 
 	int axis = -1;
-	int base_coords[3];
+	float base_coords[3];
 
 	if(argv[2][0] == '?')
 	{
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 			return -1;
 		}
 	} else {
-		base_coords[0] = atoi(argv[2]);
+		sscanf(argv[2],"%f",&base_coords[0]);
 	}
 
         if(argv[3][0] == '?')
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
                         return -1;
                 }
         } else {
-                base_coords[1] = atoi(argv[3]);
+                sscanf(argv[3],"%f",&base_coords[1]);
         }
 
         if(argv[4][0] == '?')
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
                         return -1;
                 }
         } else {
-                base_coords[2] = atoi(argv[4]);
+                sscanf(argv[4],"%f",&base_coords[2]);
         }
 
 	if(axis == -1)
@@ -99,7 +99,6 @@ int main(int argc, char* argv[])
 	int dimensions[3];
 	float spacing[3];
 	float origin[3];
-	int num_of_points;
 
 	int count = 0;
 	while (strcmp(str,"LOOKUP_TABLE default") != 0)
@@ -111,8 +110,6 @@ int main(int argc, char* argv[])
 			sscanf(str, "SPACING %f %f %f", &spacing[0], &spacing[1], &spacing[2]);
 		if(strncmp(str,"ORIGIN",6) == 0)
 			sscanf(str, "ORIGIN %f %f %f", &origin[0], &origin[1], &origin[2]);
-		if(strncmp(str,"POINT DATA",10) == 0)
-			sscanf(str, "POINT_DATA %d", &num_of_points);
 		count++;
 	}
 
@@ -121,7 +118,6 @@ int main(int argc, char* argv[])
 	printf("DIMENSIONS %d %d %d\n", dimensions[0], dimensions[1], dimensions[2]);
 	printf("SPACING %f %f %f\n", spacing[0], spacing[1], spacing[2]);
 	printf("ORIGIN %f %f %f\n", origin[0], origin[1], origin[2]);
-	printf("POINT_DATA %d\n", num_of_points);
 
 	for(int k = 0; k < dimensions[2]; k++)
 		for(int j = 0; j < dimensions[1]; j++)
@@ -136,9 +132,9 @@ int main(int argc, char* argv[])
 				&& ((axis == 1) || (fabs(base_coords[1] - origin[1] - spacing[1]*j) < fabs(spacing[1]/10)) )
 				&& ((axis == 2) || (fabs(base_coords[2] - origin[2] - spacing[2]*k) < fabs(spacing[2]/10))) )
 				{
-					if (axis == 0) cout << origin[0] + i;
-					else if (axis == 1) cout << origin[1] + j;
-					else if (axis == 2) cout << origin[2] + k;
+					if (axis == 0) cout << origin[0] + spacing[0]*i;
+					else if (axis == 1) cout << origin[1] + spacing[1]*j;
+					else if (axis == 2) cout << origin[2] + spacing[2]*k;
 					cout << " " << data[i][j][k] << endl;
 				}
 			}

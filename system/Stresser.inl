@@ -20,13 +20,13 @@ void Stresser::set_current_stress(ElasticNode* cur_node, ElasticNode* new_node, 
 	if((cur_node == NULL) || (new_node == NULL))
 		return;
 	// TODO Begin hardcoded tmp impl
-	float max_time = 0.1;
+	float max_time = 2;
 	if(current_time > max_time)
 		return;
 
 //	if ( ( (cur_node->coords[0])*(cur_node->coords[0]) + (cur_node->coords[1])*(cur_node->coords[1])
 //		+ (cur_node->coords[2])*(cur_node->coords[2]) ) < 4 )
-	if( (cur_node->coords[0] < -3.8) && (fabs(cur_node->coords[1]) < 3) && (fabs(cur_node->coords[2]) < 3) )
+	if( (cur_node->coords[0] < 3) && (fabs(cur_node->coords[1]-24.5) < 10) && (fabs(cur_node->coords[2]-24.5) < 10) )
 	{
 		new_node->values[0] = 0;
 		new_node->values[1] = 0;
