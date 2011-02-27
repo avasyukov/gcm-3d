@@ -1,12 +1,16 @@
 #ifndef _GCM_TETR_MESH_1ST_ORDER_H
 #define _GCM_TETR_MESH_1ST_ORDER_H  1
 
+#include <sstream>
+
 #include "TetrMesh.h"
 #include "../system/quick_math.h"
 #include "../datatypes/ElasticNode.h"
 #include "../datatypes/Tetrahedron_1st_order.h"
 #include "../methods/GCM_Tetr_Elastic_Interpolation_1stOrder.h"
 #include "../rheotypes/VoidRheologyCalculator.h"
+
+using std::stringstream;
 
 class TetrMesh_1stOrder : public TetrMesh
 {
@@ -21,6 +25,7 @@ public:
 	int do_next_step();
 	float get_max_possible_tau();
 	float get_min_h();
+	float get_max_h();
 
 	vector<ElasticNode> nodes;
 	vector<Tetrahedron_1st_order> tetrs;

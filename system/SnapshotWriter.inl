@@ -15,14 +15,6 @@ void SnapshotWriter::attach(Logger* new_logger)
 	logger = new_logger;
 };
 
-int SnapshotWriter::dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, string file_name)
-{
-	if(logger != NULL)
-		logger->write(string("ERROR: SnapshotWriter::dump_tetr_mesh - not implemented yet!"));
-	return -1;
-};
-
-
 void SnapshotWriter::set_basement(float x0, float y0, float z0, float h, int N)
 {
 	base_coord[0] = x0;
@@ -32,8 +24,24 @@ void SnapshotWriter::set_basement(float x0, float y0, float z0, float h, int N)
 	number_of_segments = N;
 };
 
-int SnapshotWriter::dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, string file_name)
+int SnapshotWriter::dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num)
 {
+	if(tetr_mesh == NULL) {
+		if(logger != NULL)
+			logger->write(string("ERROR: SnapshotWriter::dump_tetr_mesh - mesh is NULL!"));
+		return -1;
+	}
+
+	if(logger != NULL)
+		logger->write(string("WARN: SnapshotWriter::dump_tetr_mesh - not yet implemented!"));	
+
+	return 0;
+};
+
+int SnapshotWriter::dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num)
+{
+	ofstream dumpfile;
+
 	ElasticNode nodes[number_of_segments+1][number_of_segments+1][number_of_segments+1];
 	int node_index_min[3];
 	int node_index_max[3];
@@ -46,7 +54,9 @@ int SnapshotWriter::dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, string file_na
 		return -1;
 	}
 
-	if(step_h < tetr_mesh->get_min_h() * 5) // TODO it is slow... and avoid magick number
+//	cout << "DEBUG: h=" << step_h << " max_h=" << tetr_mesh->get_max_h() << " min_h=" << tetr_mesh->get_min_h() << endl;
+
+	if(step_h < tetr_mesh->get_max_h() * 2) // TODO it is slow... and avoid magick number
 	{
 		if(logger != NULL)
 			logger->write(string("ERROR: SnapshotWriter::dump_cubic_mesh - h for dump is too small!"));
@@ -86,13 +96,19 @@ int SnapshotWriter::dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, string file_na
 		// Find indexes of nodes of cubic mesh on 'borders' of virtual cube given as minimum and maximum coords
 		for(int j = 0; j < 3; j++)
 		{
+			min_coord[j] -= 0.01 * fabs(min_coord[j]); // workaround to prevent issues with round-up
+			max_coord[j] += 0.01 * fabs(max_coord[j]); // virtual cube will be 1% bigger each dimension
 			node_index_min[j] = (int)( (min_coord[j] - base_coord[j]) / step_h );
 				if( (min_coord[j] - base_coord[j]) < 0 ) { node_index_min[j] = -1; } // workaround to fix (int)(-0.1) == 0.0
 			node_index_max[j] = (int)( (max_coord[j] - base_coord[j]) / step_h );
 
 			// If indexes are equal or out of range - the point can not be inside even this bigger cube
 			if( ((node_index_max[j]-node_index_min[j]) != 1) || (node_index_max[j]<0) || (node_index_min[j]>number_of_segments) )
+//			{
 				may_be_found = false;
+//			} else {
+//                                cout << "DEBUG: " << min_coord[j] << " " << base_coord[j] << " " << max_coord[j] << " " << node_index_min[j] << " " << node_index_max[j] << endl;
+//			}
 		}
 
 		// If we suspect that verticle can be in this tetrahedron
@@ -105,12 +121,82 @@ int SnapshotWriter::dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, string file_na
 							&((tetr_mesh->tetrs).at(i)) ) )
 			{
 				// And interpolate node in question
-				tetr_mesh->interpolate( &(nodes[node_index_max[0]][node_index_max[1]][node_index_max[2]]),
-							&((tetr_mesh->tetrs).at(i)) );
+				if (tetr_mesh->interpolate(
+					&(nodes[node_index_max[0]][node_index_max[1]][node_index_max[2]]),
+					&((tetr_mesh->tetrs).at(i)) ) < 0)
+				{
+					if(logger != NULL)
+						logger->write(string("ERROR: SnapshotWriter::dump_cubic_mesh - interpolation failed!"));
+					return -1;
+				}
 			}
 		}
+	}
 
-		// Write to disk
+	// Write to disk
+	stringstream ss;
+	stringstream name;
+
+	// Separate dump for each scalar
+	for(int l = 0; l < 9; ++l)
+	{
+		ss.str("");
+		name.str("");
+		switch (l) {
+			case 0:
+				ss << "vx"; break;
+			case 1:
+				ss << "vy"; break;
+			case 2:
+				ss << "vz"; break;
+			case 3:
+				ss << "sxx"; break;
+			case 4:
+				ss << "sxy"; break;
+			case 5:
+				ss << "sxz"; break;
+			case 6:
+				ss << "syy"; break;
+			case 7:
+				ss << "syz"; break;
+			case 8:
+				ss << "szz"; break;
+		}
+
+		name << "snap_" << snap_num << "_zone_" << zone_num << "_" << ss.str() << ".vtk";
+		string filename = name.str();
+	  	dumpfile.open(filename.c_str());
+		//cout << "DEBUG: " << filename.c_str() << endl;
+		if(!dumpfile.is_open())
+		{
+			if(logger != NULL)
+				logger->write(string("ERROR: SnapshotWriter::dump_cubic_mesh - can not open file for snapshot!"));
+			return -1;
+		}
+
+		dumpfile << "# vtk DataFile Version 2.0" << endl;
+		dumpfile << "Volume " << "snap_" << snap_num << "_zone_" << zone_num << endl;
+		dumpfile << "ASCII" << endl;
+		dumpfile << "DATASET STRUCTURED_POINTS" << endl;
+		dumpfile << "DIMENSIONS " << number_of_segments+1 << " " << number_of_segments+1 << " " << number_of_segments+1 << endl;
+		dumpfile << "SPACING " << step_h << " " << step_h << " " << step_h << endl;
+		dumpfile << "ORIGIN " << base_coord[0] << " " << base_coord[1] << " " << base_coord[2] << endl;
+		dumpfile << "POINT_DATA " << (number_of_segments+1) * (number_of_segments+1) * (number_of_segments+1) << endl;
+		dumpfile << "SCALARS " << ss.str() << " float 1" << endl;
+		dumpfile << "LOOKUP_TABLE default" << endl;
+
+		for(int k = 0; k < number_of_segments+1; ++k)
+		{
+			for(int j = 0; j < number_of_segments+1; ++j)
+			{
+				for(int i = 0; i < number_of_segments+1; ++i)	
+				{
+					dumpfile << nodes[i][j][k].values[l] << " ";
+				}
+			}
+			// dumpfile << endl;
+		}
+		dumpfile.close();
 	}
 
 	return 0;
@@ -118,7 +204,7 @@ int SnapshotWriter::dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, string file_na
 
 void SnapshotWriter::zero_node_values(ElasticNode* node)
 {
-	for(int l = 0; l < 8; l++)
+	for(int l = 0; l < 9; l++)
 		node->values[l] = 0;
 	node->la = 0;
 	node->mu = 0;

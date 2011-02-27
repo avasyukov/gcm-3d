@@ -307,6 +307,105 @@ float TetrMesh_1stOrder::get_min_h()
 	return min_h;
 };
 
+// Finds minimum h over mesh
+float TetrMesh_1stOrder::get_max_h()
+{
+	float max_h = -1;
+	// Go through tetrahedrons
+	for(int i = 0; i < tetrs.size(); i++)
+	{
+		if ( (nodes[tetrs[i].vert[0]].placement_type == UNUSED) 
+			|| (nodes[tetrs[i].vert[1]].placement_type == UNUSED) 
+			|| (nodes[tetrs[i].vert[2]].placement_type == UNUSED) 
+			|| (nodes[tetrs[i].vert[3]].placement_type == UNUSED) )
+			continue;
+
+		float h;
+		float area[4];
+		// Find volume
+		float vol = qm_engine.tetr_volume(
+			nodes[tetrs[i].vert[1]].coords[0] - nodes[tetrs[i].vert[0]].coords[0], 
+			nodes[tetrs[i].vert[1]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
+			nodes[tetrs[i].vert[1]].coords[2] - nodes[tetrs[i].vert[0]].coords[2],
+			nodes[tetrs[i].vert[2]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
+			nodes[tetrs[i].vert[2]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
+			nodes[tetrs[i].vert[2]].coords[2] - nodes[tetrs[i].vert[0]].coords[2],
+			nodes[tetrs[i].vert[3]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
+			nodes[tetrs[i].vert[3]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
+			nodes[tetrs[i].vert[3]].coords[2] - nodes[tetrs[i].vert[0]].coords[2]
+		);
+
+		// Find area of first face (verticles - 0,1,2)
+		area[0] = qm_engine.tri_area(
+			nodes[tetrs[i].vert[1]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
+			nodes[tetrs[i].vert[1]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
+			nodes[tetrs[i].vert[1]].coords[2] - nodes[tetrs[i].vert[0]].coords[2],
+                	nodes[tetrs[i].vert[2]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
+			nodes[tetrs[i].vert[2]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
+			nodes[tetrs[i].vert[2]].coords[2] - nodes[tetrs[i].vert[0]].coords[2]
+		);
+
+		// Find area of second face (verticles - 0,1,3)
+		area[1] = qm_engine.tri_area(
+			nodes[tetrs[i].vert[1]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
+			nodes[tetrs[i].vert[1]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
+			nodes[tetrs[i].vert[1]].coords[2] - nodes[tetrs[i].vert[0]].coords[2],
+			nodes[tetrs[i].vert[3]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
+			nodes[tetrs[i].vert[3]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
+			nodes[tetrs[i].vert[3]].coords[2] - nodes[tetrs[i].vert[0]].coords[2]
+		);
+
+		// Find area of third face (verticles - 0,2,3)
+		area[2] = qm_engine.tri_area(
+			nodes[tetrs[i].vert[2]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
+			nodes[tetrs[i].vert[2]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
+			nodes[tetrs[i].vert[2]].coords[2] - nodes[tetrs[i].vert[0]].coords[2],
+	                nodes[tetrs[i].vert[3]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
+			nodes[tetrs[i].vert[3]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
+			nodes[tetrs[i].vert[3]].coords[2] - nodes[tetrs[i].vert[0]].coords[2]
+		);
+
+		// Find area of third face (verticles - 1,2,3)
+		area[3] = qm_engine.tri_area(
+			nodes[tetrs[i].vert[2]].coords[0] - nodes[tetrs[i].vert[1]].coords[0],
+			nodes[tetrs[i].vert[2]].coords[1] - nodes[tetrs[i].vert[1]].coords[1],
+			nodes[tetrs[i].vert[2]].coords[2] - nodes[tetrs[i].vert[1]].coords[2],
+                	nodes[tetrs[i].vert[3]].coords[0] - nodes[tetrs[i].vert[1]].coords[0],
+			nodes[tetrs[i].vert[3]].coords[1] - nodes[tetrs[i].vert[1]].coords[1],
+			nodes[tetrs[i].vert[3]].coords[2] - nodes[tetrs[i].vert[1]].coords[2]
+		);
+
+		// Check if all nodes are already loaded from other CPUs and tetrahadron is correct
+		if(vol == 0) {
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::min_h - Volume is zero!"));
+			return -1;
+		}
+
+		for(int j = 0; j < 4; j++)
+		{
+			if(area[j] == 0) {
+				if(logger != NULL)
+					logger->write(string("ERROR: TetrMesh_1stOrder::min_h - Face area is zero!"));
+				return -1;
+			}
+		}
+
+		// If min_h is negative (inital step) - let it be smth positive
+		if(max_h < 0) { max_h = fabs(3*vol/area[0]); }
+		// Go through all faces of given tetrahedron
+		for(int j = 0; j < 4; j++)
+		{
+			// Find height to this face
+			h = fabs(3*vol/area[j]);
+			// And check if we should update minimum height
+			if(h > max_h) { max_h = h; }
+		}
+	}
+
+	return max_h;
+};
+
 bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr)
 {
 	return point_in_tetr(x, y, z, (Tetrahedron*) tetr);
@@ -490,10 +589,55 @@ int TetrMesh_1stOrder::interpolate(ElasticNode* node, Tetrahedron* tetr)
 		(nodes[tetr->vert[0]].coords[2])-(node->coords[2])
 	) / Vol);
 
-	if(factor[0] + factor[1] + factor[2] + factor[3] > 1.01) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::interpolate - Sum of factors is greater than 1.01!"));
-		return -1;
+	// If we see potential instability
+	if(factor[0] + factor[1] + factor[2] + factor[3] > 1.0)
+	{
+		// If point is really in tetr - treat instability as minor and just 'smooth' it
+		// TODO - think about it more carefully
+		if( point_in_tetr( node->coords[0],node->coords[1],node->coords[2], tetr) )
+		{
+			float sum = factor[0] + factor[1] + factor[2] + factor[3];
+			for(int i = 0; i < 4; i++)
+				factor[i] = factor[i] * 0.995 / sum;
+		}
+		// If point is not in tetr - throw error
+		else
+		{
+			if(logger != NULL) {
+				logger->write(string("ERROR: TetrMesh_1stOrder::interpolate - Sum of factors is greater than 1.0!"));
+	
+				stringstream ss;
+				ss << "\tfactor[0]=" << factor[0] << " factor[1]=" << factor[1] << " factor[2]=" << factor[2] 
+					<< " factor[3]=" << factor[3];
+				logger->write(ss.str());
+	
+				ss.str("");
+				ss << "\tnode.x[0]=" << node->coords[0] << " node.x[1]=" << node->coords[1] 
+					<< " node.x[2]=" << node->coords[2];
+	                        logger->write(ss.str());
+	
+				ss.str("");
+	                        ss << "\tv0.x[0]=" << nodes[tetr->vert[0]].coords[0] << " v0.x[1]=" << nodes[tetr->vert[0]].coords[1]
+        	                        << " v0.x[2]=" << nodes[tetr->vert[0]].coords[2];
+                	        logger->write(ss.str());
+	
+        	                ss.str("");
+	                        ss << "\tv1.x[0]=" << nodes[tetr->vert[1]].coords[0] << " v1.x[1]=" << nodes[tetr->vert[1]].coords[1]
+        	                        << " v1.x[2]=" << nodes[tetr->vert[1]].coords[2];
+                	        logger->write(ss.str());
+	
+				ss.str("");
+                	        ss << "\tv2.x[0]=" << nodes[tetr->vert[2]].coords[0] << " v2.x[1]=" << nodes[tetr->vert[2]].coords[1]
+                        	        << " v2.x[2]=" << nodes[tetr->vert[2]].coords[2];
+	                        logger->write(ss.str());
+
+				ss.str("");
+                	        ss << "\tv3.x[0]=" << nodes[tetr->vert[3]].coords[0] << " v3.x[1]=" << nodes[tetr->vert[3]].coords[1]
+                        	        << " v3.x[2]=" << nodes[tetr->vert[3]].coords[2];
+	                        logger->write(ss.str());
+			}
+			return -1;
+		}
 	}
 
 	for (int i = 0; i < 3; i++)
@@ -649,6 +793,12 @@ int TetrMesh_1stOrder::do_next_step()
 		return -1;
 	}
 
+	if(set_stress(time_step) < 0) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - set_stress failed!"));
+		return -1;
+	}
+
 	for(int i = 0; i < number_of_stages; i++)
 	{
 		if(data_bus != NULL)
@@ -668,12 +818,6 @@ int TetrMesh_1stOrder::do_next_step()
 	if(proceed_rheology() < 0) {
 		if(logger != NULL)
 			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - proceed_rheology failed!"));
-		return -1;
-	}
-
-	if(set_stress(time_step) < 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - set_stress failed!"));
 		return -1;
 	}
 

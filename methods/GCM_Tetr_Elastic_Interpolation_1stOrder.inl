@@ -106,7 +106,12 @@ int GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_
 			if( tmp_tetr != NULL )
 			{
 				// ... And interpolate values
-				mesh->interpolate(&previous_nodes[count], tmp_tetr);
+				if(mesh->interpolate(&previous_nodes[count], tmp_tetr) < 0)
+				{
+					if(logger != NULL)
+						logger->write(string("Error: GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step - interpolation failed!"));
+					return -1;
+				}
 				inner[i] = true;
 			} else {
 				// There is no value in interpolation in this case

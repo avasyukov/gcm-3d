@@ -3,9 +3,13 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
+#include <sstream>
 
 using std::string;
 using std::vector;
+using std::ofstream;
+using std::stringstream;
 
 #include "../datatypes/ElasticNode.h"
 #include "../meshtypes/TetrMesh_1stOrder.h"
@@ -17,9 +21,9 @@ public:
 	~SnapshotWriter();
 	string* get_snapshot_writer_type();
 	void attach(Logger* new_logger);
-	int dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, string file_name);
+	int dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
 	void set_basement(float x0, float y0, float z0, float h, int N);
-	int dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, string file_name);
+	int dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
 		// TODO change parametres names to make them descriptive
 protected:
 	void zero_node_values(ElasticNode* node); // TODO move it to some helper?
