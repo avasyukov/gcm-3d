@@ -25,6 +25,7 @@ public:
 	void set_basement(float x0, float y0, float z0, float h, int N);
 	int dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
 		// TODO change parametres names to make them descriptive
+	int tmp_dump_line(TetrMesh_1stOrder* tetr_mesh, int snap_num);
 protected:
 	void zero_node_values(ElasticNode* node); // TODO move it to some helper?
 	float min_of_four(float a, float b, float c, float d); // TODO move it to some helper?

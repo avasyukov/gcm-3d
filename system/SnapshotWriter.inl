@@ -38,6 +38,65 @@ int SnapshotWriter::dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, i
 	return 0;
 };
 
+int SnapshotWriter::tmp_dump_line(TetrMesh_1stOrder* tetr_mesh, int snap_num)
+{
+	ofstream dumpfile;
+
+	cout << "DEBUG: h=" << step_h << " max_h=" << tetr_mesh->get_max_h() << " min_h=" << tetr_mesh->get_min_h() << endl;
+
+	// Write to disk
+	stringstream ss;
+	stringstream name;
+
+	// Separate dump for each scalar
+	for(int l = 0; l < 9; ++l)
+	{
+		ss.str("");
+		name.str("");
+		switch (l) {
+			case 0:
+				ss << "vx"; break;
+			case 1:
+				ss << "vy"; break;
+			case 2:
+				ss << "vz"; break;
+			case 3:
+				ss << "sxx"; break;
+			case 4:
+				ss << "sxy"; break;
+			case 5:
+				ss << "sxz"; break;
+			case 6:
+				ss << "syy"; break;
+			case 7:
+				ss << "syz"; break;
+			case 8:
+				ss << "szz"; break;
+		}
+
+		name << "line_snap_" << snap_num << "_" << ss.str() << ".vtk";
+		string filename = name.str();
+	  	dumpfile.open(filename.c_str());
+		//cout << "DEBUG: " << filename.c_str() << endl;
+		if(!dumpfile.is_open())
+		{
+			return -1;
+		}
+
+		for(int i = 0; i < (tetr_mesh->nodes).size(); i++)
+		{
+			if( ( fabs( (tetr_mesh->nodes).at(i).coords[1] - 24 ) < 0.1 ) 
+				&& ( fabs( (tetr_mesh->nodes).at(i).coords[2] - 24 ) < 0.1 ) )
+			{
+				dumpfile << (tetr_mesh->nodes).at(i).coords[0] << " " << (tetr_mesh->nodes).at(i).values[l] << endl;
+			}
+		}
+		dumpfile.close();
+	}
+
+	return 0;
+};
+
 int SnapshotWriter::dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num)
 {
 	ofstream dumpfile;

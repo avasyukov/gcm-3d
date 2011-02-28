@@ -3,7 +3,7 @@
 // Number of zones to create
 #define Nnum 1
 // Number of layers in zone
-#define Mnum 50
+#define Mnum 101
 
 // Example:
 // If you set Nnum to 10 and Mnum to 2

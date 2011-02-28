@@ -15,14 +15,14 @@ int main()
 	mesh->attach(rc);
 	mesh->attach(nm);
 	mesh->attach(stresser);
-	mesh->load_mesh((char*)"cube-self-gen.msh");
+	mesh->load_mesh((char*)"cube-self-gen-big.msh");
 	TaskPreparator* tp = new TaskPreparator();
-	tp->set_fixed_elastic_rheology(&(mesh->nodes), 40, 10, 10, 50);
+	tp->set_fixed_elastic_rheology(&(mesh->nodes), 70, 10, 10, 50);
 	SnapshotWriter* sw = new SnapshotWriter();
 	sw->attach(log);
 //	sw->set_basement(-4.9,-4.9,-4.9,0.98,10);
 	sw->set_basement(0.1,0.1,0.1,2.44,20);
-	if (sw->dump_cubic_mesh(mesh,0,0) < 0)
+	if (sw->tmp_dump_line(mesh,0) < 0)
 	{
 		cout << "Can not dump!\n";
 		return -1;
@@ -32,7 +32,7 @@ int main()
 		cout << "Started step " << i << ". Time = " << mesh->get_current_time() << "." << endl;
 		if (mesh->do_next_step() < 0)
 			return -1;
-		if (sw->dump_cubic_mesh(mesh,0,i) < 0)
+		if (sw->tmp_dump_line(mesh,i) < 0)
 			return -1;
 		cout << "Finished step " << i << ". Time = " << mesh->get_current_time() << "." << endl;
 	}	
