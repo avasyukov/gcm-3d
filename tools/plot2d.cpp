@@ -113,11 +113,29 @@ int main(int argc, char* argv[])
 		count++;
 	}
 
-	float data[dimensions[0]][dimensions[1]][dimensions[2]];
+	for(int k = 0; k < 3; k++)
+		if(axis != k)
+		{
+			float new_coord = origin[k];
+			float delta = fabs(base_coords[k] - new_coord);
+			for(int i = 0; i < dimensions[k]; i++)
+			{
+				if(fabs(base_coords[k] - origin[k] - spacing[k]*i) < delta )
+				{
+					new_coord = origin[k] + spacing[k]*i;
+					delta = fabs(base_coords[k] - origin[k] - spacing[k]*i);
+				}
+			}
+			base_coords[k] = new_coord;
+		}
 
 	printf("DIMENSIONS %d %d %d\n", dimensions[0], dimensions[1], dimensions[2]);
-	printf("SPACING %f %f %f\n", spacing[0], spacing[1], spacing[2]);
-	printf("ORIGIN %f %f %f\n", origin[0], origin[1], origin[2]);
+        printf("SPACING %f %f %f\n", spacing[0], spacing[1], spacing[2]);
+        printf("ORIGIN %f %f %f\n", origin[0], origin[1], origin[2]);
+
+	cout << "Axis: " << axis << ". Base coords: " << base_coords[0] << " " << base_coords[1] << " " << base_coords[2] << endl;
+
+	float data[dimensions[0]][dimensions[1]][dimensions[2]];
 
 	for(int k = 0; k < dimensions[2]; k++)
 		for(int j = 0; j < dimensions[1]; j++)
