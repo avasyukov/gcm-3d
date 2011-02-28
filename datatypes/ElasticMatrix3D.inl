@@ -1,9 +1,9 @@
 ElasticMatrix3D::ElasticMatrix3D()
 {
-	A.resize(9,9);
-	L.resize(9,9);
-	U.resize(9,9);
-	U1.resize(9,9);
+//	A.resize(9,9);
+//	L.resize(9,9);
+//	U.resize(9,9);
+//	U1.resize(9,9);
 	zero_all();
 };
 
@@ -55,8 +55,9 @@ int ElasticMatrix3D::self_check(float la, float mu, float ro, Logger* logger)
 
 int ElasticMatrix3D::check_current(Logger* logger)
 {
-	ublas_matrix Z(9,9);
-	Z = (prod(U1, ublas_matrix(prod(L,U)) ) - A);
+	gcm_matrix Z;
+//	Z = (prod(U1, ublas_matrix(prod(L,U)) ) - A);
+	Z = U1 * L * U - A;
 	float max_l = max_lambda();
 	for (unsigned i = 0; i < 9; ++i)
 		for (unsigned j = 0; j < 9; ++j)

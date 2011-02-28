@@ -2,41 +2,83 @@
 #define _GCM_MATRIXES_H  1
 
 #include <iostream>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/io.hpp>
 
-typedef boost::numeric::ublas::matrix<float> ublas_matrix;
-
-/* Solution from http://www.anderswallin.net/2010/05/matrix-determinant-with-boostublas/  */
-
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/numeric/ublas/lu.hpp>
-
-namespace bnu = boost::numeric::ublas;
-
-int determinant_sign(const bnu::permutation_matrix<std ::size_t>& pm)
+class gcm_matrix
 {
-    int pm_sign=1;
-    std::size_t size = pm.size();
-    for (std::size_t i = 0; i < size; ++i)
-        if (i != pm(i))
-            pm_sign *= -1.0; // swap_rows would swap a pair of rows here, so we change sign
-    return pm_sign;
-}
- 
-float determinant( ublas_matrix& m ) {
-    ublas_matrix tm(m); // tmp matrix to preserve m values
-    bnu::permutation_matrix<std::size_t> pm(tm.size1());
-    float det = 1.0;
-    if( bnu::lu_factorize(tm,pm) ) {
-        det = 0.0;
-    } else {
-        for(int i = 0; i < tm.size1(); i++) 
-            det *= tm(i,i); // multiply by elements on diagonal
-        det = det * determinant_sign( pm );
-    }
-    return det;
-}
+public:
+	gcm_matrix();
+	~gcm_matrix();
+	gcm_matrix &operator=(const gcm_matrix &A); 
+	float &operator()(int i, int j);
+	gcm_matrix operator+(const gcm_matrix &A) const;
+	gcm_matrix operator-(const gcm_matrix &A) const;
+	gcm_matrix operator*(const gcm_matrix &A) const;
+
+	float p[9][9];	 // Data
+};
+
+gcm_matrix::gcm_matrix() { };
+gcm_matrix::~gcm_matrix() { };
+
+inline gcm_matrix& gcm_matrix::operator=(const gcm_matrix &A)
+{
+	for(int i = 0; i < 9; i++)
+		for(int j = 0; j < 9; j++)
+			p[i][j] = A.p[i][j];
+	return *this;
+};
+
+float &gcm_matrix::operator()(int i, int j)
+{
+	return p[i][j];
+};
+
+gcm_matrix gcm_matrix::operator*(const gcm_matrix &A) const
+{
+	gcm_matrix res_matrix;
+	for (int r = 0; r < 9; r++) {
+		for (int c = 0; c < 9; c++) {
+			res_matrix.p[r][c] = 0;
+			for (int i = 0; i < 9; i++) {
+				res_matrix.p[r][c] += this->p[r][i] * A.p[i][c];
+			}
+		}
+	}
+	return res_matrix;
+};
+
+gcm_matrix gcm_matrix::operator+(const gcm_matrix &A) const
+{
+        gcm_matrix res_matrix;
+        for (int r = 0; r < 9; r++)
+                for (int c = 0; c < 9; c++)
+			res_matrix.p[r][c] = this->p[r][c] + A.p[r][c];
+        return res_matrix;
+};
+
+gcm_matrix gcm_matrix::operator-(const gcm_matrix &A) const
+{
+        gcm_matrix res_matrix;
+        for (int r = 0; r < 9; r++)
+                for (int c = 0; c < 9; c++)
+                        res_matrix.p[r][c] = this->p[r][c] - A.p[r][c];
+        return res_matrix;
+};
+
+std::ostream& operator<< (std::ostream &os, const gcm_matrix &matrix)
+{
+	for (int r = 0; r < 9; r++)
+	{
+		for (int c = 0; c < 9; c++)
+		{
+			os << matrix.p[r][c] << " ";
+		}
+		os << std::endl;
+	}
+	return os;
+};
+
+//float gcm_matrix::determinant() {
+//};
 
 #endif

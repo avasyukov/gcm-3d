@@ -27,7 +27,7 @@ int main()
 		cout << "Can not dump!\n";
 		return -1;
 	}
-	for(int i = 1; i < 10; i++)
+	for(int i = 1; i < 1000; i++)
 	{
 		cout << "Started step " << i << ". Time = " << mesh->get_current_time() << "." << endl;
 		if (mesh->do_next_step() < 0)

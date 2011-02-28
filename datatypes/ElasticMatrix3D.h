@@ -16,10 +16,10 @@ public:
 	int self_check(float la, float mu, float ro, Logger* logger);
 	int check_current(Logger* logger);
 
-	ublas_matrix A;
-	ublas_matrix L;
-	ublas_matrix U;
-	ublas_matrix U1;
+	gcm_matrix A;
+	gcm_matrix L;
+	gcm_matrix U;
+	gcm_matrix U1;
 
 private:
 	void CreateAx(float la, float mu, float ro);
