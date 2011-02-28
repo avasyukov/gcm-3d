@@ -19,6 +19,7 @@ public:
 	float la;	// TODO If la and mu should be replaced with some ID of rheology class???
 	float mu;	//
 	float rho;
+	float yield_limit;
 	vector<int>* elements;
 protected:
 	// TODO should we switch from vector to memmory block with offsets in it?

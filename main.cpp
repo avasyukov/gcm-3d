@@ -6,7 +6,7 @@ using std::cout;
 int main()
 {
 	Logger* log = new Logger();
-	GCM_Tetr_Elastic_Interpolation_1stOrder* nm = new GCM_Tetr_Elastic_Interpolation_1stOrder();
+	GCM_Tetr_Plastic_Interpolation_1stOrder* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder();
 	VoidRheologyCalculator* rc = new VoidRheologyCalculator();
 	TetrMesh_1stOrder* mesh = new TetrMesh_1stOrder();
 	Stresser* stresser = new Stresser();
@@ -17,7 +17,7 @@ int main()
 	mesh->attach(stresser);
 	mesh->load_mesh((char*)"cube-self-gen.msh");
 	TaskPreparator* tp = new TaskPreparator();
-	tp->set_fixed_elastic_rheology(&(mesh->nodes), 10, 10, 10);
+	tp->set_fixed_elastic_rheology(&(mesh->nodes), 40, 10, 10, 50);
 	SnapshotWriter* sw = new SnapshotWriter();
 	sw->attach(log);
 //	sw->set_basement(-4.9,-4.9,-4.9,0.98,10);
