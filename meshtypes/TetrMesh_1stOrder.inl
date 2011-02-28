@@ -793,7 +793,7 @@ int TetrMesh_1stOrder::do_next_step()
 		return -1;
 	}
 
-	if(set_stress(time_step) < 0) {
+	if(set_stress(current_time) < 0) {
 		if(logger != NULL)
 			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - set_stress failed!"));
 		return -1;
