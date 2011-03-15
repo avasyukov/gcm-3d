@@ -13,50 +13,36 @@ TetrMesh_1stOrder::~TetrMesh_1stOrder()
 };
 
 // TODO move actual file and string operations into TaskPreparator or MshFileReader
-int TetrMesh_1stOrder::load_mesh(char* file_name)
+int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_name)
 {
-	string str;
 	int tmp_int;
+
 	int number_of_nodes;
 	int number_of_elements;
 	ElasticNode new_node;
 	Tetrahedron_1st_order new_tetr;
 
-	ifstream infile;
-	infile.open(file_name, ifstream::in);
-	if(!infile.is_open()) {
+	ifstream node_infile;
+	ifstream ele_infile;
+
+	node_infile.open(node_file_name, ifstream::in);
+	if(!node_infile.is_open()) {
 		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - can not open file"));
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - can not open node file"));
+		return -1;
+	}
+
+	ele_infile.open(ele_file_name, ifstream::in);
+	if(!ele_infile.is_open()) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - can not open ele file"));
 		return -1;
 	}
 
 	if(logger != NULL)
-		logger->write(string("INFO: TetrMesh_1stOrder::load_mesh - Reading file..."));
+		logger->write(string("INFO: TetrMesh_1stOrder::load_node_ele_files - Reading file..."));
 
-	infile >> str;
-	if(strcmp(str.c_str(),"$MeshFormat") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$MeshFormat' expected."));
-		return -1;
-	}
-
-	infile >> tmp_int >> tmp_int >> tmp_int;
-
-	infile >> str;
-	if(strcmp(str.c_str(),"$EndMeshFormat") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$EndMeshFormat' expected."));
-		return -1;
-	}
-
-	infile >> str;
-	if(strcmp(str.c_str(),"$Nodes") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$Nodes' expected."));
-		return -1;
-	}
-
-	infile >> number_of_nodes;
+	node_infile >> number_of_nodes >> tmp_int >> tmp_int >> tmp_int;
 
 	for(int i = 0; i < number_of_nodes; i++)
 	{
@@ -70,81 +56,47 @@ int TetrMesh_1stOrder::load_mesh(char* file_name)
 		new_node.values[6] = new_node.values[7] = new_node.values[8] = 0;
 		new_node.elements = NULL;
 
-		infile >> new_node.local_num;
+		node_infile >> new_node.local_num;
 		if(new_node.local_num > 0)
 		{
 			new_node.local_num--;
-			infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
+			node_infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
 			new_node.placement_type = LOCAL;
-			// TODO set other values
-		}
-		else if(new_node.local_num < 0)
-		{
-			new_node.local_num = -new_node.local_num;
-			new_node.local_num--;
-			infile >> new_node.zone_num >> new_node.remote_num;
-			new_node.placement_type = REMOTE;
-			new_node.remote_num--;
 			// TODO set other values
 		}
 		else
 		{
 			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. Node number can not be 0."));
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - wrong file format. Node number can not be <= 0."));
 			return -1;
 		}
 		nodes.push_back(new_node);
 		new_nodes.push_back(new_node);
 	}
 
-	infile >> str;
-	if(strcmp(str.c_str(),"$EndNodes") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$EndNodes' expected."));
-		return -1;
-	}
+	ele_infile >> number_of_elements >> tmp_int >> tmp_int;
 
-	infile >> str;
-	if(strcmp(str.c_str(),"$Elements") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$Elements' expected."));
-		return -1;
-	}
-
-	infile >> number_of_elements;
 	for(int i = 0; i < number_of_elements; i++)
 	{
-		infile >> tmp_int >> tmp_int;
-		if(tmp_int != 4) {
-			getline(infile, str);
-			continue;
-		}
-		new_tetr.local_num = tetrs.size();
-		infile >> tmp_int >> tmp_int >> tmp_int >> tmp_int 
-			>> new_tetr.vert[0] >> new_tetr.vert[1] >> new_tetr.vert[2] >> new_tetr.vert[3];
+		ele_infile >> new_tetr.local_num >> new_tetr.vert[0] >> new_tetr.vert[1] >> new_tetr.vert[2] >> new_tetr.vert[3];
 
 		if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) ) {
 			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. Vert number must be positive."));
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - wrong file format. Vert number must be positive."));
 			return -1;
 		}
 
 		new_tetr.vert[0]--; new_tetr.vert[1]--; new_tetr.vert[2]--; new_tetr.vert[3]--;
+		new_tetr.local_num--;
 
 		tetrs.push_back(new_tetr);
 	}
 
-	infile >> str;
-	if(strcmp(str.c_str(),"$EndElements") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - wrong file format. '$EndElements' expected."));
-		return -1;
-	}
-
 	if(logger != NULL)
-		logger->write(string("INFO: TetrMesh_1stOrder::load_mesh - File read."));
+		logger->write(string("INFO: TetrMesh_1stOrder::load_node_ele_files - File read."));
 
-	infile.close();
+	node_infile.close();
+	ele_infile.close();
 
 	// Check if internal numbers of nodes are the same as numbers in array
 	// We need it in future to perform quick access to nodes in array
@@ -152,7 +104,7 @@ int TetrMesh_1stOrder::load_mesh(char* file_name)
 	{
 		if(nodes[i].local_num != i) {
 			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - Invalid nodes numbering!"));
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - Invalid nodes numbering!"));
 			return -1;
 		}
 	}
@@ -160,7 +112,7 @@ int TetrMesh_1stOrder::load_mesh(char* file_name)
 	{
 		if(tetrs[i].local_num != i) {
 			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_mesh - Invalid tetrahedron numbering!"));
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - Invalid tetrahedron numbering!"));
 			return -1;
 		}
 	}
@@ -208,19 +160,360 @@ int TetrMesh_1stOrder::load_mesh(char* file_name)
 	return 0;
 };
 
-// Finds minimum h over mesh
-float TetrMesh_1stOrder::get_min_h()
+// TODO move actual file and string operations into TaskPreparator or MshFileReader
+int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 {
-	float min_h = -1;
-	// Go through tetrahedrons
+	string str;
+	int tmp_int;
+	int count;
+
+	int number_of_nodes;
+	int number_of_elements;
+	ElasticNode new_node;
+	Tetrahedron_1st_order new_tetr;
+
+	ifstream infile;
+
+	infile.open(file_name, ifstream::in);
+	if(!infile.is_open()) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - can not open node file"));
+		return -1;
+	}
+
+	if(logger != NULL)
+		logger->write(string("INFO: TetrMesh_1stOrder::load_gmv_file - Reading file..."));
+
+	getline(infile, str);
+	if(strcmp(str.c_str(),"gmvinput ascii") != 0) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - wrong file format. 'gmvinput ascii' expected."));
+		return -1;
+	}
+
+	getline(infile, str);
+
+	infile >> str >> number_of_nodes;
+
+	cout << "NODES: " << number_of_nodes << endl;
+
+	count = 1;
+	for(int i = 0; i < number_of_nodes; i++)
+	{
+		// Zero all values
+		new_node.local_num = new_node.remote_num = new_node.absolute_num = new_node.zone_num = 0;
+		new_node.coords[0] = new_node.coords[1] = new_node.coords[2] = 0;
+		new_node.fixed_coords[0] = new_node.fixed_coords[1] = new_node.fixed_coords[2] = 0;
+		new_node.la = new_node.mu = new_node.rho = 0;
+		new_node.values[0] = new_node.values[1] = new_node.values[2] = 0;
+		new_node.values[3] = new_node.values[4] = new_node.values[5] = 0;
+		new_node.values[6] = new_node.values[7] = new_node.values[8] = 0;
+		new_node.elements = NULL;
+
+		new_node.local_num = count - 1;
+		infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
+
+		nodes.push_back(new_node);
+		new_nodes.push_back(new_node);
+
+		count++;
+	}
+
+	getline(infile, str);
+
+	infile >> str >> number_of_elements;
+
+	cout << "ELEMS: " << number_of_elements << endl;
+
+	count = 1;
+	for(int i = 0; i < number_of_elements; i++)
+	{
+		new_tetr.local_num = count;
+
+		infile >> str >> tmp_int >> new_tetr.vert[0] >> new_tetr.vert[1] >> new_tetr.vert[2] >> new_tetr.vert[3];
+
+		if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) ) {
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - wrong file format. Vert number must be positive."));
+			return -1;
+		}
+
+		new_tetr.vert[0]--; new_tetr.vert[1]--; new_tetr.vert[2]--; new_tetr.vert[3]--;
+		new_tetr.local_num--;
+
+		tetrs.push_back(new_tetr);
+
+		count++;
+	}
+
+	cout << "1ST TET: " << tetrs[0].vert[0] << " " << tetrs[0].vert[1] << " " << tetrs[0].vert[2] << " " << tetrs[0].vert[3] << endl;
+
+	if(logger != NULL)
+		logger->write(string("INFO: TetrMesh_1stOrder::load_gmv_file - File read."));
+
+	infile.close();
+
+	// Check if internal numbers of nodes are the same as numbers in array
+	// We need it in future to perform quick access to nodes in array
+	for(int i = 0; i < nodes.size(); i++)
+	{
+		if(nodes[i].local_num != i) {
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - Invalid nodes numbering!"));
+			return -1;
+		}
+	}
 	for(int i = 0; i < tetrs.size(); i++)
 	{
-		if ( (nodes[tetrs[i].vert[0]].placement_type == UNUSED) 
-			|| (nodes[tetrs[i].vert[1]].placement_type == UNUSED) 
-			|| (nodes[tetrs[i].vert[2]].placement_type == UNUSED) 
-			|| (nodes[tetrs[i].vert[3]].placement_type == UNUSED) )
-			continue;
+		if(tetrs[i].local_num != i) {
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - Invalid tetrahedron numbering!"));
+			return -1;
+		}
+	}
 
+	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
+	for(int i = 0; i < nodes.size(); i++) { nodes[i].elements = new vector<int>; }
+
+	// Go through all the tetrahedrons
+	for(int i = 0; i < tetrs.size(); i++)
+	{
+		// For all verticles
+		for(int j = 0; j < 4; j++)
+		{
+			// Push to data of nodes the number of this tetrahedron
+			nodes[tetrs[i].vert[j]].elements->push_back(i);
+		}
+	}
+
+	// TODO Do we need this part?
+	// Check all the nodes and find 'unused' - remote ones that have connections only with remote ones
+	for(int i = 0; i < nodes.size(); i++)
+	{
+		// If node is remote
+		if(nodes[i].placement_type == REMOTE)
+		{
+			int count = 0;
+			// Check tetrahedrons it is a member of
+			for(int j = 0; j < nodes[i].elements->size(); j++)
+			{
+				// Check verticles
+				for(int k = 0; k < 4; k++)
+				{
+					// If it is local - count++
+					if(nodes[tetrs[nodes[i].elements->at(j)].vert[k]].placement_type == LOCAL) { count++; }
+				}
+			}
+			// If remote node is NOT connected with at least one local - it is unused one
+			if(count == 0)
+			{
+				nodes[i].placement_type = UNUSED;
+			}
+		}
+	}
+
+	return 0;
+};
+
+// TODO move actual file and string operations into TaskPreparator or MshFileReader
+int TetrMesh_1stOrder::load_msh_file(char* file_name)
+{
+	string str;
+	int tmp_int;
+	int number_of_nodes;
+	int number_of_elements;
+	ElasticNode new_node;
+	Tetrahedron_1st_order new_tetr;
+
+	ifstream infile;
+	infile.open(file_name, ifstream::in);
+	if(!infile.is_open()) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - can not open file"));
+		return -1;
+	}
+
+	if(logger != NULL)
+		logger->write(string("INFO: TetrMesh_1stOrder::load_msh_file - Reading file..."));
+
+	infile >> str;
+	if(strcmp(str.c_str(),"$MeshFormat") != 0) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$MeshFormat' expected."));
+		return -1;
+	}
+
+	infile >> tmp_int >> tmp_int >> tmp_int;
+
+	infile >> str;
+	if(strcmp(str.c_str(),"$EndMeshFormat") != 0) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$EndMeshFormat' expected."));
+		return -1;
+	}
+
+	infile >> str;
+	if(strcmp(str.c_str(),"$Nodes") != 0) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$Nodes' expected."));
+		return -1;
+	}
+
+	infile >> number_of_nodes;
+
+	for(int i = 0; i < number_of_nodes; i++)
+	{
+		// Zero all values
+		new_node.local_num = new_node.remote_num = new_node.absolute_num = new_node.zone_num = 0;
+		new_node.coords[0] = new_node.coords[1] = new_node.coords[2] = 0;
+		new_node.fixed_coords[0] = new_node.fixed_coords[1] = new_node.fixed_coords[2] = 0;
+		new_node.la = new_node.mu = new_node.rho = 0;
+		new_node.values[0] = new_node.values[1] = new_node.values[2] = 0;
+		new_node.values[3] = new_node.values[4] = new_node.values[5] = 0;
+		new_node.values[6] = new_node.values[7] = new_node.values[8] = 0;
+		new_node.elements = NULL;
+
+		infile >> new_node.local_num;
+		if(new_node.local_num > 0)
+		{
+			new_node.local_num--;
+			infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
+			new_node.placement_type = LOCAL;
+			// TODO set other values
+		}
+		else if(new_node.local_num < 0)
+		{
+			new_node.local_num = -new_node.local_num;
+			new_node.local_num--;
+			infile >> new_node.zone_num >> new_node.remote_num;
+			new_node.placement_type = REMOTE;
+			new_node.remote_num--;
+			// TODO set other values
+		}
+		else
+		{
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. Node number can not be 0."));
+			return -1;
+		}
+		nodes.push_back(new_node);
+		new_nodes.push_back(new_node);
+	}
+
+	infile >> str;
+	if(strcmp(str.c_str(),"$EndNodes") != 0) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$EndNodes' expected."));
+		return -1;
+	}
+
+	infile >> str;
+	if(strcmp(str.c_str(),"$Elements") != 0) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$Elements' expected."));
+		return -1;
+	}
+
+	infile >> number_of_elements;
+	for(int i = 0; i < number_of_elements; i++)
+	{
+		infile >> tmp_int >> tmp_int;
+		if(tmp_int != 4) {
+			getline(infile, str);
+			continue;
+		}
+		new_tetr.local_num = tetrs.size();
+		infile >> tmp_int >> tmp_int >> tmp_int >> tmp_int 
+			>> new_tetr.vert[0] >> new_tetr.vert[1] >> new_tetr.vert[2] >> new_tetr.vert[3];
+
+		if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) ) {
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. Vert number must be positive."));
+			return -1;
+		}
+
+		new_tetr.vert[0]--; new_tetr.vert[1]--; new_tetr.vert[2]--; new_tetr.vert[3]--;
+
+		tetrs.push_back(new_tetr);
+	}
+
+	infile >> str;
+	if(strcmp(str.c_str(),"$EndElements") != 0) {
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$EndElements' expected."));
+		return -1;
+	}
+
+	if(logger != NULL)
+		logger->write(string("INFO: TetrMesh_1stOrder::load_msh_file - File read."));
+
+	infile.close();
+
+	// Check if internal numbers of nodes are the same as numbers in array
+	// We need it in future to perform quick access to nodes in array
+	for(int i = 0; i < nodes.size(); i++)
+	{
+		if(nodes[i].local_num != i) {
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - Invalid nodes numbering!"));
+			return -1;
+		}
+	}
+	for(int i = 0; i < tetrs.size(); i++)
+	{
+		if(tetrs[i].local_num != i) {
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - Invalid tetrahedron numbering!"));
+			return -1;
+		}
+	}
+
+	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
+	for(int i = 0; i < nodes.size(); i++) { nodes[i].elements = new vector<int>; }
+
+	// Go through all the tetrahedrons
+	for(int i = 0; i < tetrs.size(); i++)
+	{
+		// For all verticles
+		for(int j = 0; j < 4; j++)
+		{
+			// Push to data of nodes the number of this tetrahedron
+			nodes[tetrs[i].vert[j]].elements->push_back(i);
+		}
+	}
+
+	// TODO Do we need this part?
+	// Check all the nodes and find 'unused' - remote ones that have connections only with remote ones
+	for(int i = 0; i < nodes.size(); i++)
+	{
+		// If node is remote
+		if(nodes[i].placement_type == REMOTE)
+		{
+			int count = 0;
+			// Check tetrahedrons it is a member of
+			for(int j = 0; j < nodes[i].elements->size(); j++)
+			{
+				// Check verticles
+				for(int k = 0; k < 4; k++)
+				{
+					// If it is local - count++
+					if(nodes[tetrs[nodes[i].elements->at(j)].vert[k]].placement_type == LOCAL) { count++; }
+				}
+			}
+			// If remote node is NOT connected with at least one local - it is unused one
+			if(count == 0)
+			{
+				nodes[i].placement_type = UNUSED;
+			}
+		}
+	}
+
+	return 0;
+};
+
+float TetrMesh_1stOrder::tetr_h(int i)
+{
+		float min_h;
 		float h;
 		float area[4];
 		// Find volume
@@ -279,7 +572,7 @@ float TetrMesh_1stOrder::get_min_h()
 		// Check if all nodes are already loaded from other CPUs and tetrahadron is correct
 		if(vol == 0) {
 			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::min_h - Volume is zero!"));
+				logger->write(string("ERROR: TetrMesh_1stOrder::tetr_h - Volume is zero!"));
 			return -1;
 		}
 
@@ -287,29 +580,58 @@ float TetrMesh_1stOrder::get_min_h()
 		{
 			if(area[j] == 0) {
 				if(logger != NULL)
-					logger->write(string("ERROR: TetrMesh_1stOrder::min_h - Face area is zero!"));
+					logger->write(string("ERROR: TetrMesh_1stOrder::tetr_h - Face area is zero!"));
 				return -1;
 			}
 		}
 
-		// If min_h is negative (inital step) - let it be smth positive
-		if(min_h < 0) { min_h = fabs(3*vol/area[0]); }
+		min_h = fabs(3*vol/area[0]);
+
 		// Go through all faces of given tetrahedron
-		for(int j = 0; j < 4; j++)
+		for(int j = 1; j < 4; j++)
 		{
 			// Find height to this face
 			h = fabs(3*vol/area[j]);
 			// And check if we should update minimum height
 			if(h < min_h) { min_h = h; }
 		}
+
+		return min_h;
+};
+
+// Finds minimum h over mesh
+float TetrMesh_1stOrder::get_min_h()
+{
+	float min_h = -1;
+	float h;
+	// Go through tetrahedrons
+	for(int i = 0; i < tetrs.size(); i++)
+	{
+		if ( (nodes[tetrs[i].vert[0]].placement_type == UNUSED) 
+			|| (nodes[tetrs[i].vert[1]].placement_type == UNUSED) 
+			|| (nodes[tetrs[i].vert[2]].placement_type == UNUSED) 
+			|| (nodes[tetrs[i].vert[3]].placement_type == UNUSED) )
+			continue;
+
+		// Get current h
+		h = tetr_h(i);
+		if(min_h < 0)
+			min_h = h;
+		// If it is negative - return error
+		if(h < 0)
+			return -1;
+
+		// Otherwise - just find minimum
+		if(h < min_h) { min_h = h; }
 	}
 
 	return min_h;
 };
 
-// Finds minimum h over mesh
+// Finds maximum h over mesh
 float TetrMesh_1stOrder::get_max_h()
 {
+	float h;
 	float max_h = -1;
 	// Go through tetrahedrons
 	for(int i = 0; i < tetrs.size(); i++)
@@ -320,90 +642,70 @@ float TetrMesh_1stOrder::get_max_h()
 			|| (nodes[tetrs[i].vert[3]].placement_type == UNUSED) )
 			continue;
 
-		float h;
-		float area[4];
-		// Find volume
-		float vol = qm_engine.tetr_volume(
-			nodes[tetrs[i].vert[1]].coords[0] - nodes[tetrs[i].vert[0]].coords[0], 
-			nodes[tetrs[i].vert[1]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
-			nodes[tetrs[i].vert[1]].coords[2] - nodes[tetrs[i].vert[0]].coords[2],
-			nodes[tetrs[i].vert[2]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
-			nodes[tetrs[i].vert[2]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
-			nodes[tetrs[i].vert[2]].coords[2] - nodes[tetrs[i].vert[0]].coords[2],
-			nodes[tetrs[i].vert[3]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
-			nodes[tetrs[i].vert[3]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
-			nodes[tetrs[i].vert[3]].coords[2] - nodes[tetrs[i].vert[0]].coords[2]
-		);
-
-		// Find area of first face (verticles - 0,1,2)
-		area[0] = qm_engine.tri_area(
-			nodes[tetrs[i].vert[1]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
-			nodes[tetrs[i].vert[1]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
-			nodes[tetrs[i].vert[1]].coords[2] - nodes[tetrs[i].vert[0]].coords[2],
-                	nodes[tetrs[i].vert[2]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
-			nodes[tetrs[i].vert[2]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
-			nodes[tetrs[i].vert[2]].coords[2] - nodes[tetrs[i].vert[0]].coords[2]
-		);
-
-		// Find area of second face (verticles - 0,1,3)
-		area[1] = qm_engine.tri_area(
-			nodes[tetrs[i].vert[1]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
-			nodes[tetrs[i].vert[1]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
-			nodes[tetrs[i].vert[1]].coords[2] - nodes[tetrs[i].vert[0]].coords[2],
-			nodes[tetrs[i].vert[3]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
-			nodes[tetrs[i].vert[3]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
-			nodes[tetrs[i].vert[3]].coords[2] - nodes[tetrs[i].vert[0]].coords[2]
-		);
-
-		// Find area of third face (verticles - 0,2,3)
-		area[2] = qm_engine.tri_area(
-			nodes[tetrs[i].vert[2]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
-			nodes[tetrs[i].vert[2]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
-			nodes[tetrs[i].vert[2]].coords[2] - nodes[tetrs[i].vert[0]].coords[2],
-	                nodes[tetrs[i].vert[3]].coords[0] - nodes[tetrs[i].vert[0]].coords[0],
-			nodes[tetrs[i].vert[3]].coords[1] - nodes[tetrs[i].vert[0]].coords[1],
-			nodes[tetrs[i].vert[3]].coords[2] - nodes[tetrs[i].vert[0]].coords[2]
-		);
-
-		// Find area of third face (verticles - 1,2,3)
-		area[3] = qm_engine.tri_area(
-			nodes[tetrs[i].vert[2]].coords[0] - nodes[tetrs[i].vert[1]].coords[0],
-			nodes[tetrs[i].vert[2]].coords[1] - nodes[tetrs[i].vert[1]].coords[1],
-			nodes[tetrs[i].vert[2]].coords[2] - nodes[tetrs[i].vert[1]].coords[2],
-                	nodes[tetrs[i].vert[3]].coords[0] - nodes[tetrs[i].vert[1]].coords[0],
-			nodes[tetrs[i].vert[3]].coords[1] - nodes[tetrs[i].vert[1]].coords[1],
-			nodes[tetrs[i].vert[3]].coords[2] - nodes[tetrs[i].vert[1]].coords[2]
-		);
-
-		// Check if all nodes are already loaded from other CPUs and tetrahadron is correct
-		if(vol == 0) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::min_h - Volume is zero!"));
+		// Get current h
+		h = tetr_h(i);
+		// If it is negative - return error
+		if(h < 0)
 			return -1;
-		}
 
-		for(int j = 0; j < 4; j++)
-		{
-			if(area[j] == 0) {
-				if(logger != NULL)
-					logger->write(string("ERROR: TetrMesh_1stOrder::min_h - Face area is zero!"));
-				return -1;
-			}
-		}
-
-		// If min_h is negative (inital step) - let it be smth positive
-		if(max_h < 0) { max_h = fabs(3*vol/area[0]); }
-		// Go through all faces of given tetrahedron
-		for(int j = 0; j < 4; j++)
-		{
-			// Find height to this face
-			h = fabs(3*vol/area[j]);
-			// And check if we should update minimum height
-			if(h > max_h) { max_h = h; }
-		}
+		// Otherwise - just find minimum
+		if(h > max_h) { max_h = h; }
 	}
 
 	return max_h;
+};
+
+int TetrMesh_1stOrder::get_quality_stats()
+{
+	stringstream ss;
+	ss.str("");
+	float h;
+
+	float max_h;
+	float avg_h = 0;
+
+	float hyst[10];
+	hyst[0] = hyst[1] = hyst[2] = hyst[3] = hyst[4] = hyst[5] = hyst[6] = hyst[7] = hyst[8] = hyst[9] = 0;
+
+	max_h = get_max_h();
+
+	int num;
+
+	for(int i = 0; i < tetrs.size(); i++)
+	{
+		if ( (nodes[tetrs[i].vert[0]].placement_type == UNUSED) 
+			|| (nodes[tetrs[i].vert[1]].placement_type == UNUSED) 
+			|| (nodes[tetrs[i].vert[2]].placement_type == UNUSED) 
+			|| (nodes[tetrs[i].vert[3]].placement_type == UNUSED) )
+			continue;
+
+		// Get current h
+		h = tetr_h(i);
+		// If it is negative - return error
+		if(h < 0)
+			return -1;
+
+		avg_h += h/tetrs.size();
+
+		h = h / max_h;
+		num = (int)(h/0.1);
+		hyst[num]++;
+
+		// Otherwise - just log it
+		// ss << h << endl;
+	}
+
+	ss << "Max H = " << get_max_h() << endl;
+	ss << "Min H = " << get_min_h() << endl;
+	ss << "Avg H = " << avg_h << endl;
+	ss << "Histogramm:" << endl;
+	for(int i = 0; i < 10; i++)
+		ss << hyst[i] << endl;
+
+	if(logger != NULL)
+		logger->write(ss.str());
+
+	return 0;
 };
 
 bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr)
