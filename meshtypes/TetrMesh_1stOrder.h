@@ -24,7 +24,7 @@ public:
 	bool point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr);
 	Tetrahedron_1st_order* find_owner_tetr(float x, float y, float z, ElasticNode* node);
 	int interpolate(ElasticNode* node, Tetrahedron* tetr);
-	int get_quality_stats();
+	int log_quality_stats();
 	int do_next_step();
 	float get_max_possible_tau();
 	float get_min_h();

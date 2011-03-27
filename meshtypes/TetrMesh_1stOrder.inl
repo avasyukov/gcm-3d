@@ -655,7 +655,7 @@ float TetrMesh_1stOrder::get_max_h()
 	return max_h;
 };
 
-int TetrMesh_1stOrder::get_quality_stats()
+int TetrMesh_1stOrder::log_quality_stats()
 {
 	stringstream ss;
 	ss.str("");
@@ -690,9 +690,6 @@ int TetrMesh_1stOrder::get_quality_stats()
 		h = h / max_h;
 		num = (int)(h/0.1);
 		hyst[num]++;
-
-		// Otherwise - just log it
-		// ss << h << endl;
 	}
 
 	ss << "Max H = " << get_max_h() << endl;
