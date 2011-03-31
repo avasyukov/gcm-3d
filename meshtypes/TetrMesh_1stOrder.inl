@@ -1,6 +1,7 @@
 TetrMesh_1stOrder::TetrMesh_1stOrder()
 {
 	mesh_type.assign("Tetrahedron mesh 1st order");
+	clear_mesh_stats();
 };
 
 TetrMesh_1stOrder::~TetrMesh_1stOrder()
@@ -10,6 +11,12 @@ TetrMesh_1stOrder::~TetrMesh_1stOrder()
 	nodes.clear();
 	new_nodes.clear();
 	tetrs.clear();
+};
+
+void TetrMesh_1stOrder::clear_mesh_stats()
+{
+	mesh_stats.find_owner_tetr_quick_searches = 0;
+	mesh_stats.find_owner_tetr_long_searches = 0;
 };
 
 // TODO move actual file and string operations into TaskPreparator or MshFileReader
@@ -814,13 +821,114 @@ bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* te
 
 Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(float x, float y, float z, ElasticNode* node)
 {
+// We used this implementation when tau was min_h/max_L
+// In that case if not found in adjacent tetrs - not found at all and out of body
+//	// Checking adjacent tetrahedrons
+//	for(int i = 0; i < (node->elements)->size(); i++)
+//	{
+//		if( point_in_tetr(x, y, z, &tetrs[(node->elements)->at(i)]) )
+//		{
+//			return &tetrs[(node->elements)->at(i)];
+//		}
+//	}
+//
+//	return NULL;
+
+//	mesh_stats.find_owner_tetr_long_searches++;
+//	mesh_stats.find_owner_tetr_quick_searches++;
+
+	// A square of distance between point in question and local node
+	// Will be used to check if it is worth to continue search or point in question is out of body
+	float R2 = (node->coords[0] - x) * (node->coords[0] - x) + (node->coords[1] - y) * (node->coords[1] - y)
+			+ (node->coords[2] - z) * (node->coords[2] - z);
+
+	//TODO May be std::set will be better? It guarantees unique elements.
+	vector<int> checked; // Already checked tetrahedrons
+	vector<int> checking; // Tetrs we are checking just now
+	vector<int> tmp_to_check; // tmp list, used to construct new 'checking' list
+
+	checked.clear();
+	checking.clear();
+	tmp_to_check.clear();
+
+	// If current tetrs are inside sphere of radius R or not. If not - we should stop search and return NULL
+	bool inside_R = true;
+
+	float local_x, local_y, local_z;
+
 	for(int i = 0; i < (node->elements)->size(); i++)
+		checking.push_back((node->elements)->at(i));
+
+	while(inside_R)
 	{
-		if( point_in_tetr(x, y, z, &tetrs[(node->elements)->at(i)]) )
+		inside_R = false;
+
+		// Check current tetrs
+		for(int i = 0; i < checking.size(); i++)
 		{
-			return &tetrs[(node->elements)->at(i)];
+			// If found - return result
+			if( point_in_tetr(x, y, z, &tetrs[checking[i]]) )
+				return &tetrs[checking[i]];
+
+			// Check if this tetr is still inside sphere of radius R
+			// If we have already found at least one tetr in the sphere - skip check
+			if(!inside_R)
+			{
+				// For all verticles of current tetr
+				for(int j = 0; j < 4; j++)
+				{
+					local_x = nodes[ tetrs[checking[i]].vert[j] ].coords[0];
+					local_y = nodes[ tetrs[checking[i]].vert[j] ].coords[1];
+					local_z = nodes[ tetrs[checking[i]].vert[j] ].coords[2];
+					// If its distance smaller than R
+					if( ( (node->coords[0] - local_x) * (node->coords[0] - local_x) 
+						+ (node->coords[1] - local_y) * (node->coords[1] - local_y) 
+						+ (node->coords[2] - local_z) * (node->coords[2] - local_z) ) < R2 )
+							inside_R = true;
+					// TODO FIXME In theory we whould check if sphere and tetr intersect.
+					// Current check - if at least one vert is in sphere.
+					// It can be wrong on turbo bad tetrs. It fails if
+					// sphere goes 'through' tetr to next layer but does not include its verticles.
+				}
+			}
+		}
+
+		// If current layer is not in sphere - there is no need to create next layer - just return NULL
+		if(!inside_R)
+			return NULL;
+
+		// If not found in current tetrs - create new lists
+
+		// First - add checked tetrs to the 'checked' list
+		for(int i = 0; i < checking.size(); i++)
+			checked.push_back(checking[i]);
+
+		// Create very long list of all tetrs adjacent to any tetr in 'checking' list
+		// (with duplicates and tetrs already checked)
+		tmp_to_check.clear();
+		for(int i = 0; i < checking.size(); i++)
+			for(int j = 0; j < 4; j++)
+				for(int k = 0; k < nodes[ tetrs[checking[i]].vert[j] ].elements->size(); k++)
+					tmp_to_check.push_back(nodes[ tetrs[checking[i]].vert[j] ].elements->at(k));
+
+		// Remove duplicates
+		sort( tmp_to_check.begin(), tmp_to_check.end() );
+		tmp_to_check.erase( unique( tmp_to_check.begin(), tmp_to_check.end() ), tmp_to_check.end() );
+
+		// Copy to 'checking' and removing elements that are already checked
+		checking.clear();
+		bool is_checked;
+		for(int i = 0; i < tmp_to_check.size(); i++)
+		{
+			is_checked = false;
+			for(int j = 0; j < checked.size(); j++)
+				if(tmp_to_check[i] == checked[j])
+					is_checked = true;
+			if(!is_checked)
+				checking.push_back(tmp_to_check[i]);
 		}
 	}
+
 	return NULL;
 };
 
@@ -1076,6 +1184,8 @@ int TetrMesh_1stOrder::do_next_step()
 	}
 
 	float time_step = get_max_possible_tau();
+	// FIXME
+	// time_step = time_step * 2;
 	if(time_step < 0) {
 		if(logger != NULL)
 			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - error on determining time step!"));
