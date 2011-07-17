@@ -15,9 +15,10 @@ int main()
 	mesh->attach(rc);
 	mesh->attach(nm);
 	mesh->attach(stresser);
-	mesh->load_msh_file((char*)"../data/models/cube-self-gen.msh");
+	mesh->load_msh_file((char*)"./data/models/tube.msh");
 //	mesh->load_gmv_file((char*)"mesh-optimized.gmv");
-//	mesh->load_node_ele_files((char*)"cube.1.node",(char*)"cube.1.ele");
+//	mesh->load_node_ele_files((char*)"data/models/heart.node",(char*)"data/models/heart.ele");
+//	mesh->load_node_ele_files((char*)"data/models/cube.1.node",(char*)"data/models/cube.1.ele");
 	TaskPreparator* tp = new TaskPreparator();
 	tp->set_fixed_elastic_rheology(&(mesh->nodes), 70, 10, 10, 1000);
 	SnapshotWriter* sw = new SnapshotWriter();

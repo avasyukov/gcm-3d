@@ -36,7 +36,7 @@ int main()
 		if(n != 0) num_of_layers++;
 		if(n != N-1) num_of_layers++;
 
-		fprintf(file, "$MeshFormat\n2.1 0 8\n$EndMeshFormat\n$Nodes\n%d\n", N*M*N*M*num_of_layers);
+		fprintf(file, "$MeshFormat\n2 0 8\n$EndMeshFormat\n$Nodes\n%d\n", N*M*N*M*num_of_layers);
 
 		int num = 0;
 		int cur_num;
