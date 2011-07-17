@@ -6,7 +6,7 @@ using std::cout;
 int main()
 {
 	Logger* log = new Logger();
-	GCM_Tetr_Plastic_Interpolation_1stOrder* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder();
+	GCM_Tetr_Plastic_Interpolation_1stOrder_Advanced* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder_Advanced();
 	VoidRheologyCalculator* rc = new VoidRheologyCalculator();
 	TetrMesh_1stOrder* mesh = new TetrMesh_1stOrder();
 	Stresser* stresser = new Stresser();
@@ -15,7 +15,8 @@ int main()
 	mesh->attach(rc);
 	mesh->attach(nm);
 	mesh->attach(stresser);
-	mesh->load_msh_file((char*)"./data/models/tube.msh");
+	mesh->load_msh_file((char*)"./data/models/cube-self-gen.msh");
+//	mesh->load_msh_file((char*)"./data/models/tube.msh");
 //	mesh->load_gmv_file((char*)"mesh-optimized.gmv");
 //	mesh->load_node_ele_files((char*)"data/models/heart.node",(char*)"data/models/heart.ele");
 //	mesh->load_node_ele_files((char*)"data/models/cube.1.node",(char*)"data/models/cube.1.ele");
@@ -31,7 +32,7 @@ int main()
 		cout << "Can not dump!\n";
 		return -1;
 	}
-	for(int i = 1; i < 100; i++)
+	for(int i = 1; i < 10; i++)
 	{
 		cout << "Started step " << i << ". Time = " << mesh->get_current_time() << "." << endl;
 		if (mesh->do_next_step() < 0)
