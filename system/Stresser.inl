@@ -27,7 +27,7 @@ void Stresser::set_current_stress(ElasticNode* cur_node, ElasticNode* new_node, 
 
 //	if ( ( (cur_node->coords[0])*(cur_node->coords[0]) + (cur_node->coords[1])*(cur_node->coords[1])
 //		+ (cur_node->coords[2])*(cur_node->coords[2]) ) < 4 )
-	if( (cur_node->coords[0] < 20) && (fabs(cur_node->coords[1]-24) < 20) && (fabs(cur_node->coords[2]-24) < 20) )
+	if( (cur_node->coords[0] < 0) && (fabs(cur_node->coords[1]) < 20) && (fabs(cur_node->coords[2]) < 20) )
 	{
 		new_node->values[0] = 0;
 		new_node->values[1] = 0;

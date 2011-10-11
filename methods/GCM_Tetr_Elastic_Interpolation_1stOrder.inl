@@ -81,6 +81,14 @@ int GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_
 			// ... Put new number ...
 			ppoint_num[i] = count;
 
+			previous_nodes[count] = *cur_node;
+
+			if(previous_nodes[count].local_num != cur_node->local_num) {
+				if(logger != NULL)
+					logger->write(string("previous_nodes[count].local_num != cur_node->local_num!"));
+				return -1;
+			}
+
 			// ... Calculate coordinates ...
 			if (stage == 0) {
 				previous_nodes[count].coords[0] = cur_node->coords[0] + dx[i];
@@ -101,8 +109,12 @@ int GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_
 			}
 
 			// ... Find owner tetrahedron ...
-			tmp_tetr = mesh->find_owner_tetr(previous_nodes[count].coords[0], 
-				previous_nodes[count].coords[1], previous_nodes[count].coords[2], cur_node);
+			tmp_tetr = mesh->find_owner_tetr(previous_nodes[count].local_num,
+						previous_nodes[count].coords[0] - cur_node->coords[0], 
+						previous_nodes[count].coords[1] - cur_node->coords[1],
+						previous_nodes[count].coords[2] - cur_node->coords[2],
+						cur_node);
+
 			if( tmp_tetr != NULL )
 			{
 				// ... And interpolate values
@@ -237,6 +249,8 @@ int GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_
 		if(logger != NULL)
 		{
 			stringstream ss;
+			ss.setf(ios::fixed,ios::floatfield);
+			ss.precision(10);
 			ss << "Error: GCM_Tetr_Elastic_Interpolation_1stOrder::do_next_part_step - 'outer' values do not match. There are " << outer_count << " of them.";
 			logger->write(ss.str());
 		}
@@ -251,7 +265,7 @@ int GCM_Tetr_Elastic_Interpolation_1stOrder::get_number_of_stages()
 	return 3;
 };
 
-float GCM_Tetr_Elastic_Interpolation_1stOrder::get_max_lambda(ElasticNode* node)
+float GCM_Tetr_Elastic_Interpolation_1stOrder::get_max_lambda(ElasticNode* node, TetrMesh* mesh)
 {
 	// TODO To think - if we can just return sqrt((la+2*mu)/rho) or we should leave to matrix calculation?
 

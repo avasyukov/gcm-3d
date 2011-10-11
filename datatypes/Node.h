@@ -20,7 +20,7 @@ public:
 	int local_num;
 	int remote_num;
 	int absolute_num;
-	int placement_type; // TODO Do we need this? Do we can replace it with zone_num check?
+	int placement_type; // We need this to store NOT only LOCAL / REMOTE state. We have UNUSED flag also.
 	float coords[3];
 	float fixed_coords[3];
 protected:

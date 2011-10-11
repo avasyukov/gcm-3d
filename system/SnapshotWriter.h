@@ -23,7 +23,7 @@ public:
 	void attach(Logger* new_logger);
 	int dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
 	void set_basement(float x0, float y0, float z0, float h, int N);
-	int dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
+//	int dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
 		// TODO change parametres names to make them descriptive
 	int tmp_dump_line(TetrMesh_1stOrder* tetr_mesh, int snap_num);
 protected:

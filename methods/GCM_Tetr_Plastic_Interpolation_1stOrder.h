@@ -10,6 +10,7 @@ using std::stringstream;
 
 using std::string;
 using std::vector;
+using std::ios;
 
 class GCM_Tetr_Plastic_Interpolation_1stOrder : public TetrNumericalMethod
 	// TODO may be we should inherit methods from GCM_Tetr_Elastic_Interpolation_1stOrder
@@ -19,7 +20,7 @@ public:
 	~GCM_Tetr_Plastic_Interpolation_1stOrder();
 	int do_next_part_step(ElasticNode* cur_node, ElasticNode* new_node, float time_step, int stage, TetrMesh* mesh);
 	int get_number_of_stages();
-	float get_max_lambda(ElasticNode* node);
+	float get_max_lambda(ElasticNode* node, TetrMesh* mesh);
 protected:
 	ElasticMatrix3D* elastic_matrix3d[3];
 	gsl_matrix *U_gsl;

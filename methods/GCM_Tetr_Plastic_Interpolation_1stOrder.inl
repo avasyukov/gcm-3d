@@ -107,6 +107,14 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_
 			// ... Put new number ...
 			ppoint_num[i] = count;
 
+			previous_nodes[count] = *cur_node;
+
+			if(previous_nodes[count].local_num != cur_node->local_num) {
+				if(logger != NULL)
+					logger->write(string("previous_nodes[count].local_num != cur_node->local_num!"));
+				return -1;
+			}
+
 			// ... Calculate coordinates ...
 			if (stage == 0) {
 				previous_nodes[count].coords[0] = cur_node->coords[0] + dx[i];
@@ -127,8 +135,13 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_
 			}
 
 			// ... Find owner tetrahedron ...
-			tmp_tetr = mesh->find_owner_tetr(previous_nodes[count].coords[0], 
-				previous_nodes[count].coords[1], previous_nodes[count].coords[2], cur_node);
+			tmp_tetr = mesh->find_owner_tetr(previous_nodes[count].local_num,
+						previous_nodes[count].coords[0] - cur_node->coords[0],
+						previous_nodes[count].coords[1] - cur_node->coords[1],
+						previous_nodes[count].coords[2] - cur_node->coords[2],
+						cur_node);
+//			tmp_tetr = mesh->find_owner_tetr(previous_nodes[count].coords[0], 
+//				previous_nodes[count].coords[1], previous_nodes[count].coords[2], cur_node);
 			if( tmp_tetr != NULL )
 			{
 				// ... And interpolate values
@@ -190,8 +203,47 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_
 		// GSL data for LE solving
 		int s;
 
-		// Free border algorithm
+		// Fixed border algorithm
 		for(int i = 0; i < 9; i++)
+		{
+			// If omega is 'inner' one
+			if(inner[i])
+			{
+				// just load appropriate values into GSL containers
+				gsl_vector_set(om_gsl, i, omega[i]);
+				for(int j = 0; j < 9; j++)
+					gsl_matrix_set(U_gsl, i, j, elastic_matrix3d[stage]->U(i,j));
+			}
+			// If omega is 'outer' one
+			else
+			{
+				// omega (as right-hand part of OLE) is zero - it it free border
+				gsl_vector_set(om_gsl, i, 0);
+				// corresponding string in matrix is zero ...
+				for(int j = 0; j < 9; j++)
+					gsl_matrix_set(U_gsl, i, j, 0);
+				// ... except velocity
+				if( stage < 3 )
+				{
+					if ( outer_count == 3 ) {
+						gsl_matrix_set(U_gsl, i, 0, 1); outer_count--;
+					} else if ( outer_count == 2 ) {
+						gsl_matrix_set(U_gsl, i, 1, 1); outer_count--;
+					} else if ( outer_count == 1 ) {
+						gsl_matrix_set(U_gsl, i, 2, 1); outer_count--;
+					}
+				}
+				else 
+				{
+					if(logger != NULL)
+						logger->write(string("Error: GCM_Tetr_Plastic_Interpolation_1stOrder::do_next_part_step - wrong stage number!"));
+					return -1;
+				}
+			}
+		}
+
+		// Free border algorithm
+		/*for(int i = 0; i < 9; i++)
 		{
 			// If omega is 'inner' one
 			if(inner[i])
@@ -248,7 +300,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_
 					return -1;
 				}
 			}
-		}
+		}*/
 
 		// Solve linear equations using GSL tools
 		gsl_linalg_LU_decomp (U_gsl, p_gsl, &s);
@@ -263,6 +315,8 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_
 		if(logger != NULL)
 		{
 			stringstream ss;
+			ss.setf(ios::fixed,ios::floatfield);
+			ss.precision(10);
 			ss << "Error: GCM_Tetr_Plastic_Interpolation_1stOrder::do_next_part_step - 'outer' values do not match. There are " << outer_count << " of them.";
 			logger->write(ss.str());
 		}
@@ -277,7 +331,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder::get_number_of_stages()
 	return 4;
 };
 
-float GCM_Tetr_Plastic_Interpolation_1stOrder::get_max_lambda(ElasticNode* node)
+float GCM_Tetr_Plastic_Interpolation_1stOrder::get_max_lambda(ElasticNode* node, TetrMesh* mesh)
 {
 	// TODO To think - if we can just return sqrt((la+2*mu)/rho) or we should leave to matrix calculation?
 

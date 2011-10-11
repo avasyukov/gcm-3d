@@ -42,7 +42,7 @@ int SnapshotWriter::tmp_dump_line(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 {
 	ofstream dumpfile;
 
-	cout << "DEBUG: h=" << step_h << " max_h=" << tetr_mesh->get_max_h() << " min_h=" << tetr_mesh->get_min_h() << endl;
+//	cout << "DEBUG: h=" << step_h << " max_h=" << tetr_mesh->get_max_h() << " min_h=" << tetr_mesh->get_min_h() << endl;
 
 	// Write to disk
 	stringstream ss;
@@ -85,8 +85,8 @@ int SnapshotWriter::tmp_dump_line(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 
 		for(int i = 0; i < (tetr_mesh->nodes).size(); i++)
 		{
-			if( ( fabs( (tetr_mesh->nodes).at(i).coords[1] - 24 ) < 0.1 ) 
-				&& ( fabs( (tetr_mesh->nodes).at(i).coords[2] - 24 ) < 0.1 ) )
+			if( ( fabs( (tetr_mesh->nodes).at(i).coords[1] - 1.75 ) < 0.15 ) 
+				&& ( fabs( (tetr_mesh->nodes).at(i).coords[2] - 1.75 ) < 0.15 ) )
 			{
 				dumpfile << (tetr_mesh->nodes).at(i).coords[0] << " " << (tetr_mesh->nodes).at(i).values[l] << endl;
 			}
@@ -97,7 +97,7 @@ int SnapshotWriter::tmp_dump_line(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 	return 0;
 };
 
-int SnapshotWriter::dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num)
+/*int SnapshotWriter::dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num)
 {
 	ofstream dumpfile;
 
@@ -259,7 +259,7 @@ int SnapshotWriter::dump_cubic_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, 
 	}
 
 	return 0;
-};
+};*/
 
 void SnapshotWriter::zero_node_values(ElasticNode* node)
 {

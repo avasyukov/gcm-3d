@@ -19,6 +19,37 @@ void TetrMesh_1stOrder::clear_mesh_stats()
 	mesh_stats.find_owner_tetr_long_searches = 0;
 };
 
+//TODO - ugly hack - think about if we need it and how to implement it
+void TetrMesh_1stOrder::add_node(ElasticNode* node)
+{
+	ElasticNode new_node = *node;
+	nodes.push_back(new_node);
+	new_nodes.push_back(new_node);
+};
+
+//TODO - ugly hack - think about if we need it and how to implement it
+void TetrMesh_1stOrder::add_tetr(Tetrahedron_1st_order* tetr)
+{
+	Tetrahedron_1st_order new_tetr = *tetr;
+	tetrs.push_back(new_tetr);
+};
+
+// TODO - add (1) auto scale and (2) scale back
+int TetrMesh_1stOrder::pre_process_mesh(float scale_factor)
+{
+	// If node has no connections - mark it as unused
+	for(int i = 0; i < nodes.size(); i++)
+		if( (nodes[i].elements)->size() == 0 )
+			nodes[i].placement_type = UNUSED;
+
+	// Scale mesh
+	for(int i = 0; i < nodes.size(); i++)
+		for(int j = 0; j < 3; j++)
+			nodes[i].coords[j] *= scale_factor;
+
+	return 0;
+};
+
 // TODO move actual file and string operations into TaskPreparator or MshFileReader
 int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_name)
 {
@@ -138,7 +169,7 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 		}
 	}
 
-	// TODO Do we need this part?
+	// TODO - move this part to mesh pre-processing. It is not specific for any file type.
 	// Check all the nodes and find 'unused' - remote ones that have connections only with remote ones
 	for(int i = 0; i < nodes.size(); i++)
 	{
@@ -489,7 +520,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 		}
 	}
 
-	// TODO Do we need this part?
+	// TODO - move this part to mesh pre-processing. It is not specific for any file type.
 	// Check all the nodes and find 'unused' - remote ones that have connections only with remote ones
 	for(int i = 0; i < nodes.size(); i++)
 	{
@@ -665,6 +696,8 @@ float TetrMesh_1stOrder::get_max_h()
 int TetrMesh_1stOrder::log_quality_stats()
 {
 	stringstream ss;
+	ss.setf(ios::fixed,ios::floatfield);
+	ss.precision(10);
 	ss.str("");
 	float h;
 
@@ -712,13 +745,53 @@ int TetrMesh_1stOrder::log_quality_stats()
 	return 0;
 };
 
-bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr)
+/*bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr)
 {
 	return point_in_tetr(x, y, z, (Tetrahedron*) tetr);
 };
 
-bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* tetr)
+bool TetrMesh_1stOrder::point_in_tetr(float ext_x, float ext_y, float ext_z, Tetrahedron* tetr)
 {
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "DEBUG: TetrMesh_1stOrder::point_in_tetr" << endl;
+		ss << "Point: x: " << ext_x << " y: " << ext_y << " z: " << ext_z << endl;
+		ss << "Tetr: " << tetr->local_num << endl;
+		for(int j = 0; j < 4; j++) {
+			ElasticNode* tmp_node = get_node( tetr->vert[j] );
+			ss << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
+				<< " x: " << tmp_node->coords[0]
+				<< " y: " << tmp_node->coords[1]
+				<< " z: " << tmp_node->coords[2] << endl;
+		}
+		logger->write(ss.str());
+	}
+	#endif
+
+	// Center coordinates at point (ext_x, ext_y, ext_z)
+	shift_coordinates(tetr, -ext_x, -ext_y, -ext_z);
+	float x = 0; float y = 0; float z = 0;
+
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "Tetr after shift: " << tetr->local_num << endl;
+		for(int j = 0; j < 4; j++) {
+			ElasticNode* tmp_node = get_node( tetr->vert[j] );
+			ss << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
+				<< " x: " << tmp_node->coords[0]
+				<< " y: " << tmp_node->coords[1]
+				<< " z: " << tmp_node->coords[2] << endl;
+		}
+		logger->write(ss.str());
+	}
+	#endif
+
 	float d1,d2;
 	d1 = qm_engine.determinant(
 		nodes[tetr->vert[1]].coords[0] - nodes[tetr->vert[0]].coords[0],
@@ -742,7 +815,16 @@ bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* te
 		nodes[tetr->vert[3]].coords[1] - y,
 		nodes[tetr->vert[3]].coords[2] - z
 	);
-	if(d1*d2 < 0) { return false; }
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "\t\tStage1: d1: " << d1 << " d2: " << d2 << endl;
+		logger->write(ss.str());
+	}
+	#endif
+	if(d1*d2 < 0) { shift_coordinates(tetr, ext_x, ext_y, ext_z); return false; }
 
 	d1 = qm_engine.determinant(
 		nodes[tetr->vert[0]].coords[0] - nodes[tetr->vert[1]].coords[0],
@@ -766,7 +848,16 @@ bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* te
 		nodes[tetr->vert[3]].coords[1] - y,
 		nodes[tetr->vert[3]].coords[2] - z
 	);
-	if(d1*d2 < 0) { return false; }
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "\t\tStage2: d1: " << d1 << " d2: " << d2 << endl;
+		logger->write(ss.str());
+	}
+	#endif
+	if(d1*d2 < 0) { shift_coordinates(tetr, ext_x, ext_y, ext_z); return false; }
 
 	d1 = qm_engine.determinant(
 		nodes[tetr->vert[0]].coords[0] - nodes[tetr->vert[2]].coords[0],
@@ -790,7 +881,16 @@ bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* te
 		nodes[tetr->vert[3]].coords[1] - y,
 		nodes[tetr->vert[3]].coords[2] - z
 	);
-	if(d1*d2 < 0) { return false; }
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "\t\tStage3: d1: " << d1 << " d2: " << d2 << endl;
+		logger->write(ss.str());
+	}
+	#endif
+	if(d1*d2 < 0) { shift_coordinates(tetr, ext_x, ext_y, ext_z); return false; }
 
 	d1 = qm_engine.determinant(
 		nodes[tetr->vert[0]].coords[0] - nodes[tetr->vert[3]].coords[0],
@@ -814,33 +914,151 @@ bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* te
 		nodes[tetr->vert[2]].coords[1] - y,
 		nodes[tetr->vert[2]].coords[2] - z
 	);
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "\t\tStage4: d1: " << d1 << " d2: " << d2 << endl;
+		logger->write(ss.str());
+	}
+	#endif
+	if(d1*d2 < 0) { shift_coordinates(tetr, ext_x, ext_y, ext_z); return false; }
+
+	shift_coordinates(tetr, ext_x, ext_y, ext_z);
+	return true;
+};*/
+
+bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron_1st_order* tetr)
+{
+	return point_in_tetr(base_node_index, dx, dy, dz, (Tetrahedron*) tetr);
+};
+
+bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron* tetr)
+{
+	float d1,d2;
+
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "DEBUG: TetrMesh_1stOrder::point_in_tetr" << endl;
+		ss << "Point: num: " << base_node_index << " dx: " << dx << " dy: " << dy << " dz: " << dz << endl;
+		ss << "Tetr: " << tetr->local_num << endl;
+		for(int j = 0; j < 4; j++) {
+			ElasticNode* tmp_node = get_node( tetr->vert[j] );
+			ss << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
+				<< " x: " << tmp_node->coords[0]
+				<< " y: " << tmp_node->coords[1]
+				<< " z: " << tmp_node->coords[2] << endl;
+		}
+		logger->write(ss.str());
+	}
+	#endif
+
+	d1 = calc_determ_pure_tetr(tetr->vert[1], tetr->vert[2], tetr->vert[3], tetr->vert[0]);
+	d2 = calc_determ_with_shift(tetr->vert[1], tetr->vert[2], tetr->vert[3], base_node_index, dx, dy, dz);
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "\t\tStage1: d1: " << d1 << " d2: " << d2 << endl;
+		logger->write(ss.str());
+	}
+	#endif
+	if(d1*d2 < 0) { return false; }
+
+	d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[2], tetr->vert[3], tetr->vert[1]);
+	d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[2], tetr->vert[3], base_node_index, dx, dy, dz);
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "\t\tStage2: d1: " << d1 << " d2: " << d2 << endl;
+		logger->write(ss.str());
+	}
+	#endif
+	if(d1*d2 < 0) { return false; }
+
+	d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[1], tetr->vert[3], tetr->vert[2]);
+	d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[1], tetr->vert[3], base_node_index, dx, dy, dz);
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "\t\tStage3: d1: " << d1 << " d2: " << d2 << endl;
+		logger->write(ss.str());
+	}
+	#endif
+	if(d1*d2 < 0) { return false; }
+
+	d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[1], tetr->vert[2], tetr->vert[3]);
+	d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[1], tetr->vert[2], base_node_index, dx, dy, dz);
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "\t\tStage4: d1: " << d1 << " d2: " << d2 << endl;
+		logger->write(ss.str());
+	}
+	#endif
 	if(d1*d2 < 0) { return false; }
 
 	return true;
 };
 
-Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(float x, float y, float z, ElasticNode* node)
+void TetrMesh_1stOrder::shift_coordinates(Tetrahedron* tetr, float ext_x, float ext_y, float ext_z)
 {
+	for(int i = 0; i < 4; i++) {
+		nodes[ tetr->vert[i] ].coords[0] += ext_x;
+		nodes[ tetr->vert[i] ].coords[1] += ext_y;
+		nodes[ tetr->vert[i] ].coords[2] += ext_z;
+	}
+};
+
+Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(int base_node, float dx, float dy, float dz, ElasticNode* node)
+{
+	float x = nodes[base_node].coords[0] + dx;
+	float y = nodes[base_node].coords[1] + dy;
+	float z = nodes[base_node].coords[2] + dz;
+
 // We used this implementation when tau was min_h/max_L
 // In that case if not found in adjacent tetrs - not found at all and out of body
-//	// Checking adjacent tetrahedrons
-//	for(int i = 0; i < (node->elements)->size(); i++)
-//	{
-//		if( point_in_tetr(x, y, z, &tetrs[(node->elements)->at(i)]) )
-//		{
-//			return &tetrs[(node->elements)->at(i)];
-//		}
-//	}
-//
-//	return NULL;
+/*	// Checking adjacent tetrahedrons
+	for(int i = 0; i < (node->elements)->size(); i++)
+	{
+		if( point_in_tetr(x, y, z, &tetrs[(node->elements)->at(i)]) )
+		{
+			return &tetrs[(node->elements)->at(i)];
+		}
+	}
 
+	return NULL;
+*/
 //	mesh_stats.find_owner_tetr_long_searches++;
 //	mesh_stats.find_owner_tetr_quick_searches++;
+
 
 	// A square of distance between point in question and local node
 	// Will be used to check if it is worth to continue search or point in question is out of body
 	float R2 = (node->coords[0] - x) * (node->coords[0] - x) + (node->coords[1] - y) * (node->coords[1] - y)
 			+ (node->coords[2] - z) * (node->coords[2] - z);
+
+	#ifdef DEBUG_MESH_GEOMETRY
+	if(logger != NULL) {
+		stringstream ss;
+		ss.setf(ios::fixed,ios::floatfield);
+		ss.precision(10);
+		ss << "DEBUG: TetrMesh_1stOrder::find_owner_tetr" << endl;
+		ss << "\t\tR2: " << R2 << endl;
+		logger->write(ss.str());
+	}
+	#endif
 
 	//TODO May be std::set will be better? It guarantees unique elements.
 	vector<int> checked; // Already checked tetrahedrons
@@ -867,8 +1085,17 @@ Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(float x, float y, floa
 		for(int i = 0; i < checking.size(); i++)
 		{
 			// If found - return result
-			if( point_in_tetr(x, y, z, &tetrs[checking[i]]) )
+			if( point_in_tetr(base_node, dx, dy, dz, &tetrs[checking[i]]) ) {
+				#ifdef DEBUG_MESH_GEOMETRY
+				if(logger != NULL) {
+					stringstream ss;
+					ss << "\tFound in tetr: " << checking[i] << endl;
+					logger->write(ss.str());
+				}
+				#endif
+
 				return &tetrs[checking[i]];
+			}
 
 			// Check if this tetr is still inside sphere of radius R
 			// If we have already found at least one tetr in the sphere - skip check
@@ -883,8 +1110,9 @@ Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(float x, float y, floa
 					// If its distance smaller than R
 					if( ( (node->coords[0] - local_x) * (node->coords[0] - local_x) 
 						+ (node->coords[1] - local_y) * (node->coords[1] - local_y) 
-						+ (node->coords[2] - local_z) * (node->coords[2] - local_z) ) < R2 )
+						+ (node->coords[2] - local_z) * (node->coords[2] - local_z) ) < R2 ) {
 							inside_R = true;
+					}
 					// TODO FIXME In theory we whould check if sphere and tetr intersect.
 					// Current check - if at least one vert is in sphere.
 					// It can be wrong on turbo bad tetrs. It fails if
@@ -930,6 +1158,7 @@ Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(float x, float y, floa
 	}
 
 	return NULL;
+
 };
 
 int TetrMesh_1stOrder::interpolate(ElasticNode* node, Tetrahedron* tetr)
@@ -999,9 +1228,10 @@ int TetrMesh_1stOrder::interpolate(ElasticNode* node, Tetrahedron* tetr)
 	// If we see potential instability
 	if(factor[0] + factor[1] + factor[2] + factor[3] > 1.0)
 	{
-		// If point is really in tetr - treat instability as minor and just 'smooth' it
+		// If it is small - treat instability as minor and just 'smooth' it
 		// TODO - think about it more carefully
-		if( point_in_tetr( node->coords[0],node->coords[1],node->coords[2], tetr) )
+		//if( point_in_tetr(node->local_num, node->coords[0], node->coords[1], node->coords[2], tetr) )
+		if(factor[0] + factor[1] + factor[2] + factor[3] < 1.01)
 		{
 			float sum = factor[0] + factor[1] + factor[2] + factor[3];
 			for(int i = 0; i < 4; i++)
@@ -1014,6 +1244,8 @@ int TetrMesh_1stOrder::interpolate(ElasticNode* node, Tetrahedron* tetr)
 				logger->write(string("ERROR: TetrMesh_1stOrder::interpolate - Sum of factors is greater than 1.0!"));
 	
 				stringstream ss;
+				ss.setf(ios::fixed,ios::floatfield);
+				ss.precision(10);
 				ss << "\tfactor[0]=" << factor[0] << " factor[1]=" << factor[1] << " factor[2]=" << factor[2] 
 					<< " factor[3]=" << factor[3];
 				logger->write(ss.str());
@@ -1072,15 +1304,19 @@ int TetrMesh_1stOrder::interpolate(ElasticNode* node, Tetrahedron* tetr)
 
 float TetrMesh_1stOrder::get_max_possible_tau()
 {
+//cout << "GMPT1: " << endl;
 	float min_h = get_min_h();
 	float max_l = 0;
 	float l;
 
+//cout << "GMPT2: " << endl;
 	for(int i = 0; i < nodes.size(); i++)
 	{
 		if(nodes[i].placement_type == LOCAL)
 		{
-			l = method->get_max_lambda(&nodes[i]);
+//cout << "GMPT3.1: " << endl;
+			l = method->get_max_lambda(&nodes[i], this);
+//cout << "GMPT3.2: " << endl;
 			if(l < 0) {
 				if(logger != NULL)
 					logger->write(string("ERROR: TetrMesh_1stOrder::get_max_possible_tau - got error from method on method->get_max_lambda"));
@@ -1090,6 +1326,7 @@ float TetrMesh_1stOrder::get_max_possible_tau()
 		}
 	}
 
+//cout << "GMPT4: " << endl;
 	return min_h/max_l;
 };
 
@@ -1184,6 +1421,7 @@ int TetrMesh_1stOrder::do_next_step()
 	}
 
 	float time_step = get_max_possible_tau();
+//cout << "D1: " << time_step << endl;
 	// FIXME
 	// time_step = time_step * 2;
 	if(time_step < 0) {
@@ -1208,6 +1446,7 @@ int TetrMesh_1stOrder::do_next_step()
 		return -1;
 	}
 
+//cout << "D2: " << endl;
 	for(int i = 0; i < number_of_stages; i++)
 	{
 		if(data_bus != NULL)
@@ -1220,6 +1459,7 @@ int TetrMesh_1stOrder::do_next_step()
 				logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - do_next_part_step failed!"));
 			return -1;
 		}
+//cout << "D3: part " << i << endl;
 	}
 
 //	move_coords(time_step); // FIXME temporary disable move
@@ -1234,3 +1474,61 @@ int TetrMesh_1stOrder::do_next_step()
 
 	return 0;
 };
+
+Tetrahedron* TetrMesh_1stOrder::get_tetrahedron(int index)
+{
+	return &tetrs[index];
+};
+
+ElasticNode* TetrMesh_1stOrder::get_node(int index)
+{
+	return &nodes[index];
+};
+
+float TetrMesh_1stOrder::calc_determ_pure_tetr(int node1, int node2, int node3, int ref_node)
+{
+	return qm_engine.determinant(
+				nodes[node1].coords[0] - nodes[ref_node].coords[0],
+				nodes[node1].coords[1] - nodes[ref_node].coords[1],
+				nodes[node1].coords[2] - nodes[ref_node].coords[2],
+				nodes[node2].coords[0] - nodes[ref_node].coords[0],
+				nodes[node2].coords[1] - nodes[ref_node].coords[1],
+				nodes[node2].coords[2] - nodes[ref_node].coords[2],
+				nodes[node3].coords[0] - nodes[ref_node].coords[0],
+				nodes[node3].coords[1] - nodes[ref_node].coords[1],
+				nodes[node3].coords[2] - nodes[ref_node].coords[2] );
+};
+
+float TetrMesh_1stOrder::calc_determ_with_shift(int node1, int node2, int node3, int base_node, float dx, float dy, float dz)
+{
+	float x = nodes[base_node].coords[0] + dx;
+	float y = nodes[base_node].coords[1] + dy;
+	float z = nodes[base_node].coords[2] + dz;
+
+	if(node1 == base_node) {
+		return qm_engine.determinant(
+				- dx,				- dy,				- dz,
+				nodes[node2].coords[0] - x,	nodes[node2].coords[1] - y,	nodes[node2].coords[2] - z,
+				nodes[node3].coords[0] - x,	nodes[node3].coords[1] - y,	nodes[node3].coords[2] - z );
+
+	} else if (node2 == base_node) {
+		return qm_engine.determinant(
+				nodes[node1].coords[0] - x,	nodes[node1].coords[1] - y,	nodes[node1].coords[2] - z,
+				- dx,				- dy,				- dz,
+				nodes[node3].coords[0] - x,	nodes[node3].coords[1] - y,	nodes[node3].coords[2] - z );
+
+	} else if (node3 == base_node) {
+		return qm_engine.determinant(
+				nodes[node1].coords[0] - x,	nodes[node1].coords[1] - y,	nodes[node1].coords[2] - z,
+				nodes[node2].coords[0] - x,	nodes[node2].coords[1] - y,	nodes[node2].coords[2] - z,
+				- dx,				- dy,				- dz			   );
+
+	} else {
+		return qm_engine.determinant(
+				nodes[node1].coords[0] - x,	nodes[node1].coords[1] - y,	nodes[node1].coords[2] - z,
+				nodes[node2].coords[0] - x,	nodes[node2].coords[1] - y,	nodes[node2].coords[2] - z,
+				nodes[node3].coords[0] - x,	nodes[node3].coords[1] - y,	nodes[node3].coords[2] - z );
+	}
+
+};
+
