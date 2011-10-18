@@ -11,6 +11,7 @@ TetrMesh_1stOrder::~TetrMesh_1stOrder()
 	nodes.clear();
 	new_nodes.clear();
 	tetrs.clear();
+	border.clear();
 };
 
 void TetrMesh_1stOrder::clear_mesh_stats()
@@ -34,21 +35,237 @@ void TetrMesh_1stOrder::add_tetr(Tetrahedron_1st_order* tetr)
 	tetrs.push_back(new_tetr);
 };
 
-// TODO - add (1) auto scale and (2) scale back
-int TetrMesh_1stOrder::pre_process_mesh(float scale_factor)
+int TetrMesh_1stOrder::pre_process_mesh()
 {
-	// If node has no connections - mark it as unused
+
+	logger->write(string("Preprocessing mesh started..."));
+
+	// Check if internal numbers of nodes are the same as numbers in array
+	// We need it in future to perform quick access to nodes in array
+	for(int i = 0; i < nodes.size(); i++)
+	{
+		if(nodes[i].local_num != i) {
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Invalid nodes numbering!"));
+			return -1;
+		}
+	}
+	for(int i = 0; i < tetrs.size(); i++)
+	{
+		if(tetrs[i].local_num != i) {
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Invalid tetrahedron numbering!"));
+			return -1;
+		}
+	}
+	for(int i = 0; i < border.size(); i++)
+	{
+		if(border[i].local_num != i) {
+			if(logger != NULL)
+				logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Invalid triangle numbering!"));
+			return -1;
+		}
+	}
+
+	logger->write(string("Building reverse lookups"));
+
+	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
+	for(int i = 0; i < nodes.size(); i++) { nodes[i].elements = new vector<int>; }
+
+	// Go through all the tetrahedrons
+	for(int i = 0; i < tetrs.size(); i++)
+	{
+		// For all verticles
+		for(int j = 0; j < 4; j++)
+		{
+			// Push to data of nodes the number of this tetrahedron
+			nodes[tetrs[i].vert[j]].elements->push_back(i);
+		}
+	}
+
+	// Init vectors for "reverse lookups" of border triangles current node is a member of.
+	for(int i = 0; i < nodes.size(); i++) { nodes[i].border_elements = new vector<int>; }
+
+	// Go through all the triangles
+	for(int i = 0; i < border.size(); i++)
+	{
+		// For all verticles
+		for(int j = 0; j < 3; j++)
+		{
+			// Push to data of nodes the number of this tetrahedron
+			nodes[border[i].vert[j]].border_elements->push_back(i);
+			nodes[border[i].vert[j]].border_type = BORDER;
+		}
+	}
+
+	// TODO - add border calc/re-check based on calculating angle and comparing it with 4*PI
+
+	logger->write(string("Looking for unused nodes"));
+
+	// Check all the nodes and find 'unused'
+
+	// Case 1 - node has no connections at all
 	for(int i = 0; i < nodes.size(); i++)
 		if( (nodes[i].elements)->size() == 0 )
 			nodes[i].placement_type = UNUSED;
 
-	// Scale mesh
+	// Case 2 - remote ones that have connections only with remote ones
 	for(int i = 0; i < nodes.size(); i++)
+	{
+		// If node is remote
+		if(nodes[i].placement_type == REMOTE)
+		{
+			int count = 0;
+			// Check tetrahedrons it is a member of
+			for(int j = 0; j < nodes[i].elements->size(); j++)
+			{
+				// Check verticles
+				for(int k = 0; k < 4; k++)
+				{
+					// If it is local - count++
+					if(nodes[tetrs[nodes[i].elements->at(j)].vert[k]].placement_type == LOCAL) { count++; }
+				}
+			}
+			// If remote node is NOT connected with at least one local - it is unused one
+			if(count == 0)
+			{
+				nodes[i].placement_type = UNUSED;
+			}
+		}
+	}
+
+	logger->write(string("Checking border alignment"));
+
+	// Check border triangles alignment to calculate outer normal right
+
+	// Guaranteed allowed step
+	float step_h = get_min_h();
+
+	// Normal vector
+	float normal[3];
+
+	// Displacement
+	float dx[3];
+
+	int tmp_int;
+
+	// Check all triangles
+	for(int i = 0; i < border.size(); i++)
+	{
+
+		find_border_elem_normal(i, &normal[0], &normal[1], &normal[2]);
+
+		// Displacement along normal
+		dx[0] = step_h * normal[0];
+		dx[1] = step_h * normal[1];
+		dx[2] = step_h * normal[2];
+
+		// Check if we are inside of the body moving along normal
+		if( find_owner_tetr(border[i].vert[0], dx[0], dx[1], dx[2], &nodes[border[i].vert[0]]) != NULL ) {
+			// Inside body - normal most probably is inner - recheck
+			if( find_owner_tetr(border[i].vert[0], -dx[0], -dx[1], -dx[2], &nodes[border[i].vert[0]]) == NULL ) {
+				// Opposite direction is outer - we are right - just swap trianlge edges
+				tmp_int = border[i].vert[2];
+				border[i].vert[2] = border[i].vert[1];
+				border[i].vert[1] = tmp_int;
+			} else {
+				// Opposite direction looks inner too - smth bad happens - report error
+				if(logger != NULL)
+					logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Can not find outer normal!"));
+				return -1;
+			}
+		} else {
+			// Outside body - normal is outer - do nothing
+		}
+
+	}
+
+	// Scale mesh
+/*	for(int i = 0; i < nodes.size(); i++)
 		for(int j = 0; j < 3; j++)
-			nodes[i].coords[j] *= scale_factor;
+			nodes[i].coords[j] *= scale_factor;*/
+
+	logger->write(string("Preprocessing mesh done."));
 
 	return 0;
 };
+
+int TetrMesh_1stOrder::find_border_elem_normal(int border_element_index, float* x, float* y, float* z)
+{
+	// Normal vector
+	float normal[3];
+
+	// Tmp vectors
+	float v[2][3];
+
+	// Tmp length
+	float l;
+
+	int i = border_element_index;
+
+	// Vector from vert '0' to vert '1'
+	v[0][0] = nodes[border[i].vert[1]].coords[0] - nodes[border[i].vert[0]].coords[0];
+	v[0][1] = nodes[border[i].vert[1]].coords[1] - nodes[border[i].vert[0]].coords[1];
+	v[0][2] = nodes[border[i].vert[1]].coords[2] - nodes[border[i].vert[0]].coords[2];
+
+	// Vector from vert '0' to vert '2'
+	v[1][0] = nodes[border[i].vert[2]].coords[0] - nodes[border[i].vert[0]].coords[0];
+	v[1][1] = nodes[border[i].vert[2]].coords[1] - nodes[border[i].vert[0]].coords[1];
+	v[1][2] = nodes[border[i].vert[2]].coords[2] - nodes[border[i].vert[0]].coords[2];
+
+	// Normal calculated as vector product
+	normal[0] = v[0][1] * v[1][2] - v[0][2] * v[1][1];
+	normal[1] = v[0][2] * v[1][0] - v[0][0] * v[1][2];
+	normal[2] = v[0][0] * v[1][1] - v[0][1] * v[1][0];
+
+	// Normal length is 1
+	l = sqrt( normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2] );
+	normal[0] /= l;
+	normal[1] /= l;
+	normal[2] /= l;
+
+	*x = normal[0];
+	*y = normal[1];
+	*z = normal[2];
+};
+
+int TetrMesh_1stOrder::find_border_node_normal(int border_node_index, float* x, float* y, float* z)
+{
+	*x = 0; *y = 0;	*z = 0;
+
+	float cur_normal[3];
+
+	int count = nodes[border_node_index].border_elements->size();
+
+	for(int i = 0; i < count; i++) {
+		find_border_elem_normal( (int) nodes[border_node_index].border_elements->at(i), &cur_normal[0], &cur_normal[1], &cur_normal[2] );
+		*x += cur_normal[0];	*y = cur_normal[1];	*z = cur_normal[2];
+	}
+
+	*x /= count;
+	*y /= count;
+	*z /= count;
+
+	float l = sqrt( (*x) * (*x) + (*y) * (*y) + (*z) * (*z) );
+	*x /= l;
+        *y /= l;
+        *z /= l;
+
+	if( fabs( sqrt( (*x) * (*x) + (*y) * (*y) + (*z) * (*z) ) - 1 ) > 0.01 ) {
+		if(logger != NULL) {
+			stringstream ss;
+			ss.setf(ios::fixed,ios::floatfield);
+			ss.precision(10);
+			ss << "ERROR: TetrMesh_1stOrder::find_border_node_normal - Outer normal too big!" << endl;
+			ss << "*x = " << *x << " *y = " << *y << " *z = " << *z << " l = " 
+				<< sqrt( (*x) * (*x) + (*y) * (*y) + (*z) * (*z) ) << endl;
+			logger->write(ss.str());
+		}
+		return -1;
+	}
+
+	return 0;
+}
 
 // TODO move actual file and string operations into TaskPreparator or MshFileReader
 int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_name)
@@ -100,6 +317,7 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 			new_node.local_num--;
 			node_infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
 			new_node.placement_type = LOCAL;
+			new_node.border_type = INNER;
 			// TODO set other values
 		}
 		else
@@ -136,63 +354,11 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 	node_infile.close();
 	ele_infile.close();
 
-	// Check if internal numbers of nodes are the same as numbers in array
-	// We need it in future to perform quick access to nodes in array
-	for(int i = 0; i < nodes.size(); i++)
+	if( pre_process_mesh() < 0 )
 	{
-		if(nodes[i].local_num != i) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - Invalid nodes numbering!"));
-			return -1;
-		}
-	}
-	for(int i = 0; i < tetrs.size(); i++)
-	{
-		if(tetrs[i].local_num != i) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - Invalid tetrahedron numbering!"));
-			return -1;
-		}
-	}
-
-	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
-	for(int i = 0; i < nodes.size(); i++) { nodes[i].elements = new vector<int>; }
-
-	// Go through all the tetrahedrons
-	for(int i = 0; i < tetrs.size(); i++)
-	{
-		// For all verticles
-		for(int j = 0; j < 4; j++)
-		{
-			// Push to data of nodes the number of this tetrahedron
-			nodes[tetrs[i].vert[j]].elements->push_back(i);
-		}
-	}
-
-	// TODO - move this part to mesh pre-processing. It is not specific for any file type.
-	// Check all the nodes and find 'unused' - remote ones that have connections only with remote ones
-	for(int i = 0; i < nodes.size(); i++)
-	{
-		// If node is remote
-		if(nodes[i].placement_type == REMOTE)
-		{
-			int count = 0;
-			// Check tetrahedrons it is a member of
-			for(int j = 0; j < nodes[i].elements->size(); j++)
-			{
-				// Check verticles
-				for(int k = 0; k < 4; k++)
-				{
-					// If it is local - count++
-					if(nodes[tetrs[nodes[i].elements->at(j)].vert[k]].placement_type == LOCAL) { count++; }
-				}
-			}
-			// If remote node is NOT connected with at least one local - it is unused one
-			if(count == 0)
-			{
-				nodes[i].placement_type = UNUSED;
-			}
-		}
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - pre_process_mesh() failed."));
+		return -1;
 	}
 
 	return 0;
@@ -291,63 +457,11 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 
 	infile.close();
 
-	// Check if internal numbers of nodes are the same as numbers in array
-	// We need it in future to perform quick access to nodes in array
-	for(int i = 0; i < nodes.size(); i++)
+	if( pre_process_mesh() < 0 )
 	{
-		if(nodes[i].local_num != i) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - Invalid nodes numbering!"));
-			return -1;
-		}
-	}
-	for(int i = 0; i < tetrs.size(); i++)
-	{
-		if(tetrs[i].local_num != i) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - Invalid tetrahedron numbering!"));
-			return -1;
-		}
-	}
-
-	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
-	for(int i = 0; i < nodes.size(); i++) { nodes[i].elements = new vector<int>; }
-
-	// Go through all the tetrahedrons
-	for(int i = 0; i < tetrs.size(); i++)
-	{
-		// For all verticles
-		for(int j = 0; j < 4; j++)
-		{
-			// Push to data of nodes the number of this tetrahedron
-			nodes[tetrs[i].vert[j]].elements->push_back(i);
-		}
-	}
-
-	// TODO Do we need this part?
-	// Check all the nodes and find 'unused' - remote ones that have connections only with remote ones
-	for(int i = 0; i < nodes.size(); i++)
-	{
-		// If node is remote
-		if(nodes[i].placement_type == REMOTE)
-		{
-			int count = 0;
-			// Check tetrahedrons it is a member of
-			for(int j = 0; j < nodes[i].elements->size(); j++)
-			{
-				// Check verticles
-				for(int k = 0; k < 4; k++)
-				{
-					// If it is local - count++
-					if(nodes[tetrs[nodes[i].elements->at(j)].vert[k]].placement_type == LOCAL) { count++; }
-				}
-			}
-			// If remote node is NOT connected with at least one local - it is unused one
-			if(count == 0)
-			{
-				nodes[i].placement_type = UNUSED;
-			}
-		}
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - pre_process_mesh() failed."));
+		return -1;
 	}
 
 	return 0;
@@ -362,6 +476,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 	int number_of_elements;
 	ElasticNode new_node;
 	Tetrahedron_1st_order new_tetr;
+	Triangle new_triangle;
 
 	ifstream infile;
 	infile.open(file_name, ifstream::in);
@@ -417,6 +532,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 			new_node.local_num--;
 			infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
 			new_node.placement_type = LOCAL;
+			new_node.border_type = INNER;
 			// TODO set other values
 		}
 		else if(new_node.local_num < 0)
@@ -456,23 +572,39 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 	for(int i = 0; i < number_of_elements; i++)
 	{
 		infile >> tmp_int >> tmp_int;
-		if(tmp_int != 4) {
+		if(tmp_int != 4 && tmp_int != 2) {
 			getline(infile, str);
 			continue;
+		} else if (tmp_int == 4) {
+			new_tetr.local_num = tetrs.size();
+			infile >> tmp_int >> tmp_int >> tmp_int >> tmp_int 
+				>> new_tetr.vert[0] >> new_tetr.vert[1] >> new_tetr.vert[2] >> new_tetr.vert[3];
+
+			if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) ) {
+				if(logger != NULL)
+					logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. Vert number must be positive."));
+				return -1;
+			}
+
+			new_tetr.vert[0]--; new_tetr.vert[1]--; new_tetr.vert[2]--; new_tetr.vert[3]--;
+
+			tetrs.push_back(new_tetr);
+		} else if (tmp_int == 2) {
+			new_triangle.local_num = border.size();
+			infile >> tmp_int >> tmp_int >> tmp_int >> tmp_int
+				>> new_triangle.vert[0] >> new_triangle.vert[1] >> new_triangle.vert[2];
+
+			if( (new_triangle.vert[0] <= 0) || (new_triangle.vert[1] <= 0) || (new_triangle.vert[2] <= 0) ) {
+				if(logger != NULL)
+					logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. Vert number must be positive."));
+				return -1;
+			}
+
+			new_triangle.vert[0]--; new_triangle.vert[1]--; new_triangle.vert[2]--;
+
+			border.push_back(new_triangle);
+
 		}
-		new_tetr.local_num = tetrs.size();
-		infile >> tmp_int >> tmp_int >> tmp_int >> tmp_int 
-			>> new_tetr.vert[0] >> new_tetr.vert[1] >> new_tetr.vert[2] >> new_tetr.vert[3];
-
-		if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) ) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. Vert number must be positive."));
-			return -1;
-		}
-
-		new_tetr.vert[0]--; new_tetr.vert[1]--; new_tetr.vert[2]--; new_tetr.vert[3]--;
-
-		tetrs.push_back(new_tetr);
 	}
 
 	infile >> str;
@@ -487,63 +619,11 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 
 	infile.close();
 
-	// Check if internal numbers of nodes are the same as numbers in array
-	// We need it in future to perform quick access to nodes in array
-	for(int i = 0; i < nodes.size(); i++)
+	if( pre_process_mesh() < 0 )
 	{
-		if(nodes[i].local_num != i) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - Invalid nodes numbering!"));
-			return -1;
-		}
-	}
-	for(int i = 0; i < tetrs.size(); i++)
-	{
-		if(tetrs[i].local_num != i) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - Invalid tetrahedron numbering!"));
-			return -1;
-		}
-	}
-
-	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
-	for(int i = 0; i < nodes.size(); i++) { nodes[i].elements = new vector<int>; }
-
-	// Go through all the tetrahedrons
-	for(int i = 0; i < tetrs.size(); i++)
-	{
-		// For all verticles
-		for(int j = 0; j < 4; j++)
-		{
-			// Push to data of nodes the number of this tetrahedron
-			nodes[tetrs[i].vert[j]].elements->push_back(i);
-		}
-	}
-
-	// TODO - move this part to mesh pre-processing. It is not specific for any file type.
-	// Check all the nodes and find 'unused' - remote ones that have connections only with remote ones
-	for(int i = 0; i < nodes.size(); i++)
-	{
-		// If node is remote
-		if(nodes[i].placement_type == REMOTE)
-		{
-			int count = 0;
-			// Check tetrahedrons it is a member of
-			for(int j = 0; j < nodes[i].elements->size(); j++)
-			{
-				// Check verticles
-				for(int k = 0; k < 4; k++)
-				{
-					// If it is local - count++
-					if(nodes[tetrs[nodes[i].elements->at(j)].vert[k]].placement_type == LOCAL) { count++; }
-				}
-			}
-			// If remote node is NOT connected with at least one local - it is unused one
-			if(count == 0)
-			{
-				nodes[i].placement_type = UNUSED;
-			}
-		}
+		if(logger != NULL)
+			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - pre_process_mesh() failed."));
+		return -1;
 	}
 
 	return 0;
@@ -1421,7 +1501,7 @@ int TetrMesh_1stOrder::do_next_step()
 	}
 
 	float time_step = get_max_possible_tau();
-//cout << "D1: " << time_step << endl;
+cout << "D1: " << time_step << endl;
 	// FIXME
 	// time_step = time_step * 2;
 	if(time_step < 0) {

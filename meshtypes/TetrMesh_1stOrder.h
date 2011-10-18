@@ -8,6 +8,7 @@
 #include "../system/quick_math.h"
 #include "../datatypes/ElasticNode.h"
 #include "../datatypes/Tetrahedron_1st_order.h"
+#include "../datatypes/Triangle.h"
 #include "../methods/GCM_Tetr_Elastic_Interpolation_1stOrder.h"
 #include "../rheotypes/VoidRheologyCalculator.h"
 
@@ -34,11 +35,6 @@ public:
         int load_node_ele_files(char* node_file_name, char* ele_file_name);
 	int load_gmv_file(char* file_name);
 
-	int pre_process_mesh(float scale_factor);
-
-//	bool point_in_tetr(float ext_x, float ext_y, float ext_z, Tetrahedron* tetr); __attribute__((optimize("O1")));
-//	bool point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr); __attribute__((optimize("O1")));
-
 	bool point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron* tetr);
 	bool point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron_1st_order* tetr);
 	Tetrahedron_1st_order* find_owner_tetr(int base_node, float dx, float dy, float dz, ElasticNode* node);
@@ -57,9 +53,17 @@ public:
 	//vector<ElasticNode> nodes;
 	vector<Tetrahedron_1st_order> tetrs;
 
+	vector<Triangle> border;
+
 	TetrMesh_1stOrder_stats mesh_stats;
 
+	int find_border_node_normal(int border_node_index, float* x, float* y, float* z);
+
 private:
+	int pre_process_mesh();
+
+	int find_border_elem_normal(int border_element_index, float* x, float* y, float* z);
+
 	void clear_mesh_stats();
 
 	float calc_determ_pure_tetr(int node1, int node2, int node3, int ref_node);

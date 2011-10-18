@@ -14,9 +14,7 @@ using std::vector;
 using std::set;
 using std::ios;
 
-struct basis {
-	float ksi[3][3];
-};
+#include "../datatypes/Basis.h"
 
 // TODO - is it possible to avoid magick number?
 // It is used to check if random basis is good enough

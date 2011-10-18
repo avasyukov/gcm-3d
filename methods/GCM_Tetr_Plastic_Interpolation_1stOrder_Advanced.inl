@@ -426,6 +426,7 @@ float GCM_Tetr_Plastic_Interpolation_1stOrder_Advanced::get_max_lambda(ElasticNo
 	}
 
 //cout << "GML3:  " << endl;
+cout << "L2: " << max_l2 << "\n";
 	return sqrt( max_l2 * ( (node->la) + 2*(node->mu) ) / (node->rho) );
 };
 

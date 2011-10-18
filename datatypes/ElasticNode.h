@@ -21,6 +21,7 @@ public:
 	float rho;
 	float yield_limit;
 	vector<int>* elements;
+	vector<int>* border_elements;
 protected:
 	// TODO should we switch from vector to memmory block with offsets in it?
 	// int elems_offset;

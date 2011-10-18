@@ -8,7 +8,8 @@ int main()
 	srand( unsigned( time(0)) ) ;
 
 	Logger* log = new Logger();
-	GCM_Tetr_Plastic_Interpolation_1stOrder_Advanced* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder_Advanced();
+	GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis();
+	//GCM_Tetr_Plastic_Interpolation_1stOrder_Advanced* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder_Advanced();
 	//GCM_Tetr_Plastic_Interpolation_1stOrder* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder();
 	VoidRheologyCalculator* rc = new VoidRheologyCalculator();
 	TetrMesh_1stOrder* mesh = new TetrMesh_1stOrder();
@@ -23,12 +24,12 @@ int main()
 
 	// TODO - check cube-self-gen
 //	mesh->load_msh_file((char*)"./data/models/cube-self-gen.msh");
-	mesh->load_msh_file((char*)"/home/anganar/Dropbox/Public/models/tube-with-crack.msh");
+//	mesh->load_msh_file((char*)"/home/anganar/Dropbox/Public/models/tube-with-crack.msh");
+	mesh->load_msh_file((char*)"./data/models/tube.msh");
+
 //	mesh->load_gmv_file((char*)"mesh-optimized.gmv");
 //	mesh->load_node_ele_files((char*)"data/models/heart.node",(char*)"data/models/heart.ele");
 //	mesh->load_node_ele_files((char*)"data/models/cube.1.node",(char*)"data/models/cube.1.ele");
-
-	mesh->pre_process_mesh(1);
 
 	TaskPreparator* tp = new TaskPreparator();
 	tp->set_fixed_elastic_rheology(&(mesh->nodes), 70000, 10000, 1, 1000000);
