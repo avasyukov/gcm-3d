@@ -36,16 +36,19 @@ int main()
 	TaskPreparator* tp = new TaskPreparator();
 	tp->set_fixed_elastic_rheology(&(mesh->nodes), 70000, 10000, 1, 1000000);
 	SnapshotWriter* sw = new SnapshotWriter();
-	sw->attach(log);
+//	sw->attach(log);
 //	sw->set_basement(0.1,0.1,0.1,2.44,20); // It is required for cubic dump only
 	mesh->log_quality_stats();
 
-	if (sw->tmp_dump_line(mesh,0) < 0)
-	{
-		cout << "Can not dump!\n";
-		return -1;
-	}
-	for(int i = 1; i < 100; i++)
+//	if (sw->tmp_dump_line(mesh,0) < 0)
+//	{
+//		cout << "Can not dump!\n";
+//		return -1;
+//	}
+
+	sw->dump_vtk(mesh, 0, 0);
+
+/*	for(int i = 1; i < 100; i++)
 	{
 		cout << "Started step " << i << ". Time = " << mesh->get_current_time() << "." << endl;
 		for(int j = 0; j < 10; j++)
@@ -54,6 +57,7 @@ int main()
 		if (sw->tmp_dump_line(mesh,i) < 0)
 			return -1;
 		cout << "Finished step " << i << ". Time = " << mesh->get_current_time() << "." << endl;
-	}
+	}*/
+
 	return 0;
 }
