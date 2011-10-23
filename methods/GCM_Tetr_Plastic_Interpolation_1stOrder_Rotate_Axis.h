@@ -46,6 +46,28 @@ protected:
 	basis* random_axis_inv;
 	int basis_quantity;
 
+	int find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha);
+
+	// Variables used in calculations internally
+
+	// Delta x on previous time layer for all the omegas
+	// 	omega_new_time_layer(ksi) = omega_old_time_layer(ksi+dksi)
+	float dksi[9];
+
+	// If the corresponding point on previous time layer is inner or not
+	bool inner[9];
+
+	// We will store interpolated nodes on previous time layer here
+	// We know that we need five nodes for each direction (corresponding to Lambdas -C1, -C2, 0, C2, C1)
+	// TODO  - We can  deal with (lambda == 0) separately
+	ElasticNode previous_nodes[5];
+
+	// Outer normal at current point
+	float outer_normal[3];
+
+	// This array will link omegas with corresponding interpolated nodes they should be copied from
+	int ppoint_num[9];
+
 	quick_math qm_engine;
 };
 

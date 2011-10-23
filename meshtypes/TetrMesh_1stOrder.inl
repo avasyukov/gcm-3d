@@ -139,13 +139,16 @@ int TetrMesh_1stOrder::pre_process_mesh()
 	// Check border triangles alignment to calculate outer normal right
 
 	// Guaranteed allowed step
-	float step_h = get_min_h();
+	float step_h = get_min_h() / 4; // TODO avoid magick number
 
 	// Normal vector
 	float normal[3];
 
 	// Displacement
 	float dx[3];
+
+	float tc[3];
+	float tc_mod;
 
 	int tmp_int;
 
@@ -155,27 +158,68 @@ int TetrMesh_1stOrder::pre_process_mesh()
 
 		find_border_elem_normal(i, &normal[0], &normal[1], &normal[2]);
 
-		// Displacement along normal
+		// Displacement along normal ...
 		dx[0] = step_h * normal[0];
 		dx[1] = step_h * normal[1];
 		dx[2] = step_h * normal[2];
+		// ... from the point moved a bit to the center of triangle
+		tc[0] = ((nodes[border[i].vert[0]].coords[0] + nodes[border[i].vert[1]].coords[0] + nodes[border[i].vert[2]].coords[0]) / 3) - nodes[border[i].vert[0]].coords[0];
+		tc[1] = ((nodes[border[i].vert[0]].coords[1] + nodes[border[i].vert[1]].coords[1] + nodes[border[i].vert[2]].coords[1]) / 3) - nodes[border[i].vert[0]].coords[1];
+		tc[2] = ((nodes[border[i].vert[0]].coords[2] + nodes[border[i].vert[1]].coords[2] + nodes[border[i].vert[2]].coords[2]) / 3) - nodes[border[i].vert[0]].coords[2];
+		tc_mod = sqrt( tc[0] * tc[0] + tc[1] * tc[1] + tc[2] * tc[2] );
+		dx[0] += step_h * tc[0] / tc_mod;
+		dx[1] += step_h * tc[1] / tc_mod;
+		dx[2] += step_h * tc[2] / tc_mod;
 
 		// Check if we are inside of the body moving along normal
 		if( find_owner_tetr(border[i].vert[0], dx[0], dx[1], dx[2], &nodes[border[i].vert[0]]) != NULL ) {
+//cout << "Normal is inner" << endl;
 			// Inside body - normal most probably is inner - recheck
 			if( find_owner_tetr(border[i].vert[0], -dx[0], -dx[1], -dx[2], &nodes[border[i].vert[0]]) == NULL ) {
+//cout << "Opposite direction is outer" << endl;
+//cout << "Before: " << border[i].vert[0] << " " << border[i].vert[1] << " " << border[i].vert[2] << endl;
 				// Opposite direction is outer - we are right - just swap trianlge edges
 				tmp_int = border[i].vert[2];
 				border[i].vert[2] = border[i].vert[1];
 				border[i].vert[1] = tmp_int;
+//cout << "After: " << border[i].vert[0] << " " << border[i].vert[1] << " " << border[i].vert[2] << endl;
 			} else {
 				// Opposite direction looks inner too - smth bad happens - report error
 				if(logger != NULL)
-					logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Can not find outer normal!"));
+					logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Can not find outer normal for element!"));
+//cout << "DX: " << dx[0] << " " << dx[1] << " " << dx[2] << endl;
+//cout << "DX1: " << step_h * normal[0] << " " << step_h * normal[1] << " " << step_h * normal[2] << endl;
+//cout << "DX2: " << step_h * tc[0] / tc_mod << " " << step_h * tc[1] / tc_mod << " " << step_h * tc[2] / tc_mod << endl;
 				return -1;
 			}
 		} else {
+//cout << "Normal is outer" << endl;
 			// Outside body - normal is outer - do nothing
+		}
+
+	}
+
+	// Check all nodes
+	for(int i = 0; i < nodes.size(); i++)
+	{
+		if(nodes[i].border_type == BORDER) {
+
+			find_border_node_normal(i, &normal[0], &normal[1], &normal[2]);
+
+			// Displacement along normal
+			dx[0] = step_h * normal[0];
+			dx[1] = step_h * normal[1];
+			dx[2] = step_h * normal[2];
+
+			// Check if we are inside of the body moving towards normal
+			if( find_owner_tetr(nodes[i].local_num, -dx[0], -dx[1], -dx[2], &nodes[i]) == NULL ) {
+				// Smth bad happens - report error
+				if(logger != NULL)
+					logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Can not find outer normal for node!"));
+				return -1;
+			} else {
+				// Outside body - normal is outer - do nothing
+			}
 		}
 
 	}
@@ -224,45 +268,52 @@ int TetrMesh_1stOrder::find_border_elem_normal(int border_element_index, float* 
 	normal[1] /= l;
 	normal[2] /= l;
 
+/*cout << "Elem:\n";
+cout << nodes[border[i].vert[0]].coords[0] << " " << nodes[border[i].vert[0]].coords[1] << " " << nodes[border[i].vert[0]].coords[2] << endl;
+cout << nodes[border[i].vert[1]].coords[0] << " " << nodes[border[i].vert[1]].coords[1] << " " << nodes[border[i].vert[1]].coords[2] << endl;
+cout << nodes[border[i].vert[2]].coords[0] << " " << nodes[border[i].vert[2]].coords[1] << " " << nodes[border[i].vert[2]].coords[2] << endl;
+cout << v[0][0] << " " << v[0][1] << " " << v[0][2] << endl;
+cout << v[1][0] << " " << v[1][1] << " " << v[1][2] << endl;
+cout << normal[0] << " " << normal[1] << " " << normal[2] << endl;*/
+
 	*x = normal[0];
 	*y = normal[1];
 	*z = normal[2];
+
+	return 0;
 };
 
 int TetrMesh_1stOrder::find_border_node_normal(int border_node_index, float* x, float* y, float* z)
 {
-	*x = 0; *y = 0;	*z = 0;
+	float final_normal[3];
+	final_normal[0] = 0;
+	final_normal[1] = 0;
+	final_normal[2] = 0;
 
 	float cur_normal[3];
 
+//cout << "\n\n\n";
+//cout << nodes[border_node_index].coords[0] << " " << nodes[border_node_index].coords[1] << " " << nodes[border_node_index].coords[2] << endl;
 	int count = nodes[border_node_index].border_elements->size();
 
 	for(int i = 0; i < count; i++) {
 		find_border_elem_normal( (int) nodes[border_node_index].border_elements->at(i), &cur_normal[0], &cur_normal[1], &cur_normal[2] );
-		*x += cur_normal[0];	*y = cur_normal[1];	*z = cur_normal[2];
+		final_normal[0] += cur_normal[0];	final_normal[1] += cur_normal[1];	final_normal[2] += cur_normal[2];
 	}
 
-	*x /= count;
-	*y /= count;
-	*z /= count;
+	final_normal[0] /= count;
+	final_normal[1] /= count;
+	final_normal[2] /= count;
 
-	float l = sqrt( (*x) * (*x) + (*y) * (*y) + (*z) * (*z) );
-	*x /= l;
-        *y /= l;
-        *z /= l;
+	float l = sqrt( final_normal[0] * final_normal[0] + final_normal[1] * final_normal[1] + final_normal[2] * final_normal[2] );
+	final_normal[0] /= l;
+        final_normal[1] /= l;
+        final_normal[2] /= l;
+//cout << final_normal[0] << " " << final_normal[1] << " " << final_normal[2] << endl;
 
-	if( fabs( sqrt( (*x) * (*x) + (*y) * (*y) + (*z) * (*z) ) - 1 ) > 0.01 ) {
-		if(logger != NULL) {
-			stringstream ss;
-			ss.setf(ios::fixed,ios::floatfield);
-			ss.precision(10);
-			ss << "ERROR: TetrMesh_1stOrder::find_border_node_normal - Outer normal too big!" << endl;
-			ss << "*x = " << *x << " *y = " << *y << " *z = " << *z << " l = " 
-				<< sqrt( (*x) * (*x) + (*y) * (*y) + (*z) * (*z) ) << endl;
-			logger->write(ss.str());
-		}
-		return -1;
-	}
+	*x = final_normal[0];
+	*y = final_normal[1];
+	*z = final_normal[2];
 
 	return 0;
 }

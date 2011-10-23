@@ -25,7 +25,9 @@ int main()
 	// TODO - check cube-self-gen
 //	mesh->load_msh_file((char*)"./data/models/cube-self-gen.msh");
 //	mesh->load_msh_file((char*)"/home/anganar/Dropbox/Public/models/tube-with-crack.msh");
-	mesh->load_msh_file((char*)"./data/models/tube.msh");
+	if ( mesh->load_msh_file((char*)"../gcm-3d-materials/data/models/tube.msh") < 0 )
+		return -1;
+//	mesh->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-self-gen.msh");
 
 //	mesh->load_gmv_file((char*)"mesh-optimized.gmv");
 //	mesh->load_node_ele_files((char*)"data/models/heart.node",(char*)"data/models/heart.ele");

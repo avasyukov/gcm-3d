@@ -37,7 +37,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::prepare_part_step(Elast
 	if(stage < 3) {
 		if( elastic_matrix3d[stage]->prepare_matrix( cur_node->la, cur_node->mu, cur_node->rho, 
 					random_axis_inv[node_num].ksi[0][stage], random_axis_inv[node_num].ksi[1][stage], 
-										random_axis_inv[node_num].ksi[2][stage], logger) < 0) {
+								random_axis_inv[node_num].ksi[2][stage], logger) < 0) {
 			return -1;
 		}
 	} else {
@@ -77,18 +77,10 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		return 0;
 	}
 
-	// Moved to get_max_lambda
-	// Axis randomization is done on first part-step and stored for further part-steps
-	/*if(stage == 0) {
-		if(create_random_axis(cur_node, mesh) < 0)
-		{
-			if(logger != NULL)
-				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - failed axis randomization!"));
-			return -1;
-		}
-	}*/
-
 	int node_num = cur_node->local_num;
+
+	if (cur_node->border_type == BORDER)
+		mesh->find_border_node_normal(node_num, &outer_normal[0], &outer_normal[1], &outer_normal[2]);
 
 	//  Prepare matrixes  A, Lambda, Omega, Omega^(-1)
 	if (prepare_part_step(cur_node, stage) < 0)
@@ -97,102 +89,69 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 	// Here we will store (omega = Matrix_OMEGA * u)
 	float omega[9];
 
-	// Delta x on previous time layer for all the omegas
-	// 	omega_new_time_layer(ksi) = omega_old_time_layer(ksi+dksi)
-	float dksi[9];
 	for(int i = 0; i < 9; i++)
 		dksi[i] = - elastic_matrix3d[stage]->L(i,i) * time_step;
 
-	// If the corresponding point on previous time layer is inner or not
-	bool inner[9];
+	float alpha = 0;
 
-	// We will store interpolated nodes on previous time layer here
-	// We know that we need five nodes for each direction (corresponding to Lambdas -C1, -C2, 0, C2, C1)
-	// TODO  - We can  deal with (lambda == 0) separately
-	ElasticNode previous_nodes[5];
+	// Number of outer characteristics
+	int outer_count;
 
-	// This array will link omegas with corresponding interpolated nodes they should be copied from
-	int ppoint_num[9];
+	do {
+		outer_count = find_nodes_on_previous_time_layer(cur_node, stage, mesh, alpha);
+		alpha += 0.1;
+	} while( (outer_count != 0) && (outer_count != 3) && (alpha < 1.01) );
 
-	// Just tmp tetr pointer
-	Tetrahedron* tmp_tetr;
-
-	int count = 0;
-	// For all omegas
-	for(int i = 0; i < 9; i++)
-	{
-		// Check prevoius omegas ...
-		bool already_found = false;
-		for(int j = 0; j < i; j++)
+	if((outer_count != 0) && (outer_count != 3)) {
+		if(logger != NULL)
 		{
-			// ... And try to find if we have already worked with the required point
-			// on previous time layer (or at least with the point that is close enough)
-			if( fabs(dksi[i] - dksi[j]) <= 0.01 * fabs(dksi[i] + dksi[j]) ) // TODO - avoid magick number!
-			{
-				// If we have already worked with this point - just remember the number
-				already_found = true;
-				ppoint_num[i] = ppoint_num[j];
-				inner[i] = inner[j];
-			}
-		}
-		// If we do not have necessary point in place - ...
-		if(already_found == false)
-		{
-			// ... Put new number ...
-			ppoint_num[i] = count;
-
-			previous_nodes[count] = *cur_node;
-
-			if(previous_nodes[count].local_num != cur_node->local_num) {
-				if(logger != NULL)
-					logger->write(string("previous_nodes[count].local_num != cur_node->local_num!"));
-				return -1;
-			}
-
-			// ... Calculate coordinates ...
-			if (stage < 3) {
-				for(int j = 0; j < 3; j++) {
-					previous_nodes[count].coords[j] = cur_node->coords[j] 
-							+ dksi[i] * random_axis[node_num].ksi[stage][j];
+			stringstream ss;
+			ss.setf(ios::fixed,ios::floatfield);
+			ss.precision(10);
+			ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - there are " << outer_count << " 'outer' characteristics." << endl;
+			ss << "STAGE: " << stage << endl;
+			ss << "NODE " << node_num << ": x: " << cur_node->coords[0] 
+						<< " y: " << cur_node->coords[1]
+						<< " z: " << cur_node->coords[2] << endl;
+			if( cur_node->border_type == BORDER )
+				ss << "BORDER" << endl;
+			else
+				ss << "INNER" << endl;
+			ss << "OUTER_NORMAL: " << outer_normal[0] << " " << outer_normal[1] << " " << outer_normal[2] << endl;
+			ss << "NEIGH: " << (cur_node->elements)->size() << endl;
+			for(int i = 0; i < (cur_node->elements)->size(); i++) {
+				Tetrahedron* tmp_tetr = mesh->get_tetrahedron( (cur_node->elements)->at(i) );
+				ss << "\tTetr " << tmp_tetr->local_num << " Neigh_num: " << i << endl;
+				for(int j = 0; j < 4; j++) {
+					ElasticNode* tmp_node = mesh->get_node( tmp_tetr->vert[j] );
+					ss << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
+							<< " x: " << tmp_node->coords[0]
+							<< " y: " << tmp_node->coords[1]
+							<< " z: " << tmp_node->coords[2] << endl;
 				}
-			} else {
-				if(logger != NULL)
-					logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - wrong stage number!"));
-				return -1;
 			}
-
-			// ... Find owner tetrahedron ...
-			tmp_tetr = mesh->find_owner_tetr(node_num,
-							dksi[i] * random_axis[node_num].ksi[stage][0],
-							dksi[i] * random_axis[node_num].ksi[stage][1],
-							dksi[i] * random_axis[node_num].ksi[stage][2], cur_node);
-//			tmp_tetr = mesh->find_owner_tetr(previous_nodes[count].coords[0], 
-//				previous_nodes[count].coords[1], previous_nodes[count].coords[2], cur_node);
-
-//			cout << "DEBUG: " << previous_nodes[count].coords[0] << " " 
-//					<< previous_nodes[count].coords[1] << " "
-//					<< previous_nodes[count].coords[2] << " " << tmp_tetr << endl;
-
-			if( tmp_tetr != NULL )
-			{
-				// ... And interpolate values
-				if(mesh->interpolate(&previous_nodes[count], tmp_tetr) < 0)
-				{
-					if(logger != NULL)
-						logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - interpolation failed!"));
-					return -1;
+			for(int i = 0; i < 3; i++)
+				ss << "KSI[" << i << "]: x: " << random_axis[node_num].ksi[i][0]
+						<< " y: " << random_axis[node_num].ksi[i][1]
+						<< " z: " << random_axis[node_num].ksi[i][2] << endl;
+			for(int i = 0; i < 9; i++) {
+				if(inner[i]) {
+					ss << "INNER OMEGA: num: " << i
+						<< " val: " << elastic_matrix3d[stage]->L(i,i)
+						<< " step: " << elastic_matrix3d[stage]->L(i,i) * time_step << endl;
+				} else {
+					ss << "OUTER OMEGA: num: " << i 
+						<< " val: " << elastic_matrix3d[stage]->L(i,i)
+						<< " step: " << elastic_matrix3d[stage]->L(i,i) * time_step << endl;
 				}
-				inner[i] = true;
-			} else {
-				// There is no value in interpolation in this case
-				//	as long as characteristic is out of region
-				inner[i] = false;
+				ss << "\t Point x: " << previous_nodes[ppoint_num[i]].coords[0]
+						<< " y: " << previous_nodes[ppoint_num[i]].coords[1]
+						<< " z: " << previous_nodes[ppoint_num[i]].coords[2] << endl;
 			}
-			count++;
+			logger->write(ss.str());
 		}
+		return -1;
 	}
-
-	int outer_count = 0;
 
 	// TODO - to think - if all omegas are 'inner' can we skip matrix calculations and just use new_u = interpolated_u ?
 	// For all omegas
@@ -209,10 +168,6 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 				omega[i] += elastic_matrix3d[stage]->U(i,j) 
 							* previous_nodes[ppoint_num[i]].values[j];
 			}
-		// For 'outer' omega - just count it
-		// The values are undefined anycase
-		} else {
-			outer_count++;
 		}
 	}
 
@@ -395,6 +350,110 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 	return 0;
 };
 
+int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha)
+{
+
+//cout << "find_nodes " << alpha << endl;
+	if( (alpha > 1.01) || (alpha < 0) ) {
+		if(logger != NULL)
+			logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer - bad alpha!"));
+		return -1;
+	}
+
+	if (stage >= 3) {
+		if(logger != NULL)
+			logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer - bad stage number!"));
+		return -1;
+	}
+
+	int node_num = cur_node->local_num;
+
+	// Just tmp tetr pointer
+	Tetrahedron* tmp_tetr;
+
+	int count = 0;
+
+	float dx[3];
+	float dx_ksi[3];
+	float dx_ksi_normal_projection[3];
+
+	// For all omegas
+	for(int i = 0; i < 9; i++)
+	{
+		// Check prevoius omegas ...
+		bool already_found = false;
+		for(int j = 0; j < i; j++)
+		{
+			// ... And try to find if we have already worked with the required point
+			// on previous time layer (or at least with the point that is close enough)
+			if( fabs(dksi[i] - dksi[j]) <= 0.01 * fabs(dksi[i] + dksi[j]) ) // TODO - avoid magick number!
+			{
+				// If we have already worked with this point - just remember the number
+				already_found = true;
+				ppoint_num[i] = ppoint_num[j];
+				inner[i] = inner[j];
+			}
+		}
+		// If we do not have necessary point in place - ...
+		if(already_found == false)
+		{
+			// ... Put new number ...
+			ppoint_num[i] = count;
+
+			previous_nodes[count] = *cur_node;
+
+			// TODO - is it possible???
+			if(previous_nodes[count].local_num != cur_node->local_num) {
+				if(logger != NULL)
+					logger->write(string("previous_nodes[count].local_num != cur_node->local_num!"));
+				return -1;
+			}
+
+			// ... Find vectors ...
+			for(int j = 0; j < 3; j++)
+				dx_ksi[j] = dksi[i] * random_axis[node_num].ksi[stage][j];
+
+			float dx_ksi_normal_projection_modul = dx_ksi[0] * outer_normal[0] + dx_ksi[1] * outer_normal[1] + dx_ksi[2] * outer_normal[2];
+
+			for(int j = 0; j < 3; j++)
+				dx_ksi_normal_projection[j] = dx_ksi_normal_projection_modul * outer_normal[j];
+
+			// ... Calculate coordinates ...
+			for(int j = 0; j < 3; j++) {
+				dx[j] = dx_ksi[j] * (1 - alpha) + dx_ksi_normal_projection[j] * alpha;
+				previous_nodes[count].coords[j] = cur_node->coords[j] + dx[j];
+			}
+
+			// ... Find owner tetrahedron ...
+			tmp_tetr = mesh->find_owner_tetr(node_num, dx[0], dx[1], dx[2], cur_node);
+
+			if( tmp_tetr != NULL )
+			{
+				// ... And interpolate values
+				if(mesh->interpolate(&previous_nodes[count], tmp_tetr) < 0)
+				{
+					if(logger != NULL)
+						logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer - interpolation failed!"));
+					return -1;
+				}
+				inner[i] = true;
+			} else {
+				// There is no value in interpolation in this case
+				//	as long as characteristic is out of region
+				inner[i] = false;
+			}
+			count++;
+		}
+	}
+
+	int outer_count = 0;
+	for(int i = 0; i < 9; i++)
+		if(!inner[i])
+			outer_count++;
+
+	return outer_count;
+};
+
 int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::get_number_of_stages()
 {
 	return 4;
@@ -410,52 +469,8 @@ float GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::get_max_lambda(Elasti
 		return -1;
 	}
 
-	int node_num = node->local_num;
-
-	// We return max(l) * sqrt((la+2*mu)/rho)
-	float l2;
-	float max_l2 = 0;
-	for(int i = 0; i < 3; i++) {
-		l2 = random_axis_inv[node_num].ksi[0][i] * random_axis_inv[node_num].ksi[0][i]
-				+ random_axis_inv[node_num].ksi[1][i] * random_axis_inv[node_num].ksi[1][i]
-				+ random_axis_inv[node_num].ksi[2][i] * random_axis_inv[node_num].ksi[2][i];
-		if(l2 > max_l2)
-			max_l2 = l2;
-	}
-
-/*cout << "\nRA:\n";
-
-cout << random_axis[node_num].ksi[0][0] << " " << random_axis[node_num].ksi[1][0] << " " 
-          << random_axis[node_num].ksi[2][0] << endl;
-cout << random_axis[node_num].ksi[0][1] << " " << random_axis[node_num].ksi[1][1] << " " 
-          << random_axis[node_num].ksi[2][1] << endl;
-cout << random_axis[node_num].ksi[0][2] << " " << random_axis[node_num].ksi[1][2] << " " 
-          << random_axis[node_num].ksi[2][2] << endl;
-
-cout << "RA_inv\n";
-
-cout << random_axis_inv[node_num].ksi[0][0] << " " << random_axis_inv[node_num].ksi[1][0] << " " 
-          << random_axis_inv[node_num].ksi[2][0] << endl;
-cout << random_axis_inv[node_num].ksi[0][1] << " " << random_axis_inv[node_num].ksi[1][1] << " "
-          << random_axis_inv[node_num].ksi[2][1] << endl;
-cout << random_axis_inv[node_num].ksi[0][2] << " " << random_axis_inv[node_num].ksi[1][2] << " "
-          << random_axis_inv[node_num].ksi[2][2] << endl;
-
-
-cout << "Test\n";
-for(int i = 0; i < 3; i++) {
-	for(int j = 0; j < 3; j++) {
-		float a = 0;
-		for(int k = 0; k < 3; k++)
-			a += random_axis[node_num].ksi[i][k] * random_axis_inv[node_num].ksi[k][j];
-		cout << a << " ";
-	}
-	cout << "\n";
-}
-
-cout << "L2: " << max_l2 << "\n";*/
-
-	return sqrt( max_l2 * ( (node->la) + 2*(node->mu) ) / (node->rho) );
+	// We just return sqrt((la+2*mu)/rho) because axis are randomized by rotation, so x^2+y^2+z^2 == 1
+	return sqrt( ( (node->la) + 2 * (node->mu) ) / (node->rho) );
 };
 
 int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_random_axis(ElasticNode* cur_node, TetrMesh* mesh)
@@ -481,13 +496,13 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_random_axis(Elas
 
 	} else if (cur_node->border_type == BORDER) {
 
-		float normal[3];
-		mesh->find_border_node_normal(node_num, &normal[0], &normal[1], &normal[2]);
+		mesh->find_border_node_normal(node_num, &outer_normal[0], &outer_normal[1], &outer_normal[2]);
 
 		// TODO think about limits - PI or 2*PI
 		float teta = (rand() % 360) * 2 * PI / 360;
 
-		create_rotation_matrix(node_num, normal[0], normal[1], normal[2], teta);
+		// Rotate at random angle around normal
+		create_rotation_matrix(node_num, outer_normal[0], outer_normal[1], outer_normal[2], teta);
 
 	} else {
 		if(logger != NULL)
@@ -517,22 +532,69 @@ void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_rotation_matrix
 
 void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_rotation_matrix(int node_num, float x, float y, float z, float teta)
 {
-	random_axis[node_num].ksi[0][0] = cos(teta) + x * x * (1 - cos(teta));
-	random_axis[node_num].ksi[0][1] = y * x * (1 - cos(teta)) + z * sin(teta);
-	random_axis[node_num].ksi[0][2] = z * x * (1 - cos(teta)) - y * sin(teta);
+	float sqrt3 = sqrt(3);
+	float sqrt2 = sqrt(2);
+	float sqrt6 = sqrt2 * sqrt3;
 
-	random_axis[node_num].ksi[1][0] = y * x * (1 - cos(teta)) - z * sin(teta);
-	random_axis[node_num].ksi[1][1] = cos(teta) + y * y * (1 - cos(teta));
-	random_axis[node_num].ksi[1][2] = y * z * (1 - cos(teta)) + x * sin(teta);
+	basis new_axis;
 
-	random_axis[node_num].ksi[2][0] = x * z * (1 - cos(teta)) + y * sin(teta);
-	random_axis[node_num].ksi[2][1] = y * z * (1 - cos(teta)) - x * sin(teta);
-	random_axis[node_num].ksi[2][2] = cos(teta) + z * z * (1 - cos(teta));
+	// Rotation from normal "quasi-(1;1;1)" to first axis "quasi-(1;0;0)"
+	float x_m[3][3];
+	x_m[0][0] = sqrt3/3;	x_m[1][0] = sqrt3/3;	x_m[2][0] = sqrt3/3;
+	x_m[0][1] = -sqrt2/2;	x_m[1][1] = sqrt2/2;	x_m[2][1] = 0;
+	x_m[0][2] = -sqrt6/6;	x_m[1][2] = -sqrt6/6;	x_m[2][2] = 2*sqrt6/6;
+
+	for(int i = 0; i < 3; i++)
+		new_axis.ksi[0][i] = x_m[0][i] * x + x_m[1][i] * y + x_m[2][i] * z;
+
+	// Rotation from normal "quasi-(1;1;1)" to second axis "quasi-(0;1;0)"
+	float y_m[3][3];
+	y_m[0][0] = sqrt2/2;	y_m[1][0] = -sqrt2/2;	y_m[2][0] = 0;
+	y_m[0][1] = sqrt3/3;	y_m[1][1] = sqrt3/3;	y_m[2][1] = sqrt3/3;
+	y_m[0][2] = -sqrt6/6;	y_m[1][2] = -sqrt6/6;	y_m[2][2] = 2*sqrt6/6;
+
+	for(int i = 0; i < 3; i++)
+		new_axis.ksi[1][i] = y_m[0][i] * x + y_m[1][i] * y + y_m[2][i] * z;
+
+	// Rotation from normal "quasi-(1;1;1)" to third axis "quasi-(0;0;1)"
+	float z_m[3][3];
+	z_m[0][0] = sqrt2/2;	z_m[1][0] = 0;		z_m[2][0] = -sqrt2/2;
+	z_m[0][1] = -sqrt6/6;	z_m[1][1] = 2*sqrt6/6;	z_m[2][1] = -sqrt6/6;
+	z_m[0][2] = sqrt3/3;	z_m[1][2] = sqrt3/3;	z_m[2][2] = sqrt3/3;
+
+	for(int i = 0; i < 3; i++)
+		new_axis.ksi[2][i] = z_m[0][i] * x + z_m[1][i] * y + z_m[2][i] * z;
+
+	// Rotation matrix - random teta around normal
+	float rot[3][3];
+
+	rot[0][0] = cos(teta) + x * x * (1 - cos(teta));
+	rot[0][1] = y * x * (1 - cos(teta)) + z * sin(teta);
+	rot[0][2] = z * x * (1 - cos(teta)) - y * sin(teta);
+
+	rot[1][0] = y * x * (1 - cos(teta)) - z * sin(teta);
+	rot[1][1] = cos(teta) + y * y * (1 - cos(teta));
+	rot[1][2] = y * z * (1 - cos(teta)) + x * sin(teta);
+
+	rot[2][0] = x * z * (1 - cos(teta)) + y * sin(teta);
+	rot[2][1] = y * z * (1 - cos(teta)) - x * sin(teta);
+	rot[2][2] = cos(teta) + z * z * (1 - cos(teta));
+
+	// Rotate
+	for(int i = 0; i < 3; i++) {
+		for(int j = 0; j < 3; j++) {
+			random_axis[node_num].ksi[i][j] = 0;
+			for(int k = 0; k < 3; k++) {
+				random_axis[node_num].ksi[i][j] += rot[k][j] * new_axis.ksi[i][k];
+			}
+		}
+	}
+
 };
 
 void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_inverse_matrix(int node_num)
 {
-	// Find inverse matrix
+	// Find inverse matrix, use the fact that it is rotation matrix
 
 	random_axis_inv[node_num].ksi[0][0] = random_axis[node_num].ksi[0][0];
 	random_axis_inv[node_num].ksi[1][0] = random_axis[node_num].ksi[0][1];
