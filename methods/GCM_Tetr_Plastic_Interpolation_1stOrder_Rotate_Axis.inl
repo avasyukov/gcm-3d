@@ -102,6 +102,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		alpha += 0.1;
 	} while( (outer_count != 0) && (outer_count != 3) && (alpha < 1.01) );
 
+	// TODO - merge this condition with the next ones
 	if((outer_count != 0) && (outer_count != 3)) {
 		if(logger != NULL)
 		{
@@ -299,51 +300,9 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		for(int j = 0; j < 9; j++)
 			new_node->values[j] = gsl_vector_get(x_gsl, j);
 	}
-	// If there are 'outer' omegas but not 3 ones - it means smth bad happens...
+	// If there are 'outer' omegas but not 3 ones - we should not be here - we checked it before
 	else
 	{
-		if(logger != NULL)
-		{
-			stringstream ss;
-			ss.setf(ios::fixed,ios::floatfield);
-			ss.precision(10);
-			ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - there are " << outer_count << " 'outer' characteristics." << endl;
-			ss << "STAGE: " << stage << endl;
-			ss << "NODE " << node_num << ": x: " << cur_node->coords[0] 
-						<< " y: " << cur_node->coords[1]
-						<< " z: " << cur_node->coords[2] << endl;
-			ss << "NEIGH: " << (cur_node->elements)->size() << endl;
-			for(int i = 0; i < (cur_node->elements)->size(); i++) {
-				Tetrahedron* tmp_tetr = mesh->get_tetrahedron( (cur_node->elements)->at(i) );
-				ss << "\tTetr " << tmp_tetr->local_num << " Neigh_num: " << i << endl;
-				for(int j = 0; j < 4; j++) {
-					ElasticNode* tmp_node = mesh->get_node( tmp_tetr->vert[j] );
-					ss << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
-							<< " x: " << tmp_node->coords[0]
-							<< " y: " << tmp_node->coords[1]
-							<< " z: " << tmp_node->coords[2] << endl;
-				}
-			}
-			for(int i = 0; i < 3; i++)
-				ss << "KSI[" << i << "]: x: " << random_axis[node_num].ksi[i][0]
-						<< " y: " << random_axis[node_num].ksi[i][1]
-						<< " z: " << random_axis[node_num].ksi[i][2] << endl;
-			for(int i = 0; i < 9; i++) {
-				if(inner[i]) {
-					ss << "INNER OMEGA: num: " << i
-						<< " val: " << elastic_matrix3d[stage]->L(i,i)
-						<< " step: " << elastic_matrix3d[stage]->L(i,i) * time_step << endl;
-				} else {
-					ss << "OUTER OMEGA: num: " << i 
-						<< " val: " << elastic_matrix3d[stage]->L(i,i)
-						<< " step: " << elastic_matrix3d[stage]->L(i,i) * time_step << endl;
-				}
-				ss << "\t Point x: " << previous_nodes[ppoint_num[i]].coords[0]
-						<< " y: " << previous_nodes[ppoint_num[i]].coords[1]
-						<< " z: " << previous_nodes[ppoint_num[i]].coords[2] << endl;
-			}
-			logger->write(ss.str());
-		}
 		return -1;
 	}
 
@@ -353,7 +312,6 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha)
 {
 
-//cout << "find_nodes " << alpha << endl;
 	if( (alpha > 1.01) || (alpha < 0) ) {
 		if(logger != NULL)
 			logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer - bad alpha!"));
@@ -402,13 +360,6 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_
 
 			previous_nodes[count] = *cur_node;
 
-			// TODO - is it possible???
-			if(previous_nodes[count].local_num != cur_node->local_num) {
-				if(logger != NULL)
-					logger->write(string("previous_nodes[count].local_num != cur_node->local_num!"));
-				return -1;
-			}
-
 			// ... Find vectors ...
 			for(int j = 0; j < 3; j++)
 				dx_ksi[j] = dksi[i] * random_axis[node_num].ksi[stage][j];
@@ -425,7 +376,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_
 			}
 
 			// ... Find owner tetrahedron ...
-			tmp_tetr = mesh->find_owner_tetr(node_num, dx[0], dx[1], dx[2], cur_node);
+			tmp_tetr = mesh->find_owner_tetr(cur_node, dx[0], dx[1], dx[2]);
 
 			if( tmp_tetr != NULL )
 			{
@@ -470,6 +421,7 @@ float GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::get_max_lambda(Elasti
 	}
 
 	// We just return sqrt((la+2*mu)/rho) because axis are randomized by rotation, so x^2+y^2+z^2 == 1
+	// TODO - explicit check?
 	return sqrt( ( (node->la) + 2 * (node->mu) ) / (node->rho) );
 };
 

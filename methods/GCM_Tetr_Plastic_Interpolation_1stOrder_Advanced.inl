@@ -162,10 +162,10 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Advanced::do_next_part_step(ElasticN
 			}
 
 			// ... Find owner tetrahedron ...
-			tmp_tetr = mesh->find_owner_tetr(node_num,
+			tmp_tetr = mesh->find_owner_tetr(cur_node,
 							dksi[i] * random_axis[node_num].ksi[stage][0],
 							dksi[i] * random_axis[node_num].ksi[stage][1],
-							dksi[i] * random_axis[node_num].ksi[stage][2], cur_node);
+							dksi[i] * random_axis[node_num].ksi[stage][2]);
 //			tmp_tetr = mesh->find_owner_tetr(previous_nodes[count].coords[0], 
 //				previous_nodes[count].coords[1], previous_nodes[count].coords[2], cur_node);
 

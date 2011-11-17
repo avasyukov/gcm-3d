@@ -1,7 +1,6 @@
 TetrMesh_1stOrder::TetrMesh_1stOrder()
 {
 	mesh_type.assign("Tetrahedron mesh 1st order");
-	clear_mesh_stats();
 };
 
 TetrMesh_1stOrder::~TetrMesh_1stOrder()
@@ -12,12 +11,6 @@ TetrMesh_1stOrder::~TetrMesh_1stOrder()
 	new_nodes.clear();
 	tetrs.clear();
 	border.clear();
-};
-
-void TetrMesh_1stOrder::clear_mesh_stats()
-{
-	mesh_stats.find_owner_tetr_quick_searches = 0;
-	mesh_stats.find_owner_tetr_long_searches = 0;
 };
 
 //TODO - ugly hack - think about if we need it and how to implement it
@@ -172,28 +165,20 @@ int TetrMesh_1stOrder::pre_process_mesh()
 		dx[2] += step_h * tc[2] / tc_mod;
 
 		// Check if we are inside of the body moving along normal
-		if( find_owner_tetr(border[i].vert[0], dx[0], dx[1], dx[2], &nodes[border[i].vert[0]]) != NULL ) {
-//cout << "Normal is inner" << endl;
+		if( find_owner_tetr(&nodes[border[i].vert[0]], dx[0], dx[1], dx[2]) != NULL ) {
 			// Inside body - normal most probably is inner - recheck
-			if( find_owner_tetr(border[i].vert[0], -dx[0], -dx[1], -dx[2], &nodes[border[i].vert[0]]) == NULL ) {
-//cout << "Opposite direction is outer" << endl;
-//cout << "Before: " << border[i].vert[0] << " " << border[i].vert[1] << " " << border[i].vert[2] << endl;
+			if( find_owner_tetr(&nodes[border[i].vert[0]], -dx[0], -dx[1], -dx[2]) == NULL ) {
 				// Opposite direction is outer - we are right - just swap trianlge edges
 				tmp_int = border[i].vert[2];
 				border[i].vert[2] = border[i].vert[1];
 				border[i].vert[1] = tmp_int;
-//cout << "After: " << border[i].vert[0] << " " << border[i].vert[1] << " " << border[i].vert[2] << endl;
 			} else {
 				// Opposite direction looks inner too - smth bad happens - report error
 				if(logger != NULL)
 					logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Can not find outer normal for element!"));
-//cout << "DX: " << dx[0] << " " << dx[1] << " " << dx[2] << endl;
-//cout << "DX1: " << step_h * normal[0] << " " << step_h * normal[1] << " " << step_h * normal[2] << endl;
-//cout << "DX2: " << step_h * tc[0] / tc_mod << " " << step_h * tc[1] / tc_mod << " " << step_h * tc[2] / tc_mod << endl;
 				return -1;
 			}
 		} else {
-//cout << "Normal is outer" << endl;
 			// Outside body - normal is outer - do nothing
 		}
 
@@ -212,7 +197,7 @@ int TetrMesh_1stOrder::pre_process_mesh()
 			dx[2] = step_h * normal[2];
 
 			// Check if we are inside of the body moving towards normal
-			if( find_owner_tetr(nodes[i].local_num, -dx[0], -dx[1], -dx[2], &nodes[i]) == NULL ) {
+			if( find_owner_tetr(&nodes[i], -dx[0], -dx[1], -dx[2]) == NULL ) {
 				// Smth bad happens - report error
 				if(logger != NULL)
 					logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Can not find outer normal for node!"));
@@ -224,10 +209,7 @@ int TetrMesh_1stOrder::pre_process_mesh()
 
 	}
 
-	// Scale mesh
-/*	for(int i = 0; i < nodes.size(); i++)
-		for(int j = 0; j < 3; j++)
-			nodes[i].coords[j] *= scale_factor;*/
+	//TODO - Scale mesh?
 
 	logger->write(string("Preprocessing mesh done."));
 
@@ -268,14 +250,6 @@ int TetrMesh_1stOrder::find_border_elem_normal(int border_element_index, float* 
 	normal[1] /= l;
 	normal[2] /= l;
 
-/*cout << "Elem:\n";
-cout << nodes[border[i].vert[0]].coords[0] << " " << nodes[border[i].vert[0]].coords[1] << " " << nodes[border[i].vert[0]].coords[2] << endl;
-cout << nodes[border[i].vert[1]].coords[0] << " " << nodes[border[i].vert[1]].coords[1] << " " << nodes[border[i].vert[1]].coords[2] << endl;
-cout << nodes[border[i].vert[2]].coords[0] << " " << nodes[border[i].vert[2]].coords[1] << " " << nodes[border[i].vert[2]].coords[2] << endl;
-cout << v[0][0] << " " << v[0][1] << " " << v[0][2] << endl;
-cout << v[1][0] << " " << v[1][1] << " " << v[1][2] << endl;
-cout << normal[0] << " " << normal[1] << " " << normal[2] << endl;*/
-
 	*x = normal[0];
 	*y = normal[1];
 	*z = normal[2];
@@ -292,8 +266,6 @@ int TetrMesh_1stOrder::find_border_node_normal(int border_node_index, float* x, 
 
 	float cur_normal[3];
 
-//cout << "\n\n\n";
-//cout << nodes[border_node_index].coords[0] << " " << nodes[border_node_index].coords[1] << " " << nodes[border_node_index].coords[2] << endl;
 	int count = nodes[border_node_index].border_elements->size();
 
 	for(int i = 0; i < count; i++) {
@@ -309,7 +281,6 @@ int TetrMesh_1stOrder::find_border_node_normal(int border_node_index, float* x, 
 	final_normal[0] /= l;
         final_normal[1] /= l;
         final_normal[2] /= l;
-//cout << final_normal[0] << " " << final_normal[1] << " " << final_normal[2] << endl;
 
 	*x = final_normal[0];
 	*y = final_normal[1];
@@ -450,8 +421,6 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 
 	infile >> str >> number_of_nodes;
 
-	cout << "NODES: " << number_of_nodes << endl;
-
 	count = 1;
 	for(int i = 0; i < number_of_nodes; i++)
 	{
@@ -478,8 +447,6 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 
 	infile >> str >> number_of_elements;
 
-	cout << "ELEMS: " << number_of_elements << endl;
-
 	count = 1;
 	for(int i = 0; i < number_of_elements; i++)
 	{
@@ -500,8 +467,6 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 
 		count++;
 	}
-
-	cout << "1ST TET: " << tetrs[0].vert[0] << " " << tetrs[0].vert[1] << " " << tetrs[0].vert[2] << " " << tetrs[0].vert[3] << endl;
 
 	if(logger != NULL)
 		logger->write(string("INFO: TetrMesh_1stOrder::load_gmv_file - File read."));
@@ -824,7 +789,7 @@ float TetrMesh_1stOrder::get_max_h()
 	return max_h;
 };
 
-int TetrMesh_1stOrder::log_quality_stats()
+int TetrMesh_1stOrder::log_mesh_quality_stats()
 {
 	stringstream ss;
 	ss.setf(ios::fixed,ios::floatfield);
@@ -1143,17 +1108,10 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 	return true;
 };
 
-void TetrMesh_1stOrder::shift_coordinates(Tetrahedron* tetr, float ext_x, float ext_y, float ext_z)
+Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(ElasticNode* node, float dx, float dy, float dz)
 {
-	for(int i = 0; i < 4; i++) {
-		nodes[ tetr->vert[i] ].coords[0] += ext_x;
-		nodes[ tetr->vert[i] ].coords[1] += ext_y;
-		nodes[ tetr->vert[i] ].coords[2] += ext_z;
-	}
-};
+	int base_node = node->local_num;
 
-Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(int base_node, float dx, float dy, float dz, ElasticNode* node)
-{
 	float x = nodes[base_node].coords[0] + dx;
 	float y = nodes[base_node].coords[1] + dy;
 	float z = nodes[base_node].coords[2] + dz;
@@ -1171,9 +1129,6 @@ Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(int base_node, float d
 
 	return NULL;
 */
-//	mesh_stats.find_owner_tetr_long_searches++;
-//	mesh_stats.find_owner_tetr_quick_searches++;
-
 
 	// A square of distance between point in question and local node
 	// Will be used to check if it is worth to continue search or point in question is out of body
@@ -1435,19 +1390,15 @@ int TetrMesh_1stOrder::interpolate(ElasticNode* node, Tetrahedron* tetr)
 
 float TetrMesh_1stOrder::get_max_possible_tau()
 {
-//cout << "GMPT1: " << endl;
 	float min_h = get_min_h();
 	float max_l = 0;
 	float l;
 
-//cout << "GMPT2: " << endl;
 	for(int i = 0; i < nodes.size(); i++)
 	{
 		if(nodes[i].placement_type == LOCAL)
 		{
-//cout << "GMPT3.1: " << endl;
 			l = method->get_max_lambda(&nodes[i], this);
-//cout << "GMPT3.2: " << endl;
 			if(l < 0) {
 				if(logger != NULL)
 					logger->write(string("ERROR: TetrMesh_1stOrder::get_max_possible_tau - got error from method on method->get_max_lambda"));
@@ -1456,8 +1407,6 @@ float TetrMesh_1stOrder::get_max_possible_tau()
 			if(l > max_l) { max_l = l; }
 		}
 	}
-
-//cout << "GMPT4: " << endl;
 	return min_h/max_l;
 };
 
@@ -1552,9 +1501,10 @@ int TetrMesh_1stOrder::do_next_step()
 	}
 
 	float time_step = get_max_possible_tau();
-cout << "D1: " << time_step << endl;
-	// FIXME
+
+	// FIXME - add time_step adjustment
 	// time_step = time_step * 2;
+
 	if(time_step < 0) {
 		if(logger != NULL)
 			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - error on determining time step!"));
@@ -1577,7 +1527,6 @@ cout << "D1: " << time_step << endl;
 		return -1;
 	}
 
-//cout << "D2: " << endl;
 	for(int i = 0; i < number_of_stages; i++)
 	{
 		if(data_bus != NULL)
@@ -1590,10 +1539,9 @@ cout << "D1: " << time_step << endl;
 				logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - do_next_part_step failed!"));
 			return -1;
 		}
-//cout << "D3: part " << i << endl;
 	}
 
-//	move_coords(time_step); // FIXME temporary disable move
+	move_coords(time_step);
 
 	if(proceed_rheology() < 0) {
 		if(logger != NULL)

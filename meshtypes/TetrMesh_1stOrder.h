@@ -17,12 +17,6 @@ using std::sort;
 using std::unique;
 using std::ios;
 
-struct TetrMesh_1stOrder_stats
-{
-	int find_owner_tetr_quick_searches;
-	int find_owner_tetr_long_searches;
-};
-
 //#define DEBUG_MESH_GEOMETRY 1
 
 class TetrMesh_1stOrder : public TetrMesh
@@ -37,9 +31,9 @@ public:
 
 	bool point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron* tetr);
 	bool point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron_1st_order* tetr);
-	Tetrahedron_1st_order* find_owner_tetr(int base_node, float dx, float dy, float dz, ElasticNode* node);
+	Tetrahedron_1st_order* find_owner_tetr(ElasticNode* node, float dx, float dy, float dz);
 	int interpolate(ElasticNode* node, Tetrahedron* tetr);
-	int log_quality_stats();
+	int log_mesh_quality_stats();
 	int do_next_step();
 	float get_max_possible_tau();
 	float get_min_h();
@@ -55,16 +49,14 @@ public:
 
 	vector<Triangle> border;
 
-	TetrMesh_1stOrder_stats mesh_stats;
-
 	int find_border_node_normal(int border_node_index, float* x, float* y, float* z);
+
+	int set_stress(float tau);
 
 private:
 	int pre_process_mesh();
 
 	int find_border_elem_normal(int border_element_index, float* x, float* y, float* z);
-
-	void clear_mesh_stats();
 
 	float calc_determ_pure_tetr(int node1, int node2, int node3, int ref_node);
 	float calc_determ_with_shift(int node1, int node2, int node3, int base_node, float dx, float dy, float dz);
@@ -72,10 +64,7 @@ private:
 	float tetr_h(int i);
 	int do_next_part_step(float tau, int stage);
 	void move_coords(float tau);
-	int set_stress(float tau);
 	int proceed_rheology();
-
-	void shift_coordinates(Tetrahedron* tetr, float ext_x, float ext_y, float ext_z);
 
 	vector<ElasticNode> new_nodes;
 

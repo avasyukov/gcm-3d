@@ -135,11 +135,10 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder::do_next_part_step(ElasticNode* cur_
 			}
 
 			// ... Find owner tetrahedron ...
-			tmp_tetr = mesh->find_owner_tetr(previous_nodes[count].local_num,
+			tmp_tetr = mesh->find_owner_tetr(cur_node,
 						previous_nodes[count].coords[0] - cur_node->coords[0],
 						previous_nodes[count].coords[1] - cur_node->coords[1],
-						previous_nodes[count].coords[2] - cur_node->coords[2],
-						cur_node);
+						previous_nodes[count].coords[2] - cur_node->coords[2]);
 //			tmp_tetr = mesh->find_owner_tetr(previous_nodes[count].coords[0], 
 //				previous_nodes[count].coords[1], previous_nodes[count].coords[2], cur_node);
 			if( tmp_tetr != NULL )

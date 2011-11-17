@@ -16,8 +16,6 @@ using std::ios;
 
 #include "../datatypes/Basis.h"
 
-//#define DEBUG_AXIS_RAND 1
-
 class GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis : public TetrNumericalMethod
 	// TODO may be we should inherit methods from GCM_Tetr_Plastic_Interpolation_1stOrder
 {
