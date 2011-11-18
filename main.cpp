@@ -13,7 +13,9 @@ int main()
 	//GCM_Tetr_Plastic_Interpolation_1stOrder* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder();
 	VoidRheologyCalculator* rc = new VoidRheologyCalculator();
 	TetrMesh_1stOrder* mesh = new TetrMesh_1stOrder();
-	Stresser* stresser = new Stresser();
+
+	Stresser* stresser = new GCMStresser();
+	stresser->loadTask("../gcm-3d-materials/data/tasks/task.xml");
 
 	log->write(string("Mesh type: ") + *(mesh->get_mesh_type()));
 
