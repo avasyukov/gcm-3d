@@ -8,4 +8,4 @@ The code is licensed under BSD license.
 
 3. Build
 
-Just run make. Build requires gcc-c++, boost-devel, gsl-devel.
+Just run make. Build requires gcc-c++, gsl-devel, vtk-devel, tinyxml-devel.
