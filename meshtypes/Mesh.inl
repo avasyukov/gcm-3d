@@ -48,7 +48,7 @@ void Mesh::attach(DataBus* new_data_bus)
 		data_bus->attach(logger);
 		if(logger != NULL)
 		{
-			logger->write(string("Attached numerical method. Type: ") + *(data_bus->get_data_bus_type()));
+			logger->write(string("Attached data bus. Type: ") + *(data_bus->get_data_bus_type()));
 		}
 	}
 };
@@ -61,7 +61,7 @@ void Mesh::attach(Stresser* new_stresser)
 		stresser->attach(logger);
 		if(logger != NULL)
 		{
-			logger->write(string("Attached numerical method. Type: ") + *(stresser->get_stresser_type()));
+			logger->write(string("Attached stresser. Type: ") + *(stresser->get_stresser_type()));
 		}
 	}
 };

@@ -10,15 +10,6 @@
 //#define NDEBUG
 #include <cassert>
 
-using std::string;
-using std::vector;
-
-class MeshSet
-{
-	int mesh_set_num;
-	vector<Mesh> meshes;
-};
-
 class Scheduler
 {
 };

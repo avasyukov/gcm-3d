@@ -13,6 +13,7 @@ using std::stringstream;
 
 #include "../datatypes/ElasticNode.h"
 #include "../meshtypes/TetrMesh_1stOrder.h"
+#include "../system/TetrMeshSet.h"
 
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
@@ -29,6 +30,7 @@ public:
 	~SnapshotWriter();
 	string* get_snapshot_writer_type();
 	int dump_vtk(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
+	int dump_vtk(TetrMeshSet* mesh_set, int snap_num);
 	void attach(Logger* new_logger);
 	int dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
 

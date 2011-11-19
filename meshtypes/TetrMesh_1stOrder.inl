@@ -789,7 +789,7 @@ float TetrMesh_1stOrder::get_max_h()
 	return max_h;
 };
 
-int TetrMesh_1stOrder::log_mesh_quality_stats()
+int TetrMesh_1stOrder::log_mesh_stats()
 {
 	stringstream ss;
 	ss.setf(ios::fixed,ios::floatfield);

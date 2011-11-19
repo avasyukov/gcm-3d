@@ -33,7 +33,7 @@ public:
 	bool point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron_1st_order* tetr);
 	Tetrahedron_1st_order* find_owner_tetr(ElasticNode* node, float dx, float dy, float dz);
 	int interpolate(ElasticNode* node, Tetrahedron* tetr);
-	int log_mesh_quality_stats();
+	int log_mesh_stats();
 	int do_next_step();
 	float get_max_possible_tau();
 	float get_min_h();
