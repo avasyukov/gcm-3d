@@ -18,6 +18,8 @@ public:
 	void attach(Stresser* new_stresser);
 	void attach(DataBus* new_data_bus);
 
+	void translate(float x, float y, float z);
+
 	virtual bool point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron* tetr) = 0;
 	virtual Tetrahedron* find_owner_tetr(ElasticNode* node, float dx, float dy, float dz) = 0;
 	virtual int interpolate(ElasticNode* node, Tetrahedron* tetr) = 0;

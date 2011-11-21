@@ -37,3 +37,15 @@ void TetrMesh::attach(DataBus* new_data_bus)
 {
 	Mesh::attach(new_data_bus);
 };
+
+void TetrMesh::translate(float x, float y, float z)
+{
+	for(int i = 0; i < nodes.size(); i++) {
+		nodes[i].coords[0] += x;
+		nodes[i].coords[1] += y;
+		nodes[i].coords[2] += z;
+		nodes[i].fixed_coords[0] += x;
+		nodes[i].fixed_coords[1] += y;
+		nodes[i].fixed_coords[2] += z;
+	}
+};

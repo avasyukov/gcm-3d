@@ -26,13 +26,21 @@ int main()
 	stresser->loadTask("../gcm-3d-materials/data/tasks/task.xml");
 	mesh_set->attach(stresser);
 
-	TetrMesh_1stOrder* mesh = new TetrMesh_1stOrder();
+	TetrMesh_1stOrder* mesh1 = new TetrMesh_1stOrder();
 	// if ( mesh->load_gmv_file((char*)"mesh-optimized.gmv") < 0 )
 	// if ( mesh->load_node_ele_files((char*)"data/models/heart.node",(char*)"data/models/heart.ele") < 0 )
-	if ( mesh->load_msh_file((char*)"../gcm-3d-materials/data/models/tube.msh") < 0 )
+	if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-small.msh") < 0 )
 		return -1;
-	tp->set_fixed_elastic_rheology(&(mesh->nodes), 70000, 10000, 1, 1000000);
-	mesh_set->attach(mesh);
+	mesh1->translate(10, 0, 0);
+	tp->set_fixed_elastic_rheology(&(mesh1->nodes), 70000, 10000, 1, 1000000);
+	mesh_set->attach(mesh1);
+
+	TetrMesh_1stOrder* mesh2 = new TetrMesh_1stOrder();
+	if ( mesh2->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-small.msh") < 0 )
+		return -1;
+	mesh2->translate(-10, 0, 0);
+	tp->set_fixed_elastic_rheology(&(mesh2->nodes), 70000, 10000, 1, 1000000);
+	mesh_set->attach(mesh2);
 
 	SnapshotWriter* sw = new SnapshotWriter();
 	sw->attach(logger);
