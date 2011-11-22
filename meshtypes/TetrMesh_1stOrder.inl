@@ -353,6 +353,7 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 			node_infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
 			new_node.placement_type = LOCAL;
 			new_node.border_type = INNER;
+			new_node.contact_type = FREE;
 			// TODO set other values
 		}
 		else
@@ -562,6 +563,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 			infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
 			new_node.placement_type = LOCAL;
 			new_node.border_type = INNER;
+			new_node.contact_type = FREE;
 			// TODO set other values
 		}
 		else if(new_node.local_num < 0)
@@ -863,12 +865,13 @@ int TetrMesh_1stOrder::log_mesh_stats()
 	return 0;
 };
 
-/*bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr)
+bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr)
 {
 	return point_in_tetr(x, y, z, (Tetrahedron*) tetr);
 };
 
-bool TetrMesh_1stOrder::point_in_tetr(float ext_x, float ext_y, float ext_z, Tetrahedron* tetr)
+// TODO - rewrite with calc_determ_pure_tetr and calc_determ_with_shift
+bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* tetr)
 {
 	#ifdef DEBUG_MESH_GEOMETRY
 	if(logger != NULL) {
@@ -876,29 +879,8 @@ bool TetrMesh_1stOrder::point_in_tetr(float ext_x, float ext_y, float ext_z, Tet
 		ss.setf(ios::fixed,ios::floatfield);
 		ss.precision(10);
 		ss << "DEBUG: TetrMesh_1stOrder::point_in_tetr" << endl;
-		ss << "Point: x: " << ext_x << " y: " << ext_y << " z: " << ext_z << endl;
+		ss << "Point: x: " << x << " y: " << y << " z: " << z << endl;
 		ss << "Tetr: " << tetr->local_num << endl;
-		for(int j = 0; j < 4; j++) {
-			ElasticNode* tmp_node = get_node( tetr->vert[j] );
-			ss << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
-				<< " x: " << tmp_node->coords[0]
-				<< " y: " << tmp_node->coords[1]
-				<< " z: " << tmp_node->coords[2] << endl;
-		}
-		logger->write(ss.str());
-	}
-	#endif
-
-	// Center coordinates at point (ext_x, ext_y, ext_z)
-	shift_coordinates(tetr, -ext_x, -ext_y, -ext_z);
-	float x = 0; float y = 0; float z = 0;
-
-	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "Tetr after shift: " << tetr->local_num << endl;
 		for(int j = 0; j < 4; j++) {
 			ElasticNode* tmp_node = get_node( tetr->vert[j] );
 			ss << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
@@ -942,7 +924,7 @@ bool TetrMesh_1stOrder::point_in_tetr(float ext_x, float ext_y, float ext_z, Tet
 		logger->write(ss.str());
 	}
 	#endif
-	if(d1*d2 < 0) { shift_coordinates(tetr, ext_x, ext_y, ext_z); return false; }
+	if(d1*d2 < 0) { return false; }
 
 	d1 = qm_engine.determinant(
 		nodes[tetr->vert[0]].coords[0] - nodes[tetr->vert[1]].coords[0],
@@ -975,7 +957,7 @@ bool TetrMesh_1stOrder::point_in_tetr(float ext_x, float ext_y, float ext_z, Tet
 		logger->write(ss.str());
 	}
 	#endif
-	if(d1*d2 < 0) { shift_coordinates(tetr, ext_x, ext_y, ext_z); return false; }
+	if(d1*d2 < 0) { return false; }
 
 	d1 = qm_engine.determinant(
 		nodes[tetr->vert[0]].coords[0] - nodes[tetr->vert[2]].coords[0],
@@ -1008,7 +990,7 @@ bool TetrMesh_1stOrder::point_in_tetr(float ext_x, float ext_y, float ext_z, Tet
 		logger->write(ss.str());
 	}
 	#endif
-	if(d1*d2 < 0) { shift_coordinates(tetr, ext_x, ext_y, ext_z); return false; }
+	if(d1*d2 < 0) { return false; }
 
 	d1 = qm_engine.determinant(
 		nodes[tetr->vert[0]].coords[0] - nodes[tetr->vert[3]].coords[0],
@@ -1041,11 +1023,10 @@ bool TetrMesh_1stOrder::point_in_tetr(float ext_x, float ext_y, float ext_z, Tet
 		logger->write(ss.str());
 	}
 	#endif
-	if(d1*d2 < 0) { shift_coordinates(tetr, ext_x, ext_y, ext_z); return false; }
+	if(d1*d2 < 0) { return false; }
 
-	shift_coordinates(tetr, ext_x, ext_y, ext_z);
 	return true;
-};*/
+};
 
 bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron_1st_order* tetr)
 {
@@ -1132,6 +1113,7 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 
 Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(ElasticNode* node, float dx, float dy, float dz)
 {
+	// TODO - clean the code - unnecessary 'x <-> dx' and node 'pointer <-> index' intermix
 	int base_node = node->local_num;
 
 	float x = nodes[base_node].coords[0] + dx;

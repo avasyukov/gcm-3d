@@ -14,6 +14,9 @@ using std::vector;
 #define INNER 1
 #define BORDER 2
 
+#define FREE 0
+#define IN_CONTACT 1
+
 class Node
 {
 public:
@@ -25,6 +28,7 @@ public:
 	int absolute_num;
 	int placement_type; // We need this to store NOT only LOCAL / REMOTE state. We have UNUSED flag also.
 	int border_type;
+	int contact_type;
 	float coords[3];
 	float fixed_coords[3];
 protected:

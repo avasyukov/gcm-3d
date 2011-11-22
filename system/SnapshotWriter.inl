@@ -58,6 +58,7 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int zone_num, int sna
 	vtkDoubleArray *vx = vtkDoubleArray::New();
 	vtkDoubleArray *vy = vtkDoubleArray::New();
 	vtkDoubleArray *vz = vtkDoubleArray::New();
+	vtkDoubleArray *contact = vtkDoubleArray::New();
 
 	vtkDoubleArray *norm = vtkDoubleArray::New();
 	norm->SetNumberOfComponents(3);
@@ -77,6 +78,7 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int zone_num, int sna
 		syy->InsertNextValue( node.values[6] );
 		syz->InsertNextValue( node.values[7] );
 		szz->InsertNextValue( node.values[8] );
+		contact->InsertNextValue( node.contact_type );
 
 		if(node.border_type == BORDER) {
 			tetr_mesh->find_border_node_normal(i, &v[0], &v[1], &v[2]);
@@ -108,6 +110,7 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int zone_num, int sna
 	vx->SetName("vx");
 	vy->SetName("vy");
 	vz->SetName("vz");
+	contact->SetName("contact");
 
 	g->GetPointData()->AddArray(sxx);
 	g->GetPointData()->AddArray(sxy);
@@ -118,6 +121,7 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int zone_num, int sna
 	g->GetPointData()->AddArray(vx);
 	g->GetPointData()->AddArray(vy);
 	g->GetPointData()->AddArray(vz);
+	g->GetPointData()->AddArray(contact);
 
 	sxx->Delete();
 	sxy->Delete();
@@ -128,6 +132,7 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int zone_num, int sna
 	vx->Delete();
 	vy->Delete();
 	vz->Delete();
+	contact->Delete();
 
 	stringstream name;
 	name << "snap_volume_zone_" << zone_num << "_snap_" << snap_num << ".vtu";

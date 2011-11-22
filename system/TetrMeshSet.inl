@@ -99,7 +99,7 @@ float TetrMeshSet::get_current_time()
 	for(int i = 0; i < meshes.size(); i++) {
 		if( fabs(time - meshes[i]->get_current_time()) > 0.001 * time ) {
 			if(logger != NULL)
-				logger->write("ERROR: meshes report different time!");
+				logger->write("ERROR: TetrMeshSet - meshes report different time!");
 			return -1;
 		}
 	}
