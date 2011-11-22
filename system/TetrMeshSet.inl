@@ -109,13 +109,22 @@ float TetrMeshSet::get_current_time()
 
 int TetrMeshSet::do_next_step()
 {
+	float ftmp;
+
+	float time_step = meshes[0]->get_max_possible_tau();
+	for(int i = 1; i < meshes.size(); i++) {
+		ftmp = meshes[i]->get_max_possible_tau();
+		if(ftmp < time_step)
+			time_step = ftmp;
+	}
+
 	for(int i = 0; i < meshes.size(); i++)
 		for(int j = i+1; j < meshes.size(); j++)
 			if( collision_detector->find_collisions(meshes[i], meshes[j]) < 0 )
 				return -1;
 
 	for(int i = 0; i < meshes.size(); i++)
-		if (meshes[i]->do_next_step() < 0)
+		if (meshes[i]->do_next_step(time_step) < 0)
 			return -1;
 	return 0;
 };

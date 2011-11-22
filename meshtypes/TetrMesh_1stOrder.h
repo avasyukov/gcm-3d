@@ -38,6 +38,7 @@ public:
 	int interpolate(ElasticNode* node, Tetrahedron* tetr);
 	int log_mesh_stats();
 	int do_next_step();
+	int do_next_step(float time_step);
 	float get_max_possible_tau();
 	float get_min_h();
 	float get_max_h();

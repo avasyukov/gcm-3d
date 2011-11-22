@@ -1497,6 +1497,11 @@ int TetrMesh_1stOrder::set_stress(float tau)
 
 int TetrMesh_1stOrder::do_next_step()
 {
+	return do_next_step( get_max_possible_tau() );
+};
+
+int TetrMesh_1stOrder::do_next_step(float time_step)
+{
 	int number_of_stages;
 
 	if(method == NULL){
@@ -1509,8 +1514,6 @@ int TetrMesh_1stOrder::do_next_step()
 			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - can not do step without RheologyCalculator attached"));
 		return -1;
 	}
-
-	float time_step = get_max_possible_tau();
 
 	// FIXME - add time_step adjustment
 	// time_step = time_step * 2;
