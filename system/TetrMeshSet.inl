@@ -5,6 +5,7 @@ TetrMeshSet::TetrMeshSet()
 	stresser = NULL;
 	rheology = NULL;
 	numerical_method = NULL;
+	collision_detector = NULL;
 };
 
 TetrMeshSet::~TetrMeshSet() { };
@@ -61,6 +62,11 @@ void TetrMeshSet::attach(TetrNumericalMethod* new_numerical_method)
 		meshes[i]->attach(new_numerical_method);
 };
 
+void TetrMeshSet::attach(CollisionDetector* new_collision_detector)
+{
+	collision_detector = new_collision_detector;
+};
+
 void TetrMeshSet::log_meshes_types()
 {
 	if(logger != NULL)
@@ -103,6 +109,11 @@ float TetrMeshSet::get_current_time()
 
 int TetrMeshSet::do_next_step()
 {
+	for(int i = 0; i < meshes.size(); i++)
+		for(int j = i+1; j < meshes.size(); j++)
+			if( collision_detector->find_collisions(meshes[i], meshes[j]) < 0 )
+				return -1;
+
 	for(int i = 0; i < meshes.size(); i++)
 		if (meshes[i]->do_next_step() < 0)
 			return -1;
