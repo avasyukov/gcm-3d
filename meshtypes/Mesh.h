@@ -17,10 +17,7 @@ using std::ifstream;
 using std::string;
 using std::vector;
 
-struct MeshOutline {
-	float min_coords[3];
-	float max_coords[3];
-};
+#include "../datatypes/MeshOutline.h"
 
 class Mesh
 {
