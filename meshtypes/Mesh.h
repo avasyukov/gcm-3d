@@ -42,6 +42,8 @@ public:
 	int zone_num; // TODO do we really use it?
 	int mesh_num; // TODO do we really use it?
 
+	MeshOutline outline;
+
 protected:
 	string mesh_type;
 	float current_time;
@@ -50,7 +52,6 @@ protected:
 //	NumericalMethod* method;
 	DataBus* data_bus; // TODO implement at least draft structure
 	Stresser* stresser;
-	MeshOutline outline;
 };
 
 #include "Mesh.inl"
