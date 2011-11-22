@@ -17,6 +17,11 @@ using std::ifstream;
 using std::string;
 using std::vector;
 
+struct MeshOutline {
+	float min_coords[3];
+	float max_coords[3];
+};
+
 class Mesh
 {
 public:
@@ -45,6 +50,7 @@ protected:
 //	NumericalMethod* method;
 	DataBus* data_bus; // TODO implement at least draft structure
 	Stresser* stresser;
+	MeshOutline outline;
 };
 
 #include "Mesh.inl"

@@ -209,7 +209,20 @@ int TetrMesh_1stOrder::pre_process_mesh()
 
 	}
 
-	//TODO - Scale mesh?
+	// TODO - scale, rotate, translate, etc - after it is made configurable via xml
+
+	// Create outline
+	for(int j = 0; j < 3; j++)
+		outline.min_coords[j] = outline.max_coords[j] = nodes[0].coords[j];
+
+	for(int i = 0; i < nodes.size(); i++) {
+		for(int j = 0; j < 3; j++) {
+			if(nodes[i].coords[j] > outline.max_coords[j])
+				outline.max_coords[j] = nodes[i].coords[j];
+			if(nodes[i].coords[j] < outline.min_coords[j])
+				outline.min_coords[j] = nodes[i].coords[j];
+		}
+	}
 
 	logger->write(string("Preprocessing mesh done."));
 
@@ -828,10 +841,19 @@ int TetrMesh_1stOrder::log_mesh_stats()
 		hyst[num]++;
 	}
 
-	ss << "Max H = " << get_max_h() << endl;
-	ss << "Min H = " << get_min_h() << endl;
-	ss << "Avg H = " << avg_h << endl;
-	ss << "Histogramm:" << endl;
+	ss << "Mesh outline:" << endl
+		<< "MinX: " << outline.min_coords[0] << endl
+		<< "MaxX: " << outline.max_coords[0] << endl
+		<< "MinY: " << outline.min_coords[1] << endl
+		<< "MaxY: " << outline.max_coords[1] << endl
+		<< "MinZ: " << outline.min_coords[2] << endl
+		<< "MaxZ: " << outline.max_coords[2] << endl;
+
+	ss << "Mesh quality:" << endl
+		<< "Max H = " << get_max_h() << endl
+		<< "Min H = " << get_min_h() << endl
+		<< "Avg H = " << avg_h << endl
+		<< "Histogramm:" << endl;
 	for(int i = 0; i < 10; i++)
 		ss << hyst[i] << endl;
 
@@ -1443,7 +1465,13 @@ void TetrMesh_1stOrder::move_coords(float tau)
 		{
 			for(int j = 0; j < 3; j++)
 			{
+				// Move node
 				nodes[i].coords[j] += nodes[i].values[j]*tau;
+				// Move mesh outline if necessary
+				if(nodes[i].coords[j] > outline.max_coords[j])
+					outline.max_coords[j] = nodes[i].coords[j];
+				if(nodes[i].coords[j] < outline.min_coords[j])
+					outline.min_coords[j] = nodes[i].coords[j];
 			}
 		}
 	}
