@@ -191,7 +191,8 @@ bool GCMStressPerformerUniform::performStress( GCMStressArea* area, GCMStressFor
 		if( new_val < 0 ) {
 			return true;
 		}
-		cur_node->values[i] = new_val;
+		if(area->isInArea(cur_node))
+			new_node->values[i] = new_val;
 	}
 	return true;
 }
@@ -214,10 +215,12 @@ bool GCMStressPerformerCylindrical::performStress( GCMStressArea* area, GCMStres
 	Vec3 V2( areaCyl->end[0], areaCyl->end[1], areaCyl->end[2] );
 	
 	Vec3 newVel = Norm_Project_Point_Line( VNode, V1, V2 );
-	
-	cur_node->values[0] = newVel.x * new_val;
-	cur_node->values[1] = newVel.y * new_val;
-	cur_node->values[2] = newVel.z * new_val;
+
+	if(area->isInArea(cur_node)) {
+		new_node->values[0] = newVel.x * new_val;
+		new_node->values[1] = newVel.y * new_val;
+		new_node->values[2] = newVel.z * new_val;
+	}
 	
 	return true;
 }
@@ -234,7 +237,8 @@ bool GCMStressPerformerRadial::performStress( GCMStressArea* area, GCMStressForm
 		if( new_val < 0 ) {
 			return true;
 		}
-		cur_node->values[i] = new_val;
+		if(area->isInArea(cur_node))
+			new_node->values[i] = new_val;
 	}*/
 	return true;
 }
