@@ -190,11 +190,11 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 	// 		(we should add 2 more corresponding omegas to 'outer' manually
 	else if ( outer_count == 3 )
 	{
-		// GSL data for LE solving
+		// Tmp value for GSL solver
 		int s;
 
 		// Fixed border algorithm
-		for(int i = 0; i < 9; i++)
+		/*for(int i = 0; i < 9; i++)
 		{
 			// If omega is 'inner' one
 			if(inner[i])
@@ -207,7 +207,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 			// If omega is 'outer' one
 			else
 			{
-				// omega (as right-hand part of OLE) is zero - it it free border
+				// omega (as right-hand part of OLE) is zero - it is not-moving border
 				gsl_vector_set(om_gsl, i, 0);
 				// corresponding string in matrix is zero ...
 				for(int j = 0; j < 9; j++)
@@ -230,10 +230,10 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 					return -1;
 				}
 			}
-		}
+		}*/
 
 		// Free border algorithm
-		/*for(int i = 0; i < 9; i++)
+		for(int i = 0; i < 9; i++)
 		{
 			// If omega is 'inner' one
 			if(inner[i])
@@ -246,42 +246,32 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 			// If omega is 'outer' one
 			else
 			{
-				// omega (as right-hand part of OLE) is zero - it it free border
+				// omega (as right-hand part of OLE) is zero - it is free border, no external stress
 				gsl_vector_set(om_gsl, i, 0);
 				// corresponding string in matrix is zero ...
 				for(int j = 0; j < 9; j++)
 					gsl_matrix_set(U_gsl, i, j, 0);
+
 				// ... except normal and tangential stress
-				// They depend on stage, so we have this switch here
-				// TODO - ... and they depend on direction, so we should use random axis data here.
-				if( stage == 0 )
+				// We use outer normal to find total stress vector (sigma * n) - sum of normal and shear - and tell it is zero
+				// TODO - never-ending questions - is everything ok with (x-y-z) and (ksi-eta-dzeta) basises?
+				if( stage < 3 )
 				{
 					if ( outer_count == 3 ) {
-						gsl_matrix_set(U_gsl, i, 3, 1); outer_count--;
+						gsl_matrix_set(U_gsl, i, 3, outer_normal[0]);
+						gsl_matrix_set(U_gsl, i, 4, outer_normal[1]);
+						gsl_matrix_set(U_gsl, i, 5, outer_normal[2]);
+						outer_count--;
 					} else if ( outer_count == 2 ) {
-						gsl_matrix_set(U_gsl, i, 4, 1); outer_count--;
+						gsl_matrix_set(U_gsl, i, 4, outer_normal[0]);
+						gsl_matrix_set(U_gsl, i, 6, outer_normal[1]);
+						gsl_matrix_set(U_gsl, i, 7, outer_normal[2]);
+						outer_count--;
 					} else if ( outer_count == 1 ) {
-						gsl_matrix_set(U_gsl, i, 5, 1); outer_count--;
-					}
-				}
-				else if ( stage == 1 )
-				{
-					if ( outer_count == 3 ) {
-						gsl_matrix_set(U_gsl, i, 4, 1); outer_count--;
-					} else if ( outer_count == 2 ) {
-						gsl_matrix_set(U_gsl, i, 6, 1); outer_count--;
-					} else if ( outer_count == 1 ) {
-						gsl_matrix_set(U_gsl, i, 7, 1); outer_count--;
-					}
-				}
-				else if ( stage == 2 )
-				{
-					if ( outer_count == 3 ) {
-						gsl_matrix_set(U_gsl, i, 5, 1); outer_count--;
-					} else if ( outer_count == 2 ) {
-						gsl_matrix_set(U_gsl, i, 7, 1); outer_count--;
-					} else if ( outer_count == 1 ) {
-						gsl_matrix_set(U_gsl, i, 8, 1); outer_count--;
+						gsl_matrix_set(U_gsl, i, 5, outer_normal[0]);
+						gsl_matrix_set(U_gsl, i, 7, outer_normal[1]);
+						gsl_matrix_set(U_gsl, i, 8, outer_normal[2]);
+						outer_count--;
 					}
 				}
 				else 
@@ -291,7 +281,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 					return -1;
 				}
 			}
-		}*/
+		}
 
 		// Solve linear equations using GSL tools
 		gsl_linalg_LU_decomp (U_gsl, p_gsl, &s);
