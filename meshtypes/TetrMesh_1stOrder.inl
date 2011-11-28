@@ -8,7 +8,7 @@ TetrMesh_1stOrder::~TetrMesh_1stOrder()
 	for(int i = 0; i < nodes.size(); i++)
 	{
 		nodes[i].elements->clear();
-		nodes[i].border->clear();
+		nodes[i].border_elements->clear();
 	}
 	nodes.clear();
 	new_nodes.clear();
@@ -155,9 +155,9 @@ int TetrMesh_1stOrder::pre_process_mesh()
 			}
 			else if (nodes[i].border_type == BORDER)
 			{
-				if( solid_angle >= 4 * qm_engine.PI )
+				if( solid_angle >= 4 * qm_engine.PI * 0.95 ) // TODO avoid magick number
 				{
-					logger->write(string("ERROR: Node marked as BORDER but solid angle is greater than 4PI!"));
+					logger->write(string("ERROR: Node marked as BORDER but solid angle seems to be too close to 4PI!"));
 					cout << "Angle " << solid_angle << " 4*PI " << 4 * qm_engine.PI << endl;
 					return -1;
 				}
