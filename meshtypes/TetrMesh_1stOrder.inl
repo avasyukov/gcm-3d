@@ -31,7 +31,12 @@ void TetrMesh_1stOrder::add_tetr(Tetrahedron_1st_order* tetr)
 int TetrMesh_1stOrder::pre_process_mesh()
 {
 
+	// Guaranteed allowed step
+	float step_h = get_min_h() / 4; // TODO avoid magick number
+
 	logger->write(string("Preprocessing mesh started..."));
+
+	logger->write(string("Checking numbering"));
 
 	// Check if internal numbers of nodes are the same as numbers in array
 	// We need it in future to perform quick access to nodes in array
@@ -60,7 +65,7 @@ int TetrMesh_1stOrder::pre_process_mesh()
 		}
 	}
 
-	logger->write(string("Building reverse lookups"));
+	logger->write(string("Building volume reverse lookups"));
 
 	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
 	for(int i = 0; i < nodes.size(); i++) { nodes[i].elements = new vector<int>; }
@@ -75,23 +80,6 @@ int TetrMesh_1stOrder::pre_process_mesh()
 			nodes[tetrs[i].vert[j]].elements->push_back(i);
 		}
 	}
-
-	// Init vectors for "reverse lookups" of border triangles current node is a member of.
-	for(int i = 0; i < nodes.size(); i++) { nodes[i].border_elements = new vector<int>; }
-
-	// Go through all the triangles
-	for(int i = 0; i < border.size(); i++)
-	{
-		// For all verticles
-		for(int j = 0; j < 3; j++)
-		{
-			// Push to data of nodes the number of this tetrahedron
-			nodes[border[i].vert[j]].border_elements->push_back(i);
-			nodes[border[i].vert[j]].border_type = BORDER;
-		}
-	}
-
-	// TODO - add border calc/re-check based on calculating angle and comparing it with 4*PI
 
 	logger->write(string("Looking for unused nodes"));
 
@@ -127,12 +115,66 @@ int TetrMesh_1stOrder::pre_process_mesh()
 		}
 	}
 
+	// Prepare border data
+
+	logger->write(string("Processing loaded border"));
+
+	// If the border was loaded from file - mark the nodes
+	for(int i = 0; i < border.size(); i++)
+		for(int j = 0; j < 3; j++)
+			nodes[border[i].vert[j]].border_type = BORDER;
+
+	float solid_angle;
+	float ftmp;
+
+	logger->write(string("Checking border using angles"));
+
+	// Check border using solid angle comparation with 4*PI
+	for(int i = 0; i < nodes.size(); i++)
+	{
+		if( nodes[i].placement_type == LOCAL )
+		{
+			solid_angle = 0;
+			for(int j = 0; j < nodes[i].elements->size(); j++)
+			{
+				ftmp = get_solid_angle(i, nodes[i].elements->at(j));
+				if(ftmp < 0) { return -1; }
+				solid_angle += ftmp;
+			}
+			if(nodes[i].border_type == INNER)
+			{
+				if( fabs( solid_angle - 4 * qm_engine.PI ) > qm_engine.PI / 100 ) // TODO avoid magick number
+				{
+					logger->write(string("ERROR: Node marked as INNER but solid angle is not 4PI!"));
+					cout << "Angle " << solid_angle << " 4*PI " << 4 * qm_engine.PI << endl;
+					return -1;
+				}
+			}
+			else if (nodes[i].border_type == BORDER)
+			{
+				if( solid_angle >= 4 * qm_engine.PI )
+				{
+					logger->write(string("ERROR: Node marked as BORDER but solid angle is greater than 4PI!"));
+					cout << "Angle " << solid_angle << " 4*PI " << 4 * qm_engine.PI << endl;
+					return -1;
+				}
+			}
+		}
+	}
+
+	logger->write(string("Building surface reverse lookups"));
+
+	// Init vectors for "reverse lookups" of border triangles current node is a member of.
+	for(int i = 0; i < nodes.size(); i++) { nodes[i].border_elements = new vector<int>; }
+
+	// Go through all the triangles and push to data of nodes the number of this triangle
+	for(int i = 0; i < border.size(); i++)
+		for(int j = 0; j < 3; j++)
+			nodes[border[i].vert[j]].border_elements->push_back(i);
+
 	logger->write(string("Checking border alignment"));
 
 	// Check border triangles alignment to calculate outer normal right
-
-	// Guaranteed allowed step
-	float step_h = get_min_h() / 4; // TODO avoid magick number
 
 	// Normal vector
 	float normal[3];
@@ -210,6 +252,8 @@ int TetrMesh_1stOrder::pre_process_mesh()
 	}
 
 	// TODO - scale, rotate, translate, etc - after it is made configurable via xml
+
+	logger->write(string("Creating outline"));
 
 	// Create outline
 	for(int j = 0; j < 3; j++)
@@ -1624,3 +1668,31 @@ float TetrMesh_1stOrder::calc_determ_with_shift(int node1, int node2, int node3,
 
 };
 
+float TetrMesh_1stOrder::get_solid_angle(int node_index, int tetr_index)
+{
+	if( (tetrs[tetr_index].vert[0] != node_index) && (tetrs[tetr_index].vert[1] != node_index)
+				&& (tetrs[tetr_index].vert[2] != node_index) && (tetrs[tetr_index].vert[3] != node_index) ) { return -1.0; }
+
+	int vert[3];
+	int count = 0;
+
+	for(int i = 0; i < 4; i++)
+		if(tetrs[tetr_index].vert[i] != node_index) {
+			vert[count] = tetrs[tetr_index].vert[i];
+			count++;
+		}
+
+	if(count != 3) { return -1.0; }
+
+	return qm_engine.solid_angle(
+			nodes[vert[0]].coords[0] - nodes[node_index].coords[0], 
+			nodes[vert[0]].coords[1] - nodes[node_index].coords[1],
+			nodes[vert[0]].coords[2] - nodes[node_index].coords[2],
+			nodes[vert[1]].coords[0] - nodes[node_index].coords[0], 
+			nodes[vert[1]].coords[1] - nodes[node_index].coords[1],
+			nodes[vert[1]].coords[2] - nodes[node_index].coords[2],
+			nodes[vert[2]].coords[0] - nodes[node_index].coords[0], 
+			nodes[vert[2]].coords[1] - nodes[node_index].coords[1],
+			nodes[vert[2]].coords[2] - nodes[node_index].coords[2]
+	);
+};

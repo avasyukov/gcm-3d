@@ -65,6 +65,8 @@ private:
 	float calc_determ_pure_tetr(int node1, int node2, int node3, int ref_node);
 	float calc_determ_with_shift(int node1, int node2, int node3, int base_node, float dx, float dy, float dz);
 
+	float get_solid_angle(int node_index, int tetr_index);
+
 	float tetr_h(int i);
 	int do_next_part_step(float tau, int stage);
 	void move_coords(float tau);

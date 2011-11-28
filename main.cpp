@@ -34,7 +34,8 @@ int main()
 	mesh1->attach(logger);
 	// if ( mesh->load_gmv_file((char*)"mesh-optimized.gmv") < 0 )
 	// if ( mesh->load_node_ele_files((char*)"data/models/heart.node",(char*)"data/models/heart.ele") < 0 )
-	if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-small.msh") < 0 ) {
+	// if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-small.msh") < 0 ) {
+	if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-self-gen.msh") < 0 ) {
 		cout << "Can not open file!\n";
 		return -1;
 	}
