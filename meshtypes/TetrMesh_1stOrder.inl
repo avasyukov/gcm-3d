@@ -6,7 +6,10 @@ TetrMesh_1stOrder::TetrMesh_1stOrder()
 TetrMesh_1stOrder::~TetrMesh_1stOrder()
 {
 	for(int i = 0; i < nodes.size(); i++)
+	{
 		nodes[i].elements->clear();
+		nodes[i].border->clear();
+	}
 	nodes.clear();
 	new_nodes.clear();
 	tetrs.clear();
@@ -612,8 +615,8 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 		}
 		else if(new_node.local_num < 0)
 		{
-			new_node.local_num = -new_node.local_num;
 			new_node.local_num--;
+			new_node.local_num = -new_node.local_num;
 			infile >> new_node.zone_num >> new_node.remote_num;
 			new_node.placement_type = REMOTE;
 			new_node.remote_num--;
