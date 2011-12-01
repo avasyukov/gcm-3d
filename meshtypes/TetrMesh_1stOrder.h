@@ -60,7 +60,10 @@ public:
 private:
 	int pre_process_mesh();
 
+	int check_triangle_to_be_border(int v1, int v2, int v3, int tetr_vert, float step_h);
+
 	int find_border_elem_normal(int border_element_index, float* x, float* y, float* z);
+	int find_border_elem_normal(int v1, int v2, int v3, float* x, float* y, float* z);
 
 	float calc_determ_pure_tetr(int node1, int node2, int node3, int ref_node);
 	float calc_determ_with_shift(int node1, int node2, int node3, int base_node, float dx, float dy, float dz);

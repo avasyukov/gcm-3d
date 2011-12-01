@@ -33,6 +33,8 @@ void TetrMesh_1stOrder::add_tetr(Tetrahedron_1st_order* tetr)
 
 int TetrMesh_1stOrder::pre_process_mesh()
 {
+	// Just to ensure loaded border was dropped
+	border.clear();
 
 	// Guaranteed allowed step
 	float step_h = get_min_h() / 4; // TODO avoid magick number
@@ -120,17 +122,10 @@ int TetrMesh_1stOrder::pre_process_mesh()
 
 	// Prepare border data
 
-	logger->write(string("Processing loaded border"));
-
-	// If the border was loaded from file - mark the nodes
-	for(int i = 0; i < border.size(); i++)
-		for(int j = 0; j < 3; j++)
-			nodes[border[i].vert[j]].border_type = BORDER;
-
 	float solid_angle;
 	float ftmp;
 
-	logger->write(string("Checking border using angles"));
+	logger->write(string("Looking for border nodes using angles"));
 
 	// Check border using solid angle comparation with 4*PI
 	for(int i = 0; i < nodes.size(); i++)
@@ -138,31 +133,27 @@ int TetrMesh_1stOrder::pre_process_mesh()
 		if( nodes[i].placement_type == LOCAL )
 		{
 			solid_angle = 0;
+			nodes[i].border_type == INNER;
 			for(int j = 0; j < nodes[i].elements->size(); j++)
 			{
 				ftmp = get_solid_angle(i, nodes[i].elements->at(j));
 				if(ftmp < 0) { return -1; }
 				solid_angle += ftmp;
 			}
-			if(nodes[i].border_type == INNER)
-			{
-				if( fabs( solid_angle - 4 * qm_engine.PI ) > qm_engine.PI / 100 ) // TODO avoid magick number
-				{
-					logger->write(string("ERROR: Node marked as INNER but solid angle is not 4PI!"));
-					cout << "Angle " << solid_angle << " 4*PI " << 4 * qm_engine.PI << endl;
-					return -1;
-				}
-			}
-			else if (nodes[i].border_type == BORDER)
-			{
-				if( solid_angle >= 4 * qm_engine.PI * 0.95 ) // TODO avoid magick number
-				{
-					logger->write(string("ERROR: Node marked as BORDER but solid angle seems to be too close to 4PI!"));
-					cout << "Angle " << solid_angle << " 4*PI " << 4 * qm_engine.PI << endl;
-					return -1;
-				}
-			}
+			if( (4 * qm_engine.PI - solid_angle) > qm_engine.PI / 100 ) // TODO avoid magick number
+				nodes[i].border_type = BORDER;
 		}
+	}
+
+	logger->write(string("Constructing border triangles"));
+
+	// Check all tetrs and construct border triangles
+	for(int i = 0; i < tetrs.size(); i++)
+	{
+		check_triangle_to_be_border(tetrs[i].vert[0], tetrs[i].vert[1], tetrs[i].vert[2], tetrs[i].vert[3], step_h);
+		check_triangle_to_be_border(tetrs[i].vert[0], tetrs[i].vert[1], tetrs[i].vert[3], tetrs[i].vert[2], step_h);
+		check_triangle_to_be_border(tetrs[i].vert[0], tetrs[i].vert[2], tetrs[i].vert[3], tetrs[i].vert[1], step_h);
+		check_triangle_to_be_border(tetrs[i].vert[1], tetrs[i].vert[2], tetrs[i].vert[3], tetrs[i].vert[0], step_h);
 	}
 
 	logger->write(string("Building surface reverse lookups"));
@@ -175,59 +166,12 @@ int TetrMesh_1stOrder::pre_process_mesh()
 		for(int j = 0; j < 3; j++)
 			nodes[border[i].vert[j]].border_elements->push_back(i);
 
-	logger->write(string("Checking border alignment"));
-
-	// Check border triangles alignment to calculate outer normal right
+	logger->write(string("Checking nodes outer normals"));
 
 	// Normal vector
 	float normal[3];
-
 	// Displacement
 	float dx[3];
-
-	float tc[3];
-	float tc_mod;
-
-	int tmp_int;
-
-	// Check all triangles
-	for(int i = 0; i < border.size(); i++)
-	{
-
-		find_border_elem_normal(i, &normal[0], &normal[1], &normal[2]);
-
-		// Displacement along normal ...
-		dx[0] = step_h * normal[0];
-		dx[1] = step_h * normal[1];
-		dx[2] = step_h * normal[2];
-		// ... from the point moved a bit to the center of triangle
-		tc[0] = ((nodes[border[i].vert[0]].coords[0] + nodes[border[i].vert[1]].coords[0] + nodes[border[i].vert[2]].coords[0]) / 3) - nodes[border[i].vert[0]].coords[0];
-		tc[1] = ((nodes[border[i].vert[0]].coords[1] + nodes[border[i].vert[1]].coords[1] + nodes[border[i].vert[2]].coords[1]) / 3) - nodes[border[i].vert[0]].coords[1];
-		tc[2] = ((nodes[border[i].vert[0]].coords[2] + nodes[border[i].vert[1]].coords[2] + nodes[border[i].vert[2]].coords[2]) / 3) - nodes[border[i].vert[0]].coords[2];
-		tc_mod = sqrt( tc[0] * tc[0] + tc[1] * tc[1] + tc[2] * tc[2] );
-		dx[0] += step_h * tc[0] / tc_mod;
-		dx[1] += step_h * tc[1] / tc_mod;
-		dx[2] += step_h * tc[2] / tc_mod;
-
-		// Check if we are inside of the body moving along normal
-		if( find_owner_tetr(&nodes[border[i].vert[0]], dx[0], dx[1], dx[2]) != NULL ) {
-			// Inside body - normal most probably is inner - recheck
-			if( find_owner_tetr(&nodes[border[i].vert[0]], -dx[0], -dx[1], -dx[2]) == NULL ) {
-				// Opposite direction is outer - we are right - just swap trianlge edges
-				tmp_int = border[i].vert[2];
-				border[i].vert[2] = border[i].vert[1];
-				border[i].vert[1] = tmp_int;
-			} else {
-				// Opposite direction looks inner too - smth bad happens - report error
-				if(logger != NULL)
-					logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Can not find outer normal for element!"));
-				return -1;
-			}
-		} else {
-			// Outside body - normal is outer - do nothing
-		}
-
-	}
 
 	// Check all nodes
 	for(int i = 0; i < nodes.size(); i++)
@@ -244,8 +188,12 @@ int TetrMesh_1stOrder::pre_process_mesh()
 			// Check if we are inside of the body moving towards normal
 			if( find_owner_tetr(&nodes[i], -dx[0], -dx[1], -dx[2]) == NULL ) {
 				// Smth bad happens - report error
-				if(logger != NULL)
+				if(logger != NULL) {
 					logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Can not find outer normal for node!"));
+					cout << nodes[i].coords[0] << " " << nodes[i].coords[1] << " " << nodes[i].coords[2] << "\n";
+					cout << normal[0] << " " << normal[1] << " " << normal[1] << "\n";
+					cout << dx[0] << " " << dx[1] << " " << dx[2] << "\n";
+				}
 				return -1;
 			} else {
 				// Outside body - normal is outer - do nothing
@@ -276,7 +224,78 @@ int TetrMesh_1stOrder::pre_process_mesh()
 	return 0;
 };
 
+int TetrMesh_1stOrder::check_triangle_to_be_border(int vert1, int vert2, int vert3, int tetr_vert, float step_h)
+{
+	int v1 = vert1;
+	int v2 = vert2;
+	int v3 = vert3;
+
+	if( (nodes[v1].border_type != BORDER) || (nodes[v2].border_type != BORDER) || (nodes[v3].border_type != BORDER) )
+		return -1;
+
+	Triangle new_triangle;
+
+	// Normal vector
+	float normal[3];
+	// Displacement
+	float dx[3];
+
+	float tri_center[3];
+	float tetr_vert_direction[3];
+	float plane_move[3];
+	// float plane_move_mod;
+
+	find_border_elem_normal(v1, v2, v3, &normal[0], &normal[1], &normal[2]);
+
+	// Triangle center
+	for(int i = 0; i < 3; i++)
+		tri_center[i] = (nodes[v1].coords[i] + nodes[v2].coords[i] + nodes[v3].coords[i]) / 3;
+
+	// Direction from triangle center to the verticle of tetrahedron
+	for(int i = 0; i < 3; i++)
+		tetr_vert_direction[i] = nodes[tetr_vert].coords[i] - tri_center[i];
+
+	// Check if normal is co-linear with tetr verticle direction
+	if(normal[0] * tetr_vert_direction[0] + normal[1] * tetr_vert_direction[1] + normal[2] * tetr_vert_direction[2] > 0)
+	{
+		// If they are - invert normal because only opposite direction can be outer
+		for(int i = 0; i < 3; i++)
+			normal[i] = -normal[i];
+		// And swap verticles order to match new direction
+		v2 = vert3;
+		v3 = vert2;
+	}
+
+	// Displacement along potential outer normal
+	for(int i = 0; i < 3; i++)
+		dx[i] = step_h * normal[i];
+
+	// Move from v1 to triangle center
+	for(int i = 0; i < 3; i++)
+		plane_move[i] = tri_center[i] - nodes[v1].coords[i];
+
+	// Check if we are outside of the body moving from triangle center along normal ...
+	if( find_owner_tetr(&nodes[v1], dx[0] + plane_move[0], dx[1] + plane_move[1], dx[2] + plane_move[2]) == NULL )
+	{
+		// ... add trianlge to border
+		new_triangle.local_num = border.size();
+		new_triangle.vert[0] = v1; new_triangle.vert[1] = v2; new_triangle.vert[2] = v3;
+		border.push_back(new_triangle);
+		return 0;
+	} else {
+		return -1;
+	}
+
+	return 0;
+};
+
 int TetrMesh_1stOrder::find_border_elem_normal(int border_element_index, float* x, float* y, float* z)
+{
+	int i = border_element_index;
+	return find_border_elem_normal(border[i].vert[0], border[i].vert[1], border[i].vert[2], x, y, z);
+};
+
+int TetrMesh_1stOrder::find_border_elem_normal(int v1, int v2, int v3, float* x, float* y, float* z)
 {
 	// Normal vector
 	float normal[3];
@@ -287,17 +306,15 @@ int TetrMesh_1stOrder::find_border_elem_normal(int border_element_index, float* 
 	// Tmp length
 	float l;
 
-	int i = border_element_index;
-
 	// Vector from vert '0' to vert '1'
-	v[0][0] = nodes[border[i].vert[1]].coords[0] - nodes[border[i].vert[0]].coords[0];
-	v[0][1] = nodes[border[i].vert[1]].coords[1] - nodes[border[i].vert[0]].coords[1];
-	v[0][2] = nodes[border[i].vert[1]].coords[2] - nodes[border[i].vert[0]].coords[2];
+	v[0][0] = nodes[v2].coords[0] - nodes[v1].coords[0];
+	v[0][1] = nodes[v2].coords[1] - nodes[v1].coords[1];
+	v[0][2] = nodes[v2].coords[2] - nodes[v1].coords[2];
 
 	// Vector from vert '0' to vert '2'
-	v[1][0] = nodes[border[i].vert[2]].coords[0] - nodes[border[i].vert[0]].coords[0];
-	v[1][1] = nodes[border[i].vert[2]].coords[1] - nodes[border[i].vert[0]].coords[1];
-	v[1][2] = nodes[border[i].vert[2]].coords[2] - nodes[border[i].vert[0]].coords[2];
+	v[1][0] = nodes[v3].coords[0] - nodes[v1].coords[0];
+	v[1][1] = nodes[v3].coords[1] - nodes[v1].coords[1];
+	v[1][2] = nodes[v3].coords[2] - nodes[v1].coords[2];
 
 	// Normal calculated as vector product
 	normal[0] = v[0][1] * v[1][2] - v[0][2] * v[1][1];
@@ -327,7 +344,6 @@ int TetrMesh_1stOrder::find_border_node_normal(int border_node_index, float* x, 
 	float cur_normal[3];
 
 	int count = nodes[border_node_index].border_elements->size();
-
 	for(int i = 0; i < count; i++) {
 		find_border_elem_normal( (int) nodes[border_node_index].border_elements->at(i), &cur_normal[0], &cur_normal[1], &cur_normal[2] );
 		final_normal[0] += cur_normal[0];	final_normal[1] += cur_normal[1];	final_normal[2] += cur_normal[2];
@@ -650,7 +666,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 	for(int i = 0; i < number_of_elements; i++)
 	{
 		infile >> tmp_int >> tmp_int;
-		if(tmp_int != 4 && tmp_int != 2) {
+		if(tmp_int != 4) {
 			getline(infile, str);
 			continue;
 		} else if (tmp_int == 4) {
@@ -667,21 +683,6 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 			new_tetr.vert[0]--; new_tetr.vert[1]--; new_tetr.vert[2]--; new_tetr.vert[3]--;
 
 			tetrs.push_back(new_tetr);
-		} else if (tmp_int == 2) {
-			new_triangle.local_num = border.size();
-			infile >> tmp_int >> tmp_int >> tmp_int >> tmp_int
-				>> new_triangle.vert[0] >> new_triangle.vert[1] >> new_triangle.vert[2];
-
-			if( (new_triangle.vert[0] <= 0) || (new_triangle.vert[1] <= 0) || (new_triangle.vert[2] <= 0) ) {
-				if(logger != NULL)
-					logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. Vert number must be positive."));
-				return -1;
-			}
-
-			new_triangle.vert[0]--; new_triangle.vert[1]--; new_triangle.vert[2]--;
-
-			border.push_back(new_triangle);
-
 		}
 	}
 
