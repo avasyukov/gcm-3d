@@ -1,8 +1,7 @@
 #ifndef H_ELASTICNODE
-#define H_ELASTICNODE
+#define H_ELASTICNODE 1
 
-#endif
-
+#define TIXML_USE_STL 
 #include <tinyxml.h>
 #include <sstream>
 
@@ -157,3 +156,5 @@ public:
 };
 
 #include "GCMStress.cpp"
+
+#endif
