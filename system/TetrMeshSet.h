@@ -35,6 +35,7 @@ protected:
 	CollisionDetector* collision_detector;
         int mesh_set_num; // TODO - we do not use it now, reserved for parallel version
         vector<TetrMesh_1stOrder*> meshes;
+	vector<ElasticNode> virt_nodes;
 };
 
 #include "TetrMeshSet.inl"

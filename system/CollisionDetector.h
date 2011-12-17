@@ -16,7 +16,7 @@ public:
 	~CollisionDetector();
 	void set_treshold(float value);
 	void attach(Logger* new_logger);
-	int find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2);
+	int find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2, vector<ElasticNode>* virt_nodes);
 protected:
 	bool node_in_intersection(ElasticNode* node, MeshOutline* intersect);
 	Logger* logger;

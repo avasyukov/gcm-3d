@@ -15,7 +15,7 @@ void CollisionDetector::set_treshold(float value)
 	treshold = value;
 };
 
-int CollisionDetector::find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2)
+int CollisionDetector::find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2, vector<ElasticNode>* virt_nodes)
 {
 	mesh1_nodes.clear();
 	mesh2_nodes.clear();

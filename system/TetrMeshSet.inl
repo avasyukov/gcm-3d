@@ -118,9 +118,11 @@ int TetrMeshSet::do_next_step()
 			time_step = ftmp;
 	}
 
+	// Clear virtual nodes because they change between time steps
+	virt_nodes.clear();
 	for(int i = 0; i < meshes.size(); i++)
 		for(int j = i+1; j < meshes.size(); j++)
-			if( collision_detector->find_collisions(meshes[i], meshes[j]) < 0 )
+			if( collision_detector->find_collisions(meshes[i], meshes[j], &virt_nodes) < 0 )
 				return -1;
 
 	for(int i = 0; i < meshes.size(); i++)
