@@ -452,6 +452,10 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_random_axis(Elas
 		return -1;
 	}
 
+	// Attach new basis to node - we need it for CollisionDetector to create virtual nodes using directions of these axis
+	// TODO - should it be this way at all?
+	cur_node->local_basis = &random_axis[node_num];
+
 	find_inverse_matrix(node_num);
 
 	return 0;

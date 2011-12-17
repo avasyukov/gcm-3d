@@ -422,6 +422,7 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 			new_node.border_type = INNER;
 			new_node.contact_type = FREE;
 			new_node.contact_data = NULL;
+			new_node.local_basis = NULL;
 			// TODO set other values
 		}
 		else
@@ -633,6 +634,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 			new_node.border_type = INNER;
 			new_node.contact_type = FREE;
 			new_node.contact_data = NULL;
+			new_node.local_basis = NULL;
 			// TODO set other values
 		}
 		else if(new_node.local_num < 0)

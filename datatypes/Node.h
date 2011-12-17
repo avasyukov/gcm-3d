@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "ContactData.h"
+#include "Basis.h"
 
 using std::string;
 using std::vector;
@@ -31,6 +32,7 @@ public:
 	int border_type;
 	int contact_type;
 	contact_state* contact_data;
+	basis* local_basis;
 	float coords[3];
 	float fixed_coords[3];
 protected:
