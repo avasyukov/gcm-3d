@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "ContactData.h"
 
 using std::string;
 using std::vector;
@@ -29,6 +30,7 @@ public:
 	int placement_type; // We need this to store NOT only LOCAL / REMOTE state. We have UNUSED flag also.
 	int border_type;
 	int contact_type;
+	contact_state* contact_data;
 	float coords[3];
 	float fixed_coords[3];
 protected:

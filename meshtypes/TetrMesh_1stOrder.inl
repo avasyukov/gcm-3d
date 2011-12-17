@@ -7,6 +7,8 @@ TetrMesh_1stOrder::~TetrMesh_1stOrder()
 {
 	for(int i = 0; i < nodes.size(); i++)
 	{
+		if(nodes[i].contact_data != NULL)
+			free(nodes[i].contact_data);
 		nodes[i].elements->clear();
 		nodes[i].border_elements->clear();
 	}
@@ -140,8 +142,10 @@ int TetrMesh_1stOrder::pre_process_mesh()
 				if(ftmp < 0) { return -1; }
 				solid_angle += ftmp;
 			}
-			if( (4 * qm_engine.PI - solid_angle) > qm_engine.PI / 100 ) // TODO avoid magick number
+			if( (4 * qm_engine.PI - solid_angle) > qm_engine.PI / 100 ) { // TODO avoid magick number
 				nodes[i].border_type = BORDER;
+				nodes[i].contact_data = (contact_state*) malloc(sizeof(contact_state));
+			}
 		}
 	}
 
@@ -417,6 +421,7 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 			new_node.placement_type = LOCAL;
 			new_node.border_type = INNER;
 			new_node.contact_type = FREE;
+			new_node.contact_data = NULL;
 			// TODO set other values
 		}
 		else
@@ -627,12 +632,13 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 			new_node.placement_type = LOCAL;
 			new_node.border_type = INNER;
 			new_node.contact_type = FREE;
+			new_node.contact_data = NULL;
 			// TODO set other values
 		}
 		else if(new_node.local_num < 0)
 		{
-			new_node.local_num--;
 			new_node.local_num = -new_node.local_num;
+			new_node.local_num--;
 			infile >> new_node.zone_num >> new_node.remote_num;
 			new_node.placement_type = REMOTE;
 			new_node.remote_num--;
