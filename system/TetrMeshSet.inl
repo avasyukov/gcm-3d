@@ -97,7 +97,7 @@ float TetrMeshSet::get_current_time()
 	time = meshes[0]->get_current_time();
 
 	for(int i = 0; i < meshes.size(); i++) {
-		if( fabs(time - meshes[i]->get_current_time()) > 0.001 * time ) {
+		if( fabs(time - meshes[i]->get_current_time()) > 0.001 * time ) { // TODO - remove magic number
 			if(logger != NULL)
 				logger->write("ERROR: TetrMeshSet - meshes report different time!");
 			return -1;
@@ -109,11 +109,10 @@ float TetrMeshSet::get_current_time()
 
 int TetrMeshSet::do_next_step()
 {
-	float ftmp;
 
 	float time_step = meshes[0]->get_max_possible_tau();
 	for(int i = 1; i < meshes.size(); i++) {
-		ftmp = meshes[i]->get_max_possible_tau();
+		float ftmp = meshes[i]->get_max_possible_tau();
 		if(ftmp < time_step)
 			time_step = ftmp;
 	}
@@ -122,7 +121,7 @@ int TetrMeshSet::do_next_step()
 	virt_nodes.clear();
 	for(int i = 0; i < meshes.size(); i++)
 		for(int j = i+1; j < meshes.size(); j++)
-			if( collision_detector->find_collisions(meshes[i], meshes[j], &virt_nodes) < 0 )
+			if( collision_detector->find_collisions(meshes[i], meshes[j], &virt_nodes, time_step) < 0 )
 				return -1;
 
 	for(int i = 0; i < meshes.size(); i++)

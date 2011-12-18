@@ -29,8 +29,8 @@ public:
 
 	vector<ElasticNode> nodes;
 
-protected:
 	TetrNumericalMethod* method;
+protected:
 };
 
 #include "TetrMesh.inl"

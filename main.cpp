@@ -27,7 +27,7 @@ int main()
 	mesh_set->attach(rc);
 
 	Stresser* stresser = new GCMStresser();
-	stresser->loadTask("../gcm-3d-materials/data/tasks/task.xml");
+	//stresser->loadTask("../gcm-3d-materials/data/tasks/task.xml");
 	mesh_set->attach(stresser);
 
 	TetrMesh_1stOrder* mesh1 = new TetrMesh_1stOrder();
@@ -35,21 +35,24 @@ int main()
 	// if ( mesh->load_gmv_file((char*)"mesh-optimized.gmv") < 0 )
 	// if ( mesh->load_node_ele_files((char*)"data/models/heart.node",(char*)"data/models/heart.ele") < 0 )
 	// if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-small.msh") < 0 ) {
-	if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-self-gen.msh") < 0 ) {
+	// if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-self-gen.msh") < 0 ) {
+	if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-self-gen-small.msh") < 0 ) {
+	// if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-self-gen-big.msh") < 0 ) {
 		cout << "Can not open file!\n";
 		return -1;
 	}
-	mesh1->translate(-5, 0, 0);
+	mesh1->translate(-10, 0, 0);
 	tp->set_fixed_elastic_rheology(&(mesh1->nodes), 70000, 10000, 1, 1000000);
 	mesh_set->attach(mesh1);
 
 	TetrMesh_1stOrder* mesh2 = new TetrMesh_1stOrder();
 	mesh2->attach(logger);
-	if ( mesh2->load_msh_file((char*)"../gcm-3d-materials/data/models/sphere-small.msh") < 0 ) {
+	// if ( mesh2->load_msh_file((char*)"../gcm-3d-materials/data/models/sphere-small.msh") < 0 ) {
+	if ( mesh2->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-self-gen-small.msh") < 0 ) {
 		cout << "Can not open file!\n";
 		return -1;
 	}
-	mesh2->translate(5, 0, 0);
+	mesh2->translate(10, 0, 0);
 	tp->set_fixed_elastic_rheology(&(mesh2->nodes), 70000, 10000, 1, 1000000);
 	mesh_set->attach(mesh2);
 

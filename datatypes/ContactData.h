@@ -2,9 +2,8 @@
 #define _GCM_CONTACT_DATA_H  1
 
 struct contact_state {
-	int axis_x[2];
-	int axis_y[2];
-	int axis_z[2];
+	int axis_plus[3];
+	int axis_minus[3];
 };
 
 #include "ContactData.inl"

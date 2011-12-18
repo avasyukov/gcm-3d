@@ -15,7 +15,7 @@ void CollisionDetector::set_treshold(float value)
 	treshold = value;
 };
 
-int CollisionDetector::find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2, vector<ElasticNode>* virt_nodes)
+int CollisionDetector::find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2, vector<ElasticNode>* virt_nodes, float time_step)
 {
 	mesh1_nodes.clear();
 	mesh2_nodes.clear();
@@ -68,59 +68,16 @@ int CollisionDetector::find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrd
 	                << "MinZ: " << intersect.min_coords[2] << endl
 	                << "MaxZ: " << intersect.max_coords[2] << endl;
 
-	// TODO - unreadable code - rewrite it based on get_* functions
-	for(int i = 0; i < (mesh1->nodes).size(); i++) {
-		(mesh1->nodes).at(i).contact_type = FREE;
-		if(node_in_intersection( &((mesh1->nodes).at(i)), &intersect ) ) {
-			mesh1_nodes.push_back(i);
-			for(int j = 0; j < (((mesh1->nodes).at(i)).elements)->size(); j++)
-				mesh1_tetrs.push_back( (((mesh1->nodes).at(i)).elements)->at(j) );
-		}
-	}
+	// Find nodes and tetrs in intersection to check them in details later
+	find_elements_in_intersect(mesh1, &intersect, &mesh1_nodes, &mesh1_tetrs);
+	find_elements_in_intersect(mesh2, &intersect, &mesh2_nodes, &mesh2_tetrs);
 
-	for(int i = 0; i < (mesh2->nodes).size(); i++) {
-		(mesh2->nodes).at(i).contact_type = FREE;
-		if(node_in_intersection( &((mesh2->nodes).at(i)), &intersect ) ) {
-			mesh2_nodes.push_back(i);
-			for(int j = 0; j < (((mesh2->nodes).at(i)).elements)->size(); j++)
-				mesh2_tetrs.push_back( (((mesh2->nodes).at(i)).elements)->at(j) );
-		}
-	}
+	// Find contacts mesh1 has with mesh2
+	process_mesh(&mesh1_nodes, mesh1, &mesh2_tetrs, mesh2, time_step);
 
-	ElasticNode node;
-	float dx[3];
+	// Find contacts mesh2 has with mesh1
+	process_mesh(&mesh2_nodes, mesh2, &mesh1_tetrs, mesh1, time_step);
 
-	for(int i = 0; i < mesh1_nodes.size(); i++) {
-		node = (mesh1->nodes).at( mesh1_nodes[i] );
-
-		mesh1->find_border_node_normal(mesh1_nodes[i], &dx[0], &dx[1], &dx[2]);
-		node.coords[0] += dx[0] * treshold * 2; // FIXME - remove hardcoded value '2'
-		node.coords[1] += dx[1] * treshold * 2;
-		node.coords[2] += dx[2] * treshold * 2;
-
-		for(int j = 0; j < mesh2_tetrs.size(); j++) {
-			if( mesh2->point_in_tetr(node.coords[0], node.coords[1], node.coords[2], &((mesh2->tetrs).at( mesh2_tetrs[j] )) ) ) {
-				(mesh1->nodes).at( mesh1_nodes[i] ).contact_type = IN_CONTACT;
-				break;
-			}
-		}
-	}
-
-        for(int i = 0; i < mesh2_nodes.size(); i++) {
-                node = (mesh2->nodes).at( mesh2_nodes[i] );
-                
-                mesh2->find_border_node_normal(mesh2_nodes[i], &dx[0], &dx[1], &dx[2]);
-                node.coords[0] += dx[0] * treshold * 2; // FIXME - remove hardcoded value '2'
-                node.coords[1] += dx[1] * treshold * 2;
-                node.coords[2] += dx[2] * treshold * 2;
-
-                for(int j = 0; j < mesh1_tetrs.size(); j++) {
-                        if( mesh1->point_in_tetr(node.coords[0], node.coords[1], node.coords[2], &((mesh1->tetrs).at( mesh1_tetrs[j] )) ) ) {
-                                (mesh2->nodes).at( mesh2_nodes[i] ).contact_type = IN_CONTACT;
-                                break;
-                        }
-                }
-        }
 
 	return 0;
 };
@@ -131,4 +88,70 @@ bool CollisionDetector::node_in_intersection(ElasticNode* node, MeshOutline* int
 		if( (node->coords[j] < intersect->min_coords[j]) || (node->coords[j] > intersect->max_coords[j]) )
 			return false;
 	return true;
+};
+
+void CollisionDetector::clear_contact_data(ElasticNode* node)
+{
+	node->contact_data->axis_plus[0] = -1;
+	node->contact_data->axis_plus[1] = -1;
+	node->contact_data->axis_plus[2] = -1;
+	node->contact_data->axis_minus[0] = -1;
+	node->contact_data->axis_minus[1] = -1;
+	node->contact_data->axis_minus[2] = -1;
+};
+
+void CollisionDetector::process_direction(ElasticNode* _node, float move, int axis_num, vector<int>* tetrs_vector, TetrMesh_1stOrder* tetrs_mesh)
+{
+	ElasticNode node = *_node;
+	node.coords[0] += move * (node.local_basis)->ksi[axis_num][0];
+	node.coords[1] += move * (node.local_basis)->ksi[axis_num][1];
+	node.coords[2] += move * (node.local_basis)->ksi[axis_num][2];
+	for(int k = 0; k < tetrs_vector->size(); k++) {
+		if( tetrs_mesh->point_in_tetr(node.coords[0], node.coords[1], node.coords[2], &((tetrs_mesh->tetrs).at( tetrs_vector->at(k) )) ) ) {
+			_node->contact_type = IN_CONTACT;
+			break;
+		}
+	}
+};
+
+void CollisionDetector::process_mesh(vector<int>* nodes_vector, TetrMesh_1stOrder* current_mesh, vector<int>* tetrs_vector, TetrMesh_1stOrder* other_mesh, float time_step)
+{
+	ElasticNode node;
+
+	for(int i = 0; i < nodes_vector->size(); i++) {
+
+		// Clear contact data
+		if( (current_mesh->nodes).at( nodes_vector->at(i) ).border_type == BORDER )
+			clear_contact_data( &(current_mesh->nodes).at( nodes_vector->at(i) ) );
+
+		node = (current_mesh->nodes).at( nodes_vector->at(i) );
+
+		// TODO - it's bad, we should use default impl, but default one re-randomizes axis...
+		float move = time_step * sqrt( ( (node.la) + 2 * (node.mu) ) / (node.rho) );
+
+		// Check all axis
+		for(int j = 0; j < 3; j++) {
+			// Check positive direction
+			process_direction( &(current_mesh->nodes).at( nodes_vector->at(i) ), move, j, tetrs_vector, other_mesh);
+
+			// Check negative direction
+			process_direction( &(current_mesh->nodes).at( nodes_vector->at(i) ), -move, j, tetrs_vector, other_mesh);
+		}
+
+		// TODO - should we check outer normal in addition? It is possible that all axis are out of the neighbour body, but normal is in it.
+
+	}
+};
+
+void CollisionDetector::find_elements_in_intersect(TetrMesh_1stOrder* mesh, MeshOutline* intersect, vector<int>* nodes_vector, vector<int>* tetrs_vector)
+{
+	// TODO - unreadable code - rewrite it based on get_* functions
+	for(int i = 0; i < (mesh->nodes).size(); i++) {
+		(mesh->nodes).at(i).contact_type = FREE;
+		if(node_in_intersection( &((mesh->nodes).at(i)), intersect ) ) {
+			nodes_vector->push_back(i);
+			for(int j = 0; j < (((mesh->nodes).at(i)).elements)->size(); j++)
+				tetrs_vector->push_back( (((mesh->nodes).at(i)).elements)->at(j) );
+		}
+	}
 };
