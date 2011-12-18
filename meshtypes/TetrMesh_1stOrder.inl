@@ -145,6 +145,7 @@ int TetrMesh_1stOrder::pre_process_mesh()
 			if( (4 * qm_engine.PI - solid_angle) > qm_engine.PI / 100 ) { // TODO avoid magick number
 				nodes[i].border_type = BORDER;
 				nodes[i].contact_data = (contact_state*) malloc(sizeof(contact_state));
+				clear_contact_data(&nodes[i]);
 			}
 		}
 	}
@@ -226,6 +227,16 @@ int TetrMesh_1stOrder::pre_process_mesh()
 	logger->write(string("Preprocessing mesh done."));
 
 	return 0;
+};
+
+void TetrMesh_1stOrder::clear_contact_data(ElasticNode* node)
+{
+        node->contact_data->axis_plus[0] = -1;
+        node->contact_data->axis_plus[1] = -1;
+        node->contact_data->axis_plus[2] = -1;
+        node->contact_data->axis_minus[0] = -1;
+        node->contact_data->axis_minus[1] = -1;
+        node->contact_data->axis_minus[2] = -1;
 };
 
 int TetrMesh_1stOrder::check_triangle_to_be_border(int vert1, int vert2, int vert3, int tetr_vert, float step_h)

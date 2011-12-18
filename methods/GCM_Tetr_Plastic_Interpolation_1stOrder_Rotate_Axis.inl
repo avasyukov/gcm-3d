@@ -154,15 +154,16 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		return -1;
 	}
 
+	// If all the omegas are 'inner'
+	// omega = Matrix_OMEGA * u
+	// new_u = Matrix_OMEGA^(-1) * omega
 	// TODO - to think - if all omegas are 'inner' can we skip matrix calculations and just use new_u = interpolated_u ?
-	// For all omegas
-	for(int i = 0; i < 9; i++)
+	if( outer_count == 0 )
 	{
-		// If omega is 'inner' - calculate omega value
-		// omega = Matrix_OMEGA * u
-		// omega on new time layer is equal to omega on previous time layer along characteristic
-		if(inner[i])
+		// Calculate omega value
+		for(int i = 0; i < 9; i++)
 		{
+			// omega on new time layer is equal to omega on previous time layer along characteristic
 			omega[i] = 0;
 			for(int j = 0; j < 9; j++)
 			{
@@ -170,12 +171,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 							* previous_nodes[ppoint_num[i]].values[j];
 			}
 		}
-	}
-
-	// If all the omegas are 'inner'
-	// new_u = Matrix_OMEGA^(-1) * omega
-	if( outer_count == 0 )
-	{
+		// Calculate new values
 		for(int i = 0; i < 9; i++)
 		{
 			new_node->values[i] = 0;
@@ -185,110 +181,139 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 			}
 		}
 	}
-	// If there are 3 'outer' omegas - we should use border algorithm
+	// If there are 3 'outer' omegas - we should use border or contact algorithm
 	// TODO - ... we should also use it when l*t/h > 1 and there is 1 'outer' omega
 	// 		(we should add 2 more corresponding omegas to 'outer' manually
 	else if ( outer_count == 3 )
 	{
-		// Tmp value for GSL solver
-		int s;
+		// Check contact state
+		// If both directions show no contact - use border algorithm, otherwise use contact algorithm
+		// TODO - handle non-border nodes with contact_data == NULL separately
 
-		// Fixed border algorithm
-		/*for(int i = 0; i < 9; i++)
+		// Border algorithm
+		if( (cur_node->contact_data != NULL) && ( cur_node->contact_data->axis_plus[stage] == -1 ) && ( cur_node->contact_data->axis_minus[stage] == -1 ) )
 		{
-			// If omega is 'inner' one
-			if(inner[i])
+
+			// Tmp value for GSL solver
+			int s;
+
+			// Fixed border algorithm
+			/*for(int i = 0; i < 9; i++)
 			{
-				// just load appropriate values into GSL containers
-				gsl_vector_set(om_gsl, i, omega[i]);
-				for(int j = 0; j < 9; j++)
-					gsl_matrix_set(U_gsl, i, j, elastic_matrix3d[stage]->U(i,j));
-			}
-			// If omega is 'outer' one
-			else
-			{
-				// omega (as right-hand part of OLE) is zero - it is not-moving border
-				gsl_vector_set(om_gsl, i, 0);
-				// corresponding string in matrix is zero ...
-				for(int j = 0; j < 9; j++)
-					gsl_matrix_set(U_gsl, i, j, 0);
-				// ... except velocity
-				if( stage < 3 )
+				// If omega is 'inner' one
+				if(inner[i])
 				{
-					if ( outer_count == 3 ) {
-						gsl_matrix_set(U_gsl, i, 0, 1); outer_count--;
-					} else if ( outer_count == 2 ) {
-						gsl_matrix_set(U_gsl, i, 1, 1); outer_count--;
-					} else if ( outer_count == 1 ) {
-						gsl_matrix_set(U_gsl, i, 2, 1); outer_count--;
+					// Calculate omega value
+					omega[i] = 0;
+					for(int j = 0; j < 9; j++)
+					{
+						omega[i] += elastic_matrix3d[stage]->U(i,j) 
+									* previous_nodes[ppoint_num[i]].values[j];
+					}
+					// Load appropriate values into GSL containers
+					gsl_vector_set(om_gsl, i, omega[i]);
+					for(int j = 0; j < 9; j++)
+						gsl_matrix_set(U_gsl, i, j, elastic_matrix3d[stage]->U(i,j));
+				}
+				// If omega is 'outer' one
+				else
+				{
+					// omega (as right-hand part of OLE) is zero - it is not-moving border
+					gsl_vector_set(om_gsl, i, 0);
+					// corresponding string in matrix is zero ...
+					for(int j = 0; j < 9; j++)
+						gsl_matrix_set(U_gsl, i, j, 0);
+					// ... except velocity
+					if( stage < 3 )
+					{
+						if ( outer_count == 3 ) {
+							gsl_matrix_set(U_gsl, i, 0, 1); outer_count--;
+						} else if ( outer_count == 2 ) {
+							gsl_matrix_set(U_gsl, i, 1, 1); outer_count--;
+						} else if ( outer_count == 1 ) {
+							gsl_matrix_set(U_gsl, i, 2, 1); outer_count--;
+						}
+					}
+					else 
+					{
+						if(logger != NULL)
+							logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - wrong stage number!"));
+						return -1;
 					}
 				}
-				else 
+			}*/
+
+			// Free border algorithm
+			for(int i = 0; i < 9; i++)
+			{
+				// If omega is 'inner' one
+				if(inner[i])
 				{
-					if(logger != NULL)
-						logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - wrong stage number!"));
-					return -1;
+					// Calculate omega value
+					omega[i] = 0;
+					for(int j = 0; j < 9; j++)
+					{
+						omega[i] += elastic_matrix3d[stage]->U(i,j) 
+									* previous_nodes[ppoint_num[i]].values[j];
+					}
+					// Load appropriate values into GSL containers
+					gsl_vector_set(om_gsl, i, omega[i]);
+					for(int j = 0; j < 9; j++)
+						gsl_matrix_set(U_gsl, i, j, elastic_matrix3d[stage]->U(i,j));
 				}
-			}
-		}*/
-
-		// Free border algorithm
-		for(int i = 0; i < 9; i++)
-		{
-			// If omega is 'inner' one
-			if(inner[i])
-			{
-				// just load appropriate values into GSL containers
-				gsl_vector_set(om_gsl, i, omega[i]);
-				for(int j = 0; j < 9; j++)
-					gsl_matrix_set(U_gsl, i, j, elastic_matrix3d[stage]->U(i,j));
-			}
-			// If omega is 'outer' one
-			else
-			{
-				// omega (as right-hand part of OLE) is zero - it is free border, no external stress
-				gsl_vector_set(om_gsl, i, 0);
-				// corresponding string in matrix is zero ...
-				for(int j = 0; j < 9; j++)
-					gsl_matrix_set(U_gsl, i, j, 0);
-
-				// ... except normal and tangential stress
-				// We use outer normal to find total stress vector (sigma * n) - sum of normal and shear - and tell it is zero
-				// TODO - never-ending questions - is everything ok with (x-y-z) and (ksi-eta-dzeta) basises?
-				if( stage < 3 )
+				// If omega is 'outer' one
+				else
 				{
-					if ( outer_count == 3 ) {
-						gsl_matrix_set(U_gsl, i, 3, outer_normal[0]);
-						gsl_matrix_set(U_gsl, i, 4, outer_normal[1]);
-						gsl_matrix_set(U_gsl, i, 5, outer_normal[2]);
-						outer_count--;
-					} else if ( outer_count == 2 ) {
-						gsl_matrix_set(U_gsl, i, 4, outer_normal[0]);
-						gsl_matrix_set(U_gsl, i, 6, outer_normal[1]);
-						gsl_matrix_set(U_gsl, i, 7, outer_normal[2]);
-						outer_count--;
-					} else if ( outer_count == 1 ) {
-						gsl_matrix_set(U_gsl, i, 5, outer_normal[0]);
-						gsl_matrix_set(U_gsl, i, 7, outer_normal[1]);
-						gsl_matrix_set(U_gsl, i, 8, outer_normal[2]);
-						outer_count--;
+					// omega (as right-hand part of OLE) is zero - it is free border, no external stress
+					gsl_vector_set(om_gsl, i, 0);
+					// corresponding string in matrix is zero ...
+					for(int j = 0; j < 9; j++)
+						gsl_matrix_set(U_gsl, i, j, 0);
+
+					// ... except normal and tangential stress
+					// We use outer normal to find total stress vector (sigma * n) - sum of normal and shear - and tell it is zero
+					// TODO - never-ending questions - is everything ok with (x-y-z) and (ksi-eta-dzeta) basises?
+					if( stage < 3 )
+					{
+						if ( outer_count == 3 ) {
+							gsl_matrix_set(U_gsl, i, 3, outer_normal[0]);
+							gsl_matrix_set(U_gsl, i, 4, outer_normal[1]);
+							gsl_matrix_set(U_gsl, i, 5, outer_normal[2]);
+							outer_count--;
+						} else if ( outer_count == 2 ) {
+							gsl_matrix_set(U_gsl, i, 4, outer_normal[0]);
+							gsl_matrix_set(U_gsl, i, 6, outer_normal[1]);
+							gsl_matrix_set(U_gsl, i, 7, outer_normal[2]);
+							outer_count--;
+						} else if ( outer_count == 1 ) {
+							gsl_matrix_set(U_gsl, i, 5, outer_normal[0]);
+							gsl_matrix_set(U_gsl, i, 7, outer_normal[1]);
+							gsl_matrix_set(U_gsl, i, 8, outer_normal[2]);
+							outer_count--;
+						}
+					}
+					else 
+					{
+						if(logger != NULL)
+							logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - wrong stage number!"));
+						return -1;
 					}
 				}
-				else 
-				{
-					if(logger != NULL)
-						logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - wrong stage number!"));
-					return -1;
-				}
 			}
+
+			// Solve linear equations using GSL tools
+			gsl_linalg_LU_decomp (U_gsl, p_gsl, &s);
+			gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);
+
+			for(int j = 0; j < 9; j++)
+				new_node->values[j] = gsl_vector_get(x_gsl, j);
+
+		// Contact algorithm
+		// TODO - copy idea from do_next_part_contact from @sedire and make it working with random axis
+		} else {
+			cout << "Contact not implemented!\n";
+			exit(-1);
 		}
-
-		// Solve linear equations using GSL tools
-		gsl_linalg_LU_decomp (U_gsl, p_gsl, &s);
-		gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);
-
-		for(int j = 0; j < 9; j++)
-			new_node->values[j] = gsl_vector_get(x_gsl, j);
 	}
 	// If there are 'outer' omegas but not 3 ones - we should not be here - we checked it before
 	else

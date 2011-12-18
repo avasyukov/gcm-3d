@@ -90,16 +90,6 @@ bool CollisionDetector::node_in_intersection(ElasticNode* node, MeshOutline* int
 	return true;
 };
 
-void CollisionDetector::clear_contact_data(ElasticNode* node)
-{
-	node->contact_data->axis_plus[0] = -1;
-	node->contact_data->axis_plus[1] = -1;
-	node->contact_data->axis_plus[2] = -1;
-	node->contact_data->axis_minus[0] = -1;
-	node->contact_data->axis_minus[1] = -1;
-	node->contact_data->axis_minus[2] = -1;
-};
-
 void CollisionDetector::process_direction(ElasticNode* _node, float move, int axis_num, vector<int>* tetrs_vector, TetrMesh_1stOrder* tetrs_mesh, vector<ElasticNode>* virt_nodes)
 {
 	ElasticNode node = *_node;
@@ -130,7 +120,7 @@ void CollisionDetector::process_mesh(vector<int>* nodes_vector, TetrMesh_1stOrde
 
 		// Clear contact data
 		if( (current_mesh->nodes).at( nodes_vector->at(i) ).border_type == BORDER )
-			clear_contact_data( &(current_mesh->nodes).at( nodes_vector->at(i) ) );
+			current_mesh->clear_contact_data( &(current_mesh->nodes).at( nodes_vector->at(i) ) );
 
 		node = (current_mesh->nodes).at( nodes_vector->at(i) );
 

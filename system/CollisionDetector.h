@@ -20,7 +20,6 @@ public:
 protected:
 	void find_elements_in_intersect(TetrMesh_1stOrder* mesh, MeshOutline* intersect, vector<int>* nodes_vector, vector<int>* tetrs_vector);
 	bool node_in_intersection(ElasticNode* node, MeshOutline* intersect);
-	void clear_contact_data(ElasticNode* node);
 	void process_mesh(vector<int>* nodes_vector, TetrMesh_1stOrder* current_mesh, vector<int>* tetrs_vector, TetrMesh_1stOrder* other_mesh, float time_step, vector<ElasticNode>* virt_nodes);
 	void process_direction(ElasticNode* _node, float move, int axis_num, vector<int>* tetrs_vector, TetrMesh_1stOrder* tetrs_mesh, vector<ElasticNode>* virt_nodes);
 	Logger* logger;
