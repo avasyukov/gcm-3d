@@ -160,6 +160,14 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 	// TODO - to think - if all omegas are 'inner' can we skip matrix calculations and just use new_u = interpolated_u ?
 	if( outer_count == 0 )
 	{
+		// Special cases - smth bad happens
+		if( cur_node->border_type == BORDER )	// node is marked as border
+		{
+			if(logger != NULL)
+				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad inner node!"));
+			return -1;
+		}
+
 		// Calculate omega value
 		for(int i = 0; i < 9; i++)
 		{
@@ -191,7 +199,8 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		// Special cases - smth bad happens
 		if( ( cur_node->contact_data == NULL )	// node should be border but it has no contact_data struct
 			|| ( ( cur_node->contact_data->axis_plus[stage] != -1 ) 		// OR both direction marked as contact
-				&& ( cur_node->contact_data->axis_minus[stage] != -1 ) ) )
+				&& ( cur_node->contact_data->axis_minus[stage] != -1 ) )
+			|| ( cur_node->border_type != BORDER ) )	// OR node is not border at all
 		{
 			if(logger != NULL)
 				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad border node!"));
