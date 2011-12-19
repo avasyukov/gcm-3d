@@ -187,11 +187,21 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 	else if ( outer_count == 3 )
 	{
 		// Check contact state
-		// If both directions show no contact - use border algorithm, otherwise use contact algorithm
-		// TODO - handle non-border nodes with contact_data == NULL separately
 
+		// Special cases - smth bad happens
+		if( ( cur_node->contact_data == NULL )	// node should be border but it has no contact_data struct
+			|| ( ( cur_node->contact_data->axis_plus[stage] != -1 ) 		// OR both direction marked as contact
+				&& ( cur_node->contact_data->axis_minus[stage] != -1 ) ) )
+		{
+			if(logger != NULL)
+				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad border node!"));
+			return -1;
+		}
+
+		// If both directions show no contact - use border algorithm, otherwise use contact algorithm
 		// Border algorithm
-		if( (cur_node->contact_data != NULL) && ( cur_node->contact_data->axis_plus[stage] == -1 ) && ( cur_node->contact_data->axis_minus[stage] == -1 ) )
+		if( ( cur_node->contact_data != NULL )
+			 && ( cur_node->contact_data->axis_plus[stage] == -1 ) && ( cur_node->contact_data->axis_minus[stage] == -1 ) )
 		{
 
 			// Tmp value for GSL solver
