@@ -41,7 +41,7 @@ int main()
 		cout << "Can not open file!\n";
 		return -1;
 	}
-	mesh1->translate(-10, 0, 0);
+	mesh1->translate(-10.000001, 0, 0);
 	tp->set_fixed_elastic_rheology(&(mesh1->nodes), 70000, 10000, 1, 1000000);
 	mesh_set->attach(mesh1);
 
@@ -52,7 +52,7 @@ int main()
 		cout << "Can not open file!\n";
 		return -1;
 	}
-	mesh2->translate(10, 0, 0);
+	mesh2->translate(10.000001, 0, 0);
 	tp->set_fixed_elastic_rheology(&(mesh2->nodes), 70000, 10000, 1, 1000000);
 	mesh_set->attach(mesh2);
 

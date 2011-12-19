@@ -22,6 +22,7 @@ TetrMesh_1stOrder::~TetrMesh_1stOrder()
 void TetrMesh_1stOrder::add_node(ElasticNode* node)
 {
 	ElasticNode new_node = *node;
+	new_node.mesh = this;
 	nodes.push_back(new_node);
 	new_nodes.push_back(new_node);
 };
@@ -442,6 +443,7 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 				logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - wrong file format. Node number can not be <= 0."));
 			return -1;
 		}
+		new_node.mesh = this;
 		nodes.push_back(new_node);
 		new_nodes.push_back(new_node);
 	}
@@ -531,6 +533,7 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 		new_node.local_num = count - 1;
 		infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
 
+		new_node.mesh = this;
 		nodes.push_back(new_node);
 		new_nodes.push_back(new_node);
 
@@ -663,6 +666,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 				logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. Node number can not be 0."));
 			return -1;
 		}
+		new_node.mesh = this;
 		nodes.push_back(new_node);
 		new_nodes.push_back(new_node);
 	}

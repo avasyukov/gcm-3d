@@ -73,11 +73,12 @@ int CollisionDetector::find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrd
 	find_elements_in_intersect(mesh2, &intersect, &mesh2_nodes, &mesh2_tetrs);
 
 	// Find contacts mesh1 has with mesh2
-	process_mesh(&mesh1_nodes, mesh1, &mesh2_tetrs, mesh2, time_step, virt_nodes);
+	if( process_mesh(&mesh1_nodes, mesh1, &mesh2_tetrs, mesh2, time_step, virt_nodes) < 0 )
+		return -1;
 
 	// Find contacts mesh2 has with mesh1
-	process_mesh(&mesh2_nodes, mesh2, &mesh1_tetrs, mesh1, time_step, virt_nodes);
-
+	if( process_mesh(&mesh2_nodes, mesh2, &mesh1_tetrs, mesh1, time_step, virt_nodes) < 0 )
+		return -1;
 
 	return 0;
 };
@@ -90,7 +91,7 @@ bool CollisionDetector::node_in_intersection(ElasticNode* node, MeshOutline* int
 	return true;
 };
 
-void CollisionDetector::process_direction(ElasticNode* _node, float move, int axis_num, vector<int>* tetrs_vector, TetrMesh_1stOrder* tetrs_mesh, vector<ElasticNode>* virt_nodes)
+int CollisionDetector::process_direction(ElasticNode* _node, float move, int axis_num, vector<int>* tetrs_vector, TetrMesh_1stOrder* tetrs_mesh, vector<ElasticNode>* virt_nodes)
 {
 	ElasticNode node = *_node;
 	node.coords[0] += move * (node.local_basis)->ksi[axis_num][0];
@@ -99,9 +100,20 @@ void CollisionDetector::process_direction(ElasticNode* _node, float move, int ax
 	for(int k = 0; k < tetrs_vector->size(); k++) {
 		if( tetrs_mesh->point_in_tetr(node.coords[0], node.coords[1], node.coords[2], &((tetrs_mesh->tetrs).at( tetrs_vector->at(k) )) ) ) {
 			_node->contact_type = IN_CONTACT;
-			// TODO - is it ok to use just this node? Or should we find the one on the border?
-			tetrs_mesh->interpolate(&node, &((tetrs_mesh->tetrs).at( tetrs_vector->at(k) )));
-			virt_nodes->push_back(node);
+			// FIXME - we should find node on the border, this approach will fail if sound speed is different in colliding bodies
+
+			// We must use remote node here because we will need further topology information of REMOTE mesh stored in it
+			ElasticNode remote_node = (tetrs_mesh->nodes).at( (tetrs_mesh->tetrs).at( tetrs_vector->at(k) ).vert[0] );
+			remote_node.coords[0] = node.coords[0];
+			remote_node.coords[1] = node.coords[1];
+			remote_node.coords[2] = node.coords[2];
+			if ( tetrs_mesh->interpolate(&remote_node, &((tetrs_mesh->tetrs).at( tetrs_vector->at(k) ))) < 0 )
+			{
+				if(logger != NULL)
+					logger->write(string("ERROR: CollisionDetector::process_direction - interpolation failed!"));
+				return -1;
+			}
+			virt_nodes->push_back(remote_node);
 			if(move > 0) {
 				_node->contact_data->axis_plus[axis_num] = virt_nodes->size()-1;
 			} else {
@@ -110,9 +122,10 @@ void CollisionDetector::process_direction(ElasticNode* _node, float move, int ax
 			break;
 		}
 	}
+	return 0;
 };
 
-void CollisionDetector::process_mesh(vector<int>* nodes_vector, TetrMesh_1stOrder* current_mesh, vector<int>* tetrs_vector, TetrMesh_1stOrder* other_mesh, float time_step, vector<ElasticNode>* virt_nodes)
+int CollisionDetector::process_mesh(vector<int>* nodes_vector, TetrMesh_1stOrder* current_mesh, vector<int>* tetrs_vector, TetrMesh_1stOrder* other_mesh, float time_step, vector<ElasticNode>* virt_nodes)
 {
 	ElasticNode node;
 
@@ -125,15 +138,20 @@ void CollisionDetector::process_mesh(vector<int>* nodes_vector, TetrMesh_1stOrde
 		node = (current_mesh->nodes).at( nodes_vector->at(i) );
 
 		// TODO - it's bad, we should use default impl, but default one re-randomizes axis...
-		float move = time_step * sqrt( ( (node.la) + 2 * (node.mu) ) / (node.rho) );
+		// FIXME - we temporary use minor characteristic to ensure both are always in or out of the other body
+		// FIXME - rethink this criteria ASAP! In this case contact state depends on how axis are randomized.
+		// Two parallel planes can have contacts in some points and do not have in other ones.
+		float move = time_step * sqrt( node.mu / node.rho );
 
 		// Check all axis
 		for(int j = 0; j < 3; j++) {
 			// Check positive direction
-			process_direction( &(current_mesh->nodes).at( nodes_vector->at(i) ), move, j, tetrs_vector, other_mesh, virt_nodes);
+			if( process_direction( &(current_mesh->nodes).at( nodes_vector->at(i) ), move, j, tetrs_vector, other_mesh, virt_nodes) < 0 )
+				return -1;
 
 			// Check negative direction
-			process_direction( &(current_mesh->nodes).at( nodes_vector->at(i) ), -move, j, tetrs_vector, other_mesh, virt_nodes);
+			if( process_direction( &(current_mesh->nodes).at( nodes_vector->at(i) ), -move, j, tetrs_vector, other_mesh, virt_nodes) < 0 )
+				return -1;
 		}
 
 		// TODO - should we check outer normal in addition? It is possible that all axis are out of the neighbour body, but normal is in it.

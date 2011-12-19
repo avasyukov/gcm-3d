@@ -41,8 +41,8 @@ protected:
 	gsl_vector *x_gsl_18;
 	gsl_permutation *p_gsl_18;
 
-	int prepare_node(ElasticNode* cur_node, ElasticMatrix3D* matrixes[], float time_step, int stage, TetrMesh* mesh, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[]);
-	int prepare_part_step(ElasticNode* cur_node, ElasticMatrix3D* matrix, int stage);
+	int prepare_node(ElasticNode* cur_node, ElasticMatrix3D* matrixes[], float time_step, int stage, TetrMesh* mesh, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[], int basis_num);
+	int prepare_part_step(ElasticNode* cur_node, ElasticMatrix3D* matrix, int stage, int basis_num);
 	void drop_deviator(ElasticNode* cur_node, ElasticNode* new_node);
 	int create_random_axis(ElasticNode* cur_node, TetrMesh* mesh);
 
@@ -55,7 +55,7 @@ protected:
 	basis* random_axis_inv;
 	int basis_quantity;
 
-	int find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[]);
+	int find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[], int basis_num);
 
 	quick_math qm_engine;
 };

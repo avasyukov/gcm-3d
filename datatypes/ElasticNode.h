@@ -3,6 +3,8 @@
 
 #include "Node.h"
 
+class TetrMesh_1stOrder;
+
 class ElasticNode : public Node
 {
 /* Inherited from Node 
@@ -22,6 +24,7 @@ public:
 	float yield_limit;
 	vector<int>* elements;
 	vector<int>* border_elements;
+	TetrMesh_1stOrder* mesh;
 protected:
 	// TODO should we switch from vector to memmory block with offsets in it?
 	// int elems_offset;
