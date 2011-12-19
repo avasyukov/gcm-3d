@@ -12,10 +12,10 @@ GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::GCM_Tetr_Plastic_Interpolat
 	om_gsl = gsl_vector_alloc (9);
 	x_gsl = gsl_vector_alloc (9);
 	p_gsl = gsl_permutation_alloc (9);
-	U_gsl_18 = gsl_matrix_alloc (9, 9);
-	om_gsl_18 = gsl_vector_alloc (9);
-	x_gsl_18 = gsl_vector_alloc (9);
-	p_gsl_18 = gsl_permutation_alloc (9);
+	U_gsl_18 = gsl_matrix_alloc (18, 18);
+	om_gsl_18 = gsl_vector_alloc (18);
+	x_gsl_18 = gsl_vector_alloc (18);
+	p_gsl_18 = gsl_permutation_alloc (18);
 	random_axis = NULL;
 	random_axis_inv = NULL;
 	basis_quantity = 0;
@@ -368,10 +368,9 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 				new_node->values[j] = gsl_vector_get(x_gsl, j);
 
 		// Contact algorithm
-		// TODO - copy idea from do_next_part_contact from @sedire and make it working with random axis
+		// Idea taken from @sedire and it made working with virt node from mesh_set and with random axis
 		} else {
-/////////////////////
-			cout << "Contact begin\n";
+
 			ElasticNode* virt_node;
 			if( cur_node->contact_data->axis_plus[stage] != -1 )
 				virt_node = mesh->mesh_set->getNode( cur_node->contact_data->axis_plus[stage] );
@@ -455,8 +454,125 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 				}
 				return -1;
 			}
-			cout << "Contact end\n";
-/////////////////////
+
+			int posInEq18;
+			int curNN;
+
+			posInEq18 = 0;
+			curNN = 0;
+			// For all omegas of real node
+			for(int i = 0; i < 9; i++)
+			{
+				// If omega is 'inner'
+				if(inner[i])
+				{
+					// omega on new time layer is equal to omega on previous time layer along characteristic
+					omega[i] = 0;
+					for( int j = 0; j < 9; j++ ) {
+						omega[i] += elastic_matrix3d[stage]->U(i,j) 
+									* previous_nodes[ppoint_num[i]].values[j];
+					}
+
+					// then we must set the corresponding values of the 18x18 matrix
+					gsl_vector_set( om_gsl_18, 6 * curNN + posInEq18, omega[i] );
+
+					for( int j = 0; j < 9; j++ ) {
+						gsl_matrix_set( U_gsl_18, 6 * curNN + posInEq18, j, elastic_matrix3d[stage]->U( i, j ) );
+					}
+					for( int j = 9; j < 18; j++ ) {
+						gsl_matrix_set( U_gsl_18, 6 * curNN + posInEq18, j, 0 );
+					}
+					posInEq18++;
+				}
+			}
+			posInEq18 = 0;
+			curNN = 1;
+			// For all omegas of virtual node
+			for(int i = 0; i < 9; i++)
+			{
+				// If omega is 'inner'
+				if(virt_inner[i])
+				{
+					// omega on new time layer is equal to omega on previous time layer along characteristic
+					virt_omega[i] = 0;
+					for( int j = 0; j < 9; j++ ) {
+						virt_omega[i] += virt_elastic_matrix3d[stage]->U(i,j) 
+									* virt_previous_nodes[virt_ppoint_num[i]].values[j];
+					}
+
+					// then we must set the corresponding values of the 18x18 matrix
+					gsl_vector_set( om_gsl_18, 6 * curNN + posInEq18, virt_omega[i] );
+
+					for( int j = 0; j < 9; j++ ) {
+						gsl_matrix_set( U_gsl_18, 6 * curNN + posInEq18, j, 0 );
+					}
+					for( int j = 9; j < 18; j++ ) {
+						gsl_matrix_set( U_gsl_18, 6 * curNN + posInEq18, j, virt_elastic_matrix3d[stage]->U( i, j - 9 ) );
+					}
+					posInEq18++;
+				}
+			}
+
+			// Clear the rest 6 rows of the matrix
+			for( int strN = 12; strN < 18; strN++ ) {
+				for( int colN = 0; colN < 18; colN++ ) {
+					gsl_matrix_set( U_gsl_18, strN, colN, 0 );
+				}
+			}
+
+			for( int strN = 12; strN < 18; strN++ ) {
+				gsl_vector_set( om_gsl_18, strN, 0 );
+			}
+
+			// Equality of velocities
+			gsl_matrix_set( U_gsl_18, 12, 0, 1 );
+			gsl_matrix_set( U_gsl_18, 12, 9, -1 );
+			gsl_matrix_set( U_gsl_18, 13, 1, 1 );
+			gsl_matrix_set( U_gsl_18, 13, 10, -1 );
+			gsl_matrix_set( U_gsl_18, 14, 2, 1 );
+			gsl_matrix_set( U_gsl_18, 14, 11, -1 );		
+	
+			// Equality of normal and tangential stress
+			// We use outer normal to find total stress vector (sigma * n) - sum of normal and shear - and tell it is equal
+			// TODO - is it ok?
+			// TODO - never-ending questions - is everything ok with (x-y-z) and (ksi-eta-dzeta) basises?
+
+			gsl_matrix_set(U_gsl_18, 15, 3, outer_normal[0]);
+			gsl_matrix_set(U_gsl_18, 15, 4, outer_normal[1]);
+			gsl_matrix_set(U_gsl_18, 15, 5, outer_normal[2]);
+
+			gsl_matrix_set(U_gsl_18, 15, 12, -outer_normal[0]);
+			gsl_matrix_set(U_gsl_18, 15, 13, -outer_normal[1]);
+			gsl_matrix_set(U_gsl_18, 15, 14, -outer_normal[2]);
+
+
+			gsl_matrix_set(U_gsl_18, 16, 4, outer_normal[0]);
+			gsl_matrix_set(U_gsl_18, 16, 6, outer_normal[1]);
+			gsl_matrix_set(U_gsl_18, 16, 7, outer_normal[2]);
+
+			gsl_matrix_set(U_gsl_18, 16, 13, -outer_normal[0]);
+			gsl_matrix_set(U_gsl_18, 16, 15, -outer_normal[1]);
+			gsl_matrix_set(U_gsl_18, 16, 16, -outer_normal[2]);
+
+
+			gsl_matrix_set(U_gsl_18, 17, 5, outer_normal[0]);
+			gsl_matrix_set(U_gsl_18, 17, 7, outer_normal[1]);
+			gsl_matrix_set(U_gsl_18, 17, 8, outer_normal[2]);
+
+			gsl_matrix_set(U_gsl_18, 17, 14, -outer_normal[0]);
+			gsl_matrix_set(U_gsl_18, 17, 16, -outer_normal[1]);
+			gsl_matrix_set(U_gsl_18, 17, 17, -outer_normal[2]);
+
+
+			// Tmp value for GSL solver
+			int s;
+			gsl_linalg_LU_decomp (U_gsl_18, p_gsl_18, &s);
+			gsl_linalg_LU_solve (U_gsl_18, p_gsl_18, om_gsl_18, x_gsl_18);
+
+			// Just get first 9 values (real node) and dump the rest 9 (virt node)
+			for(int j = 0; j < 9; j++)
+				new_node->values[j] = gsl_vector_get(x_gsl_18, j);
+
 		}
 	}
 	// If there are 'outer' omegas but not 3 ones - we should not be here - we checked it before
