@@ -6,6 +6,7 @@
 #include "../datatypes/Tetrahedron.h"
 #include "../methods/TetrNumericalMethod.h"
 class TetrNumericalMethod;
+class TetrMeshSet;
 
 class TetrMesh : public Mesh
 {
@@ -17,6 +18,7 @@ public:
 	void attach(RheologyCalculator* new_rheology);
 	void attach(Stresser* new_stresser);
 	void attach(DataBus* new_data_bus);
+	void attach(TetrMeshSet* new_mesh_set);
 
 	void translate(float x, float y, float z);
 
@@ -30,6 +32,7 @@ public:
 	vector<ElasticNode> nodes;
 
 	TetrNumericalMethod* method;
+	TetrMeshSet* mesh_set;
 protected:
 };
 

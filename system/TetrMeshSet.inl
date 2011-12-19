@@ -26,6 +26,7 @@ void TetrMeshSet::attach(TetrMesh_1stOrder* new_mesh)
 		new_mesh->attach(stresser);
 		new_mesh->attach(rheology);
 		new_mesh->attach(numerical_method);
+		new_mesh->attach(this);
 		meshes.push_back(new_mesh);
 	}
 };

@@ -3,7 +3,13 @@
 
 #include <vector>
 #include <string>
+
+class TetrMesh;
+class TetrMesh_1stOrder;
+
 #include "../system/CollisionDetector.h"
+#include "../meshtypes/TetrMesh.h"
+#include "../meshtypes/TetrMesh_1stOrder.h"
 
 using std::string;
 using std::vector;

@@ -23,6 +23,11 @@ void TetrMesh::attach(Logger* new_logger)
 	Mesh::attach(new_logger);
 };
 
+void TetrMesh::attach(TetrMeshSet* new_mesh_set)
+{
+	mesh_set = new_mesh_set;
+};
+
 void TetrMesh::attach(RheologyCalculator* new_rheology)
 {
 	Mesh::attach(new_rheology);
