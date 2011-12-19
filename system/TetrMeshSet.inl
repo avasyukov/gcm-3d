@@ -142,3 +142,10 @@ TetrMesh_1stOrder* TetrMeshSet::get_mesh(int num)
 		return NULL;
 	return meshes[num];
 };
+
+ElasticNode* TetrMeshSet::getNode(int num)
+{
+	if(num < 0 || num >= virt_nodes.size())
+		return NULL;
+	return &virt_nodes[num];
+};

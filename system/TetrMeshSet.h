@@ -32,6 +32,7 @@ public:
 	int do_next_step();
 	int get_number_of_meshes();
 	TetrMesh_1stOrder* get_mesh(int num);
+	ElasticNode* getNode(int num);
 protected:
 	Logger* logger;
 	RheologyCalculator* rheology;
