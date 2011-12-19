@@ -26,12 +26,23 @@ public:
 	int get_number_of_stages();
 	float get_max_lambda(ElasticNode* node, TetrMesh* mesh);
 protected:
+	// Used for real node
 	ElasticMatrix3D* elastic_matrix3d[3];
+	// Used for interpolated virtual node in case of contact algorithm
+	ElasticMatrix3D* virt_elastic_matrix3d[3];
+	// Used for border calculation
 	gsl_matrix *U_gsl;
 	gsl_vector *om_gsl;
 	gsl_vector *x_gsl;
 	gsl_permutation *p_gsl;
-	int prepare_part_step(ElasticNode* cur_node, int stage);
+	// Used for contact calculation
+	gsl_matrix *U_gsl_18;
+	gsl_vector *om_gsl_18;
+	gsl_vector *x_gsl_18;
+	gsl_permutation *p_gsl_18;
+
+	int prepare_node(ElasticNode* cur_node, ElasticMatrix3D* matrixes[], float time_step, int stage, TetrMesh* mesh, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[]);
+	int prepare_part_step(ElasticNode* cur_node, ElasticMatrix3D* matrix, int stage);
 	void drop_deviator(ElasticNode* cur_node, ElasticNode* new_node);
 	int create_random_axis(ElasticNode* cur_node, TetrMesh* mesh);
 
@@ -44,27 +55,7 @@ protected:
 	basis* random_axis_inv;
 	int basis_quantity;
 
-	int find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha);
-
-	// Variables used in calculations internally
-
-	// Delta x on previous time layer for all the omegas
-	// 	omega_new_time_layer(ksi) = omega_old_time_layer(ksi+dksi)
-	float dksi[9];
-
-	// If the corresponding point on previous time layer is inner or not
-	bool inner[9];
-
-	// We will store interpolated nodes on previous time layer here
-	// We know that we need five nodes for each direction (corresponding to Lambdas -C1, -C2, 0, C2, C1)
-	// TODO  - We can  deal with (lambda == 0) separately
-	ElasticNode previous_nodes[5];
-
-	// Outer normal at current point
-	float outer_normal[3];
-
-	// This array will link omegas with corresponding interpolated nodes they should be copied from
-	int ppoint_num[9];
+	int find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[]);
 
 	quick_math qm_engine;
 };
