@@ -1127,8 +1127,13 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 	}
 	#endif
 
-	d1 = calc_determ_pure_tetr(tetr->vert[1], tetr->vert[2], tetr->vert[3], tetr->vert[0]);
-	d2 = calc_determ_with_shift(tetr->vert[1], tetr->vert[2], tetr->vert[3], base_node_index, dx, dy, dz);
+	if( triangleOrientationOk(tetr->vert[1], tetr->vert[2], tetr->vert[3]) ) {
+		d1 = calc_determ_pure_tetr(tetr->vert[1], tetr->vert[2], tetr->vert[3], tetr->vert[0]);
+		d2 = calc_determ_with_shift(tetr->vert[1], tetr->vert[2], tetr->vert[3], base_node_index, dx, dy, dz);
+	} else {
+		d1 = calc_determ_pure_tetr(tetr->vert[1], tetr->vert[3], tetr->vert[2], tetr->vert[0]);
+		d2 = calc_determ_with_shift(tetr->vert[1], tetr->vert[3], tetr->vert[2], base_node_index, dx, dy, dz);
+	}
 	#ifdef DEBUG_MESH_GEOMETRY
 	if(logger != NULL) {
 		stringstream ss;
@@ -1140,8 +1145,13 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 	#endif
 	if(d1*d2 < 0) { return false; }
 
-	d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[2], tetr->vert[3], tetr->vert[1]);
-	d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[2], tetr->vert[3], base_node_index, dx, dy, dz);
+	if( triangleOrientationOk(tetr->vert[0], tetr->vert[2], tetr->vert[3]) ) {
+		d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[2], tetr->vert[3], tetr->vert[1]);
+		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[2], tetr->vert[3], base_node_index, dx, dy, dz);
+	} else {
+		d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[3], tetr->vert[2], tetr->vert[1]);
+		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[3], tetr->vert[2], base_node_index, dx, dy, dz);
+	}
 	#ifdef DEBUG_MESH_GEOMETRY
 	if(logger != NULL) {
 		stringstream ss;
@@ -1153,8 +1163,13 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 	#endif
 	if(d1*d2 < 0) { return false; }
 
-	d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[1], tetr->vert[3], tetr->vert[2]);
-	d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[1], tetr->vert[3], base_node_index, dx, dy, dz);
+	if( triangleOrientationOk(tetr->vert[0], tetr->vert[1], tetr->vert[3]) ) {
+		d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[1], tetr->vert[3], tetr->vert[2]);
+		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[1], tetr->vert[3], base_node_index, dx, dy, dz);
+	} else {
+		d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[3], tetr->vert[1], tetr->vert[2]);
+		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[3], tetr->vert[1], base_node_index, dx, dy, dz);
+	}
 	#ifdef DEBUG_MESH_GEOMETRY
 	if(logger != NULL) {
 		stringstream ss;
@@ -1166,8 +1181,13 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 	#endif
 	if(d1*d2 < 0) { return false; }
 
-	d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[1], tetr->vert[2], tetr->vert[3]);
-	d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[1], tetr->vert[2], base_node_index, dx, dy, dz);
+	if( triangleOrientationOk(tetr->vert[0], tetr->vert[1], tetr->vert[2]) ) {
+		d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[1], tetr->vert[2], tetr->vert[3]);
+		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[1], tetr->vert[2], base_node_index, dx, dy, dz);
+	} else {
+		d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[2], tetr->vert[1], tetr->vert[3]);
+		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[2], tetr->vert[1], base_node_index, dx, dy, dz);
+	}
 	#ifdef DEBUG_MESH_GEOMETRY
 	if(logger != NULL) {
 		stringstream ss;
@@ -1693,6 +1713,30 @@ float TetrMesh_1stOrder::calc_determ_with_shift(int node1, int node2, int node3,
 				nodes[node3].coords[0] - x,	nodes[node3].coords[1] - y,	nodes[node3].coords[2] - z );
 	}
 
+};
+
+bool TetrMesh_1stOrder::triangleOrientationOk(int node1, int node2, int node3)
+{
+	float x1 = nodes[node2].coords[0] - nodes[node1].coords[0];
+	float x2 = nodes[node3].coords[0] - nodes[node1].coords[0];
+	float y1 = nodes[node2].coords[1] - nodes[node1].coords[1];
+	float y2 = nodes[node3].coords[1] - nodes[node1].coords[1];
+	float z1 = nodes[node2].coords[2] - nodes[node1].coords[2];
+	float z2 = nodes[node3].coords[2] - nodes[node1].coords[2];
+
+	float xn = y1 * z2 - y2 * z1;
+	if( xn > 0 ) { return true; }
+	if( xn < 0 ) { return false; }
+
+	float yn = -x1 * z2 + x2 * z1;
+	if( yn > 0 ) { return true; }
+	if( yn < 0 ) { return false; }
+
+	float zn = x1 * y2 - x2 * y1;
+	if( zn > 0 ) { return true; }
+	if( zn < 0 ) { return false; }
+
+	return false;
 };
 
 float TetrMesh_1stOrder::get_solid_angle(int node_index, int tetr_index)
