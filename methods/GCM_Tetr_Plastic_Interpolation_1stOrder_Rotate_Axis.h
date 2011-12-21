@@ -42,11 +42,13 @@ protected:
 	gsl_permutation *p_gsl_18;
 
 	int prepare_node(ElasticNode* cur_node, ElasticMatrix3D* matrixes[], float time_step, int stage, TetrMesh* mesh, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[], int basis_num);
+	int prepare_node(ElasticNode* cur_node, ElasticMatrix3D* matrixes[], float time_step, int stage, TetrMesh* mesh, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[], int basis_num, bool debug);
+
 	int prepare_part_step(ElasticNode* cur_node, ElasticMatrix3D* matrix, int stage, int basis_num);
 	void drop_deviator(ElasticNode* cur_node, ElasticNode* new_node);
 	int create_random_axis(ElasticNode* cur_node, TetrMesh* mesh);
 
-	void log_node_diagnostics(ElasticNode* cur_node, int stage, float outer_normal[], TetrMesh* mesh, int basis_num, ElasticMatrix3D* matrixes[], float time_step, ElasticNode previous_nodes[], int ppoint_num[], bool inner[]);
+	void log_node_diagnostics(ElasticNode* cur_node, int stage, float outer_normal[], TetrMesh* mesh, int basis_num, ElasticMatrix3D* matrixes[], float time_step, ElasticNode previous_nodes[], int ppoint_num[], bool inner[], float dksi[]);
 
 	// These functions are used by create_random_axis() internally
 	void create_rotation_matrix(int node_num, float phi, float psi, float teta);
@@ -58,6 +60,7 @@ protected:
 	int basis_quantity;
 
 	int find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[], int basis_num);
+	int find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[], int basis_num, bool debug);
 
 	quick_math qm_engine;
 };

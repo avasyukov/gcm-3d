@@ -83,6 +83,11 @@ void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::drop_deviator(ElasticN
 
 int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::prepare_node(ElasticNode* cur_node, ElasticMatrix3D* matrixes[], float time_step, int stage, TetrMesh* mesh, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[], int basis_num)
 {
+	return prepare_node(cur_node, matrixes, time_step, stage, mesh, dksi, inner, previous_nodes, outer_normal, ppoint_num, basis_num, false);
+};
+
+int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::prepare_node(ElasticNode* cur_node, ElasticMatrix3D* matrixes[], float time_step, int stage, TetrMesh* mesh, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[], int basis_num, bool debug)
+{
 
 	if (cur_node->border_type == BORDER)
 		mesh->find_border_node_normal(cur_node->local_num, &outer_normal[0], &outer_normal[1], &outer_normal[2]);
@@ -99,15 +104,17 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::prepare_node(ElasticNod
 	int outer_count;
 
 	do {
-		outer_count = find_nodes_on_previous_time_layer(cur_node, stage, mesh, alpha, dksi, inner, previous_nodes, outer_normal, ppoint_num, basis_num);
+		outer_count = find_nodes_on_previous_time_layer(cur_node, stage, mesh, alpha, dksi, inner, previous_nodes, outer_normal, ppoint_num, basis_num, debug);
 		alpha += 0.1;
 	} while( (outer_count != 0) && (outer_count != 3) && (alpha < 1.01) );
 
 	return outer_count;
 };
 
-void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::log_node_diagnostics(ElasticNode* cur_node, int stage, float outer_normal[], TetrMesh* mesh, int basis_num, ElasticMatrix3D* matrixes[], float time_step, ElasticNode previous_nodes[], int ppoint_num[], bool inner[])
+void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::log_node_diagnostics(ElasticNode* cur_node, int stage, float outer_normal[], TetrMesh* mesh, int basis_num, ElasticMatrix3D* matrixes[], float time_step, ElasticNode previous_nodes[], int ppoint_num[], bool inner[], float dksi[])
 {
+	prepare_node(cur_node, matrixes, time_step, stage, mesh, dksi, inner, previous_nodes, outer_normal, ppoint_num, basis_num, true);
+
 	if(logger != NULL)
 	{
 		stringstream ss;
@@ -200,7 +207,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 			ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - there are " << outer_count << " 'outer' characteristics." << endl;
 			logger->write(ss.str());
 		}
-		log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner);
+		log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi);
 		return -1;
 	}
 
@@ -215,6 +222,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		{
 			if(logger != NULL)
 				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad inner node!"));
+			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi);
 			return -1;
 		}
 
@@ -252,7 +260,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		{
 			if(logger != NULL)
 				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad border node - not marked as border at all!"));
-			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner);
+			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi);
 			return -1;
 		}
 		// Node should be border but it has no contact_data struct
@@ -260,7 +268,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		{
 			if(logger != NULL)
 				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad border node - no contact data struct!"));
-			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner);
+			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi);
 			return -1;
 		}
 		// Both directions are marked as contact
@@ -268,7 +276,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		{
 			if(logger != NULL)
 				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad border node - both directions are marked as having contact!"));
-			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner);
+			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi);
 			return -1;
 		}
 
@@ -435,7 +443,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 					ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - there are " << outer_count << " 'outer' characteristics." << endl;
 					logger->write(ss.str());
 				}
-				log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node->mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner);
+				log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node->mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi);
 				return -1;
 			}
 
@@ -570,6 +578,11 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 
 int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[], int basis_num)
 {
+	return find_nodes_on_previous_time_layer(cur_node, stage, mesh, alpha, dksi, inner, previous_nodes, outer_normal, ppoint_num, basis_num, false);
+};
+
+int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[], int basis_num, bool debug)
+{
 
 	if( (alpha > 1.01) || (alpha < 0) ) {
 		if(logger != NULL)
@@ -635,7 +648,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_
 			}
 
 			// ... Find owner tetrahedron ...
-			tmp_tetr = mesh->find_owner_tetr(cur_node, dx[0], dx[1], dx[2]);
+			tmp_tetr = mesh->find_owner_tetr(cur_node, dx[0], dx[1], dx[2], debug);
 
 			if( tmp_tetr != NULL )
 			{

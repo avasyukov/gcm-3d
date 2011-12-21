@@ -29,12 +29,14 @@ public:
         int load_node_ele_files(char* node_file_name, char* ele_file_name);
 	int load_gmv_file(char* file_name);
 
+	bool point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron* tetr, bool debug);
 	bool point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron* tetr);
 	bool point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron_1st_order* tetr);
 	bool point_in_tetr(float x, float y, float z, Tetrahedron* tetr);
 	bool point_in_tetr(float x, float y, float z, Tetrahedron_1st_order* tetr);
 
 	Tetrahedron_1st_order* find_owner_tetr(ElasticNode* node, float dx, float dy, float dz);
+	Tetrahedron_1st_order* find_owner_tetr(ElasticNode* node, float dx, float dy, float dz, bool debug);
 	int interpolate(ElasticNode* node, Tetrahedron* tetr);
 	int log_mesh_stats();
 	int do_next_step();

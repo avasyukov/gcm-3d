@@ -1106,10 +1106,14 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 
 bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron* tetr)
 {
+	return point_in_tetr(base_node_index, dx, dy, dz, tetr, false);
+};
+
+bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron* tetr, bool debug)
+{
 	float d1,d2;
 
-	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
+	if(debug && logger != NULL) {
 		stringstream ss;
 		ss.setf(ios::fixed,ios::floatfield);
 		ss.precision(10);
@@ -1125,7 +1129,6 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 		}
 		logger->write(ss.str());
 	}
-	#endif
 
 	if( triangleOrientationOk(tetr->vert[1], tetr->vert[2], tetr->vert[3]) ) {
 		d1 = calc_determ_pure_tetr(tetr->vert[1], tetr->vert[2], tetr->vert[3], tetr->vert[0]);
@@ -1134,15 +1137,15 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 		d1 = calc_determ_pure_tetr(tetr->vert[1], tetr->vert[3], tetr->vert[2], tetr->vert[0]);
 		d2 = calc_determ_with_shift(tetr->vert[1], tetr->vert[3], tetr->vert[2], base_node_index, dx, dy, dz);
 	}
-	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
+
+	if(debug && logger != NULL) {
 		stringstream ss;
 		ss.setf(ios::fixed,ios::floatfield);
 		ss.precision(10);
 		ss << "\t\tStage1: d1: " << d1 << " d2: " << d2 << endl;
 		logger->write(ss.str());
 	}
-	#endif
+
 	if(d1*d2 < 0) { return false; }
 
 	if( triangleOrientationOk(tetr->vert[0], tetr->vert[2], tetr->vert[3]) ) {
@@ -1152,15 +1155,15 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 		d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[3], tetr->vert[2], tetr->vert[1]);
 		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[3], tetr->vert[2], base_node_index, dx, dy, dz);
 	}
-	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
+
+	if(debug && logger != NULL) {
 		stringstream ss;
 		ss.setf(ios::fixed,ios::floatfield);
 		ss.precision(10);
 		ss << "\t\tStage2: d1: " << d1 << " d2: " << d2 << endl;
 		logger->write(ss.str());
 	}
-	#endif
+
 	if(d1*d2 < 0) { return false; }
 
 	if( triangleOrientationOk(tetr->vert[0], tetr->vert[1], tetr->vert[3]) ) {
@@ -1170,15 +1173,15 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 		d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[3], tetr->vert[1], tetr->vert[2]);
 		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[3], tetr->vert[1], base_node_index, dx, dy, dz);
 	}
-	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
+
+	if(debug && logger != NULL) {
 		stringstream ss;
 		ss.setf(ios::fixed,ios::floatfield);
 		ss.precision(10);
 		ss << "\t\tStage3: d1: " << d1 << " d2: " << d2 << endl;
 		logger->write(ss.str());
 	}
-	#endif
+
 	if(d1*d2 < 0) { return false; }
 
 	if( triangleOrientationOk(tetr->vert[0], tetr->vert[1], tetr->vert[2]) ) {
@@ -1188,21 +1191,26 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 		d1 = calc_determ_pure_tetr(tetr->vert[0], tetr->vert[2], tetr->vert[1], tetr->vert[3]);
 		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[2], tetr->vert[1], base_node_index, dx, dy, dz);
 	}
-	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
+
+	if(debug && logger != NULL) {
 		stringstream ss;
 		ss.setf(ios::fixed,ios::floatfield);
 		ss.precision(10);
 		ss << "\t\tStage4: d1: " << d1 << " d2: " << d2 << endl;
 		logger->write(ss.str());
 	}
-	#endif
+
 	if(d1*d2 < 0) { return false; }
 
 	return true;
 };
 
 Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(ElasticNode* node, float dx, float dy, float dz)
+{
+	return find_owner_tetr(node, dx, dy, dz, false);
+};
+
+Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(ElasticNode* node, float dx, float dy, float dz, bool debug)
 {
 	// TODO - clean the code - unnecessary 'x <-> dx' and node 'pointer <-> index' intermix
 	int base_node = node->local_num;
@@ -1266,7 +1274,7 @@ Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(ElasticNode* node, flo
 		for(int i = 0; i < checking.size(); i++)
 		{
 			// If found - return result
-			if( point_in_tetr(base_node, dx, dy, dz, &tetrs[checking[i]]) ) {
+			if( point_in_tetr(base_node, dx, dy, dz, &tetrs[checking[i]], debug) ) {
 				#ifdef DEBUG_MESH_GEOMETRY
 				if(logger != NULL) {
 					stringstream ss;
