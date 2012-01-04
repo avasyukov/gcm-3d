@@ -448,6 +448,14 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 			else 
 				virt_node = mesh->mesh_set->getNode( cur_node->contact_data->axis_minus[stage] );
 
+			// Mark virt node as having contact state
+			virt_node->contact_data = (contact_state*) malloc(sizeof(contact_state));
+			mesh->clear_contact_data(virt_node);
+			if( cur_node->contact_data->axis_plus[stage] != -1 )
+				virt_node->contact_data->axis_minus[stage] = cur_node->contact_data->axis_plus[stage];
+			else
+				virt_node->contact_data->axis_plus[stage] = cur_node->contact_data->axis_minus[stage];
+
 			// Variables used in calculations internally
 
 			// Delta x on previous time layer for all the omegas
@@ -651,6 +659,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 			for(int j = 0; j < 9; j++)
 				new_node->values[j] = gsl_vector_get(x_gsl_18, j);
 
+			free(virt_node->contact_data);
 		}
 	}
 	// If there are 'outer' omegas but not 3 ones - we should not be here - we checked it before
