@@ -113,7 +113,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::prepare_node(ElasticNod
 
 void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::log_node_diagnostics(ElasticNode* cur_node, int stage, float outer_normal[], TetrMesh* mesh, int basis_num, ElasticMatrix3D* matrixes[], float time_step, ElasticNode previous_nodes[], int ppoint_num[], bool inner[], float dksi[], float value_limiters[])
 {
-	prepare_node(cur_node, matrixes, time_step, stage, mesh, dksi, inner, previous_nodes, outer_normal, ppoint_num, basis_num, value_limiters, true);
+	int outer_count = prepare_node(cur_node, matrixes, time_step, stage, mesh, dksi, inner, previous_nodes, outer_normal, ppoint_num, basis_num, value_limiters, true);
 
 	if(logger != NULL)
 	{
@@ -125,6 +125,7 @@ void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::log_node_diagnostics(E
 		ss << "NODE " << cur_node->local_num << ": x: " << cur_node->coords[0] 
 					<< " y: " << cur_node->coords[1]
 					<< " z: " << cur_node->coords[2] << endl;
+		ss << "OUTER COUNT: " << outer_count << endl;
 		ss << "VALUES: " << endl;
 		for(int j = 0; j < 9; j++)
 			ss << "Value[" << j << "] = " << cur_node->values[j] << endl;
@@ -133,10 +134,32 @@ void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::log_node_diagnostics(E
 			ss << "Limiters[" << j << "] = " << value_limiters[j] << endl;
 		if( cur_node->border_type == BORDER ) {
 			ss << "BORDER" << endl;
-			if( ( cur_node->contact_data != NULL ) && ( cur_node->contact_data->axis_plus[stage] == -1 ) && ( cur_node->contact_data->axis_minus[stage] == -1 ) )
+			if( ( cur_node->contact_data != NULL ) && ( cur_node->contact_data->axis_plus[stage] == -1 ) && ( cur_node->contact_data->axis_minus[stage] == -1 ) ) {
 				ss << "BORDER WITHOUT CONTACT" << endl;
-			else
+			} else {
 				ss << "CONTACT BORDER" << endl;
+
+				if( cur_node->contact_data != NULL ) {
+					ss << "CONTACT DATA:" << endl;
+					for(int k = 0; k < 3; k++)
+						ss << "Axis[" << k << "]: " << cur_node->contact_data->axis_minus[k] << " " << cur_node->contact_data->axis_plus[k] << endl;
+
+					ElasticNode* virt_node;
+					if( cur_node->contact_data->axis_plus[stage] != -1 )
+						virt_node=mesh->mesh_set->getNode(cur_node->contact_data->axis_plus[stage]);
+					else
+						virt_node=mesh->mesh_set->getNode(cur_node->contact_data->axis_minus[stage]);
+
+					ss << "VIRT NODE " << virt_node->local_num << ":"
+							<< " x: " << virt_node->coords[0]
+							<< " y: " << virt_node->coords[1]
+							<< " z: " << virt_node->coords[2] << endl;
+					ss << "VIRT NODE VALUES: " << endl;
+					for(int j = 0; j < 9; j++)
+						ss << "Value[" << j << "] = " << virt_node->values[j] << endl;
+
+				}
+			}
 		} else {
 			ss << "INNER" << endl;
 		}
@@ -602,7 +625,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 				logger->write(ss.str());
 			}
 			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
-			continue;
+			break;
 		}
 	}
 
