@@ -449,6 +449,8 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 				virt_node = mesh->mesh_set->getNode( cur_node->contact_data->axis_minus[stage] );
 
 			// Mark virt node as having contact state
+			// TODO FIXME - most probably CollisionDetector should do it
+			// But we should check it anycase
 			virt_node->contact_data = (contact_state*) malloc(sizeof(contact_state));
 			mesh->clear_contact_data(virt_node);
 			if( cur_node->contact_data->axis_plus[stage] != -1 )
