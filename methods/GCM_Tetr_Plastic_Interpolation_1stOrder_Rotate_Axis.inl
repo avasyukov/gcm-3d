@@ -740,14 +740,55 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_
 
 			float dx_ksi_normal_projection_modul = dx_ksi[0] * outer_normal[0] + dx_ksi[1] * outer_normal[1] + dx_ksi[2] * outer_normal[2];
 
-			for(int j = 0; j < 3; j++)
-				dx_ksi_normal_projection[j] = dx_ksi_normal_projection_modul * outer_normal[j];
-
 			// ... Calculate coordinates ...
 			for(int j = 0; j < 3; j++) {
-				dx[j] = dx_ksi[j] * (1 - alpha) + dx_ksi_normal_projection[j] * alpha;
-				// It is not zero when cur_node coords were altered - it happens if it is virtual node moved compared with its former base one
+				// If we have contact virt 'paired node' -
+				//  we should alter direction without contact and guarantee that
+				//  exactly this direction will give us internal node after all
+				if( ( cur_node->contact_data != NULL ) 
+					&& ( ( cur_node->contact_data->axis_plus[stage] != -1 ) 
+						|| ( cur_node->contact_data->axis_minus[stage] != -1 ) ) ) {
+					// Positive direction has virtual node - alter negative direction only
+					// and use opposite direction to outer normal as last chance
+					if( cur_node->contact_data->axis_plus[stage] != -1 )
+					{
+						if( dksi[i] >= 0 )
+							dx[j] = dx_ksi[j];
+						else
+						{
+							dx_ksi_normal_projection[j] = - fabs(dx_ksi_normal_projection_modul) * outer_normal[j];
+							dx[j] = dx_ksi[j] * (1 - alpha) + dx_ksi_normal_projection[j] * alpha;
+						}
+					}
+					// Negative direction has virtual node - alter positive direction only
+					// and use opposite direction to outer normal as last chance
+					else if ( cur_node->contact_data->axis_minus[stage] != -1 )
+					{
+						if( dksi[i] <= 0 )
+							dx[j] = dx_ksi[j];
+						else
+						{
+							dx_ksi_normal_projection[j] = - fabs(dx_ksi_normal_projection_modul) * outer_normal[j];
+							dx[j] = dx_ksi[j] * (1 - alpha) + dx_ksi_normal_projection[j] * alpha;
+						}
+					}
+					else
+					{
+						if(logger != NULL)
+							logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer - bad contact data!"));
+						return -1;
+					}
+				// Otherwise (internal node or border node without contact) - 
+				//  alter both directions and wait for one of them to give internal node
+				} else {
+					dx_ksi_normal_projection[j] = dx_ksi_normal_projection_modul * outer_normal[j];
+					dx[j] = dx_ksi[j] * (1 - alpha) + dx_ksi_normal_projection[j] * alpha;
+				}
+
+				// This difference is not zero when cur_node coords were altered -
+				//  	it happens if it is virtual node moved compared with its former base one
 				dx[j] += ( cur_node->coords[j] - (mesh->nodes).at(cur_node->local_num).coords[j] );
+
 				previous_nodes[count].coords[j] = (mesh->nodes).at(cur_node->local_num).coords[j] + dx[j];
 			}
 
