@@ -31,6 +31,8 @@ public:
 	virtual ElasticNode* get_node(int index) = 0;
 	virtual int find_border_node_normal(int border_node_index, float* x, float* y, float* z) = 0;
 
+	void clear_contact_data(ElasticNode* node);
+
 	vector<ElasticNode> nodes;
 
 	TetrNumericalMethod* method;

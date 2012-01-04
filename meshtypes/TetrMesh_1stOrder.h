@@ -59,8 +59,6 @@ public:
 
 	int set_stress(float tau);
 
-	void clear_contact_data(ElasticNode* node);
-
 private:
 	int pre_process_mesh();
 

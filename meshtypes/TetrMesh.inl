@@ -60,3 +60,15 @@ void TetrMesh::translate(float x, float y, float z)
 	outline.max_coords[1] += y;
 	outline.max_coords[2] += z;
 };
+
+void TetrMesh::clear_contact_data(ElasticNode* node)
+{
+	if(node->contact_data != NULL) {
+		node->contact_data->axis_plus[0] = -1;
+		node->contact_data->axis_plus[1] = -1;
+		node->contact_data->axis_plus[2] = -1;
+		node->contact_data->axis_minus[0] = -1;
+		node->contact_data->axis_minus[1] = -1;
+		node->contact_data->axis_minus[2] = -1;
+	}
+};
