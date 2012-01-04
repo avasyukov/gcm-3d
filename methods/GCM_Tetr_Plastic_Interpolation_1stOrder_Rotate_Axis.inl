@@ -485,6 +485,54 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 				return -1;
 			}
 
+			// Check that 'paired node' is in the direction of 'outer' characteristics
+			// If it is not the case - we have strange situation when 
+			// we replace 'outer' points data with data of 'paired node' from different axis direction.
+			
+			// For all characteristics of real node and virt node
+			for(int i = 0; i < 9; i++)
+			{
+				float v_x_outer[3];
+				float v_x_virt[3];
+				// Real node - if characteristic is 'outer'
+				if(!inner[i])
+				{
+					// Find directions to corresponding 'outer' point and to virt 'paired node'
+					for(int j = 0; j < 3; j++) {
+						v_x_outer[j] = previous_nodes[ppoint_num[i]].coords[j] - cur_node->coords[j];
+						v_x_virt[j] = virt_node->coords[j] - cur_node->coords[j];
+					}
+					// If directions are different - smth bad happens
+					if( (v_x_outer[0] * v_x_virt[0]
+						 + v_x_outer[1] * v_x_virt[1] + v_x_outer[2] * v_x_virt[2]) < 0 )
+					{
+						if(logger != NULL)
+							logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad contact from real node point of view - 'outer' and 'virt' directions are different!"));
+						log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
+						return -1;
+					}
+				}
+				// Virt node - if characteristic is 'outer'
+				if(!virt_inner[i])
+				{
+					// Find directions to corresponding 'outer' point and to real 'paired node'
+					for(int j = 0; j < 3; j++) {
+						v_x_outer[j] = virt_previous_nodes[virt_ppoint_num[i]].coords[j] - virt_node->coords[j];
+						v_x_virt[j] = cur_node->coords[j] - virt_node->coords[j];
+					}
+					// If directions are different - smth bad happens
+					if( (v_x_outer[0] * v_x_virt[0]
+						+ v_x_outer[1] * v_x_virt[1] + v_x_outer[2] * v_x_virt[2]) < 0 )
+					{
+						if(logger != NULL)
+							logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad contact from virt node point of view - 'outer' and 'virt' directions are different!"));
+						log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node->mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi, value_limiters);
+						return -1;
+					}
+				}
+			}
+
+			// Real calculation begins
 			int posInEq18;
 			int curNN;
 
