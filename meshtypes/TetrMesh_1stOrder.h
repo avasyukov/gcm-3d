@@ -77,6 +77,7 @@ private:
 	int do_next_part_step(float tau, int stage);
 	void move_coords(float tau);
 	int proceed_rheology();
+	int run_mesh_filter();
 
 	vector<ElasticNode> new_nodes;
 

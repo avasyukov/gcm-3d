@@ -1584,6 +1584,59 @@ int TetrMesh_1stOrder::set_stress(float tau)
 	return 0;
 };
 
+int TetrMesh_1stOrder::run_mesh_filter()
+{
+	// Check all nodes
+	for(int i = 0; i < nodes.size(); i++)
+	{
+		// Clear only local AND border (inner nodes have not caused problems till now)
+		if( (nodes[i].placement_type == LOCAL) && (nodes[i].border_type == BORDER) )
+		{
+			// For each variable
+			for(int j = 0; j < 9; j++)
+			{
+				bool alarm = true;
+				float val = 0;
+				int count = 0;
+				// Check all tetrs around node
+				for(int k = 0; k < nodes[i].elements->size(); k++) {
+					// Check all verts
+					for(int l = 0; l < 4; l++) {
+						if( tetrs[nodes[i].elements->at(k)].vert[l] != nodes[i].local_num ) {
+							// If value at this vert is the same sign - node is ok, stop check
+							if( nodes[tetrs[nodes[i].elements->at(k)].vert[l]].values[j]
+								 * nodes[i].values[j] >= 0 ) {
+								 alarm = false;
+							// If it is opposite sign - add it to possible 'smoothing' value
+							} else {
+								val += nodes[tetrs[nodes[i].elements->at(k)].vert[l]].values[j];
+								count++;
+							}
+						}
+					}
+					if( !alarm )
+						break;
+				}
+				// If all nodes around have different sign of this variable - just 'smooth' it in this node
+				if( alarm ) {
+					stringstream ss;
+					ss << "INFO: TetrMesh_1stOrder::run_mesh_filter - node cleared" << endl;
+					ss << "\tNode " << nodes[i].local_num << ":"
+							<< " x: " << nodes[i].coords[0]
+							<< " y: " << nodes[i].coords[1]
+							<< " z: " << nodes[i].coords[2] << endl;
+					ss << "\tVar: " << j 
+							<< " Old value: " << nodes[i].values[j] 
+							<< " New value: " << val / count << endl;
+					logger->write(ss.str());
+					nodes[i].values[j] = val / count;
+				}
+			}
+		}
+	}
+	return 0;
+};
+
 int TetrMesh_1stOrder::do_next_step()
 {
 	return do_next_step( get_max_possible_tau() );
@@ -1652,6 +1705,10 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 	}
 
 	current_time += time_step;
+
+	// Clear bad nodes that cause instabilities
+	// TODO - how filter interacts with sync?
+	run_mesh_filter();
 
 	return 0;
 };
