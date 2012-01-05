@@ -142,7 +142,7 @@ void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::log_node_diagnostics(E
 				if( cur_node->contact_data != NULL ) {
 					ss << "CONTACT DATA:" << endl;
 					for(int k = 0; k < 3; k++)
-						ss << "Axis[" << k << "]: " << cur_node->contact_data->axis_minus[k] << " " << cur_node->contact_data->axis_plus[k] << endl;
+						ss << "Axis[" << k << "]: minus: " << cur_node->contact_data->axis_minus[k] << " plus: " << cur_node->contact_data->axis_plus[k] << endl;
 
 					ElasticNode* virt_node;
 					if( cur_node->contact_data->axis_plus[stage] != -1 )
@@ -242,7 +242,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 	if((outer_count != 0) && (outer_count != 3)) {
 		if(logger != NULL) {
 			stringstream ss;
-			ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - there are " << outer_count << " 'outer' characteristics." << endl;
+			ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - prepare node failed - there are " << outer_count << " 'outer' characteristics." << endl;
 			logger->write(ss.str());
 		}
 		log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
@@ -488,7 +488,8 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 			if( virt_outer_count != 3 ) {
 				if(logger != NULL) {
 					stringstream ss;
-					ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - there are " << outer_count << " 'outer' characteristics." << endl;
+					ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - prepare virt node failed - there are " << virt_outer_count << " 'outer' characteristics." << endl;
+					ss << "REAL NODE " << cur_node->local_num << ": x: " << cur_node->coords[0] << " y: " << cur_node->coords[1] << " z: " << cur_node->coords[2] << endl;
 					logger->write(ss.str());
 				}
 				log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node->mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi, value_limiters);
@@ -517,7 +518,12 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 						 + v_x_outer[1] * v_x_virt[1] + v_x_outer[2] * v_x_virt[2]) < 0 )
 					{
 						if(logger != NULL)
-							logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad contact from real node point of view - 'outer' and 'virt' directions are different!"));
+						{
+							stringstream ss;
+							ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad contact from real node point of view - 'outer' and 'virt' directions are different!" << endl;
+							ss << "REAL NODE " << cur_node->local_num << ": x: " << cur_node->coords[0] << " y: " << cur_node->coords[1] << " z: " << cur_node->coords[2] << endl;
+							logger->write(ss.str());
+						}
 						log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
 						return -1;
 					}
@@ -535,7 +541,12 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 						+ v_x_outer[1] * v_x_virt[1] + v_x_outer[2] * v_x_virt[2]) < 0 )
 					{
 						if(logger != NULL)
-							logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad contact from virt node point of view - 'outer' and 'virt' directions are different!"));
+						{
+							stringstream ss;
+							ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad contact from virt node point of view - 'outer' and 'virt' directions are different!" << endl;
+							ss << "REAL NODE " << cur_node->local_num << ": x: " << cur_node->coords[0] << " y: " << cur_node->coords[1] << " z: " << cur_node->coords[2] << endl;
+							logger->write(ss.str());
+						}
 						log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node->mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi, value_limiters);
 						return -1;
 					}
