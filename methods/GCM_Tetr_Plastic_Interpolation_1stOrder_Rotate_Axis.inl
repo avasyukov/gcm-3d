@@ -256,13 +256,14 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 	if( outer_count == 0 )
 	{
 		// Special cases - smth bad happens
-		if( cur_node->border_type == BORDER )	// node is marked as border
-		{
-			if(logger != NULL)
-				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad inner node!"));
-			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
-			return -1;
-		}
+		// TODO - commenting it out - it is possible that border node is inner for some axis
+		// if( cur_node->border_type == BORDER )	// node is marked as border
+		// {
+		// 	if(logger != NULL)
+		// 		logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad inner node!"));
+		// 	log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
+		// 	return -1;
+		// }
 
 		// Calculate omega value
 		for(int i = 0; i < 9; i++)
@@ -686,15 +687,15 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		if( fabs(new_node->values[i]) > 10 * value_limiters[i]) { // TODO avoid magick number
 			if(logger != NULL) {
 				stringstream ss;
-				ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - potential instability found." << endl;
-				for(int j = 0; j < 9; j++) {
+				ss << "WARN: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - potential instability found." << endl;
+/*				for(int j = 0; j < 9; j++) {
 					ss << "NEW VALUE[" << j << "] = " << new_node->values[j] << endl;
 					ss << "OLD VALUE[" << j << "] = " << cur_node->values[j] << endl;
 					ss << "LIMITER[" << j << "] = " << value_limiters[j] << endl;
-				}
+				}*/
 				logger->write(ss.str());
 			}
-			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
+//			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
 			break;
 		}
 	}
@@ -909,6 +910,9 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_random_axis(Elas
 		return -1;
 	}
 
+	// FIXME
+	create_E_matrix(cur_node->local_num);
+
 	// Attach new basis to node - we need it for CollisionDetector to create virtual nodes using directions of these axis
 	// TODO - should it be this way at all?
 	cur_node->local_basis = &random_axis[basis_num];
@@ -916,6 +920,22 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_random_axis(Elas
 	find_inverse_matrix(basis_num);
 
 	return 0;
+};
+
+// FIXME
+void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_E_matrix(int node_num)
+{
+	random_axis[node_num].ksi[0][0] = 1;
+	random_axis[node_num].ksi[0][1] = 0;
+	random_axis[node_num].ksi[0][2] = 0;
+
+	random_axis[node_num].ksi[1][0] = 0;
+        random_axis[node_num].ksi[1][1] = 1;
+        random_axis[node_num].ksi[1][2] = 0;
+
+	random_axis[node_num].ksi[2][0] = 0;
+        random_axis[node_num].ksi[2][1] = 0;
+        random_axis[node_num].ksi[2][2] = 1;
 };
 
 void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_rotation_matrix(int node_num, float phi, float psi, float teta)

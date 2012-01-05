@@ -50,6 +50,9 @@ protected:
 
 	void log_node_diagnostics(ElasticNode* cur_node, int stage, float outer_normal[], TetrMesh* mesh, int basis_num, ElasticMatrix3D* matrixes[], float time_step, ElasticNode previous_nodes[], int ppoint_num[], bool inner[], float dksi[], float value_limiters[]);
 
+	// FIXME
+	void create_E_matrix(int node_num);
+
 	// These functions are used by create_random_axis() internally
 	void create_rotation_matrix(int node_num, float phi, float psi, float teta);
 	void create_rotation_matrix(int node_num, float x, float y, float z, float teta);
