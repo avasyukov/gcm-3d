@@ -25,7 +25,8 @@ void TetrMeshSet::attach(TetrMesh_1stOrder* new_mesh)
 		new_mesh->attach(data_bus);
 		new_mesh->attach(stresser);
 		new_mesh->attach(rheology);
-		new_mesh->attach(numerical_method);
+		// FIXME - never ever do it! We need separate copy of method class for each mesh - see below.
+		// new_mesh->attach(numerical_method);
 		new_mesh->attach(this);
 		meshes.push_back(new_mesh);
 	}
@@ -59,8 +60,10 @@ void TetrMeshSet::attach(TetrNumericalMethod* new_numerical_method)
 {
 	numerical_method = new_numerical_method;
 
-	for(int i = 0; i < meshes.size(); i++)
-		meshes[i]->attach(new_numerical_method);
+	// FIXME - never ever do it! We need separate copy of method class for each mesh 
+	// because it stores local vars like random basis data.
+	// for(int i = 0; i < meshes.size(); i++)
+	//	meshes[i]->attach(new_numerical_method);
 };
 
 void TetrMeshSet::attach(CollisionDetector* new_collision_detector)

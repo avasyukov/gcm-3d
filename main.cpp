@@ -18,10 +18,10 @@ int main()
 	Logger* logger = new Logger();
 	mesh_set->attach(logger);
 
-	GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis();
+	//GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis();
 	//GCM_Tetr_Plastic_Interpolation_1stOrder_Advanced* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder_Advanced();
 	//GCM_Tetr_Plastic_Interpolation_1stOrder* nm = new GCM_Tetr_Plastic_Interpolation_1stOrder();
-	mesh_set->attach(nm);
+	//mesh_set->attach(nm);
 
 	VoidRheologyCalculator* rc = new VoidRheologyCalculator();
 	mesh_set->attach(rc);
@@ -32,27 +32,31 @@ int main()
 
 	TetrMesh_1stOrder* mesh1 = new TetrMesh_1stOrder();
 	mesh1->attach(logger);
+	GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis* nm1 = new GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis();
+	mesh1->attach(nm1);
 	// if ( mesh->load_gmv_file((char*)"mesh-optimized.gmv") < 0 )
 	// if ( mesh->load_node_ele_files((char*)"data/models/heart.node",(char*)"data/models/heart.ele") < 0 )
 	// if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-small.msh") < 0 ) {
 	// if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-self-gen.msh") < 0 ) {
-	if ( mesh1->load_msh_file((char*)"../../gcm-3d-materials/data/models/cube-self-gen-small.msh") < 0 ) {
+	if ( mesh1->load_msh_file((char*)"../../gcm-3d-materials/data/models/cube-self-gen-20.msh") < 0 ) {
 	// if ( mesh1->load_msh_file((char*)"../gcm-3d-materials/data/models/cube-self-gen-big.msh") < 0 ) {
 		cout << "Can not open file!\n";
 		return -1;
 	}
-	mesh1->translate(-10.000001, 0, 0);
+	mesh1->translate(-10.000001, -10, -10);
 	tp->set_fixed_elastic_rheology(&(mesh1->nodes), 70000, 10000, 1, 1000000);
 	mesh_set->attach(mesh1);
 
 	TetrMesh_1stOrder* mesh2 = new TetrMesh_1stOrder();
 	mesh2->attach(logger);
+	GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis* nm2 = new GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis();
+	mesh2->attach(nm2);
 	// if ( mesh2->load_msh_file((char*)"../gcm-3d-materials/data/models/sphere-small.msh") < 0 ) {
-	if ( mesh2->load_msh_file((char*)"../../gcm-3d-materials/data/models/cube-self-gen-small.msh") < 0 ) {
+	if ( mesh2->load_msh_file((char*)"../../gcm-3d-materials/data/models/cube-self-gen-40.msh") < 0 ) {
 		cout << "Can not open file!\n";
 		return -1;
 	}
-	mesh2->translate(10.000001, 0, 0);
+	mesh2->translate(10.000001, -20, -20);
 	tp->set_fixed_elastic_rheology(&(mesh2->nodes), 70000, 10000, 1, 1000000);
 	mesh_set->attach(mesh2);
 
