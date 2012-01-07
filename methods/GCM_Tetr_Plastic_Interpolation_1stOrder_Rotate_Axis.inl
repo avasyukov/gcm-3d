@@ -894,6 +894,9 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_random_axis(Elas
 
 		create_rotation_matrix(cur_node->local_num, phi, psi, teta);
 
+		// FIXME
+		create_E_matrix(cur_node->local_num);
+
 	} else if (cur_node->border_type == BORDER) {
 
 		mesh->find_border_node_normal(cur_node->local_num, &outer_normal[0], &outer_normal[1], &outer_normal[2]);
@@ -902,7 +905,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_random_axis(Elas
 		float teta = (rand() % 360) * 2 * PI / 360;
 
 		// Rotate at random angle around normal
-		create_rotation_matrix(cur_node->local_num, outer_normal[0], outer_normal[1], outer_normal[2], teta);
+		create_rotation_matrix_with_normal(cur_node->local_num, outer_normal[0], outer_normal[1], outer_normal[2], teta);
 
 	} else {
 		if(logger != NULL)
@@ -911,7 +914,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_random_axis(Elas
 	}
 
 	// FIXME
-	create_E_matrix(cur_node->local_num);
+	// create_E_matrix(cur_node->local_num);
 
 	// Attach new basis to node - we need it for CollisionDetector to create virtual nodes using directions of these axis
 	// TODO - should it be this way at all?
@@ -953,7 +956,7 @@ void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_rotation_matrix
 	random_axis[node_num].ksi[2][2] = cos(phi) * cos(teta);
 };
 
-void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_rotation_matrix(int node_num, float x, float y, float z, float teta)
+void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_rotation_matrix_around_normal(int node_num, float x, float y, float z, float teta)
 {
 	float sqrt3 = sqrt(3);
 	float sqrt2 = sqrt(2);
@@ -987,6 +990,66 @@ void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_rotation_matrix
 
 	for(int i = 0; i < 3; i++)
 		new_axis.ksi[2][i] = z_m[0][i] * x + z_m[1][i] * y + z_m[2][i] * z;
+
+	// Rotation matrix - random teta around normal
+	float rot[3][3];
+
+	rot[0][0] = cos(teta) + x * x * (1 - cos(teta));
+	rot[0][1] = y * x * (1 - cos(teta)) + z * sin(teta);
+	rot[0][2] = z * x * (1 - cos(teta)) - y * sin(teta);
+
+	rot[1][0] = y * x * (1 - cos(teta)) - z * sin(teta);
+	rot[1][1] = cos(teta) + y * y * (1 - cos(teta));
+	rot[1][2] = y * z * (1 - cos(teta)) + x * sin(teta);
+
+	rot[2][0] = x * z * (1 - cos(teta)) + y * sin(teta);
+	rot[2][1] = y * z * (1 - cos(teta)) - x * sin(teta);
+	rot[2][2] = cos(teta) + z * z * (1 - cos(teta));
+
+	// Rotate
+	for(int i = 0; i < 3; i++) {
+		for(int j = 0; j < 3; j++) {
+			random_axis[node_num].ksi[i][j] = 0;
+			for(int k = 0; k < 3; k++) {
+				random_axis[node_num].ksi[i][j] += rot[k][j] * new_axis.ksi[i][k];
+			}
+		}
+	}
+
+};
+
+void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_rotation_matrix_with_normal(int node_num, float x, float y, float z, float teta)
+{
+	basis new_axis;
+
+	// First axis goes along normal
+	new_axis.ksi[0][0] = x;
+	new_axis.ksi[0][1] = y;
+	new_axis.ksi[0][2] = z;
+
+	// Second axis is perpendicular to it
+	if( (fabs(x) >= fabs(y)) && (fabs(x) >= fabs(z)) ) {
+		new_axis.ksi[1][0] = y;
+		new_axis.ksi[1][1] = -x;
+		new_axis.ksi[1][2] = 0;
+	} else if( (fabs(y) >= fabs(x)) && (fabs(y) >= fabs(z)) ) {
+		new_axis.ksi[1][0] = y;
+		new_axis.ksi[1][1] = -x;
+		new_axis.ksi[1][2] = 0;
+	} else {
+		new_axis.ksi[1][0] = 0;
+		new_axis.ksi[1][1] = -z;
+		new_axis.ksi[1][2] = y;
+	}
+	float modul = sqrt( new_axis.ksi[1][0] * new_axis.ksi[1][0] + new_axis.ksi[1][1] * new_axis.ksi[1][1] + new_axis.ksi[1][2] * new_axis.ksi[1][2]);
+	new_axis.ksi[1][0] /= modul;
+	new_axis.ksi[1][1] /= modul;
+	new_axis.ksi[1][2] /= modul;
+
+	// Third axis - vector producs
+	new_axis.ksi[2][0] = new_axis.ksi[0][1] * new_axis.ksi[1][2] - new_axis.ksi[0][2] * new_axis.ksi[1][1];
+	new_axis.ksi[2][1] = new_axis.ksi[0][2] * new_axis.ksi[1][0] - new_axis.ksi[0][0] * new_axis.ksi[1][2];
+	new_axis.ksi[2][2] = new_axis.ksi[0][0] * new_axis.ksi[1][1] - new_axis.ksi[0][1] * new_axis.ksi[1][0];
 
 	// Rotation matrix - random teta around normal
 	float rot[3][3];

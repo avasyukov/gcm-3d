@@ -55,7 +55,8 @@ protected:
 
 	// These functions are used by create_random_axis() internally
 	void create_rotation_matrix(int node_num, float phi, float psi, float teta);
-	void create_rotation_matrix(int node_num, float x, float y, float z, float teta);
+	void create_rotation_matrix_around_normal(int node_num, float x, float y, float z, float teta);
+	void create_rotation_matrix_with_normal(int node_num, float x, float y, float z, float teta);
 	void find_inverse_matrix(int node_num);
 
 	basis* random_axis;	// New random basises for different nodes
