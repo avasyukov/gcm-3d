@@ -406,20 +406,28 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 					// TODO - never-ending questions - is everything ok with (x-y-z) and (ksi-eta-dzeta) basises?
 					if( stage < 3 )
 					{
+						// We use basis axis here instead of outer_normal because:
+						//    - for 'normal' points first axis coincides with normal and that's it
+						//    - for edges and verts it is the only way to avoid singular matrix
+						// Singular matrix appears because:
+						//    - current axis is used for A calculation, thus for 6 equations in Omega
+						//    - outer normal gives us 3 additional equations to replace Omega's ones
+						//    - normal has no projection on axis for all axis except the first.
+						// Effectively this approach 'smooth' edges and verts.
 						if ( outer_count == 3 ) {
-							gsl_matrix_set(U_gsl, i, 3, outer_normal[0]);
-							gsl_matrix_set(U_gsl, i, 4, outer_normal[1]);
-							gsl_matrix_set(U_gsl, i, 5, outer_normal[2]);
+							gsl_matrix_set(U_gsl, i, 3, random_axis[basis_num].ksi[stage][0]);
+							gsl_matrix_set(U_gsl, i, 4, random_axis[basis_num].ksi[stage][1]);
+							gsl_matrix_set(U_gsl, i, 5, random_axis[basis_num].ksi[stage][2]);
 							outer_count--;
 						} else if ( outer_count == 2 ) {
-							gsl_matrix_set(U_gsl, i, 4, outer_normal[0]);
-							gsl_matrix_set(U_gsl, i, 6, outer_normal[1]);
-							gsl_matrix_set(U_gsl, i, 7, outer_normal[2]);
+							gsl_matrix_set(U_gsl, i, 4, random_axis[basis_num].ksi[stage][0]);
+							gsl_matrix_set(U_gsl, i, 6, random_axis[basis_num].ksi[stage][1]);
+							gsl_matrix_set(U_gsl, i, 7, random_axis[basis_num].ksi[stage][2]);
 							outer_count--;
 						} else if ( outer_count == 1 ) {
-							gsl_matrix_set(U_gsl, i, 5, outer_normal[0]);
-							gsl_matrix_set(U_gsl, i, 7, outer_normal[1]);
-							gsl_matrix_set(U_gsl, i, 8, outer_normal[2]);
+							gsl_matrix_set(U_gsl, i, 5, random_axis[basis_num].ksi[stage][0]);
+							gsl_matrix_set(U_gsl, i, 7, random_axis[basis_num].ksi[stage][1]);
+							gsl_matrix_set(U_gsl, i, 8, random_axis[basis_num].ksi[stage][2]);
 							outer_count--;
 						}
 					}
@@ -637,6 +645,8 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 			// TODO - is it ok?
 			// TODO - never-ending questions - is everything ok with (x-y-z) and (ksi-eta-dzeta) basises?
 
+			// TODO FIXME - it works now because exactly the first axis is the only one where contact is possible
+			// and it coincides with outer normal
 			gsl_matrix_set(U_gsl_18, 15, 3, outer_normal[0]);
 			gsl_matrix_set(U_gsl_18, 15, 4, outer_normal[1]);
 			gsl_matrix_set(U_gsl_18, 15, 5, outer_normal[2]);
@@ -683,22 +693,22 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 	}
 
 	// Check for instabilities
-	for(int i = 0; i < 9; i++) {
+/*	for(int i = 0; i < 9; i++) {
 		if( fabs(new_node->values[i]) > 10 * value_limiters[i]) { // TODO avoid magick number
 			if(logger != NULL) {
 				stringstream ss;
 				ss << "WARN: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - potential instability found." << endl;
-/*				for(int j = 0; j < 9; j++) {
+				for(int j = 0; j < 9; j++) {
 					ss << "NEW VALUE[" << j << "] = " << new_node->values[j] << endl;
 					ss << "OLD VALUE[" << j << "] = " << cur_node->values[j] << endl;
 					ss << "LIMITER[" << j << "] = " << value_limiters[j] << endl;
-				}*/
+				}
 				logger->write(ss.str());
 			}
 //			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
 			break;
 		}
-	}
+	}*/
 
 	return 0;
 };
@@ -761,7 +771,11 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_
 			for(int j = 0; j < 3; j++)
 				dx_ksi[j] = dksi[i] * random_axis[basis_num].ksi[stage][j];
 
-			float dx_ksi_normal_projection_modul = dx_ksi[0] * outer_normal[0] + dx_ksi[1] * outer_normal[1] + dx_ksi[2] * outer_normal[2];
+			// TODO - this criteria is used when we use rotation_matrix_around_normal
+			// In this case dx_ksi_normal_projection_modul != 0
+			// float dx_ksi_normal_projection_modul = dx_ksi[0] * outer_normal[0] + dx_ksi[1] * outer_normal[1] + dx_ksi[2] * outer_normal[2];
+			// TODO - this criteria to be used with rotation_matrix_with_normal
+			float dx_ksi_normal_projection_modul = - fabs(dksi[i]);
 
 			// ... Calculate coordinates ...
 			for(int j = 0; j < 3; j++) {
@@ -804,8 +818,14 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_
 				// Otherwise (internal node or border node without contact) - 
 				//  alter both directions and wait for one of them to give internal node
 				} else {
-					dx_ksi_normal_projection[j] = dx_ksi_normal_projection_modul * outer_normal[j];
-					dx[j] = dx_ksi[j] * (1 - alpha) + dx_ksi_normal_projection[j] * alpha;
+					// FIXME - we alter only one direction (chosen at will for the moment) 
+					// to avoid case when both can become internal and give us outer_count == 0 (!)
+					if( dksi[i] >= 0 ) {
+						dx[j] = dx_ksi[j];
+					} else {
+						dx_ksi_normal_projection[j] = dx_ksi_normal_projection_modul*outer_normal[j];
+						dx[j] = dx_ksi[j] * (1 - alpha) + dx_ksi_normal_projection[j] * alpha;
+					}
 				}
 
 				// This difference is not zero when cur_node coords were altered -

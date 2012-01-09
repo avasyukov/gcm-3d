@@ -140,11 +140,15 @@ int CollisionDetector::process_mesh(vector<int>* nodes_vector, TetrMesh_1stOrder
 		// TODO - it's bad, we should use default impl, but default one re-randomizes axis...
 		// FIXME - we temporary use minor characteristic to ensure both are always in or out of the other body
 		// FIXME - rethink this criteria ASAP! In this case contact state depends on how axis are randomized.
+		// TODO - looks like we fix this issue if we use basis where the first axis coincide with outer normal
 		// Two parallel planes can have contacts in some points and do not have in other ones.
 		float move = time_step * sqrt( node.mu / node.rho );
 
 		// Check all axis
-		for(int j = 0; j < 3; j++) {
+		// TODO - we process only first direction because it coincides with outer normal
+		// FIXME - we can not be sure that exactly the first coincides with outer normal
+		// for(int j = 0; j < 3; j++) {
+		for(int j = 0; j < 1; j++) {
 			// Check positive direction
 			if( process_direction( &(current_mesh->nodes).at( nodes_vector->at(i) ), move, j, tetrs_vector, other_mesh, virt_nodes) < 0 )
 				return -1;
