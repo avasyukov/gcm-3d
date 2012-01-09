@@ -1708,7 +1708,7 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 
 	// Clear bad nodes that cause instabilities
 	// TODO - how filter interacts with sync?
-	run_mesh_filter();
+	//run_mesh_filter();
 
 	return 0;
 };
