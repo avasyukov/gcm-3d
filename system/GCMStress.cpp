@@ -402,8 +402,8 @@ bool GCMStresser::loadTask(string fname)
 					TiXmlElement* eform = estress->FirstChildElement( "form" );
 					if( eform ) {
 						string formtype = eform->Attribute( "type" );
-						int begintime = atoi( eform->Attribute( "begintime" ) );
-						int duration = atoi( eform->Attribute( "duration" ) );
+						int begintime = atof( eform->Attribute( "begintime" ) );
+						int duration = atof( eform->Attribute( "duration" ) );
 					
 						string amplitudeStr = eform->GetText();
 						float vals[9];
