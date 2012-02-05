@@ -7,25 +7,20 @@ int main()
 {
 	srand( unsigned( time(0)) ) ;
 
-	TetrMeshSet* mesh_set = new TetrMeshSet();
-
 	TaskPreparator* tp = new TaskPreparator();
+
+	TetrMeshSet* mesh_set = new TetrMeshSet();
 	tp->load_task( "task.xml", mesh_set );
 	
-	Logger* logger = new Logger();
-	SnapshotWriter* sw = new SnapshotWriter();
-	sw->attach( logger );
-
 	mesh_set->log_meshes_types();
 	mesh_set->log_meshes_stats();
 
-	sw->dump_vtk(mesh_set, 0);
-
-	float cur_time;
 	int snap_num;
 	int step_per_snap;
-	tp->load_snap_info( "task.xml", &snap_num, &step_per_snap );
+	SnapshotWriter* sw = new SnapshotWriter();
+	tp->load_snap_info( "task.xml", &snap_num, &step_per_snap, sw );
 
+	float cur_time;
 	for(int i = 1; i < snap_num; i++)
 	{
 		if( (cur_time = mesh_set->get_current_time()) < 0)

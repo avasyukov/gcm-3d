@@ -1,16 +1,25 @@
 TaskPreparator::TaskPreparator()
 {
-	task_fname = "";
+	logger = new Logger();
+	task_filename = "";
 	task_preparator_type.assign("Generic task preparator");
 };
 
-TaskPreparator::TaskPreparator(string fname)
+TaskPreparator::TaskPreparator(string filename)
 {
-	task_fname = fname;
+	logger = new Logger();
+	task_filename = filename;
 	task_preparator_type.assign("Generic task preparator");
 };
 
 TaskPreparator::~TaskPreparator() { };
+
+void TaskPreparator::attach(Logger* new_logger)
+{
+	if(logger != NULL)
+		delete(logger);
+	logger = new_logger;
+};
 
 string* TaskPreparator::get_task_preparator_type()
 {
@@ -30,9 +39,8 @@ void TaskPreparator::set_fixed_elastic_rheology(vector<ElasticNode>* nodes, floa
 	}
 };
 
-int TaskPreparator::load_task( string fname, TetrMeshSet* mesh_set )
+int TaskPreparator::load_task( string filename, TetrMeshSet* mesh_set )
 {	
-	Logger* logger = new Logger();
 	mesh_set->attach( logger );
 	
 	CollisionDetector* cd = new CollisionDetector();
@@ -46,7 +54,7 @@ int TaskPreparator::load_task( string fname, TetrMeshSet* mesh_set )
 	VoidRheologyCalculator* rc = new VoidRheologyCalculator();
 	mesh_set->attach(rc);
 	
-	TiXmlDocument document( fname.c_str() );
+	TiXmlDocument document( filename.c_str() );
 	bool loadOk = document.LoadFile();
 	if( loadOk ) {
 		TiXmlElement* eroot = document.FirstChildElement( "task" );
@@ -59,7 +67,8 @@ int TaskPreparator::load_task( string fname, TetrMeshSet* mesh_set )
 					if( meshpath != "" ) {
 						TetrMesh_1stOrder* new_mesh = new TetrMesh_1stOrder();
 						if ( new_mesh->load_msh_file( const_cast<char*>( meshpath.c_str() ) ) < 0 ) {
-							cout << "\tTaskPreparator : Can not open mesh file!\n";
+							if(logger != NULL)
+								logger->write("ERROR: TaskPreparator - can not open mesh file!");
 							return 1;
 						}
 						GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis* new_nm 
@@ -68,7 +77,8 @@ int TaskPreparator::load_task( string fname, TetrMeshSet* mesh_set )
 						mesh_set->attach( new_mesh );
 					}
 					else {
-						cout << "\tTaskPreparator : warning: mesh path in task is void\n";
+						if(logger != NULL)
+							logger->write("WARN: TaskPreparator - mesh path in task is void");
 					}
 				}
 				else {
@@ -87,7 +97,8 @@ int TaskPreparator::load_task( string fname, TetrMeshSet* mesh_set )
 					float yield = atof( erheo->Attribute( "yield" ) ); 
 				
 					if( la <= 0.0 || mu <= 0.0 || rho <= 0.0 || yield <= 0.0 ) {
-						cout << "\tTaskPreparator : error: in rheology parameters\n";
+						if(logger != NULL)
+							logger->write("ERROR: TaskPreparator - bad rheology parameters!");
 						return 1;
 					}
 				
@@ -97,14 +108,16 @@ int TaskPreparator::load_task( string fname, TetrMeshSet* mesh_set )
 						if( areatype == "mesh" ) {			//TODO add other options here
 							int meshNum = atoi( earea->GetText() );
 							if( meshNum == 0 && strcmp( earea->GetText(), "0" ) != 0 ) {
-								cout << "\tTaskPreparator : error: cannot read rheology area specification\n";
+							if(logger != NULL)
+								logger->write("ERROR: TaskPreparator - cannot read rheology area specification!");
 								return 1;
 							}
 							set_fixed_elastic_rheology( &( ( mesh_set->get_mesh( meshNum ) )->nodes ), la, mu, rho, yield );
 						}
 					}
 					else {
-						cout << "\tTaskPreparator : error: area of rheology is not specified\n";
+						if(logger != NULL)
+							logger->write("ERROR: TaskPreparator - area of rheology is not specified!");
 						return 1;
 					}
 					
@@ -116,20 +129,24 @@ int TaskPreparator::load_task( string fname, TetrMeshSet* mesh_set )
 			}
 		}
 		else {
-			cout << "\tTaskPreparator : failed to load xml task. exiting\n";
+			if(logger != NULL)
+				logger->write("ERROR: TaskPreparator - failed to load xml task!");
 			return 1;	
 		}
 	}
 	else {
-		cout << "\tTaskPreparator : failed to load xml task. exiting\n";
+		if(logger != NULL)
+			logger->write("ERROR: TaskPreparator - failed to load xml task!");
 		return 1;
 	}
 	return 0;
 };
 
-int TaskPreparator::load_snap_info( string fname, int* snap_num, int* step_per_snap ) 
+int TaskPreparator::load_snap_info( string filename, int* snap_num, int* step_per_snap, SnapshotWriter* sw ) 
 {
-	TiXmlDocument document( fname.c_str() );
+	sw->attach( logger );
+
+	TiXmlDocument document( filename.c_str() );
 	bool loadOk = document.LoadFile();
 	if( loadOk ) {
 		TiXmlElement* eroot = document.FirstChildElement( "task" );
@@ -138,7 +155,8 @@ int TaskPreparator::load_snap_info( string fname, int* snap_num, int* step_per_s
 			int step_per_snap_l = atoi( eroot->Attribute( "step_per_snap" ) );
 			
 			if( snap_num_l <= 0 || step_per_snap_l <= 0 ) {
-				cout << "\tTaskPreparator : error: wrong snap info\n";
+				if(logger != NULL)
+					logger->write("ERROR: TaskPreparator - wrong snap info!");
 				return 1;
 			}
 			else {
@@ -148,12 +166,14 @@ int TaskPreparator::load_snap_info( string fname, int* snap_num, int* step_per_s
 			}
 		}
 		else {
-			cout << "\tTaskPreparator : failed to load xml task. exiting\n";
+			if(logger != NULL)
+				logger->write("ERROR: TaskPreparator - failed to load xml task!");
 			return 1;	
 		}
 	}
 	else {
-		cout << "\tTaskPreparator : failed to load xml task. exiting\n";
+		if(logger != NULL)
+			logger->write("ERROR: TaskPreparator - failed to load xml task!");
 		return 1;
 	}
 	return 0;

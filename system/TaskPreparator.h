@@ -7,6 +7,7 @@
 #include "../meshtypes/TetrMesh_1stOrder.h"
 #include "../datatypes/ElasticNode.h"
 #include "../system/Logger.h"
+#include "SnapshotWriter.h"
 #include "CollisionDetector.h"
 #include "../system/TetrMeshSet.h"
 #include "../methods/GCM_Tetr_Elastic_Interpolation_1stOrder.h"
@@ -21,16 +22,18 @@ class TaskPreparator
 {
 public:
 	TaskPreparator();
-	TaskPreparator(string fname);
+	TaskPreparator(string filename);
 	~TaskPreparator();
+	void attach(Logger* new_logger);
 	string* get_task_preparator_type();
 	void set_fixed_elastic_rheology(vector<ElasticNode>* nodes, float la, float mu, float rho, float yield_limit);
 	
-	int load_task( string fname, TetrMeshSet* mesh_set );
-	int load_snap_info( string fname, int* snap_num, int* step_per_snap );
+	int load_task( string filename, TetrMeshSet* mesh_set );
+	int load_snap_info( string filename, int* snap_num, int* step_per_snap, SnapshotWriter* sw );
 protected:
-	string task_fname;
+	string task_filename;
 	string task_preparator_type;
+	Logger* logger;
 };
 
 #include "TaskPreparator.inl"
