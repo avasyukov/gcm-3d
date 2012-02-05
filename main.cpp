@@ -21,7 +21,7 @@ int main()
 	tp->load_snap_info( "task.xml", &snap_num, &step_per_snap, sw );
 
 	float cur_time;
-	for(int i = 1; i < snap_num; i++)
+	for(int i = 1; i <= snap_num; i++)
 	{
 		if( (cur_time = mesh_set->get_current_time()) < 0)
 			return -1;
