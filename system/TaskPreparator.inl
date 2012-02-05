@@ -66,11 +66,26 @@ int TaskPreparator::load_task( string filename, TetrMeshSet* mesh_set )
 					string meshpath = emesh->Attribute( "file" );
 					if( meshpath != "" ) {
 						TetrMesh_1stOrder* new_mesh = new TetrMesh_1stOrder();
+						new_mesh->attach(logger);
 						if ( new_mesh->load_msh_file( const_cast<char*>( meshpath.c_str() ) ) < 0 ) {
 							if(logger != NULL)
 								logger->write("ERROR: TaskPreparator - can not open mesh file!");
 							return 1;
 						}
+
+						// Read and execute mesh transformations
+						TiXmlElement* etrans = emesh->FirstChildElement("transform");
+						while( etrans ) {
+							string trans_type = etrans->Attribute("type");
+							if(trans_type == "translate") {
+								float dx = atof( etrans->Attribute("x") );
+								float dy = atof( etrans->Attribute("y") );
+								float dz = atof( etrans->Attribute("z") );
+								new_mesh->translate(dx, dy, dz);
+							}
+							etrans = etrans->NextSiblingElement("transform");
+						}
+
 						GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis* new_nm 
 								= new GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis();
 						new_mesh->attach( new_nm );
