@@ -39,7 +39,7 @@ void TaskPreparator::set_fixed_elastic_rheology(vector<ElasticNode>* nodes, floa
 	}
 };
 
-int TaskPreparator::load_task( string filename, TetrMeshSet* mesh_set )
+int TaskPreparator::load_task( string filename, string data_dir, TetrMeshSet* mesh_set )
 {	
 	mesh_set->attach( logger );
 	
@@ -48,7 +48,7 @@ int TaskPreparator::load_task( string filename, TetrMeshSet* mesh_set )
 	mesh_set->attach( cd );
 	
 	Stresser* stresser = new GCMStresser();
-	stresser->loadTask("task.xml");
+	stresser->loadTask(filename);
 	mesh_set->attach(stresser);
 	
 	VoidRheologyCalculator* rc = new VoidRheologyCalculator();
@@ -65,6 +65,8 @@ int TaskPreparator::load_task( string filename, TetrMeshSet* mesh_set )
 				if( emesh ) {
 					string meshpath = emesh->Attribute( "file" );
 					if( meshpath != "" ) {
+						if(meshpath[0] != '/')
+							meshpath = data_dir + meshpath;
 						TetrMesh_1stOrder* new_mesh = new TetrMesh_1stOrder();
 						new_mesh->attach(logger);
 						if ( new_mesh->load_msh_file( const_cast<char*>( meshpath.c_str() ) ) < 0 ) {

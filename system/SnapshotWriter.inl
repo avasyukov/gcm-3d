@@ -3,6 +3,17 @@ SnapshotWriter::SnapshotWriter()
 	snapshot_writer_type.assign("Generic snapshot writer");
 };
 
+SnapshotWriter::SnapshotWriter(string new_result_dir)
+{
+	SnapshotWriter();
+	set_result_dir(new_result_dir);
+};
+
+void SnapshotWriter::set_result_dir(string new_result_dir)
+{
+	result_dir = new_result_dir;
+};
+
 SnapshotWriter::~SnapshotWriter() { };
 
 string* SnapshotWriter::get_snapshot_writer_type()
@@ -135,7 +146,7 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int zone_num, int sna
 	contact->Delete();
 
 	stringstream name;
-	name << "snap_volume_zone_" << zone_num << "_snap_" << snap_num << ".vtu";
+	name << result_dir << "snap_volume_zone_" << zone_num << "_snap_" << snap_num << ".vtu";
 	string filename = name.str();
 
 	xgw->SetInput(g);

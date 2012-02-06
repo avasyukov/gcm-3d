@@ -28,7 +28,7 @@ public:
 	string* get_task_preparator_type();
 	void set_fixed_elastic_rheology(vector<ElasticNode>* nodes, float la, float mu, float rho, float yield_limit);
 	
-	int load_task( string filename, TetrMeshSet* mesh_set );
+	int load_task( string filename, string data_dir, TetrMeshSet* mesh_set );
 	int load_snap_info( string filename, int* snap_num, int* step_per_snap, SnapshotWriter* sw );
 protected:
 	string task_filename;
