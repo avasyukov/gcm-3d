@@ -5,6 +5,14 @@
 
 using std::cout;
 
+void print_help()
+{
+	cout << "\nUsage: gcm3d --task file --data-dir dir --result-dir dir\n" 
+		<< "\t--task - xml file with task description, defaults to ./task.xml\n"
+		<< "\t--data-dir - where gcm3d will look for models specified in task.xml, defaults to ./\n"
+		<< "\t--result-dir - where gcm3d will save snapshots, defaults to ./\n\n";
+};
+
 int main(int argc, char **argv)
 {
 	srand( unsigned( time(0)) ) ;
@@ -16,6 +24,7 @@ int main(int argc, char **argv)
 		{"task",	required_argument,	0, 't'},
 		{"data-dir",	required_argument,	0, 'd'},
 		{"result-dir",	required_argument,      0, 'r'},
+		{"help",	no_argument,		0, 'h'},
 		{0, 0, 0, 0}
 	};
 	int option_index = 0;
@@ -25,7 +34,7 @@ int main(int argc, char **argv)
 	string res_dir = "./";
 
 	while ( true ) {
-		c = getopt_long (argc, argv, "tdr", long_options, &option_index);
+		c = getopt_long (argc, argv, "tdrh", long_options, &option_index);
 		if (c == -1)
 			break;
 		switch (c)
@@ -39,6 +48,9 @@ int main(int argc, char **argv)
 			case 'r':
 				res_dir = optarg;
 				break;
+			case 'h':
+				print_help();
+				return 0;
 			case '?':
 				break;
 			default:
