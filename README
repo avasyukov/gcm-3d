@@ -8,4 +8,14 @@ The code is licensed under BSD license.
 
 3. Build
 
-Just run make. Build requires gcc-c++, gsl-devel, vtk-devel, tinyxml-devel.
+Build requires gcc-c++, gsl-devel, vtk-devel, tinyxml-devel. To build from sources run:
+   mkdir build
+   cd build
+   cmake ..
+   make
+
+4. Run
+
+./gcm3d --task ~/gcm-3d-materials/data/tasks/basic-contact-task.xml --data-dir ~/gcm-3d-materials/data/models/ --result-dir ./test/
+
+Please see ./gcm3d --help for details.
