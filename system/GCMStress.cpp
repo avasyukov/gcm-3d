@@ -252,7 +252,7 @@ void GCMStressPerformerRadial::print()
 
 bool GCMStress::performStress(ElasticNode* cur_node, ElasticNode* new_node, float current_time)
 {
-	performer->performStress( area, form, cur_node, new_node, current_time);
+	return performer->performStress( area, form, cur_node, new_node, current_time);
 }
 
 void GCMStress::print()

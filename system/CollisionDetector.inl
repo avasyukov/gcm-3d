@@ -161,6 +161,7 @@ int CollisionDetector::process_mesh(vector<int>* nodes_vector, TetrMesh_1stOrder
 		// TODO - should we check outer normal in addition? It is possible that all axis are out of the neighbour body, but normal is in it.
 
 	}
+	return 0;
 };
 
 void CollisionDetector::find_elements_in_intersect(TetrMesh_1stOrder* mesh, MeshOutline* intersect, vector<int>* nodes_vector, vector<int>* tetrs_vector)

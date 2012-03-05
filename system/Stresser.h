@@ -17,9 +17,9 @@ public:
 	~Stresser();
 	string* get_stresser_type();
 	void attach(Logger* new_logger);
-	virtual void set_current_stress(ElasticNode* cur_node, ElasticNode* new_node, float current_time); // TODO avoid hardcoded impl
-	virtual bool loadTask(string fname) {}
-	virtual void print() {}
+	virtual void set_current_stress(ElasticNode* cur_node, ElasticNode* new_node, float current_time) = 0;
+	virtual bool loadTask(string fname) = 0;
+	virtual void print() = 0;
 protected:
 	string stresser_type;
 	Logger* logger;
