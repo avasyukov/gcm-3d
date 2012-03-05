@@ -1,3 +1,5 @@
+#include "TetrMesh.h"
+
 TetrMesh::TetrMesh()
 {
 	mesh_type.assign("Basic tetrahedron mesh");

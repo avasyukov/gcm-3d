@@ -1,3 +1,5 @@
+#include "TetrMethod_Plastic_1stOrder.h"
+
 GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis()
 {
 	num_method_type.assign("1st order interpolation on tetr mesh (with plasticity) - axis rotation");

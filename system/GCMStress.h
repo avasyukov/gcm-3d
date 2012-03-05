@@ -4,6 +4,18 @@
 #define TIXML_USE_STL 
 #include <tinyxml.h>
 #include <sstream>
+#include <vector>
+#include <string>
+#include <math.h>
+
+using std::stringstream;
+using std::cout;
+using std::cerr;
+using std::endl;
+
+#include "CylTest.h"
+#include "Stresser.h"
+#include "../datatypes/ElasticNode.h"
 
 #define STRESS_FORM_TRIANGLE "triangle"
 #define STRESS_FORM_STEP "step"
@@ -15,11 +27,6 @@
 #define STRESS_PERFORM_UNIFORM "uniform"
 #define STRESS_PERFORM_RADIAL "radial"
 #define STRESS_PERFORM_CYLINDRICAL "cylindrical"
-
-using std::stringstream;
-using std::cout;
-using std::cerr;
-using std::endl;
 
 class GCMStressArea 
 {
@@ -154,7 +161,5 @@ public:
 	bool loadTask(string fname);
 	virtual void set_current_stress(ElasticNode* cur_node, ElasticNode* new_node, float current_time); // TODO avoid hardcoded impl
 };
-
-#include "GCMStress.cpp"
 
 #endif

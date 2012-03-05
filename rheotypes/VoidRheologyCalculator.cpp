@@ -1,3 +1,5 @@
+#include "VoidRheologyCalculator.h"
+
 VoidRheologyCalculator::VoidRheologyCalculator()
 {
 	rheology_type.assign("Void rheology");

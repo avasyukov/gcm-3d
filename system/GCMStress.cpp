@@ -1,5 +1,4 @@
-#include "math.h"
-#include "CylTest.cpp"
+#include "GCMStress.h"
 
 GCMStressAreaSphere::GCMStressAreaSphere( float _radius, float x, float y, float z )
 {
@@ -95,7 +94,7 @@ bool GCMStressAreaCylinder::isInArea( ElasticNode* cur_node )
 	float radius_sq = radius * radius;
 	float length_sq = ( pt1.x - pt2.x ) * ( pt1.x - pt2.x ) + ( pt1.y - pt2.y ) * ( pt1.y - pt2.y ) + ( pt1.z - pt2.z ) * ( pt1.z - pt2.z );
 	
-	if( CylTest_CapsFirst( pt1, pt2, length_sq, radius_sq, testpt ) >= 0.0 ) {
+	if( testpt.CylTest_CapsFirst( pt1, pt2, length_sq, radius_sq, testpt ) >= 0.0 ) {
 		return true;
 	}
 	
@@ -214,7 +213,7 @@ bool GCMStressPerformerCylindrical::performStress( GCMStressArea* area, GCMStres
 	Vec3 V1( areaCyl->begin[0], areaCyl->begin[1], areaCyl->begin[2] );
 	Vec3 V2( areaCyl->end[0], areaCyl->end[1], areaCyl->end[2] );
 	
-	Vec3 newVel = Norm_Project_Point_Line( VNode, V1, V2 );
+	Vec3 newVel = VNode.Norm_Project_Point_Line( VNode, V1, V2 );
 
 	if(area->isInArea(cur_node)) {
 		new_node->values[0] = newVel.x * new_val;

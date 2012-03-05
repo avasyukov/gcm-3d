@@ -4,15 +4,16 @@
 #include <vector>
 #include <string>
 
-class TetrMesh;
-class TetrMesh_1stOrder;
-
-#include "../system/CollisionDetector.h"
-#include "../meshtypes/TetrMesh.h"
-#include "../meshtypes/TetrMesh_1stOrder.h"
-
-using std::string;
 using std::vector;
+using std::string;
+
+#include "../meshtypes/TetrMesh_1stOrder.h"
+#include "../methods/TetrNumericalMethod.h"
+#include "../rheotypes/RheologyCalculator.h"
+#include "Logger.h"
+#include "DataBus.h"
+#include "Stresser.h"
+#include "CollisionDetector.h"
 
 class TetrMeshSet
 {
@@ -44,7 +45,5 @@ protected:
         vector<TetrMesh_1stOrder*> meshes;
 	vector<ElasticNode> virt_nodes;
 };
-
-#include "TetrMeshSet.inl"
 
 #endif

@@ -1,12 +1,12 @@
 #ifndef _GCM_TETR_MESH_H
 #define _GCM_TETR_MESH_H  1
 
+class TetrMeshSet;
+
 #include "Mesh.h"
 #include "../datatypes/ElasticNode.h"
 #include "../datatypes/Tetrahedron.h"
 #include "../methods/TetrNumericalMethod.h"
-class TetrNumericalMethod;
-class TetrMeshSet;
 
 class TetrMesh : public Mesh
 {
@@ -39,7 +39,5 @@ public:
 	TetrMeshSet* mesh_set;
 protected:
 };
-
-#include "TetrMesh.inl"
 
 #endif

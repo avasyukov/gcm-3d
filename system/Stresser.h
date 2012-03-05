@@ -9,6 +9,7 @@ using std::string;
 using std::vector;
 
 #include "../datatypes/ElasticNode.h"
+#include "Logger.h"
 
 class Stresser
 {
@@ -24,7 +25,5 @@ protected:
 	string stresser_type;
 	Logger* logger;
 };
-
-#include "Stresser.inl"
 
 #endif

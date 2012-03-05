@@ -11,6 +11,4 @@ public:
 	int do_calc(ElasticNode* cur_node, ElasticNode* new_node);
 };
 
-#include "VoidRheologyCalculator.inl"
-
 #endif

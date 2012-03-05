@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "../system/Logger.h"
-
 using std::string;
 using std::vector;
+
+#include "../system/Logger.h"
 
 class NumericalMethod
 {
@@ -21,7 +21,5 @@ protected:
 	Logger* logger;
 	string num_method_type;
 };
-
-#include "NumericalMethod.inl"
 
 #endif

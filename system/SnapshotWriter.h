@@ -11,10 +11,6 @@ using std::vector;
 using std::ofstream;
 using std::stringstream;
 
-#include "../datatypes/ElasticNode.h"
-#include "../meshtypes/TetrMesh_1stOrder.h"
-#include "../system/TetrMeshSet.h"
-
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 #include <vtkUnstructuredGridWriter.h>
@@ -22,6 +18,10 @@ using std::stringstream;
 #include <vtkDoubleArray.h>
 #include <vtkPointData.h>
 #include <vtkstd/string>
+
+#include "../meshtypes/TetrMesh_1stOrder.h"
+#include "TetrMeshSet.h"
+#include "Logger.h"
 
 class SnapshotWriter
 {
@@ -41,7 +41,5 @@ protected:
 	string result_dir;
 	Logger* logger;
 };
-
-#include "SnapshotWriter.inl"
 
 #endif

@@ -13,6 +13,4 @@ public:
 	int vert[4];
 };
 
-#include "Tetrahedron.inl"
-
 #endif

@@ -1,3 +1,5 @@
+#include "Logger.h"
+
 Logger::Logger()
 {
 	logger_type.assign("Generic logger");

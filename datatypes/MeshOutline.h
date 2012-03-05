@@ -6,6 +6,4 @@ struct MeshOutline {
         float max_coords[3];
 };
 
-#include "MeshOutline.inl"
-
 #endif

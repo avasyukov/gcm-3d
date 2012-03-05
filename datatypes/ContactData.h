@@ -6,6 +6,4 @@ struct contact_state {
 	int axis_minus[3];
 };
 
-#include "ContactData.inl"
-
 #endif

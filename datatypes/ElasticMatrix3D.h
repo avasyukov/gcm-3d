@@ -1,7 +1,6 @@
 #ifndef _GCM_ELASTIC_MATRIX_3D_H
 #define _GCM_ELASTIC_MATRIX_3D_H  1
 
-#include <math.h>
 #include "matrixes.h"
 #include "../system/Logger.h"
 
@@ -34,7 +33,5 @@ private:
 	// TODO it is worth turning them into local vars
 	float n[3][3];
 };
-
-#include "ElasticMatrix3D.inl"
 
 #endif

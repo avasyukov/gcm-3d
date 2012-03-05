@@ -4,18 +4,15 @@
 #include <sstream>
 #include <algorithm>
 
-#include "TetrMesh.h"
-#include "../system/quick_math.h"
-#include "../datatypes/ElasticNode.h"
-#include "../datatypes/Tetrahedron_1st_order.h"
-#include "../datatypes/Triangle.h"
-#include "../methods/GCM_Tetr_Elastic_Interpolation_1stOrder.h"
-#include "../rheotypes/VoidRheologyCalculator.h"
-
 using std::stringstream;
 using std::sort;
 using std::unique;
 using std::ios;
+
+#include "TetrMesh.h"
+#include "../datatypes/Triangle.h"
+#include "../datatypes/Tetrahedron_1st_order.h"
+#include "../system/quick_math.h"
 
 //#define DEBUG_MESH_GEOMETRY 1
 
@@ -83,7 +80,5 @@ private:
 
 	quick_math qm_engine;
 };
-
-#include "TetrMesh_1stOrder.inl"
 
 #endif

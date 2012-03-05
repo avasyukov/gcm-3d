@@ -1,3 +1,5 @@
+#include "DataBus.h"
+
 DataBus::DataBus()
 {
 	data_bus_type.assign("Stupid echo data bus");

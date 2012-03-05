@@ -16,6 +16,4 @@ public:
 	// ... and so on
 };
 
-#include "Tetrahedron_1st_order.inl"
-
 #endif

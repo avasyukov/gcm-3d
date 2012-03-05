@@ -5,6 +5,4 @@ struct basis {
         float ksi[3][3];
 };
 
-#include "Basis.inl"
-
 #endif

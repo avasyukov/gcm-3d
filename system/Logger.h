@@ -21,6 +21,4 @@ protected:
 	string logger_type;
 };
 
-#include "Logger.inl"
-
 #endif

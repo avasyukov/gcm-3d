@@ -1,3 +1,5 @@
+#include "RheologyCalculator.h"
+
 RheologyCalculator::RheologyCalculator()
 {
 	logger = NULL;

@@ -1,3 +1,5 @@
+#include "ElasticMatrix3D.h"
+
 ElasticMatrix3D::ElasticMatrix3D()
 {
 //	A.resize(9,9);
@@ -80,18 +82,18 @@ int ElasticMatrix3D::self_check(Logger* logger)
 	if( (U1 * L * U != A) || (A * U1 != U1 * L) || (U * A != L * U) || (U1 * U !=  E) ) {
 		if(logger != NULL) {
 			logger->write(string("ERROR: ElasticMatrix3D::self_check failed"));
-			cout << "A:\n";
-			cout << A;
+			//cout << "A:\n";
+			//cout << A;
 			//cout << "U1 * L * U:\n";
 			//cout << U1 * L * U;
 			//cout << "Delta:\n";
 			//cout << A - U1 * L * U;
-			cout << "L:\n";
-			cout << L;
-			cout << "Omega:\n";
-			cout << U;
-			cout << "Omega-1:\n";
-			cout << U1;
+			//cout << "L:\n";
+			//cout << L;
+			//cout << "Omega:\n";
+			//cout << U;
+			//cout << "Omega-1:\n";
+			//cout << U1;
 		}
 		return -1;
 	}

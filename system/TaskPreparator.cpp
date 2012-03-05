@@ -1,3 +1,5 @@
+#include "TaskPreparator.h"
+
 TaskPreparator::TaskPreparator()
 {
 	logger = new Logger();

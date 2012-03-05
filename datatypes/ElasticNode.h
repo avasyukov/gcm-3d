@@ -1,6 +1,9 @@
 #ifndef _GCM_ELASTIC_NODE_H
 #define _GCM_ELASTIC_NODE_H  1
 
+#include <vector>
+using std::vector;
+
 #include "Node.h"
 
 class TetrMesh_1stOrder;
@@ -35,7 +38,5 @@ protected:
 	// float maxL;
 	// .. and so on
 };
-
-#include "ElasticNode.inl"
 
 #endif

@@ -1,2 +1,0 @@
-Element::Element() { };
-Element::~Element() { };

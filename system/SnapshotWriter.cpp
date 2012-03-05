@@ -1,3 +1,5 @@
+#include "SnapshotWriter.h"
+
 SnapshotWriter::SnapshotWriter()
 {
 	snapshot_writer_type.assign("Generic snapshot writer");

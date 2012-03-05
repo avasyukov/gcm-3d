@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 
-#include "../datatypes/ElasticNode.h"
-#include "../system/Logger.h"
-
 using std::string;
 using std::vector;
+
+#include "../datatypes/ElasticNode.h"
+#include "../system/Logger.h"
 
 class RheologyCalculator
 {
@@ -22,7 +22,5 @@ protected:
 	Logger* logger;
 	string rheology_type;
 };
-
-#include "RheologyCalculator.inl"
 
 #endif

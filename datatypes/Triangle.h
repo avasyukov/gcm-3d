@@ -13,6 +13,4 @@ public:
 	int vert[3];
 };
 
-#include "Triangle.inl"
-
 #endif

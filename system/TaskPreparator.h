@@ -4,19 +4,18 @@
 #include <string>
 #include <vector>
 
-#include "../meshtypes/TetrMesh_1stOrder.h"
-#include "../datatypes/ElasticNode.h"
-#include "../system/Logger.h"
-#include "SnapshotWriter.h"
-#include "CollisionDetector.h"
-#include "../system/TetrMeshSet.h"
-#include "../methods/GCM_Tetr_Elastic_Interpolation_1stOrder.h"
-#include "../methods/GCM_Tetr_Plastic_Interpolation_1stOrder.h"
-#include "../methods/GCM_Tetr_Plastic_Interpolation_1stOrder_Advanced.h"
-#include "../methods/GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis.h"
-
 using std::string;
 using std::vector;
+
+#include "../datatypes/ElasticNode.h"
+#include "../meshtypes/TetrMesh_1stOrder.h"
+#include "../methods/TetrMethod_Plastic_1stOrder.h"
+#include "../rheotypes/VoidRheologyCalculator.h"
+#include "Logger.h"
+#include "SnapshotWriter.h"
+#include "CollisionDetector.h"
+#include "TetrMeshSet.h"
+#include "GCMStress.h"
 
 class TaskPreparator
 {
@@ -35,7 +34,5 @@ protected:
 	string task_preparator_type;
 	Logger* logger;
 };
-
-#include "TaskPreparator.inl"
 
 #endif

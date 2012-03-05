@@ -1,3 +1,5 @@
+#include "Stresser.h"
+
 Stresser::Stresser()
 {
 	stresser_type.assign("Generic stresser");

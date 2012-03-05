@@ -1,14 +1,6 @@
 #ifndef _GCM_NODE_H
 #define _GCM_NODE_H  1
 
-#include <string>
-#include <vector>
-#include "ContactData.h"
-#include "Basis.h"
-
-using std::string;
-using std::vector;
-
 #define LOCAL 1
 #define REMOTE 0
 #define UNUSED -1
@@ -19,11 +11,12 @@ using std::vector;
 #define FREE 0
 #define IN_CONTACT 1
 
+#include "Basis.h"
+#include "ContactData.h"
+
 class Node
 {
 public:
-	Node();
-	~Node();
 	int zone_num;
 	int local_num;
 	int remote_num;
@@ -38,7 +31,5 @@ public:
 protected:
 private:
 };
-
-#include "Node.inl"
 
 #endif

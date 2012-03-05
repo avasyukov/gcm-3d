@@ -1,3 +1,5 @@
+#include "CollisionDetector.h"
+
 CollisionDetector::CollisionDetector()
 {
 	logger = NULL;

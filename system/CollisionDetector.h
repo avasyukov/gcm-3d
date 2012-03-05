@@ -4,10 +4,13 @@
 #include <vector>
 #include <string>
 
-#include "../datatypes/MeshOutline.h"
-
-using std::string;
 using std::vector;
+using std::string;
+
+#include "../datatypes/MeshOutline.h"
+#include "../datatypes/ElasticNode.h"
+#include "../meshtypes/TetrMesh_1stOrder.h"
+#include "Logger.h"
 
 class CollisionDetector
 {
@@ -29,7 +32,5 @@ protected:
 	vector<int> mesh1_tetrs;
 	vector<int> mesh2_tetrs;
 };
-
-#include "CollisionDetector.inl"
 
 #endif

@@ -1,20 +1,23 @@
 #ifndef _GCM_TETR_PLASTIC_INTERPOLATION_1ST_ORDER_ROTATE_AXIS_H
 #define _GCM_TETR_PLASTIC_INTERPOLATION_1ST_ORDER_ROTATE_AXIS_H  1
 
-#include "TetrNumericalMethod.h"
-#include "../datatypes/ElasticMatrix3D.h"
 #include <gsl/gsl_linalg.h>
-
+#include <vector>
 #include <sstream>
 #include <set>
 using std::stringstream;
-
 using std::string;
 using std::vector;
 using std::set;
 using std::ios;
 
+#include "TetrNumericalMethod.h"
 #include "../datatypes/Basis.h"
+#include "../datatypes/ElasticNode.h"
+#include "../datatypes/ElasticMatrix3D.h"
+#include "../system/quick_math.h"
+#include "../meshtypes/TetrMesh.h"
+#include "../system/TetrMeshSet.h"
 
 class GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis : public TetrNumericalMethod
 	// TODO may be we should inherit methods from GCM_Tetr_Plastic_Interpolation_1stOrder
@@ -68,7 +71,5 @@ protected:
 
 	quick_math qm_engine;
 };
-
-#include "GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis.inl"
 
 #endif

@@ -1,3 +1,5 @@
+#include "TetrMeshSet.h"
+
 TetrMeshSet::TetrMeshSet()
 {
 	logger = NULL;

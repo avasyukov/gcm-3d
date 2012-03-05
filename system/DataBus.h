@@ -23,6 +23,4 @@ protected:
 	string data_bus_type;
 };
 
-#include "DataBus.inl"
-
 #endif

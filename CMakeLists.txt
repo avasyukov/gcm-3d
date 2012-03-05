@@ -12,10 +12,39 @@ else ()
 	message (WARNING "Compiler untested!")
 endif ()
 
-add_executable (${PROJECT} main.cpp)
+set ( SOURCES
+	./datatypes/matrixes.cpp
+	./datatypes/Triangle.cpp
+	./datatypes/ElasticNode.cpp
+	./datatypes/Node.cpp
+	./datatypes/Tetrahedron.cpp
+	./datatypes/ElasticMatrix3D.cpp
+	./datatypes/Element.cpp
+	./datatypes/Tetrahedron_1st_order.cpp
+	./rheotypes/RheologyCalculator.cpp
+	./rheotypes/VoidRheologyCalculator.cpp
+	./meshtypes/TetrMesh_1stOrder.cpp
+	./meshtypes/Mesh.cpp
+	./meshtypes/TetrMesh.cpp
+	./methods/TetrNumericalMethod.cpp
+	./methods/TetrMethod_Plastic_1stOrder.cpp
+	./methods/NumericalMethod.cpp
+	./system/GCMStress.cpp
+	./system/TaskPreparator.cpp
+	./system/TetrMeshSet.cpp
+	./system/SnapshotWriter.cpp
+	./system/CylTest.cpp
+	./system/CollisionDetector.cpp
+	./system/Stresser.cpp
+	./system/quick_math.cpp
+	./system/Logger.cpp
+	./system/DataBus.cpp
+	./main.cpp )
+
+add_executable (${PROJECT} ${SOURCES})
 set_target_properties(${PROJECT} PROPERTIES COMPILE_FLAGS -O3)
 
-add_executable (${PROJECT}-profile EXCLUDE_FROM_ALL main.cpp)
+add_executable (${PROJECT}-profile EXCLUDE_FROM_ALL ${SOURCES})
 set_target_properties(${PROJECT}-profile PROPERTIES COMPILE_FLAGS -pg)
 
 find_package (VTK REQUIRED)

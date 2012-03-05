@@ -1,3 +1,5 @@
+#include "TetrMesh_1stOrder.h"
+
 TetrMesh_1stOrder::TetrMesh_1stOrder()
 {
 	mesh_type.assign("Tetrahedron mesh 1st order");

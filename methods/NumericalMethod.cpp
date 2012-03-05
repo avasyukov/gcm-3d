@@ -1,3 +1,5 @@
+#include "NumericalMethod.h"
+
 NumericalMethod::NumericalMethod()
 {
 	logger = NULL;
