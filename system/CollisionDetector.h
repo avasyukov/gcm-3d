@@ -7,6 +7,8 @@
 using std::vector;
 using std::string;
 
+class CollisionDetector;
+
 #include "../datatypes/MeshOutline.h"
 #include "../datatypes/ElasticNode.h"
 #include "../meshtypes/TetrMesh_1stOrder.h"

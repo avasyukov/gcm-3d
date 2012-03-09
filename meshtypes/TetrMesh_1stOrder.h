@@ -13,6 +13,7 @@ using std::ios;
 #include "../datatypes/Triangle.h"
 #include "../datatypes/Tetrahedron_1st_order.h"
 #include "../system/quick_math.h"
+#include "../system/DataBus.h"
 
 //#define DEBUG_MESH_GEOMETRY 1
 
@@ -21,6 +22,8 @@ class TetrMesh_1stOrder : public TetrMesh
 public:
 	TetrMesh_1stOrder();
 	~TetrMesh_1stOrder();
+
+	void attach_data_bus(DataBus* new_data_bus);
 
 	int load_msh_file(char* file_name);
         int load_node_ele_files(char* node_file_name, char* ele_file_name);
@@ -77,6 +80,8 @@ private:
 	int run_mesh_filter();
 
 	vector<ElasticNode> new_nodes;
+
+	DataBus* data_bus;
 
 	quick_math qm_engine;
 };

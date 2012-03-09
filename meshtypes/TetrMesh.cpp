@@ -39,12 +39,12 @@ void TetrMesh::attach(Stresser* new_stresser)
 {
 	Mesh::attach(new_stresser);
 };
-
+/*
 void TetrMesh::attach(DataBus* new_data_bus)
 {
 	Mesh::attach(new_data_bus);
 };
-
+*/
 void TetrMesh::translate(float x, float y, float z)
 {
 	for(int i = 0; i < nodes.size(); i++) {

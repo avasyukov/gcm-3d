@@ -13,7 +13,7 @@ using std::ifstream;
 #include "../datatypes/MeshOutline.h"
 #include "../rheotypes/RheologyCalculator.h"
 #include "../system/Logger.h"
-#include "../system/DataBus.h"
+//#include "../system/DataBus.h"
 #include "../system/Stresser.h"
 
 class Mesh
@@ -23,7 +23,7 @@ public:
 	~Mesh();
 	void attach(Logger* new_logger);
 	void attach(RheologyCalculator* new_rheology);
-	void attach(DataBus* new_data_bus); // TODO what should be attach to what?
+//	void attach(DataBus* new_data_bus); // TODO what should be attach to what?
 	void attach(Stresser* new_stresser);
 	string* get_mesh_type();
 	float get_current_time();
@@ -42,7 +42,7 @@ protected:
 	float current_time;
 	Logger* logger;
 	RheologyCalculator* rheology;
-	DataBus* data_bus; // TODO implement at least draft structure
+//	DataBus* data_bus; // TODO implement at least draft structure
 	Stresser* stresser;
 };
 

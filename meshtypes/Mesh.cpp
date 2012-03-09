@@ -4,7 +4,7 @@ Mesh::Mesh()
 {
 	logger = NULL;
 	rheology = NULL;
-	data_bus = NULL;
+//	data_bus = NULL;
 	stresser = NULL;
 	mesh_type.assign("Generic mesh");
 	current_time = 0;
@@ -20,12 +20,12 @@ void Mesh::attach(Logger* new_logger)
 
 	if(rheology != NULL)
 		rheology->attach(logger);
-	if(data_bus != NULL)
-		data_bus->attach(logger);
+//	if(data_bus != NULL)
+//		data_bus->attach(logger);
 	if(stresser != NULL)
 		stresser->attach(logger);
 };
-
+/*
 void Mesh::attach(DataBus* new_data_bus)
 {
 	data_bus = new_data_bus;
@@ -38,7 +38,7 @@ void Mesh::attach(DataBus* new_data_bus)
 		}
 	}
 };
-
+*/
 void Mesh::attach(Stresser* new_stresser)
 {
 	stresser = new_stresser;

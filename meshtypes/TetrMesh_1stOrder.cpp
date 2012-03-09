@@ -3,6 +3,7 @@
 TetrMesh_1stOrder::TetrMesh_1stOrder()
 {
 	mesh_type.assign("Tetrahedron mesh 1st order");
+	data_bus = NULL;
 };
 
 TetrMesh_1stOrder::~TetrMesh_1stOrder()
@@ -18,6 +19,19 @@ TetrMesh_1stOrder::~TetrMesh_1stOrder()
 	new_nodes.clear();
 	tetrs.clear();
 	border.clear();
+};
+
+void TetrMesh_1stOrder::attach_data_bus(DataBus* new_data_bus)
+{
+	data_bus = new_data_bus;
+	if(data_bus != NULL)
+	{
+		data_bus->attach(logger);
+		if(logger != NULL)
+		{
+			logger->write(string("Attached data bus. Type: ") + *(data_bus->get_data_bus_type()));
+		}
+	}
 };
 
 //TODO - ugly hack - think about if we need it and how to implement it
