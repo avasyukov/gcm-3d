@@ -140,7 +140,7 @@ float DataBus::get_max_possible_tau(float local_time_step)
 	return max_tau;
 }
 
-int DataBus::process_request(int source, int tag)
+void DataBus::process_request(int source, int tag, int &nodes_to_sync, int &procs_to_sync)
 {
 	MPINodeRequest req;
 	MPINodeResponse resp;
@@ -149,8 +149,7 @@ int DataBus::process_request(int source, int tag)
 	if (tag == TAG_SYNC_NODE_DONE)
 	{
 		MPI::COMM_WORLD.Recv(NULL, 0, MPI::BYTE, source, tag, status);
-		// return flag that one more process've synced
-		return 1;
+		procs_to_sync--;
 	}
 	else
 	{
@@ -179,13 +178,12 @@ int DataBus::process_request(int source, int tag)
 				// FIXME
 				if (node->local_num != resp.local_num)
 					throw GCMException(GCMException::SYNC_EXCEPTION, "get_node() returned node with invalid num.");
+				nodes_to_sync--;
 				memcpy(node->values, resp.values, 9*sizeof(float));
 				memcpy(node->coords, resp.coords, 3*sizeof(float));
 				break;
 		}
 	}
-
-	return 0;
 }
 
 int DataBus::sync_nodes()
@@ -193,7 +191,8 @@ int DataBus::sync_nodes()
 
 	logger->write("Starting nodes sync");
 	MPINodeRequest req;
-	int nodes_to_be_done = proc_total_num;
+	int procs_to_sync = proc_total_num;
+	int nodes_to_sync = 0;
 	MPI::Status status;
 	int i;
 
@@ -213,25 +212,29 @@ int DataBus::sync_nodes()
 				req.local_zone_num = mesh->nodes[j].local_zone_num;
 				req.remote_zone_num = mesh->nodes[j].remote_zone_num;
 				// send a message
+				nodes_to_sync++;
 				MPI::COMM_WORLD.Send(&req, 1, MPI_NODE_REQ, get_proc_for_zone(mesh->nodes[j].remote_zone_num), TAG_SYNC_NODE_REQ);
 				// process incoming requests
 				while (MPI::COMM_WORLD.Iprobe(MPI::ANY_SOURCE, MPI::ANY_TAG, status))
-					nodes_to_be_done -= process_request(status.Get_source(), status.Get_tag());
+					process_request(status.Get_source(), status.Get_tag(), nodes_to_sync, procs_to_sync);
 			}
 	}
 
 	// nodes synced, notify all processed
-	logger->write("Remote nodes synchronized, waiting for other nodes to end sync");
-	nodes_to_be_done--;
-	for (i = 0; i < proc_total_num; i++)
-		if (i != proc_num)
-			MPI::COMM_WORLD.Send(0, 0, MPI::BYTE, i, TAG_SYNC_NODE_DONE);
+	logger->write("All sync requests sent");
 
 	// wait other nodes to end sync
-	while (nodes_to_be_done > 0 )
+	while (procs_to_sync > 0 )
 	{
 		MPI::COMM_WORLD.Probe(MPI::ANY_SOURCE, MPI::ANY_TAG, status);
-		nodes_to_be_done -= process_request(status.Get_source(), status.Get_tag());
+		process_request(status.Get_source(), status.Get_tag(), nodes_to_sync, procs_to_sync);
+		if (nodes_to_sync == 0)
+		{
+			procs_to_sync--;
+			for (i = 0; i < proc_total_num; i++)
+				if (i != proc_num)
+					MPI::COMM_WORLD.Send(0, 0, MPI::BYTE, i, TAG_SYNC_NODE_DONE);
+		}
 	}
 
 	logger->write("Sync done");
