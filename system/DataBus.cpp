@@ -231,10 +231,15 @@ int DataBus::sync_nodes()
 		if (nodes_to_sync == 0)
 		{
 			procs_to_sync--;
+			nodes_to_sync = -1;
 			for (i = 0; i < proc_total_num; i++)
 				if (i != proc_num)
 					MPI::COMM_WORLD.Send(0, 0, MPI::BYTE, i, TAG_SYNC_NODE_DONE);
 		}
+		// FIXME
+		// DEBUG
+		else if (nodes_to_sync < -1)
+			throw GCMException(GCMException::SYNC_EXCEPTION, "nodes_to_sync < -1, something wrong with sync!!");
 	}
 
 	logger->write("Sync done");
