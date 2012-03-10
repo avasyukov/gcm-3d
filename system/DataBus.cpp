@@ -14,7 +14,10 @@ DataBus::DataBus(Logger* new_logger)
 	// TODO: add command line arguments processing if we really need it
 	MPI::Init();
 	// register error handler that throws exceptions
-	MPI::COMM_WORLD.Set_errhandler(MPI::ERRORS_THROW_EXCEPTIONS);
+	// FIXME
+	// fedora's MPI seems to be compiled without  --enable-cxx-exceptions,
+	// so we cannot use this error handler
+	// MPI::COMM_WORLD.Set_errhandler(MPI::ERRORS_THROW_EXCEPTIONS);
 	// MPI initialized, get processor number ant total number of processors
 	proc_num = MPI::COMM_WORLD.Get_rank();
 	proc_total_num = MPI::COMM_WORLD.Get_size();
