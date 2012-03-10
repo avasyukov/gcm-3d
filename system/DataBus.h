@@ -54,7 +54,7 @@ public:
 	// performs nodes sync
 	virtual int sync_nodes();
 	// gets first message from buffer and processes it
-	int process_request(int source, int tag);
+	void process_request(int source, int tag, int &nodes_to_sync, int &procs_to_sync);
 	// loads information about zones<->processors mapping from file
 	void load_zones_info(vector<int>* map);
 	// returns current processor number
