@@ -6,6 +6,7 @@
 #include "system/TaskPreparator.h"
 #include "system/TetrMeshSet.h"
 #include "system/DataBus.h"
+#include "system/GCMException.h"
 
 using std::cout;
 
@@ -79,65 +80,82 @@ int main(int argc, char **argv)
 	cout << "Res dir: " << res_dir << endl;
 
 	// Number of snapshots in task
-	int snap_num;
+	int snap_num = -1;
 	// Number of steps between snapshots
-	int step_per_snap;
+	int step_per_snap = -1;
 
-	// Create logger to be used by all other objects
-	Logger* logger = new Logger();
+	// Top level objects
+	Logger* logger = NULL;
+	TaskPreparator* task_prep = NULL;
+	TetrMeshSet* mesh_set = NULL;
+	DataBus *data_bus = NULL;
 
-	// Create task preparator
-	TaskPreparator* task_prep = new TaskPreparator(logger);
-
-	// Create mesh set
-	TetrMeshSet* mesh_set = new TetrMeshSet();
-	mesh_set->attach(logger);
-
-	// Create data bus
-	DataBus *data_bus = new DataBus(logger);
-
-	// Attach mesh set and data bus to each other
-	mesh_set->attach(data_bus);
-
-	// Load real task info
-	task_prep->load_task( task_file, zones_info_file, data_dir, &snap_num, &step_per_snap, mesh_set, data_bus );
-
-	// Initial nodes sync should be done before mesh preparation, because we need all nodes coordinates in place
-	data_bus->sync_nodes();
-
-	// Prepare all meshes - find borders and normals, init vectors for fast elements reverse lookups
-	mesh_set->pre_process_meshes();
-
-	// Report mesh info
-	mesh_set->log_meshes_types();
-	mesh_set->log_meshes_stats();
-
-	// Create snapshot writer
-	SnapshotWriter* sw = new SnapshotWriter(res_dir);
-
-	// Do calculation
-	float cur_time;
-	for(int i = 1; i <= snap_num; i++)
+	try
 	{
-		if( (cur_time = mesh_set->get_current_time()) < 0)
-			return -1;
-		cout << "Started step " << i << ". Time = " << cur_time << "." << endl;
+		// Create logger to be used by all other objects
+		logger = new Logger();
 
-		for(int j = 0; j < step_per_snap; j++)
-			if (mesh_set->do_next_step() < 0)
+		// Create task preparator
+		task_prep = new TaskPreparator(logger);
+
+		// Create mesh set
+		mesh_set = new TetrMeshSet();
+		mesh_set->attach(logger);
+
+		// Create data bus
+		data_bus = new DataBus(logger);
+
+		// Attach mesh set and data bus to each other
+		mesh_set->attach(data_bus);
+
+		// Load real task info
+		task_prep->load_task( task_file, zones_info_file, data_dir, &snap_num, &step_per_snap, mesh_set, data_bus );
+
+		// Initial nodes sync should be done before mesh preparation, because we need all nodes coordinates in place
+		data_bus->sync_nodes();
+
+		// Prepare all meshes - find borders and normals, init vectors for fast elements reverse lookups
+		mesh_set->pre_process_meshes();
+
+		// Report mesh info
+		mesh_set->log_meshes_types();
+		mesh_set->log_meshes_stats();
+
+		// Create snapshot writer
+		SnapshotWriter* sw = new SnapshotWriter(res_dir);
+
+		// Do calculation
+		float cur_time;
+		for(int i = 1; i <= snap_num; i++)
+		{
+			if( (cur_time = mesh_set->get_current_time()) < 0)
 				return -1;
+			cout << "Started step " << i << ". Time = " << cur_time << "." << endl;
+
+			for(int j = 0; j < step_per_snap; j++)
+				if (mesh_set->do_next_step() < 0)
+					return -1;
 		
-		if (sw->dump_vtk(mesh_set, i) < 0)
-			return -1;
+			if (sw->dump_vtk(mesh_set, i) < 0)
+				return -1;
 
-		if( (cur_time = mesh_set->get_current_time()) < 0)
-			return -1;
-		cout << "Finished step " << i << ". Time = " << cur_time << "." << endl;
+			if( (cur_time = mesh_set->get_current_time()) < 0)
+				return -1;
+			cout << "Finished step " << i << ". Time = " << cur_time << "." << endl;
+		}
+
+		// Delete data bus to finalize MPI
+		// TODO: delete all other objects?
+		delete data_bus;	
 	}
-
-	// Delete data bus to finalize MPI
-	// TODO: delete all other objects?
-	delete data_bus;
+	catch (GCMException& e)
+	{
+		cout << "ERROR: " << e.getMessage() << endl;
+		// Delete data bus to finalize MPI
+		// TODO: delete all other objects?
+		if(data_bus != NULL)
+			delete data_bus;
+	}
 
 	return 0;
 }
