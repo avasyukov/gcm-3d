@@ -1,9 +1,9 @@
 #include <stdio.h>
 
 // Number of zones to create
-#define Nnum 1
+#define Nnum 2
 // Number of layers in zone
-#define Mnum 101
+#define Mnum 10
 
 // Example:
 // If you set Nnum to 10 and Mnum to 2
@@ -24,7 +24,7 @@ int main()
 
 	for(int n = 0; n < N; n++)
 	{
-		sprintf(file_name, "tetr-element-%d.msh.final", n);
+		sprintf(file_name, "cube-zone-%d.zmsh", n);
 		file = fopen(file_name,"w");
 
 		int last_k_num = -1;

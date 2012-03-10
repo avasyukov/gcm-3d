@@ -5,6 +5,8 @@
 // Number of layers in zone
 #define Width 10
 
+#define ZonesPerEdge 2
+
 // Example:
 // If you set Size to 60 and Width to 10
 // you will get layer 60x60x10 total
@@ -46,6 +48,28 @@ int main()
 			}
 
 	fprintf(file, "$EndElements\n");
+
+	fprintf(file, "$NodeData\n1\n\"Mesh partitions indexes\"\n1\n0.0\n3\n0\n1\n%d\n", Size*Size*Width);
+
+	int nodes_per_zone_edge;
+	if(Size % ZonesPerEdge == 0)
+		nodes_per_zone_edge = (int)(Size / ZonesPerEdge);
+	else
+		nodes_per_zone_edge = (int)(Size / ZonesPerEdge) + 1;
+
+	int zone_num;
+
+	for(int k = 0; k < Width; k++)
+		for(int j = 0; j < Size; j++)
+			for(int i = 0; i < Size; i++)
+			{
+				cur_num = get_num_in_zone(i, j, k);
+				zone_num = (int)(i/nodes_per_zone_edge) + (int)(j/nodes_per_zone_edge) * ZonesPerEdge;
+				fprintf(file, "%d %d\n", cur_num, zone_num);
+			}
+	
+	fprintf(file, "$EndNodeData\n");
+
 	fclose(file);
 
 	return 0;
