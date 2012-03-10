@@ -17,7 +17,8 @@
 class Node
 {
 public:
-	int zone_num;
+	int local_zone_num;
+	int remote_zone_num;
 	int local_num;
 	int remote_num;
 	int absolute_num;
