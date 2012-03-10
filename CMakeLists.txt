@@ -30,6 +30,7 @@ set ( SOURCES
 	./methods/TetrMethod_Plastic_1stOrder.cpp
 	./methods/NumericalMethod.cpp
 	./system/GCMStress.cpp
+	./system/GCMException.cpp
 	./system/TaskPreparator.cpp
 	./system/TetrMeshSet.cpp
 	./system/SnapshotWriter.cpp
@@ -69,6 +70,13 @@ if(TINYXML_FOUND)
 	include_directories(${TINYXML_INCLUDE_DIR})
 	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${TINYXML_LIBRARIES})
 endif(TINYXML_FOUND)
+
+find_package (MPI REQUIRED)
+if(MPI_CXX_FOUND)
+	message(STATUS "MPI found")
+	include_directories(${MPI_INCLUDE_PATH})
+	set(LINK_LIBRARIES ${LINK_LIBRARIES} ${MPI_LIBRARIES})
+endif(MPI_CXX_FOUND)
 
 set(LINK_LIBRARIES ${LINK_LIBRARIES} m)
 

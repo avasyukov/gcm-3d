@@ -27,13 +27,12 @@ public:
 	void attach(Stresser* new_stresser);
 	string* get_mesh_type();
 	float get_current_time();
-	virtual int do_next_step() = 0;
+//	virtual int do_next_step() = 0;
 	virtual float get_max_possible_tau() = 0;
 	virtual int log_mesh_stats() = 0;
 	virtual void translate(float x, float y, float z) = 0;
 
 	int zone_num; // TODO do we really use it?
-//	int mesh_num; // TODO do we really use it?
 
 	MeshOutline outline;
 

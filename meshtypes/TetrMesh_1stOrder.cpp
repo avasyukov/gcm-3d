@@ -1667,10 +1667,14 @@ int TetrMesh_1stOrder::run_mesh_filter()
 	return 0;
 };
 
-int TetrMesh_1stOrder::do_next_step()
-{
-	return do_next_step( get_max_possible_tau() );
-};
+//int TetrMesh_1stOrder::do_next_step()
+//{
+//	float tau = data_bus->get_max_possible_tau();
+//	return do_next_step(tau);
+//};
+// I think, we cannot use this method anymore in parallel version, because max 
+// possible tau have to be synchronized. Since sync is done in MeshSet, we
+// should use only themethod below.
 
 int TetrMesh_1stOrder::do_next_step(float time_step)
 {
@@ -1696,8 +1700,10 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 		return -1;
 	}
 
-	if(data_bus != NULL)
-		time_step = data_bus->get_max_possible_tau(time_step);
+//	if(data_bus != NULL)
+//		time_step = data_bus->get_max_possible_tau(time_step);
+//	Time step synchroniztion is done outside of this function, so we just use 
+//	passed value.
 
 	if( (number_of_stages = method->get_number_of_stages()) <= 0 )
 	{

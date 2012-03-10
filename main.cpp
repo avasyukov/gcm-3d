@@ -21,15 +21,17 @@ int main(int argc, char **argv)
 	int c;
 	static struct option long_options[] =
 	{
-		{"task",	required_argument,	0, 't'},
-		{"data-dir",	required_argument,	0, 'd'},
-		{"result-dir",	required_argument,      0, 'r'},
-		{"help",	no_argument,		0, 'h'},
-		{0, 0, 0, 0}
+		{"task"      , required_argument, 0, 't'},
+		{"zones"     , required_argument, 0, 'z'},
+		{"data-dir"  , required_argument, 0, 'd'},
+		{"result-dir", required_argument, 0, 'r'},
+		{"help"      , no_argument      , 0, 'h'},
+		{0           , 0                , 0, 0  }
 	};
 	int option_index = 0;
 
 	string task_file = "./task.xml";
+	string zones_info_file = "./zones.xml";
 	string data_dir = "./";
 	string res_dir = "./";
 
@@ -41,6 +43,9 @@ int main(int argc, char **argv)
 		{
 			case 't':
 				task_file = optarg;
+				break;
+			case 'z':
+				zones_info_file = optarg;
 				break;
 			case 'd':
 				data_dir = optarg;
@@ -70,9 +75,16 @@ int main(int argc, char **argv)
 	// Prepare task
 	TaskPreparator* tp = new TaskPreparator();
 
+	// create data bus
+	// TODO: if we need to be able to pass argc/argv to MPI DataBus must be
+	// created before any invocation of getopt_long.
+	DataBus *db = new DataBus();
+	db->load_zones_info(zones_info_file);
+
 	TetrMeshSet* mesh_set = new TetrMeshSet();
+	mesh_set->attach(db);
 	tp->load_task( task_file, data_dir, mesh_set );
-	
+
 	mesh_set->log_meshes_types();
 	mesh_set->log_meshes_stats();
 
@@ -100,6 +112,10 @@ int main(int argc, char **argv)
 			return -1;
 		cout << "Finished step " << i << ". Time = " << cur_time << "." << endl;
 	}
+
+	// Delete data bus to finalize MPI
+	// TODO: delete all other objects?
+	delete db;
 
 	return 0;
 }
