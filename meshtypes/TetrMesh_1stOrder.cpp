@@ -252,7 +252,8 @@ int TetrMesh_1stOrder::check_triangle_to_be_border(int vert1, int vert2, int ver
 	int v2 = vert2;
 	int v3 = vert3;
 
-	if( (nodes[v1].border_type != BORDER) || (nodes[v2].border_type != BORDER) || (nodes[v3].border_type != BORDER) )
+	if( (nodes[v1].border_type != BORDER) || (nodes[v2].border_type != BORDER) || (nodes[v3].border_type != BORDER)
+		|| (nodes[v1].placement_type != LOCAL ) || (nodes[v2].placement_type != LOCAL ) || (nodes[v3].placement_type != LOCAL ) )
 		return -1;
 
 	Triangle new_triangle;
@@ -422,7 +423,8 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 	for(int i = 0; i < number_of_nodes; i++)
 	{
 		// Zero all values
-		new_node.local_num = new_node.remote_num = new_node.absolute_num = new_node.zone_num = 0;
+		new_node.local_num = new_node.remote_num = new_node.absolute_num = -1;
+		new_node.local_zone_num = new_node.remote_zone_num = -1;
 		new_node.coords[0] = new_node.coords[1] = new_node.coords[2] = 0;
 		new_node.fixed_coords[0] = new_node.fixed_coords[1] = new_node.fixed_coords[2] = 0;
 		new_node.la = new_node.mu = new_node.rho = 0;
@@ -430,6 +432,10 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 		new_node.values[3] = new_node.values[4] = new_node.values[5] = 0;
 		new_node.values[6] = new_node.values[7] = new_node.values[8] = 0;
 		new_node.elements = NULL;
+		new_node.contact_data = NULL;
+		new_node.local_basis = NULL;
+		new_node.border_type = INNER;
+		new_node.contact_type = FREE;
 
 		node_infile >> new_node.local_num;
 		if(new_node.local_num > 0)
@@ -527,7 +533,8 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 	for(int i = 0; i < number_of_nodes; i++)
 	{
 		// Zero all values
-		new_node.local_num = new_node.remote_num = new_node.absolute_num = new_node.zone_num = 0;
+		new_node.local_num = new_node.remote_num = new_node.absolute_num = -1;
+		new_node.local_zone_num = new_node.remote_zone_num = -1;
 		new_node.coords[0] = new_node.coords[1] = new_node.coords[2] = 0;
 		new_node.fixed_coords[0] = new_node.fixed_coords[1] = new_node.fixed_coords[2] = 0;
 		new_node.la = new_node.mu = new_node.rho = 0;
@@ -535,6 +542,10 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 		new_node.values[3] = new_node.values[4] = new_node.values[5] = 0;
 		new_node.values[6] = new_node.values[7] = new_node.values[8] = 0;
 		new_node.elements = NULL;
+		new_node.contact_data = NULL;
+		new_node.local_basis = NULL;
+		new_node.border_type = INNER;
+		new_node.contact_type = FREE;
 
 		new_node.local_num = count - 1;
 		infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
@@ -636,7 +647,8 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 	for(int i = 0; i < number_of_nodes; i++)
 	{
 		// Zero all values
-		new_node.local_num = new_node.remote_num = new_node.absolute_num = new_node.zone_num = 0;
+		new_node.local_num = new_node.remote_num = new_node.absolute_num = -1;
+		new_node.local_zone_num = new_node.remote_zone_num = -1;
 		new_node.coords[0] = new_node.coords[1] = new_node.coords[2] = 0;
 		new_node.fixed_coords[0] = new_node.fixed_coords[1] = new_node.fixed_coords[2] = 0;
 		new_node.la = new_node.mu = new_node.rho = 0;
@@ -644,26 +656,28 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 		new_node.values[3] = new_node.values[4] = new_node.values[5] = 0;
 		new_node.values[6] = new_node.values[7] = new_node.values[8] = 0;
 		new_node.elements = NULL;
+		new_node.contact_data = NULL;
+		new_node.local_basis = NULL;
+		new_node.border_type = INNER;
+		new_node.contact_type = FREE;
 
 		infile >> new_node.local_num;
 		if(new_node.local_num > 0)
 		{
 			new_node.local_num--;
+			new_node.local_zone_num = zone_num;
 			infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
 			new_node.placement_type = LOCAL;
-			new_node.border_type = INNER;
-			new_node.contact_type = FREE;
-			new_node.contact_data = NULL;
-			new_node.local_basis = NULL;
 			// TODO set other values
 		}
 		else if(new_node.local_num < 0)
 		{
 			new_node.local_num = -new_node.local_num;
 			new_node.local_num--;
-			infile >> new_node.zone_num >> new_node.remote_num;
-			new_node.placement_type = REMOTE;
+			new_node.local_zone_num = zone_num;
+			infile >> new_node.remote_zone_num >> new_node.remote_num;
 			new_node.remote_num--;
+			new_node.placement_type = REMOTE;
 			// TODO set other values
 		}
 		else
