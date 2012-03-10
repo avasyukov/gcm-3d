@@ -13,7 +13,8 @@ using std::vector;
 #include "../rheotypes/VoidRheologyCalculator.h"
 #include "Logger.h"
 #include "SnapshotWriter.h"
-#include "CollisionDetector.h"
+#include "VoidCollisionDetector.h"
+#include "BruteforceCollisionDetector.h"
 #include "TetrMeshSet.h"
 #include "GCMStress.h"
 

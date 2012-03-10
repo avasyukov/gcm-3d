@@ -45,22 +45,40 @@ int TaskPreparator::load_task( string filename, string data_dir, TetrMeshSet* me
 {	
 	mesh_set->attach( logger );
 	
-	CollisionDetector* cd = new CollisionDetector();
-	cd->set_treshold( 0.1 );
-	mesh_set->attach( cd );
-	
 	Stresser* stresser = new GCMStresser();
 	stresser->loadTask(filename);
 	mesh_set->attach(stresser);
 	
 	VoidRheologyCalculator* rc = new VoidRheologyCalculator();
 	mesh_set->attach(rc);
-	
+
+	CollisionDetector* cd;
+
 	TiXmlDocument document( filename.c_str() );
 	bool loadOk = document.LoadFile();
 	if( loadOk ) {
 		TiXmlElement* eroot = document.FirstChildElement( "task" );
 		if( eroot ) {
+
+			TiXmlElement* esystem = eroot->FirstChildElement( "system" );
+			if( esystem ) {
+				TiXmlElement* ecd = esystem->FirstChildElement( "collision_detector" );
+				if( ecd ) {
+					string ecd_type = ecd->Attribute( "type" );
+					if( ecd_type == "VoidCollisionDetector" ) {
+						cd = new VoidCollisionDetector();
+					} else {
+						cd = new BruteforceCollisionDetector();
+					}
+				} else {
+					cd = new BruteforceCollisionDetector();
+				}
+			} else {
+				cd = new BruteforceCollisionDetector();
+			}
+			cd->set_treshold( 0.1 );
+			mesh_set->attach( cd );
+
 			TiXmlElement* emesh = eroot->FirstChildElement( "mesh" );
 			while( true )
 			{	
@@ -96,8 +114,46 @@ int TaskPreparator::load_task( string filename, string data_dir, TetrMeshSet* me
 						mesh_set->attach( new_mesh );
 					}
 					else {
-						if(logger != NULL)
-							logger->write("WARN: TaskPreparator - mesh path in task is void");
+						TiXmlElement* zones = emesh->FirstChildElement( "zones" );
+						if( zones )
+						{
+							TiXmlElement* zone = zones->FirstChildElement( "zone" );
+							while( true )
+							{
+								if( zone ) {
+									string meshpath = zone->Attribute( "file" );
+									int zone_num = atoi( zone->Attribute( "num" ) );
+									if( meshpath == "" ) {
+										if(logger != NULL)
+											logger->write("WARN: TaskPreparator - no mesh file provided for zone!");
+										break;
+									}
+									if(meshpath[0] != '/')
+										meshpath = data_dir + meshpath;
+									TetrMesh_1stOrder* new_mesh = new TetrMesh_1stOrder();
+									new_mesh->zone_num = zone_num;
+									new_mesh->attach(logger);
+									if ( new_mesh->load_msh_file( const_cast<char*>( meshpath.c_str() ) ) < 0 ) {
+										if(logger != NULL)
+											logger->write("ERROR: TaskPreparator - can not open mesh file!");
+										return 1;
+									}
+									GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis* new_nm 
+									= new GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis();
+									new_mesh->attach( new_nm );
+									mesh_set->attach( new_mesh );
+
+								} else {
+									break;
+								}
+								zone = zone->NextSiblingElement( "zone" );
+							}
+						}
+						else 
+						{
+							if(logger != NULL)
+								logger->write("WARN: TaskPreparator - no mesh file provided!");
+						}
 					}
 				}
 				else {
