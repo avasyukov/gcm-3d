@@ -3,6 +3,7 @@
 
 #include "matrixes.h"
 #include "../system/Logger.h"
+#include "../system/GCMException.h"
 
 class ElasticMatrix3D
 {

@@ -244,11 +244,11 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 	if((outer_count != 0) && (outer_count != 3)) {
 		if(logger != NULL) {
 			stringstream ss;
-			ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - prepare node failed - there are " << outer_count << " 'outer' characteristics." << endl;
+			ss << "There are " << outer_count << " 'outer' characteristics." << endl;
 			logger->write(ss.str());
 		}
 		log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
-		return -1;
+		throw GCMException(GCMException::METHOD_EXCEPTION, "Illegal number of outer characteristics");
 	}
 
 	// If all the omegas are 'inner'
@@ -262,7 +262,6 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		// if( cur_node->border_type == BORDER )	// node is marked as border
 		// {
 		// 	if(logger != NULL)
-		// 		logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad inner node!"));
 		// 	log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
 		// 	return -1;
 		// }
@@ -299,26 +298,20 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 		// Node is not border at all
 		if ( cur_node->border_type != BORDER )
 		{
-			if(logger != NULL)
-				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad border node - not marked as border at all!"));
 			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
-			return -1;
+			throw GCMException(GCMException::METHOD_EXCEPTION, "Border node is not marked as border");
 		}
 		// Node should be border but it has no contact_data struct
 		else if( cur_node->contact_data == NULL )
 		{
-			if(logger != NULL)
-				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad border node - no contact data struct!"));
 			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
-			return -1;
+			throw GCMException(GCMException::METHOD_EXCEPTION, "Border node has no contact data struct");
 		}
 		// Both directions are marked as contact
 		else if ( ( cur_node->contact_data->axis_plus[stage] != -1 ) && ( cur_node->contact_data->axis_minus[stage] != -1 ) )
 		{
-			if(logger != NULL)
-				logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad border node - both directions are marked as having contact!"));
 			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
-			return -1;
+			throw GCMException(GCMException::METHOD_EXCEPTION, "Both direction of contact are marked as contact");
 		}
 
 		// If both directions show no contact - use border algorithm, otherwise use contact algorithm
@@ -369,8 +362,6 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 					}
 					else 
 					{
-						if(logger != NULL)
-							logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - wrong stage number!"));
 						return -1;
 					}
 				}
@@ -435,9 +426,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 					}
 					else 
 					{
-						if(logger != NULL)
-							logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - wrong stage number!"));
-						return -1;
+						throw GCMException(GCMException::METHOD_EXCEPTION, "Wrong stage number");
 					}
 				}
 			}
@@ -499,12 +488,15 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 			if( virt_outer_count != 3 ) {
 				if(logger != NULL) {
 					stringstream ss;
-					ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - prepare virt node failed - there are " << virt_outer_count << " 'outer' characteristics." << endl;
-					ss << "REAL NODE " << cur_node->local_num << ": x: " << cur_node->coords[0] << " y: " << cur_node->coords[1] << " z: " << cur_node->coords[2] << endl;
+					ss << "There are " << virt_outer_count << " 'outer' characteristics." << endl;
+					ss << "REAL NODE " << cur_node->local_num << ": " 
+								<< "x: " << cur_node->coords[0] 
+								<< " y: " << cur_node->coords[1] 
+								<< " z: " << cur_node->coords[2] << endl;
 					logger->write(ss.str());
 				}
 				log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node->mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi, value_limiters);
-				return -1;
+				throw GCMException(GCMException::METHOD_EXCEPTION, "Illegal number of outer characteristics");
 			}
 
 			// Check that 'paired node' is in the direction of 'outer' characteristics
@@ -531,12 +523,14 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 						if(logger != NULL)
 						{
 							stringstream ss;
-							ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad contact from real node point of view - 'outer' and 'virt' directions are different!" << endl;
-							ss << "REAL NODE " << cur_node->local_num << ": x: " << cur_node->coords[0] << " y: " << cur_node->coords[1] << " z: " << cur_node->coords[2] << endl;
+							ss << "REAL NODE " << cur_node->local_num << ": " 
+									<< "x: " << cur_node->coords[0] 
+									<< " y: " << cur_node->coords[1] 
+									<< " z: " << cur_node->coords[2] << endl;
 							logger->write(ss.str());
 						}
 						log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
-						return -1;
+						throw GCMException( GCMException::METHOD_EXCEPTION, "Bad contact from real node point of view: 'outer' and 'virt' directions are different");
 					}
 				}
 				// Virt node - if characteristic is 'outer'
@@ -554,12 +548,14 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 						if(logger != NULL)
 						{
 							stringstream ss;
-							ss << "ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - bad contact from virt node point of view - 'outer' and 'virt' directions are different!" << endl;
-							ss << "REAL NODE " << cur_node->local_num << ": x: " << cur_node->coords[0] << " y: " << cur_node->coords[1] << " z: " << cur_node->coords[2] << endl;
+							ss << "REAL NODE " << cur_node->local_num << ": " 
+									<< "x: " << cur_node->coords[0] 
+									<< " y: " << cur_node->coords[1] 
+									<< " z: " << cur_node->coords[2] << endl;
 							logger->write(ss.str());
 						}
 						log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node->mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi, value_limiters);
-						return -1;
+						throw GCMException( GCMException::METHOD_EXCEPTION, "Bad contact from virt node point of view: 'outer' and 'virt' directions are different");
 					}
 				}
 			}
@@ -723,17 +719,11 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_
 int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, TetrMesh* mesh, float alpha, float dksi[], bool inner[], ElasticNode previous_nodes[], float outer_normal[], int ppoint_num[], int basis_num, float value_limiters[], bool debug)
 {
 
-	if( (alpha > 1.01) || (alpha < 0) ) {
-		if(logger != NULL)
-			logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer - bad alpha!"));
-		return -1;
-	}
+	if( (alpha > 1.01) || (alpha < 0) )
+		throw GCMException( GCMException::METHOD_EXCEPTION, "Bad alpha");
 
-	if (stage >= 3) {
-		if(logger != NULL)
-			logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer - bad stage number!"));
-		return -1;
-	}
+	if (stage >= 3)
+		throw GCMException( GCMException::METHOD_EXCEPTION, "Bad stage number");
 
 	// Just tmp tetr pointer
 	Tetrahedron* tmp_tetr;
@@ -813,9 +803,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_
 					}
 					else
 					{
-						if(logger != NULL)
-							logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer - bad contact data!"));
-						return -1;
+						throw GCMException( GCMException::METHOD_EXCEPTION, "Bad contact data");
 					}
 				// Otherwise (internal node or border node without contact) - 
 				//  alter both directions and wait for one of them to give internal node
@@ -843,12 +831,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_
 			if( tmp_tetr != NULL )
 			{
 				// ... And interpolate values
-				if(mesh->interpolate(&previous_nodes[count], tmp_tetr) < 0)
-				{
-					if(logger != NULL)
-						logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::find_nodes_on_previous_time_layer - interpolation failed!"));
-					return -1;
-				}
+				mesh->interpolate(&previous_nodes[count], tmp_tetr);
 				inner[i] = true;
 				// ... And update value limiters
 				for(int j = 0; j < 4; j++)
@@ -879,13 +862,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::get_number_of_stages()
 
 float GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::get_max_lambda(ElasticNode* node, TetrMesh* mesh)
 {
-
-	if(create_random_axis(node, mesh) < 0)
-	{
-		if(logger != NULL)
-			logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::get_max_lambda - failed axis randomization!"));
-		return -1;
-	}
+	create_random_axis(node, mesh);
 
 	// We just return sqrt((la+2*mu)/rho) because axis are randomized by rotation, so x^2+y^2+z^2 == 1
 	// TODO - explicit check?
@@ -930,9 +907,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_random_axis(Elas
 		create_rotation_matrix_with_normal(cur_node->local_num, outer_normal[0], outer_normal[1], outer_normal[2], teta);
 
 	} else {
-		if(logger != NULL)
-			logger->write(string("ERROR: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::create_random_axis - unknown border type!"));
-		return -1;
+		throw GCMException( GCMException::METHOD_EXCEPTION, "Unknown border type");
 	}
 
 	// FIXME

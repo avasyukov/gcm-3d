@@ -19,5 +19,8 @@ public:
 	static const int MPI_EXCEPTION  = 0;
 	static const int SYNC_EXCEPTION = 1;
 	static const int CONFIG_EXCEPTION = 2;
+	static const int METHOD_EXCEPTION = 3;
+	static const int MESH_EXCEPTION = 4;
+	static const int SNAP_EXCEPTION = 5;
 };
 #endif

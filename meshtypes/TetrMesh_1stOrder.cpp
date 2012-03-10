@@ -66,27 +66,18 @@ int TetrMesh_1stOrder::pre_process_mesh()
 	// We need it in future to perform quick access to nodes in array
 	for(int i = 0; i < nodes.size(); i++)
 	{
-		if(nodes[i].local_num != i) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Invalid nodes numbering!"));
-			return -1;
-		}
+		if(nodes[i].local_num != i)
+			throw GCMException( GCMException::MESH_EXCEPTION, "Invalid node numbering");
 	}
 	for(int i = 0; i < tetrs.size(); i++)
 	{
-		if(tetrs[i].local_num != i) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Invalid tetrahedron numbering!"));
-			return -1;
-		}
+		if(tetrs[i].local_num != i)
+			throw GCMException( GCMException::MESH_EXCEPTION, "Invalid tetrahedron numbering");
 	}
 	for(int i = 0; i < border.size(); i++)
 	{
-		if(border[i].local_num != i) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Invalid triangle numbering!"));
-			return -1;
-		}
+		if(border[i].local_num != i)
+			throw GCMException( GCMException::MESH_EXCEPTION, "Invalid triangle numbering");
 	}
 
 	logger->write(string("Building volume reverse lookups"));
@@ -209,14 +200,11 @@ int TetrMesh_1stOrder::pre_process_mesh()
 
 			// Check if we are inside of the body moving towards normal
 			if( find_owner_tetr(&nodes[i], -dx[0], -dx[1], -dx[2]) == NULL ) {
-				// Smth bad happens - report error
-				if(logger != NULL) {
-					logger->write(string("ERROR: TetrMesh_1stOrder::pre_process_mesh - Can not find outer normal for node!"));
-					cout << nodes[i].coords[0] << " " << nodes[i].coords[1] << " " << nodes[i].coords[2] << "\n";
-					cout << normal[0] << " " << normal[1] << " " << normal[1] << "\n";
-					cout << dx[0] << " " << dx[1] << " " << dx[2] << "\n";
-				}
-				return -1;
+				// Smth bad happens
+				cout << nodes[i].coords[0] << " " << nodes[i].coords[1] << " " << nodes[i].coords[2] << "\n";
+				cout << normal[0] << " " << normal[1] << " " << normal[1] << "\n";
+				cout << dx[0] << " " << dx[1] << " " << dx[2] << "\n";
+				throw GCMException( GCMException::MESH_EXCEPTION, "Can not find outer normal");
 			} else {
 				// Outside body - normal is outer - do nothing
 			}
@@ -402,18 +390,12 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 	ifstream ele_infile;
 
 	node_infile.open(node_file_name, ifstream::in);
-	if(!node_infile.is_open()) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - can not open node file"));
-		return -1;
-	}
+	if(!node_infile.is_open())
+		throw GCMException( GCMException::MESH_EXCEPTION, "Can not open node file");
 
 	ele_infile.open(ele_file_name, ifstream::in);
-	if(!ele_infile.is_open()) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - can not open ele file"));
-		return -1;
-	}
+	if(!ele_infile.is_open())
+		throw GCMException( GCMException::MESH_EXCEPTION, "Can not open ele file");
 
 	if(logger != NULL)
 		logger->write(string("INFO: TetrMesh_1stOrder::load_node_ele_files - Reading file..."));
@@ -451,9 +433,7 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 		}
 		else
 		{
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - wrong file format. Node number can not be <= 0."));
-			return -1;
+			throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 		}
 		new_node.mesh = this;
 		nodes.push_back(new_node);
@@ -466,11 +446,8 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 	{
 		ele_infile >> new_tetr.local_num >> new_tetr.vert[0] >> new_tetr.vert[1] >> new_tetr.vert[2] >> new_tetr.vert[3];
 
-		if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) ) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - wrong file format. Vert number must be positive."));
-			return -1;
-		}
+		if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) )
+			throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 
 		new_tetr.vert[0]--; new_tetr.vert[1]--; new_tetr.vert[2]--; new_tetr.vert[3]--;
 		new_tetr.local_num--;
@@ -483,13 +460,6 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 
 	node_infile.close();
 	ele_infile.close();
-
-//	if( pre_process_mesh() < 0 )
-//	{
-//		if(logger != NULL)
-//			logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - pre_process_mesh() failed."));
-//		return -1;
-//	}
 
 	return 0;
 };
@@ -509,21 +479,15 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 	ifstream infile;
 
 	infile.open(file_name, ifstream::in);
-	if(!infile.is_open()) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - can not open node file"));
-		return -1;
-	}
+	if(!infile.is_open())
+		throw GCMException( GCMException::MESH_EXCEPTION, "Can not open gmv file");
 
 	if(logger != NULL)
 		logger->write(string("INFO: TetrMesh_1stOrder::load_gmv_file - Reading file..."));
 
 	getline(infile, str);
-	if(strcmp(str.c_str(),"gmvinput ascii") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - wrong file format. 'gmvinput ascii' expected."));
-		return -1;
-	}
+	if(strcmp(str.c_str(),"gmvinput ascii") != 0)
+		throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 
 	getline(infile, str);
 
@@ -568,11 +532,8 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 
 		infile >> str >> tmp_int >> new_tetr.vert[0] >> new_tetr.vert[1] >> new_tetr.vert[2] >> new_tetr.vert[3];
 
-		if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) ) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - wrong file format. Vert number must be positive."));
-			return -1;
-		}
+		if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) )
+			throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 
 		new_tetr.vert[0]--; new_tetr.vert[1]--; new_tetr.vert[2]--; new_tetr.vert[3]--;
 		new_tetr.local_num--;
@@ -586,13 +547,6 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 		logger->write(string("INFO: TetrMesh_1stOrder::load_gmv_file - File read."));
 
 	infile.close();
-
-//	if( pre_process_mesh() < 0 )
-//	{
-//		if(logger != NULL)
-//			logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - pre_process_mesh() failed."));
-//		return -1;
-//	}
 
 	return 0;
 };
@@ -610,37 +564,25 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 
 	ifstream infile;
 	infile.open(file_name, ifstream::in);
-	if(!infile.is_open()) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - can not open file"));
-		return -1;
-	}
+	if(!infile.is_open())
+		throw GCMException( GCMException::MESH_EXCEPTION, "Can not open msh file");
 
 	if(logger != NULL)
 		logger->write(string("INFO: TetrMesh_1stOrder::load_msh_file - Reading file..."));
 
 	infile >> str;
-	if(strcmp(str.c_str(),"$MeshFormat") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$MeshFormat' expected."));
-		return -1;
-	}
+	if(strcmp(str.c_str(),"$MeshFormat") != 0)
+		throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 
 	infile >> tmp_int >> tmp_int >> tmp_int;
 
 	infile >> str;
-	if(strcmp(str.c_str(),"$EndMeshFormat") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$EndMeshFormat' expected."));
-		return -1;
-	}
+	if(strcmp(str.c_str(),"$EndMeshFormat") != 0)
+		throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 
 	infile >> str;
-	if(strcmp(str.c_str(),"$Nodes") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$Nodes' expected."));
-		return -1;
-	}
+	if(strcmp(str.c_str(),"$Nodes") != 0)
+		throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 
 	infile >> number_of_nodes;
 
@@ -682,9 +624,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 		}
 		else
 		{
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. Node number can not be 0."));
-			return -1;
+			throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 		}
 		new_node.mesh = this;
 		nodes.push_back(new_node);
@@ -692,18 +632,12 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 	}
 
 	infile >> str;
-	if(strcmp(str.c_str(),"$EndNodes") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$EndNodes' expected."));
-		return -1;
-	}
+	if(strcmp(str.c_str(),"$EndNodes") != 0)
+		throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 
 	infile >> str;
-	if(strcmp(str.c_str(),"$Elements") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$Elements' expected."));
-		return -1;
-	}
+	if(strcmp(str.c_str(),"$Elements") != 0)
+		throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 
 	infile >> number_of_elements;
 	for(int i = 0; i < number_of_elements; i++)
@@ -717,11 +651,8 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 			infile >> tmp_int >> tmp_int >> tmp_int >> tmp_int 
 				>> new_tetr.vert[0] >> new_tetr.vert[1] >> new_tetr.vert[2] >> new_tetr.vert[3];
 
-			if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) ) {
-				if(logger != NULL)
-					logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. Vert number must be positive."));
-				return -1;
-			}
+			if( (new_tetr.vert[0] <= 0) || (new_tetr.vert[1] <= 0) || (new_tetr.vert[2] <= 0) || (new_tetr.vert[3] <= 0) )
+				throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 
 			new_tetr.vert[0]--; new_tetr.vert[1]--; new_tetr.vert[2]--; new_tetr.vert[3]--;
 
@@ -730,23 +661,13 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 	}
 
 	infile >> str;
-	if(strcmp(str.c_str(),"$EndElements") != 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - wrong file format. '$EndElements' expected."));
-		return -1;
-	}
+	if(strcmp(str.c_str(),"$EndElements") != 0)
+		throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 
 	if(logger != NULL)
 		logger->write(string("INFO: TetrMesh_1stOrder::load_msh_file - File read."));
 
 	infile.close();
-
-//	if( pre_process_mesh() < 0 )
-//	{
-//		if(logger != NULL)
-//			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - pre_process_mesh() failed."));
-//		return -1;
-//	}
 
 	return 0;
 };
@@ -810,20 +731,12 @@ float TetrMesh_1stOrder::tetr_h(int i)
 		);
 
 		// Check if all nodes are already loaded from other CPUs and tetrahadron is correct
-		if(vol == 0) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::tetr_h - Volume is zero!"));
-			return -1;
-		}
+		if(vol == 0)
+			throw GCMException( GCMException::MESH_EXCEPTION, "Tetr volume is zero");
 
 		for(int j = 0; j < 4; j++)
-		{
-			if(area[j] == 0) {
-				if(logger != NULL)
-					logger->write(string("ERROR: TetrMesh_1stOrder::tetr_h - Face area is zero!"));
-				return -1;
-			}
-		}
+			if(area[j] == 0)
+				throw GCMException( GCMException::MESH_EXCEPTION, "Tri area is zero");
 
 		min_h = fabs(3*vol/area[0]);
 
@@ -857,9 +770,9 @@ float TetrMesh_1stOrder::get_min_h()
 		h = tetr_h(i);
 		if(min_h < 0)
 			min_h = h;
-		// If it is negative - return error
+		// If it is negative - smth bad happens
 		if(h < 0)
-			return -1;
+			throw GCMException( GCMException::MESH_EXCEPTION, "Min h is negative");
 
 		// Otherwise - just find minimum
 		if(h < min_h) { min_h = h; }
@@ -884,9 +797,9 @@ float TetrMesh_1stOrder::get_max_h()
 
 		// Get current h
 		h = tetr_h(i);
-		// If it is negative - return error
+		// If it is negative - smth bad happens
 		if(h < 0)
-			return -1;
+			throw GCMException( GCMException::MESH_EXCEPTION, "Max h is negative");
 
 		// Otherwise - just find minimum
 		if(h > max_h) { max_h = h; }
@@ -923,9 +836,9 @@ int TetrMesh_1stOrder::log_mesh_stats()
 
 		// Get current h
 		h = tetr_h(i);
-		// If it is negative - return error
+		// If it is negative - smth bad happens
 		if(h < 0)
-			return -1;
+			throw GCMException( GCMException::MESH_EXCEPTION, "Tetr h is negative");
 
 		avg_h += h/tetrs.size();
 
@@ -1446,12 +1359,10 @@ int TetrMesh_1stOrder::interpolate(ElasticNode* node, Tetrahedron* tetr)
 			for(int i = 0; i < 4; i++)
 				factor[i] = factor[i] * 0.995 / sum;
 		}
-		// If point is not in tetr - throw error
+		// If point is not in tetr - throw exception
 		else
 		{
-			if(logger != NULL) {
-				logger->write(string("ERROR: TetrMesh_1stOrder::interpolate - Sum of factors is greater than 1.0!"));
-	
+			if(logger != NULL) {	
 				stringstream ss;
 				ss.setf(ios::fixed,ios::floatfield);
 				ss.precision(10);
@@ -1484,7 +1395,7 @@ int TetrMesh_1stOrder::interpolate(ElasticNode* node, Tetrahedron* tetr)
                         	        << " v3.x[2]=" << nodes[tetr->vert[3]].coords[2];
 	                        logger->write(ss.str());
 			}
-			return -1;
+			throw GCMException( GCMException::MESH_EXCEPTION, "Sum of factors is greater than 1.0");
 		}
 	}
 
@@ -1523,9 +1434,7 @@ float TetrMesh_1stOrder::get_max_possible_tau()
 		{
 			l = method->get_max_lambda(&nodes[i], this);
 			if(l < 0) {
-				if(logger != NULL)
-					logger->write(string("ERROR: TetrMesh_1stOrder::get_max_possible_tau - got error from method on method->get_max_lambda"));
-				return -1;
+				throw GCMException( GCMException::MESH_EXCEPTION, "Got negative lambda");
 			}
 			if(l > max_l) { max_l = l; }
 		}
@@ -1539,11 +1448,8 @@ int TetrMesh_1stOrder::do_next_part_step(float tau, int stage)
 	{
 		if(nodes[i].placement_type == LOCAL)
 		{
-			if (method->do_next_part_step(&nodes[i], &new_nodes[i], tau, stage, this) < 0) {
-				if(logger != NULL)
-					logger->write(string("ERROR: TetrMesh_1stOrder::do_next_part_step - got error from method on method->do_next_part_step"));
-				return -1;
-			}
+			if (method->do_next_part_step(&nodes[i], &new_nodes[i], tau, stage, this) < 0)
+				throw GCMException( GCMException::MESH_EXCEPTION, "Do next part step failed");
 			// TODO Add details
 		}
 	}
@@ -1580,11 +1486,9 @@ void TetrMesh_1stOrder::move_coords(float tau)
 
 int TetrMesh_1stOrder::proceed_rheology()
 {
-	if(rheology == NULL) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::step - can not do step without RheologyCalculator attached"));
-		return -1;
-	}
+	if(rheology == NULL)
+		throw GCMException( GCMException::MESH_EXCEPTION, "No RC attached");
+
 	// TODO if rheology is void we can skip this step
 	for(int i = 0; i < nodes.size(); i++)
 	{
@@ -1598,11 +1502,9 @@ int TetrMesh_1stOrder::proceed_rheology()
 
 int TetrMesh_1stOrder::set_stress(float tau)
 {
-	if(stresser == NULL) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::set_stress - can not do step without Stresser attached"));
-		return -1;
-	}
+	if(stresser == NULL)
+		throw GCMException( GCMException::MESH_EXCEPTION, "No stresser attached");
+
 	// TODO if stress has ended at all we can skip this step
 	for(int i = 0; i < nodes.size(); i++)
 	{
@@ -1680,25 +1582,17 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 {
 	int number_of_stages;
 
-	if(method == NULL){
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - can not do step without NumericalMethod attached"));
-		return -1;
-	}
-	if(rheology == NULL) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - can not do step without RheologyCalculator attached"));
-		return -1;
-	}
+	if(method == NULL)
+		throw GCMException( GCMException::MESH_EXCEPTION, "No NM attached");
+
+	if(rheology == NULL)
+		throw GCMException( GCMException::MESH_EXCEPTION, "No RC attached");
 
 	// FIXME - add time_step adjustment
 	// time_step = time_step * 2;
 
-	if(time_step < 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - error on determining time step!"));
-		return -1;
-	}
+	if(time_step < 0)
+		throw GCMException( GCMException::MESH_EXCEPTION, "Time step is negative");
 
 //	if(data_bus != NULL)
 //		time_step = data_bus->get_max_possible_tau(time_step);
@@ -1706,39 +1600,26 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 //	passed value.
 
 	if( (number_of_stages = method->get_number_of_stages()) <= 0 )
-	{
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - can not do step, number of stages incorrect!"));
-		return -1;
-	}
+		throw GCMException( GCMException::MESH_EXCEPTION, "Incorrect number of stages");
 
-	if(set_stress(current_time) < 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - set_stress failed!"));
-		return -1;
-	}
+	if(set_stress(current_time) < 0)
+		throw GCMException( GCMException::MESH_EXCEPTION, "Set stress failed");
 
 	for(int i = 0; i < number_of_stages; i++)
 	{
 		if(data_bus != NULL)
-			data_bus->sync_nodes(); // TODO Add error handling
+			data_bus->sync_nodes();
 
 		// TODO Add interaction with scheduler
 
-		if(do_next_part_step(time_step, i) < 0) {
-			if(logger != NULL)
-				logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - do_next_part_step failed!"));
-			return -1;
-		}
+		if(do_next_part_step(time_step, i) < 0)
+			throw GCMException( GCMException::MESH_EXCEPTION, "Do next part step failed");
 	}
 // FIXME
 //	move_coords(time_step);
 
-	if(proceed_rheology() < 0) {
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::do_next_step - proceed_rheology failed!"));
-		return -1;
-	}
+	if(proceed_rheology() < 0)
+		throw GCMException( GCMException::MESH_EXCEPTION, "Proceed rheology failed");
 
 	current_time += time_step;
 

@@ -19,13 +19,7 @@ int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, int stage)
 int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, int stage, Logger* logger)
 {
 	if((la <= 0) || (mu <= 0) || (ro <= 0))
-	{
-		if(logger != NULL) {
-			logger->write(string("ERROR: ElasticMatrix3D::prepare_matrix - bad rheology"));
-			// TODO add details and diagnostics - stage, la, mu, ro
-		}
-		return -1;
-	}
+		throw GCMException( GCMException::CONFIG_EXCEPTION, "Bad rheology");
 
 	if (stage == 0) {
 		CreateAx(la, mu, ro);
@@ -34,11 +28,7 @@ int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, int stage, Log
 	} else if (stage == 2) { 
 		CreateAz(la, mu, ro); 
 	} else {
-		if(logger != NULL) {
-			logger->write(string("ERROR: ElasticMatrix3D::prepare_matrix - wrong stage number"));
-			// TODO add details and diagnostics
-		}
-		return -1;
+		throw GCMException( GCMException::CONFIG_EXCEPTION, "Wrong stage number");
 	}
 	return 0;
 };
@@ -53,22 +43,10 @@ int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, float qjx, flo
 int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, float qjx, float qjy, float qjz, Logger* logger)
 {
 	if((la <= 0) || (mu <= 0) || (ro <= 0))
-	{
-		if(logger != NULL) {
-			logger->write(string("ERROR: ElasticMatrix3D::prepare_matrix - bad rheology"));
-			// TODO add details and diagnostics - la, mu, ro
-		}
-		return -1;
-	}
+		throw GCMException( GCMException::CONFIG_EXCEPTION, "Bad rheology");
 
 	if( qjx*qjx + qjy*qjy + qjz*qjz <= 0 )
-	{
-		if(logger != NULL) {
-			logger->write(string("ERROR: ElasticMatrix3D::prepare_matrix - bad vector q"));
-			// TODO add details and diagnostics
-		}
-		return -1;
-	}
+		throw GCMException( GCMException::CONFIG_EXCEPTION, "Bad vector q");
 
 	CreateGeneralizedMatrix(la, mu, ro, qjx, qjy, qjz);
 
@@ -81,7 +59,7 @@ int ElasticMatrix3D::self_check(Logger* logger)
 	E.createE();
 	if( (U1 * L * U != A) || (A * U1 != U1 * L) || (U * A != L * U) || (U1 * U !=  E) ) {
 		if(logger != NULL) {
-			logger->write(string("ERROR: ElasticMatrix3D::self_check failed"));
+			throw GCMException( GCMException::CONFIG_EXCEPTION, "Self check failed");
 			//cout << "A:\n";
 			//cout << A;
 			//cout << "U1 * L * U:\n";

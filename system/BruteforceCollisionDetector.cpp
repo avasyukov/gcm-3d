@@ -109,12 +109,7 @@ int BruteforceCollisionDetector::process_direction(ElasticNode* _node, float mov
 			remote_node.coords[0] = node.coords[0];
 			remote_node.coords[1] = node.coords[1];
 			remote_node.coords[2] = node.coords[2];
-			if ( tetrs_mesh->interpolate(&remote_node, &((tetrs_mesh->tetrs).at( tetrs_vector->at(k) ))) < 0 )
-			{
-				if(logger != NULL)
-					logger->write(string("ERROR: BruteforceCollisionDetector::process_direction - interpolation failed!"));
-				return -1;
-			}
+			tetrs_mesh->interpolate(&remote_node, &((tetrs_mesh->tetrs).at( tetrs_vector->at(k) )));
 			virt_nodes->push_back(remote_node);
 			if(move > 0) {
 				_node->contact_data->axis_plus[axis_num] = virt_nodes->size()-1;

@@ -8,6 +8,7 @@ using std::string;
 using std::vector;
 
 #include "../system/Logger.h"
+#include "../system/GCMException.h"
 
 class NumericalMethod
 {
