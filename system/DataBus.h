@@ -56,7 +56,7 @@ public:
 	// gets first message from buffer and processes it
 	int process_request(int source, int tag);
 	// loads information about zones<->processors mapping from file
-	void load_zones_info(string file_name);
+	void load_zones_info(vector<int>* map);
 	// returns current processor number
 	int get_proc_num();
 	// returns total number of processors

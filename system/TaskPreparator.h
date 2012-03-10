@@ -21,22 +21,24 @@ using std::vector;
 #include "VoidCollisionDetector.h"
 #include "BruteforceCollisionDetector.h"
 #include "TetrMeshSet.h"
-#include "GCMStress.h"
+#include "GCMStresser.h"
+#include "GCMException.h"
+#include "DataBus.h"
 
 class TaskPreparator
 {
 public:
 	TaskPreparator();
-	TaskPreparator(string filename);
+	TaskPreparator(Logger* new_logger);
 	~TaskPreparator();
 	void attach(Logger* new_logger);
 	string* get_task_preparator_type();
 	void set_fixed_elastic_rheology(vector<ElasticNode>* nodes, float la, float mu, float rho, float yield_limit);
 	
-	int load_task( string filename, string data_dir, TetrMeshSet* mesh_set );
-	int load_snap_info( string filename, int* snap_num, int* step_per_snap, SnapshotWriter* sw );
+	int load_task( string task_file, string zones_file, string data_dir, 
+				int* snap_num, int* steps_per_snap, TetrMeshSet* mesh_set, DataBus* data_bus );
 protected:
-	string task_filename;
+	int load_zones_info(string zones_file, vector<int>* zones_info);
 	string task_preparator_type;
 	Logger* logger;
 };

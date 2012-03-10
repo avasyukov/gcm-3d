@@ -1,7 +1,11 @@
 #include <getopt.h>
 #include <iostream>
 #include <string>
-#include "gcm-3d.h"
+
+#include "system/Logger.h"
+#include "system/TaskPreparator.h"
+#include "system/TetrMeshSet.h"
+#include "system/DataBus.h"
 
 using std::cout;
 
@@ -74,32 +78,42 @@ int main(int argc, char **argv)
 	cout << "Data dir: " << data_dir << endl;
 	cout << "Res dir: " << res_dir << endl;
 
+	// Number of snapshots in task
+	int snap_num;
+	// Number of steps between snapshots
+	int step_per_snap;
+
+	// Create logger to be used by all other objects
 	Logger* logger = new Logger();
 
-	// Prepare task
-	TaskPreparator* tp = new TaskPreparator();
-	tp->attach(logger);
+	// Create task preparator
+	TaskPreparator* task_prep = new TaskPreparator(logger);
 
-	// create data bus
-	// TODO: if we need to be able to pass argc/argv to MPI DataBus must be
-	// created before any invocation of getopt_long.
-	DataBus *db = new DataBus(logger);
-	db->load_zones_info(zones_info_file);
-
+	// Create mesh set
 	TetrMeshSet* mesh_set = new TetrMeshSet();
-	mesh_set->attach(db);
-	tp->load_task( task_file, data_dir, mesh_set );
+	mesh_set->attach(logger);
 
-	db->sync_nodes();
+	// Create data bus
+	DataBus *data_bus = new DataBus(logger);
+
+	// Attach mesh set and data bus to each other
+	mesh_set->attach(data_bus);
+
+	// Load real task info
+	task_prep->load_task( task_file, zones_info_file, data_dir, &snap_num, &step_per_snap, mesh_set, data_bus );
+
+	// Initial nodes sync should be done before mesh preparation, because we need all nodes coordinates in place
+	data_bus->sync_nodes();
+
+	// Prepare all meshes - find borders and normals, init vectors for fast elements reverse lookups
 	mesh_set->pre_process_meshes();
 
+	// Report mesh info
 	mesh_set->log_meshes_types();
 	mesh_set->log_meshes_stats();
 
-	int snap_num;
-	int step_per_snap;
+	// Create snapshot writer
 	SnapshotWriter* sw = new SnapshotWriter(res_dir);
-	tp->load_snap_info( task_file, &snap_num, &step_per_snap, sw );
 
 	// Do calculation
 	float cur_time;
@@ -123,7 +137,7 @@ int main(int argc, char **argv)
 
 	// Delete data bus to finalize MPI
 	// TODO: delete all other objects?
-	delete db;
+	delete data_bus;
 
 	return 0;
 }

@@ -45,15 +45,17 @@ int SnapshotWriter::dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, i
 int SnapshotWriter::dump_vtk(TetrMeshSet* mesh_set, int snap_num)
 {
 	for(int i = 0; i < mesh_set->get_number_of_meshes(); i++) {
-		if( dump_vtk( mesh_set->get_mesh(i), i, snap_num ) < 0 )
+		if( dump_vtk( mesh_set->get_mesh(i), snap_num ) < 0 )
 			return -1;
 	}
 	return 0;
 };
 
 // TODO - think about local, remote, unused, etc
-int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num)
+int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 {
+	int zone_num = tetr_mesh->zone_num;
+
 	vtkXMLUnstructuredGridWriter *xgw = vtkXMLUnstructuredGridWriter::New();
 	vtkUnstructuredGrid *g = vtkUnstructuredGrid::New();
 

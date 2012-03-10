@@ -241,25 +241,11 @@ int DataBus::sync_nodes()
 	return 0;
 };
 
-void DataBus::load_zones_info(string file_name)
+void DataBus::load_zones_info(vector<int>* map)
 {
 	zones_info.clear();
-	TiXmlDocument document( file_name.c_str() );
-	bool loadOk = document.LoadFile();
-	if( loadOk ) {
-		TiXmlElement* eroot = document.FirstChildElement( "zones_map" );
-		TiXmlElement* zone = eroot->FirstChildElement( "zone" );
-		while ( zone ) {
-			int zone_num = atoi( zone->Attribute( "num" ) );
-			int cpu_num = atoi( zone->Attribute( "cpu" ) );
-			if( zone_num != zones_info.size() )
-				throw GCMException(GCMException::CONFIG_EXCEPTION, "Zone map file does not contain valid data");
-			zones_info.push_back( cpu_num );
-			zone = zone->NextSiblingElement( "zone" );
-		}
-	} else {
-		throw GCMException(GCMException::CONFIG_EXCEPTION, "Can not open zone map file");
-	}
+	for(int i = 0; i < map->size(); i++)
+		zones_info.push_back( map->at(i) );
 }
 
 int DataBus::get_proc_num()

@@ -31,7 +31,7 @@ public:
 	~SnapshotWriter();
 	void set_result_dir(string new_result_dir);
 	string* get_snapshot_writer_type();
-	int dump_vtk(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
+	int dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num);
 	int dump_vtk(TetrMeshSet* mesh_set, int snap_num);
 	void attach(Logger* new_logger);
 	int dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
