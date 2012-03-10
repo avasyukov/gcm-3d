@@ -1,4 +1,4 @@
-#include "GCMStress.h"
+#include "GCMStresser.h"
 
 GCMStressAreaSphere::GCMStressAreaSphere( float _radius, float x, float y, float z )
 {
@@ -269,6 +269,15 @@ void GCMStress::print()
 }
 
 //============================GCMSTRESSER==================================
+
+GCMStresser::~GCMStresser()
+{
+	stresser_type.assign("GCM default stresser");
+};
+
+GCMStresser::GCMStresser()
+{
+};
 
 void GCMStresser::set_current_stress(ElasticNode* cur_node, ElasticNode* new_node, float current_time)
 {

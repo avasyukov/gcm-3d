@@ -157,11 +157,11 @@ private:
 	GCMStressArea* createArea( const string& type, const string& str );
 
 public:
-	GCMStresser() {}
-	~GCMStresser() {}
+	GCMStresser();
+	~GCMStresser();
 	void print();
 	bool loadTask(string fname);
-	virtual void set_current_stress(ElasticNode* cur_node, ElasticNode* new_node, float current_time); // TODO avoid hardcoded impl
+	void set_current_stress(ElasticNode* cur_node, ElasticNode* new_node, float current_time);
 };
 
 #endif

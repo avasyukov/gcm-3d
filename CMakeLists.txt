@@ -29,7 +29,7 @@ set ( SOURCES
 	./methods/TetrNumericalMethod.cpp
 	./methods/TetrMethod_Plastic_1stOrder.cpp
 	./methods/NumericalMethod.cpp
-	./system/GCMStress.cpp
+	./system/GCMStresser.cpp
 	./system/GCMException.cpp
 	./system/TaskPreparator.cpp
 	./system/TetrMeshSet.cpp
