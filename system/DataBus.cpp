@@ -68,11 +68,16 @@ DataBus::DataBus(Logger* new_logger)
 	};
 
 	MPI_NODE_RESP = MPI::Datatype::Create_struct(4, lengths2, displacements2, types2);
+
+	MPI_NODE_REQ.Commit();
+	MPI_NODE_RESP.Commit();
 };
 
 DataBus::~DataBus()
 {
 	// try to finilize MPI
+	MPI_NODE_REQ.Free();
+	MPI_NODE_RESP.Free();
 	MPI::Finalize();
 	logger->write("MPI finalized");
 };
@@ -216,7 +221,7 @@ int DataBus::sync_nodes()
 	}
 
 	// nodes synced, notify all processed
-	logger->write("Remote nodes synchronized, waiting fo other nodes to end sync");
+	logger->write("Remote nodes synchronized, waiting for other nodes to end sync");
 	nodes_to_be_done--;
 	for (i = 0; i < proc_total_num; i++)
 		if (i != proc_num)
