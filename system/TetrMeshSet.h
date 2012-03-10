@@ -32,7 +32,10 @@ public:
 	float get_current_time();
 	int do_next_step();
 	int get_number_of_meshes();
+	// Returns max possible tau for all attached meshes
+	float get_max_possible_tau();
 	TetrMesh_1stOrder* get_mesh(int num);
+	TetrMesh_1stOrder* get_mesh_by_zone_num(int zone_num);
 	ElasticNode* getNode(int num);
 protected:
 	Logger* logger;
@@ -41,9 +44,11 @@ protected:
 	Stresser* stresser;
 	TetrNumericalMethod* numerical_method;
 	CollisionDetector* collision_detector;
-        int mesh_set_num; // TODO - we do not use it now, reserved for parallel version
-        vector<TetrMesh_1stOrder*> meshes;
+	vector<TetrMesh_1stOrder*> meshes;
 	vector<ElasticNode> virt_nodes;
+//	vector< vector<ElasticNode*> > remote_nodes;
+//	TODO optimize synchronization using array containing list of remote nodes to
+//	be synchronized
 };
 
 #endif

@@ -22,6 +22,9 @@ public:
 	int local_num;
 	int remote_num;
 	int absolute_num;
+	// FIXME
+	// do we really need int for the next three fields?
+	// char is seems to be quite enough.
 	int placement_type; // We need this to store NOT only LOCAL / REMOTE state. We have UNUSED flag also.
 	int border_type;
 	int contact_type;
