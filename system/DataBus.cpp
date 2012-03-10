@@ -244,11 +244,14 @@ void DataBus::load_zones_info(string file_name)
 	if( loadOk ) {
 		TiXmlElement* eroot = document.FirstChildElement( "zones_map" );
 		TiXmlElement* zone = eroot->FirstChildElement( "zone" );
-		int zone_num = atoi( zone->Attribute( "num" ) );
-		int cpu_num = atoi( zone->Attribute( "cpu" ) );
-		if( zone_num != zones_info.size() )
-			throw GCMException(GCMException::CONFIG_EXCEPTION, "Zone map file does not contain valid data");
-		zones_info.push_back( cpu_num );
+		while ( zone ) {
+			int zone_num = atoi( zone->Attribute( "num" ) );
+			int cpu_num = atoi( zone->Attribute( "cpu" ) );
+			if( zone_num != zones_info.size() )
+				throw GCMException(GCMException::CONFIG_EXCEPTION, "Zone map file does not contain valid data");
+			zones_info.push_back( cpu_num );
+			zone = zone->NextSiblingElement( "zone" );
+		}
 	} else {
 		throw GCMException(GCMException::CONFIG_EXCEPTION, "Can not open zone map file");
 	}
