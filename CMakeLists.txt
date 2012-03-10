@@ -35,6 +35,8 @@ set ( SOURCES
 	./system/SnapshotWriter.cpp
 	./system/CylTest.cpp
 	./system/CollisionDetector.cpp
+	./system/VoidCollisionDetector.cpp
+	./system/BruteforceCollisionDetector.cpp
 	./system/Stresser.cpp
 	./system/quick_math.cpp
 	./system/Logger.cpp
