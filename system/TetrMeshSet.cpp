@@ -31,17 +31,32 @@ void TetrMeshSet::attach(TetrMesh_1stOrder* new_mesh)
 		// new_mesh->attach(numerical_method);
 		new_mesh->attach(this);
 		meshes.push_back(new_mesh);
+//		// process mesh and add all remote nodes to list of nodes to be synchronized
+//		for (int i = 0; i < new_mesh->nodes.size(); i++) {
+//			ElasticNode *node = &new_mesh->nodes[i];
+//			if (node->placement_type == REMOTE)
+//				remote_nodes[data_bus->get_proc_for_zone(node->zone_num)].push_back(node);
+//		}
+//	TODO process remote nodes
 	}
 };
 
 void TetrMeshSet::attach(DataBus* new_data_bus)
 {
+	int i;
+	
 	data_bus = new_data_bus;
 
 	data_bus->attach(this);
 
 	for(int i = 0; i < meshes.size(); i++)
 		meshes[i]->attach_data_bus(new_data_bus);
+
+//	// initialize remote nodes store
+//	FIXME
+//	for (i = 0; i < data_bus->get_total_proc_num(); i++)
+//		remote_nodes.push_back(vector<ElasticNode*>());
+
 };
 
 void TetrMeshSet::attach(Stresser* new_stresser)
@@ -118,12 +133,13 @@ float TetrMeshSet::get_current_time()
 int TetrMeshSet::do_next_step()
 {
 
-	float time_step = meshes[0]->get_max_possible_tau();
-	for(int i = 1; i < meshes.size(); i++) {
-		float ftmp = meshes[i]->get_max_possible_tau();
-		if(ftmp < time_step)
-			time_step = ftmp;
-	}
+//	float time_step = meshes[0]->get_max_possible_tau();
+//	for(int i = 1; i < meshes.size(); i++) {
+//		float ftmp = meshes[i]->get_max_possible_tau();
+//		if(ftmp < time_step)
+//			time_step = ftmp;
+//	}
+	float time_step = data_bus->get_max_possible_tau(get_max_possible_tau());
 
 	// Clear virtual nodes because they change between time steps
 	virt_nodes.clear();
@@ -156,3 +172,22 @@ ElasticNode* TetrMeshSet::getNode(int num)
 		return NULL;
 	return &virt_nodes[num];
 };
+
+float TetrMeshSet::get_max_possible_tau()
+{
+	float tau = meshes[0]->get_max_possible_tau();
+	for(int i = 1; i < meshes.size(); i++) {
+		float ftmp = meshes[i]->get_max_possible_tau();
+		if(ftmp < tau)
+			tau = ftmp;
+	}
+
+	return tau;
+}
+
+TetrMesh_1stOrder* TetrMeshSet::get_mesh_by_zone_num(int zone_num)
+{
+	for (int i = 0; i < meshes.size(); i++)
+		if (meshes[i]->zone_num == zone_num)
+			return meshes[i];
+}

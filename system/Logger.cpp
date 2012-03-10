@@ -9,10 +9,15 @@ Logger::~Logger() { };
 
 void Logger::write(string str)
 {
-	cout << str << endl;
+	cout << "PE #" << proc_num << ": " << str << endl;
 };
 
 string* Logger::get_logger_type()
 {
 	return &logger_type;
+}
+
+void Logger::set_proc_num(int proc_num)
+{
+	this->proc_num = proc_num;
 }
