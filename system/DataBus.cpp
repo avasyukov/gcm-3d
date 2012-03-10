@@ -193,7 +193,7 @@ int DataBus::sync_nodes()
 
 	logger->write("Starting nodes sync");
 	MPINodeRequest req;
-	int nodes_to_be_done = 0;
+	int nodes_to_be_done = proc_total_num;
 	MPI::Status status;
 	int i;
 
