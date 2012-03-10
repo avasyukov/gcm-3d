@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 // Number of zones to create
-#define Nnum 2
+#define Nnum 4
 // Number of layers in zone
 #define Mnum 10
 
