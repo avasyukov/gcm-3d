@@ -7,8 +7,9 @@ using std::cout;
 
 void print_help()
 {
-	cout << "\nUsage: gcm3d --task file --data-dir dir --result-dir dir\n" 
+	cout << "\nUsage: gcm3d --task file --zones file --data-dir dir --result-dir dir\n" 
 		<< "\t--task - xml file with task description, defaults to ./task.xml\n"
+		<< "\t--zones - xml file with mapping between mesh zones and CPUs, defaults to ./zones.xml\n"
 		<< "\t--data-dir - where gcm3d will look for models specified in task.xml, defaults to ./\n"
 		<< "\t--result-dir - where gcm3d will save snapshots, defaults to ./\n\n";
 };
