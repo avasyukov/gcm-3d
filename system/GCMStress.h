@@ -1,7 +1,9 @@
 #ifndef H_ELASTICNODE
 #define H_ELASTICNODE 1
 
-#define TIXML_USE_STL 
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
 #include <tinyxml.h>
 #include <sstream>
 #include <vector>

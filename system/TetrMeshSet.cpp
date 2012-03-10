@@ -183,11 +183,18 @@ float TetrMeshSet::get_max_possible_tau()
 	}
 
 	return tau;
-}
+};
 
 TetrMesh_1stOrder* TetrMeshSet::get_mesh_by_zone_num(int zone_num)
 {
 	for (int i = 0; i < meshes.size(); i++)
 		if (meshes[i]->zone_num == zone_num)
 			return meshes[i];
-}
+	return NULL;
+};
+
+void TetrMeshSet::pre_process_meshes()
+{
+	for (int i = 0; i < meshes.size(); i++)
+		meshes[i]->pre_process_mesh();
+};

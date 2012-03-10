@@ -32,6 +32,9 @@ public:
 	float get_current_time();
 	int do_next_step();
 	int get_number_of_meshes();
+	// Prepares loaded meshes for calculation - finds normals and borders, created reverse lookup vectors, etc
+	// Should be called after remote nodes are synced
+	void pre_process_meshes();
 	// Returns max possible tau for all attached meshes
 	float get_max_possible_tau();
 	TetrMesh_1stOrder* get_mesh(int num);

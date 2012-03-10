@@ -484,12 +484,12 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 	node_infile.close();
 	ele_infile.close();
 
-	if( pre_process_mesh() < 0 )
-	{
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - pre_process_mesh() failed."));
-		return -1;
-	}
+//	if( pre_process_mesh() < 0 )
+//	{
+//		if(logger != NULL)
+//			logger->write(string("ERROR: TetrMesh_1stOrder::load_node_ele_files - pre_process_mesh() failed."));
+//		return -1;
+//	}
 
 	return 0;
 };
@@ -587,12 +587,12 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 
 	infile.close();
 
-	if( pre_process_mesh() < 0 )
-	{
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - pre_process_mesh() failed."));
-		return -1;
-	}
+//	if( pre_process_mesh() < 0 )
+//	{
+//		if(logger != NULL)
+//			logger->write(string("ERROR: TetrMesh_1stOrder::load_gmv_file - pre_process_mesh() failed."));
+//		return -1;
+//	}
 
 	return 0;
 };
@@ -741,12 +741,12 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 
 	infile.close();
 
-	if( pre_process_mesh() < 0 )
-	{
-		if(logger != NULL)
-			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - pre_process_mesh() failed."));
-		return -1;
-	}
+//	if( pre_process_mesh() < 0 )
+//	{
+//		if(logger != NULL)
+//			logger->write(string("ERROR: TetrMesh_1stOrder::load_msh_file - pre_process_mesh() failed."));
+//		return -1;
+//	}
 
 	return 0;
 };

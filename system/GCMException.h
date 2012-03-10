@@ -18,5 +18,6 @@ public:
 
 	static const int MPI_EXCEPTION  = 0;
 	static const int SYNC_EXCEPTION = 1;
+	static const int CONFIG_EXCEPTION = 2;
 };
 #endif

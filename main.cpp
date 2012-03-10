@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 	string res_dir = "./";
 
 	while ( true ) {
-		c = getopt_long (argc, argv, "tdrh", long_options, &option_index);
+		c = getopt_long (argc, argv, "tzdrh", long_options, &option_index);
 		if (c == -1)
 			break;
 		switch (c)
@@ -69,21 +69,28 @@ int main(int argc, char **argv)
 		res_dir += '/';
 
 	cout << "Task file: " << task_file << endl;
+	cout << "Zones info file: " << zones_info_file << endl;
 	cout << "Data dir: " << data_dir << endl;
 	cout << "Res dir: " << res_dir << endl;
 
+	Logger* logger = new Logger();
+
 	// Prepare task
 	TaskPreparator* tp = new TaskPreparator();
+	tp->attach(logger);
 
 	// create data bus
 	// TODO: if we need to be able to pass argc/argv to MPI DataBus must be
 	// created before any invocation of getopt_long.
-	DataBus *db = new DataBus();
+	DataBus *db = new DataBus(logger);
 	db->load_zones_info(zones_info_file);
 
 	TetrMeshSet* mesh_set = new TetrMeshSet();
 	mesh_set->attach(db);
 	tp->load_task( task_file, data_dir, mesh_set );
+
+	db->sync_nodes();
+	mesh_set->pre_process_meshes();
 
 	mesh_set->log_meshes_types();
 	mesh_set->log_meshes_stats();

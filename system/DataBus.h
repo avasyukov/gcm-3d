@@ -1,6 +1,11 @@
 #ifndef _GCM_DATA_BUS_H
 #define _GCM_DATA_BUS_H  1
 
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
+#include <tinyxml.h>
+
 #include <string>
 #include <vector>
 #include <sstream>
@@ -40,6 +45,7 @@ class DataBus
 {
 public:
 	DataBus();
+	DataBus(Logger* new_logger);
 	~DataBus();
 	string* get_data_bus_type();
 	void attach(Logger* new_logger);

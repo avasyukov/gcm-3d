@@ -2,7 +2,14 @@
 
 DataBus::DataBus()
 {
-	data_bus_type.assign("Not so stupid echo data bus");
+	logger = new Logger();
+	DataBus(logger);
+};
+
+DataBus::DataBus(Logger* new_logger)
+{
+	data_bus_type.assign("Basic MPI DataBus");
+	attach(new_logger);
 	// try to initialize MPI
 	// TODO: add command line arguments processing if we really need it
 	MPI::Init();
@@ -228,7 +235,20 @@ int DataBus::sync_nodes()
 
 void DataBus::load_zones_info(string file_name)
 {
-	// TODO
+	zones_info.clear();
+	TiXmlDocument document( file_name.c_str() );
+	bool loadOk = document.LoadFile();
+	if( loadOk ) {
+		TiXmlElement* eroot = document.FirstChildElement( "zones_map" );
+		TiXmlElement* zone = eroot->FirstChildElement( "zone" );
+		int zone_num = atoi( zone->Attribute( "num" ) );
+		int cpu_num = atoi( zone->Attribute( "cpu" ) );
+		if( zone_num != zones_info.size() )
+			throw GCMException(GCMException::CONFIG_EXCEPTION, "Zone map file does not contain valid data");
+		zones_info.push_back( cpu_num );
+	} else {
+		throw GCMException(GCMException::CONFIG_EXCEPTION, "Can not open zone map file");
+	}
 }
 
 int DataBus::get_proc_num()

@@ -1,6 +1,11 @@
 #ifndef _GCM_TASK_PREPARATOR_H
 #define _GCM_TASK_PREPARATOR_H  1
 
+#ifndef TIXML_USE_STL
+#define TIXML_USE_STL
+#endif
+#include <tinyxml.h>
+
 #include <string>
 #include <vector>
 

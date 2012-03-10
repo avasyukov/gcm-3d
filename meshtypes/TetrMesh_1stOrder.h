@@ -59,9 +59,9 @@ public:
 
 	int set_stress(float tau);
 
-private:
 	int pre_process_mesh();
 
+private:
 	int check_triangle_to_be_border(int v1, int v2, int v3, int tetr_vert, float step_h);
 	bool triangleOrientationOk(int node1, int node2, int node3);
 
