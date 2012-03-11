@@ -161,6 +161,7 @@ void DataBus::process_request(int source, int tag, int &nodes_to_sync, int &proc
 				MPI::COMM_WORLD.Recv(&req, 1, MPI_NODE_REQ, source, tag, status);
 				node = mesh_set->get_mesh_by_zone_num(req.remote_zone_num)->get_node(req.remote_num);
 				// FIXME
+				// DEBUG
 				if (node->local_num != req.remote_num)
 					throw GCMException(GCMException::SYNC_EXCEPTION, "get_node() returned node with invalid num.");
 				// FIXME
@@ -204,16 +205,31 @@ int DataBus::sync_nodes()
 		for (int j = 0; j < mesh->nodes.size(); j++)
 			if (mesh->nodes[j].placement_type == REMOTE)
 			{
-				// fill sync struct
-				// FIXME
-				// declare somewhere a constant for values number
-				req.local_num = mesh->nodes[j].local_num;
-				req.remote_num = mesh->nodes[j].remote_num;
-				req.local_zone_num = mesh->nodes[j].local_zone_num;
-				req.remote_zone_num = mesh->nodes[j].remote_zone_num;
-				// send a message
-				nodes_to_sync++;
-				MPI::COMM_WORLD.Send(&req, 1, MPI_NODE_REQ, get_proc_for_zone(mesh->nodes[j].remote_zone_num), TAG_SYNC_NODE_REQ);
+				int dest = get_proc_for_zone(mesh->nodes[j].remote_zone_num);
+				// avoid sending self-requests
+				if (dest == proc_num)
+				{
+					ElasticNode *node= mesh_set->get_mesh_by_zone_num(mesh->nodes[j].remote_zone_num)->get_node(mesh->nodes[j].remote_num);
+					// FIXME
+					// DEBUG
+				if (node->local_num != mesh->nodes[j].remote_num)
+						throw GCMException(GCMException::SYNC_EXCEPTION, "get_node() returned node with invalid num.");
+					memcpy(mesh->nodes[j].values, node->values, 9*sizeof(float));
+					memcpy(mesh->nodes[j].coords, node->coords, 3*sizeof(float));
+				}
+				else
+				{
+					// fill sync struct
+					// FIXME
+					// declare somewhere a constant for values number
+					req.local_num = mesh->nodes[j].local_num;
+					req.remote_num = mesh->nodes[j].remote_num;
+					req.local_zone_num = mesh->nodes[j].local_zone_num;
+					req.remote_zone_num = mesh->nodes[j].remote_zone_num;
+					// send a message
+					nodes_to_sync++;
+					MPI::COMM_WORLD.Send(&req, 1, MPI_NODE_REQ, dest, TAG_SYNC_NODE_REQ);
+				}
 				// process incoming requests
 				while (MPI::COMM_WORLD.Iprobe(MPI::ANY_SOURCE, MPI::ANY_TAG, status))
 					process_request(status.Get_source(), status.Get_tag(), nodes_to_sync, procs_to_sync);
@@ -226,20 +242,21 @@ int DataBus::sync_nodes()
 	// wait other nodes to end sync
 	while (procs_to_sync > 0 )
 	{
-		MPI::COMM_WORLD.Probe(MPI::ANY_SOURCE, MPI::ANY_TAG, status);
-		process_request(status.Get_source(), status.Get_tag(), nodes_to_sync, procs_to_sync);
 		if (nodes_to_sync == 0)
 		{
-			procs_to_sync--;
 			nodes_to_sync = -1;
 			for (i = 0; i < proc_total_num; i++)
 				if (i != proc_num)
 					MPI::COMM_WORLD.Send(0, 0, MPI::BYTE, i, TAG_SYNC_NODE_DONE);
+			if (--procs_to_sync == 0)
+				break;
 		}
 		// FIXME
 		// DEBUG
 		else if (nodes_to_sync < -1)
 			throw GCMException(GCMException::SYNC_EXCEPTION, "nodes_to_sync < -1, something wrong with sync!!");
+		MPI::COMM_WORLD.Probe(MPI::ANY_SOURCE, MPI::ANY_TAG, status);
+		process_request(status.Get_source(), status.Get_tag(), nodes_to_sync, procs_to_sync);
 	}
 
 	logger->write("Sync done");
