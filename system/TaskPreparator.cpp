@@ -163,6 +163,8 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 	// Create collision detector 
 	if( col_det_type == "VoidCollisionDetector" )
 		col_det = new VoidCollisionDetector();
+	else if( col_det_type == "CollisionDetectorForLayers" )
+		col_det = new CollisionDetectorForLayers();
 	else
 		col_det = new BruteforceCollisionDetector();
 

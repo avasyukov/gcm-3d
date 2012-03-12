@@ -20,6 +20,7 @@ using std::vector;
 #include "SnapshotWriter.h"
 #include "VoidCollisionDetector.h"
 #include "BruteforceCollisionDetector.h"
+#include "CollisionDetectorForLayers.h"
 #include "TetrMeshSet.h"
 #include "GCMStresser.h"
 #include "GCMException.h"

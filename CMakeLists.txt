@@ -38,6 +38,7 @@ set ( SOURCES
 	./system/CollisionDetector.cpp
 	./system/VoidCollisionDetector.cpp
 	./system/BruteforceCollisionDetector.cpp
+	./system/CollisionDetectorForLayers.cpp
 	./system/Stresser.cpp
 	./system/quick_math.cpp
 	./system/Logger.cpp
