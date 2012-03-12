@@ -826,6 +826,9 @@ int TetrMesh_1stOrder::log_mesh_stats()
 
 	int num;
 
+	ss << "Number of nodes: " << nodes.size() << endl;
+	ss << "Number of tetrs: " << tetrs.size() << endl;
+
 	for(int i = 0; i < tetrs.size(); i++)
 	{
 		if ( (nodes[tetrs[i].vert[0]].placement_type == UNUSED) 
