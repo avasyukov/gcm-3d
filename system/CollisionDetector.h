@@ -12,6 +12,7 @@ class CollisionDetector;
 #include "../datatypes/ElasticNode.h"
 #include "../meshtypes/TetrMesh_1stOrder.h"
 #include "Logger.h"
+#include "GCMException.h"
 
 class CollisionDetector
 {
