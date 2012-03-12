@@ -530,6 +530,15 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 							logger->write(ss.str());
 						}
 						log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
+						if(logger != NULL)
+						{
+							stringstream ss;
+							ss << "'Outer' direction: " << v_x_outer[0] << " " 
+								<< v_x_outer[1] << " " << v_x_outer[2] << endl;
+							ss << "'Virt' direction: " << v_x_virt[0] << " "
+								<< v_x_virt[1] << " " << v_x_virt[2] << endl;
+							logger->write(ss.str());
+						}
 						throw GCMException( GCMException::METHOD_EXCEPTION, "Bad contact from real node point of view: 'outer' and 'virt' directions are different");
 					}
 				}
@@ -555,6 +564,15 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 							logger->write(ss.str());
 						}
 						log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node->mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi, value_limiters);
+						if(logger != NULL)
+						{
+							stringstream ss;
+							ss << "'Outer' direction: " << v_x_outer[0] << " "
+								<< v_x_outer[1] << " " << v_x_outer[2] << endl;
+							ss << "'Virt' direction: " << v_x_virt[0] << " "
+								<< v_x_virt[1] << " " << v_x_virt[2] << endl;
+							logger->write(ss.str());
+						}
 						throw GCMException( GCMException::METHOD_EXCEPTION, "Bad contact from virt node point of view: 'outer' and 'virt' directions are different");
 					}
 				}
