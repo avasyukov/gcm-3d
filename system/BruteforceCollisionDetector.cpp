@@ -6,7 +6,7 @@ BruteforceCollisionDetector::BruteforceCollisionDetector()
 };
 
 BruteforceCollisionDetector::~BruteforceCollisionDetector() { };
-/*
+
 void BruteforceCollisionDetector::attach(Logger* new_logger)
 {
 	logger = new_logger;
@@ -16,7 +16,7 @@ void BruteforceCollisionDetector::set_treshold(float value)
 {
 	treshold = value;
 };
-*/
+
 int BruteforceCollisionDetector::find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2, vector<ElasticNode>* virt_nodes, float time_step)
 {
 	mesh1_nodes.clear();
