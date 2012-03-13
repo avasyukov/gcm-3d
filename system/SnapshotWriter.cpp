@@ -61,29 +61,24 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 
 	vtkPoints *pts = vtkPoints::New();
 
+	vtkDoubleArray *vel = vtkDoubleArray::New();
+	vel->SetNumberOfComponents(3);
+	vel->SetName("velocity");
+	vtkDoubleArray *contact = vtkDoubleArray::New();
 	vtkDoubleArray *sxx = vtkDoubleArray::New();
 	vtkDoubleArray *sxy = vtkDoubleArray::New();
 	vtkDoubleArray *sxz = vtkDoubleArray::New();
 	vtkDoubleArray *syy = vtkDoubleArray::New();
 	vtkDoubleArray *syz = vtkDoubleArray::New();
 	vtkDoubleArray *szz = vtkDoubleArray::New();
-	vtkDoubleArray *vx = vtkDoubleArray::New();
-	vtkDoubleArray *vy = vtkDoubleArray::New();
-	vtkDoubleArray *vz = vtkDoubleArray::New();
-	vtkDoubleArray *contact = vtkDoubleArray::New();
-
-	vtkDoubleArray *norm = vtkDoubleArray::New();
-	norm->SetNumberOfComponents(3);
-	norm->SetName("normal");
 
 	float v[3];
 
 	for(int i = 0; i < (tetr_mesh->nodes).size(); i++) {
 		node = (tetr_mesh->nodes)[i];
 		pts->InsertNextPoint( node.coords[0], node.coords[1], node.coords[2] );
-		vx->InsertNextValue( node.values[0] );
-		vy->InsertNextValue( node.values[1] );
-		vz->InsertNextValue( node.values[2] );
+		v[0] = node.values[0];	v[1] = node.values[1];	v[2] = node.values[2];
+		vel->InsertNextTuple(v);
 		sxx->InsertNextValue( node.values[3] );
 		sxy->InsertNextValue( node.values[4] );
 		sxz->InsertNextValue( node.values[5] );
@@ -91,17 +86,8 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 		syz->InsertNextValue( node.values[7] );
 		szz->InsertNextValue( node.values[8] );
 		contact->InsertNextValue( node.contact_type );
-
-		if(node.border_type == BORDER) {
-			tetr_mesh->find_border_node_normal(i, &v[0], &v[1], &v[2]);
-		} else {
-			v[0] = 0;	v[1] = 0;	v[2] = 0;
-		}
-		norm->InsertNextTuple(v);
 	}
 	g->SetPoints(pts);
-
-	g->GetPointData()->SetVectors(norm);
 
 	vtkTetra *tetra=vtkTetra::New();
 	for(int i = 0; i < (tetr_mesh->tetrs).size(); i++) {
@@ -119,31 +105,24 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 	syy->SetName("syy");
 	syz->SetName("syz");
 	szz->SetName("szz");
-	vx->SetName("vx");
-	vy->SetName("vy");
-	vz->SetName("vz");
 	contact->SetName("contact");
 
+	g->GetPointData()->SetVectors(vel);
 	g->GetPointData()->AddArray(sxx);
 	g->GetPointData()->AddArray(sxy);
 	g->GetPointData()->AddArray(sxz);
 	g->GetPointData()->AddArray(syy);
 	g->GetPointData()->AddArray(syz);
 	g->GetPointData()->AddArray(szz);
-	g->GetPointData()->AddArray(vx);
-	g->GetPointData()->AddArray(vy);
-	g->GetPointData()->AddArray(vz);
 	g->GetPointData()->AddArray(contact);
 
+	vel->Delete();
 	sxx->Delete();
 	sxy->Delete();
 	sxz->Delete();
 	syy->Delete();
 	syz->Delete();
 	szz->Delete();
-	vx->Delete();
-	vy->Delete();
-	vz->Delete();
 	contact->Delete();
 
 	stringstream name;
@@ -158,7 +137,6 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 	g->Delete();
 	pts->Delete();
 	tetra->Delete();
-	norm->Delete();
 
 	return 0;
 };
