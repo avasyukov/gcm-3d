@@ -71,6 +71,9 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 	vtkDoubleArray *syy = vtkDoubleArray::New();
 	vtkDoubleArray *syz = vtkDoubleArray::New();
 	vtkDoubleArray *szz = vtkDoubleArray::New();
+	vtkDoubleArray *la = vtkDoubleArray::New();
+	vtkDoubleArray *mu = vtkDoubleArray::New();
+	vtkDoubleArray *rho = vtkDoubleArray::New();
 
 	float v[3];
 
@@ -85,6 +88,9 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 		syy->InsertNextValue( node.values[6] );
 		syz->InsertNextValue( node.values[7] );
 		szz->InsertNextValue( node.values[8] );
+		la->InsertNextValue( node.la );
+		mu->InsertNextValue( node.mu );
+		rho->InsertNextValue( node.rho );
 		contact->InsertNextValue( node.contact_type );
 	}
 	g->SetPoints(pts);
@@ -105,6 +111,9 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 	syy->SetName("syy");
 	syz->SetName("syz");
 	szz->SetName("szz");
+	la->SetName("lambda");
+	mu->SetName("mu");
+	rho->SetName("rho");
 	contact->SetName("contact");
 
 	g->GetPointData()->SetVectors(vel);
@@ -114,6 +123,9 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 	g->GetPointData()->AddArray(syy);
 	g->GetPointData()->AddArray(syz);
 	g->GetPointData()->AddArray(szz);
+	g->GetPointData()->AddArray(la);
+	g->GetPointData()->AddArray(mu);
+	g->GetPointData()->AddArray(rho);
 	g->GetPointData()->AddArray(contact);
 
 	vel->Delete();
@@ -123,6 +135,9 @@ int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 	syy->Delete();
 	syz->Delete();
 	szz->Delete();
+	la->Delete();
+	mu->Delete();
+	rho->Delete();
 	contact->Delete();
 
 	stringstream name;
