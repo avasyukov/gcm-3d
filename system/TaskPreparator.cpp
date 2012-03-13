@@ -36,6 +36,34 @@ void TaskPreparator::set_fixed_elastic_rheology(vector<ElasticNode>* nodes, floa
 	}
 };
 
+void TaskPreparator::set_fixed_elastic_rheology(vector<ElasticNode>* nodes, MeshOutline* box, float la, float mu, float rho, float yield_limit)
+{
+	if(nodes == NULL)
+		return;
+	for(int i = 0; i < nodes->size(); i++)
+	{
+		if( ( (nodes->at(i)).coords[0] >= box->min_coords[0] ) && ( (nodes->at(i)).coords[0] <= box->max_coords[0] )
+			&& ( (nodes->at(i)).coords[1] >= box->min_coords[1] ) && ( (nodes->at(i)).coords[1] <= box->max_coords[1] )
+			&& ( (nodes->at(i)).coords[2] >= box->min_coords[2] ) && ( (nodes->at(i)).coords[2] <= box->max_coords[2] ) )
+		{
+			(nodes->at(i)).la = la;
+			(nodes->at(i)).mu = mu;
+			(nodes->at(i)).rho = rho;
+			(nodes->at(i)).yield_limit = yield_limit;
+		}
+	}
+};
+
+void TaskPreparator::check_rheology_loaded(vector<ElasticNode>* nodes)
+{
+	if(nodes == NULL)
+		return;
+	for(int i = 0; i < nodes->size(); i++)
+		if( ( (nodes->at(i)).la == 0 ) || ( (nodes->at(i)).mu == 0 ) 
+				|| ( (nodes->at(i)).rho == 0 ) || ( (nodes->at(i)).yield_limit == 0 ) )
+			throw GCMException(GCMException::CONFIG_EXCEPTION, "Rheology is not set for some nodes");
+};
+
 int TaskPreparator::load_zones_info(string zones_file, vector<int>* zones_info)
 {
 	// Try to open zones map file
@@ -268,7 +296,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 			throw GCMException(GCMException::CONFIG_EXCEPTION, "Malformed task file");
 
 		string areatype = earea->Attribute( "type" );
-		if( areatype == "mesh" )	//TODO add other options here
+		if( areatype == "mesh" )
 		{
 			int zone_num = atoi( earea->GetText() );
 			if( zone_num == 0 && strcmp( earea->GetText(), "0" ) != 0 )
@@ -285,9 +313,23 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 					&( ( mesh_set->get_mesh_by_zone_num( zone_num ) )->nodes ), 
 					la, mu, rho, yield );
 			}
+		} else if( areatype == "box" ) {
+			MeshOutline outline;
+			outline.min_coords[0] = atof( earea->Attribute( "minX" ) );
+			outline.max_coords[0] = atof( earea->Attribute( "maxX" ) );
+			outline.min_coords[1] = atof( earea->Attribute( "minY" ) );
+			outline.max_coords[1] = atof( earea->Attribute( "maxY" ) );
+			outline.min_coords[2] = atof( earea->Attribute( "minZ" ) );
+			outline.max_coords[2] = atof( earea->Attribute( "maxZ" ) );
+
+			for(int i = 0; i < mesh_set->get_number_of_meshes(); i++)
+				set_fixed_elastic_rheology( &( ( mesh_set->get_mesh(i) )->nodes ), &outline, la, mu, rho, yield );
 		}
 		erheo = erheo->NextSiblingElement( "rheology" );
 	}
+
+	for(int i = 0; i < mesh_set->get_number_of_meshes(); i++)
+		check_rheology_loaded( &( ( mesh_set->get_mesh(i) )->nodes ) );
 
 	logger->write("Task loaded");
 

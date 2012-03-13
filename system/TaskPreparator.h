@@ -12,6 +12,7 @@
 using std::string;
 using std::vector;
 
+#include "../datatypes/MeshOutline.h"
 #include "../datatypes/ElasticNode.h"
 #include "../meshtypes/TetrMesh_1stOrder.h"
 #include "../methods/TetrMethod_Plastic_1stOrder.h"
@@ -35,6 +36,8 @@ public:
 	void attach(Logger* new_logger);
 	string* get_task_preparator_type();
 	void set_fixed_elastic_rheology(vector<ElasticNode>* nodes, float la, float mu, float rho, float yield_limit);
+	void set_fixed_elastic_rheology(vector<ElasticNode>* nodes, MeshOutline* box, float la, float mu, float rho, float yield_limit);
+	void check_rheology_loaded(vector<ElasticNode>* nodes);
 	
 	int load_task( string task_file, string zones_file, string data_dir, 
 				int* snap_num, int* steps_per_snap, TetrMeshSet* mesh_set, DataBus* data_bus );
