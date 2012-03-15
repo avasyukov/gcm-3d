@@ -5,6 +5,12 @@ Logger::Logger()
 	logger_type.assign("Generic logger");
 };
 
+Logger::Logger(Logger &logger)
+{
+	this->proc_num = logger.proc_num;
+	this->ss << logger.ss.str();
+}
+
 Logger::~Logger() { };
 
 void Logger::write(string str)
