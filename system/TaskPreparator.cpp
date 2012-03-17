@@ -126,7 +126,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 	load_zones_info(zones_file, &zones_info);
 
 	// Check if we use all CPUs - otherwise consider zones map malformed
-	for(int i = 0; i < data_bus->get_total_proc_num(); i++) {
+	for(int i = 0; i < data_bus->get_procs_total_num(); i++) {
 		bool cpu_used = false;
 		for(int j = 0; j < zones_info.size(); j++)
 			if(zones_info[j] == i)
@@ -137,7 +137,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 
 	// Check if all zones are mapped to correct CPUs - otherwise consider zones map malformed
 	for(int i = 0; i < zones_info.size(); i++)
-		if(zones_info[i] >= data_bus->get_total_proc_num())
+		if(zones_info[i] >= data_bus->get_procs_total_num())
 			throw GCMException(GCMException::CONFIG_EXCEPTION, "Some zones are not mapped to correct CPUs");
 
 	// Path zones map to data bus

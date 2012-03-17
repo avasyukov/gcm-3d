@@ -153,6 +153,9 @@ int main(int argc, char **argv)
 		cout << "ERROR: " << e.getMessage() << endl;
 		// Delete data bus to finalize MPI
 		// TODO: delete all other objects?
+		// TODO
+		// here we should terminate all other procs, so we need a way to
+		// "broadcast" an exception
 		if(data_bus != NULL)
 			delete data_bus;
 	}

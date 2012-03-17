@@ -138,12 +138,102 @@ int TetrMeshSet::do_next_step()
 //	}
 	float time_step = data_bus->get_max_possible_tau(get_max_possible_tau());
 
-	// Clear virtual nodes because they change between time steps
-	virt_nodes.clear();
-	for(int i = 0; i < meshes.size(); i++)
-		for(int j = i+1; j < meshes.size(); j++)
-			if( collision_detector->find_collisions(meshes[i], meshes[j], &virt_nodes, time_step) < 0 )
-				return -1;
+//	// Clear virtual nodes because they change between time steps
+//	virt_nodes.clear();
+//	for(int i = 0; i < meshes.size(); i++)
+//		for(int j = i+1; j < meshes.size(); j++)
+//			if( collision_detector->find_collisions(meshes[i], meshes[j], &virt_nodes, time_step) < 0 )
+//				return -1;
+
+	// get outlines for all meshes
+	// FIXME
+	// should we use vector<MeshOutline*> here?
+	//
+	// FIXME
+	// all collisions-related code should be moved to the method of
+	// CollisionDetector implementation; a proper class hierarchy should be
+	// introduced
+	vector<MeshOutline> local, remote;
+	MeshOutline intersection;
+	vector<MeshOutlineInfo> info;
+
+	vector<ElasticNode> remote_nodes;
+	vector<Triangle> local_faces, remote_faces;
+
+	for (int i = 0; i < meshes.size(); i++)
+		local.push_back(meshes[i]->outline);
+
+	data_bus->sync_outlines(local, remote, info);
+
+	vector<ElasticNode> local_nodes;
+	int procs_to_sync = data_bus->get_procs_total_num();
+
+	*logger < "Processing local/local collisions";
+
+	// process collisions between local nodes and local faces
+	for (int i = 0; i < local.size(); i++)
+		for (int j = i+1; j < local.size(); j++)
+			if (collision_detector->find_intersection(local[i], local[j], intersection))
+			{
+				// find local nodes inside intersection
+				collision_detector->find_nodes_in_intersection(meshes[i]->nodes, intersection, local_nodes);
+				// find local faces inside intersection
+				collision_detector->find_faces_in_intersection(meshes[j]->border, meshes[j]->nodes, intersection, local_faces);
+				*logger << "Got " << local_nodes.size() << " nodes and " << local_faces.size() < " local faces";
+				// process collisions
+				// TODO
+				// clear
+				local_nodes.clear();
+				local_faces.clear();
+			}
+
+	*logger < "Local/local collisions processed";
+
+	// process collisions between local nodes and remote faces
+	for (int i = 0; i < local.size(); i++)
+		for (int j = 0; j < remote.size(); j++)
+			if (collision_detector->find_intersection(local[i], remote[j], intersection))
+			{
+				*logger << "Collision detected between local mesh zone #" << meshes[i]->zone_num << " and remote mesh zone #" < info[j].zone_num;
+				// find local nodes inside intersection
+				collision_detector->find_nodes_in_intersection(meshes[i]->nodes, intersection, local_nodes);
+				// get remote faces inside intersection
+				data_bus->get_remote_faces_in_intersection(info[j].proc_num, info[j].zone_num, intersection, remote_nodes, remote_faces, procs_to_sync);
+				*logger << "Got " << local_nodes.size() << " local nodes, " << remote_faces.size() << " remote faces and " << remote_nodes.size() < " remote nodes";
+				// process collisions
+				// TODO
+				// clear
+				local_nodes.clear();
+				remote_nodes.clear();
+				remote_faces.clear();
+			}
+	
+	*logger < "Local/remote collisions processed";
+
+	// remote faces sync done, notify
+	procs_to_sync--;
+	data_bus->remote_faces_sync_done();
+	
+	// FIXME
+	// do we really need this or destructor does it?
+	// clear
+	local.clear();
+	remote.clear();
+	info.clear();
+
+	// wait for other procs
+	// FIXME
+	// move all MPI related code to...DataBus?
+	while (procs_to_sync > 0)
+	{
+		MPI::Status status;
+		data_bus->check_messages_sync(MPI::ANY_SOURCE, DataBus::TAG_CLASS_SYNC_FACES, status);
+		// FIXME
+		// we do not actually need an access to nodes/faces here
+		data_bus->process_faces_sync_message(status.Get_source(), status.Get_tag(), remote_nodes, remote_faces, procs_to_sync);
+	}
+
+	*logger < "Remote faces sync done";
 
 	for(int i = 0; i < meshes.size(); i++)
 		if (meshes[i]->do_next_step(time_step) < 0)

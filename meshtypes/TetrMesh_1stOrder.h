@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <gsl/gsl_linalg.h>
 
 using std::stringstream;
 using std::sort;
@@ -38,6 +39,8 @@ public:
 	Tetrahedron_1st_order* find_owner_tetr(ElasticNode* node, float dx, float dy, float dz);
 	Tetrahedron_1st_order* find_owner_tetr(ElasticNode* node, float dx, float dy, float dz, bool debug);
 	int interpolate(ElasticNode* node, Tetrahedron* tetr);
+	// interpolates value inside of triangle
+	bool interpolate_triangle(float *p1, float *p2, float *p3, float *p, float v1, float v2, float v3, float &val);
 	int log_mesh_stats();
 //	int do_next_step();
 	int do_next_step(float time_step);
@@ -67,6 +70,7 @@ private:
 
 	int find_border_elem_normal(int border_element_index, float* x, float* y, float* z);
 	int find_border_elem_normal(int v1, int v2, int v3, float* x, float* y, float* z);
+	int find_border_elem_normal(float *p1, float *p2, float *p3, float *x, float *y, float *z);
 
 	float calc_determ_pure_tetr(int node1, int node2, int node3, int ref_node);
 	float calc_determ_with_shift(int node1, int node2, int node3, int base_node, float dx, float dy, float dz);
