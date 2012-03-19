@@ -1,5 +1,6 @@
 #include "quick_math.h"
 
+// is M_PI soooo bad? :)
 const float quick_math::PI = atanf(1) * 4;
 
 // Finds volume of tetrahedron created on three given vectors

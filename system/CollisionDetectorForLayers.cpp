@@ -27,24 +27,21 @@ int CollisionDetectorForLayers::find_collisions(TetrMesh_1stOrder* mesh1, TetrMe
 	MeshOutline outline1 = mesh1->outline;
 	MeshOutline outline2 = mesh2->outline;
 
-	stringstream ss;
-        ss << "Mesh outline 1:" << endl
-                << "MinX: " << outline1.min_coords[0] << endl
-                << "MaxX: " << outline1.max_coords[0] << endl
-                << "MinY: " << outline1.min_coords[1] << endl
-                << "MaxY: " << outline1.max_coords[1] << endl
-                << "MinZ: " << outline1.min_coords[2] << endl
-                << "MaxZ: " << outline1.max_coords[2] << endl;
+	*logger < "Mesh outline 1:";
+	*logger << "MinX: " < outline1.min_coords[0];
+	*logger << "MaxX: " < outline1.max_coords[0];
+	*logger << "MinY: " < outline1.min_coords[1];
+	*logger << "MaxY: " < outline1.max_coords[1];
+	*logger << "MinZ: " < outline1.min_coords[2];
+	*logger << "MaxZ: " < outline1.max_coords[2];
 
-       ss << "Mesh outline 2:" << endl
-                << "MinX: " << outline2.min_coords[0] << endl
-                << "MaxX: " << outline2.max_coords[0] << endl
-                << "MinY: " << outline2.min_coords[1] << endl
-                << "MaxY: " << outline2.max_coords[1] << endl
-                << "MinZ: " << outline2.min_coords[2] << endl
-                << "MaxZ: " << outline2.max_coords[2] << endl;
-
-	cout << ss.str();
+	*logger < "Mesh outline 2:";
+	*logger << "MinX: " < outline2.min_coords[0];
+	*logger << "MaxX: " < outline2.max_coords[0];
+	*logger << "MinY: " < outline2.min_coords[1];
+	*logger << "MaxY: " < outline2.max_coords[1];
+	*logger << "MinZ: " < outline2.min_coords[2];
+	*logger << "MaxZ: " < outline2.max_coords[2];
 
 	MeshOutline intersect;
 
@@ -57,18 +54,18 @@ int CollisionDetectorForLayers::find_collisions(TetrMesh_1stOrder* mesh1, TetrMe
 	}
 
 	if(!colliding) {
-		cout << "Not colliding\n";
+		*logger < "Not colliding";
 		return 0;
 	}
 
-	cout << "Colliding!\n";
-        cout << "Intersection:" << endl
-	                << "MinX: " << intersect.min_coords[0] << endl
-	                << "MaxX: " << intersect.max_coords[0] << endl
-	                << "MinY: " << intersect.min_coords[1] << endl
-	                << "MaxY: " << intersect.max_coords[1] << endl
-	                << "MinZ: " << intersect.min_coords[2] << endl
-	                << "MaxZ: " << intersect.max_coords[2] << endl;
+	*logger < "Colliding!";
+	*logger < "Intersection:";
+	*logger << "MinX: " < intersect.min_coords[0];
+	*logger << "MaxX: " < intersect.max_coords[0];
+	*logger << "MinY: " < intersect.min_coords[1];
+	*logger << "MaxY: " < intersect.max_coords[1];
+	*logger << "MinZ: " < intersect.min_coords[2];
+	*logger << "MaxZ: " < intersect.max_coords[2];
 
 	// If it is the first run - process mesh once and find and remember index_shift
 	if(index_shift < 0 )
@@ -151,10 +148,10 @@ void CollisionDetectorForLayers::find_index_shift(TetrMesh_1stOrder* mesh1, Tetr
 		}
 	}
 
-	cout << "DEBUG: Treshold " << treshold << endl;
-	cout << "DEBUG: Layer shift direction " << shift_direction << endl;
-	cout << "DEBUG: Layer shift value " << shift_value << endl;
-	cout << "DEBUG: Resulting node index delta " << index_shift << endl;
+	*logger << "DEBUG: Treshold " < treshold;
+	*logger << "DEBUG: Layer shift direction " < shift_direction;
+	*logger << "DEBUG: Layer shift value " < shift_value;
+	*logger << "DEBUG: Resulting node index delta " < index_shift;
 };
 
 void CollisionDetectorForLayers::find_nodes_in_intersect(TetrMesh_1stOrder* mesh, MeshOutline* intersect, vector<int>* nodes_vector)
