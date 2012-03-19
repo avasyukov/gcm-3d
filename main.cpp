@@ -74,11 +74,6 @@ int main(int argc, char **argv)
 	if(res_dir[res_dir.length()-1] != '/')
 		res_dir += '/';
 
-	cout << "Task file: " << task_file << endl;
-	cout << "Zones info file: " << zones_info_file << endl;
-	cout << "Data dir: " << data_dir << endl;
-	cout << "Res dir: " << res_dir << endl;
-
 	// Number of snapshots in task
 	int snap_num = -1;
 	// Number of steps between snapshots
@@ -104,6 +99,11 @@ int main(int argc, char **argv)
 
 		// Create data bus
 		data_bus = new DataBus(logger);
+		
+		*logger << "Task file: " < task_file;
+		*logger << "Zones info file: " < zones_info_file;
+		*logger << "Data dir: " < data_dir;
+		*logger << "Res dir: " < res_dir;
 
 		// Attach mesh set and data bus to each other
 		mesh_set->attach(data_bus);
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 		{
 			if( (cur_time = mesh_set->get_current_time()) < 0)
 				return -1;
-			cout << "Started step " << i << ". Time = " << cur_time << "." << endl;
+			*logger << "Started step " << i << ". Time = " << cur_time < ".";
 
 			for(int j = 0; j < step_per_snap; j++)
 				if (mesh_set->do_next_step() < 0)
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
 
 			if( (cur_time = mesh_set->get_current_time()) < 0)
 				return -1;
-			cout << "Finished step " << i << ". Time = " << cur_time << "." << endl;
+			*logger << "Finished step " << i << ". Time = " << cur_time < ".";
 		}
 
 		// Delete data bus to finalize MPI
@@ -150,11 +150,13 @@ int main(int argc, char **argv)
 	}
 	catch (GCMException& e)
 	{
-		cout << "ERROR: " << e.getMessage() << endl;
-		// Delete data bus to finalize MPI
-		// TODO: delete all other objects?
-		if(data_bus != NULL)
-			delete data_bus;
+		// print error message
+		*logger << "ERROR: " < e.getMessage();
+		// terminate all other procs
+		// FIXME
+		// return -1 works too, but I think it's beter to call a specialized
+		// function to stop execturion 
+		data_bus->terminate();
 	}
 
 	return 0;

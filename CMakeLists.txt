@@ -35,6 +35,7 @@ set ( SOURCES
 	./system/TetrMeshSet.cpp
 	./system/SnapshotWriter.cpp
 	./system/CylTest.cpp
+	./system/ParallelCollisionDetector.cpp
 	./system/CollisionDetector.cpp
 	./system/VoidCollisionDetector.cpp
 	./system/BruteforceCollisionDetector.cpp

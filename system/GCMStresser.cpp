@@ -22,11 +22,11 @@ bool GCMStressAreaSphere::isInArea( ElasticNode* cur_node )
 
 void GCMStressAreaSphere::print()
 {
-	cout << " sphere\n";
+	*logger < " sphere";
 	for ( int i = 0; i < 3; ++i ) {
-		cout << " " << center[i];
+		*logger << " " << center[i];
 	}
-	cout << endl;
+	*logger < "";
 }
 
 GCMStressAreaBox::GCMStressAreaBox( float _minX, float _maxX, float _minY, float _maxY, float _minZ, float _maxZ )
@@ -55,10 +55,10 @@ bool GCMStressAreaBox::isInArea( ElasticNode* cur_node )
 
 void GCMStressAreaBox::print()
 {
-	cout << " box\n";
-	cout << " " << minX << " " << maxX << endl;
-	cout << " " << minY << " " << maxY << endl;
-	cout << " " << minZ << " " << maxZ << endl;
+	*logger < " box";
+	*logger << " " << minX << " " < maxX;
+	*logger << " " << minY << " " < maxY;
+	*logger << " " << minZ << " " < maxZ;
 }
 
 
@@ -103,15 +103,15 @@ bool GCMStressAreaCylinder::isInArea( ElasticNode* cur_node )
 
 void GCMStressAreaCylinder::print()
 {
-	cout << " cylinder\n";
-	cout << " " << radius << endl;
+	*logger < " cylinder";
+	*logger << " " < radius;
 	for ( int i = 0; i < 3; ++i ) {
-		cout << " " << begin[i];
+		*logger << " " << begin[i];
 	}
 	for ( int i = 0; i < 3; ++i ) {
-		cout << " " << end[i];
+		*logger << " " << end[i];
 	}
-	cout << endl;
+	*logger < "";
 }
 
 //============================GCMSTRESSFORM====================================
@@ -138,12 +138,12 @@ float GCMStressFormStep::calcMagnitude(float currentTime, int varNum )
 
 void GCMStressFormStep::print()
 {
-	cout << " step\n";
-	cout << " " << beginTime << " " << duration << endl;
+	*logger < " step";
+	*logger << " " << beginTime << " " < duration;;
 	for( int i = 0; i < 9; ++i ) {
-		cout << " " << amplitude[i];
+		*logger << " " << amplitude[i];
 	}
-	cout << endl;
+	*logger < "";
 }
 
 GCMStressFormTriangle::GCMStressFormTriangle( float _beginTime, float _duration, float* _amplitude)
@@ -173,12 +173,12 @@ float GCMStressFormTriangle::calcMagnitude(float currentTime, int varNum )
 
 void GCMStressFormTriangle::print()
 {
-	cout << " triangle\n";
-	cout << " " << beginTime << " " << duration << endl;
+	*logger < " triangle";
+	*logger << " " << beginTime << " " < duration;
 	for( int i = 0; i < 9; ++i ) {
-		cout << " " << amplitude[i];
+		*logger << " " << amplitude[i];
 	}
-	cout << endl;
+	*logger < "";
 }
 
 //============================GCMSTRESSPERFORMER==================================
@@ -198,7 +198,7 @@ bool GCMStressPerformerUniform::performStress( GCMStressArea* area, GCMStressFor
 
 void GCMStressPerformerUniform::print()
 {
-	cout << " uniform\n";
+	*logger < " uniform";
 }
 
 bool GCMStressPerformerCylindrical::performStress( GCMStressArea* area, GCMStressForm* form, ElasticNode* cur_node, ElasticNode* new_node, float current_time )
@@ -226,7 +226,7 @@ bool GCMStressPerformerCylindrical::performStress( GCMStressArea* area, GCMStres
 
 void GCMStressPerformerCylindrical::print()
 {
-	cout << " cylindrical\n";
+	*logger < " cylindrical";
 }
 
 bool GCMStressPerformerRadial::performStress( GCMStressArea* area, GCMStressForm* form, ElasticNode* cur_node, ElasticNode* new_node, float current_time)
@@ -244,7 +244,7 @@ bool GCMStressPerformerRadial::performStress( GCMStressArea* area, GCMStressForm
 
 void GCMStressPerformerRadial::print()
 {
-	cout << " radial\n";
+	*logger < " radial";
 }
 
 //============================GCMSTRESS====================================
@@ -256,10 +256,10 @@ bool GCMStress::performStress(ElasticNode* cur_node, ElasticNode* new_node, floa
 
 void GCMStress::print()
 {
-	cout << " stress\n";
+	*logger < " stress";
 	
 	if( area == 0 ) {
-		cout << "area is null!!!\n";
+		*logger < "area is null!!!";
 	}
 	
 	
@@ -302,7 +302,7 @@ void GCMStresser::tokenize( const string& str, vector<string>* result )
 	while( ss.eof() != true ) {
 		ss >> strPart;
 		result->push_back( strPart );
-		cout << " - " << strPart << endl;
+		*logger << " - " < strPart;
 	}
 }
 
@@ -383,6 +383,8 @@ GCMStressArea* GCMStresser::createArea( const string& type, const string& str ) 
 	else {
 		return 0;
 	}
+	
+	area->attach(logger);
 	
 	return area;	
 }
@@ -466,7 +468,7 @@ bool GCMStresser::loadTask(string fname)
 							badFormat();
 							return false;
 						}
-						cout << performtype << endl;
+						*logger < performtype;
 					}
 					else {
 						badFormat();
@@ -478,22 +480,48 @@ bool GCMStresser::loadTask(string fname)
 				}
 				
 				estress = estress->NextSiblingElement( "stress" );
-				cout << "-----------interation----------------\n";
+				*logger < "-----------interation----------------";
 			}
 		}
 	}
 	else {
-		cout << "failed to load xml task. exiting\n";
+		*logger << "failed to load xml task. exiting";
 	}
-	
+
+	for  (int i = 0; i < stresses.size(); i++)
+	{
+		stresses[i]->attach(logger);
+		stresses[i]->performer->attach(logger);
+	}
+
 	return true;
 }
 
 void GCMStresser::print()
 {
-	cout << " size " << stresses.size() << endl;
+	*logger << " size " < stresses.size();
 	for( int i = 0; i < stresses.size(); ++i ) {
-		cout << i << endl;
+		*logger < i;
 		stresses[i]->print();
 	}	
+}
+
+void GCMStressArea::attach(Logger *logger)
+{
+	this->logger = logger;
+}
+
+void GCMStressForm::attach(Logger *logger)
+{
+	this->logger = logger;
+}
+
+void GCMStressPerformer::attach(Logger *logger)
+{
+	this->logger = logger;
+}
+
+void GCMStress::attach(Logger *logger)
+{
+	this->logger = logger;
 }

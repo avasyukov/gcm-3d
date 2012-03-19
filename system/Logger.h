@@ -11,6 +11,7 @@ using std::vector;
 using std::cout;
 using std::endl;
 using std::stringstream;
+using std::ios;
 
 class Logger
 {
@@ -21,6 +22,8 @@ public:
 	void write(string str);
 	// stores process number to make logging more verbose
 	void set_proc_num(int proc_num);
+	// returns stringstream
+	stringstream &get_ss();
 	string* get_logger_type();
 	// FIXME
 	// it seems to be impossible to move this template operator outside of a
