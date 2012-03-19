@@ -11,12 +11,11 @@
 #include <math.h>
 
 using std::stringstream;
-using std::cout;
 using std::cerr;
-using std::endl;
 
 #include "CylTest.h"
 #include "Stresser.h"
+#include "Logger.h"
 #include "../datatypes/ElasticNode.h"
 
 #define STRESS_FORM_TRIANGLE "triangle"
@@ -33,8 +32,11 @@ using std::endl;
 class GCMStressArea 
 {
 public:
+	void attach(Logger *logger);
 	virtual bool isInArea( ElasticNode* cur_node ) = 0;
 	virtual void print() = 0;
+protected:
+	Logger *logger;
 };
 
 class GCMStressAreaSphere : public GCMStressArea 
@@ -75,8 +77,11 @@ public:
 class GCMStressForm
 {
 public:
+	void attach(Logger *logger);
 	virtual float calcMagnitude( float currentTime, int varNum ) = 0;
 	virtual void print() = 0;
+protected:
+	Logger *logger;
 };
 
 class GCMStressFormStep : public GCMStressForm
@@ -106,9 +111,12 @@ public:
 class GCMStressPerformer
 {
 public:
+	void attach(Logger *logger);
 //	GCMStressPerformer() {}
 	virtual bool performStress( GCMStressArea* area, GCMStressForm* form, ElasticNode* cur_node, ElasticNode* new_node, float current_time ) = 0;
 	virtual void print() = 0;
+protected:
+	Logger *logger;
 };
 
 class GCMStressPerformerRadial : public GCMStressPerformer
@@ -138,6 +146,7 @@ public:
 class GCMStress
 {
 public:
+	void attach(Logger *logger);
 	GCMStressArea* area;
 	GCMStressForm* form;
 	GCMStressPerformer* performer;
@@ -145,6 +154,8 @@ public:
 	bool checkArea(ElasticNode* cur_node);
 	bool performStress(ElasticNode* cur_node, ElasticNode* new_node, float current_time);
 	void print();
+protected:
+	Logger *logger;
 };
 
 class GCMStresser : public Stresser

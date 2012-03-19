@@ -95,9 +95,7 @@ int TaskPreparator::load_zones_info(string zones_file, vector<int>* zones_info)
 		ezone = ezone->NextSiblingElement( "zone" );
 	}
 
-	stringstream ss;
-	ss << zones_info->size() << " mesh zones in map file"; 
-	logger->write(ss.str());
+	*logger << zones_info->size() < " mesh zones in map file"; 
 
 	return 0;
 };
@@ -112,6 +110,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 
 	// Create stresser
 	Stresser* stresser = new GCMStresser();
+	stresser->attach(logger);
 	// Stresser loads data from the file on its own
 	// TODO - load should be done by task preparator as well
 	stresser->loadTask(task_file);
@@ -231,9 +230,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 			// Load only zones that are scheduled for this CPU
 			if( zones_info[zone_num] == proc_num )
 			{
-				stringstream ss;
-				ss << "Loading zone: " << zone_num;
-				logger->write(ss.str());
+				*logger << "Loading zone: " < zone_num;
 
 				string meshpath = ezone->Attribute( "file" );
 				if( meshpath == "" )
@@ -305,9 +302,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 			// Work only with zones that are scheduled for this CPU
 			if( zones_info[zone_num] == proc_num )
 			{
-				stringstream ss;
-				ss << "Setting rheology for zone: " << zone_num;
-				logger->write(ss.str());
+				*logger << "Setting rheology for zone: " < zone_num;
 
 				set_fixed_elastic_rheology( 
 					&( ( mesh_set->get_mesh_by_zone_num( zone_num ) )->nodes ), 

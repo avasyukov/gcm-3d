@@ -27,24 +27,22 @@ int BruteforceCollisionDetector::find_collisions(TetrMesh_1stOrder* mesh1, TetrM
 	MeshOutline outline1 = mesh1->outline;
 	MeshOutline outline2 = mesh2->outline;
 
-	stringstream ss;
-        ss << "Mesh outline 1:" << endl
-                << "MinX: " << outline1.min_coords[0] << endl
-                << "MaxX: " << outline1.max_coords[0] << endl
-                << "MinY: " << outline1.min_coords[1] << endl
-                << "MaxY: " << outline1.max_coords[1] << endl
-                << "MinZ: " << outline1.min_coords[2] << endl
-                << "MaxZ: " << outline1.max_coords[2] << endl;
+	*logger < "Mesh outline 1:";
+    *logger << "MinX: " < outline1.min_coords[0];
+    *logger << "MaxX: " < outline1.max_coords[0];
+    *logger << "MinY: " < outline1.min_coords[1];
+    *logger << "MaxY: " < outline1.max_coords[1];
+    *logger << "MinZ: " < outline1.min_coords[2];
+    *logger << "MaxZ: " < outline1.max_coords[2];
 
-       ss << "Mesh outline 2:" << endl
-                << "MinX: " << outline2.min_coords[0] << endl
-                << "MaxX: " << outline2.max_coords[0] << endl
-                << "MinY: " << outline2.min_coords[1] << endl
-                << "MaxY: " << outline2.max_coords[1] << endl
-                << "MinZ: " << outline2.min_coords[2] << endl
-                << "MaxZ: " << outline2.max_coords[2] << endl;
+    *logger < "Mesh outline 2:";
+    *logger << "MinX: " < outline2.min_coords[0];
+    *logger << "MaxX: " < outline2.max_coords[0];
+    *logger << "MinY: " < outline2.min_coords[1];
+    *logger << "MaxY: " < outline2.max_coords[1];
+    *logger << "MinZ: " < outline2.min_coords[2];
+    *logger << "MaxZ: " < outline2.max_coords[2];
 
-	cout << ss.str();
 
 	MeshOutline intersect;
 
@@ -57,18 +55,18 @@ int BruteforceCollisionDetector::find_collisions(TetrMesh_1stOrder* mesh1, TetrM
 	}
 
 	if(!colliding) {
-		cout << "Not colliding\n";
+		*logger < "Not colliding";
 		return 0;
 	}
 
-	cout << "Colliding!\n";
-        cout << "Intersection:" << endl
-	                << "MinX: " << intersect.min_coords[0] << endl
-	                << "MaxX: " << intersect.max_coords[0] << endl
-	                << "MinY: " << intersect.min_coords[1] << endl
-	                << "MaxY: " << intersect.max_coords[1] << endl
-	                << "MinZ: " << intersect.min_coords[2] << endl
-	                << "MaxZ: " << intersect.max_coords[2] << endl;
+	*logger < "Colliding!";
+	*logger < "Intersection:";
+	*logger << "MinX: " < intersect.min_coords[0];
+	*logger << "MaxX: " < intersect.max_coords[0];
+	*logger << "MinY: " < intersect.min_coords[1];
+	*logger << "MaxY: " < intersect.max_coords[1];
+	*logger << "MinZ: " < intersect.min_coords[2];
+	*logger << "MaxZ: " < intersect.max_coords[2];
 
 	// Find nodes and tetrs in intersection to check them in details later
 	find_elements_in_intersect(mesh1, &intersect, &mesh1_nodes, &mesh1_tetrs);

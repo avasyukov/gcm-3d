@@ -295,11 +295,7 @@ float DataBus::get_max_possible_tau(float local_time_step)
 		MPI::COMM_WORLD.Recv(&max_tau, 1, MPI::FLOAT, 0, TAG_SYNC_TIME_STEP, status);
 	}
 
-	// FIXME
-	// string stream again
-	stringstream ss;
-	ss << "Time step synchronized, value is: " << max_tau; 
-	logger->write(ss.str());
+	*logger << "Time step synchronized, value is: " < max_tau; 
 
 	return max_tau;
 }

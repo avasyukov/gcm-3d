@@ -117,86 +117,79 @@ void GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::log_node_diagnostics(E
 {
 	int outer_count = prepare_node(cur_node, matrixes, time_step, stage, mesh, dksi, inner, previous_nodes, outer_normal, ppoint_num, basis_num, value_limiters, true);
 
-	if(logger != NULL)
-	{
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "NODE DETAILS:" << endl;
-		ss << "STAGE: " << stage << endl;
-		ss << "NODE " << cur_node->local_num << ": x: " << cur_node->coords[0] 
-					<< " y: " << cur_node->coords[1]
-					<< " z: " << cur_node->coords[2] << endl;
-		ss << "OUTER COUNT: " << outer_count << endl;
-		ss << "VALUES: " << endl;
-		for(int j = 0; j < 9; j++)
-			ss << "Value[" << j << "] = " << cur_node->values[j] << endl;
-		ss << "LIMITERS: " << endl;
-		for(int j = 0; j < 9; j++)
-			ss << "Limiters[" << j << "] = " << value_limiters[j] << endl;
-		if( cur_node->border_type == BORDER ) {
-			ss << "BORDER" << endl;
-			if( ( cur_node->contact_data != NULL ) && ( cur_node->contact_data->axis_plus[stage] == -1 ) && ( cur_node->contact_data->axis_minus[stage] == -1 ) ) {
-				ss << "BORDER WITHOUT CONTACT" << endl;
-			} else {
-				ss << "CONTACT BORDER" << endl;
-
-				if( cur_node->contact_data != NULL ) {
-					ss << "CONTACT DATA:" << endl;
-					for(int k = 0; k < 3; k++)
-						ss << "Axis[" << k << "]: minus: " << cur_node->contact_data->axis_minus[k] << " plus: " << cur_node->contact_data->axis_plus[k] << endl;
-
-					ElasticNode* virt_node;
-					if( cur_node->contact_data->axis_plus[stage] != -1 )
-						virt_node=mesh->mesh_set->getNode(cur_node->contact_data->axis_plus[stage]);
-					else
-						virt_node=mesh->mesh_set->getNode(cur_node->contact_data->axis_minus[stage]);
-
-					ss << "VIRT NODE " << virt_node->local_num << ":"
-							<< " x: " << virt_node->coords[0]
-							<< " y: " << virt_node->coords[1]
-							<< " z: " << virt_node->coords[2] << endl;
-					ss << "VIRT NODE VALUES: " << endl;
-					for(int j = 0; j < 9; j++)
-						ss << "Value[" << j << "] = " << virt_node->values[j] << endl;
-
-				}
-			}
+	*logger < "NODE DETAILS:";
+	*logger << "STAGE: " < stage;
+	*logger << "NODE " << cur_node->local_num << ": x: " << cur_node->coords[0] 
+				<< " y: " << cur_node->coords[1]
+				<< " z: " < cur_node->coords[2];
+	*logger << "OUTER COUNT: " < outer_count;
+	*logger < "VALUES: ";
+	for(int j = 0; j < 9; j++)
+		*logger << "Value[" << j << "] = " < cur_node->values[j];
+	*logger < "LIMITERS: ";
+	for(int j = 0; j < 9; j++)
+		*logger << "Limiters[" << j << "] = " < value_limiters[j];
+	if( cur_node->border_type == BORDER ) {
+		*logger < "BORDER";
+		if( ( cur_node->contact_data != NULL ) && ( cur_node->contact_data->axis_plus[stage] == -1 ) && ( cur_node->contact_data->axis_minus[stage] == -1 ) ) {
+			*logger < "BORDER WITHOUT CONTACT";
 		} else {
-			ss << "INNER" << endl;
-		}
-		ss << "OUTER_NORMAL: " << outer_normal[0] << " " << outer_normal[1] << " " << outer_normal[2] << endl;
-		ss << "NEIGH: " << (cur_node->elements)->size() << endl;
-		for(int i = 0; i < (cur_node->elements)->size(); i++) {
-			Tetrahedron* tmp_tetr = mesh->get_tetrahedron( (cur_node->elements)->at(i) );
-			ss << "\tTetr " << tmp_tetr->local_num << " Neigh_num: " << i << endl;
-			for(int j = 0; j < 4; j++) {
-				ElasticNode* tmp_node = mesh->get_node( tmp_tetr->vert[j] );
-				ss << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
-						<< " x: " << tmp_node->coords[0]
-						<< " y: " << tmp_node->coords[1]
-						<< " z: " << tmp_node->coords[2] << endl;
+			*logger < "CONTACT BORDER";
+
+			if( cur_node->contact_data != NULL ) {
+				*logger < "CONTACT DATA:";
+				for(int k = 0; k < 3; k++)
+					*logger << "Axis[" << k << "]: minus: " << cur_node->contact_data->axis_minus[k] << " plus: " < cur_node->contact_data->axis_plus[k];
+
+				ElasticNode* virt_node;
+				if( cur_node->contact_data->axis_plus[stage] != -1 )
+					virt_node=mesh->mesh_set->getNode(cur_node->contact_data->axis_plus[stage]);
+				else
+					virt_node=mesh->mesh_set->getNode(cur_node->contact_data->axis_minus[stage]);
+
+				*logger << "VIRT NODE " << virt_node->local_num << ":"
+						<< " x: " << virt_node->coords[0]
+						<< " y: " << virt_node->coords[1]
+						<< " z: " < virt_node->coords[2];
+				*logger < "VIRT NODE VALUES: ";
+				for(int j = 0; j < 9; j++)
+					*logger << "Value[" << j << "] = " < virt_node->values[j];
+
 			}
 		}
-		for(int i = 0; i < 3; i++)
-			ss << "KSI[" << i << "]: x: " << random_axis[basis_num].ksi[i][0]
-					<< " y: " << random_axis[basis_num].ksi[i][1]
-					<< " z: " << random_axis[basis_num].ksi[i][2] << endl;
-		for(int i = 0; i < 9; i++) {
-			if(inner[i]) {
-				ss << "INNER OMEGA: num: " << i
-					<< " val: " << matrixes[stage]->L(i,i)
-					<< " step: " << matrixes[stage]->L(i,i) * time_step << endl;
-			} else {
-				ss << "OUTER OMEGA: num: " << i 
-					<< " val: " << matrixes[stage]->L(i,i)
-					<< " step: " << matrixes[stage]->L(i,i) * time_step << endl;
-			}
-			ss << "\t Point x: " << previous_nodes[ppoint_num[i]].coords[0]
-					<< " y: " << previous_nodes[ppoint_num[i]].coords[1]
-					<< " z: " << previous_nodes[ppoint_num[i]].coords[2] << endl;
+	} else {
+		*logger < "INNER";
+	}
+	*logger << "OUTER_NORMAL: " << outer_normal[0] << " " << outer_normal[1] << " " < outer_normal[2];
+	*logger << "NEIGH: " < (cur_node->elements)->size();
+	for(int i = 0; i < (cur_node->elements)->size(); i++) {
+		Tetrahedron* tmp_tetr = mesh->get_tetrahedron( (cur_node->elements)->at(i) );
+		*logger << "\tTetr " << tmp_tetr->local_num << " Neigh_num: " < i;
+		for(int j = 0; j < 4; j++) {
+			ElasticNode* tmp_node = mesh->get_node( tmp_tetr->vert[j] );
+			*logger << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
+					<< " x: " << tmp_node->coords[0]
+					<< " y: " << tmp_node->coords[1]
+					<< " z: " < tmp_node->coords[2];
 		}
-		logger->write(ss.str());
+	}
+	for(int i = 0; i < 3; i++)
+		*logger << "KSI[" << i << "]: x: " << random_axis[basis_num].ksi[i][0]
+				<< " y: " << random_axis[basis_num].ksi[i][1]
+				<< " z: " < random_axis[basis_num].ksi[i][2];
+	for(int i = 0; i < 9; i++) {
+		if(inner[i]) {
+			*logger << "INNER OMEGA: num: " << i
+				<< " val: " << matrixes[stage]->L(i,i)
+				<< " step: " < matrixes[stage]->L(i,i) * time_step;
+		} else {
+			*logger << "OUTER OMEGA: num: " << i 
+				<< " val: " << matrixes[stage]->L(i,i)
+				<< " step: " < matrixes[stage]->L(i,i) * time_step;
+		}
+		*logger << "\t Point x: " << previous_nodes[ppoint_num[i]].coords[0]
+				<< " y: " << previous_nodes[ppoint_num[i]].coords[1]
+				<< " z: " < previous_nodes[ppoint_num[i]].coords[2];
 	}
 };
 
@@ -242,11 +235,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 
 	// TODO - merge this condition with the next ones
 	if((outer_count != 0) && (outer_count != 3)) {
-		if(logger != NULL) {
-			stringstream ss;
-			ss << "There are " << outer_count << " 'outer' characteristics." << endl;
-			logger->write(ss.str());
-		}
+		*logger << "There are " << outer_count < " 'outer' characteristics.";
 		log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
 		throw GCMException(GCMException::METHOD_EXCEPTION, "Illegal number of outer characteristics");
 	}
@@ -486,15 +475,11 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 
 			// TODO - merge this condition with the next ones
 			if( virt_outer_count != 3 ) {
-				if(logger != NULL) {
-					stringstream ss;
-					ss << "There are " << virt_outer_count << " 'outer' characteristics." << endl;
-					ss << "REAL NODE " << cur_node->local_num << ": " 
+					*logger << "There are " << virt_outer_count < " 'outer' characteristics.";
+					*logger << "REAL NODE " << cur_node->local_num << ": " 
 								<< "x: " << cur_node->coords[0] 
 								<< " y: " << cur_node->coords[1] 
-								<< " z: " << cur_node->coords[2] << endl;
-					logger->write(ss.str());
-				}
+								<< " z: " < cur_node->coords[2];
 				log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node->mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi, value_limiters);
 				throw GCMException(GCMException::METHOD_EXCEPTION, "Illegal number of outer characteristics");
 			}
@@ -520,25 +505,15 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 					if( (v_x_outer[0] * v_x_virt[0]
 						 + v_x_outer[1] * v_x_virt[1] + v_x_outer[2] * v_x_virt[2]) < 0 )
 					{
-						if(logger != NULL)
-						{
-							stringstream ss;
-							ss << "REAL NODE " << cur_node->local_num << ": " 
-									<< "x: " << cur_node->coords[0] 
-									<< " y: " << cur_node->coords[1] 
-									<< " z: " << cur_node->coords[2] << endl;
-							logger->write(ss.str());
-						}
+						*logger << "REAL NODE " << cur_node->local_num << ": " 
+								<< "x: " << cur_node->coords[0] 
+								<< " y: " << cur_node->coords[1] 
+								<< " z: " < cur_node->coords[2];
 						log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
-						if(logger != NULL)
-						{
-							stringstream ss;
-							ss << "'Outer' direction: " << v_x_outer[0] << " " 
-								<< v_x_outer[1] << " " << v_x_outer[2] << endl;
-							ss << "'Virt' direction: " << v_x_virt[0] << " "
-								<< v_x_virt[1] << " " << v_x_virt[2] << endl;
-							logger->write(ss.str());
-						}
+						*logger << "'Outer' direction: " << v_x_outer[0] << " " 
+							<< v_x_outer[1] << " " < v_x_outer[2];
+						*logger << "'Virt' direction: " << v_x_virt[0] << " "
+							<< v_x_virt[1] << " " < v_x_virt[2];
 						throw GCMException( GCMException::METHOD_EXCEPTION, "Bad contact from real node point of view: 'outer' and 'virt' directions are different");
 					}
 				}
@@ -554,25 +529,15 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 					if( (v_x_outer[0] * v_x_virt[0]
 						+ v_x_outer[1] * v_x_virt[1] + v_x_outer[2] * v_x_virt[2]) < 0 )
 					{
-						if(logger != NULL)
-						{
-							stringstream ss;
-							ss << "REAL NODE " << cur_node->local_num << ": " 
-									<< "x: " << cur_node->coords[0] 
-									<< " y: " << cur_node->coords[1] 
-									<< " z: " << cur_node->coords[2] << endl;
-							logger->write(ss.str());
-						}
+						*logger << "REAL NODE " << cur_node->local_num << ": " 
+								<< "x: " << cur_node->coords[0] 
+								<< " y: " << cur_node->coords[1] 
+								<< " z: " < cur_node->coords[2];
 						log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node->mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi, value_limiters);
-						if(logger != NULL)
-						{
-							stringstream ss;
-							ss << "'Outer' direction: " << v_x_outer[0] << " "
-								<< v_x_outer[1] << " " << v_x_outer[2] << endl;
-							ss << "'Virt' direction: " << v_x_virt[0] << " "
-								<< v_x_virt[1] << " " << v_x_virt[2] << endl;
-							logger->write(ss.str());
-						}
+						*logger << "'Outer' direction: " << v_x_outer[0] << " "
+							<< v_x_outer[1] << " "< v_x_outer[2];
+						*logger << "'Virt' direction: " << v_x_virt[0] << " "
+							<< v_x_virt[1] << " " < v_x_virt[2];
 						throw GCMException( GCMException::METHOD_EXCEPTION, "Bad contact from virt node point of view: 'outer' and 'virt' directions are different");
 					}
 				}
@@ -711,15 +676,11 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 	// Check for instabilities
 /*	for(int i = 0; i < 9; i++) {
 		if( fabs(new_node->values[i]) > 10 * value_limiters[i]) { // TODO avoid magick number
-			if(logger != NULL) {
-				stringstream ss;
-				ss << "WARN: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - potential instability found." << endl;
-				for(int j = 0; j < 9; j++) {
-					ss << "NEW VALUE[" << j << "] = " << new_node->values[j] << endl;
-					ss << "OLD VALUE[" << j << "] = " << cur_node->values[j] << endl;
-					ss << "LIMITER[" << j << "] = " << value_limiters[j] << endl;
-				}
-				logger->write(ss.str());
+			*logger < "WARN: GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step - potential instability found.";
+			for(int j = 0; j < 9; j++) {
+				*logger << "NEW VALUE[" << j << "] = " < new_node->values[j];
+				*logger << "OLD VALUE[" << j << "] = " < cur_node->values[j];
+				*logger << "LIMITER[" << j << "] = " < value_limiters[j];
 			}
 //			log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, elastic_matrix3d, time_step, previous_nodes, ppoint_num, inner, dksi, value_limiters);
 			break;
