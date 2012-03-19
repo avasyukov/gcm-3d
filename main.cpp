@@ -150,14 +150,13 @@ int main(int argc, char **argv)
 	}
 	catch (GCMException& e)
 	{
+		// print error message
 		*logger << "ERROR: " < e.getMessage();
-		// Delete data bus to finalize MPI
-		// TODO: delete all other objects?
-		// TODO
-		// here we should terminate all other procs, so we need a way to
-		// "broadcast" an exception
-		if(data_bus != NULL)
-			delete data_bus;
+		// terminate all other procs
+		// FIXME
+		// return -1 works too, but I think it's beter to call a specialized
+		// function to stop execturion 
+		data_bus->terminate();
 	}
 
 	return 0;

@@ -119,6 +119,8 @@ public:
 	void check_messages_sync(int source, int *tags, MPI::Status &status);
 	// notifies all procs about current proc state
 	void remote_faces_sync_done();
+	// terminates execution
+	void terminate();
 protected:
 	TetrMeshSet* mesh_set;
 	CollisionDetector *collision_detector;
@@ -160,6 +162,9 @@ public:
 	MPI::Datatype MPI_FACES_REQ;
 	MPI::Datatype MPI_FACES_F_RESP;
 	MPI::Datatype MPI_FACES_N_RESP;
+
+	// return code on termination
+	static const int MPI_CODE_TERMINATED = 0;
 };
 
 #endif

@@ -712,3 +712,8 @@ void DataBus::remote_faces_sync_done()
 		if (i != proc_num)
 			MPI::COMM_WORLD.Send(NULL, 0, MPI::BYTE, i, TAG_SYNC_FACES_DONE);
 }
+
+void DataBus::terminate()
+{
+	MPI::COMM_WORLD.Abort(MPI_CODE_TERMINATED);
+}
