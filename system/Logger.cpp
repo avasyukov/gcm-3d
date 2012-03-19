@@ -3,11 +3,16 @@
 Logger::Logger()
 {
 	logger_type.assign("Generic logger");
+	// set defautl options
+	ss.setf(ios::fixed,ios::floatfield);
+	ss.precision(10);
 };
 
 Logger::Logger(Logger &logger)
 {
 	this->proc_num = logger.proc_num;
+	this->ss.flags(logger.ss.flags());
+	this->ss.precision(logger.ss.precision());
 	this->ss << logger.ss.str();
 }
 
@@ -26,4 +31,8 @@ string* Logger::get_logger_type()
 void Logger::set_proc_num(int proc_num)
 {
 	this->proc_num = proc_num;
+}
+stringstream &Logger::get_ss()
+{
+	return ss;
 }

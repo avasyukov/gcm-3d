@@ -1,14 +1,11 @@
 #ifndef _GCM_TETR_MESH_1ST_ORDER_H
 #define _GCM_TETR_MESH_1ST_ORDER_H  1
 
-#include <sstream>
 #include <algorithm>
 #include <gsl/gsl_linalg.h>
 
-using std::stringstream;
 using std::sort;
 using std::unique;
-using std::ios;
 
 #include "TetrMesh.h"
 #include "../datatypes/Triangle.h"

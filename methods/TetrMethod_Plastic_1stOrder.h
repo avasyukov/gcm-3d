@@ -3,13 +3,9 @@
 
 #include <gsl/gsl_linalg.h>
 #include <vector>
-#include <sstream>
 #include <set>
-using std::stringstream;
-using std::string;
 using std::vector;
 using std::set;
-using std::ios;
 
 #include "TetrNumericalMethod.h"
 #include "../datatypes/Basis.h"

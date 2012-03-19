@@ -201,9 +201,9 @@ int TetrMesh_1stOrder::pre_process_mesh()
 			// Check if we are inside of the body moving towards normal
 			if( find_owner_tetr(&nodes[i], -dx[0], -dx[1], -dx[2]) == NULL ) {
 				// Smth bad happens
-				cout << nodes[i].coords[0] << " " << nodes[i].coords[1] << " " << nodes[i].coords[2] << "\n";
-				cout << normal[0] << " " << normal[1] << " " << normal[1] << "\n";
-				cout << dx[0] << " " << dx[1] << " " << dx[2] << "\n";
+				*logger << nodes[i].coords[0] << " " << nodes[i].coords[1] << " " < nodes[i].coords[2];
+				*logger << normal[0] << " " << normal[1] << " " < normal[1];
+				*logger << dx[0] << " " << dx[1] << " " < dx[2];
 				throw GCMException( GCMException::MESH_EXCEPTION, "Can not find outer normal");
 			} else {
 				// Outside body - normal is outer - do nothing
@@ -815,10 +815,6 @@ float TetrMesh_1stOrder::get_max_h()
 
 int TetrMesh_1stOrder::log_mesh_stats()
 {
-	stringstream ss;
-	ss.setf(ios::fixed,ios::floatfield);
-	ss.precision(10);
-	ss.str("");
 	float h;
 
 	float max_h;
@@ -831,8 +827,8 @@ int TetrMesh_1stOrder::log_mesh_stats()
 
 	int num;
 
-	ss << "Number of nodes: " << nodes.size() << endl;
-	ss << "Number of tetrs: " << tetrs.size() << endl;
+	*logger << "Number of nodes: " < nodes.size();
+	*logger << "Number of tetrs: " < tetrs.size();
 
 	for(int i = 0; i < tetrs.size(); i++)
 	{
@@ -855,24 +851,21 @@ int TetrMesh_1stOrder::log_mesh_stats()
 		hyst[num]++;
 	}
 
-	ss << "Mesh outline:" << endl
-		<< "MinX: " << outline.min_coords[0] << endl
-		<< "MaxX: " << outline.max_coords[0] << endl
-		<< "MinY: " << outline.min_coords[1] << endl
-		<< "MaxY: " << outline.max_coords[1] << endl
-		<< "MinZ: " << outline.min_coords[2] << endl
-		<< "MaxZ: " << outline.max_coords[2] << endl;
+	*logger < "Mesh outline:";
+	*logger << "MinX: " < outline.min_coords[0];
+	*logger << "MaxX: " < outline.max_coords[0];
+	*logger << "MinY: " < outline.min_coords[1];
+	*logger << "MaxY: " < outline.max_coords[1];
+	*logger << "MinZ: " < outline.min_coords[2];
+	*logger << "MaxZ: " < outline.max_coords[2];
 
-	ss << "Mesh quality:" << endl
-		<< "Max H = " << get_max_h() << endl
-		<< "Min H = " << get_min_h() << endl
-		<< "Avg H = " << avg_h << endl
-		<< "Histogramm:" << endl;
+	*logger < "Mesh quality:";
+	*logger << "Max H = " < get_max_h();
+	*logger << "Min H = " < get_min_h();
+	*logger << "Avg H = " < avg_h;
+	*logger < "Histogramm:";
 	for(int i = 0; i < 10; i++)
-		ss << hyst[i] << endl;
-
-	if(logger != NULL)
-		logger->write(ss.str());
+		*logger < hyst[i];
 
 	return 0;
 };
@@ -886,21 +879,16 @@ bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron_1st
 bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* tetr)
 {
 	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "DEBUG: TetrMesh_1stOrder::point_in_tetr" << endl;
-		ss << "Point: x: " << x << " y: " << y << " z: " << z << endl;
-		ss << "Tetr: " << tetr->local_num << endl;
+		*logger < "DEBUG: TetrMesh_1stOrder::point_in_tetr";
+		*logger << "Point: x: " << x << " y: " << y << " z: " < z;
+		*logger << "Tetr: " < tetr->local_num;
 		for(int j = 0; j < 4; j++) {
 			ElasticNode* tmp_node = get_node( tetr->vert[j] );
-			ss << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
+			*logger << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
 				<< " x: " << tmp_node->coords[0]
 				<< " y: " << tmp_node->coords[1]
-				<< " z: " << tmp_node->coords[2] << endl;
+				<< " z: " < tmp_node->coords[2];
 		}
-		logger->write(ss.str());
 	}
 	#endif
 
@@ -928,13 +916,7 @@ bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* te
 		nodes[tetr->vert[3]].coords[2] - z
 	);
 	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "\t\tStage1: d1: " << d1 << " d2: " << d2 << endl;
-		logger->write(ss.str());
-	}
+	*logger << "\t\tStage1: d1: " << d1 << " d2: " < d2;
 	#endif
 	if(d1*d2 < 0) { return false; }
 
@@ -961,13 +943,7 @@ bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* te
 		nodes[tetr->vert[3]].coords[2] - z
 	);
 	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "\t\tStage2: d1: " << d1 << " d2: " << d2 << endl;
-		logger->write(ss.str());
-	}
+	*logger << "\t\tStage2: d1: " << d1 << " d2: " < d2;
 	#endif
 	if(d1*d2 < 0) { return false; }
 
@@ -994,13 +970,7 @@ bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* te
 		nodes[tetr->vert[3]].coords[2] - z
 	);
 	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "\t\tStage3: d1: " << d1 << " d2: " << d2 << endl;
-		logger->write(ss.str());
-	}
+	*logger << "\t\tStage3: d1: " << d1 << " d2: " < d2;
 	#endif
 	if(d1*d2 < 0) { return false; }
 
@@ -1027,13 +997,7 @@ bool TetrMesh_1stOrder::point_in_tetr(float x, float y, float z, Tetrahedron* te
 		nodes[tetr->vert[2]].coords[2] - z
 	);
 	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "\t\tStage4: d1: " << d1 << " d2: " << d2 << endl;
-		logger->write(ss.str());
-	}
+		*logger << "\t\tStage4: d1: " << d1 << " d2: " < d2;
 	#endif
 	if(d1*d2 < 0) { return false; }
 
@@ -1054,21 +1018,19 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 {
 	float d1,d2;
 
-	if(debug && logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "DEBUG: TetrMesh_1stOrder::point_in_tetr" << endl;
-		ss << "Point: num: " << base_node_index << " dx: " << dx << " dy: " << dy << " dz: " << dz << endl;
-		ss << "Tetr: " << tetr->local_num << endl;
+	// FIXME
+	// switch to #ifdef instead of if (debug)?
+	if(debug) {
+		*logger < "DEBUG: TetrMesh_1stOrder::point_in_tetr";
+		*logger <<"Point: num: " << base_node_index << " dx: " << dx << " dy: " << dy << " dz: " < dz;
+		*logger << "Tetr: " < tetr->local_num;
 		for(int j = 0; j < 4; j++) {
 			ElasticNode* tmp_node = get_node( tetr->vert[j] );
-			ss << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
+			*logger << "\t\tVert: " << j << " num: " << tmp_node->local_num << "\t"
 				<< " x: " << tmp_node->coords[0]
 				<< " y: " << tmp_node->coords[1]
-				<< " z: " << tmp_node->coords[2] << endl;
+				<< " z: " < tmp_node->coords[2];
 		}
-		logger->write(ss.str());
 	}
 
 	if( triangleOrientationOk(tetr->vert[1], tetr->vert[2], tetr->vert[3]) ) {
@@ -1079,13 +1041,8 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 		d2 = calc_determ_with_shift(tetr->vert[1], tetr->vert[3], tetr->vert[2], base_node_index, dx, dy, dz);
 	}
 
-	if(debug && logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "\t\tStage1: d1: " << d1 << " d2: " << d2 << endl;
-		logger->write(ss.str());
-	}
+	if(debug) 
+		*logger << "\t\tStage1: d1: " << d1 << " d2: " < d2;
 
 	if(d1*d2 < 0) { return false; }
 
@@ -1097,13 +1054,8 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[3], tetr->vert[2], base_node_index, dx, dy, dz);
 	}
 
-	if(debug && logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "\t\tStage2: d1: " << d1 << " d2: " << d2 << endl;
-		logger->write(ss.str());
-	}
+	if(debug) 
+		*logger << "\t\tStage2: d1: " << d1 << " d2: " < d2;
 
 	if(d1*d2 < 0) { return false; }
 
@@ -1115,13 +1067,8 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[3], tetr->vert[1], base_node_index, dx, dy, dz);
 	}
 
-	if(debug && logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "\t\tStage3: d1: " << d1 << " d2: " << d2 << endl;
-		logger->write(ss.str());
-	}
+	if(debug)
+		*logger << "\t\tStage3: d1: " << d1 << " d2: " < d2;
 
 	if(d1*d2 < 0) { return false; }
 
@@ -1133,13 +1080,8 @@ bool TetrMesh_1stOrder::point_in_tetr(int base_node_index, float dx, float dy, f
 		d2 = calc_determ_with_shift(tetr->vert[0], tetr->vert[2], tetr->vert[1], base_node_index, dx, dy, dz);
 	}
 
-	if(debug && logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "\t\tStage4: d1: " << d1 << " d2: " << d2 << endl;
-		logger->write(ss.str());
-	}
+	if(debug)
+		*logger << "\t\tStage4: d1: " << d1 << " d2: " < d2;
 
 	if(d1*d2 < 0) { return false; }
 
@@ -1180,14 +1122,8 @@ Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(ElasticNode* node, flo
 			+ (node->coords[2] - z) * (node->coords[2] - z);
 
 	#ifdef DEBUG_MESH_GEOMETRY
-	if(logger != NULL) {
-		stringstream ss;
-		ss.setf(ios::fixed,ios::floatfield);
-		ss.precision(10);
-		ss << "DEBUG: TetrMesh_1stOrder::find_owner_tetr" << endl;
-		ss << "\t\tR2: " << R2 << endl;
-		logger->write(ss.str());
-	}
+	*logger < "DEBUG: TetrMesh_1stOrder::find_owner_tetr";
+	*logger << "\t\tR2: " < R2;
 	#endif
 
 	//TODO May be std::set will be better? It guarantees unique elements.
@@ -1217,11 +1153,7 @@ Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(ElasticNode* node, flo
 			// If found - return result
 			if( point_in_tetr(base_node, dx, dy, dz, &tetrs[checking[i]], debug) ) {
 				#ifdef DEBUG_MESH_GEOMETRY
-				if(logger != NULL) {
-					stringstream ss;
-					ss << "\tFound in tetr: " << checking[i] << endl;
-					logger->write(ss.str());
-				}
+				*logger << "\tFound in tetr: " < checking[i];
 				#endif
 
 				return &tetrs[checking[i]];
@@ -1370,39 +1302,18 @@ int TetrMesh_1stOrder::interpolate(ElasticNode* node, Tetrahedron* tetr)
 		// If point is not in tetr - throw exception
 		else
 		{
-			if(logger != NULL) {	
-				stringstream ss;
-				ss.setf(ios::fixed,ios::floatfield);
-				ss.precision(10);
-				ss << "\tfactor[0]=" << factor[0] << " factor[1]=" << factor[1] << " factor[2]=" << factor[2] 
-					<< " factor[3]=" << factor[3];
-				logger->write(ss.str());
-	
-				ss.str("");
-				ss << "\tnode.x[0]=" << node->coords[0] << " node.x[1]=" << node->coords[1] 
-					<< " node.x[2]=" << node->coords[2];
-	                        logger->write(ss.str());
-	
-				ss.str("");
-	                        ss << "\tv0.x[0]=" << nodes[tetr->vert[0]].coords[0] << " v0.x[1]=" << nodes[tetr->vert[0]].coords[1]
-        	                        << " v0.x[2]=" << nodes[tetr->vert[0]].coords[2];
-                	        logger->write(ss.str());
-	
-        	                ss.str("");
-	                        ss << "\tv1.x[0]=" << nodes[tetr->vert[1]].coords[0] << " v1.x[1]=" << nodes[tetr->vert[1]].coords[1]
-        	                        << " v1.x[2]=" << nodes[tetr->vert[1]].coords[2];
-                	        logger->write(ss.str());
-	
-				ss.str("");
-                	        ss << "\tv2.x[0]=" << nodes[tetr->vert[2]].coords[0] << " v2.x[1]=" << nodes[tetr->vert[2]].coords[1]
-                        	        << " v2.x[2]=" << nodes[tetr->vert[2]].coords[2];
-	                        logger->write(ss.str());
+			*logger << "\tfactor[0]=" << factor[0] << " factor[1]=" << factor[1] << " factor[2]=" << factor[2] 	<< " factor[3]=" < factor[3];
 
-				ss.str("");
-                	        ss << "\tv3.x[0]=" << nodes[tetr->vert[3]].coords[0] << " v3.x[1]=" << nodes[tetr->vert[3]].coords[1]
-                        	        << " v3.x[2]=" << nodes[tetr->vert[3]].coords[2];
-	                        logger->write(ss.str());
-			}
+			*logger << "\tnode.x[0]=" << node->coords[0] << " node.x[1]=" << node->coords[1] 
+				<< " node.x[2]=" < node->coords[2];
+
+			*logger << "\tv0.x[0]=" << nodes[tetr->vert[0]].coords[0] << " v0.x[1]=" << nodes[tetr->vert[0]].coords[1] << " v0.x[2]=" < nodes[tetr->vert[0]].coords[2];
+						
+			*logger << "\tv1.x[0]=" << nodes[tetr->vert[1]].coords[0] << " v1.x[1]=" << nodes[tetr->vert[1]].coords[1] << " v1.x[2]=" < nodes[tetr->vert[1]].coords[2];
+
+			*logger << "\tv2.x[0]=" << nodes[tetr->vert[2]].coords[0] << " v2.x[1]=" << nodes[tetr->vert[2]].coords[1] << " v2.x[2]=" < nodes[tetr->vert[2]].coords[2];
+
+			*logger << "\tv3.x[0]=" << nodes[tetr->vert[3]].coords[0] << " v3.x[1]=" << nodes[tetr->vert[3]].coords[1] << " v3.x[2]=" < nodes[tetr->vert[3]].coords[2];
 			throw GCMException( GCMException::MESH_EXCEPTION, "Sum of factors is greater than 1.0");
 		}
 	}
@@ -1559,16 +1470,14 @@ int TetrMesh_1stOrder::run_mesh_filter()
 				}
 				// If all nodes around have different sign of this variable - just 'smooth' it in this node
 				if( alarm ) {
-					stringstream ss;
-					ss << "INFO: TetrMesh_1stOrder::run_mesh_filter - node cleared" << endl;
-					ss << "\tNode " << nodes[i].local_num << ":"
+					*logger < "INFO: TetrMesh_1stOrder::run_mesh_filter - node cleared";
+					*logger << "\tNode " << nodes[i].local_num << ":"
 							<< " x: " << nodes[i].coords[0]
 							<< " y: " << nodes[i].coords[1]
-							<< " z: " << nodes[i].coords[2] << endl;
-					ss << "\tVar: " << j 
+							<< " z: " < nodes[i].coords[2];
+					*logger << "\tVar: " << j 
 							<< " Old value: " << nodes[i].values[j] 
-							<< " New value: " << val / count << endl;
-					logger->write(ss.str());
+							<< " New value: " < val / count;
 					nodes[i].values[j] = val / count;
 				}
 			}

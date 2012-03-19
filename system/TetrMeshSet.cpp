@@ -92,23 +92,16 @@ void TetrMeshSet::attach(CollisionDetector* new_collision_detector)
 
 void TetrMeshSet::log_meshes_types()
 {
-	if(logger != NULL)
-		for(int i = 0; i < meshes.size(); i++) {
-			stringstream ss;
-			ss << "Mesh #" << i << ". Type: ";
-			logger->write(ss.str() + *(meshes[i]->get_mesh_type()));
-		}
+	for(int i = 0; i < meshes.size(); i++)\
+		*logger << "Mesh #" << i << ". Type: "< *(meshes[i]->get_mesh_type());
 };
 
 void TetrMeshSet::log_meshes_stats()
 {
-	if(logger != NULL)
-		for(int i = 0; i < meshes.size(); i++) {
-			stringstream ss;
-			ss << "Mesh #" << i << ". Stats: ";
-			logger->write(ss.str());
-			meshes[i]->log_mesh_stats();
-		}
+	for(int i = 0; i < meshes.size(); i++) {
+		*logger << "Mesh #" << i < ". Stats: ";
+		meshes[i]->log_mesh_stats();
+	}
 };
 
 float TetrMeshSet::get_current_time()
