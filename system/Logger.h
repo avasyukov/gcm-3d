@@ -5,18 +5,22 @@
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include <fstream>
 
-using std::string;
-using std::vector;
-using std::cout;
-using std::endl;
-using std::stringstream;
-using std::ios;
+//using std::string;
+//using std::vector;
+//using std::cout;
+//using std::endl;
+//using std::stringstream;
+//using std::ios;
+//
+using namespace std;
 
 class Logger
 {
 public:
 	Logger();
+	Logger(string filename);
 	Logger(Logger &logger);
 	~Logger();
 	void write(string str);
@@ -37,11 +41,13 @@ public:
 	template<class T>
 	Logger &operator<(T val)
 	{
-		cout << "PE #" << proc_num << ": " << ss.str() << val << endl;
+		ss << val;
+		write(ss.str());
 		ss.str(std::string());
 		return *this;
 	}
 protected:
+	ofstream *outs;
 	string logger_type;
 	stringstream ss;
 	int proc_num;

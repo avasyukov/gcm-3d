@@ -31,6 +31,7 @@ int main(int argc, char **argv)
 		{"zones"     , required_argument, 0, 'z'},
 		{"data-dir"  , required_argument, 0, 'd'},
 		{"result-dir", required_argument, 0, 'r'},
+		{"log-file"  , required_argument, 0, 'l'},
 		{"help"      , no_argument      , 0, 'h'},
 		{0           , 0                , 0, 0  }
 	};
@@ -40,9 +41,10 @@ int main(int argc, char **argv)
 	string zones_info_file = "./zones.xml";
 	string data_dir = "./";
 	string res_dir = "./";
+	string log_file = "";
 
 	while ( true ) {
-		c = getopt_long (argc, argv, "tzdrh", long_options, &option_index);
+		c = getopt_long (argc, argv, "t:z:d:r:l:h", long_options, &option_index);
 		if (c == -1)
 			break;
 		switch (c)
@@ -62,8 +64,11 @@ int main(int argc, char **argv)
 			case 'h':
 				print_help();
 				return 0;
-			case '?':
+			case 'l':
+				log_file = optarg;
 				break;
+			case '?':
+				print_help();
 			default:
 				return -1;
 		}
@@ -88,7 +93,10 @@ int main(int argc, char **argv)
 	try
 	{
 		// Create logger to be used by all other objects
-		logger = new Logger();
+		if (log_file != "")
+			logger = new Logger(log_file);
+		else
+			logger = new Logger();
 
 		// Create task preparator
 		task_prep = new TaskPreparator(logger);
