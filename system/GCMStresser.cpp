@@ -485,7 +485,7 @@ bool GCMStresser::loadTask(string fname)
 		}
 	}
 	else {
-		*logger << "failed to load xml task. exiting";
+		*logger < "failed to load xml task. exiting";
 	}
 
 	for  (int i = 0; i < stresses.size(); i++)
