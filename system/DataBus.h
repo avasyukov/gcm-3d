@@ -16,6 +16,7 @@ class DataBus;
 
 #include "Logger.h"
 #include "CollisionDetector.h"
+#include "../datatypes/Tetrahedron_1st_order.h"
 #include "TetrMeshSet.h"
 #include "../datatypes/MeshOutline.h"
 #include <mpi.h>
@@ -57,7 +58,7 @@ typedef struct
 	float max_coords[3];
 } MPIMeshOutline;
 
-// structures to hold information during retrieving of remote nodes
+// structures to hold information while retrieving remote nodes
 typedef struct
 {
 	int zone_num;
@@ -68,16 +69,31 @@ typedef struct
 typedef struct
 {
 	int verts[3];
+	int num;
+	int zone_num;
 } MPIFacesFResponse;
 
 typedef struct
 {
 	int num;
+	int zone_num;
 	float coords[3];
 	float values[9];
 } MPIFacesNResponse;
 
+// structures to sync tetrahedrons
+typedef struct
+{
+	int face_num;
+	int zone_num;
+} MPITetrsRequest;
 
+typedef struct
+{
+	int verts[4];
+	int zone_num;
+	int face_num;
+} MPITetrsTResponse;
 
 class DataBus
 {
@@ -121,6 +137,10 @@ public:
 	void remote_faces_sync_done();
 	// terminates execution
 	void terminate();
+	// retreives remote tetrahedrons
+	void get_remote_tartrahedrons(vector<ElasticNode> &virtual_nodes, vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes);
+	// processed a message
+	void process_tetrs_sync_message(int source, int tag, vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes, int &resps_to_get, int &procs_to_sync);
 protected:
 	TetrMeshSet* mesh_set;
 	CollisionDetector *collision_detector;
@@ -146,6 +166,11 @@ public:
 	static const int TAG_SYNC_FACES_N_RESP =  9;
 	static const int TAG_SYNC_FACES_R_END  = 10;
 	static const int TAG_SYNC_FACES_DONE   = 11;
+	static const int TAG_SYNC_TETRS_REQ    = 12;
+	static const int TAG_SYNC_TETRS_T_RESP = 13;
+	static const int TAG_SYNC_TETRS_N_RESP = 14;
+	static const int TAG_SYNC_TETRS_DONE   = 15;
+	static const int TAG_SYNC_TETRS_R_END   = 16;
 
 	// MPI tag classes
 	// FIXME
@@ -154,14 +179,17 @@ public:
 	static int TAG_CLASS_SYNC_NODE[];
 	static int TAG_CLASS_SYNC_OUTLINE[];
 	static int TAG_CLASS_SYNC_FACES[];
+	static int TAG_CLASS_SYNC_TETRS[];
 
 	// MPI types
 	MPI::Datatype MPI_NODE_REQ;
 	MPI::Datatype MPI_NODE_RESP;
 	MPI::Datatype MPI_OUTLINE;
 	MPI::Datatype MPI_FACES_REQ;
+	MPI::Datatype MPI_TETRS_REQ;
 	MPI::Datatype MPI_FACES_F_RESP;
 	MPI::Datatype MPI_FACES_N_RESP;
+	MPI::Datatype MPI_TETRS_T_RESP;
 
 	// return code on termination
 	static const int MPI_CODE_TERMINATED = 0;
