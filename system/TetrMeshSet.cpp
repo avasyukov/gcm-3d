@@ -164,10 +164,12 @@ int TetrMeshSet::do_next_step()
 	*logger < "Processing local/local collisions";
 
 	// process collisions between local nodes and local faces
+	// we start both cycles from zero because collision should be 'symmetric'
 	for (int i = 0; i < local.size(); i++)
-		for (int j = i+1; j < local.size(); j++)
-			if (collision_detector->find_intersection(local[i], local[j], intersection))
+		for (int j = 0; j < local.size(); j++)
+			if ( ( i != j ) && ( collision_detector->find_intersection(local[i], local[j], intersection) ) )
 			{
+				*logger << "Collision detected between local mesh zone #" << meshes[i]->zone_num << " and local mesh zone #" < meshes[j]->zone_num;
 				// find local nodes inside intersection
 				collision_detector->find_nodes_in_intersection(meshes[i]->nodes, intersection, local_nodes);
 				// find local faces inside intersection
