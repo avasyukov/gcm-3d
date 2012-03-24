@@ -20,11 +20,14 @@ public:
 	CollisionDetector();
 	~CollisionDetector();
 	void set_treshold(float value);
+	float get_treshold();
 	void attach(Logger* new_logger);
 	virtual int find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2, vector<ElasticNode>* virt_nodes, float time_step) = 0;
 	// return elements that are in intersection
 	void find_nodes_in_intersection(vector<ElasticNode> &nodes, MeshOutline &intersection, vector<ElasticNode> &result);
 	void find_faces_in_intersection(vector<Triangle> &faces, vector<ElasticNode> &nodes, MeshOutline &intersection, vector<Triangle> &result);
+	// number returned surface elements (nodes and triangles) sequentially
+	void renumber_surface(vector<Triangle> &faces, vector<ElasticNode> &nodes);
 	// finds collisions between nodes and faces 
 	// FIXME
 	// it seems this function is not ElasticNode-specific

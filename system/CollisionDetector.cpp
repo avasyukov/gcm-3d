@@ -19,6 +19,11 @@ void CollisionDetector::set_treshold(float value)
 	treshold = value;
 }
 
+float CollisionDetector::get_treshold()
+{
+	return treshold;
+}
+
 bool CollisionDetector::find_intersection(MeshOutline &outline1, MeshOutline &outline2, MeshOutline &intersection)
 {
 
@@ -72,4 +77,24 @@ void CollisionDetector::find_faces_in_intersection(vector<Triangle> &faces, vect
 		if (verts != 3)
 			result.push_back(faces[i]);
 	}
+}
+
+void CollisionDetector::renumber_surface(vector<Triangle> &faces, vector<ElasticNode> &nodes)
+{
+	for(int i = 0; i < faces.size(); i++) {
+		for(int j = 0; j < 3; j++) {
+			bool node_found = false;
+			for(int k = 0; k < nodes.size(); k++) {
+				if(faces[i].vert[j] == nodes[k].local_num) {
+					faces[i].vert[j] = k;
+					node_found = true;
+					break;
+				}
+			}
+			if( ! node_found )
+				throw GCMException( GCMException::COLLISION_EXCEPTION, "Can not create correct numbering for surface");
+		}
+	}
+	for(int i = 0; i < nodes.size(); i++)
+		nodes[i].local_num = i;
 }
