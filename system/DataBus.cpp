@@ -876,7 +876,7 @@ void DataBus::process_tetrs_sync_message(int source, int tag, vector<Tetrahedron
 }
 
 
-void DataBus::get_remote_tartrahedrons(vector<ElasticNode> &virtual_nodes, vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes)
+void DataBus::get_remote_tetrahedrons(vector<ElasticNode> &virtual_nodes, vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes)
 {
 	int procs_to_sync = procs_total_num;
 	int resps_to_get = 0;

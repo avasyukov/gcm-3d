@@ -138,7 +138,7 @@ public:
 	// terminates execution
 	void terminate();
 	// retreives remote tetrahedrons
-	void get_remote_tartrahedrons(vector<ElasticNode> &virtual_nodes, vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes);
+	void get_remote_tetrahedrons(vector<ElasticNode> &virtual_nodes, vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes);
 	// processed a message
 	void process_tetrs_sync_message(int source, int tag, vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes, int &resps_to_get, int &procs_to_sync);
 protected:
