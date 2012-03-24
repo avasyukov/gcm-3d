@@ -1657,6 +1657,53 @@ float TetrMesh_1stOrder::get_solid_angle(int node_index, int tetr_index)
 	);
 };
 
+// For algo - see http://www.cs.princeton.edu/courses/archive/fall00/cs426/lectures/raycast/sld016.htm and use the brain
+bool TetrMesh_1stOrder::vector_intersects_triangle(float *p1, float *p2, float *p3, float *p0, float *v, float l, float *p)
+{
+	// p is point of intersection
+
+	// face normal
+	float n[3];
+	// face plane parameter
+	float d;
+	// distance
+	float t;
+
+	// Get face normal
+	find_border_elem_normal(p1, p2, p3, &n[0], &n[1], &n[2]);
+
+	// If vector is parallel to face - no intersection
+	float vn = qm_engine.scalar_product(n[0], n[1], n[2], v[0], v[1], v[2]);
+	if( vn == 0 )
+		return false;
+
+	// find plane parameter
+	d = qm_engine.scalar_product(n[0], n[1], n[2], p1[0], p1[1], p1[2]);
+
+	// find distance to the plane
+	t = - (qm_engine.scalar_product(n[0], n[1], n[2], p0[0], p0[1], p0[2]) + d) / vn;
+
+	// If distance is too big - no intersection
+	// If we need opposite direction - no intersection as well
+	if( (t < 0) || (t > l) )
+		return false;
+
+	// find point of intersection with the plane
+	for(int i = 0; i < 3; i++)
+		p[i] = p0[i] + t * v[i];
+
+	// check that point is inside triangle
+	if( ! qm_engine.same_orientation(p1, p2, p3, p) )
+		return false;
+	if( ! qm_engine.same_orientation(p1, p3, p2, p) )
+		return false;
+	if( ! qm_engine.same_orientation(p2, p3, p1, p) )
+		return false;
+
+	// all tests passed - it really intersects
+	return true;
+};
+
 bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, float *p, float v1, float v2, float v3, float &val)
 {
 	float n1, n2, n3;

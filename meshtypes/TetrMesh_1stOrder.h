@@ -36,6 +36,9 @@ public:
 	Tetrahedron_1st_order* find_owner_tetr(ElasticNode* node, float dx, float dy, float dz);
 	Tetrahedron_1st_order* find_owner_tetr(ElasticNode* node, float dx, float dy, float dz, bool debug);
 	int interpolate(ElasticNode* node, Tetrahedron* tetr);
+	// checks if vector from p0 in direction v with lenght l intersects triangle p1-p2-p3
+	// if yes - point of intersection will be returned in p
+	bool vector_intersects_triangle(float *p1, float *p2, float *p3, float *p0, float *v, float l, float *p);
 	// interpolates value inside of triangle
 	bool interpolate_triangle(float *p1, float *p2, float *p3, float *p, float v1, float v2, float v3, float &val);
 	int log_mesh_stats();
