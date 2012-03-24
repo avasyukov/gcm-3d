@@ -293,7 +293,7 @@ DataBus::DataBus(Logger* new_logger)
 		mpi_addr_struct_num-mpi_addr_struct
 	};
 
-	MPI_FACES_N_RESP = MPI::Datatype::Create_struct(
+	MPI_TETRS_T_RESP = MPI::Datatype::Create_struct(
 		3,
 		tetrs_t_resp_lengths,
 		tetrs_t_resp_displacements,
