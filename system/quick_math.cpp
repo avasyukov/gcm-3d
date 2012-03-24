@@ -51,7 +51,7 @@ bool quick_math::same_orientation(float* base1, float* base2, float* check1, flo
 				base2[0] - check2[0], 	base2[1] - check2[1], 	base2[2] - check2[2],
 				&n2[0], 		&n2[1], 		&n2[2]	 		);
 
-	if( scalar_product(n1[0], n1[1], n1[2], n2[0], n2[1], n2[2]) <= 0)
+	if( scalar_product(n1[0], n1[1], n1[2], n2[0], n2[1], n2[2]) < 0)
 		return false;
 	return true;
 };
