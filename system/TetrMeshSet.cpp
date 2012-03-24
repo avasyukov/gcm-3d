@@ -138,6 +138,9 @@ int TetrMeshSet::do_next_step()
 //			if( collision_detector->find_collisions(meshes[i], meshes[j], &virt_nodes, time_step) < 0 )
 //				return -1;
 
+	// Clear virtual nodes because they change between time steps
+	virt_nodes.clear();
+
 	// get outlines for all meshes
 	// FIXME
 	// should we use vector<MeshOutline*> here?
@@ -175,8 +178,47 @@ int TetrMeshSet::do_next_step()
 				// find local faces inside intersection
 				collision_detector->find_faces_in_intersection(meshes[j]->border, meshes[j]->nodes, intersection, local_faces);
 				*logger << "Got " << local_nodes.size() << " nodes and " << local_faces.size() < " local faces";
+
 				// process collisions
-				// TODO
+				ElasticNode new_node;
+				float direction[3];
+				basis *local_basis;
+				for(int k = 0; k < local_nodes.size(); k++) {
+					for(int l = 0; l < local_faces.size(); l++) {
+
+						local_basis = local_nodes[k].local_basis;
+						direction[0] = local_basis->ksi[0][0];
+						direction[1] = local_basis->ksi[0][1];
+						direction[2] = local_basis->ksi[0][2];
+
+						if( meshes[i]->vector_intersects_triangle( 
+								meshes[j]->nodes[ local_faces[l].vert[0] ].coords,
+								meshes[j]->nodes[ local_faces[l].vert[1] ].coords,
+								meshes[j]->nodes[ local_faces[l].vert[2] ].coords,
+								local_nodes[k].coords,
+								direction, collision_detector->get_treshold(), new_node.coords ) )
+						{
+							( meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_type = IN_CONTACT;
+							( meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_data->axis_plus[0] 
+											= virt_nodes.size();
+
+							meshes[i]->interpolate_triangle(
+								meshes[j]->nodes[ local_faces[l].vert[0] ].coords,
+								meshes[j]->nodes[ local_faces[l].vert[1] ].coords,
+								meshes[j]->nodes[ local_faces[l].vert[2] ].coords,
+								new_node.coords,
+								meshes[j]->nodes[ local_faces[l].vert[0] ].values,
+								meshes[j]->nodes[ local_faces[l].vert[1] ].values,
+								meshes[j]->nodes[ local_faces[l].vert[2] ].values,
+								new_node.values);
+
+							virt_nodes.push_back(new_node);
+
+							break;
+						}
+					}
+				}
+
 				// clear
 				local_nodes.clear();
 				local_faces.clear();
@@ -195,8 +237,49 @@ int TetrMeshSet::do_next_step()
 				// get remote faces inside intersection
 				data_bus->get_remote_faces_in_intersection(info[j].proc_num, info[j].zone_num, intersection, remote_nodes, remote_faces, procs_to_sync);
 				*logger << "Got " << local_nodes.size() << " local nodes, " << remote_faces.size() << " remote faces and " << remote_nodes.size() < " remote nodes";
+
+				collision_detector->renumber_surface(remote_faces, remote_nodes);
+
 				// process collisions
-				// TODO
+				ElasticNode new_node;
+				float direction[3];
+				basis *local_basis;
+				for(int k = 0; k < local_nodes.size(); k++) {
+					for(int l = 0; l < remote_faces.size(); l++) {
+
+						local_basis = local_nodes[k].local_basis;
+						direction[0] = local_basis->ksi[0][0];
+						direction[1] = local_basis->ksi[0][1];
+						direction[2] = local_basis->ksi[0][2];
+
+						if( meshes[i]->vector_intersects_triangle( 
+								remote_nodes[ remote_faces[l].vert[0] ].coords,
+								remote_nodes[ remote_faces[l].vert[1] ].coords,
+								remote_nodes[ remote_faces[l].vert[2] ].coords,
+								local_nodes[k].coords,
+								direction, collision_detector->get_treshold(), new_node.coords ) )
+						{
+							( meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_type = IN_CONTACT;
+							( meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_data->axis_plus[0] 
+											= virt_nodes.size();
+
+							meshes[i]->interpolate_triangle(
+								remote_nodes[ remote_faces[l].vert[0] ].coords,
+								remote_nodes[ remote_faces[l].vert[1] ].coords,
+								remote_nodes[ remote_faces[l].vert[2] ].coords,
+								new_node.coords,
+								remote_nodes[ remote_faces[l].vert[0] ].values,
+								remote_nodes[ remote_faces[l].vert[1] ].values,
+								remote_nodes[ remote_faces[l].vert[2] ].values,
+								new_node.values);
+
+							virt_nodes.push_back(new_node);
+
+							break;
+						}
+					}
+				}
+
 				// clear
 				local_nodes.clear();
 				remote_nodes.clear();
