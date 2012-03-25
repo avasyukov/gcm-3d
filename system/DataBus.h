@@ -40,6 +40,9 @@ typedef struct
 	float coords[3];
 	int local_num;
 	int local_zone_num;
+	float la;
+	float mu;
+	float rho;
 } MPINodeResponse;
 
 
@@ -79,6 +82,9 @@ typedef struct
 	int zone_num;
 	float coords[3];
 	float values[9];
+	float la;
+	float mu;
+	float rho;
 } MPIFacesNResponse;
 
 // structures to sync tetrahedrons
