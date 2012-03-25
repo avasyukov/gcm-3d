@@ -212,6 +212,12 @@ int TetrMeshSet::do_next_step()
 								meshes[j]->nodes[ local_faces[l].vert[2] ].values,
 								new_node.values);
 
+							// remote_num here should be remote face (!) num
+							new_node.remote_zone_num = meshes[j]->zone_num;
+							new_node.remote_num = local_faces[l].local_num;
+							// remember real remote num of one of verticles
+							new_node.absolute_num = meshes[j]->nodes[ local_faces[l].vert[0] ].local_num;
+
 							virt_nodes.push_back(new_node);
 
 							break;
@@ -273,6 +279,12 @@ int TetrMeshSet::do_next_step()
 								remote_nodes[ remote_faces[l].vert[2] ].values,
 								new_node.values);
 
+							// remote_num here should be remote face (!) num
+							new_node.remote_zone_num = info[j].zone_num;
+							new_node.remote_num = remote_faces[l].local_num;
+							// remember real remote num of one of verticles
+							new_node.absolute_num = remote_nodes[ remote_faces[l].vert[0] ].local_num;
+
 							virt_nodes.push_back(new_node);
 
 							break;
@@ -285,7 +297,7 @@ int TetrMeshSet::do_next_step()
 				remote_nodes.clear();
 				remote_faces.clear();
 			}
-	
+
 	*logger < "Local/remote collisions processed";
 
 	// remote faces sync done, notify
@@ -313,6 +325,7 @@ int TetrMeshSet::do_next_step()
 
 	*logger < "Remote faces sync done";
 
+	// FIXME - we should do part_step(s) for all meshes in course (!!!)
 	for(int i = 0; i < meshes.size(); i++)
 		if (meshes[i]->do_next_step(time_step) < 0)
 			return -1;
