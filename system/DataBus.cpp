@@ -807,6 +807,7 @@ void DataBus::process_tetrs_sync_message(int source, int tag, vector<Tetrahedron
 	vector<ElasticNode> local_nodes;
 	TetrMesh_1stOrder *mesh;
 	Triangle *face;
+	Tetrahedron_1st_order *tmp_tetr;
 	bool flag;
 
 	switch (tag)
@@ -829,7 +830,7 @@ void DataBus::process_tetrs_sync_message(int source, int tag, vector<Tetrahedron
 			tetrs.push_back(tetr);
 			break;
 		case TAG_SYNC_TETRS_N_RESP:
-			MPI::COMM_WORLD.Recv(&faces_n_resp, 1, MPI_TETRS_T_RESP, source, tag);
+			MPI::COMM_WORLD.Recv(&faces_n_resp, 1, MPI_FACES_N_RESP, source, tag);
 			memcpy(node.coords, faces_n_resp.coords, 3*sizeof(float));
 			memcpy(node.values, faces_n_resp.values, 9*sizeof(float));
 			node.local_num = faces_n_resp.num;
@@ -840,23 +841,24 @@ void DataBus::process_tetrs_sync_message(int source, int tag, vector<Tetrahedron
 			MPI::COMM_WORLD.Recv(&req, 1, MPI_TETRS_REQ, source, tag);
 			mesh = mesh_set->get_mesh_by_zone_num(req.zone_num);
 			face = &mesh->border[req.face_num];
-			for (int i=0; i < 4; i++)
-				for (int j=0; nodes[face->vert[i]].elements->size(); j++)
+			for (int i = 0; i < 3; i++)
+				for (int j = 0; j < mesh->nodes[face->vert[i]].elements->size(); j++)
 				{
-					memcpy(tetrs_t_resp.verts, mesh->tetrs[j].vert, 4*sizeof(int));
+					tmp_tetr = &(mesh->tetrs[ mesh->nodes[ face->vert[i] ].elements->at(j) ]);
+					memcpy(tetrs_t_resp.verts, tmp_tetr->vert, 4*sizeof(int));
 					for (int k = 0; k < 4; k++)
 					{
 						flag = true;
 						for (int m = 0; m < local_nodes.size(); m++)
-							if (local_nodes[m].local_num = mesh->tetrs[j].vert[k])
+							if (local_nodes[m].local_num == tmp_tetr->vert[k])
 							{
 								flag = false;
 								break;
 							}
 						if (flag)
-							local_nodes.push_back(mesh->nodes[mesh->tetrs[j].vert[k]]);
+							local_nodes.push_back(mesh->nodes[ tmp_tetr->vert[k] ]);
 					}
-					tetrs_t_resp.face_num = req.face_num;
+					tetrs_t_resp.face_num = tmp_tetr->local_num;
 					tetrs_t_resp.zone_num = req.zone_num;
 					MPI::COMM_WORLD.Send(&tetrs_t_resp, 1, MPI_TETRS_T_RESP, source, TAG_SYNC_TETRS_T_RESP);
 				}
@@ -886,6 +888,7 @@ void DataBus::get_remote_tetrahedrons(vector<ElasticNode> &virtual_nodes, vector
 	// sending requests
 	for (int i = 0; i < virtual_nodes.size(); i++)
 	{
+		// remote_num stores number of remote face (!)
 		req.zone_num = virtual_nodes[i].remote_zone_num;
 		req.face_num = virtual_nodes[i].remote_num;
 		resps_to_get++;
@@ -896,7 +899,7 @@ void DataBus::get_remote_tetrahedrons(vector<ElasticNode> &virtual_nodes, vector
 
 	while (procs_to_sync > 0)
 	{
-		if (resps_to_get = 0)
+		if (resps_to_get == 0)
 		{
 			resps_to_get = -1;
 			for (int i = 0; i < procs_total_num; i++)
