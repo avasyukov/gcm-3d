@@ -393,7 +393,7 @@ float DataBus::get_max_possible_tau(float local_time_step)
 		logger->write("Retrieving taus from other processes");
 		for (int i = 1; i < procs_total_num; i++) {
 			MPI::COMM_WORLD.Recv(&max_tau, 1, MPI::FLOAT, i, TAG_SYNC_TIME_STEP, status);
-			if (local_time_step < max_tau)
+			if (local_time_step > max_tau)
 				local_time_step = max_tau;
 		}
 		max_tau = local_time_step;
