@@ -1525,6 +1525,8 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 
 	for(int s = 0; s < number_of_stages; s++)
 	{
+		*logger << "Mesh " << zone_num << " Stage " << s < " Start calculation";
+
 		vector<ElasticNode> remote_nodes;
 		vector<Tetrahedron_1st_order> remote_tetrs;
 		vector<ElasticNode> current_virt_nodes;
@@ -1532,11 +1534,15 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 		tmp_mesh->attach(logger);
 		tmp_mesh->attach(mesh_set);
 
+		*logger << "Mesh " << zone_num << " Stage " << s < " Preparing virt node vector";
+
 		// find virt nodes required for current mesh 
 		for(int i = 0; i < nodes.size(); i++)
 			if(nodes[i].border_type == BORDER)
 				if(nodes[i].contact_data->axis_plus[0] != -1)
 					current_virt_nodes.push_back( *( mesh_set->getNode( nodes[i].contact_data->axis_plus[0] ) ) );
+
+		*logger << "Mesh " << zone_num << " Stage " << s < " Getting virt node vector";
 
 		// ... and get them
 		if(current_virt_nodes.size() > 0)
@@ -1545,6 +1551,8 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 			*logger << "Mesh " << zone_num << " required " << current_virt_nodes.size() << " faces and got " 
 					<< remote_tetrs.size() << " tetrs and " << remote_nodes.size() < " nodes";
 		}
+
+		*logger << "Mesh " << zone_num << " Stage " << s < " Creating virtual mesh";
 
 		// copy to mesh removing duplicates
 		for(int i = 0; i < remote_nodes.size(); i++)
@@ -1573,6 +1581,8 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 		}
 		*logger << "After dedup has " << (tmp_mesh->tetrs).size() << " tetrs and " << (tmp_mesh->nodes).size() < " nodes";
 
+		*logger << "Mesh " << zone_num << " Stage " << s < " Renumbering virtual mesh";
+
 		// renumber everything
 		for(int i = 0; i < (tmp_mesh->tetrs).size(); i++)
 		{
@@ -1597,10 +1607,12 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 			(tmp_mesh->nodes)[i].local_num = i;
 		}
 
-		*logger < "Pre-processing virtual mesh";
+		*logger << "Mesh " << zone_num << " Stage " << s < "Pre-processing virtual mesh";
 
 		// create links, etc
 		tmp_mesh->pre_process_mesh();
+
+		*logger << "Mesh " << zone_num << " Stage " << s < " Linking virt nodes to virtual mesh";
 
 		// link virtual nodes to this virtual mesh
 		for(int i = 0; i < nodes.size(); i++)
@@ -1626,15 +1638,21 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 						throw GCMException( GCMException::COLLISION_EXCEPTION, "Can not find virt node origin");
 				}
 
+		*logger << "Mesh " << zone_num << " Stage " << s < " Syncing remote nodes";
+
 		if(data_bus != NULL)
 			data_bus->sync_nodes();
 
 		// TODO Add interaction with scheduler
 
+		*logger << "Mesh " << zone_num << " Stage " << s < " Doing current part step";
+
 		if(do_next_part_step(time_step, s) < 0)
 			throw GCMException( GCMException::MESH_EXCEPTION, "Do next part step failed");
 
 		delete(tmp_mesh);
+
+		*logger << "Mesh " << zone_num << " Stage " << s < " Calculation done";
 	}
 // FIXME
 //	move_coords(time_step);
