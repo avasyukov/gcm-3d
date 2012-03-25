@@ -894,7 +894,7 @@ void DataBus::get_remote_tetrahedrons(vector<ElasticNode> &virtual_nodes, vector
 		resps_to_get++;
 		MPI::COMM_WORLD.Send(&req, 1, MPI_TETRS_REQ, get_proc_for_zone(req.zone_num), TAG_SYNC_TETRS_REQ);
 		while (check_messages_async(MPI::ANY_SOURCE, TAG_CLASS_SYNC_TETRS, status))
-			process_tetrs_sync_message(status.Get_source(), status.Get_tag(), tetrs, nodes, procs_to_sync, resps_to_get);
+			process_tetrs_sync_message(status.Get_source(), status.Get_tag(), tetrs, nodes, resps_to_get, procs_to_sync);
 	}
 
 	while (procs_to_sync > 0)
