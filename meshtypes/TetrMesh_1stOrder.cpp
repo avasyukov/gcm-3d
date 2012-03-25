@@ -201,10 +201,11 @@ int TetrMesh_1stOrder::pre_process_mesh()
 			// Check if we are inside of the body moving towards normal
 			if( find_owner_tetr(&nodes[i], -dx[0], -dx[1], -dx[2]) == NULL ) {
 				// Smth bad happens
-				*logger << nodes[i].coords[0] << " " << nodes[i].coords[1] << " " < nodes[i].coords[2];
-				*logger << normal[0] << " " << normal[1] << " " < normal[1];
-				*logger << dx[0] << " " << dx[1] << " " < dx[2];
-				throw GCMException( GCMException::MESH_EXCEPTION, "Can not find outer normal");
+//				*logger << "Can not find outer normal\n";
+//				*logger << nodes[i].coords[0] << " " << nodes[i].coords[1] << " " < nodes[i].coords[2];
+//				*logger << normal[0] << " " << normal[1] << " " < normal[2];
+//				*logger << dx[0] << " " << dx[1] << " " < dx[2];
+//				throw GCMException( GCMException::MESH_EXCEPTION, "Can not find outer normal");
 			} else {
 				// Outside body - normal is outer - do nothing
 			}
@@ -1522,15 +1523,118 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 	if(set_stress(current_time) < 0)
 		throw GCMException( GCMException::MESH_EXCEPTION, "Set stress failed");
 
-	for(int i = 0; i < number_of_stages; i++)
+	for(int s = 0; s < number_of_stages; s++)
 	{
+		vector<ElasticNode> remote_nodes;
+		vector<Tetrahedron_1st_order> remote_tetrs;
+		vector<ElasticNode> current_virt_nodes;
+		TetrMesh_1stOrder *tmp_mesh = new TetrMesh_1stOrder();
+		tmp_mesh->attach(logger);
+		tmp_mesh->attach(mesh_set);
+
+		// find virt nodes required for current mesh 
+		for(int i = 0; i < nodes.size(); i++)
+			if(nodes[i].border_type == BORDER)
+				if(nodes[i].contact_data->axis_plus[0] != -1)
+					current_virt_nodes.push_back( *( mesh_set->getNode( nodes[i].contact_data->axis_plus[0] ) ) );
+
+		// ... and get them
+		if(current_virt_nodes.size() > 0)
+		{
+			data_bus->get_remote_tetrahedrons(current_virt_nodes, remote_tetrs, remote_nodes);
+			*logger << "Mesh " << zone_num << " required " << current_virt_nodes.size() << " faces and got " 
+					<< remote_tetrs.size() << " tetrs and " << remote_nodes.size() < " nodes";
+		}
+
+		// copy to mesh removing duplicates
+		for(int i = 0; i < remote_nodes.size(); i++)
+		{
+			bool found = false;
+			for(int j = 0; j < (tmp_mesh->nodes).size(); j++)
+				if( (tmp_mesh->nodes)[j].local_num == remote_nodes[i].local_num ) {
+					found = true;
+					break;
+				}
+			if( !found ) {
+				remote_nodes[i].placement_type = LOCAL;
+				tmp_mesh->add_node( &remote_nodes[i] );
+			}
+		}
+		for(int i = 0; i < remote_tetrs.size(); i++)
+		{
+			bool found = false;
+			for(int j = 0; j < (tmp_mesh->tetrs).size(); j++)
+				if( (tmp_mesh->tetrs)[j].local_num == remote_tetrs[i].local_num ) {
+					found = true;
+					break;
+				}
+			if( !found )
+				tmp_mesh->add_tetr( &remote_tetrs[i] );
+		}
+		*logger << "After dedup has " << (tmp_mesh->tetrs).size() << " tetrs and " << (tmp_mesh->nodes).size() < " nodes";
+
+		// renumber everything
+		for(int i = 0; i < (tmp_mesh->tetrs).size(); i++)
+		{
+			(tmp_mesh->tetrs)[i].absolute_num = (tmp_mesh->tetrs)[i].local_num;
+			(tmp_mesh->tetrs)[i].local_num = i;
+			for(int j = 0; j < 4; j++) {
+				bool node_found = false;
+				for(int k = 0; k < (tmp_mesh->nodes).size(); k++) {
+					if((tmp_mesh->tetrs)[i].vert[j] == (tmp_mesh->nodes)[k].local_num) {
+						(tmp_mesh->tetrs)[i].vert[j] = k;
+						node_found = true;
+						break;
+					}
+				}
+				if( ! node_found )
+					throw GCMException( GCMException::COLLISION_EXCEPTION, "Can not create correct numbering for volume");
+			}
+		}
+		for(int i = 0; i < (tmp_mesh->nodes).size(); i++)
+		{
+			(tmp_mesh->nodes)[i].absolute_num = (tmp_mesh->nodes)[i].local_num;
+			(tmp_mesh->nodes)[i].local_num = i;
+		}
+
+		*logger < "Pre-processing virtual mesh";
+
+		// create links, etc
+		tmp_mesh->pre_process_mesh();
+
+		// link virtual nodes to this virtual mesh
+		for(int i = 0; i < nodes.size(); i++)
+			if(nodes[i].border_type == BORDER)
+				if(nodes[i].contact_data->axis_plus[0] != -1)
+				{
+					ElasticNode *vnode = mesh_set->getNode( nodes[i].contact_data->axis_plus[0] );
+					vnode->mesh = tmp_mesh;
+					bool node_found = false;
+					for(int z = 0; z < (tmp_mesh->nodes).size(); z++)
+						if((tmp_mesh->nodes)[z].absolute_num == vnode->absolute_num)
+						{
+							node_found = true;
+							vnode->placement_type = LOCAL;
+							vnode->border_type = BORDER;
+							vnode->contact_type = IN_CONTACT;
+							vnode->elements = (tmp_mesh->nodes)[z].elements;
+							vnode->border_elements = (tmp_mesh->nodes)[z].border_elements;
+							vnode->local_num = (tmp_mesh->nodes)[z].local_num;
+							break;
+						}
+					if( ! node_found )
+						throw GCMException( GCMException::COLLISION_EXCEPTION, "Can not find virt node origin");
+				}
+
 		if(data_bus != NULL)
 			data_bus->sync_nodes();
 
 		// TODO Add interaction with scheduler
 
-		if(do_next_part_step(time_step, i) < 0)
+		if(do_next_part_step(time_step, s) < 0)
 			throw GCMException( GCMException::MESH_EXCEPTION, "Do next part step failed");
+
+		delete(tmp_mesh);
 	}
 // FIXME
 //	move_coords(time_step);
@@ -1678,7 +1782,7 @@ bool TetrMesh_1stOrder::vector_intersects_triangle(float *p1, float *p2, float *
 		return false;
 
 	// find plane parameter
-	d = qm_engine.scalar_product(n[0], n[1], n[2], p1[0], p1[1], p1[2]);
+	d = - qm_engine.scalar_product(n[0], n[1], n[2], p1[0], p1[1], p1[2]);
 
 	// find distance to the plane
 	t = - (qm_engine.scalar_product(n[0], n[1], n[2], p0[0], p0[1], p0[2]) + d) / vn;
@@ -1704,7 +1808,7 @@ bool TetrMesh_1stOrder::vector_intersects_triangle(float *p1, float *p2, float *
 	return true;
 };
 
-bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, float *p, float v1, float v2, float v3, float &val)
+bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, float *p, float *v1, float *v2, float *v3, float *v)
 {
 	float n1, n2, n3;
 	float p1l[3];
@@ -1786,7 +1890,9 @@ bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, fl
 	float l3 = 1-l2-l1;
 
 	// interpolate
-	val = l1*v1+l2*v2+l3*v3;
+	// FIXME - we use the knowledge that la,mu,rho,yield_limit are placed in memmory directly after values[9]
+	for(int i = 0; i < 13; i++)
+		v[i] = l1*v1[i] + l2*v2[i] + l3*v3[i];
 
 	// check if point is inside of face
 	return (l1 >= 0.0 && l1 <= 1.0 && l2 >= 0.0 && l2 <= 1.0 && l3 >= 0.0 && l3 <= 1.0); 

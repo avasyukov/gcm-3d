@@ -40,7 +40,7 @@ public:
 	// if yes - point of intersection will be returned in p
 	bool vector_intersects_triangle(float *p1, float *p2, float *p3, float *p0, float *v, float l, float *p);
 	// interpolates value inside of triangle
-	bool interpolate_triangle(float *p1, float *p2, float *p3, float *p, float v1, float v2, float v3, float &val);
+	bool interpolate_triangle(float *p1, float *p2, float *p3, float *p, float *v1, float *v2, float *v3, float *v);
 	int log_mesh_stats();
 //	int do_next_step();
 	int do_next_step(float time_step);
