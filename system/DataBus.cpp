@@ -383,38 +383,8 @@ void DataBus::attach(CollisionDetector* cd)
 
 float DataBus::get_max_possible_tau(float local_time_step)
 {
-	float max_tau;
-	MPI::Status status;
-	if (!proc_num)
-	{
-		// main process
-
-		// get data from all nodes
-		logger->write("Retrieving taus from other processes");
-		for (int i = 1; i < procs_total_num; i++) {
-			MPI::COMM_WORLD.Recv(&max_tau, 1, MPI::FLOAT, i, TAG_SYNC_TIME_STEP, status);
-			if (local_time_step > max_tau)
-				local_time_step = max_tau;
-		}
-		max_tau = local_time_step;
-		logger->write("Tau found, sending it back to all processes");
-		// max tau found, send it to all procs
-		for (int i = 1; i < procs_total_num; i++) {
-			MPI::COMM_WORLD.Send(&max_tau, 1, MPI::FLOAT, i, TAG_SYNC_TIME_STEP);
-		}
-	}
-	else
-	{
-		// slave process
-
-		// send tau to main process
-		logger->write("Sending max tau to main process");
-		MPI::COMM_WORLD.Send(&local_time_step, 1, MPI::FLOAT, 0, TAG_SYNC_TIME_STEP);
-		// get synchronized value
-		logger->write("Waiting for tau from main process");
-		MPI::COMM_WORLD.Recv(&max_tau, 1, MPI::FLOAT, 0, TAG_SYNC_TIME_STEP, status);
-	}
-
+	float max_tau;     
+	MPI::COMM_WORLD.Allreduce(&local_time_step, &max_tau, 1, MPI::FLOAT, MPI::MIN);
 	*logger << "Time step synchronized, value is: " < max_tau; 
 
 	return max_tau;
