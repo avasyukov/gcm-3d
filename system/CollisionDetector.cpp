@@ -95,6 +95,4 @@ void CollisionDetector::renumber_surface(vector<Triangle> &faces, vector<Elastic
 				throw GCMException( GCMException::COLLISION_EXCEPTION, "Can not create correct numbering for surface");
 		}
 	}
-//	for(int i = 0; i < nodes.size(); i++)
-//		nodes[i].local_num = i;
 }
