@@ -41,10 +41,12 @@ int SnapshotWriter::dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, i
 
 int SnapshotWriter::dump_vtk(TetrMeshSet* mesh_set, int snap_num)
 {
-	for(int i = 0; i < mesh_set->get_number_of_meshes(); i++) {
-		if( dump_vtk( mesh_set->get_mesh(i), snap_num ) < 0 )
-			return -1;
-	}
+	for(int i = 0; i < mesh_set->get_number_of_local_meshes(); i++) 
+		if (mesh_set->get_local_mesh(i)->local)
+		{
+			if( dump_vtk( mesh_set->get_local_mesh(i), snap_num ) < 0 )
+				return -1;
+		}
 	return 0;
 };
 

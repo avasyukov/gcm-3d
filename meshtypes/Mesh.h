@@ -33,6 +33,8 @@ public:
 	virtual void translate(float x, float y, float z) = 0;
 
 	int zone_num; // TODO do we really use it?
+	
+	bool local;
 
 	MeshOutline outline;
 

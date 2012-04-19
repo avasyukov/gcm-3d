@@ -227,8 +227,12 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 		{
 			int zone_num = atoi( ezone->Attribute( "num" ) );
 
+			TetrMesh_1stOrder* new_mesh = new TetrMesh_1stOrder();
+			new_mesh->local = zones_info[zone_num] == proc_num;
+			new_mesh->zone_num = zone_num;
 			// Load only zones that are scheduled for this CPU
-			if( zones_info[zone_num] == proc_num )
+			// create an empty container for other zones
+			if( new_mesh->local )
 			{
 				*logger << "Loading zone: " < zone_num;
 
@@ -239,8 +243,6 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 				if(meshpath[0] != '/')
 					meshpath = data_dir + meshpath;
 
-				TetrMesh_1stOrder* new_mesh = new TetrMesh_1stOrder();
-				new_mesh->zone_num = zone_num;
 				new_mesh->attach(logger);
 
 				if ( new_mesh->load_msh_file( const_cast<char*>( meshpath.c_str() ) ) < 0 )
@@ -249,8 +251,8 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 				GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis* new_nm 
 								= new GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis();
 				new_mesh->attach( new_nm );
-				mesh_zones.push_back( new_mesh );
 			}
+			mesh_zones.push_back( new_mesh );
 
 			ezone = ezone->NextSiblingElement( "zone" );
 		}
@@ -317,14 +319,14 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 			outline.min_coords[2] = atof( earea->Attribute( "minZ" ) );
 			outline.max_coords[2] = atof( earea->Attribute( "maxZ" ) );
 
-			for(int i = 0; i < mesh_set->get_number_of_meshes(); i++)
-				set_fixed_elastic_rheology( &( ( mesh_set->get_mesh(i) )->nodes ), &outline, la, mu, rho, yield );
+			for(int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
+					set_fixed_elastic_rheology( &( ( mesh_set->get_local_mesh(i) )->nodes ), &outline, la, mu, rho, yield );
 		}
 		erheo = erheo->NextSiblingElement( "rheology" );
 	}
 
-	for(int i = 0; i < mesh_set->get_number_of_meshes(); i++)
-		check_rheology_loaded( &( ( mesh_set->get_mesh(i) )->nodes ) );
+	for(int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
+			check_rheology_loaded( &( ( mesh_set->get_local_mesh(i) )->nodes ) );
 
 	logger->write("Task loaded");
 

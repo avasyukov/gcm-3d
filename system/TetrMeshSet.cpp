@@ -16,8 +16,8 @@ void TetrMeshSet::attach(Logger* new_logger)
 {
 	logger = new_logger;
 
-	for(int i = 0; i < meshes.size(); i++)
-		meshes[i]->attach(logger);
+	for(int i = 0; i < local_meshes.size(); i++)
+		local_meshes[i]->attach(logger);
 };
 
 void TetrMeshSet::attach(TetrMesh_1stOrder* new_mesh)
@@ -31,6 +31,8 @@ void TetrMeshSet::attach(TetrMesh_1stOrder* new_mesh)
 		// new_mesh->attach(numerical_method);
 		new_mesh->attach(this);
 		meshes.push_back(new_mesh);
+		if (new_mesh->local)
+			local_meshes.push_back(new_mesh);
 //		// process mesh and add all remote nodes to list of nodes to be synchronized
 //		for (int i = 0; i < new_mesh->nodes.size(); i++) {
 //			ElasticNode *node = &new_mesh->nodes[i];
@@ -49,8 +51,8 @@ void TetrMeshSet::attach(DataBus* new_data_bus)
 
 	data_bus->attach(this);
 
-	for(int i = 0; i < meshes.size(); i++)
-		meshes[i]->attach_data_bus(new_data_bus);
+	for(int i = 0; i < local_meshes.size(); i++)
+		local_meshes[i]->attach_data_bus(new_data_bus);
 
 //	// initialize remote nodes store
 //	FIXME
@@ -63,16 +65,16 @@ void TetrMeshSet::attach(Stresser* new_stresser)
 {
 	stresser = new_stresser;
 
-	for(int i = 0; i < meshes.size(); i++)
-		meshes[i]->attach(new_stresser);
+	for(int i = 0; i < local_meshes.size(); i++)
+		local_meshes[i]->attach(new_stresser);
 };
 
 void TetrMeshSet::attach(RheologyCalculator* new_rheology)
 {
 	rheology = new_rheology;
 
-	for(int i = 0; i < meshes.size(); i++)
-		meshes[i]->attach(new_rheology);
+	for(int i = 0; i < local_meshes.size(); i++)
+		local_meshes[i]->attach(new_rheology);
 };
 
 void TetrMeshSet::attach(TetrNumericalMethod* new_numerical_method)
@@ -92,28 +94,29 @@ void TetrMeshSet::attach(CollisionDetector* new_collision_detector)
 
 void TetrMeshSet::log_meshes_types()
 {
-	for(int i = 0; i < meshes.size(); i++)\
-		*logger << "Mesh #" << i << ". Type: "< *(meshes[i]->get_mesh_type());
+	for(int i = 0; i < local_meshes.size(); i++)
+		*logger << "Local mesh #" << i << ". Type: "< *(local_meshes[i]->get_mesh_type());
 };
 
 void TetrMeshSet::log_meshes_stats()
 {
-	for(int i = 0; i < meshes.size(); i++) {
-		*logger << "Mesh #" << i < ". Stats: ";
-		meshes[i]->log_mesh_stats();
+	for(int i = 0; i < local_meshes.size(); i++) 
+	{
+		*logger << "Local mesh #" << i < ". Stats: ";
+			local_meshes[i]->log_mesh_stats();
 	}
 };
 
 float TetrMeshSet::get_current_time()
 {
 	float time;
-	if(meshes.size() == 0)
+	if(local_meshes.size() == 0)
 		return -1;
 
-	time = meshes[0]->get_current_time();
+	time = local_meshes[0]->get_current_time();
 
-	for(int i = 0; i < meshes.size(); i++) {
-		if( fabs(time - meshes[i]->get_current_time()) > 0.001 * time ) // TODO - remove magic number
+	for(int i = 0; i < local_meshes.size(); i++) {
+		if( fabs(time - local_meshes[i]->get_current_time()) > 0.001 * time ) // TODO - remove magic number
 			throw GCMException( GCMException::SYNC_EXCEPTION, "Meshes report different times");
 	}
 
@@ -156,8 +159,8 @@ int TetrMeshSet::do_next_step()
 	vector<ElasticNode> remote_nodes;
 	vector<Triangle> local_faces, remote_faces;
 
-	for (int i = 0; i < meshes.size(); i++)
-		local.push_back(meshes[i]->outline);
+	for (int i = 0; i < local_meshes.size(); i++)
+			local.push_back(local_meshes[i]->outline);
 
 	data_bus->sync_outlines(local, remote, info);
 
@@ -172,11 +175,11 @@ int TetrMeshSet::do_next_step()
 		for (int j = 0; j < local.size(); j++)
 			if ( ( i != j ) && ( collision_detector->find_intersection(local[i], local[j], intersection) ) )
 			{
-				*logger << "Collision detected between local mesh zone #" << meshes[i]->zone_num << " and local mesh zone #" < meshes[j]->zone_num;
+				*logger << "Collision detected between local mesh zone #" << local_meshes[i]->zone_num << " and local mesh zone #" < local_meshes[j]->zone_num;
 				// find local nodes inside intersection
-				collision_detector->find_nodes_in_intersection(meshes[i]->nodes, intersection, local_nodes);
+				collision_detector->find_nodes_in_intersection(local_meshes[i]->nodes, intersection, local_nodes);
 				// find local faces inside intersection
-				collision_detector->find_faces_in_intersection(meshes[j]->border, meshes[j]->nodes, intersection, local_faces);
+				collision_detector->find_faces_in_intersection(local_meshes[j]->border, local_meshes[j]->nodes, intersection, local_faces);
 				*logger << "Got " << local_nodes.size() << " nodes and " << local_faces.size() < " local faces";
 
 				// process collisions
@@ -191,32 +194,32 @@ int TetrMeshSet::do_next_step()
 						direction[1] = local_basis->ksi[0][1];
 						direction[2] = local_basis->ksi[0][2];
 
-						if( meshes[i]->vector_intersects_triangle( 
-								meshes[j]->nodes[ local_faces[l].vert[0] ].coords,
-								meshes[j]->nodes[ local_faces[l].vert[1] ].coords,
-								meshes[j]->nodes[ local_faces[l].vert[2] ].coords,
+						if( local_meshes[i]->vector_intersects_triangle( 
+								local_meshes[j]->nodes[ local_faces[l].vert[0] ].coords,
+								local_meshes[j]->nodes[ local_faces[l].vert[1] ].coords,
+								local_meshes[j]->nodes[ local_faces[l].vert[2] ].coords,
 								local_nodes[k].coords,
 								direction, collision_detector->get_treshold(), new_node.coords ) )
 						{
-							( meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_type = IN_CONTACT;
-							( meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_data->axis_plus[0] 
+							( local_meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_type = IN_CONTACT;
+							( local_meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_data->axis_plus[0] 
 											= virt_nodes.size();
 
-							meshes[i]->interpolate_triangle(
-								meshes[j]->nodes[ local_faces[l].vert[0] ].coords,
-								meshes[j]->nodes[ local_faces[l].vert[1] ].coords,
-								meshes[j]->nodes[ local_faces[l].vert[2] ].coords,
+							local_meshes[i]->interpolate_triangle(
+								local_meshes[j]->nodes[ local_faces[l].vert[0] ].coords,
+								local_meshes[j]->nodes[ local_faces[l].vert[1] ].coords,
+								local_meshes[j]->nodes[ local_faces[l].vert[2] ].coords,
 								new_node.coords,
-								meshes[j]->nodes[ local_faces[l].vert[0] ].values,
-								meshes[j]->nodes[ local_faces[l].vert[1] ].values,
-								meshes[j]->nodes[ local_faces[l].vert[2] ].values,
+								local_meshes[j]->nodes[ local_faces[l].vert[0] ].values,
+								local_meshes[j]->nodes[ local_faces[l].vert[1] ].values,
+								local_meshes[j]->nodes[ local_faces[l].vert[2] ].values,
 								new_node.values);
 
 							// remote_num here should be remote face (!) num
-							new_node.remote_zone_num = meshes[j]->zone_num;
+							new_node.remote_zone_num = local_meshes[j]->zone_num;
 							new_node.remote_num = local_faces[l].local_num;
 							// remember real remote num of one of verticles
-							new_node.absolute_num = meshes[j]->nodes[ local_faces[l].vert[0] ].local_num;
+							new_node.absolute_num = local_meshes[j]->nodes[ local_faces[l].vert[0] ].local_num;
 
 							virt_nodes.push_back(new_node);
 
@@ -237,9 +240,9 @@ int TetrMeshSet::do_next_step()
 		for (int j = 0; j < remote.size(); j++)
 			if (collision_detector->find_intersection(local[i], remote[j], intersection))
 			{
-				*logger << "Collision detected between local mesh zone #" << meshes[i]->zone_num << " and remote mesh zone #" < info[j].zone_num;
+				*logger << "Collision detected between local mesh zone #" << local_meshes[i]->zone_num << " and remote mesh zone #" < info[j].zone_num;
 				// find local nodes inside intersection
-				collision_detector->find_nodes_in_intersection(meshes[i]->nodes, intersection, local_nodes);
+				collision_detector->find_nodes_in_intersection(local_meshes[i]->nodes, intersection, local_nodes);
 				// get remote faces inside intersection
 				data_bus->get_remote_faces_in_intersection(info[j].proc_num, info[j].zone_num, intersection, remote_nodes, remote_faces, procs_to_sync);
 				*logger << "Got " << local_nodes.size() << " local nodes, " << remote_faces.size() << " remote faces and " << remote_nodes.size() < " remote nodes";
@@ -258,18 +261,18 @@ int TetrMeshSet::do_next_step()
 						direction[1] = local_basis->ksi[0][1];
 						direction[2] = local_basis->ksi[0][2];
 
-						if( meshes[i]->vector_intersects_triangle( 
+						if( local_meshes[i]->vector_intersects_triangle( 
 								remote_nodes[ remote_faces[l].vert[0] ].coords,
 								remote_nodes[ remote_faces[l].vert[1] ].coords,
 								remote_nodes[ remote_faces[l].vert[2] ].coords,
 								local_nodes[k].coords,
 								direction, collision_detector->get_treshold(), new_node.coords ) )
 						{
-							( meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_type = IN_CONTACT;
-							( meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_data->axis_plus[0] 
+							( local_meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_type = IN_CONTACT;
+							( local_meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_data->axis_plus[0] 
 											= virt_nodes.size();
 
-							meshes[i]->interpolate_triangle(
+							local_meshes[i]->interpolate_triangle(
 								remote_nodes[ remote_faces[l].vert[0] ].coords,
 								remote_nodes[ remote_faces[l].vert[1] ].coords,
 								remote_nodes[ remote_faces[l].vert[2] ].coords,
@@ -326,10 +329,22 @@ int TetrMeshSet::do_next_step()
 	*logger < "Remote faces sync done";
 
 	// FIXME - we should do part_step(s) for all meshes in course (!!!)
-	for(int i = 0; i < meshes.size(); i++)
-		if (meshes[i]->do_next_step(time_step) < 0)
+	for(int i = 0; i < local_meshes.size(); i++)
+		if (local_meshes[i]->do_next_step(time_step) < 0)
 			return -1;
 	return 0;
+};
+
+int TetrMeshSet::get_number_of_local_meshes()
+{
+	return local_meshes.size();
+};
+
+TetrMesh_1stOrder* TetrMeshSet::get_local_mesh(int num)
+{
+	if(num < 0 || num >= local_meshes.size())
+		return NULL;
+	return local_meshes[num];
 };
 
 int TetrMeshSet::get_number_of_meshes()
@@ -353,9 +368,10 @@ ElasticNode* TetrMeshSet::getNode(int num)
 
 float TetrMeshSet::get_max_possible_tau()
 {
-	float tau = meshes[0]->get_max_possible_tau();
-	for(int i = 1; i < meshes.size(); i++) {
-		float ftmp = meshes[i]->get_max_possible_tau();
+	float tau = local_meshes[0]->get_max_possible_tau();
+	for(int i = 1; i < local_meshes.size(); i++)
+	{
+		float ftmp = local_meshes[i]->get_max_possible_tau();
 		if(ftmp < tau)
 			tau = ftmp;
 	}
@@ -365,14 +381,14 @@ float TetrMeshSet::get_max_possible_tau()
 
 TetrMesh_1stOrder* TetrMeshSet::get_mesh_by_zone_num(int zone_num)
 {
-	for (int i = 0; i < meshes.size(); i++)
-		if (meshes[i]->zone_num == zone_num)
-			return meshes[i];
+	for (int i = 0; i < local_meshes.size(); i++)
+		if (local_meshes[i]->zone_num == zone_num)
+			return local_meshes[i];
 	return NULL;
 };
 
 void TetrMeshSet::pre_process_meshes()
 {
-	for (int i = 0; i < meshes.size(); i++)
-		meshes[i]->pre_process_mesh();
+	for (int i = 0; i < local_meshes.size(); i++)
+		local_meshes[i]->pre_process_mesh();
 };

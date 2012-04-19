@@ -63,7 +63,7 @@ DataBus::DataBus(Logger* new_logger)
 	MPIFacesRequest faces_req;
 	MPITetrsTResponse tetrs_t_resp;
 	MPITetrsRequest tetrs_req;
-
+	
 	MPI::Aint mpi_addr_struct;
 	MPI::Aint mpi_addr_struct_values;
 	MPI::Aint mpi_addr_struct_verts;
@@ -453,9 +453,9 @@ int DataBus::sync_nodes()
 
 	// FIXME
 	// meshes are protected, while nodes inside mesh are public
-	for (i = 0; i < mesh_set->get_number_of_meshes(); i++)
+	for (i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
 	{
-		TetrMesh_1stOrder* mesh = mesh_set->get_mesh(i);
+		TetrMesh_1stOrder* mesh = mesh_set->get_local_mesh(i);
 		for (int j = 0; j < mesh->nodes.size(); j++)
 			if (mesh->nodes[j].placement_type == REMOTE)
 			{
@@ -597,11 +597,11 @@ void DataBus::sync_outlines(vector<MeshOutline> &local, vector<MeshOutline> &rem
 				// FIXME
 				// avoid access to mesh_set, zones should be passed as
 				// arguments?
-				mpi_mesh_outline.zone_num = mesh_set->get_mesh(i)->zone_num;
+				mpi_mesh_outline.zone_num = mesh_set->get_local_mesh(i)->zone_num;
 				// send outline
 				// DEBUG
 				*logger < "Sending outline";
-				*logger << "zone: " << mesh_set->get_mesh(i)->zone_num << " proc: " < proc_num;
+				*logger << "zone: " << mesh_set->get_local_mesh(i)->zone_num << " proc: " < proc_num;
 				for (int t = 0; t < 3; t++)
 					*logger << mpi_mesh_outline.min_coords[t]  << "  " < mpi_mesh_outline.max_coords[t];
 				*logger < "";
