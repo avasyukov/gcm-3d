@@ -42,6 +42,8 @@ public:
 	TetrMesh_1stOrder* get_local_mesh(int num);
 	TetrMesh_1stOrder* get_mesh_by_zone_num(int zone_num);
 	ElasticNode* getNode(int num);
+	
+	void init_mesh_container(vector<int> &zones_info);	
 protected:
 	Logger* logger;
 	RheologyCalculator* rheology;
@@ -49,7 +51,9 @@ protected:
 	Stresser* stresser;
 	TetrNumericalMethod* numerical_method;
 	CollisionDetector* collision_detector;
-	vector<TetrMesh_1stOrder*> meshes;
+	int meshes_number;
+	int *meshes_at_proc;
+	TetrMesh_1stOrder* meshes;
 	vector<TetrMesh_1stOrder*> local_meshes;
 	vector<ElasticNode> virt_nodes;
 //	vector< vector<ElasticNode*> > remote_nodes;

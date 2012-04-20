@@ -30,9 +30,9 @@ void TetrMeshSet::attach(TetrMesh_1stOrder* new_mesh)
 		// FIXME - never ever do it! We need separate copy of method class for each mesh - see below.
 		// new_mesh->attach(numerical_method);
 		new_mesh->attach(this);
-		meshes.push_back(new_mesh);
-		if (new_mesh->local)
-			local_meshes.push_back(new_mesh);
+//		meshes.push_back(new_mesh);
+//		if (new_mesh->local)
+//			local_meshes.push_back(new_mesh);
 //		// process mesh and add all remote nodes to list of nodes to be synchronized
 //		for (int i = 0; i < new_mesh->nodes.size(); i++) {
 //			ElasticNode *node = &new_mesh->nodes[i];
@@ -349,14 +349,14 @@ TetrMesh_1stOrder* TetrMeshSet::get_local_mesh(int num)
 
 int TetrMeshSet::get_number_of_meshes()
 {
-	return meshes.size();
+	return meshes_number;
 };
 
 TetrMesh_1stOrder* TetrMeshSet::get_mesh(int num)
 {
-	if(num < 0 || num >= meshes.size())
+	if(num < 0 || num >= meshes_number)
 		return NULL;
-	return meshes[num];
+	return meshes+num;
 };
 
 ElasticNode* TetrMeshSet::getNode(int num)
@@ -392,3 +392,24 @@ void TetrMeshSet::pre_process_meshes()
 	for (int i = 0; i < local_meshes.size(); i++)
 		local_meshes[i]->pre_process_mesh();
 };
+
+void TetrMeshSet::init_mesh_container(vector<int> &zones_info)
+{
+	meshes_number = zones_info.size();
+	*logger << "MESHES NUMBER" < meshes_number;
+	// allocate memory
+	meshes = new TetrMesh_1stOrder[meshes_number];
+	meshes_at_proc = (int*)calloc(data_bus->get_procs_total_num()*sizeof(int), 1);
+	for (int i = 0; i < meshes_number; i++)
+		meshes_at_proc[zones_info[i]]++;
+	*logger << meshes_at_proc[0] << " " << meshes_at_proc[1] << " " < meshes_at_proc[2];
+	int k = 0;
+	for (int i = 0; i < data_bus->get_procs_total_num(); i++)
+		for (int j = 0; j < meshes_at_proc[i]; j++)
+		{
+			meshes[k].local = (i == data_bus->get_proc_num());
+			if (meshes[k].local)
+				local_meshes.push_back(meshes+k);
+			k++;
+		}
+}

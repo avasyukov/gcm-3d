@@ -141,6 +141,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 
 	// Path zones map to data bus
 	data_bus->load_zones_info(&zones_info);
+	mesh_set->init_mesh_container(zones_info);
 
 	// Create default VoidRheologyCalculator and attach it to mesh set
 	// TODO - make RheologyCalculator type configurable in task xml (see CollisionDetector below)
@@ -227,8 +228,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 		{
 			int zone_num = atoi( ezone->Attribute( "num" ) );
 
-			TetrMesh_1stOrder* new_mesh = new TetrMesh_1stOrder();
-			new_mesh->local = zones_info[zone_num] == proc_num;
+			TetrMesh_1stOrder *new_mesh = mesh_set->get_mesh(zone_num);
 			new_mesh->zone_num = zone_num;
 			// Load only zones that are scheduled for this CPU
 			// create an empty container for other zones
