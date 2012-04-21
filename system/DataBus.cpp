@@ -53,7 +53,7 @@ DataBus::DataBus(Logger* new_logger)
 	proc_num = MPI::COMM_WORLD.Get_rank();
 	procs_total_num = MPI::COMM_WORLD.Get_size();
 	logger->set_proc_num(proc_num);
-	logger->write("MPI initialized");
+	*logger < "MPI initialized";
 	// register new MPI types
 	MPINodeRequest node_req;
 	MPINodeResponse node_resp;
@@ -358,7 +358,7 @@ DataBus::~DataBus()
 	MPI_NODE_REQ.Free();
 	MPI_NODE_RESP.Free();
 	MPI::Finalize();
-	logger->write("MPI finalized");
+	*logger < "MPI finalized";
 };
 
 string* DataBus::get_data_bus_type()
@@ -444,7 +444,7 @@ void DataBus::process_nodes_sync_message(int source, int tag, int &nodes_to_sync
 int DataBus::sync_nodes()
 {
 
-	logger->write("Starting nodes sync");
+	*logger < "Starting nodes sync";
 	MPINodeRequest req;
 	int procs_to_sync = procs_total_num;
 	int nodes_to_sync = 0;
@@ -487,7 +487,7 @@ int DataBus::sync_nodes()
 	}
 
 	// nodes synced, notify all processed
-	logger->write("All sync requests sent");
+	*logger < "All sync requests sent";
 
 	// wait other nodes to end sync
 	while (procs_to_sync > 0 )
@@ -509,7 +509,7 @@ int DataBus::sync_nodes()
 		process_nodes_sync_message(status.Get_source(), status.Get_tag(), nodes_to_sync, procs_to_sync);
 	}
 
-	logger->write("Sync done");
+	*logger < "Sync done";
 
 	// FIXME
 	// do we really need to return a value?
@@ -584,7 +584,7 @@ void DataBus::sync_outlines(vector<MeshOutline> &local, vector<MeshOutline> &rem
 
 	MPI::Status status;
 
-	logger->write("Starting outlines sync");
+	*logger < "Starting outlines sync";
 
 	for (int i = 0; i < local.size(); i++)
 		for (int j = 0; j < procs_total_num; j++)
@@ -616,7 +616,7 @@ void DataBus::sync_outlines(vector<MeshOutline> &local, vector<MeshOutline> &rem
 		if (i != proc_num)
 			MPI::COMM_WORLD.Send(NULL, 0, MPI::BYTE,  i, TAG_SYNC_OUTLINE_DONE);
 
-	logger->write("All local outlines sent, waiting for other procs");
+	*logger < "All local outlines sent, waiting for other procs";
 
 	// processing incoming messages
 	while (procs_to_sync > 0)
@@ -625,14 +625,14 @@ void DataBus::sync_outlines(vector<MeshOutline> &local, vector<MeshOutline> &rem
 		procs_to_sync -= process_outlines_sync_message(status.Get_source(), status.Get_tag(),  remote, info);
 	}
 
-	logger->write("Outlines sync done");
+	*logger < "Outlines sync done";
 }
 
 void DataBus::sync()
 {
 	MPI::Status status;
 
-	logger->write("Syncing state");
+	*logger < "Syncing state";
 	if (proc_num != 0)
 	{
 		// send ready messages
@@ -651,7 +651,7 @@ void DataBus::sync()
 			MPI::COMM_WORLD.Send(NULL, 0, MPI::BYTE, i, TAG_SYNC_READY);
 	}
 
-	logger->write("State synced");
+	*logger < "State synced";
 }
 
 bool DataBus::process_faces_sync_message(int source, int tag, vector<ElasticNode> &remote_nodes, vector<Triangle> &remote_faces, int &procs_to_sync)

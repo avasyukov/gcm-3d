@@ -15,7 +15,7 @@ void TetrMesh::attach(TetrNumericalMethod* new_numerical_method)
 		method->attach(logger);
 		if(logger != NULL)
 		{
-			logger->write(string("Attached numerical method. Type: ") + *(method->get_num_method_type()));
+			*logger << "Attached numerical method. Type: " < *(method->get_num_method_type());
 		}
 	}
 };

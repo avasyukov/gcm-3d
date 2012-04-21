@@ -103,7 +103,7 @@ int TaskPreparator::load_zones_info(string zones_file, vector<int>* zones_info)
 int TaskPreparator::load_task( string task_file, string zones_file, string data_dir, 
 				int* snap_num, int* steps_per_snap, TetrMeshSet* mesh_set, DataBus* data_bus )
 {
-	logger->write("Loading task from XML");
+	*logger < "Loading task from XML";
 
 	// Current process number
 	int proc_num = data_bus->get_proc_num();
@@ -328,7 +328,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 	for(int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
 			check_rheology_loaded( &( ( mesh_set->get_local_mesh(i) )->nodes ) );
 
-	logger->write("Task loaded");
+	*logger < "Task loaded";
 
 	return 0;
 };
