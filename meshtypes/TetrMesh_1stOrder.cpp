@@ -219,14 +219,14 @@ int TetrMesh_1stOrder::pre_process_mesh()
 
 	// Create outline
 	for(int j = 0; j < 3; j++)
-		outline.min_coords[j] = outline.max_coords[j] = nodes[0].coords[j];
+		outline->min_coords[j] = outline->max_coords[j] = nodes[0].coords[j];
 
 	for(int i = 0; i < nodes.size(); i++) {
 		for(int j = 0; j < 3; j++) {
-			if(nodes[i].coords[j] > outline.max_coords[j])
-				outline.max_coords[j] = nodes[i].coords[j];
-			if(nodes[i].coords[j] < outline.min_coords[j])
-				outline.min_coords[j] = nodes[i].coords[j];
+			if(nodes[i].coords[j] > outline->max_coords[j])
+				outline->max_coords[j] = nodes[i].coords[j];
+			if(nodes[i].coords[j] < outline->min_coords[j])
+				outline->min_coords[j] = nodes[i].coords[j];
 		}
 	}
 
@@ -847,12 +847,12 @@ int TetrMesh_1stOrder::log_mesh_stats()
 	}
 
 	*logger < "Mesh outline:";
-	*logger << "MinX: " < outline.min_coords[0];
-	*logger << "MaxX: " < outline.max_coords[0];
-	*logger << "MinY: " < outline.min_coords[1];
-	*logger << "MaxY: " < outline.max_coords[1];
-	*logger << "MinZ: " < outline.min_coords[2];
-	*logger << "MaxZ: " < outline.max_coords[2];
+	*logger << "MinX: " < outline->min_coords[0];
+	*logger << "MaxX: " < outline->max_coords[0];
+	*logger << "MinY: " < outline->min_coords[1];
+	*logger << "MaxY: " < outline->max_coords[1];
+	*logger << "MinZ: " < outline->min_coords[2];
+	*logger << "MaxZ: " < outline->max_coords[2];
 
 	*logger < "Mesh quality:";
 	*logger << "Max H = " < get_max_h();
@@ -1389,10 +1389,10 @@ void TetrMesh_1stOrder::move_coords(float tau)
 				// Move node
 				nodes[i].coords[j] += nodes[i].values[j]*tau;
 				// Move mesh outline if necessary
-				if(nodes[i].coords[j] > outline.max_coords[j])
-					outline.max_coords[j] = nodes[i].coords[j];
-				if(nodes[i].coords[j] < outline.min_coords[j])
-					outline.min_coords[j] = nodes[i].coords[j];
+				if(nodes[i].coords[j] > outline->max_coords[j])
+					outline->max_coords[j] = nodes[i].coords[j];
+				if(nodes[i].coords[j] < outline->min_coords[j])
+					outline->min_coords[j] = nodes[i].coords[j];
 			}
 		}
 	}
@@ -1511,6 +1511,7 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 		vector<Tetrahedron_1st_order> remote_tetrs;
 		vector<ElasticNode> current_virt_nodes;
 		TetrMesh_1stOrder *tmp_mesh = new TetrMesh_1stOrder();
+		tmp_mesh->outline = new MeshOutline;
 		tmp_mesh->attach(logger);
 		tmp_mesh->attach(mesh_set);
 
@@ -1587,7 +1588,7 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 			(tmp_mesh->nodes)[i].local_num = i;
 		}
 
-		*logger << "Mesh " << zone_num << " Stage " << s < "Pre-processing virtual mesh";
+		*logger << "Mesh " << zone_num << " Stage " << s < " Pre-processing virtual mesh";
 
 		// create links, etc
 		tmp_mesh->pre_process_mesh();
@@ -1630,6 +1631,7 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 		if(do_next_part_step(time_step, s) < 0)
 			throw GCMException( GCMException::MESH_EXCEPTION, "Do next part step failed");
 
+		delete(tmp_mesh->outline);
 		delete(tmp_mesh);
 
 		*logger << "Mesh " << zone_num << " Stage " << s < " Calculation done";

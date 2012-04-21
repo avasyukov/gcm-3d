@@ -57,7 +57,7 @@ DataBus::DataBus(Logger* new_logger)
 	// register new MPI types
 	MPINodeRequest node_req;
 	MPINodeResponse node_resp;
-	MPIMeshOutline outl;
+	MeshOutline outline;
 	MPIFacesFResponse faces_f_resp;
 	MPIFacesNResponse faces_n_resp;
 	MPIFacesRequest faces_req;
@@ -158,33 +158,25 @@ DataBus::DataBus(Logger* new_logger)
 		resp_types
 	);
 	
-	mpi_addr_struct = MPI::Get_address(&outl);
-	mpi_addr_struct_proc_num = MPI::Get_address(&outl.proc_num);
-	mpi_addr_struct_zone_num = MPI::Get_address(&outl.zone_num);
-	mpi_addr_struct_min_coords = MPI::Get_address(&outl.min_coords);
-	mpi_addr_struct_max_coords = MPI::Get_address(&outl.max_coords);
+	mpi_addr_struct = MPI::Get_address(&outline);
+	mpi_addr_struct_min_coords = MPI::Get_address(outline.min_coords);
+	mpi_addr_struct_max_coords = MPI::Get_address(outline.max_coords);
 
 	MPI::Datatype outl_types[] = {
-		MPI::INT,
-		MPI::INT,
 		MPI::FLOAT,
 		MPI::FLOAT
 	};
 	int outl_lengths[] = {
-		1,
-		1,
 		3,
 		3
 	};
 	MPI::Aint outl_displacements[] = {
-		mpi_addr_struct_proc_num-mpi_addr_struct,
-		mpi_addr_struct_zone_num-mpi_addr_struct,
 		mpi_addr_struct_min_coords-mpi_addr_struct,
 		mpi_addr_struct_max_coords-mpi_addr_struct
 	};
 
 	MPI_OUTLINE = MPI::Datatype::Create_struct(
-		4,
+		2,
 		outl_lengths,
 		outl_displacements,
 		outl_types
@@ -538,94 +530,31 @@ int DataBus::get_proc_for_zone(int zone_num)
 	return zones_info[zone_num];
 }
 
-
-int DataBus::process_outlines_sync_message(int source, int tag, vector<MeshOutline> &remote, vector<MeshOutlineInfo> &info)
+void DataBus::sync_outlines()
 {
-	MPIMeshOutline mpi_outl;
-	MeshOutline outl;
-	MeshOutlineInfo outl_info;
-
-	MPI::Status status;
-	// process message
-	switch (tag) 
+	// calculate displacements
+	int *displ = (int*)malloc(sizeof(int)*procs_total_num);
+	displ[0] = 0;
+	for (int i = 1; i < procs_total_num; i++)
+		displ[i] = displ[i-1]+ mesh_set->meshes_at_proc[i-1];
+	*logger < "Syncing outlines";
+	*logger < "LOCAL OUTLINES:";
+	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
 	{
-		case TAG_SYNC_OUTLINE_DONE:
-			MPI::COMM_WORLD.Recv(NULL, 0, MPI::BYTE, source, tag, status);
-			return 1;
-		case TAG_SYNC_OUTLINE:
-			// get message
-			MPI::COMM_WORLD.Recv(&mpi_outl, 1, MPI_OUTLINE, source, tag, status);
-			// fill struct
-			outl_info.proc_num = mpi_outl.proc_num;
-			outl_info.zone_num = mpi_outl.zone_num;
-			memcpy(outl.min_coords, mpi_outl.min_coords, 3*sizeof(float));
-			memcpy(outl.max_coords, mpi_outl.max_coords, 3*sizeof(float));
-			// DEBUG
-			*logger < "Got outline";
-			*logger << "zone: " << outl_info.zone_num << " proc: " < outl_info.proc_num;
-			for (int t = 0; t < 3; t++)
-				*logger << outl.min_coords[t]  << "  " < outl.max_coords[t];
-			// add to list
-			remote.push_back(outl);
-			info.push_back(outl_info);
-			break;
-		default:
-			throw GCMException(GCMException::SYNC_EXCEPTION, "Got invalid tag while processing sync outline incoming messages.");
+		for (int j = 0 ; j < 3; j++)
+			*logger << mesh_set->get_local_mesh(i)->outline->min_coords[j] << " " < mesh_set->get_local_mesh(i)->outline->max_coords[j];
+		*logger < "";
 	}
-	return 0;
-}
-
-void DataBus::sync_outlines(vector<MeshOutline> &local, vector<MeshOutline> &remote, vector<MeshOutlineInfo> &info)
-{
-	int procs_to_sync = procs_total_num;
-	MPIMeshOutline mpi_mesh_outline;
-	MeshOutlineInfo mesh_outline_info;
-	MeshOutline mesh_outline;
-
-	MPI::Status status;
-
-	*logger < "Starting outlines sync";
-
-	for (int i = 0; i < local.size(); i++)
-		for (int j = 0; j < procs_total_num; j++)
-			if (j != proc_num)
-			{
-				// build struct
-				memcpy(mpi_mesh_outline.min_coords, local[i].min_coords, 3*sizeof(float));
-				memcpy(mpi_mesh_outline.max_coords, local[i].max_coords, 3*sizeof(float));
-				mpi_mesh_outline.proc_num = proc_num;
-				// FIXME
-				// avoid access to mesh_set, zones should be passed as
-				// arguments?
-				mpi_mesh_outline.zone_num = mesh_set->get_local_mesh(i)->zone_num;
-				// send outline
-				// DEBUG
-				*logger < "Sending outline";
-				*logger << "zone: " << mesh_set->get_local_mesh(i)->zone_num << " proc: " < proc_num;
-				for (int t = 0; t < 3; t++)
-					*logger << mpi_mesh_outline.min_coords[t]  << "  " < mpi_mesh_outline.max_coords[t];
-				*logger < "";
-				MPI::COMM_WORLD.Send(&mpi_mesh_outline, 1, MPI_OUTLINE, j, TAG_SYNC_OUTLINE);
-				// process incoming messages
-				while (check_messages_async(MPI::ANY_SOURCE, TAG_CLASS_SYNC_OUTLINE, status))
-					procs_to_sync -= process_outlines_sync_message(status.Get_source(), status.Get_tag(), remote, info);
-			}
-	procs_to_sync--;
-	// outlines sent, notify
-	for (int i = 0; i < procs_total_num; i++)
-		if (i != proc_num)
-			MPI::COMM_WORLD.Send(NULL, 0, MPI::BYTE,  i, TAG_SYNC_OUTLINE_DONE);
-
-	*logger < "All local outlines sent, waiting for other procs";
-
-	// processing incoming messages
-	while (procs_to_sync > 0)
+	MPI::COMM_WORLD.Allgatherv(mesh_set->get_local_mesh(0)->outline, mesh_set->meshes_at_proc[proc_num], MPI_OUTLINE, mesh_set->outlines, mesh_set->meshes_at_proc, displ, MPI_OUTLINE);
+	*logger < "OUTLINES:";
+	for (int i = 0; i < mesh_set->get_number_of_meshes(); i++)
 	{
-		check_messages_sync(MPI::ANY_SOURCE, TAG_CLASS_SYNC_OUTLINE, status);
-		procs_to_sync -= process_outlines_sync_message(status.Get_source(), status.Get_tag(),  remote, info);
+		for (int j=0; j< 3; j++)
+			*logger << mesh_set->get_mesh(i)->outline->min_coords[j] << " " < mesh_set->get_mesh(i)->outline->max_coords[j];
+		*logger < "";
 	}
-
-	*logger < "Outlines sync done";
+	*logger < "Outlines synced";
+	free(displ);
 }
 
 void DataBus::sync()

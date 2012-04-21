@@ -45,22 +45,6 @@ typedef struct
 	float rho;
 } MPINodeResponse;
 
-
-// structures to hold mesh outline info during sync
-typedef struct
-{
-	int proc_num;
-	int zone_num;
-} MeshOutlineInfo;
-
-typedef struct
-{
-	int proc_num;
-	int zone_num;
-	float min_coords[3];
-	float max_coords[3];
-} MPIMeshOutline;
-
 // structures to hold information while retrieving remote nodes
 typedef struct
 {
@@ -126,9 +110,7 @@ public:
 	int get_proc_for_zone(int zone_num);
 	// gets outlines from other procs and sends local meshes outline to all
 	// other procs
-	void sync_outlines(vector<MeshOutline> &local, vector<MeshOutline> &remote, vector<MeshOutlineInfo> &info);
-	// gets first message from buffer and processes it
-	int process_outlines_sync_message(int source, int tag, vector<MeshOutline> &remote, vector<MeshOutlineInfo> &info);
+	void sync_outlines();
 	// ensures that all procs are ready
 	void sync();
 	// retreives remote faces inside the intersection

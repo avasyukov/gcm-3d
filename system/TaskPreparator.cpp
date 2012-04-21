@@ -147,7 +147,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 	// TODO - make RheologyCalculator type configurable in task xml (see CollisionDetector below)
 	VoidRheologyCalculator* rc = new VoidRheologyCalculator();
 	mesh_set->attach(rc);
-
+ 
 	// Collision detector to be used (will be determined and created later)
 	CollisionDetector* col_det;
 	// Default col det type
@@ -228,8 +228,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 		{
 			int zone_num = atoi( ezone->Attribute( "num" ) );
 
-			TetrMesh_1stOrder *new_mesh = mesh_set->get_mesh(zone_num);
-			new_mesh->zone_num = zone_num;
+			TetrMesh_1stOrder *new_mesh = mesh_set->get_mesh_by_zone_num(zone_num);
 			// Load only zones that are scheduled for this CPU
 			// create an empty container for other zones
 			if( new_mesh->local )
@@ -242,8 +241,6 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 
 				if(meshpath[0] != '/')
 					meshpath = data_dir + meshpath;
-
-				new_mesh->attach(logger);
 
 				if ( new_mesh->load_msh_file( const_cast<char*>( meshpath.c_str() ) ) < 0 )
 					throw GCMException(GCMException::CONFIG_EXCEPTION, "Can not open mesh file");

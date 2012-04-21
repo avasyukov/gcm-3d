@@ -51,14 +51,18 @@ protected:
 	Stresser* stresser;
 	TetrNumericalMethod* numerical_method;
 	CollisionDetector* collision_detector;
-	int meshes_number;
-	int *meshes_at_proc;
 	TetrMesh_1stOrder* meshes;
 	vector<TetrMesh_1stOrder*> local_meshes;
+	vector<TetrMesh_1stOrder*> remote_meshes;
 	vector<ElasticNode> virt_nodes;
 //	vector< vector<ElasticNode*> > remote_nodes;
 //	TODO optimize synchronization using array containing list of remote nodes to
 //	be synchronized
+public:
+	// FIXME
+	MeshOutline *outlines;
+	int meshes_number;
+	int *meshes_at_proc;
 };
 
 #endif

@@ -24,8 +24,8 @@ int BruteforceCollisionDetector::find_collisions(TetrMesh_1stOrder* mesh1, TetrM
 	mesh1_tetrs.clear();
 	mesh2_tetrs.clear();
 
-	MeshOutline outline1 = mesh1->outline;
-	MeshOutline outline2 = mesh2->outline;
+	MeshOutline outline1 = *mesh1->outline;
+	MeshOutline outline2 = *mesh2->outline;
 
 	*logger < "Mesh outline 1:";
     *logger << "MinX: " < outline1.min_coords[0];

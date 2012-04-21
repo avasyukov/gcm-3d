@@ -24,7 +24,7 @@ public:
 	void attach_data_bus(DataBus* new_data_bus);
 
 	int load_msh_file(char* file_name);
-        int load_node_ele_files(char* node_file_name, char* ele_file_name);
+	int load_node_ele_files(char* node_file_name, char* ele_file_name);
 	int load_gmv_file(char* file_name);
 
 	bool point_in_tetr(int base_node_index, float dx, float dy, float dz, Tetrahedron* tetr, bool debug);
