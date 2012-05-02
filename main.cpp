@@ -10,6 +10,7 @@
 
 using std::cout;
 
+// This function print usage message
 void print_help()
 {
 	cout << "\nUsage: gcm3d --task file --zones file --data-dir dir --result-dir dir --log-file log\n" 
