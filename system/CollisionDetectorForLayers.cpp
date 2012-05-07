@@ -24,8 +24,8 @@ int CollisionDetectorForLayers::find_collisions(TetrMesh_1stOrder* mesh1, TetrMe
 	mesh1_nodes.clear();
 	mesh2_nodes.clear();
 
-	MeshOutline outline1 = mesh1->outline;
-	MeshOutline outline2 = mesh2->outline;
+	MeshOutline outline1 = *mesh1->outline;
+	MeshOutline outline2 = *mesh2->outline;
 
 	*logger < "Mesh outline 1:";
 	*logger << "MinX: " < outline1.min_coords[0];
@@ -84,8 +84,8 @@ int CollisionDetectorForLayers::find_collisions(TetrMesh_1stOrder* mesh1, TetrMe
 void CollisionDetectorForLayers::find_index_shift(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2)
 {
 	float h = mesh1->get_min_h() / 2;
-	MeshOutline outline1 = mesh1->outline;
-	MeshOutline outline2 = mesh2->outline;
+	MeshOutline outline1 = *mesh1->outline;
+	MeshOutline outline2 = *mesh2->outline;
 
 	for(int i = 0; i < 3; i++)
 		if( fabs(outline1.min_coords[i] - outline2.min_coords[i]) > h )
@@ -176,7 +176,7 @@ void CollisionDetectorForLayers::process_mesh(vector<int>* nodes_vector, TetrMes
 {
 	ElasticNode* node;
 	float h = current_mesh->get_min_h() / 2;
-	MeshOutline outline = current_mesh->outline;
+	MeshOutline outline = *current_mesh->outline;
 
 	for(int i = 0; i < nodes_vector->size(); i++)
 	{

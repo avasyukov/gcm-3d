@@ -15,7 +15,7 @@ void TetrMesh::attach(TetrNumericalMethod* new_numerical_method)
 		method->attach(logger);
 		if(logger != NULL)
 		{
-			logger->write(string("Attached numerical method. Type: ") + *(method->get_num_method_type()));
+			*logger << "Attached numerical method. Type: " < *(method->get_num_method_type());
 		}
 	}
 };
@@ -55,12 +55,12 @@ void TetrMesh::translate(float x, float y, float z)
 		nodes[i].fixed_coords[1] += y;
 		nodes[i].fixed_coords[2] += z;
 	}
-	outline.min_coords[0] += x;
-	outline.min_coords[1] += y;
-	outline.min_coords[2] += z;
-	outline.max_coords[0] += x;
-	outline.max_coords[1] += y;
-	outline.max_coords[2] += z;
+	outline->min_coords[0] += x;
+	outline->min_coords[1] += y;
+	outline->min_coords[2] += z;
+	outline->max_coords[0] += x;
+	outline->max_coords[1] += y;
+	outline->max_coords[2] += z;
 };
 
 void TetrMesh::clear_contact_data(ElasticNode* node)

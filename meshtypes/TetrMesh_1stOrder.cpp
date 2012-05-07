@@ -29,7 +29,7 @@ void TetrMesh_1stOrder::attach_data_bus(DataBus* new_data_bus)
 		data_bus->attach(logger);
 		if(logger != NULL)
 		{
-			logger->write(string("Attached data bus. Type: ") + *(data_bus->get_data_bus_type()));
+			*logger << "Attached data bus. Type: " < *(data_bus->get_data_bus_type());
 		}
 	}
 };
@@ -52,15 +52,17 @@ void TetrMesh_1stOrder::add_tetr(Tetrahedron_1st_order* tetr)
 
 int TetrMesh_1stOrder::pre_process_mesh()
 {
+	if (!local)
+		return 0;
 	// Just to ensure loaded border was dropped
 	border.clear();
 
 	// Guaranteed allowed step
 	float step_h = get_min_h() / 4; // TODO avoid magick number
 
-	logger->write(string("Preprocessing mesh started..."));
+	*logger < "Preprocessing mesh started...";
 
-	logger->write(string("Checking numbering"));
+	*logger < "Checking numbering";
 
 	// Check if internal numbers of nodes are the same as numbers in array
 	// We need it in future to perform quick access to nodes in array
@@ -80,7 +82,7 @@ int TetrMesh_1stOrder::pre_process_mesh()
 			throw GCMException( GCMException::MESH_EXCEPTION, "Invalid triangle numbering");
 	}
 
-	logger->write(string("Building volume reverse lookups"));
+	*logger < "Building volume reverse lookups";
 
 	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
 	for(int i = 0; i < nodes.size(); i++) { nodes[i].elements = new vector<int>; }
@@ -96,7 +98,7 @@ int TetrMesh_1stOrder::pre_process_mesh()
 		}
 	}
 
-	logger->write(string("Looking for unused nodes"));
+	*logger < "Looking for unused nodes";
 
 	// Check all the nodes and find 'unused'
 
@@ -135,7 +137,7 @@ int TetrMesh_1stOrder::pre_process_mesh()
 	float solid_angle;
 	float ftmp;
 
-	logger->write(string("Looking for border nodes using angles"));
+	*logger < "Looking for border nodes using angles";
 
 	// Check border using solid angle comparation with 4*PI
 	for(int i = 0; i < nodes.size(); i++)
@@ -158,7 +160,7 @@ int TetrMesh_1stOrder::pre_process_mesh()
 		}
 	}
 
-	logger->write(string("Constructing border triangles"));
+	*logger < "Constructing border triangles";
 
 	// Check all tetrs and construct border triangles
 	for(int i = 0; i < tetrs.size(); i++)
@@ -169,7 +171,7 @@ int TetrMesh_1stOrder::pre_process_mesh()
 		check_triangle_to_be_border(tetrs[i].vert[1], tetrs[i].vert[2], tetrs[i].vert[3], tetrs[i].vert[0], step_h);
 	}
 
-	logger->write(string("Building surface reverse lookups"));
+	*logger < "Building surface reverse lookups";
 
 	// Init vectors for "reverse lookups" of border triangles current node is a member of.
 	for(int i = 0; i < nodes.size(); i++) { nodes[i].border_elements = new vector<int>; }
@@ -179,7 +181,7 @@ int TetrMesh_1stOrder::pre_process_mesh()
 		for(int j = 0; j < 3; j++)
 			nodes[border[i].vert[j]].border_elements->push_back(i);
 
-	logger->write(string("Checking nodes outer normals"));
+	*logger < "Checking nodes outer normals";
 
 	// Normal vector
 	float normal[3];
@@ -215,22 +217,25 @@ int TetrMesh_1stOrder::pre_process_mesh()
 
 	// TODO - scale, rotate, translate, etc - after it is made configurable via xml
 
-	logger->write(string("Creating outline"));
+	if (nodes.size())
+	{
+		*logger < "Creating outline";
 
-	// Create outline
-	for(int j = 0; j < 3; j++)
-		outline.min_coords[j] = outline.max_coords[j] = nodes[0].coords[j];
+		// Create outline
+		for(int j = 0; j < 3; j++)
+			outline->min_coords[j] = outline->max_coords[j] = nodes[0].coords[j];
 
-	for(int i = 0; i < nodes.size(); i++) {
-		for(int j = 0; j < 3; j++) {
-			if(nodes[i].coords[j] > outline.max_coords[j])
-				outline.max_coords[j] = nodes[i].coords[j];
-			if(nodes[i].coords[j] < outline.min_coords[j])
-				outline.min_coords[j] = nodes[i].coords[j];
+		for(int i = 0; i < nodes.size(); i++) {
+			for(int j = 0; j < 3; j++) {
+				if(nodes[i].coords[j] > outline->max_coords[j])
+					outline->max_coords[j] = nodes[i].coords[j];
+				if(nodes[i].coords[j] < outline->min_coords[j])
+					outline->min_coords[j] = nodes[i].coords[j];
+			}
 		}
 	}
 
-	logger->write(string("Preprocessing mesh done."));
+	*logger < "Preprocessing mesh done.";
 
 	return 0;
 };
@@ -403,8 +408,7 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 	if(!ele_infile.is_open())
 		throw GCMException( GCMException::MESH_EXCEPTION, "Can not open ele file");
 
-	if(logger != NULL)
-		logger->write(string("INFO: TetrMesh_1stOrder::load_node_ele_files - Reading file..."));
+	*logger < "INFO: TetrMesh_1stOrder::load_node_ele_files - Reading file...";
 
 	node_infile >> number_of_nodes >> tmp_int >> tmp_int >> tmp_int;
 
@@ -461,8 +465,7 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 		tetrs.push_back(new_tetr);
 	}
 
-	if(logger != NULL)
-		logger->write(string("INFO: TetrMesh_1stOrder::load_node_ele_files - File read."));
+	*logger < "INFO: TetrMesh_1stOrder::load_node_ele_files - File read.";
 
 	node_infile.close();
 	ele_infile.close();
@@ -488,8 +491,7 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 	if(!infile.is_open())
 		throw GCMException( GCMException::MESH_EXCEPTION, "Can not open gmv file");
 
-	if(logger != NULL)
-		logger->write(string("INFO: TetrMesh_1stOrder::load_gmv_file - Reading file..."));
+	*logger < "INFO: TetrMesh_1stOrder::load_gmv_file - Reading file...";
 
 	getline(infile, str);
 	if(strcmp(str.c_str(),"gmvinput ascii") != 0)
@@ -549,8 +551,7 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 		count++;
 	}
 
-	if(logger != NULL)
-		logger->write(string("INFO: TetrMesh_1stOrder::load_gmv_file - File read."));
+	*logger < "INFO: TetrMesh_1stOrder::load_gmv_file - File read.";
 
 	infile.close();
 
@@ -573,8 +574,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 	if(!infile.is_open())
 		throw GCMException( GCMException::MESH_EXCEPTION, "Can not open msh file");
 
-	if(logger != NULL)
-		logger->write(string("INFO: TetrMesh_1stOrder::load_msh_file - Reading file..."));
+	*logger < "INFO: TetrMesh_1stOrder::load_msh_file - Reading file...";
 
 	infile >> str;
 	if(strcmp(str.c_str(),"$MeshFormat") != 0)
@@ -670,8 +670,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 	if(strcmp(str.c_str(),"$EndElements") != 0)
 		throw GCMException( GCMException::MESH_EXCEPTION, "Wrong file format");
 
-	if(logger != NULL)
-		logger->write(string("INFO: TetrMesh_1stOrder::load_msh_file - File read."));
+	*logger < "INFO: TetrMesh_1stOrder::load_msh_file - File read.";
 
 	infile.close();
 
@@ -853,12 +852,12 @@ int TetrMesh_1stOrder::log_mesh_stats()
 	}
 
 	*logger < "Mesh outline:";
-	*logger << "MinX: " < outline.min_coords[0];
-	*logger << "MaxX: " < outline.max_coords[0];
-	*logger << "MinY: " < outline.min_coords[1];
-	*logger << "MaxY: " < outline.max_coords[1];
-	*logger << "MinZ: " < outline.min_coords[2];
-	*logger << "MaxZ: " < outline.max_coords[2];
+	*logger << "MinX: " < outline->min_coords[0];
+	*logger << "MaxX: " < outline->max_coords[0];
+	*logger << "MinY: " < outline->min_coords[1];
+	*logger << "MaxY: " < outline->max_coords[1];
+	*logger << "MinZ: " < outline->min_coords[2];
+	*logger << "MaxZ: " < outline->max_coords[2];
 
 	*logger < "Mesh quality:";
 	*logger << "Max H = " < get_max_h();
@@ -1395,10 +1394,10 @@ void TetrMesh_1stOrder::move_coords(float tau)
 				// Move node
 				nodes[i].coords[j] += nodes[i].values[j]*tau;
 				// Move mesh outline if necessary
-				if(nodes[i].coords[j] > outline.max_coords[j])
-					outline.max_coords[j] = nodes[i].coords[j];
-				if(nodes[i].coords[j] < outline.min_coords[j])
-					outline.min_coords[j] = nodes[i].coords[j];
+				if(nodes[i].coords[j] > outline->max_coords[j])
+					outline->max_coords[j] = nodes[i].coords[j];
+				if(nodes[i].coords[j] < outline->min_coords[j])
+					outline->min_coords[j] = nodes[i].coords[j];
 			}
 		}
 	}
@@ -1487,15 +1486,6 @@ int TetrMesh_1stOrder::run_mesh_filter()
 	return 0;
 };
 
-//int TetrMesh_1stOrder::do_next_step()
-//{
-//	float tau = data_bus->get_max_possible_tau();
-//	return do_next_step(tau);
-//};
-// I think, we cannot use this method anymore in parallel version, because max 
-// possible tau have to be synchronized. Since sync is done in MeshSet, we
-// should use only themethod below.
-
 int TetrMesh_1stOrder::do_next_step(float time_step)
 {
 	int number_of_stages;
@@ -1512,11 +1502,6 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 	if(time_step < 0)
 		throw GCMException( GCMException::MESH_EXCEPTION, "Time step is negative");
 
-//	if(data_bus != NULL)
-//		time_step = data_bus->get_max_possible_tau(time_step);
-//	Time step synchroniztion is done outside of this function, so we just use 
-//	passed value.
-
 	if( (number_of_stages = method->get_number_of_stages()) <= 0 )
 		throw GCMException( GCMException::MESH_EXCEPTION, "Incorrect number of stages");
 
@@ -1531,6 +1516,7 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 		vector<Tetrahedron_1st_order> remote_tetrs;
 		vector<ElasticNode> current_virt_nodes;
 		TetrMesh_1stOrder *tmp_mesh = new TetrMesh_1stOrder();
+		tmp_mesh->outline = new MeshOutline;
 		tmp_mesh->attach(logger);
 		tmp_mesh->attach(mesh_set);
 
@@ -1607,7 +1593,7 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 			(tmp_mesh->nodes)[i].local_num = i;
 		}
 
-		*logger << "Mesh " << zone_num << " Stage " << s < "Pre-processing virtual mesh";
+		*logger << "Mesh " << zone_num << " Stage " << s < " Pre-processing virtual mesh";
 
 		// create links, etc
 		tmp_mesh->pre_process_mesh();
@@ -1650,6 +1636,7 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 		if(do_next_part_step(time_step, s) < 0)
 			throw GCMException( GCMException::MESH_EXCEPTION, "Do next part step failed");
 
+		delete(tmp_mesh->outline);
 		delete(tmp_mesh);
 
 		*logger << "Mesh " << zone_num << " Stage " << s < " Calculation done";

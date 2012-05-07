@@ -32,14 +32,20 @@ public:
 	float get_current_time();
 	int do_next_step();
 	int get_number_of_meshes();
+	int get_number_of_local_meshes();
+	int get_number_of_remote_meshes();
 	// Prepares loaded meshes for calculation - finds normals and borders, created reverse lookup vectors, etc
 	// Should be called after remote nodes are synced
 	void pre_process_meshes();
 	// Returns max possible tau for all attached meshes
 	float get_max_possible_tau();
 	TetrMesh_1stOrder* get_mesh(int num);
+	TetrMesh_1stOrder* get_local_mesh(int num);
+	TetrMesh_1stOrder* get_remote_mesh(int num);
 	TetrMesh_1stOrder* get_mesh_by_zone_num(int zone_num);
 	ElasticNode* getNode(int num);
+	
+	void init_mesh_container(vector<int> &zones_info);	
 protected:
 	Logger* logger;
 	RheologyCalculator* rheology;
@@ -47,11 +53,18 @@ protected:
 	Stresser* stresser;
 	TetrNumericalMethod* numerical_method;
 	CollisionDetector* collision_detector;
-	vector<TetrMesh_1stOrder*> meshes;
+	TetrMesh_1stOrder* meshes;
+	vector<TetrMesh_1stOrder*> local_meshes;
+	vector<TetrMesh_1stOrder*> remote_meshes;
 	vector<ElasticNode> virt_nodes;
 //	vector< vector<ElasticNode*> > remote_nodes;
 //	TODO optimize synchronization using array containing list of remote nodes to
 //	be synchronized
+public:
+	// FIXME
+	MeshOutline *outlines;
+	int meshes_number;
+	int *meshes_at_proc;
 };
 
 #endif

@@ -1,0 +1,11 @@
+CMakeCache.txt
+CMakeFiles/*
+Makefile
+cmake_install.cmake
+gcm3d
+nbproject/*
+materials/*
+tools/*.bin
+gcm.log
+*/snap_volume_*
+snap_volume_*
