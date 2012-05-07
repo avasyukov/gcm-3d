@@ -328,11 +328,23 @@ int TetrMeshSet::get_number_of_local_meshes()
 	return local_meshes.size();
 };
 
+int TetrMeshSet::get_number_of_remote_meshes()
+{
+	return remote_meshes.size();
+};
+
 TetrMesh_1stOrder* TetrMeshSet::get_local_mesh(int num)
 {
 	if(num < 0 || num >= local_meshes.size())
 		return NULL;
 	return local_meshes[num];
+};
+
+TetrMesh_1stOrder* TetrMeshSet::get_remote_mesh(int num)
+{
+	if(num < 0 || num >= remote_meshes.size())
+		return NULL;
+	return remote_meshes[num];
 };
 
 int TetrMeshSet::get_number_of_meshes()

@@ -26,13 +26,6 @@ class DataBus;
 #include "GCMException.h"
 
 // structures to hold node info during sync
-typedef struct
-{
-	int local_num;
-	int remote_num;
-	int local_zone_num;
-	int remote_zone_num;
-} MPINodeRequest;
 
 typedef struct
 {
@@ -43,7 +36,7 @@ typedef struct
 	float la;
 	float mu;
 	float rho;
-} MPINodeResponse;
+} MPINode;
 
 // structures to hold information while retrieving remote nodes
 typedef struct
@@ -98,8 +91,6 @@ public:
 	virtual float get_max_possible_tau(float local_time_step);
 	// performs nodes sync
 	virtual int sync_nodes();
-	// gets first message from buffer and processes it
-	void process_nodes_sync_message(int source, int tag, int &nodes_to_sync, int &procs_to_sync);
 	// loads information about zones<->processors mapping from file
 	void load_zones_info(vector<int>* map);
 	// returns current processor number
@@ -111,8 +102,6 @@ public:
 	// gets outlines from other procs and sends local meshes outline to all
 	// other procs
 	void sync_outlines();
-	// ensures that all procs are ready
-	void sync();
 	// retreives remote faces inside the intersection
 	void get_remote_faces_in_intersection(int proc_num, int zone_num, MeshOutline &intersection, vector<ElasticNode> &remote_nodes, vector<Triangle> &remote_faces, int &procs_to_sync);
 	// processes faces sync message
@@ -129,7 +118,10 @@ public:
 	void get_remote_tetrahedrons(vector<ElasticNode> &virtual_nodes, vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes);
 	// processed a message
 	void process_tetrs_sync_message(int source, int tag, vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes, int &resps_to_get, int &procs_to_sync);
+	// creates custom data types
+	void create_custom_types();
 protected:
+	vector<int> **local_numbers;
 	TetrMeshSet* mesh_set;
 	CollisionDetector *collision_detector;
 	Logger* logger;
@@ -144,9 +136,7 @@ public:
 	// MPI tags
 	static const int TAG_SYNC_READY        =  0;
 	static const int TAG_SYNC_TIME_STEP    =  1;
-	static const int TAG_SYNC_NODE_REQ     =  2;
-	static const int TAG_SYNC_NODE_RESP    =  3;
-	static const int TAG_SYNC_NODE_DONE    =  4;
+	static const int TAG_SYNC_NODE         =  2000;
 	static const int TAG_SYNC_OUTLINE      =  5;
 	static const int TAG_SYNC_OUTLINE_DONE =  6;
 	static const int TAG_SYNC_FACES_REQ    =  7;
@@ -158,26 +148,28 @@ public:
 	static const int TAG_SYNC_TETRS_T_RESP = 13;
 	static const int TAG_SYNC_TETRS_N_RESP = 14;
 	static const int TAG_SYNC_TETRS_DONE   = 15;
-	static const int TAG_SYNC_TETRS_R_END   = 16;
+	static const int TAG_SYNC_TETRS_R_END  = 16;
+	static const int TAG_SYNC_NODE_TYPES   = 17;
+	static const int TAG_SYNC_NODE_TYPES_I = 18;
 
 	// MPI tag classes
 	// FIXME
 	// google about const int* and  int const * and change the following
 	// declarations to static const int
 	static int TAG_CLASS_SYNC_NODE[];
-	static int TAG_CLASS_SYNC_OUTLINE[];
 	static int TAG_CLASS_SYNC_FACES[];
 	static int TAG_CLASS_SYNC_TETRS[];
 
 	// MPI types
-	MPI::Datatype MPI_NODE_REQ;
-	MPI::Datatype MPI_NODE_RESP;
+	MPI::Datatype MPI_NODE;
 	MPI::Datatype MPI_OUTLINE;
 	MPI::Datatype MPI_FACES_REQ;
 	MPI::Datatype MPI_TETRS_REQ;
 	MPI::Datatype MPI_FACES_F_RESP;
 	MPI::Datatype MPI_FACES_N_RESP;
 	MPI::Datatype MPI_TETRS_T_RESP;
+	
+//	MPI::Datatype **MPI_NODE_TYPES;
 
 	// return code on termination
 	static const int MPI_CODE_TERMINATED = 0;

@@ -119,6 +119,9 @@ int main(int argc, char **argv)
 
 		// Load real task info
 		task_prep->load_task( task_file, zones_info_file, data_dir, &snap_num, &step_per_snap, mesh_set, data_bus );
+		
+		// create custom types for fast sync
+		data_bus->create_custom_types();
 
 		// Initial nodes sync should be done before mesh preparation, because we need all nodes coordinates in place
 		data_bus->sync_nodes();

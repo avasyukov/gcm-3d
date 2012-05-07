@@ -52,6 +52,8 @@ void TetrMesh_1stOrder::add_tetr(Tetrahedron_1st_order* tetr)
 
 int TetrMesh_1stOrder::pre_process_mesh()
 {
+	if (!local)
+		return 0;
 	// Just to ensure loaded border was dropped
 	border.clear();
 
@@ -215,18 +217,21 @@ int TetrMesh_1stOrder::pre_process_mesh()
 
 	// TODO - scale, rotate, translate, etc - after it is made configurable via xml
 
-	*logger < "Creating outline";
+	if (nodes.size())
+	{
+		*logger < "Creating outline";
 
-	// Create outline
-	for(int j = 0; j < 3; j++)
-		outline->min_coords[j] = outline->max_coords[j] = nodes[0].coords[j];
+		// Create outline
+		for(int j = 0; j < 3; j++)
+			outline->min_coords[j] = outline->max_coords[j] = nodes[0].coords[j];
 
-	for(int i = 0; i < nodes.size(); i++) {
-		for(int j = 0; j < 3; j++) {
-			if(nodes[i].coords[j] > outline->max_coords[j])
-				outline->max_coords[j] = nodes[i].coords[j];
-			if(nodes[i].coords[j] < outline->min_coords[j])
-				outline->min_coords[j] = nodes[i].coords[j];
+		for(int i = 0; i < nodes.size(); i++) {
+			for(int j = 0; j < 3; j++) {
+				if(nodes[i].coords[j] > outline->max_coords[j])
+					outline->max_coords[j] = nodes[i].coords[j];
+				if(nodes[i].coords[j] < outline->min_coords[j])
+					outline->min_coords[j] = nodes[i].coords[j];
+			}
 		}
 	}
 

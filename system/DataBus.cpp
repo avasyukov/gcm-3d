@@ -1,18 +1,5 @@
 #include "DataBus.h"
 
-int DataBus::TAG_CLASS_SYNC_NODE[] = {
-	DataBus::TAG_SYNC_NODE_REQ,
-	DataBus::TAG_SYNC_NODE_RESP,
-	DataBus::TAG_SYNC_NODE_DONE, 
-	-1
-};
-
-int DataBus::TAG_CLASS_SYNC_OUTLINE[] = {
-	DataBus::TAG_SYNC_OUTLINE, 
-	DataBus::TAG_SYNC_OUTLINE_DONE, 
-	-1
-};
-
 int DataBus::TAG_CLASS_SYNC_FACES[] = {
 	DataBus::TAG_SYNC_FACES_REQ,
 	DataBus::TAG_SYNC_FACES_F_RESP,
@@ -54,301 +41,11 @@ DataBus::DataBus(Logger* new_logger)
 	procs_total_num = MPI::COMM_WORLD.Get_size();
 	logger->set_proc_num(proc_num);
 	*logger < "MPI initialized";
-	// register new MPI types
-	MPINodeRequest node_req;
-	MPINodeResponse node_resp;
-	MeshOutline outline;
-	MPIFacesFResponse faces_f_resp;
-	MPIFacesNResponse faces_n_resp;
-	MPIFacesRequest faces_req;
-	MPITetrsTResponse tetrs_t_resp;
-	MPITetrsRequest tetrs_req;
-	
-	MPI::Aint mpi_addr_struct;
-	MPI::Aint mpi_addr_struct_values;
-	MPI::Aint mpi_addr_struct_verts;
-	MPI::Aint mpi_addr_struct_min_coords;
-	MPI::Aint mpi_addr_struct_max_coords;
-	MPI::Aint mpi_addr_struct_coords;
-	MPI::Aint mpi_addr_struct_local_num;
-	MPI::Aint mpi_addr_struct_num;
-	MPI::Aint mpi_addr_struct_face_num;
-	MPI::Aint mpi_addr_struct_remote_num;
-	MPI::Aint mpi_addr_struct_local_zone_num;
-	MPI::Aint mpi_addr_struct_remote_zone_num;
-	MPI::Aint mpi_addr_struct_proc_num;
-	MPI::Aint mpi_addr_struct_zone_num;
-	MPI::Aint mpi_addr_struct_la;
-	MPI::Aint mpi_addr_struct_mu;
-	MPI::Aint mpi_addr_struct_rho;
-
-	mpi_addr_struct = MPI::Get_address(&node_req);
-	mpi_addr_struct_local_num = MPI::Get_address(&node_req.local_num);
-	mpi_addr_struct_remote_num = MPI::Get_address(&node_req.remote_num);
-	mpi_addr_struct_local_zone_num = MPI::Get_address(&node_req.local_zone_num);
-	mpi_addr_struct_remote_zone_num = MPI::Get_address(&node_req.remote_zone_num);
-
-	MPI::Datatype req_types[] = {
-		MPI::INT,
-		MPI::INT,
-		MPI::INT,
-		MPI::INT
-	};
-	int req_lengths[] = {
-		1,
-		1,
-		1,
-		1
-	};
-	MPI::Aint req_displacements[] = {
-		mpi_addr_struct_local_num-mpi_addr_struct,
-		mpi_addr_struct_remote_num-mpi_addr_struct,
-		mpi_addr_struct_local_zone_num-mpi_addr_struct,
-		mpi_addr_struct_remote_zone_num-mpi_addr_struct
-	};
-
-	MPI_NODE_REQ = MPI::Datatype::Create_struct(
-		4,
-		req_lengths, 
-		req_displacements, 
-		req_types
-	);
-	
-	mpi_addr_struct = MPI::Get_address(&node_resp);
-	mpi_addr_struct_values = MPI::Get_address(&node_resp.values);
-	mpi_addr_struct_coords = MPI::Get_address(&node_resp.coords);
-	mpi_addr_struct_local_num = MPI::Get_address(&node_resp.local_num);
-	mpi_addr_struct_local_zone_num = MPI::Get_address(&node_resp.local_zone_num);
-	mpi_addr_struct_la = MPI::Get_address(&node_resp.la);
-	mpi_addr_struct_mu = MPI::Get_address(&node_resp.mu);
-	mpi_addr_struct_rho = MPI::Get_address(&node_resp.rho);
-
-	MPI::Datatype resp_types[] = {
-		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::INT,
-		MPI::INT,
-		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::FLOAT
-	};
-	int resp_lengths[] = {
-		9,
-		3,
-		1,
-		1,
-		1,
-		1,
-		1
-	};
-	MPI::Aint resp_displacements[] = {
-		mpi_addr_struct_values-mpi_addr_struct,
-		mpi_addr_struct_coords-mpi_addr_struct,
-		mpi_addr_struct_num-mpi_addr_struct,
-		mpi_addr_struct_zone_num-mpi_addr_struct,
-		mpi_addr_struct_la-mpi_addr_struct,
-		mpi_addr_struct_mu-mpi_addr_struct,
-		mpi_addr_struct_rho-mpi_addr_struct
-	};
-
-	MPI_NODE_RESP = MPI::Datatype::Create_struct(
-		7,
-		resp_lengths,
-		resp_displacements,
-		resp_types
-	);
-	
-	mpi_addr_struct = MPI::Get_address(&outline);
-	mpi_addr_struct_min_coords = MPI::Get_address(outline.min_coords);
-	mpi_addr_struct_max_coords = MPI::Get_address(outline.max_coords);
-
-	MPI::Datatype outl_types[] = {
-		MPI::FLOAT,
-		MPI::FLOAT
-	};
-	int outl_lengths[] = {
-		3,
-		3
-	};
-	MPI::Aint outl_displacements[] = {
-		mpi_addr_struct_min_coords-mpi_addr_struct,
-		mpi_addr_struct_max_coords-mpi_addr_struct
-	};
-
-	MPI_OUTLINE = MPI::Datatype::Create_struct(
-		2,
-		outl_lengths,
-		outl_displacements,
-		outl_types
-	);
-	
-	mpi_addr_struct = MPI::Get_address(&faces_req);
-	mpi_addr_struct_zone_num = MPI::Get_address(&faces_req.zone_num);
-	mpi_addr_struct_min_coords = MPI::Get_address(&faces_req.min_coords);
-	mpi_addr_struct_max_coords = MPI::Get_address(&faces_req.max_coords);
-
-	MPI::Datatype faces_req_types[] = {
-		MPI::INT,
-		MPI::FLOAT,
-		MPI::FLOAT
-	};
-	int faces_req_lengths[] = {
-		1,
-		3,
-		3
-	};
-	MPI::Aint faces_req_displacements[] = {
-		mpi_addr_struct_zone_num-mpi_addr_struct,
-		mpi_addr_struct_min_coords-mpi_addr_struct,
-		mpi_addr_struct_max_coords-mpi_addr_struct
-	};
-
-	MPI_FACES_REQ = MPI::Datatype::Create_struct(
-		3,
-		faces_req_lengths,
-		faces_req_displacements,
-		faces_req_types
-	);
-	
-	mpi_addr_struct = MPI::Get_address(&faces_f_resp);
-	mpi_addr_struct_verts = MPI::Get_address(&faces_f_resp.verts);
-	mpi_addr_struct_num = MPI::Get_address(&faces_f_resp.num);
-	mpi_addr_struct_zone_num = MPI::Get_address(&faces_f_resp.zone_num);
-
-	MPI::Datatype faces_f_resp_types[] = {
-		MPI::FLOAT,
-		MPI::INT,
-		MPI::INT
-	};
-	int faces_f_resp_lengths[] = {
-		3,
-		1,
-		1
-	};
-	MPI::Aint faces_f_resp_displacements[] = {
-		mpi_addr_struct_verts-mpi_addr_struct,
-		mpi_addr_struct_num-mpi_addr_struct,
-		mpi_addr_struct_zone_num-mpi_addr_struct
-	};
-
-	MPI_FACES_F_RESP = MPI::Datatype::Create_struct(
-		3,
-		faces_f_resp_lengths,
-		faces_f_resp_displacements,
-		faces_f_resp_types
-	);
-	
-	mpi_addr_struct = MPI::Get_address(&faces_n_resp);
-	mpi_addr_struct_num = MPI::Get_address(&faces_n_resp.num);
-	mpi_addr_struct_zone_num = MPI::Get_address(&faces_n_resp.zone_num);
-	mpi_addr_struct_coords = MPI::Get_address(&faces_n_resp.coords);
-	mpi_addr_struct_values = MPI::Get_address(&faces_n_resp.values);
-	mpi_addr_struct_la = MPI::Get_address(&faces_n_resp.la);
-	mpi_addr_struct_mu = MPI::Get_address(&faces_n_resp.mu);
-	mpi_addr_struct_rho = MPI::Get_address(&faces_n_resp.rho);
-
-	MPI::Datatype faces_n_resp_types[] = {
-		MPI::INT,
-		MPI::INT,
-		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::FLOAT
-	};
-	int faces_n_resp_lengths[] = {
-		1,
-		1,
-		3,
-		9,
-		1,
-		1,
-		1
-	};
-	MPI::Aint faces_n_resp_displacements[] = {
-		mpi_addr_struct_num-mpi_addr_struct,
-		mpi_addr_struct_zone_num-mpi_addr_struct,
-		mpi_addr_struct_coords-mpi_addr_struct,
-		mpi_addr_struct_values-mpi_addr_struct,
-		mpi_addr_struct_la-mpi_addr_struct,
-		mpi_addr_struct_mu-mpi_addr_struct,
-		mpi_addr_struct_rho-mpi_addr_struct
-	};
-
-	MPI_FACES_N_RESP = MPI::Datatype::Create_struct(
-		7,
-		faces_n_resp_lengths,
-		faces_n_resp_displacements,
-		faces_n_resp_types
-	);
-	
-	mpi_addr_struct = MPI::Get_address(&tetrs_req);
-	mpi_addr_struct_face_num = MPI::Get_address(&tetrs_req.face_num);
-	mpi_addr_struct_zone_num = MPI::Get_address(&tetrs_req.zone_num);
-
-	MPI::Datatype tetrs_req_types[] = {
-		MPI::INT,
-		MPI::INT,
-	};
-	int tetrs_req_lengths[] = {
-		1,
-		1
-	};
-	MPI::Aint tetrs_req_displacements[] = {
-		mpi_addr_struct_face_num-mpi_addr_struct,
-		mpi_addr_struct_zone_num-mpi_addr_struct
-	};
-
-	MPI_TETRS_REQ = MPI::Datatype::Create_struct(
-		2,
-		tetrs_req_lengths,
-		tetrs_req_displacements,
-		tetrs_req_types
-	);
-	
-	mpi_addr_struct = MPI::Get_address(&tetrs_t_resp);
-	mpi_addr_struct_verts = MPI::Get_address(&tetrs_t_resp.verts);
-	mpi_addr_struct_zone_num = MPI::Get_address(&tetrs_t_resp.zone_num);
-	mpi_addr_struct_num = MPI::Get_address(&tetrs_t_resp.face_num);
-
-	MPI::Datatype tetrs_t_resp_types[] = {
-		MPI::FLOAT,
-		MPI::INT,
-		MPI::INT
-	};
-	int tetrs_t_resp_lengths[] = {
-		4,
-		1,
-		1,
-	};
-	MPI::Aint tetrs_t_resp_displacements[] = {
-		mpi_addr_struct_verts-mpi_addr_struct,
-		mpi_addr_struct_zone_num-mpi_addr_struct,
-		mpi_addr_struct_num-mpi_addr_struct
-	};
-
-	MPI_TETRS_T_RESP = MPI::Datatype::Create_struct(
-		3,
-		tetrs_t_resp_lengths,
-		tetrs_t_resp_displacements,
-		tetrs_t_resp_types
-	);
-
-	MPI_NODE_REQ.Commit();
-	MPI_NODE_RESP.Commit();
-	MPI_OUTLINE.Commit();
-	MPI_FACES_REQ.Commit();
-	MPI_TETRS_REQ.Commit();
-	MPI_FACES_F_RESP.Commit();
-	MPI_FACES_N_RESP.Commit();
-	MPI_TETRS_T_RESP.Commit();
 };
 
 DataBus::~DataBus()
 {
 	// try to finilize MPI
-	MPI_NODE_REQ.Free();
-	MPI_NODE_RESP.Free();
 	MPI::Finalize();
 	*logger < "MPI finalized";
 };
@@ -382,70 +79,11 @@ float DataBus::get_max_possible_tau(float local_time_step)
 	return max_tau;
 }
 
-void DataBus::process_nodes_sync_message(int source, int tag, int &nodes_to_sync, int &procs_to_sync)
-{
-	MPINodeRequest req;
-	MPINodeResponse resp;
-	MPI::Status status;
-	ElasticNode *node;
-		
-	// process message
-	switch (tag) 
-	{
-		case TAG_SYNC_NODE_DONE:
-			MPI::COMM_WORLD.Recv(NULL, 0, MPI::BYTE, source, tag, status);
-			procs_to_sync--;
-			break;
-		case TAG_SYNC_NODE_REQ:
-			MPI::COMM_WORLD.Recv(&req, 1, MPI_NODE_REQ, source, tag, status);
-			node = mesh_set->get_mesh_by_zone_num(req.remote_zone_num)->get_node(req.remote_num);
-			// FIXME
-			// DEBUG
-			if (node->local_num != req.remote_num)
-				throw GCMException(GCMException::SYNC_EXCEPTION, "get_node() returned node with invalid num.");
-			// FIXME
-			// here we have to find an appropriate node to copy data from
-			memcpy(resp.values, node->values, sizeof(float)*9);
-			memcpy(resp.coords, node->coords, sizeof(float)*3);
-			resp.local_num = req.local_num;
-			resp.local_zone_num = req.local_zone_num;
-			resp.la = node->la;
-			resp.mu = node->mu;
-			resp.rho = node->rho;
-			// send an answer 
-			MPI::COMM_WORLD.Send(&resp, 1, MPI_NODE_RESP, source, TAG_SYNC_NODE_RESP);
-			break;
-		case TAG_SYNC_NODE_RESP:
-			MPI::COMM_WORLD.Recv(&resp, 1, MPI_NODE_RESP, source, tag, status);
-			node = mesh_set->get_mesh_by_zone_num(resp.local_zone_num)->get_node(resp.local_num);
-			// FIXME
-			if (node->local_num != resp.local_num)
-				throw GCMException(GCMException::SYNC_EXCEPTION, "get_node() returned node with invalid num.");
-			nodes_to_sync--;
-			memcpy(node->values, resp.values, 9*sizeof(float));
-			memcpy(node->coords, resp.coords, 3*sizeof(float));
-			node->la = resp.la;
-			node->mu = resp.mu;
-			node->rho = resp.rho;
-			break;
-		default:
-			throw GCMException(GCMException::SYNC_EXCEPTION, "Got invalid tag while processing sync node incoming messages.");
-	}
-}
-
 int DataBus::sync_nodes()
 {
-
+	MPI::COMM_WORLD.Barrier();
 	*logger < "Starting nodes sync";
-	MPINodeRequest req;
-	int procs_to_sync = procs_total_num;
-	int nodes_to_sync = 0;
-	MPI::Status status;
-	int i;
-
-	// FIXME
-	// meshes are protected, while nodes inside mesh are public
-	for (i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
+	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
 	{
 		TetrMesh_1stOrder* mesh = mesh_set->get_local_mesh(i);
 		for (int j = 0; j < mesh->nodes.size(); j++)
@@ -459,49 +97,145 @@ int DataBus::sync_nodes()
 					memcpy(mesh->nodes[j].values, node->values, 9*sizeof(float));
 					memcpy(mesh->nodes[j].coords, node->coords, 3*sizeof(float));
 				}
-				else
-				{
-					// fill sync struct
-					// FIXME
-					// declare somewhere a constant for values number
-					req.local_num = mesh->nodes[j].local_num;
-					req.remote_num = mesh->nodes[j].remote_num;
-					req.local_zone_num = mesh->nodes[j].local_zone_num;
-					req.remote_zone_num = mesh->nodes[j].remote_zone_num;
-					// send a message
-					nodes_to_sync++;
-					MPI::COMM_WORLD.Send(&req, 1, MPI_NODE_REQ, dest, TAG_SYNC_NODE_REQ);
-				}
-				// process incoming requests
-				while (check_messages_async(MPI::ANY_SOURCE, TAG_CLASS_SYNC_NODE, status))
-					process_nodes_sync_message(status.Get_source(), status.Get_tag(), nodes_to_sync, procs_to_sync);
 			}
 	}
-
-	// nodes synced, notify all processed
-	*logger < "All sync requests sent";
-
-	// wait other nodes to end sync
-	while (procs_to_sync > 0 )
+	
+	int size = 0;
+	int nl = zones_info.size()*zones_info.size()+1;
+	// FIXME
+	// it's overhead
+	MPINode **nodes = new MPINode*[nl];
+	memset(nodes, 0, sizeof(MPINode*)*nl);
+	int c = 0;
+	
+	for (int i = 0; i < mesh_set->get_number_of_remote_meshes(); i++)
 	{
-		if (nodes_to_sync == 0)
+		c++;
+		TetrMesh_1stOrder *mesh1 = mesh_set->get_remote_mesh(i);
+		int zone1 = mesh1->zone_num;
+		for (int j = 0; j < mesh_set->get_number_of_local_meshes(); j++)
 		{
-			nodes_to_sync = -1;
-			for (i = 0; i < procs_total_num; i++)
-				if (i != proc_num)
-					MPI::COMM_WORLD.Send(NULL, 0, MPI::BYTE, i, TAG_SYNC_NODE_DONE);
-			if (--procs_to_sync == 0)
-				break;
+			TetrMesh_1stOrder *mesh2 = mesh_set->get_local_mesh(j);
+			int zone2 = mesh2->zone_num;
+			int sz = local_numbers[zone1][zone2].size();
+			if (sz)
+			{
+				nodes[c] = new MPINode[sz];
+				for (int q = 0; q < sz; q++)
+				{
+					nodes[c][q].la = mesh2->nodes[local_numbers[zone1][zone2][q]].la;
+					nodes[c][q].mu = mesh2->nodes[local_numbers[zone1][zone2][q]].mu;
+					nodes[c][q].rho = mesh2->nodes[local_numbers[zone1][zone2][q]].rho;
+					memcpy(nodes[c][q].coords, mesh2->nodes[local_numbers[zone1][zone2][q]].coords, sizeof(float)*3);
+					memcpy(nodes[c][q].values, mesh2->nodes[local_numbers[zone1][zone2][q]].values, sizeof(float)*9);
+				}
+				*logger << "Sending " << sz << " nodes from zone " << zone2 << " to zone " < zone1;
+				MPI::COMM_WORLD.Isend(
+					nodes[c],
+					sz,
+					MPI_NODE,
+					get_proc_for_zone(zone1),
+					TAG_SYNC_NODE+100*zone1+zone2
+				);
+			}
 		}
-		// FIXME
-		// DEBUG
-		else if (nodes_to_sync < -1)
-			throw GCMException(GCMException::SYNC_EXCEPTION, "nodes_to_sync < -1, something wrong with sync!!");
-		check_messages_sync(MPI::ANY_SOURCE, TAG_CLASS_SYNC_NODE, status);
-		process_nodes_sync_message(status.Get_source(), status.Get_tag(), nodes_to_sync, procs_to_sync);
 	}
+	
+//	for (int i = 0; i < zones_info.size(); i++)
+//		if (get_proc_for_zone(i) != proc_num)
+//			for (int j = 0; j < zones_info.size(); j++)
+//				if (local_numbers[i][j].size())
+//				{
+//					*logger << "Sending nodes from zone " << j << " to zone " < i;
+//					for (int q = 0; q < local_numbers[i][j].size(); q++)
+//						*logger << "COORDS " << 
+//								mesh_set->get_mesh_by_zone_num(j)->nodes[local_numbers[i][j][q]].coords[0] << " " <<
+//								mesh_set->get_mesh_by_zone_num(j)->nodes[local_numbers[i][j][q]].coords[1] << " " <
+//								mesh_set->get_mesh_by_zone_num(j)->nodes[local_numbers[i][j][q]].coords[2];
+//					MPI::COMM_WORLD.Isend(
+//						&mesh_set->get_mesh_by_zone_num(j)->nodes[0],
+//						1,
+//						MPI_NODE_TYPES[i][j],
+//						get_proc_for_zone(i),
+//						TAG_SYNC_NODE+i^j
+//					);
+//				}
+	
+	MPI::COMM_WORLD.Barrier();
+	
+	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
+	{
+		TetrMesh_1stOrder *mesh1 = mesh_set->get_local_mesh(i);
+		int zone1 = mesh1->zone_num;
+		for (int j = 0; j < mesh_set->get_number_of_remote_meshes(); j++)
+		{
+			TetrMesh_1stOrder *mesh2 = mesh_set->get_remote_mesh(j);
+			int zone2 = mesh2->zone_num;
+			int sz = local_numbers[zone1][zone2].size();
+			if (sz)
+			{
+				if (size < sz)
+				{
+					if (size)
+						delete[] nodes[0];
+					size = sz;
+					nodes[0] = new MPINode[sz];
+				}
+				*logger << "Saving " << sz << " nodes from zone " << zone2 << " to zone " < zone1;
+				MPI::COMM_WORLD.Recv(
+					&nodes[0][0],
+					sz,
+					MPI_NODE, 
+					get_proc_for_zone(zone2),
+					TAG_SYNC_NODE+100*zone1+zone2
+				);
+				for (int q = 0; q < sz; q++)
+				{
+					mesh1->nodes[local_numbers[zone1][zone2][q]].la = nodes[0][q].la;
+					mesh1->nodes[local_numbers[zone1][zone2][q]].mu = nodes[0][q].mu;
+					mesh1->nodes[local_numbers[zone1][zone2][q]].rho = nodes[0][q].rho;
+					memcpy(mesh1->nodes[local_numbers[zone1][zone2][q]].coords, nodes[0][q].coords, sizeof(float)*3);
+					memcpy(mesh1->nodes[local_numbers[zone1][zone2][q]].values, nodes[0][q].values, sizeof(float)*9);
+				}
+			}
+		}
+	}	
+	
+	MPI::COMM_WORLD.Barrier();
+	
+	for (int q = 0; q < zones_info.size()*zones_info.size()+1; q++)
+		delete[] nodes[q];
+	
+	delete[] nodes;
+//	for (int i = 0; i < zones_info.size(); i++)
+//		if (get_proc_for_zone(i) == proc_num)
+//			for (int j = 0; j < zones_info.size(); j++)
+//				if (local_numbers[i][j].size())
+//				{
+//					*logger < "----------------------------------------------------";
+//					if (proc_num)
+//										for (int q = 0; q < local_numbers[i][j].size(); q++)
+//					*logger << "COORDS " << 
+//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[0] << " " <<
+//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[1] << " " <
+//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[2];
+//					*logger << "Receiving nodes from zone " << j << " to zone " < i;
+//					MPI::COMM_WORLD.Recv(
+//						&mesh_set->get_mesh_by_zone_num(i)->nodes[0],
+//						1,
+//						MPI_NODE_TYPES[i][j],
+//						get_proc_for_zone(j),
+//						TAG_SYNC_NODE+i^j
+//					);
+//					if (proc_num)
+//					for (int q = 0; q < local_numbers[i][j].size(); q++)
+//						*logger << "COORDS " << 
+//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[0] << " " <<
+//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[1] << " " <
+//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[2];
+//				}
 
-	*logger < "Sync done";
+	*logger < "Nodes sync done";
 
 	// FIXME
 	// do we really need to return a value?
@@ -538,49 +272,9 @@ void DataBus::sync_outlines()
 	for (int i = 1; i < procs_total_num; i++)
 		displ[i] = displ[i-1]+ mesh_set->meshes_at_proc[i-1];
 	*logger < "Syncing outlines";
-	*logger < "LOCAL OUTLINES:";
-	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
-	{
-		for (int j = 0 ; j < 3; j++)
-			*logger << mesh_set->get_local_mesh(i)->outline->min_coords[j] << " " < mesh_set->get_local_mesh(i)->outline->max_coords[j];
-		*logger < "";
-	}
 	MPI::COMM_WORLD.Allgatherv(mesh_set->get_local_mesh(0)->outline, mesh_set->meshes_at_proc[proc_num], MPI_OUTLINE, mesh_set->outlines, mesh_set->meshes_at_proc, displ, MPI_OUTLINE);
-	*logger < "OUTLINES:";
-	for (int i = 0; i < mesh_set->get_number_of_meshes(); i++)
-	{
-		for (int j=0; j< 3; j++)
-			*logger << mesh_set->get_mesh(i)->outline->min_coords[j] << " " < mesh_set->get_mesh(i)->outline->max_coords[j];
-		*logger < "";
-	}
 	*logger < "Outlines synced";
 	free(displ);
-}
-
-void DataBus::sync()
-{
-	MPI::Status status;
-
-	*logger < "Syncing state";
-	if (proc_num != 0)
-	{
-		// send ready messages
-		MPI::COMM_WORLD.Send(NULL, 0, MPI::BYTE, 0, TAG_SYNC_READY);
-		// get a response
-		MPI::COMM_WORLD.Recv(NULL, 0, MPI::BYTE, 0, TAG_SYNC_READY, status);
-	}
-	else
-	{
-		int i;
-		// wait for all procs
-		for (i = 1; i < procs_total_num; i++)
-			MPI::COMM_WORLD.Recv(NULL, 0, MPI::BYTE, i, TAG_SYNC_READY, status);
-		// notify, that states are ok
-		for (i = 1; i < procs_total_num; i++)
-			MPI::COMM_WORLD.Send(NULL, 0, MPI::BYTE, i, TAG_SYNC_READY);
-	}
-
-	*logger < "State synced";
 }
 
 bool DataBus::process_faces_sync_message(int source, int tag, vector<ElasticNode> &remote_nodes, vector<Triangle> &remote_faces, int &procs_to_sync)
@@ -867,4 +561,388 @@ void DataBus::get_remote_tetrahedrons(vector<ElasticNode> &virtual_nodes, vector
 		check_messages_sync(MPI::ANY_SOURCE, TAG_CLASS_SYNC_TETRS, status);
 		process_tetrs_sync_message(status.Get_source(), status.Get_tag(), tetrs, nodes, resps_to_get, procs_to_sync);
 	}
+}
+
+void DataBus::create_custom_types() {
+	
+	*logger < "Creating custom datatypes";
+	// register new MPI types
+	MPINode node_resp;
+	MeshOutline outline;
+	MPIFacesFResponse faces_f_resp;
+	MPIFacesNResponse faces_n_resp;
+	MPIFacesRequest faces_req;
+	MPITetrsTResponse tetrs_t_resp;
+	MPITetrsRequest tetrs_req;
+	
+	MPI::Aint mpi_addr_struct;
+	MPI::Aint mpi_addr_struct_values;
+	MPI::Aint mpi_addr_struct_verts;
+	MPI::Aint mpi_addr_struct_min_coords;
+	MPI::Aint mpi_addr_struct_max_coords;
+	MPI::Aint mpi_addr_struct_coords;
+	MPI::Aint mpi_addr_struct_local_num;
+	MPI::Aint mpi_addr_struct_num;
+	MPI::Aint mpi_addr_struct_face_num;
+	MPI::Aint mpi_addr_struct_remote_num;
+	MPI::Aint mpi_addr_struct_local_zone_num;
+	MPI::Aint mpi_addr_struct_remote_zone_num;
+	MPI::Aint mpi_addr_struct_proc_num;
+	MPI::Aint mpi_addr_struct_zone_num;
+	MPI::Aint mpi_addr_struct_la;
+	MPI::Aint mpi_addr_struct_mu;
+	MPI::Aint mpi_addr_struct_rho;
+
+	mpi_addr_struct = MPI::Get_address(&node_resp);
+	mpi_addr_struct_values = MPI::Get_address(&node_resp.values);
+	mpi_addr_struct_coords = MPI::Get_address(&node_resp.coords);
+	mpi_addr_struct_local_num = MPI::Get_address(&node_resp.local_num);
+	mpi_addr_struct_local_zone_num = MPI::Get_address(&node_resp.local_zone_num);
+	mpi_addr_struct_la = MPI::Get_address(&node_resp.la);
+	mpi_addr_struct_mu = MPI::Get_address(&node_resp.mu);
+	mpi_addr_struct_rho = MPI::Get_address(&node_resp.rho);
+
+	MPI::Datatype resp_types[] = {
+		MPI::FLOAT,
+		MPI::FLOAT,
+		MPI::INT,
+		MPI::INT,
+		MPI::FLOAT,
+		MPI::FLOAT,
+		MPI::FLOAT
+	};
+	int resp_lengths[] = {
+		9,
+		3,
+		1,
+		1,
+		1,
+		1,
+		1
+	};
+	MPI::Aint resp_displacements[] = {
+		mpi_addr_struct_values-mpi_addr_struct,
+		mpi_addr_struct_coords-mpi_addr_struct,
+		mpi_addr_struct_local_num-mpi_addr_struct,
+		mpi_addr_struct_local_zone_num-mpi_addr_struct,
+		mpi_addr_struct_la-mpi_addr_struct,
+		mpi_addr_struct_mu-mpi_addr_struct,
+		mpi_addr_struct_rho-mpi_addr_struct
+	};
+
+	MPI_NODE = MPI::Datatype::Create_struct(
+		7,
+		resp_lengths,
+		resp_displacements,
+		resp_types
+	);
+	
+	mpi_addr_struct = MPI::Get_address(&outline);
+	mpi_addr_struct_min_coords = MPI::Get_address(outline.min_coords);
+	mpi_addr_struct_max_coords = MPI::Get_address(outline.max_coords);
+
+	MPI::Datatype outl_types[] = {
+		MPI::FLOAT,
+		MPI::FLOAT
+	};
+	int outl_lengths[] = {
+		3,
+		3
+	};
+	MPI::Aint outl_displacements[] = {
+		mpi_addr_struct_min_coords-mpi_addr_struct,
+		mpi_addr_struct_max_coords-mpi_addr_struct
+	};
+	
+	MPI_NODE.Commit();
+
+	MPI_OUTLINE = MPI::Datatype::Create_struct(
+		2,
+		outl_lengths,
+		outl_displacements,
+		outl_types
+	);
+	
+	mpi_addr_struct = MPI::Get_address(&faces_req);
+	mpi_addr_struct_zone_num = MPI::Get_address(&faces_req.zone_num);
+	mpi_addr_struct_min_coords = MPI::Get_address(&faces_req.min_coords);
+	mpi_addr_struct_max_coords = MPI::Get_address(&faces_req.max_coords);
+
+	MPI::Datatype faces_req_types[] = {
+		MPI::INT,
+		MPI::FLOAT,
+		MPI::FLOAT
+	};
+	int faces_req_lengths[] = {
+		1,
+		3,
+		3
+	};
+	MPI::Aint faces_req_displacements[] = {
+		mpi_addr_struct_zone_num-mpi_addr_struct,
+		mpi_addr_struct_min_coords-mpi_addr_struct,
+		mpi_addr_struct_max_coords-mpi_addr_struct
+	};
+
+	MPI_FACES_REQ = MPI::Datatype::Create_struct(
+		3,
+		faces_req_lengths,
+		faces_req_displacements,
+		faces_req_types
+	);
+	
+	mpi_addr_struct = MPI::Get_address(&faces_f_resp);
+	mpi_addr_struct_verts = MPI::Get_address(&faces_f_resp.verts);
+	mpi_addr_struct_num = MPI::Get_address(&faces_f_resp.num);
+	mpi_addr_struct_zone_num = MPI::Get_address(&faces_f_resp.zone_num);
+
+	MPI::Datatype faces_f_resp_types[] = {
+		MPI::FLOAT,
+		MPI::INT,
+		MPI::INT
+	};
+	int faces_f_resp_lengths[] = {
+		3,
+		1,
+		1
+	};
+	MPI::Aint faces_f_resp_displacements[] = {
+		mpi_addr_struct_verts-mpi_addr_struct,
+		mpi_addr_struct_num-mpi_addr_struct,
+		mpi_addr_struct_zone_num-mpi_addr_struct
+	};
+
+	MPI_FACES_F_RESP = MPI::Datatype::Create_struct(
+		3,
+		faces_f_resp_lengths,
+		faces_f_resp_displacements,
+		faces_f_resp_types
+	);
+	
+	mpi_addr_struct = MPI::Get_address(&faces_n_resp);
+	mpi_addr_struct_num = MPI::Get_address(&faces_n_resp.num);
+	mpi_addr_struct_zone_num = MPI::Get_address(&faces_n_resp.zone_num);
+	mpi_addr_struct_coords = MPI::Get_address(&faces_n_resp.coords);
+	mpi_addr_struct_values = MPI::Get_address(&faces_n_resp.values);
+	mpi_addr_struct_la = MPI::Get_address(&faces_n_resp.la);
+	mpi_addr_struct_mu = MPI::Get_address(&faces_n_resp.mu);
+	mpi_addr_struct_rho = MPI::Get_address(&faces_n_resp.rho);
+
+	MPI::Datatype faces_n_resp_types[] = {
+		MPI::INT,
+		MPI::INT,
+		MPI::FLOAT,
+		MPI::FLOAT,
+		MPI::FLOAT,
+		MPI::FLOAT,
+		MPI::FLOAT
+	};
+	int faces_n_resp_lengths[] = {
+		1,
+		1,
+		3,
+		9,
+		1,
+		1,
+		1
+	};
+	MPI::Aint faces_n_resp_displacements[] = {
+		mpi_addr_struct_num-mpi_addr_struct,
+		mpi_addr_struct_zone_num-mpi_addr_struct,
+		mpi_addr_struct_coords-mpi_addr_struct,
+		mpi_addr_struct_values-mpi_addr_struct,
+		mpi_addr_struct_la-mpi_addr_struct,
+		mpi_addr_struct_mu-mpi_addr_struct,
+		mpi_addr_struct_rho-mpi_addr_struct
+	};
+
+	MPI_FACES_N_RESP = MPI::Datatype::Create_struct(
+		7,
+		faces_n_resp_lengths,
+		faces_n_resp_displacements,
+		faces_n_resp_types
+	);
+	
+	mpi_addr_struct = MPI::Get_address(&tetrs_req);
+	mpi_addr_struct_face_num = MPI::Get_address(&tetrs_req.face_num);
+	mpi_addr_struct_zone_num = MPI::Get_address(&tetrs_req.zone_num);
+
+	MPI::Datatype tetrs_req_types[] = {
+		MPI::INT,
+		MPI::INT,
+	};
+	int tetrs_req_lengths[] = {
+		1,
+		1
+	};
+	MPI::Aint tetrs_req_displacements[] = {
+		mpi_addr_struct_face_num-mpi_addr_struct,
+		mpi_addr_struct_zone_num-mpi_addr_struct
+	};
+
+	MPI_TETRS_REQ = MPI::Datatype::Create_struct(
+		2,
+		tetrs_req_lengths,
+		tetrs_req_displacements,
+		tetrs_req_types
+	);
+	
+	mpi_addr_struct = MPI::Get_address(&tetrs_t_resp);
+	mpi_addr_struct_verts = MPI::Get_address(&tetrs_t_resp.verts);
+	mpi_addr_struct_zone_num = MPI::Get_address(&tetrs_t_resp.zone_num);
+	mpi_addr_struct_num = MPI::Get_address(&tetrs_t_resp.face_num);
+
+	MPI::Datatype tetrs_t_resp_types[] = {
+		MPI::FLOAT,
+		MPI::INT,
+		MPI::INT
+	};
+	int tetrs_t_resp_lengths[] = {
+		4,
+		1,
+		1,
+	};
+	MPI::Aint tetrs_t_resp_displacements[] = {
+		mpi_addr_struct_verts-mpi_addr_struct,
+		mpi_addr_struct_zone_num-mpi_addr_struct,
+		mpi_addr_struct_num-mpi_addr_struct
+	};
+
+	MPI_TETRS_T_RESP = MPI::Datatype::Create_struct(
+		3,
+		tetrs_t_resp_lengths,
+		tetrs_t_resp_displacements,
+		tetrs_t_resp_types
+	);
+
+	// FIXME
+	// it's overhead
+	local_numbers = new vector<int>*[zones_info.size()];
+	vector<int> **remote_numbers = new vector<int>*[zones_info.size()];	
+//	MPI_NODE_TYPES = new MPI::Datatype*[zones_info.size()];	
+	
+	for (int i = 0; i < zones_info.size(); i++)
+	{
+		local_numbers[i] = new vector<int>[zones_info.size()];
+		remote_numbers[i] = new vector<int>[zones_info.size()];
+//		MPI_NODE_TYPES[i] = new MPI::Datatype[zones_info.size()];
+	}		
+	
+	// find all remote nodes
+	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
+	{
+		TetrMesh_1stOrder *mesh = mesh_set->get_local_mesh(i);
+		for (int j = 0; j < mesh->nodes.size(); j++)
+			if (mesh->nodes[j].placement_type == REMOTE &&
+					get_proc_for_zone(mesh->nodes[j].remote_zone_num) != proc_num)
+			{
+				int local_zone_num = mesh->nodes[j].local_zone_num;
+				int remote_zone_num = mesh->nodes[j].remote_zone_num;
+				local_numbers[local_zone_num][remote_zone_num].push_back(mesh->nodes[j].local_num);
+				remote_numbers[local_zone_num][remote_zone_num].push_back(mesh->nodes[j].remote_num);
+			}
+	}
+	
+	// sync types
+//	int max_len = 0;
+//	for (int i = 0; i < zones_info.size(); i++)
+//		for (int j = 0; j < zones_info.size(); j++)
+//			if (local_numbers[i][j].size() > max_len)
+//				max_len = local_numbers[i][j].size();
+	
+//	int *lengths = new int[max_len];
+//	for (int i = 0; i < max_len; i++)
+//		lengths[i] = 1;
+	
+	int info[3];
+	
+	for (int i = 0; i < zones_info.size(); i++)
+		for (int j = 0; j < zones_info.size(); j++)
+			if (local_numbers[i][j].size() > 0)
+			{
+				info[0] = remote_numbers[i][j].size();
+				info[1] = i;
+				info[2] = j;
+//				MPI_NODE_TYPES[i][j] =  MPI_NODE.Create_indexed(
+//					local_numbers[i][j].size(),
+//					lengths,
+//					&local_numbers[i][j][0]
+//				);
+//				MPI_NODE_TYPES[i][j].Commit();
+				MPI::COMM_WORLD.Isend(
+					&remote_numbers[i][j][0],
+					remote_numbers[i][j].size(),
+					MPI::INT,
+					get_proc_for_zone(j),
+					TAG_SYNC_NODE_TYPES
+				);
+				MPI::COMM_WORLD.Isend(
+					info,
+					3,
+					MPI::INT,
+					get_proc_for_zone(j),
+					TAG_SYNC_NODE_TYPES_I
+				);
+			}
+
+	MPI::COMM_WORLD.Barrier();
+	
+	MPI::Status status;	
+	
+	while (MPI::COMM_WORLD.Iprobe(MPI::ANY_SOURCE, TAG_SYNC_NODE_TYPES_I, status))
+	{
+		MPI::COMM_WORLD.Recv(
+			info,
+			3,
+			MPI::INT,
+			status.Get_source(),
+			TAG_SYNC_NODE_TYPES_I
+		);
+		local_numbers[info[1]][info[2]].resize(info[0]);
+		MPI::COMM_WORLD.Recv(
+			&local_numbers[info[1]][info[2]][0],
+			info[0],
+			MPI::INT,
+			status.Get_source(),
+			TAG_SYNC_NODE_TYPES
+		);
+//		if (max_len < info[0])
+//		{
+//			delete[] lengths;
+//			max_len = info[0];
+//			lengths = new int[max_len];
+//			for (int i = 0; i < max_len; i++)
+//				lengths[i] = 1;
+//		}
+//		MPI_NODE_TYPES[info[1]][info[2]] =  MPI_NODE.Create_indexed(
+//			info[0],
+//			lengths,
+//			&local_numbers[info[1]][info[2]][0]
+//		);
+//		MPI_NODE_TYPES[info[1]][info[2]].Commit();
+	}
+
+	MPI::COMM_WORLD.Barrier();
+	
+	for (int i = 0 ; i < zones_info.size(); i++)
+		delete[] remote_numbers[i];
+	delete[] remote_numbers;
+//	delete[] lengths;
+	
+	for (int i = 0; i < zones_info.size(); i++)
+		for (int j = 0; j < zones_info.size(); j++)
+			if (local_numbers[i][j].size())
+				if (get_proc_for_zone(i) == proc_num)
+					*logger << "Nodes in zone " << i << " from zone " << j << " " <  local_numbers[i][j].size();
+				else
+					*logger << "Nodes in zone " << j << " for zone " << i << " " <  local_numbers[i][j].size();
+
+	MPI_OUTLINE.Commit();
+	MPI_FACES_REQ.Commit();
+	MPI_TETRS_REQ.Commit();
+	MPI_FACES_F_RESP.Commit();
+	MPI_FACES_N_RESP.Commit();
+	MPI_TETRS_T_RESP.Commit();	
+	
+	*logger < "Custom datatypes created";
 }

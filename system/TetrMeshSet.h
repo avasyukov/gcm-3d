@@ -33,6 +33,7 @@ public:
 	int do_next_step();
 	int get_number_of_meshes();
 	int get_number_of_local_meshes();
+	int get_number_of_remote_meshes();
 	// Prepares loaded meshes for calculation - finds normals and borders, created reverse lookup vectors, etc
 	// Should be called after remote nodes are synced
 	void pre_process_meshes();
@@ -40,6 +41,7 @@ public:
 	float get_max_possible_tau();
 	TetrMesh_1stOrder* get_mesh(int num);
 	TetrMesh_1stOrder* get_local_mesh(int num);
+	TetrMesh_1stOrder* get_remote_mesh(int num);
 	TetrMesh_1stOrder* get_mesh_by_zone_num(int zone_num);
 	ElasticNode* getNode(int num);
 	
