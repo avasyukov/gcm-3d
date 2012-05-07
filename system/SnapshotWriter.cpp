@@ -33,18 +33,16 @@ int SnapshotWriter::dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, i
 	if(tetr_mesh == NULL)
 		throw GCMException( GCMException::SNAP_EXCEPTION, "No mesh provided");
 
-	if(logger != NULL)
-		logger->write(string("WARN: SnapshotWriter::dump_tetr_mesh - not yet implemented!"));	
+	*logger < "WARN: SnapshotWriter::dump_tetr_mesh - not yet implemented!";	
 
 	return 0;
 };
 
 int SnapshotWriter::dump_vtk(TetrMeshSet* mesh_set, int snap_num)
 {
-	for(int i = 0; i < mesh_set->get_number_of_meshes(); i++) {
-		if( dump_vtk( mesh_set->get_mesh(i), snap_num ) < 0 )
+	for(int i = 0; i < mesh_set->get_number_of_local_meshes(); i++) 
+		if( dump_vtk( mesh_set->get_local_mesh(i), snap_num ) < 0 )
 			return -1;
-	}
 	return 0;
 };
 
