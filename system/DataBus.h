@@ -161,6 +161,7 @@ public:
 	static int TAG_CLASS_SYNC_TETRS[];
 
 	// MPI types
+	MPI::Datatype MPI_ELNODE;
 	MPI::Datatype MPI_NODE;
 	MPI::Datatype MPI_OUTLINE;
 	MPI::Datatype MPI_FACES_REQ;
@@ -169,7 +170,7 @@ public:
 	MPI::Datatype MPI_FACES_N_RESP;
 	MPI::Datatype MPI_TETRS_T_RESP;
 	
-//	MPI::Datatype **MPI_NODE_TYPES;
+	MPI::Datatype **MPI_NODE_TYPES;
 
 	// return code on termination
 	static const int MPI_CODE_TERMINATED = 0;
