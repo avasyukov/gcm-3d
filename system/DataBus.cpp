@@ -100,140 +100,35 @@ int DataBus::sync_nodes()
 			}
 	}
 	
-	int size = 0;
-	int nl = zones_info.size()*zones_info.size()+1;
-	// FIXME
-	// it's overhead
-	MPINode **nodes = new MPINode*[nl];
-	memset(nodes, 0, sizeof(MPINode*)*nl);
-	int c = 0;
-	
-	for (int i = 0; i < mesh_set->get_number_of_remote_meshes(); i++)
-	{
-		c++;
-		TetrMesh_1stOrder *mesh1 = mesh_set->get_remote_mesh(i);
-		int zone1 = mesh1->zone_num;
-		for (int j = 0; j < mesh_set->get_number_of_local_meshes(); j++)
-		{
-			TetrMesh_1stOrder *mesh2 = mesh_set->get_local_mesh(j);
-			int zone2 = mesh2->zone_num;
-			int sz = local_numbers[zone1][zone2].size();
-			if (sz)
-			{
-				nodes[c] = new MPINode[sz];
-				for (int q = 0; q < sz; q++)
+	for (int i = 0; i < zones_info.size(); i++)
+		if (get_proc_for_zone(i) != proc_num)
+			for (int j = 0; j < zones_info.size(); j++)
+				if (local_numbers[i][j].size())
 				{
-					nodes[c][q].la = mesh2->nodes[local_numbers[zone1][zone2][q]].la;
-					nodes[c][q].mu = mesh2->nodes[local_numbers[zone1][zone2][q]].mu;
-					nodes[c][q].rho = mesh2->nodes[local_numbers[zone1][zone2][q]].rho;
-					memcpy(nodes[c][q].coords, mesh2->nodes[local_numbers[zone1][zone2][q]].coords, sizeof(float)*3);
-					memcpy(nodes[c][q].values, mesh2->nodes[local_numbers[zone1][zone2][q]].values, sizeof(float)*9);
+					*logger << "Sending nodes from zone " << j << " to zone " < i;
+					MPI::COMM_WORLD.Isend(
+						&mesh_set->get_mesh_by_zone_num(j)->nodes[0],
+						1,
+						MPI_NODE_TYPES[i][j],
+						get_proc_for_zone(i),
+						TAG_SYNC_NODE+i^j
+					);
 				}
-				*logger << "Sending " << sz << " nodes from zone " << zone2 << " to zone " < zone1;
-				MPI::COMM_WORLD.Isend(
-					nodes[c],
-					sz,
-					MPI_NODE,
-					get_proc_for_zone(zone1),
-					TAG_SYNC_NODE+100*zone1+zone2
-				);
-			}
-		}
-	}
 	
-//	for (int i = 0; i < zones_info.size(); i++)
-//		if (get_proc_for_zone(i) != proc_num)
-//			for (int j = 0; j < zones_info.size(); j++)
-//				if (local_numbers[i][j].size())
-//				{
-//					*logger << "Sending nodes from zone " << j << " to zone " < i;
-//					for (int q = 0; q < local_numbers[i][j].size(); q++)
-//						*logger << "COORDS " << 
-//								mesh_set->get_mesh_by_zone_num(j)->nodes[local_numbers[i][j][q]].coords[0] << " " <<
-//								mesh_set->get_mesh_by_zone_num(j)->nodes[local_numbers[i][j][q]].coords[1] << " " <
-//								mesh_set->get_mesh_by_zone_num(j)->nodes[local_numbers[i][j][q]].coords[2];
-//					MPI::COMM_WORLD.Isend(
-//						&mesh_set->get_mesh_by_zone_num(j)->nodes[0],
-//						1,
-//						MPI_NODE_TYPES[i][j],
-//						get_proc_for_zone(i),
-//						TAG_SYNC_NODE+i^j
-//					);
-//				}
-	
-	MPI::COMM_WORLD.Barrier();
-	
-	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
-	{
-		TetrMesh_1stOrder *mesh1 = mesh_set->get_local_mesh(i);
-		int zone1 = mesh1->zone_num;
-		for (int j = 0; j < mesh_set->get_number_of_remote_meshes(); j++)
-		{
-			TetrMesh_1stOrder *mesh2 = mesh_set->get_remote_mesh(j);
-			int zone2 = mesh2->zone_num;
-			int sz = local_numbers[zone1][zone2].size();
-			if (sz)
-			{
-				if (size < sz)
+	for (int i = 0; i < zones_info.size(); i++)
+		if (get_proc_for_zone(i) == proc_num)
+			for (int j = 0; j < zones_info.size(); j++)
+				if (local_numbers[i][j].size())
 				{
-					if (size)
-						delete[] nodes[0];
-					size = sz;
-					nodes[0] = new MPINode[sz];
+					*logger << "Receiving nodes from zone " << j << " to zone " < i;
+					MPI::COMM_WORLD.Recv(
+						&mesh_set->get_mesh_by_zone_num(i)->nodes[0],
+						1,
+						MPI_NODE_TYPES[i][j],
+						get_proc_for_zone(j),
+						TAG_SYNC_NODE+i^j
+					);
 				}
-				*logger << "Saving " << sz << " nodes from zone " << zone2 << " to zone " < zone1;
-				MPI::COMM_WORLD.Recv(
-					&nodes[0][0],
-					sz,
-					MPI_NODE, 
-					get_proc_for_zone(zone2),
-					TAG_SYNC_NODE+100*zone1+zone2
-				);
-				for (int q = 0; q < sz; q++)
-				{
-					mesh1->nodes[local_numbers[zone1][zone2][q]].la = nodes[0][q].la;
-					mesh1->nodes[local_numbers[zone1][zone2][q]].mu = nodes[0][q].mu;
-					mesh1->nodes[local_numbers[zone1][zone2][q]].rho = nodes[0][q].rho;
-					memcpy(mesh1->nodes[local_numbers[zone1][zone2][q]].coords, nodes[0][q].coords, sizeof(float)*3);
-					memcpy(mesh1->nodes[local_numbers[zone1][zone2][q]].values, nodes[0][q].values, sizeof(float)*9);
-				}
-			}
-		}
-	}	
-	
-	MPI::COMM_WORLD.Barrier();
-	
-	for (int q = 0; q < zones_info.size()*zones_info.size()+1; q++)
-		delete[] nodes[q];
-	
-	delete[] nodes;
-//	for (int i = 0; i < zones_info.size(); i++)
-//		if (get_proc_for_zone(i) == proc_num)
-//			for (int j = 0; j < zones_info.size(); j++)
-//				if (local_numbers[i][j].size())
-//				{
-//					*logger < "----------------------------------------------------";
-//					if (proc_num)
-//										for (int q = 0; q < local_numbers[i][j].size(); q++)
-//					*logger << "COORDS " << 
-//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[0] << " " <<
-//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[1] << " " <
-//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[2];
-//					*logger << "Receiving nodes from zone " << j << " to zone " < i;
-//					MPI::COMM_WORLD.Recv(
-//						&mesh_set->get_mesh_by_zone_num(i)->nodes[0],
-//						1,
-//						MPI_NODE_TYPES[i][j],
-//						get_proc_for_zone(j),
-//						TAG_SYNC_NODE+i^j
-//					);
-//					if (proc_num)
-//					for (int q = 0; q < local_numbers[i][j].size(); q++)
-//						*logger << "COORDS " << 
-//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[0] << " " <<
-//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[1] << " " <
-//								mesh_set->get_mesh_by_zone_num(i)->nodes[local_numbers[i][j][q]].coords[2];
-//				}
 
 	*logger < "Nodes sync done";
 
@@ -819,13 +714,13 @@ void DataBus::create_custom_types() {
 	// it's overhead
 	local_numbers = new vector<int>*[zones_info.size()];
 	vector<int> **remote_numbers = new vector<int>*[zones_info.size()];	
-//	MPI_NODE_TYPES = new MPI::Datatype*[zones_info.size()];	
+	MPI_NODE_TYPES = new MPI::Datatype*[zones_info.size()];	
 	
 	for (int i = 0; i < zones_info.size(); i++)
 	{
 		local_numbers[i] = new vector<int>[zones_info.size()];
 		remote_numbers[i] = new vector<int>[zones_info.size()];
-//		MPI_NODE_TYPES[i] = new MPI::Datatype[zones_info.size()];
+		MPI_NODE_TYPES[i] = new MPI::Datatype[zones_info.size()];
 	}		
 	
 	// find all remote nodes
@@ -844,15 +739,56 @@ void DataBus::create_custom_types() {
 	}
 	
 	// sync types
-//	int max_len = 0;
-//	for (int i = 0; i < zones_info.size(); i++)
-//		for (int j = 0; j < zones_info.size(); j++)
-//			if (local_numbers[i][j].size() > max_len)
-//				max_len = local_numbers[i][j].size();
+	ElasticNode elnodes[2];
+	MPI::Datatype elnode_types[] = {
+		MPI::LB,
+		MPI::FLOAT,
+		MPI::FLOAT,
+		MPI::FLOAT,
+		MPI::FLOAT,
+		MPI::FLOAT,
+		MPI::UB
+	};
 	
-//	int *lengths = new int[max_len];
-//	for (int i = 0; i < max_len; i++)
-//		lengths[i] = 1;
+	int elnode_lens[] = {
+		1,
+		9,
+		3,
+		1,
+		1,
+		1,
+		1
+	};
+	
+	MPI::Aint elnode_displs[] = {
+		MPI::Get_address(&elnodes[0]),
+		MPI::Get_address(&elnodes[0].values[0]),
+		MPI::Get_address(&elnodes[0].coords[0]),
+		MPI::Get_address(&elnodes[0].rho),
+		MPI::Get_address(&elnodes[0].la),
+		MPI::Get_address(&elnodes[0].mu),
+		MPI::Get_address(&elnodes[1])
+	};
+	for (int i = 6; i >= 0; i--)
+		elnode_displs[i] -= elnode_displs[0];
+	
+	MPI_ELNODE = MPI::Datatype::Create_struct(
+		7,
+		elnode_lens,
+		elnode_displs,
+		elnode_types
+	);
+	MPI_ELNODE.Commit();
+	
+	int max_len = 0;
+	for (int i = 0; i < zones_info.size(); i++)
+		for (int j = 0; j < zones_info.size(); j++)
+			if (local_numbers[i][j].size() > max_len)
+				max_len = local_numbers[i][j].size();
+
+	int *lengths = new int[max_len];
+	for (int i = 0; i < max_len; i++)
+		lengths[i] = 1;
 	
 	int info[3];
 	
@@ -863,12 +799,12 @@ void DataBus::create_custom_types() {
 				info[0] = remote_numbers[i][j].size();
 				info[1] = i;
 				info[2] = j;
-//				MPI_NODE_TYPES[i][j] =  MPI_NODE.Create_indexed(
-//					local_numbers[i][j].size(),
-//					lengths,
-//					&local_numbers[i][j][0]
-//				);
-//				MPI_NODE_TYPES[i][j].Commit();
+				MPI_NODE_TYPES[i][j] =  MPI_ELNODE.Create_indexed(
+					local_numbers[i][j].size(),
+					lengths,
+					&local_numbers[i][j][0]
+				);
+				MPI_NODE_TYPES[i][j].Commit();
 				MPI::COMM_WORLD.Isend(
 					&remote_numbers[i][j][0],
 					remote_numbers[i][j].size(),
@@ -906,20 +842,20 @@ void DataBus::create_custom_types() {
 			status.Get_source(),
 			TAG_SYNC_NODE_TYPES
 		);
-//		if (max_len < info[0])
-//		{
-//			delete[] lengths;
-//			max_len = info[0];
-//			lengths = new int[max_len];
-//			for (int i = 0; i < max_len; i++)
-//				lengths[i] = 1;
-//		}
-//		MPI_NODE_TYPES[info[1]][info[2]] =  MPI_NODE.Create_indexed(
-//			info[0],
-//			lengths,
-//			&local_numbers[info[1]][info[2]][0]
-//		);
-//		MPI_NODE_TYPES[info[1]][info[2]].Commit();
+		if (max_len < info[0])
+		{
+			delete[] lengths;
+			max_len = info[0];
+			lengths = new int[max_len];
+			for (int i = 0; i < max_len; i++)
+				lengths[i] = 1;
+		}
+		MPI_NODE_TYPES[info[1]][info[2]] =  MPI_ELNODE.Create_indexed(
+			info[0],
+			lengths,
+			&local_numbers[info[1]][info[2]][0]
+		);
+		MPI_NODE_TYPES[info[1]][info[2]].Commit();
 	}
 
 	MPI::COMM_WORLD.Barrier();
@@ -927,7 +863,7 @@ void DataBus::create_custom_types() {
 	for (int i = 0 ; i < zones_info.size(); i++)
 		delete[] remote_numbers[i];
 	delete[] remote_numbers;
-//	delete[] lengths;
+	delete[] lengths;
 	
 	for (int i = 0; i < zones_info.size(); i++)
 		for (int j = 0; j < zones_info.size(); j++)
