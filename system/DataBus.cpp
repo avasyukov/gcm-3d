@@ -786,9 +786,9 @@ void DataBus::create_custom_types() {
 			if (local_numbers[i][j].size() > max_len)
 				max_len = local_numbers[i][j].size();
 
-	int *lengths = new int[max_len];
+	vector<int> lengths;
 	for (int i = 0; i < max_len; i++)
-		lengths[i] = 1;
+		lengths.push_back(1);
 	
 	int info[3];
 	
@@ -801,7 +801,7 @@ void DataBus::create_custom_types() {
 				info[2] = j;
 				MPI_NODE_TYPES[i][j] =  MPI_ELNODE.Create_indexed(
 					local_numbers[i][j].size(),
-					lengths,
+					&lengths[0],
 					&local_numbers[i][j][0]
 				);
 				MPI_NODE_TYPES[i][j].Commit();
@@ -842,17 +842,12 @@ void DataBus::create_custom_types() {
 			status.Get_source(),
 			TAG_SYNC_NODE_TYPES
 		);
-		if (max_len < info[0])
-		{
-			delete[] lengths;
-			max_len = info[0];
-			lengths = new int[max_len];
-			for (int i = 0; i < max_len; i++)
-				lengths[i] = 1;
-		}
+		if (lengths.size() < info[0])
+			for (int i = lengths.size(); i < info[0]; i++)
+				lengths.push_back(1);
 		MPI_NODE_TYPES[info[1]][info[2]] =  MPI_ELNODE.Create_indexed(
 			info[0],
-			lengths,
+			&lengths[0],
 			&local_numbers[info[1]][info[2]][0]
 		);
 		MPI_NODE_TYPES[info[1]][info[2]].Commit();
@@ -863,7 +858,6 @@ void DataBus::create_custom_types() {
 	for (int i = 0 ; i < zones_info.size(); i++)
 		delete[] remote_numbers[i];
 	delete[] remote_numbers;
-	delete[] lengths;
 	
 	for (int i = 0; i < zones_info.size(); i++)
 		for (int j = 0; j < zones_info.size(); j++)
