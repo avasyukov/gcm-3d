@@ -167,7 +167,7 @@ void DataBus::sync_outlines()
 	for (int i = 1; i < procs_total_num; i++)
 		displ[i] = displ[i-1]+ mesh_set->meshes_at_proc[i-1];
 	*logger < "Syncing outlines";
-	MPI::COMM_WORLD.Allgatherv(mesh_set->get_local_mesh(0)->outline, mesh_set->meshes_at_proc[proc_num], MPI_OUTLINE, mesh_set->outlines, mesh_set->meshes_at_proc, displ, MPI_OUTLINE);
+	MPI::COMM_WORLD.Allgatherv(mesh_set->get_local_mesh(0), mesh_set->meshes_at_proc[proc_num], MPI_OUTLINE, mesh_set->get_mesh(0), mesh_set->meshes_at_proc, displ, MPI_OUTLINE);
 	*logger < "Outlines synced";
 	free(displ);
 }
@@ -405,7 +405,7 @@ void DataBus::process_tetrs_sync_message(int source, int tag, vector<Tetrahedron
 					}
 					tetrs_t_resp.face_num = tmp_tetr->local_num;
 					tetrs_t_resp.zone_num = req.zone_num;
-					MPI::COMM_WORLD.Send(&tetrs_t_resp, 1, MPI_TETRS_T_RESP, source, TAG_SYNC_TETRS_T_RESP);
+					MPI::COMM_WORLD.Isend(&tetrs_t_resp, 1, MPI_TETRS_T_RESP, source, TAG_SYNC_TETRS_T_RESP);
 				}
 			for (int i = 0; i < local_nodes.size(); i++)
 			{
@@ -413,9 +413,9 @@ void DataBus::process_tetrs_sync_message(int source, int tag, vector<Tetrahedron
 				memcpy(faces_n_resp.values, local_nodes[i].values, 9*sizeof(float));
 				faces_n_resp.zone_num = req.zone_num;
 				faces_n_resp.num = local_nodes[i].local_num;
-				MPI::COMM_WORLD.Send(&faces_n_resp, 1, MPI_FACES_N_RESP, source, TAG_SYNC_TETRS_N_RESP);
+				MPI::COMM_WORLD.Isend(&faces_n_resp, 1, MPI_FACES_N_RESP, source, TAG_SYNC_TETRS_N_RESP);
 			}
-			MPI::COMM_WORLD.Send(NULL, 0, MPI::BYTE, source, TAG_SYNC_TETRS_R_END);
+			MPI::COMM_WORLD.Isend(NULL, 0, MPI::BYTE, source, TAG_SYNC_TETRS_R_END);
 			break;
 		default:
 			throw GCMException(GCMException::SYNC_EXCEPTION, "Got invalid tag while processing sync outline incoming messages.");
@@ -437,7 +437,7 @@ void DataBus::get_remote_tetrahedrons(vector<ElasticNode> &virtual_nodes, vector
 		req.zone_num = virtual_nodes[i].remote_zone_num;
 		req.face_num = virtual_nodes[i].remote_num;
 		resps_to_get++;
-		MPI::COMM_WORLD.Send(&req, 1, MPI_TETRS_REQ, get_proc_for_zone(req.zone_num), TAG_SYNC_TETRS_REQ);
+		MPI::COMM_WORLD.Isend(&req, 1, MPI_TETRS_REQ, get_proc_for_zone(req.zone_num), TAG_SYNC_TETRS_REQ);
 		while (check_messages_async(MPI::ANY_SOURCE, TAG_CLASS_SYNC_TETRS, status))
 			process_tetrs_sync_message(status.Get_source(), status.Get_tag(), tetrs, nodes, resps_to_get, procs_to_sync);
 	}
@@ -449,7 +449,7 @@ void DataBus::get_remote_tetrahedrons(vector<ElasticNode> &virtual_nodes, vector
 			resps_to_get = -1;
 			for (int i = 0; i < procs_total_num; i++)
 				if (i != proc_num)
-					MPI::COMM_WORLD.Send(NULL, 0, MPI::BYTE, i, TAG_SYNC_TETRS_DONE);
+					MPI::COMM_WORLD.Isend(NULL, 0, MPI::BYTE, i, TAG_SYNC_TETRS_DONE);
 			if (--procs_to_sync == 0)
 				break;
 		}
@@ -463,7 +463,7 @@ void DataBus::create_custom_types() {
 	*logger < "Creating custom datatypes";
 	// register new MPI types
 	MPINode node_resp;
-	MeshOutline outline;
+	TetrMesh_1stOrder meshes[2];
 	MPIFacesFResponse faces_f_resp;
 	MPIFacesNResponse faces_n_resp;
 	MPIFacesRequest faces_req;
@@ -532,27 +532,31 @@ void DataBus::create_custom_types() {
 		resp_types
 	);
 	
-	mpi_addr_struct = MPI::Get_address(&outline);
-	mpi_addr_struct_min_coords = MPI::Get_address(outline.min_coords);
-	mpi_addr_struct_max_coords = MPI::Get_address(outline.max_coords);
-
 	MPI::Datatype outl_types[] = {
+		MPI::LB,
 		MPI::FLOAT,
-		MPI::FLOAT
+		MPI::FLOAT,
+		MPI::UB
 	};
 	int outl_lengths[] = {
+		1,
 		3,
-		3
-	};
-	MPI::Aint outl_displacements[] = {
-		mpi_addr_struct_min_coords-mpi_addr_struct,
-		mpi_addr_struct_max_coords-mpi_addr_struct
+		3,
+		1				
 	};
 	
-	MPI_NODE.Commit();
-
+	MPI::Aint outl_displacements[] = {
+		MPI::Get_address(&meshes[0]),
+		MPI::Get_address(&meshes[0].outline.min_coords[0]),
+		MPI::Get_address(&meshes[0].outline.max_coords[0]),
+		MPI::Get_address(&meshes[1])
+	};
+	
+	for (int i = 3; i >=0; i--)
+		outl_displacements[i] -= outl_displacements[0];
+	
 	MPI_OUTLINE = MPI::Datatype::Create_struct(
-		2,
+		4,
 		outl_lengths,
 		outl_displacements,
 		outl_types
@@ -666,6 +670,7 @@ void DataBus::create_custom_types() {
 		MPI::INT,
 		MPI::INT,
 	};
+	
 	int tetrs_req_lengths[] = {
 		1,
 		1
@@ -692,6 +697,7 @@ void DataBus::create_custom_types() {
 		MPI::INT,
 		MPI::INT
 	};
+	
 	int tetrs_t_resp_lengths[] = {
 		4,
 		1,
@@ -867,6 +873,7 @@ void DataBus::create_custom_types() {
 				else
 					*logger << "Nodes in zone " << j << " for zone " << i << " " <  local_numbers[i][j].size();
 
+	MPI_NODE.Commit();
 	MPI_OUTLINE.Commit();
 	MPI_FACES_REQ.Commit();
 	MPI_TETRS_REQ.Commit();

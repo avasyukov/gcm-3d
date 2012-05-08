@@ -168,7 +168,7 @@ int TetrMeshSet::do_next_step()
 	// we start both cycles from zero because collision should be 'symmetric'
 	for (int i = 0; i < local_meshes.size(); i++)
 		for (int j = 0; j < local_meshes.size(); j++)
-			if ( ( i != j ) && ( collision_detector->find_intersection(*local_meshes[i]->outline, *local_meshes[j]->outline, intersection) ) )
+			if ( ( i != j ) && ( collision_detector->find_intersection(local_meshes[i]->outline, local_meshes[j]->outline, intersection) ) )
 			{
 				*logger << "Collision detected between local mesh zone #" << local_meshes[i]->zone_num << " and local mesh zone #" < local_meshes[j]->zone_num;
 				// find local nodes inside intersection
@@ -233,7 +233,7 @@ int TetrMeshSet::do_next_step()
 	// process collisions between local nodes and remote faces
 	for (int i = 0; i < local_meshes.size(); i++)
 		for (int j = 0; j < remote_meshes.size(); j++)
-			if (collision_detector->find_intersection(*local_meshes[i]->outline, *remote_meshes[j]->outline, intersection))
+			if (collision_detector->find_intersection(local_meshes[i]->outline, remote_meshes[j]->outline, intersection))
 			{
 				*logger << "Collision detected between local mesh zone #" << local_meshes[i]->zone_num << " and remote mesh zone #" < remote_meshes[j]->zone_num;
 				// find local nodes inside intersection
@@ -398,7 +398,6 @@ void TetrMeshSet::init_mesh_container(vector<int> &zones_info)
 	meshes_number = zones_info.size();
 	// allocate memory
 	meshes = new TetrMesh_1stOrder[meshes_number];
-	outlines = new MeshOutline[meshes_number];
 	meshes_at_proc = (int*)calloc(data_bus->get_procs_total_num(), sizeof(int));
 	for (int i = 0; i < meshes_number; i++)
 	{
@@ -413,7 +412,6 @@ void TetrMeshSet::init_mesh_container(vector<int> &zones_info)
 		{
 			while (zones_info[q] != i)
 				q++;
-			meshes[k].outline = outlines+k;
 			meshes[k].zone_num = q;
 			meshes[k].proc_num = i;
 			meshes[k].local = (i == data_bus->get_proc_num());

@@ -37,7 +37,7 @@ public:
 	
 	bool local;
 
-	MeshOutline *outline;
+	MeshOutline outline;
 
 protected:
 	string mesh_type;

@@ -62,7 +62,6 @@ protected:
 //	be synchronized
 public:
 	// FIXME
-	MeshOutline *outlines;
 	int meshes_number;
 	int *meshes_at_proc;
 };
