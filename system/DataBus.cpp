@@ -72,6 +72,8 @@ void DataBus::attach(CollisionDetector* cd)
 
 float DataBus::get_max_possible_tau(float local_time_step)
 {
+	MPI::COMM_WORLD.Barrier();
+	
 	float max_tau;     
 	MPI::COMM_WORLD.Allreduce(&local_time_step, &max_tau, 1, MPI::FLOAT, MPI::MIN);
 	*logger << "Time step synchronized, value is: " < max_tau; 
@@ -161,6 +163,7 @@ int DataBus::get_proc_for_zone(int zone_num)
 
 void DataBus::sync_outlines()
 {
+	MPI::COMM_WORLD.Barrier();
 	// calculate displacements
 	int *displ = (int*)malloc(sizeof(int)*procs_total_num);
 	displ[0] = 0;
