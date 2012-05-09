@@ -26,6 +26,7 @@ public:
 	// return elements that are in intersection
 	void find_nodes_in_intersection(vector<ElasticNode> &nodes, MeshOutline &intersection, vector<ElasticNode> &result);
 	void find_faces_in_intersection(vector<Triangle> &faces, vector<ElasticNode> &nodes, MeshOutline &intersection, vector<Triangle> &result);
+	void find_faces_in_intersection(vector<Triangle> &faces, vector<ElasticNode> &nodes, MeshOutline &intersection, vector<int> &result);
 	// number returned surface elements (nodes and triangles) sequentially
 	void renumber_surface(vector<Triangle> &faces, vector<ElasticNode> &nodes);
 	// finds collisions between nodes and faces 

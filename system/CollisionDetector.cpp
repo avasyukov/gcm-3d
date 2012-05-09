@@ -79,6 +79,23 @@ void CollisionDetector::find_faces_in_intersection(vector<Triangle> &faces, vect
 	}
 }
 
+void CollisionDetector::find_faces_in_intersection(vector<Triangle> &faces, vector<ElasticNode> &nodes, MeshOutline &intersection, vector<int> &result)
+{
+	for (int i = 0; i < faces.size(); i++)
+	{
+		int verts = 0;
+		for (int j = 0; j < 3; j++)
+			for (int k = 0; k < 3; k++)
+				if (nodes[faces[i].vert[j]].coords[k] < intersection.min_coords[k] || nodes[faces[i].vert[j]].coords[k] > intersection.max_coords[k])
+				{
+					verts++;
+					break;
+				}
+		if (verts != 3)
+			result.push_back(i);
+	}
+}
+
 void CollisionDetector::renumber_surface(vector<Triangle> &faces, vector<ElasticNode> &nodes)
 {
 	for(int i = 0; i < faces.size(); i++) {
