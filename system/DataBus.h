@@ -38,21 +38,6 @@ typedef struct
 	float rho;
 } MPINode;
 
-// structures to hold information while retrieving remote nodes
-typedef struct
-{
-	int zone_num;
-	float min_coords[3];
-	float max_coords[3];
-} MPIFacesRequest;
-
-typedef struct
-{
-	int verts[3];
-	int num;
-	int zone_num;
-} MPIFacesFResponse;
-
 typedef struct
 {
 	int num;
@@ -125,10 +110,7 @@ protected:
 	int proc_num;
 	int procs_total_num;
 	vector<int> zones_info;
-// FIXME
-// all the following fields should be declared as protected but since we use MPI
-// code outside of DataBuss class they temporary are declared as public
-public:
+
 	// MPI tags
 	static const int TAG_SYNC_READY        =  0;
 	static const int TAG_SYNC_TIME_STEP    =  1;
@@ -159,9 +141,7 @@ public:
 	MPI::Datatype MPI_NODE;
 	MPI::Datatype MPI_FACE;
 	MPI::Datatype MPI_OUTLINE;
-	MPI::Datatype MPI_FACES_REQ;
 	MPI::Datatype MPI_TETRS_REQ;
-	MPI::Datatype MPI_FACES_F_RESP;
 	MPI::Datatype MPI_FACES_N_RESP;
 	MPI::Datatype MPI_TETRS_T_RESP;
 	

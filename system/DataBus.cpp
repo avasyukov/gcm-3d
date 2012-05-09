@@ -328,9 +328,7 @@ void DataBus::create_custom_types() {
 	// register new MPI types
 	MPINode node_resp;
 	TetrMesh_1stOrder meshes[2];
-	MPIFacesFResponse faces_f_resp;
 	MPIFacesNResponse faces_n_resp;
-	MPIFacesRequest faces_req;
 	MPITetrsTResponse tetrs_t_resp;
 	MPITetrsRequest tetrs_req;
 	Triangle faces[2];
@@ -425,62 +423,6 @@ void DataBus::create_custom_types() {
 		outl_lengths,
 		outl_displacements,
 		outl_types
-	);
-	
-	mpi_addr_struct = MPI::Get_address(&faces_req);
-	mpi_addr_struct_zone_num = MPI::Get_address(&faces_req.zone_num);
-	mpi_addr_struct_min_coords = MPI::Get_address(&faces_req.min_coords);
-	mpi_addr_struct_max_coords = MPI::Get_address(&faces_req.max_coords);
-
-	MPI::Datatype faces_req_types[] = {
-		MPI::INT,
-		MPI::FLOAT,
-		MPI::FLOAT
-	};
-	int faces_req_lengths[] = {
-		1,
-		3,
-		3
-	};
-	MPI::Aint faces_req_displacements[] = {
-		mpi_addr_struct_zone_num-mpi_addr_struct,
-		mpi_addr_struct_min_coords-mpi_addr_struct,
-		mpi_addr_struct_max_coords-mpi_addr_struct
-	};
-
-	MPI_FACES_REQ = MPI::Datatype::Create_struct(
-		3,
-		faces_req_lengths,
-		faces_req_displacements,
-		faces_req_types
-	);
-	
-	mpi_addr_struct = MPI::Get_address(&faces_f_resp);
-	mpi_addr_struct_verts = MPI::Get_address(&faces_f_resp.verts);
-	mpi_addr_struct_num = MPI::Get_address(&faces_f_resp.num);
-	mpi_addr_struct_zone_num = MPI::Get_address(&faces_f_resp.zone_num);
-
-	MPI::Datatype faces_f_resp_types[] = {
-		MPI::FLOAT,
-		MPI::INT,
-		MPI::INT
-	};
-	int faces_f_resp_lengths[] = {
-		3,
-		1,
-		1
-	};
-	MPI::Aint faces_f_resp_displacements[] = {
-		mpi_addr_struct_verts-mpi_addr_struct,
-		mpi_addr_struct_num-mpi_addr_struct,
-		mpi_addr_struct_zone_num-mpi_addr_struct
-	};
-
-	MPI_FACES_F_RESP = MPI::Datatype::Create_struct(
-		3,
-		faces_f_resp_lengths,
-		faces_f_resp_displacements,
-		faces_f_resp_types
 	);
 	
 	MPI::Datatype face_types[] = 
@@ -817,9 +759,7 @@ void DataBus::create_custom_types() {
 	MPI_ELNODE_NUMBERED.Commit();
 	MPI_FACE.Commit();
 	MPI_OUTLINE.Commit();
-	MPI_FACES_REQ.Commit();
 	MPI_TETRS_REQ.Commit();
-	MPI_FACES_F_RESP.Commit();
 	MPI_FACES_N_RESP.Commit();
 	MPI_TETRS_T_RESP.Commit();	
 	
