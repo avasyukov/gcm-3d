@@ -326,76 +326,25 @@ void DataBus::create_custom_types() {
 	
 	*logger < "Creating custom data types";
 	// register new MPI types
-	MPINode node_resp;
 	TetrMesh_1stOrder meshes[2];
 	MPIFacesNResponse faces_n_resp;
 	MPITetrsTResponse tetrs_t_resp;
 	MPITetrsRequest tetrs_req;
 	Triangle faces[2];
+	Tetrahedron_1st_order tetrs[2];
 	
 	MPI::Aint mpi_addr_struct;
 	MPI::Aint mpi_addr_struct_values;
 	MPI::Aint mpi_addr_struct_verts;
-	MPI::Aint mpi_addr_struct_min_coords;
-	MPI::Aint mpi_addr_struct_max_coords;
 	MPI::Aint mpi_addr_struct_coords;
-	MPI::Aint mpi_addr_struct_local_num;
 	MPI::Aint mpi_addr_struct_num;
 	MPI::Aint mpi_addr_struct_face_num;
-	MPI::Aint mpi_addr_struct_remote_num;
-	MPI::Aint mpi_addr_struct_local_zone_num;
-	MPI::Aint mpi_addr_struct_remote_zone_num;
-	MPI::Aint mpi_addr_struct_proc_num;
 	MPI::Aint mpi_addr_struct_zone_num;
 	MPI::Aint mpi_addr_struct_la;
 	MPI::Aint mpi_addr_struct_mu;
 	MPI::Aint mpi_addr_struct_rho;
 
-	mpi_addr_struct = MPI::Get_address(&node_resp);
-	mpi_addr_struct_values = MPI::Get_address(&node_resp.values);
-	mpi_addr_struct_coords = MPI::Get_address(&node_resp.coords);
-	mpi_addr_struct_local_num = MPI::Get_address(&node_resp.local_num);
-	mpi_addr_struct_local_zone_num = MPI::Get_address(&node_resp.local_zone_num);
-	mpi_addr_struct_la = MPI::Get_address(&node_resp.la);
-	mpi_addr_struct_mu = MPI::Get_address(&node_resp.mu);
-	mpi_addr_struct_rho = MPI::Get_address(&node_resp.rho);
-
-	MPI::Datatype resp_types[] = {
-		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::INT,
-		MPI::INT,
-		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::FLOAT
-	};
-	int resp_lengths[] = {
-		9,
-		3,
-		1,
-		1,
-		1,
-		1,
-		1
-	};
-	MPI::Aint resp_displacements[] = {
-		mpi_addr_struct_values-mpi_addr_struct,
-		mpi_addr_struct_coords-mpi_addr_struct,
-		mpi_addr_struct_local_num-mpi_addr_struct,
-		mpi_addr_struct_local_zone_num-mpi_addr_struct,
-		mpi_addr_struct_la-mpi_addr_struct,
-		mpi_addr_struct_mu-mpi_addr_struct,
-		mpi_addr_struct_rho-mpi_addr_struct
-	};
-
-	MPI_NODE = MPI::Datatype::Create_struct(
-		7,
-		resp_lengths,
-		resp_displacements,
-		resp_types
-	);
-	
-	MPI::Datatype outl_types[] = {
+		MPI::Datatype outl_types[] = {
 		MPI::LB,
 		MPI::FLOAT,
 		MPI::FLOAT,
@@ -455,6 +404,38 @@ void DataBus::create_custom_types() {
 		face_lens,
 		face_displ,
 		face_types
+	);
+	
+	MPI::Datatype tetr_types[] = 
+	{
+		MPI::LB,
+		MPI::INT,
+		MPI::INT,
+		MPI::UB
+	};
+	
+	int tetr_lens[] = {
+		1,
+		1,
+		4,
+		1
+	};
+	
+	MPI::Aint tetr_displ[] = {
+		MPI::Get_address(&tetrs[0]),
+		MPI::Get_address(&tetrs[0].local_num),
+		MPI::Get_address(&tetrs[0].vert[0]),
+		MPI::Get_address(&tetrs[1])
+	};
+	
+	for (int i = 3; i >= 0; i--)
+		tetr_displ[i] -= tetr_displ[0];
+	
+	MPI_TETR = MPI::Datatype::Create_struct(
+		4,
+		tetr_lens,
+		tetr_displ,
+		tetr_types
 	);
 	
 	mpi_addr_struct = MPI::Get_address(&faces_n_resp);
@@ -755,9 +736,9 @@ void DataBus::create_custom_types() {
 				else
 					*logger << "Nodes in zone " << j << " for zone " << i << " " <  local_numbers[i][j].size();
 
-	MPI_NODE.Commit();
 	MPI_ELNODE_NUMBERED.Commit();
 	MPI_FACE.Commit();
+	MPI_TETR.Commit();
 	MPI_OUTLINE.Commit();
 	MPI_TETRS_REQ.Commit();
 	MPI_FACES_N_RESP.Commit();
@@ -865,12 +846,12 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 	int max_len = 0;
 	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
 		for (int j = 0; j < procs_total_num; j++)
+		{
 			if (nidx[i][j].size() > max_len)
-			{
 				max_len = nidx[i][j].size();
-				if (fidx[i][j].size() > max_len)
-					max_len = fidx[i][j].size();
-			}
+			if (fidx[i][j].size() > max_len)
+				max_len = fidx[i][j].size();
+		}
 	int *lens = new int[max_len];
 	for (int i = 0; i < max_len; i++)
 		lens[i] = 1;
@@ -980,4 +961,229 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 	delete[] ft;
 		
 	*logger < "Faces sync done";
+}
+
+void DataBus::sync_tetrs()
+{
+	*logger < "Starting tetrs sync";
+	MPI::COMM_WORLD.Barrier();
+	
+	vector<int> *idx = new vector<int>[zones_info.size()];
+	vector<int> tmp;
+	int procs_to_sync = procs_total_num;
+	int buff[3];
+	
+	for (int i = 0; i < mesh_set->virt_nodes.size(); i++)
+		idx[mesh_set->virt_nodes[i].remote_zone_num].push_back(i);
+		
+	for (int i = 0; i < zones_info.size(); i++)
+		if (idx[i].size())
+		{
+			MPI::COMM_WORLD.Isend(
+				&idx[i][0],
+				idx[i].size(),
+				MPI::INT,
+				get_proc_for_zone(i),
+				TAG_SYNC_TETRS_REQ
+			);
+			tmp.push_back(i);
+			tmp.push_back(idx[i].size());
+			MPI::COMM_WORLD.Isend(
+				&tmp[0]+tmp.size()-2,
+				2,
+				MPI::INT,
+				get_proc_for_zone(i),
+				TAG_SYNC_TETRS_REQ_I
+			);
+		}
+	
+	for (int i = 0; i < procs_total_num; i++)
+	{
+		tmp.push_back(-1);
+		tmp.push_back(-1);
+		MPI::COMM_WORLD.Isend(
+			&tmp[0]+tmp.size()-2,
+			2,
+			MPI::INT,
+			get_proc_for_zone(i),
+			TAG_SYNC_TETRS_REQ_I
+		);		
+	}
+	
+	MPI::COMM_WORLD.Barrier();
+	
+	MPI::Status status;
+	vector<int> req_idx;
+	MPI::Datatype **tt = new MPI::Datatype*[zones_info.size()];
+	MPI::Datatype **nt = new MPI::Datatype*[zones_info.size()];
+	vector<int> **tidx = new vector<int>*[zones_info.size()];
+	vector<int> **nidx = new vector<int>*[zones_info.size()];
+	
+	for (int i = 0; i < zones_info.size(); i++)
+	{
+		tt[i] = new MPI::Datatype[procs_total_num];
+		nt[i] = new MPI::Datatype[procs_total_num];
+		tidx[i] = new vector<int>[procs_total_num];
+		nidx[i] = new vector<int>[procs_total_num];
+	}
+	
+	
+	while (procs_to_sync)
+	{
+		MPI::COMM_WORLD.Recv(buff, 2, MPI::INT, MPI::ANY_SOURCE, TAG_SYNC_TETRS_REQ_I, status);
+		int zn = buff[0];
+		if (zn == -1)
+		{
+			procs_to_sync--;
+			continue;
+		}
+		int source = status.Get_source();
+		req_idx.resize(buff[1]);
+		MPI::COMM_WORLD.Recv(&req_idx[0], buff[1], MPI::INT, source, TAG_SYNC_TETRS_REQ);
+		TetrMesh_1stOrder *mesh = mesh_set->get_mesh_by_zone_num(zn);
+		bool found;
+		for (int i = 0; i < buff[1]; i++)
+		{
+			Triangle *face = &mesh->border[0]+req_idx[i];
+			for (int j = 0; j < 3; j++)
+				for (int k = 0; k < mesh->nodes[face->vert[j]].elements->size(); k++)
+				{
+					Tetrahedron_1st_order *tetr = &mesh->tetrs[0]+mesh->nodes[face->vert[j]].elements->at(k);
+					found = false;
+					for (int q = 0; q < tidx[zn][source].size(); q++)
+						if (tidx[zn][source][q] == tetr->local_num)
+						{
+							found = true;
+							break;
+						}
+					if (!found)
+						tidx[zn][source].push_back(tetr->local_num);
+				}
+		}
+		for (int i = 0; i < tidx[zn][source].size(); i++)
+		{
+			Tetrahedron_1st_order *tetr = &mesh->tetrs[0]+tidx[zn][source][i];
+			for (int j = 0; j < 4; j++)
+			{
+				found = false;
+				ElasticNode *node = &mesh->nodes[0]+tetr->vert[j];
+				for (int k = 0; k < nidx[zn][source].size(); k++)
+					if (nidx[zn][source][k] == node->local_num)
+					{
+						found = true;
+						break;
+					}
+				if (!found)
+					nidx[zn][source].push_back(node->local_num);
+			}
+		}
+	}
+	
+	MPI::COMM_WORLD.Barrier();
+	
+	int max_len = 0;
+	for (int i = 0; i < zones_info.size(); i++)
+		for (int j = 0; j < procs_total_num; j++)
+		{
+			if (nidx[i][j].size() > max_len)
+				max_len = nidx[i][j].size();
+			if (tidx[i][j].size() > max_len)
+				max_len = tidx[i][j].size();
+		}
+
+	int *lens = new int[max_len];
+	for (int i = 0; i < max_len; i++)
+		lens[i] = 1;
+	
+	for (int i = 0; i < zones_info.size(); i++)
+		for (int j = 0; j < procs_total_num; j++)
+			if (tidx[i][j].size())
+			{
+				nt[i][j] = MPI_ELNODE_NUMBERED.Create_indexed(nidx[i][j].size(), lens, &nidx[i][j][0]);
+				tt[i][j] = MPI_TETR.Create_indexed(tidx[i][j].size(), lens, &tidx[i][j][0]);
+				nt[i][j].Commit();
+				tt[i][j].Commit();
+				MPI::COMM_WORLD.Isend(
+					&mesh_set->get_mesh_by_zone_num(i)->nodes[0],
+					1,
+					nt[i][j],
+					j,
+					TAG_SYNC_TETRS_N_RESP
+				);
+				MPI::COMM_WORLD.Isend(
+					&mesh_set->get_mesh_by_zone_num(i)->tetrs[0],
+					1,
+					tt[i][j],
+					j,
+					TAG_SYNC_TETRS_T_RESP
+				);
+				tmp.push_back(i);
+				tmp.push_back(nidx[i][j].size());
+				tmp.push_back(tidx[i][j].size());
+				MPI::COMM_WORLD.Isend(
+					&tmp[0]+tmp.size()-3,
+					3,
+					MPI::INT,
+					j,
+					TAG_SYNC_TETRS_I_RESP
+				);
+			}
+	
+	MPI::COMM_WORLD.Barrier();
+	
+	int cnt = 0;
+	
+	for (int i = 0; i < zones_info.size(); i++)
+		if (idx[i].size())
+			cnt++;
+	
+	for (int i = 0; i < cnt; i++)
+	{
+		MPI::COMM_WORLD.Recv(buff, 3, MPI::INT, MPI::ANY_SOURCE, TAG_SYNC_TETRS_I_RESP, status);
+		TetrMesh_1stOrder *mesh = mesh_set->get_mesh_by_zone_num(buff[0]);
+		mesh->nodes.clear();
+		mesh->tetrs.clear();
+		mesh->nodes.resize(buff[1]);
+		mesh->tetrs.resize(buff[2]);
+		int source = status.Get_source();
+		MPI::COMM_WORLD.Recv(
+			&mesh->nodes[0],
+			buff[1],
+			MPI_ELNODE_NUMBERED,
+			source,
+			TAG_SYNC_TETRS_N_RESP
+		);
+		MPI::COMM_WORLD.Recv(
+			&mesh->tetrs[0],
+			buff[2],
+			MPI_TETR,
+			source,
+			TAG_SYNC_TETRS_T_RESP
+		);
+	}
+	
+	MPI::COMM_WORLD.Barrier();
+
+	delete[] idx;
+	for (int i = 0; i < zones_info.size(); i++)
+	{
+		for (int j = 0; j < procs_total_num; j++)
+			if (tidx[i][j].size())
+			{
+				tt[i][j].Free();
+				nt[i][j].Free();
+			}
+		delete[] tt[i];
+		delete[] nt[i];
+		delete[] tidx[i];
+		delete[] nidx[i];
+	}
+	delete[] lens;
+	delete[] tt;
+	delete[] nt;
+	delete[] tidx;
+	delete[] nidx;
+	
+	*logger < "Tetrs sync done";
+
 }
