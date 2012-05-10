@@ -56,11 +56,10 @@ protected:
 	TetrMesh_1stOrder* meshes;
 	vector<TetrMesh_1stOrder*> local_meshes;
 	vector<TetrMesh_1stOrder*> remote_meshes;
-	vector<ElasticNode> virt_nodes;
-//	vector< vector<ElasticNode*> > remote_nodes;
-//	TODO optimize synchronization using array containing list of remote nodes to
-//	be synchronized
 public:
+	// FIXME
+	// it's public for a while :)
+	vector<ElasticNode> virt_nodes;
 	// FIXME
 	int meshes_number;
 	int *meshes_at_proc;

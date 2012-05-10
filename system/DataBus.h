@@ -90,6 +90,8 @@ public:
 	void create_custom_types();
 	// sync faces in intersection
 	void sync_faces_in_intersection(MeshOutline **intersections, int **fs, int **fl);
+	// sync tetrs
+	void sync_tetrs();
 protected:
 	vector<int> **local_numbers;
 	TetrMeshSet* mesh_set;
@@ -111,8 +113,10 @@ protected:
 	static const int TAG_SYNC_FACES_F_RESP =  8;
 	static const int TAG_SYNC_FACES_N_RESP =  9;
 	static const int TAG_SYNC_TETRS_REQ    = 12;
+	static const int TAG_SYNC_TETRS_REQ_I  = 19;
 	static const int TAG_SYNC_TETRS_T_RESP = 13;
 	static const int TAG_SYNC_TETRS_N_RESP = 14;
+	static const int TAG_SYNC_TETRS_I_RESP = 21;
 	static const int TAG_SYNC_TETRS_DONE   = 15;
 	static const int TAG_SYNC_TETRS_R_END  = 16;
 	static const int TAG_SYNC_NODE_TYPES   = 17;
@@ -128,6 +132,7 @@ protected:
 	MPI::Datatype MPI_ELNODE;
 	MPI::Datatype MPI_ELNODE_NUMBERED;
 	MPI::Datatype MPI_FACE;
+	MPI::Datatype MPI_TETR;
 	MPI::Datatype MPI_OUTLINE;
 	MPI::Datatype MPI_TETRS_REQ;
 	MPI::Datatype MPI_FACES_N_RESP;
