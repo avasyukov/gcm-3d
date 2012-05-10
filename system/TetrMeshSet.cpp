@@ -331,10 +331,132 @@ int TetrMeshSet::do_next_step()
 	
 	*logger < "Local/remote collisions processed";
 
-	// FIXME - we should do part_step(s) for all meshes in course (!!!)
+	// number of stages for current numerical method
+	int number_of_stages;
+
+	// perform checks
 	for(int i = 0; i < local_meshes.size(); i++)
-		if (local_meshes[i]->do_next_step(time_step) < 0)
-			return -1;
+	{
+		if( local_meshes[i]->method == NULL )
+			throw GCMException( GCMException::MESH_EXCEPTION, "No NM attached");
+
+		if( local_meshes[i]->rheology == NULL )
+			throw GCMException( GCMException::MESH_EXCEPTION, "No RC attached");
+
+		if( time_step < 0 )
+			throw GCMException( GCMException::MESH_EXCEPTION, "Time step is negative");
+
+		if( (number_of_stages = local_meshes[i]->method->get_number_of_stages()) <= 0 )
+			throw GCMException( GCMException::MESH_EXCEPTION, "Incorrect number of stages");
+	}
+
+	// set external stress
+	for(int i = 0; i < local_meshes.size(); i++)
+		if( local_meshes[i]->set_stress( get_current_time() ) < 0 )
+			throw GCMException( GCMException::MESH_EXCEPTION, "Set stress failed");
+
+	// do part steps
+	for(int s = 0; s < number_of_stages; s++)
+	{
+
+		*logger << "Part step #" << s < " Syncing remote meshes";
+
+		/* TETRS SYNC CALL IS HERE */
+
+		// process synced data for remote meshes
+		for (int r = 0; r < remote_meshes.size(); r++)
+		{
+			*logger << "Remote mesh #" << r << " Pre-processing virtual mesh";
+
+			// renumber everything
+			for(int i = 0; i < (remote_meshes[r]->tetrs).size(); i++)
+			{
+				(remote_meshes[r]->tetrs)[i].absolute_num = (remote_meshes[r]->tetrs)[i].local_num;
+				(remote_meshes[r]->tetrs)[i].local_num = i;
+				for(int j = 0; j < 4; j++) {
+					bool node_found = false;
+					for(int k = 0; k < (remote_meshes[r]->nodes).size(); k++) {
+						if((remote_meshes[r]->tetrs)[i].vert[j] == (remote_meshes[r]->nodes)[k].local_num) {
+							(remote_meshes[r]->tetrs)[i].vert[j] = k;
+							node_found = true;
+							break;
+						}
+					}
+					if( !node_found )
+						throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't create correct numbering for volume");
+				}
+			}
+			for(int i = 0; i < (remote_meshes[r]->nodes).size(); i++)
+			{
+				(remote_meshes[r]->nodes)[i].absolute_num = (remote_meshes[r]->nodes)[i].local_num;
+				(remote_meshes[r]->nodes)[i].local_num = i;
+			}
+
+			// create links, etc
+			remote_meshes[r]->pre_process_mesh();
+		}
+
+		// calculation for local meshes
+		for(int l = 0; l < local_meshes.size(); l++)
+		{
+			// link virtual nodes for this mesh
+			*logger << "Mesh " << local_meshes[l]->zone_num << " Stage " << s < " Linking virt nodes to virtual mesh";
+
+			for(int i = 0; i < local_meshes[l]->nodes.size(); i++)
+			{
+				if(local_meshes[l]->nodes[i].border_type == BORDER)
+				{
+					if(local_meshes[l]->nodes[i].contact_data->axis_plus[0] != -1)
+					{
+						ElasticNode *vnode = getNode( local_meshes[l]->nodes[i].contact_data->axis_plus[0] );
+						vnode->mesh = NULL;
+						*logger << "Looking for remote mesh with rnum: " < vnode->remote_zone_num;
+						for(int r = 0; r < remote_meshes.size(); r++)
+							if(remote_meshes[r]->zone_num == vnode->remote_zone_num)
+								vnode->mesh = remote_meshes[r];
+						if(vnode->mesh == NULL)
+							throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find remote zone for vnode");
+
+						bool node_found = false;
+						for(int z = 0; z < (vnode->mesh->nodes).size(); z++)
+							if((vnode->mesh->nodes)[z].absolute_num == vnode->absolute_num)
+							{
+								node_found = true;
+								vnode->placement_type = LOCAL;
+								vnode->border_type = BORDER;
+								vnode->contact_type = IN_CONTACT;
+								vnode->elements = (vnode->mesh->nodes)[z].elements;
+								vnode->border_elements = (vnode->mesh->nodes)[z].border_elements;
+								vnode->local_num = (vnode->mesh->nodes)[z].local_num;
+								break;
+							}
+						if( !node_found )
+							throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find virt node origin");
+					}
+				}
+			}
+
+			// real calculation
+			*logger << "Mesh " << local_meshes[l]->zone_num << " Stage " << s < " Start calculation";
+
+			if( local_meshes[l]->do_next_part_step(time_step, s) < 0 )
+				throw GCMException( GCMException::MESH_EXCEPTION, "Do next part step failed");
+
+			*logger << "Mesh " << local_meshes[l]->zone_num << " Stage " << s < " Calculation done";
+		}
+	}
+
+// FIXME
+//	for(int i = 0; i < local_meshes.size(); i++)
+//		local_meshes[i]->move_coords(time_step);
+
+	for(int i = 0; i < local_meshes.size(); i++)
+		if( local_meshes[i]->proceed_rheology() < 0 )
+			throw GCMException( GCMException::MESH_EXCEPTION, "Proceed rheology failed");
+
+	for(int i = 0; i < local_meshes.size(); i++)
+		local_meshes[i]->update_current_time(time_step);
+
 	return 0;
 };
 

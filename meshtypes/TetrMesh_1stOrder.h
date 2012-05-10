@@ -43,7 +43,7 @@ public:
 	bool interpolate_triangle(float *p1, float *p2, float *p3, float *p, float *v1, float *v2, float *v3, float *v);
 	int log_mesh_stats();
 //	int do_next_step();
-	int do_next_step(float time_step);
+//	int do_next_step(float time_step);
 	float get_max_possible_tau();
 	float get_min_h();
 	float get_max_h();
@@ -64,6 +64,12 @@ public:
 
 	int pre_process_mesh();
 
+	void update_current_time(float time_step);
+
+	int do_next_part_step(float tau, int stage);
+	void move_coords(float tau);
+	int proceed_rheology();
+
 private:
 	int check_triangle_to_be_border(int v1, int v2, int v3, int tetr_vert, float step_h);
 	bool triangleOrientationOk(int node1, int node2, int node3);
@@ -78,9 +84,6 @@ private:
 	float get_solid_angle(int node_index, int tetr_index);
 
 	float tetr_h(int i);
-	int do_next_part_step(float tau, int stage);
-	void move_coords(float tau);
-	int proceed_rheology();
 	int run_mesh_filter();
 
 	vector<ElasticNode> new_nodes;

@@ -38,12 +38,12 @@ public:
 	bool local;
 
 	MeshOutline outline;
+	RheologyCalculator* rheology;
 
 protected:
 	string mesh_type;
 	float current_time;
 	Logger* logger;
-	RheologyCalculator* rheology;
 //	DataBus* data_bus; // TODO implement at least draft structure
 	Stresser* stresser;
 };

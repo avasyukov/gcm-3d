@@ -1486,6 +1486,7 @@ int TetrMesh_1stOrder::run_mesh_filter()
 	return 0;
 };
 
+/*
 int TetrMesh_1stOrder::do_next_step(float time_step)
 {
 	int number_of_stages;
@@ -1653,6 +1654,7 @@ int TetrMesh_1stOrder::do_next_step(float time_step)
 
 	return 0;
 };
+*/
 
 Tetrahedron* TetrMesh_1stOrder::get_tetrahedron(int index)
 {
@@ -1899,4 +1901,9 @@ bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, fl
 
 	// check if point is inside of face
 	return (l1 >= 0.0 && l1 <= 1.0 && l2 >= 0.0 && l2 <= 1.0 && l3 >= 0.0 && l3 <= 1.0); 
-}
+};
+
+void TetrMesh_1stOrder::update_current_time(float time_step)
+{
+	current_time += time_step;
+};
