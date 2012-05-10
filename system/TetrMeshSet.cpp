@@ -258,6 +258,19 @@ int TetrMeshSet::do_next_step()
 				basis *local_basis;
 				remote_faces = &remote_meshes[j]->border[0];
 				remote_nodes = &remote_meshes[j]->nodes[0];
+
+				// debug print for faces sync
+				/* for( int k = 0; k < local_nodes.size(); k++ )
+				* 	*logger << "Node " << k << " coords: " << local_nodes[k].coords[0] << " "
+				* 			<< local_nodes[k].coords[1] << " " < local_nodes[k].coords[2];
+				* for( int k = 0; k < fl[i][j]; k++ )
+				* 	*logger << "Face " << k << " verts: " << remote_faces[k].vert[0] << " " << remote_faces[k].vert[1] << " "
+				* 			< remote_faces[k].vert[2];
+				* for( int k = 0; k < remote_meshes[j]->nodes.size(); k++ )
+				* 	*logger << "Remote node " << k << " coords: " << remote_nodes[k].coords[0] << " "
+				* 			<< remote_nodes[k].coords[1] << " " < remote_nodes[k].coords[2];
+				*/
+
 				for(int k = 0; k < local_nodes.size(); k++) {
 					for(int l = fs[i][j]; l < fs[i][j]+fl[i][j]; l++) {
 
