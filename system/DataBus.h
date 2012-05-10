@@ -29,17 +29,6 @@ class DataBus;
 
 typedef struct
 {
-	float values[9];
-	float coords[3];
-	int local_num;
-	int local_zone_num;
-	float la;
-	float mu;
-	float rho;
-} MPINode;
-
-typedef struct
-{
 	int num;
 	int zone_num;
 	float coords[3];
@@ -138,7 +127,6 @@ protected:
 	// MPI types
 	MPI::Datatype MPI_ELNODE;
 	MPI::Datatype MPI_ELNODE_NUMBERED;
-	MPI::Datatype MPI_NODE;
 	MPI::Datatype MPI_FACE;
 	MPI::Datatype MPI_OUTLINE;
 	MPI::Datatype MPI_TETRS_REQ;

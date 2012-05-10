@@ -326,7 +326,6 @@ void DataBus::create_custom_types() {
 	
 	*logger < "Creating custom data types";
 	// register new MPI types
-	MPINode node_resp;
 	TetrMesh_1stOrder meshes[2];
 	MPIFacesNResponse faces_n_resp;
 	MPITetrsTResponse tetrs_t_resp;
@@ -336,66 +335,15 @@ void DataBus::create_custom_types() {
 	MPI::Aint mpi_addr_struct;
 	MPI::Aint mpi_addr_struct_values;
 	MPI::Aint mpi_addr_struct_verts;
-	MPI::Aint mpi_addr_struct_min_coords;
-	MPI::Aint mpi_addr_struct_max_coords;
 	MPI::Aint mpi_addr_struct_coords;
-	MPI::Aint mpi_addr_struct_local_num;
 	MPI::Aint mpi_addr_struct_num;
 	MPI::Aint mpi_addr_struct_face_num;
-	MPI::Aint mpi_addr_struct_remote_num;
-	MPI::Aint mpi_addr_struct_local_zone_num;
-	MPI::Aint mpi_addr_struct_remote_zone_num;
-	MPI::Aint mpi_addr_struct_proc_num;
 	MPI::Aint mpi_addr_struct_zone_num;
 	MPI::Aint mpi_addr_struct_la;
 	MPI::Aint mpi_addr_struct_mu;
 	MPI::Aint mpi_addr_struct_rho;
 
-	mpi_addr_struct = MPI::Get_address(&node_resp);
-	mpi_addr_struct_values = MPI::Get_address(&node_resp.values);
-	mpi_addr_struct_coords = MPI::Get_address(&node_resp.coords);
-	mpi_addr_struct_local_num = MPI::Get_address(&node_resp.local_num);
-	mpi_addr_struct_local_zone_num = MPI::Get_address(&node_resp.local_zone_num);
-	mpi_addr_struct_la = MPI::Get_address(&node_resp.la);
-	mpi_addr_struct_mu = MPI::Get_address(&node_resp.mu);
-	mpi_addr_struct_rho = MPI::Get_address(&node_resp.rho);
-
-	MPI::Datatype resp_types[] = {
-		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::INT,
-		MPI::INT,
-		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::FLOAT
-	};
-	int resp_lengths[] = {
-		9,
-		3,
-		1,
-		1,
-		1,
-		1,
-		1
-	};
-	MPI::Aint resp_displacements[] = {
-		mpi_addr_struct_values-mpi_addr_struct,
-		mpi_addr_struct_coords-mpi_addr_struct,
-		mpi_addr_struct_local_num-mpi_addr_struct,
-		mpi_addr_struct_local_zone_num-mpi_addr_struct,
-		mpi_addr_struct_la-mpi_addr_struct,
-		mpi_addr_struct_mu-mpi_addr_struct,
-		mpi_addr_struct_rho-mpi_addr_struct
-	};
-
-	MPI_NODE = MPI::Datatype::Create_struct(
-		7,
-		resp_lengths,
-		resp_displacements,
-		resp_types
-	);
-	
-	MPI::Datatype outl_types[] = {
+		MPI::Datatype outl_types[] = {
 		MPI::LB,
 		MPI::FLOAT,
 		MPI::FLOAT,
@@ -755,7 +703,6 @@ void DataBus::create_custom_types() {
 				else
 					*logger << "Nodes in zone " << j << " for zone " << i << " " <  local_numbers[i][j].size();
 
-	MPI_NODE.Commit();
 	MPI_ELNODE_NUMBERED.Commit();
 	MPI_FACE.Commit();
 	MPI_OUTLINE.Commit();
