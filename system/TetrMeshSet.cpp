@@ -126,36 +126,18 @@ float TetrMeshSet::get_current_time()
 int TetrMeshSet::do_next_step()
 {
 
-//	float time_step = meshes[0]->get_max_possible_tau();
-//	for(int i = 1; i < meshes.size(); i++) {
-//		float ftmp = meshes[i]->get_max_possible_tau();
-//		if(ftmp < time_step)
-//			time_step = ftmp;
-//	}
 	float time_step = data_bus->get_max_possible_tau(get_max_possible_tau());
-
-//	// Clear virtual nodes because they change between time steps
-//	virt_nodes.clear();
-//	for(int i = 0; i < meshes.size(); i++)
-//		for(int j = i+1; j < meshes.size(); j++)
-//			if( collision_detector->find_collisions(meshes[i], meshes[j], &virt_nodes, time_step) < 0 )
-//				return -1;
 
 	// Clear virtual nodes because they change between time steps
 	virt_nodes.clear();
 
-	// get outlines for all meshes
-	// FIXME
-	// should we use vector<MeshOutline*> here?
-	//
 	// FIXME
 	// all collisions-related code should be moved to the method of
 	// CollisionDetector implementation; a proper class hierarchy should be
 	// introduced
 	MeshOutline intersection;
 
-	vector<ElasticNode> remote_nodes;
-	vector<Triangle> local_faces, remote_faces;
+	vector<Triangle> local_faces;
 
 	data_bus->sync_outlines();
 
@@ -168,7 +150,7 @@ int TetrMeshSet::do_next_step()
 	// we start both cycles from zero because collision should be 'symmetric'
 	for (int i = 0; i < local_meshes.size(); i++)
 		for (int j = 0; j < local_meshes.size(); j++)
-			if ( ( i != j ) && ( collision_detector->find_intersection(*local_meshes[i]->outline, *local_meshes[j]->outline, intersection) ) )
+			if ( ( i != j ) && ( collision_detector->find_intersection(local_meshes[i]->outline, local_meshes[j]->outline, intersection) ) )
 			{
 				*logger << "Collision detected between local mesh zone #" << local_meshes[i]->zone_num << " and local mesh zone #" < local_meshes[j]->zone_num;
 				// find local nodes inside intersection
@@ -229,27 +211,55 @@ int TetrMeshSet::do_next_step()
 			}
 
 	*logger < "Local/local collisions processed";
+	
+	MeshOutline **inters = new MeshOutline*[local_meshes.size()];
+	int **fs = new int*[local_meshes.size()];
+	int **fl = new int*[local_meshes.size()];
+	for (int i = 0; i < local_meshes.size(); i++)
+	{
+		inters[i] = new MeshOutline[remote_meshes.size()];
+		fs[i] = new int[remote_meshes.size()];
+		fl[i] = new int[remote_meshes.size()];
+	}
 
 	// process collisions between local nodes and remote faces
 	for (int i = 0; i < local_meshes.size(); i++)
 		for (int j = 0; j < remote_meshes.size(); j++)
-			if (collision_detector->find_intersection(*local_meshes[i]->outline, *remote_meshes[j]->outline, intersection))
-			{
+			if (collision_detector->find_intersection(local_meshes[i]->outline, remote_meshes[j]->outline, inters[i][j]))
 				*logger << "Collision detected between local mesh zone #" << local_meshes[i]->zone_num << " and remote mesh zone #" < remote_meshes[j]->zone_num;
+			else
+				inters[i][j].min_coords[0] = inters[i][j].max_coords[0] = 0.0;
+	
+	for (int i = 0; i < remote_meshes.size(); i++)		
+	{
+		remote_meshes[i]->border.clear();
+		remote_meshes[i]->nodes.clear();
+	}
+		
+	data_bus->sync_faces_in_intersection(inters, fs, fl);
+	for (int i = 0; i < remote_meshes.size(); i++)
+		collision_detector->renumber_surface(remote_meshes[i]->border, remote_meshes[i]->nodes);
+		
+	ElasticNode *remote_nodes;
+	Triangle *remote_faces;
+	for (int i = 0; i < local_meshes.size(); i++)
+		for (int j = 0; j < remote_meshes.size(); j++)	
+			if (inters[i][j].min_coords[0] != inters[i][j].max_coords[0])
+			{
 				// find local nodes inside intersection
-				collision_detector->find_nodes_in_intersection(local_meshes[i]->nodes, intersection, local_nodes);
+				collision_detector->find_nodes_in_intersection(local_meshes[i]->nodes, inters[i][j], local_nodes);
 				// get remote faces inside intersection
-				data_bus->get_remote_faces_in_intersection(remote_meshes[j]->proc_num, remote_meshes[j]->zone_num, intersection, remote_nodes, remote_faces, procs_to_sync);
-				*logger << "Got " << local_nodes.size() << " local nodes, " << remote_faces.size() << " remote faces and " << remote_nodes.size() < " remote nodes";
-
-				collision_detector->renumber_surface(remote_faces, remote_nodes);
+//				data_bus->get_remote_faces_in_intersection(remote_meshes[j]->proc_num, remote_meshes[j]->zone_num, intersection, remote_nodes, remote_faces, procs_to_sync);
+				*logger << "Got " << local_nodes.size() << " local nodes, " << fl[i][j] < " remote faces";
 
 				// process collisions
 				ElasticNode new_node;
 				float direction[3];
 				basis *local_basis;
+				remote_faces = &remote_meshes[j]->border[0];
+				remote_nodes = &remote_meshes[j]->nodes[0];
 				for(int k = 0; k < local_nodes.size(); k++) {
-					for(int l = 0; l < remote_faces.size(); l++) {
+					for(int l = fs[i][j]; l < fs[i][j]+fl[i][j]; l++) {
 
 						local_basis = local_nodes[k].local_basis;
 						direction[0] = local_basis->ksi[0][0];
@@ -292,29 +302,21 @@ int TetrMeshSet::do_next_step()
 
 				// clear
 				local_nodes.clear();
-				remote_nodes.clear();
-				remote_faces.clear();
 			}
-
-	*logger < "Local/remote collisions processed";
-
-	// remote faces sync done, notify
-	procs_to_sync--;
-	data_bus->remote_faces_sync_done();
 	
-	// wait for other procs
-	// FIXME
-	// move all MPI related code to...DataBus?
-	while (procs_to_sync > 0)
+	*logger << "Virtual nodes: " < virt_nodes.size();
+	
+	for (int i = 0; i < local_meshes.size(); i++)
 	{
-		MPI::Status status;
-		data_bus->check_messages_sync(MPI::ANY_SOURCE, DataBus::TAG_CLASS_SYNC_FACES, status);
-		// FIXME
-		// we do not actually need an access to nodes/faces here
-		data_bus->process_faces_sync_message(status.Get_source(), status.Get_tag(), remote_nodes, remote_faces, procs_to_sync);
+		delete[] inters[i];
+		delete[] fs[i];
+		delete[] fl[i];
 	}
-
-	*logger < "Remote faces sync done";
+	delete[] inters;
+	delete[] fs;
+	delete[] fl;
+	
+	*logger < "Local/remote collisions processed";
 
 	// FIXME - we should do part_step(s) for all meshes in course (!!!)
 	for(int i = 0; i < local_meshes.size(); i++)
@@ -398,7 +400,6 @@ void TetrMeshSet::init_mesh_container(vector<int> &zones_info)
 	meshes_number = zones_info.size();
 	// allocate memory
 	meshes = new TetrMesh_1stOrder[meshes_number];
-	outlines = new MeshOutline[meshes_number];
 	meshes_at_proc = (int*)calloc(data_bus->get_procs_total_num(), sizeof(int));
 	for (int i = 0; i < meshes_number; i++)
 	{
@@ -413,7 +414,6 @@ void TetrMeshSet::init_mesh_container(vector<int> &zones_info)
 		{
 			while (zones_info[q] != i)
 				q++;
-			meshes[k].outline = outlines+k;
 			meshes[k].zone_num = q;
 			meshes[k].proc_num = i;
 			meshes[k].local = (i == data_bus->get_proc_num());
