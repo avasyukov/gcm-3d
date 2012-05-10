@@ -361,12 +361,12 @@ int TetrMeshSet::do_next_step()
 
 		*logger << "Part step #" << s < " Syncing remote meshes";
 
-		/* TETRS SYNC CALL IS HERE */
+		data_bus->sync_tetrs();
 
 		// process synced data for remote meshes
 		for (int r = 0; r < remote_meshes.size(); r++)
 		{
-			*logger << "Remote mesh #" << r << " Pre-processing virtual mesh";
+			*logger << "Remote mesh #" << remote_meshes[r]->zone_num < " Pre-processing virtual mesh";
 
 			// renumber everything
 			for(int i = 0; i < (remote_meshes[r]->tetrs).size(); i++)
@@ -400,7 +400,7 @@ int TetrMeshSet::do_next_step()
 		for(int l = 0; l < local_meshes.size(); l++)
 		{
 			// link virtual nodes for this mesh
-			*logger << "Mesh " << local_meshes[l]->zone_num << " Stage " << s < " Linking virt nodes to virtual mesh";
+			*logger << "Mesh " << local_meshes[l]->zone_num << " Stage " << s < " Linking virt nodes to remote mesh";
 
 			for(int i = 0; i < local_meshes[l]->nodes.size(); i++)
 			{
@@ -417,6 +417,7 @@ int TetrMeshSet::do_next_step()
 						if(vnode->mesh == NULL)
 							throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find remote zone for vnode");
 
+						*logger << "Looking for node with num: " < vnode->absolute_num;
 						bool node_found = false;
 						for(int z = 0; z < (vnode->mesh->nodes).size(); z++)
 							if((vnode->mesh->nodes)[z].absolute_num == vnode->absolute_num)
