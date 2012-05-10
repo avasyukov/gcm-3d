@@ -846,12 +846,12 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 	int max_len = 0;
 	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
 		for (int j = 0; j < procs_total_num; j++)
+		{
 			if (nidx[i][j].size() > max_len)
-			{
 				max_len = nidx[i][j].size();
-				if (fidx[i][j].size() > max_len)
-					max_len = fidx[i][j].size();
-			}
+			if (fidx[i][j].size() > max_len)
+				max_len = fidx[i][j].size();
+		}
 	int *lens = new int[max_len];
 	for (int i = 0; i < max_len; i++)
 		lens[i] = 1;
