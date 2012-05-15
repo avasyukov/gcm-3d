@@ -681,14 +681,14 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 	
 	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
 	{
-		delete[] fidx[i];
-		delete[] nidx[i];
 		for (int j = 0; j < procs_total_num; j++)
 			if (nidx[i][j].size())
 			{
 				nt[i][j].Free();
 				ft[i][j].Free();
 			}
+		delete[] fidx[i];
+		delete[] nidx[i];		
 		delete[] nt[i];
 		delete[] ft[i];
 	}
