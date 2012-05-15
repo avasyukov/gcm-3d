@@ -34,6 +34,7 @@ int main(int argc, char **argv)
 		{"data-dir"  , required_argument, 0, 'd'},
 		{"result-dir", required_argument, 0, 'r'},
 		{"log-file"  , required_argument, 0, 'l'},
+		{"no-dumps"  , no_argument      , 0, 'n'},
 		{"help"      , no_argument      , 0, 'h'},
 		{0           , 0                , 0, 0  }
 	};
@@ -44,9 +45,10 @@ int main(int argc, char **argv)
 	string data_dir = "./";
 	string res_dir = "./";
 	string log_file = "";
+	bool dump = true;
 
 	while ( true ) {
-		c = getopt_long (argc, argv, "t:z:d:r:l:h", long_options, &option_index);
+		c = getopt_long (argc, argv, "t:z:d:r:l:hn", long_options, &option_index);
 		if (c == -1)
 			break;
 		switch (c)
@@ -68,6 +70,9 @@ int main(int argc, char **argv)
 				return 0;
 			case 'l':
 				log_file = optarg;
+				break;
+			case 'n':
+				dump = false;
 				break;
 			case '?':
 				print_help();
@@ -135,7 +140,9 @@ int main(int argc, char **argv)
 		mesh_set->log_meshes_stats();
 
 		// Create snapshot writer
-		SnapshotWriter* sw = new SnapshotWriter(res_dir);
+		SnapshotWriter* sw = NULL;
+		if (dump)
+			sw = new SnapshotWriter(res_dir);
 
 		// Do calculation
 		float cur_time;
@@ -149,8 +156,9 @@ int main(int argc, char **argv)
 				if (mesh_set->do_next_step() < 0)
 					return -1;
 		
-			if (sw->dump_vtk(mesh_set, i) < 0)
-				return -1;
+			if (dump)
+				if (sw->dump_vtk(mesh_set, i) < 0)
+					return -1;
 
 			if( (cur_time = mesh_set->get_current_time()) < 0)
 				return -1;
