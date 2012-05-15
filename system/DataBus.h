@@ -25,32 +25,6 @@ class DataBus;
 #include "Logger.h"
 #include "GCMException.h"
 
-// structures to hold node info during sync
-
-typedef struct
-{
-	int num;
-	int zone_num;
-	float coords[3];
-	float values[9];
-	float la;
-	float mu;
-	float rho;
-} MPIFacesNResponse;
-
-// structures to sync tetrahedrons
-typedef struct
-{
-	int face_num;
-	int zone_num;
-} MPITetrsRequest;
-
-typedef struct
-{
-	int verts[4];
-	int zone_num;
-	int face_num;
-} MPITetrsTResponse;
 
 class DataBus
 {
@@ -76,16 +50,8 @@ public:
 	// gets outlines from other procs and sends local meshes outline to all
 	// other procs
 	void sync_outlines();
-	// asynchronously checks for incoming messages
-	bool check_messages_async(int source, int *tags, MPI::Status &status);
-	// synchronously checks for incoming messages
-	void check_messages_sync(int source, int *tags, MPI::Status &status);
 	// terminates execution
 	void terminate();
-	// retreives remote tetrahedrons
-	void get_remote_tetrahedrons(vector<ElasticNode> &virtual_nodes, vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes);
-	// processed a message
-	void process_tetrs_sync_message(int source, int tag, vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes, int &resps_to_get, int &procs_to_sync);
 	// creates custom data types
 	void create_custom_types();
 	// sync faces in intersection
@@ -103,10 +69,7 @@ protected:
 	vector<int> zones_info;
 
 	// MPI tags
-	static const int TAG_SYNC_READY        =  0;
-	static const int TAG_SYNC_TIME_STEP    =  1;
 	static const int TAG_SYNC_NODE         =  2000;
-	static const int TAG_SYNC_OUTLINE      =  5;
 	static const int TAG_SYNC_FACES_REQ_Z  =  7;
 	static const int TAG_SYNC_FACES_REQ_I  =  20;
 	static const int TAG_SYNC_FACES_RESP   =  19;
@@ -117,16 +80,8 @@ protected:
 	static const int TAG_SYNC_TETRS_T_RESP = 13;
 	static const int TAG_SYNC_TETRS_N_RESP = 14;
 	static const int TAG_SYNC_TETRS_I_RESP = 21;
-	static const int TAG_SYNC_TETRS_DONE   = 15;
-	static const int TAG_SYNC_TETRS_R_END  = 16;
 	static const int TAG_SYNC_NODE_TYPES   = 17;
 	static const int TAG_SYNC_NODE_TYPES_I = 18;
-
-	// MPI tag classes
-	// FIXME
-	// google about const int* and  int const * and change the following
-	// declarations to static const int
-	static int TAG_CLASS_SYNC_TETRS[];
 
 	// MPI types
 	MPI::Datatype MPI_ELNODE;
@@ -134,9 +89,6 @@ protected:
 	MPI::Datatype MPI_FACE;
 	MPI::Datatype MPI_TETR;
 	MPI::Datatype MPI_OUTLINE;
-	MPI::Datatype MPI_TETRS_REQ;
-	MPI::Datatype MPI_FACES_N_RESP;
-	MPI::Datatype MPI_TETRS_T_RESP;
 	
 	MPI::Datatype **MPI_NODE_TYPES;
 
