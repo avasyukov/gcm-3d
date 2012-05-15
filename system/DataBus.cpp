@@ -489,6 +489,7 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 	
 	*logger < "Starting faces sync";
 	
+	*logger < "Sending intersections";
 	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
 		for (int j = 0; j < mesh_set->get_number_of_remote_meshes(); j++)
 		{
@@ -535,12 +536,14 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 		nt[i] = new MPI::Datatype[procs_total_num];
 	}
 	
+	*logger < "Receiving requests";
 	while (procs_to_sync)
 	{
 		MPI::COMM_WORLD.Recv(buff, 2, MPI::INT, MPI::ANY_SOURCE, TAG_SYNC_FACES_REQ_Z, status);
 		if (buff[0] == -1)
 		{
 			procs_to_sync--;
+			*logger << "Proc " << status.Get_source() < " synced";
 			continue;
 		}
 		int source = status.Get_source();
@@ -575,6 +578,8 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 		MPI::COMM_WORLD.Isend(&tmp[0]+tmp.size()-4, 4, MPI::INT, source, TAG_SYNC_FACES_RESP);
 	}
 	
+	*logger < "Requests received, sending responses";
+	
 	int max_len = 0;
 	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
 		for (int j = 0; j < procs_total_num; j++)
@@ -596,6 +601,7 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 				ft[i][j] = MPI_FACE.Create_indexed(fidx[i][j].size(), lens, &fidx[i][j][0]);
 				nt[i][j].Commit();
 				ft[i][j].Commit();
+				*logger << "Sending " << nidx[i][j].size() << " nodes and " << fidx[i][j].size() << " faces to proc " < j;
 				MPI::COMM_WORLD.Isend(
 					&mesh_set->get_local_mesh(i)->nodes[0],
 					1,
@@ -611,7 +617,7 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 					TAG_SYNC_FACES_F_RESP
 				);
 			}
-	
+	*logger < "Requests processed, getting responses";
 	MPI::COMM_WORLD.Barrier();
 	
 	for (int i = 0; i < mesh_set->get_number_of_remote_meshes(); i++)
@@ -667,6 +673,7 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 				get_proc_for_zone(i),
 				TAG_SYNC_FACES_N_RESP
 			);
+			*logger << "Got " << nn[i] << " nodes and " << fn[i] << " faces from proc " < get_proc_for_zone(i);
 		}
 				
 	
@@ -707,10 +714,13 @@ void DataBus::sync_tetrs()
 	
 	for (int i = 0; i < mesh_set->virt_nodes.size(); i++)
 		idx[mesh_set->virt_nodes[i].remote_zone_num].push_back(i);
-		
+
+	*logger < "Sending requests for tetrs";
+
 	for (int i = 0; i < zones_info.size(); i++)
 		if (idx[i].size())
 		{
+			*logger << "Requesting tetrs for " << idx[i].size() << " nodes from proc " < get_proc_for_zone(i);
 			MPI::COMM_WORLD.Isend(
 				&idx[i][0],
 				idx[i].size(),
@@ -737,10 +747,12 @@ void DataBus::sync_tetrs()
 			&tmp[0]+tmp.size()-2,
 			2,
 			MPI::INT,
-			get_proc_for_zone(i),
+			i,
 			TAG_SYNC_TETRS_REQ_I
 		);		
 	}
+	
+	*logger < "Tetrs requests sent";
 	
 	MPI::COMM_WORLD.Barrier();
 	
@@ -760,12 +772,14 @@ void DataBus::sync_tetrs()
 	}
 	
 	
+	*logger < "Receiving requests";
 	while (procs_to_sync)
 	{
 		MPI::COMM_WORLD.Recv(buff, 2, MPI::INT, MPI::ANY_SOURCE, TAG_SYNC_TETRS_REQ_I, status);
 		int zn = buff[0];
 		if (zn == -1)
 		{
+			*logger << "Proc " << status.Get_source() < " synced";
 			procs_to_sync--;
 			continue;
 		}
@@ -811,6 +825,7 @@ void DataBus::sync_tetrs()
 		}
 	}
 	
+	*logger < "Requests received, sending responses";
 	MPI::COMM_WORLD.Barrier();
 	
 	int max_len = 0;
@@ -835,6 +850,7 @@ void DataBus::sync_tetrs()
 				tt[i][j] = MPI_TETR.Create_indexed(tidx[i][j].size(), lens, &tidx[i][j][0]);
 				nt[i][j].Commit();
 				tt[i][j].Commit();
+				*logger << "Sending " << nidx[i][j].size() << " nodes and " << tidx[i][j].size() << " tetrs to proc " < j;
 				MPI::COMM_WORLD.Isend(
 					&mesh_set->get_mesh_by_zone_num(i)->nodes[0],
 					1,
@@ -861,6 +877,7 @@ void DataBus::sync_tetrs()
 				);
 			}
 	
+	*logger < "Requests processed, getting responses";
 	MPI::COMM_WORLD.Barrier();
 	
 	int cnt = 0;
@@ -892,6 +909,7 @@ void DataBus::sync_tetrs()
 			source,
 			TAG_SYNC_TETRS_T_RESP
 		);
+		*logger << "Got " << buff[1] << " nodes and " << buff[2] << " tetrs from proc " < source;
 	}
 	
 	MPI::COMM_WORLD.Barrier();
