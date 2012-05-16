@@ -52,8 +52,6 @@ void TetrMesh_1stOrder::add_tetr(Tetrahedron_1st_order* tetr)
 
 int TetrMesh_1stOrder::pre_process_mesh()
 {
-	if (!local)
-		return 0;
 	// Just to ensure loaded border was dropped
 	border.clear();
 
