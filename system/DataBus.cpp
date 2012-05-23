@@ -974,7 +974,7 @@ void DataBus::sync_tetrs()
 	int buff[3];
 	
 	for (int i = 0; i < mesh_set->virt_nodes.size(); i++)
-		idx[mesh_set->virt_nodes[i].remote_zone_num].push_back(i);
+		idx[mesh_set->virt_nodes[i].remote_zone_num].push_back(mesh_set->virt_nodes[i].remote_num);
 		
 	for (int i = 0; i < zones_info.size(); i++)
 		if (idx[i].size())
@@ -1143,6 +1143,7 @@ void DataBus::sync_tetrs()
 		TetrMesh_1stOrder *mesh = mesh_set->get_mesh_by_zone_num(buff[0]);
 		mesh->nodes.clear();
 		mesh->tetrs.clear();
+		mesh->border.clear();
 		mesh->nodes.resize(buff[1]);
 		mesh->tetrs.resize(buff[2]);
 		int source = status.Get_source();
