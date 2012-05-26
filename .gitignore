@@ -9,3 +9,4 @@ tools/*.bin
 gcm.log
 */snap_volume_*
 snap_volume_*
+build/*
