@@ -393,6 +393,8 @@ int TetrMeshSet::do_next_step()
 			}
 
 			// create links, etc
+			for(int i = 0; i < (remote_meshes[r]->nodes).size(); i++)
+				(remote_meshes[r]->nodes)[i].placement_type = LOCAL;
 			remote_meshes[r]->pre_process_mesh();
 		}
 
