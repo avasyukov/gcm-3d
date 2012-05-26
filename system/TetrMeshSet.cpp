@@ -24,7 +24,7 @@ void TetrMeshSet::attach(TetrMesh_1stOrder* new_mesh)
 {
 	if(new_mesh != NULL) {
 		new_mesh->attach(logger);
-		new_mesh->attach_data_bus(data_bus);
+//		new_mesh->attach_data_bus(data_bus);
 		new_mesh->attach(stresser);
 		new_mesh->attach(rheology);
 		// FIXME - never ever do it! We need separate copy of method class for each mesh - see below.
@@ -51,8 +51,8 @@ void TetrMeshSet::attach(DataBus* new_data_bus)
 
 	data_bus->attach(this);
 
-	for(int i = 0; i < local_meshes.size(); i++)
-		local_meshes[i]->attach_data_bus(new_data_bus);
+//	for(int i = 0; i < local_meshes.size(); i++)
+//		local_meshes[i]->attach_data_bus(new_data_bus);
 
 //	// initialize remote nodes store
 //	FIXME
