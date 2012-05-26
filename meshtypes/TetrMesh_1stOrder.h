@@ -21,7 +21,7 @@ public:
 	TetrMesh_1stOrder();
 	~TetrMesh_1stOrder();
 
-	void attach_data_bus(DataBus* new_data_bus);
+//	void attach_data_bus(DataBus* new_data_bus);
 
 	int load_msh_file(char* file_name);
 	int load_node_ele_files(char* node_file_name, char* ele_file_name);
@@ -88,7 +88,7 @@ private:
 
 	vector<ElasticNode> new_nodes;
 
-	DataBus* data_bus;
+//	DataBus* data_bus;
 
 	quick_math qm_engine;
 };
