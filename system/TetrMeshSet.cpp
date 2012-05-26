@@ -366,7 +366,8 @@ int TetrMeshSet::do_next_step()
 		// process synced data for remote meshes
 		for (int r = 0; r < remote_meshes.size(); r++)
 		{
-			*logger << "Remote mesh #" << remote_meshes[r]->zone_num < " Pre-processing virtual mesh";
+			*logger << "Remote mesh #" << remote_meshes[r]->zone_num << " Pre-processing virtual mesh. "
+					<< "Tetrs: " << (remote_meshes[r]->tetrs).size() << " Nodes: " < (remote_meshes[r]->nodes).size();
 
 			// renumber everything
 			for(int i = 0; i < (remote_meshes[r]->tetrs).size(); i++)
@@ -393,9 +394,17 @@ int TetrMeshSet::do_next_step()
 			}
 
 			// create links, etc
+			remote_meshes[r]->attach(logger);
 			for(int i = 0; i < (remote_meshes[r]->nodes).size(); i++)
 				(remote_meshes[r]->nodes)[i].placement_type = LOCAL;
 			remote_meshes[r]->pre_process_mesh();
+
+			// debug print for tetr sync
+//			*logger << "BORDER size " < remote_meshes[r]->border.size();
+//			for(int i = 0; i < (remote_meshes[r]->nodes).size(); i++)
+//				*logger << "Node " << i << " abs num " << (remote_meshes[r]->nodes)[i].absolute_num << " coords: " 
+//						<< (remote_meshes[r]->nodes)[i].coords[0] << " "
+//						<< (remote_meshes[r]->nodes)[i].coords[1] << " " < (remote_meshes[r]->nodes)[i].coords[2];
 		}
 
 		// calculation for local meshes
@@ -411,16 +420,19 @@ int TetrMeshSet::do_next_step()
 					if(local_meshes[l]->nodes[i].contact_data->axis_plus[0] != -1)
 					{
 						ElasticNode *vnode = getNode( local_meshes[l]->nodes[i].contact_data->axis_plus[0] );
-						*logger << "Looking for remote mesh with rnum: " < vnode->remote_zone_num;
+//						*logger << "Looking for remote mesh with rnum: " < vnode->remote_zone_num;
 						vnode->mesh = get_mesh_by_zone_num(vnode->remote_zone_num);
 						if(vnode->mesh == NULL)
 							throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find remote zone for vnode");
 
-						*logger << "Looking for node with num: " < vnode->absolute_num;
+//						*logger << "Looking for node with num: " < vnode->absolute_num;
 						bool node_found = false;
 						for(int z = 0; z < (vnode->mesh->nodes).size(); z++)
 							if((vnode->mesh->nodes)[z].absolute_num == vnode->absolute_num)
 							{
+//						*logger << "DEBUG VNODE " << (vnode->mesh->nodes)[z].placement_type << " " 
+//							<< (vnode->mesh->nodes)[z].elements->size() 
+//							<< " " < (vnode->mesh->nodes)[z].border_elements->size();
 								node_found = true;
 								vnode->placement_type = LOCAL;
 								vnode->border_type = BORDER;
