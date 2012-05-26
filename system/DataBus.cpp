@@ -713,7 +713,8 @@ void DataBus::sync_tetrs()
 	int buff[3];
 	
 	for (int i = 0; i < mesh_set->virt_nodes.size(); i++)
-		idx[mesh_set->virt_nodes[i].remote_zone_num].push_back(mesh_set->virt_nodes[i].remote_num);
+		if (get_proc_for_zone(mesh_set->virt_nodes[i].remote_zone_num) != proc_num)
+			idx[mesh_set->virt_nodes[i].remote_zone_num].push_back(mesh_set->virt_nodes[i].remote_num);
 
 	*logger < "Sending requests for tetrs";
 
