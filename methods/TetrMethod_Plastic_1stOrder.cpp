@@ -198,7 +198,11 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::do_next_part_step(Elast
 	// Limiters for values[] of new node. Used to trigger alarm on potential instabilities.
 	float value_limiters[9];
 	for(int i = 0; i < 9; i++)
+	{
+		if( isnan(cur_node->values[i]) || isinf(cur_node->values[i]) )
+			throw GCMException(GCMException::METHOD_EXCEPTION, "NAN or INF detected. Instability?");
 		value_limiters[i] = fabs(cur_node->values[i]);
+	}
 
 	if(stage == 3) {
 		drop_deviator(cur_node, new_node);
