@@ -263,7 +263,8 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 				float dy = atof( etrans->Attribute("y") );
 				float dz = atof( etrans->Attribute("z") );
 				for(int i = 0; i < mesh_zones.size(); i++ )
-					mesh_zones[i]->translate(dx, dy, dz);
+					if( mesh_zones[i]->local )
+						mesh_zones[i]->translate(dx, dy, dz);
 			}
 			etrans = etrans->NextSiblingElement("transform");
 		}
