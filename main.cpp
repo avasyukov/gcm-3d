@@ -142,7 +142,11 @@ int main(int argc, char **argv)
 		// Create snapshot writer
 		SnapshotWriter* sw = NULL;
 		if (dump)
+		{
 			sw = new SnapshotWriter(res_dir);
+			if (sw->dump_vtk(mesh_set, 0) < 0)
+				return -1;
+		}
 
 		// Do calculation
 		float cur_time;
