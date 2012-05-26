@@ -431,6 +431,7 @@ int TetrMesh_1stOrder::load_node_ele_files(char* node_file_name, char* ele_file_
 		if(new_node.local_num > 0)
 		{
 			new_node.local_num--;
+			new_node.absolute_num = new_node.local_num;
 			node_infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
 			new_node.placement_type = LOCAL;
 			new_node.border_type = INNER;
@@ -518,6 +519,7 @@ int TetrMesh_1stOrder::load_gmv_file(char* file_name)
 		new_node.contact_type = FREE;
 
 		new_node.local_num = count - 1;
+		new_node.absolute_num = new_node.local_num;
 		infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
 
 		new_node.mesh = this;
@@ -611,6 +613,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 		if(new_node.local_num > 0)
 		{
 			new_node.local_num--;
+			new_node.absolute_num = new_node.local_num;
 			new_node.local_zone_num = zone_num;
 			infile >> new_node.coords[0] >> new_node.coords[1] >> new_node.coords[2];
 			new_node.placement_type = LOCAL;
@@ -620,6 +623,7 @@ int TetrMesh_1stOrder::load_msh_file(char* file_name)
 		{
 			new_node.local_num = -new_node.local_num;
 			new_node.local_num--;
+			new_node.absolute_num = new_node.local_num;
 			new_node.local_zone_num = zone_num;
 			infile >> new_node.remote_zone_num >> new_node.remote_num;
 			new_node.remote_num--;
