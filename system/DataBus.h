@@ -86,8 +86,8 @@ protected:
 	// MPI types
 	MPI::Datatype MPI_ELNODE;
 	MPI::Datatype MPI_ELNODE_NUMBERED;
-	MPI::Datatype MPI_FACE;
-	MPI::Datatype MPI_TETR;
+	MPI::Datatype MPI_FACE_NUMBERED;
+	MPI::Datatype MPI_TETR_NUMBERED;
 	MPI::Datatype MPI_OUTLINE;
 	
 	MPI::Datatype **MPI_NODE_TYPES;

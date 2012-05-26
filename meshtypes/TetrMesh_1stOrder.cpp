@@ -1897,7 +1897,6 @@ bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, fl
 	float l3 = 1-l2-l1;
 
 	// interpolate
-	// FIXME - we use the knowledge that la,mu,rho,yield_limit are placed in memmory directly after values[9]
 	for(int i = 0; i < 13; i++)
 		v[i] = l1*v1[i] + l2*v2[i] + l3*v3[i];
 

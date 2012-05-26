@@ -78,7 +78,7 @@ int DataBus::sync_nodes()
 				if (dest == proc_num)
 				{
 					ElasticNode *node= mesh_set->get_mesh_by_zone_num(mesh->nodes[j].remote_zone_num)->get_node(mesh->nodes[j].remote_num);
-					memcpy(mesh->nodes[j].values, node->values, 9*sizeof(float));
+					memcpy(mesh->nodes[j].values, node->values, 13*sizeof(float));
 					memcpy(mesh->nodes[j].coords, node->coords, 3*sizeof(float));
 				}
 			}
@@ -233,7 +233,7 @@ void DataBus::create_custom_types() {
 	for (int i = 3; i >= 0; i--)
 		face_displ[i] -= face_displ[0];
 	
-	MPI_FACE = MPI::Datatype::Create_struct(
+	MPI_FACE_NUMBERED = MPI::Datatype::Create_struct(
 		4,
 		face_lens,
 		face_displ,
@@ -265,7 +265,7 @@ void DataBus::create_custom_types() {
 	for (int i = 3; i >= 0; i--)
 		tetr_displ[i] -= tetr_displ[0];
 	
-	MPI_TETR = MPI::Datatype::Create_struct(
+	MPI_TETR_NUMBERED = MPI::Datatype::Create_struct(
 		4,
 		tetr_lens,
 		tetr_displ,
@@ -306,15 +306,12 @@ void DataBus::create_custom_types() {
 		MPI::LB,
 		MPI::FLOAT,
 		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::FLOAT,
 		MPI::UB
 	};
 	
 	int elnode_lens[] = {
 		1,
-		9,
+		13,
 		3,
 		1,
 		1,
@@ -326,16 +323,13 @@ void DataBus::create_custom_types() {
 		MPI::Get_address(&elnodes[0]),
 		MPI::Get_address(&elnodes[0].values[0]),
 		MPI::Get_address(&elnodes[0].coords[0]),
-		MPI::Get_address(&elnodes[0].rho),
-		MPI::Get_address(&elnodes[0].la),
-		MPI::Get_address(&elnodes[0].mu),
 		MPI::Get_address(&elnodes[1])
 	};
-	for (int i = 6; i >= 0; i--)
+	for (int i = 3; i >= 0; i--)
 		elnode_displs[i] -= elnode_displs[0];
 	
 	MPI_ELNODE = MPI::Datatype::Create_struct(
-		7,
+		4,
 		elnode_lens,
 		elnode_displs,
 		elnode_types
@@ -347,20 +341,14 @@ void DataBus::create_custom_types() {
 		MPI::INT,
 		MPI::FLOAT,
 		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::FLOAT,
-		MPI::FLOAT,
 		MPI::UB
 	};
 	
 	int elnoden_lens[] = {
 		1,
 		1,
-		9,
+		13,
 		3,
-		1,
-		1,
-		1,
 		1
 	};
 	
@@ -369,16 +357,13 @@ void DataBus::create_custom_types() {
 		MPI::Get_address(&elnodes[0].local_num),
 		MPI::Get_address(&elnodes[0].values[0]),
 		MPI::Get_address(&elnodes[0].coords[0]),
-		MPI::Get_address(&elnodes[0].rho),
-		MPI::Get_address(&elnodes[0].la),
-		MPI::Get_address(&elnodes[0].mu),
 		MPI::Get_address(&elnodes[1])
 	};
-	for (int i = 7; i >= 0; i--)
+	for (int i = 4; i >= 0; i--)
 		elnoden_displs[i] -= elnoden_displs[0];
 	
 	MPI_ELNODE_NUMBERED = MPI::Datatype::Create_struct(
-		8,
+		5,
 		elnoden_lens,
 		elnoden_displs,
 		elnoden_types
@@ -472,8 +457,8 @@ void DataBus::create_custom_types() {
 					*logger << "Nodes in zone " << j << " for zone " << i << " " <  local_numbers[i][j].size();
 
 	MPI_ELNODE_NUMBERED.Commit();
-	MPI_FACE.Commit();
-	MPI_TETR.Commit();
+	MPI_FACE_NUMBERED.Commit();
+	MPI_TETR_NUMBERED.Commit();
 	MPI_OUTLINE.Commit();
 	
 	*logger < "Custom data types created";
@@ -598,7 +583,7 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 			if (nidx[i][j].size())
 			{
 				nt[i][j] = MPI_ELNODE_NUMBERED.Create_indexed(nidx[i][j].size(), lens, &nidx[i][j][0]);
-				ft[i][j] = MPI_FACE.Create_indexed(fidx[i][j].size(), lens, &fidx[i][j][0]);
+				ft[i][j] = MPI_FACE_NUMBERED.Create_indexed(fidx[i][j].size(), lens, &fidx[i][j][0]);
 				nt[i][j].Commit();
 				ft[i][j].Commit();
 				*logger << "Sending " << nidx[i][j].size() << " nodes and " << fidx[i][j].size() << " faces to proc " < j;
@@ -662,7 +647,7 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 			MPI::COMM_WORLD.Recv(
 				&mesh->border[0],
 				fn[i],
-				MPI_FACE,
+				MPI_FACE_NUMBERED,
 				get_proc_for_zone(i),
 				TAG_SYNC_FACES_F_RESP
 			);
@@ -848,7 +833,7 @@ void DataBus::sync_tetrs()
 			if (tidx[i][j].size())
 			{
 				nt[i][j] = MPI_ELNODE_NUMBERED.Create_indexed(nidx[i][j].size(), lens, &nidx[i][j][0]);
-				tt[i][j] = MPI_TETR.Create_indexed(tidx[i][j].size(), lens, &tidx[i][j][0]);
+				tt[i][j] = MPI_TETR_NUMBERED.Create_indexed(tidx[i][j].size(), lens, &tidx[i][j][0]);
 				nt[i][j].Commit();
 				tt[i][j].Commit();
 				*logger << "Sending " << nidx[i][j].size() << " nodes and " << tidx[i][j].size() << " tetrs to proc " < j;
@@ -907,7 +892,7 @@ void DataBus::sync_tetrs()
 		MPI::COMM_WORLD.Recv(
 			&mesh->tetrs[0],
 			buff[2],
-			MPI_TETR,
+			MPI_TETR_NUMBERED,
 			source,
 			TAG_SYNC_TETRS_T_RESP
 		);

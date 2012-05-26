@@ -20,11 +20,26 @@ class ElasticNode : public Node
 *	float fixed_coords[3];
 */
 public:
-	float values[9];	// 3 velocity components and 6 tension tensor components
-	float la;	// TODO If la and mu should be replaced with some ID of rheology class???
-	float mu;	//
-	float rho;
-	float yield_limit;
+	union
+	{
+		float values[13];
+		struct
+		{
+			float vx;
+			float vy;
+			float vz;
+			float sxx;
+			float sxy;
+			float sxz;
+			float syy;
+			float syz;
+			float szz;
+			float la;	// TODO If la and mu should be replaced with some ID of rheology class???
+			float mu;	//
+			float rho;
+			float yield_limit;
+		};
+	};
 	vector<int>* elements;
 	vector<int>* border_elements;
 	TetrMesh_1stOrder* mesh;
