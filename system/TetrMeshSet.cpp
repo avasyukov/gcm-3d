@@ -409,11 +409,8 @@ int TetrMeshSet::do_next_step()
 					if(local_meshes[l]->nodes[i].contact_data->axis_plus[0] != -1)
 					{
 						ElasticNode *vnode = getNode( local_meshes[l]->nodes[i].contact_data->axis_plus[0] );
-						vnode->mesh = NULL;
 						*logger << "Looking for remote mesh with rnum: " < vnode->remote_zone_num;
-						for(int r = 0; r < remote_meshes.size(); r++)
-							if(remote_meshes[r]->zone_num == vnode->remote_zone_num)
-								vnode->mesh = remote_meshes[r];
+						vnode->mesh = get_mesh_by_zone_num(vnode->remote_zone_num);
 						if(vnode->mesh == NULL)
 							throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find remote zone for vnode");
 
