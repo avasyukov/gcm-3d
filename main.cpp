@@ -18,7 +18,8 @@ void print_help()
 		<< "\t--zones - xml file with mapping between mesh zones and CPUs, defaults to ./zones.xml\n"
 		<< "\t--data-dir - where gcm3d will look for models specified in task.xml, defaults to ./\n"
 		<< "\t--result-dir - where gcm3d will save snapshots, defaults to ./\n"
-		<< "\t--log-file - file to write all output, defaults to stdout\n\n";
+		<< "\t--log-file - file to write all output, defaults to stdout\n"
+		<< "\t--no-dumps - disable snapshots for benchmarking purposes\n\n";
 };
 
 int main(int argc, char **argv)
