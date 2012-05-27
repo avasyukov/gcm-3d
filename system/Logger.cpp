@@ -35,7 +35,13 @@ Logger::~Logger()
 
 void Logger::write(string str)
 {
-	*outs << "PE #" << proc_num << ": " << str << endl;
+	time_t now = time(0);
+	struct tm tstruct;
+	char buf[80];
+	tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%d/%m/%Y %X", &tstruct);
+
+	*outs << buf << " PE #" << proc_num << ": " << str << endl;
 };
 
 string* Logger::get_logger_type()
