@@ -50,6 +50,7 @@ protected:
 	ofstream *outs;
 	string logger_type;
 	stringstream ss;
+	string fname;
 	int proc_num;
 };
 
