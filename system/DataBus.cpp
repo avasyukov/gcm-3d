@@ -656,10 +656,7 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 	MPI::COMM_WORLD.Barrier();
 	
 	for (int i = 0; i < mesh_set->get_number_of_remote_meshes(); i++)
-	{
-		mesh_set->get_remote_mesh(i)->nodes.clear();
-		mesh_set->get_remote_mesh(i)->border.clear();
-	}
+		mesh_set->get_remote_mesh(i)->clear_data();
 	
 	vector<int> fn;
 	vector<int> nn;
@@ -939,9 +936,7 @@ void DataBus::sync_tetrs()
 	{
 		MPI::COMM_WORLD.Recv(buff, 3, MPI::INT, MPI::ANY_SOURCE, TAG_SYNC_TETRS_I_RESP, status);
 		TetrMesh_1stOrder *mesh = mesh_set->get_mesh_by_zone_num(buff[0]);
-		mesh->nodes.clear();
-		mesh->tetrs.clear();
-		mesh->border.clear();
+		mesh->clear_data();
 		mesh->nodes.resize(buff[1]);
 		mesh->tetrs.resize(buff[2]);
 		int source = status.Get_source();

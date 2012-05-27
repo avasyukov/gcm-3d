@@ -69,6 +69,7 @@ public:
 	int do_next_part_step(float tau, int stage);
 	void move_coords(float tau);
 	int proceed_rheology();
+	void clear_data();
 
 private:
 	int check_triangle_to_be_border(int v1, int v2, int v3, int tetr_vert, float step_h);

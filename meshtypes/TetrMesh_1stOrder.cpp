@@ -8,12 +8,23 @@ TetrMesh_1stOrder::TetrMesh_1stOrder()
 
 TetrMesh_1stOrder::~TetrMesh_1stOrder()
 {
+	clear_data();
+};
+
+void TetrMesh_1stOrder::clear_data()
+{
 	for(int i = 0; i < nodes.size(); i++)
 	{
 		if(nodes[i].contact_data != NULL)
 			free(nodes[i].contact_data);
-		nodes[i].elements->clear();
-		nodes[i].border_elements->clear();
+		if(nodes[i].elements != NULL) {
+			nodes[i].elements->clear();
+			delete nodes[i].elements;
+		}
+		if(nodes[i].border_elements != NULL) {
+			nodes[i].border_elements->clear();
+			delete nodes[i].border_elements;
+		}
 	}
 	nodes.clear();
 	new_nodes.clear();

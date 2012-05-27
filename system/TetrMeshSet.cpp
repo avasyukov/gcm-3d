@@ -131,6 +131,9 @@ int TetrMeshSet::do_next_step()
 	// Clear virtual nodes because they change between time steps
 	virt_nodes.clear();
 
+	for (int i = 0; i < remote_meshes.size(); i++)		
+		remote_meshes[i]->clear_data();
+
 	// FIXME
 	// all collisions-related code should be moved to the method of
 	// CollisionDetector implementation; a proper class hierarchy should be
@@ -231,10 +234,7 @@ int TetrMeshSet::do_next_step()
 				inters[i][j].min_coords[0] = inters[i][j].max_coords[0] = 0.0;
 	
 	for (int i = 0; i < remote_meshes.size(); i++)		
-	{
-		remote_meshes[i]->border.clear();
-		remote_meshes[i]->nodes.clear();
-	}
+		remote_meshes[i]->clear_data();
 		
 	data_bus->sync_faces_in_intersection(inters, fs, fl);
 	for (int i = 0; i < remote_meshes.size(); i++)
@@ -330,6 +330,9 @@ int TetrMeshSet::do_next_step()
 	delete[] fl;
 	
 	*logger < "Local/remote collisions processed";
+
+	for (int i = 0; i < remote_meshes.size(); i++)		
+		remote_meshes[i]->clear_data();
 
 	// number of stages for current numerical method
 	int number_of_stages;
