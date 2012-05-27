@@ -29,6 +29,8 @@ public:
 	void find_faces_in_intersection(vector<Triangle> &faces, vector<ElasticNode> &nodes, MeshOutline &intersection, vector<int> &result);
 	// number returned surface elements (nodes and triangles) sequentially
 	void renumber_surface(vector<Triangle> &faces, vector<ElasticNode> &nodes);
+	// returns surface elements (nodes and triangles) renumbered sequentially
+	void renumber_volume(vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes);
 	// finds collisions between nodes and faces 
 	// FIXME
 	// it seems this function is not ElasticNode-specific

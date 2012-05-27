@@ -98,18 +98,58 @@ void CollisionDetector::find_faces_in_intersection(vector<Triangle> &faces, vect
 
 void CollisionDetector::renumber_surface(vector<Triangle> &faces, vector<ElasticNode> &nodes)
 {
+	int max_node_num = -1;
+	for(int k = 0; k < nodes.size(); k++)
+		if( nodes[k].local_num > max_node_num )
+			max_node_num = nodes[k].local_num;
+
+	int *renum = (int*) malloc( max_node_num * sizeof(int) );
+	memset(renum, 0, max_node_num * sizeof(int));
+
+	for(int k = 0; k < nodes.size(); k++)
+		renum[ nodes[k].local_num ] = k + 1;	// +1 to avoid misinterpreting with zeroed memory
+
 	for(int i = 0; i < faces.size(); i++) {
 		for(int j = 0; j < 3; j++) {
-			bool node_found = false;
-			for(int k = 0; k < nodes.size(); k++) {
-				if(faces[i].vert[j] == nodes[k].local_num) {
-					faces[i].vert[j] = k;
-					node_found = true;
-					break;
-				}
-			}
-			if( ! node_found )
+			faces[i].vert[j] = renum[ faces[i].vert[j] ] - 1;
+			if( faces[i].vert[j] < 0 )
 				throw GCMException( GCMException::COLLISION_EXCEPTION, "Can not create correct numbering for surface");
 		}
 	}
+
+	free(renum);
+}
+
+void CollisionDetector::renumber_volume(vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes)
+{
+	int max_node_num = -1;
+	for(int k = 0; k < nodes.size(); k++)
+		if( nodes[k].local_num > max_node_num )
+			max_node_num = nodes[k].local_num;
+
+	int *renum = (int*) malloc( max_node_num * sizeof(int) );
+	memset(renum, 0, max_node_num * sizeof(int));
+
+	for(int k = 0; k < nodes.size(); k++)
+		renum[ nodes[k].local_num ] = k + 1;	// +1 to avoid misinterpreting with zeroed memory
+
+	for(int i = 0; i < tetrs.size(); i++)
+	{
+		tetrs[i].absolute_num = tetrs[i].local_num;
+		tetrs[i].local_num = i;
+		for(int j = 0; j < 4; j++) {
+			tetrs[i].vert[j] = renum[ tetrs[i].vert[j] ] - 1;
+			if( tetrs[i].vert[j] < 0 )
+				throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't create correct numbering for volume");
+		}
+	}
+
+	for(int i = 0; i < nodes.size(); i++)
+	{
+		nodes[i].absolute_num = nodes[i].local_num;
+		nodes[i].local_num = i;
+		nodes[i].placement_type = LOCAL;
+	}
+
+	free(renum);
 }

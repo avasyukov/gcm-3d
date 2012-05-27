@@ -372,34 +372,8 @@ int TetrMeshSet::do_next_step()
 			*logger << "Remote mesh #" << remote_meshes[r]->zone_num << " Pre-processing virtual mesh. "
 					<< "Tetrs: " << (remote_meshes[r]->tetrs).size() << " Nodes: " < (remote_meshes[r]->nodes).size();
 
-			// renumber everything
-			for(int i = 0; i < (remote_meshes[r]->tetrs).size(); i++)
-			{
-				(remote_meshes[r]->tetrs)[i].absolute_num = (remote_meshes[r]->tetrs)[i].local_num;
-				(remote_meshes[r]->tetrs)[i].local_num = i;
-				for(int j = 0; j < 4; j++) {
-					bool node_found = false;
-					for(int k = 0; k < (remote_meshes[r]->nodes).size(); k++) {
-						if((remote_meshes[r]->tetrs)[i].vert[j] == (remote_meshes[r]->nodes)[k].local_num) {
-							(remote_meshes[r]->tetrs)[i].vert[j] = k;
-							node_found = true;
-							break;
-						}
-					}
-					if( !node_found )
-						throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't create correct numbering for volume");
-				}
-			}
-			for(int i = 0; i < (remote_meshes[r]->nodes).size(); i++)
-			{
-				(remote_meshes[r]->nodes)[i].absolute_num = (remote_meshes[r]->nodes)[i].local_num;
-				(remote_meshes[r]->nodes)[i].local_num = i;
-			}
-
-			// create links, etc
+			collision_detector->renumber_volume(remote_meshes[r]->tetrs, remote_meshes[r]->nodes);
 			remote_meshes[r]->attach(logger);
-			for(int i = 0; i < (remote_meshes[r]->nodes).size(); i++)
-				(remote_meshes[r]->nodes)[i].placement_type = LOCAL;
 			remote_meshes[r]->pre_process_mesh();
 
 			// debug print for tetr sync
