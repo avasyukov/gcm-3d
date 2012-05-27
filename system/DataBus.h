@@ -59,6 +59,7 @@ public:
 	// sync tetrs
 	void sync_tetrs();
 protected:
+	MPI::Errhandler error_handler;
 	vector<int> **local_numbers;
 	TetrMeshSet* mesh_set;
 	CollisionDetector *collision_detector;
