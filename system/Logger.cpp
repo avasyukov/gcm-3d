@@ -4,7 +4,7 @@ Logger::Logger()
 {
 	logger_type.assign("Generic logger");
 	// set defautl options
-	outs = new ofstream("/dev/stdout", fstream::app);
+	fname = "/dev/stdout";
 	ss.setf(ios::fixed,ios::floatfield);
 	ss.precision(10);
 }
@@ -16,7 +16,7 @@ Logger::Logger(string filename)
 	ss.setf(ios::fixed,ios::floatfield);
 	ss.precision(10);
 
-	outs = new ofstream(filename.c_str(), fstream::app);
+	fname = filename;
 }
 
 Logger::Logger(Logger &logger)
@@ -46,6 +46,9 @@ string* Logger::get_logger_type()
 void Logger::set_proc_num(int proc_num)
 {
 	this->proc_num = proc_num;
+	char filename[1000];
+	sprintf(filename, fname.c_str(), proc_num);
+	outs = new ofstream(filename, fstream::app);	
 }
 stringstream &Logger::get_ss()
 {
