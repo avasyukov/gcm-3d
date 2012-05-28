@@ -70,6 +70,25 @@ void CollisionDetector::find_nodes_in_intersection(vector<ElasticNode> &nodes, M
 		}
 }
 
+void CollisionDetector::find_nodes_in_intersection(vector<ElasticNode> &nodes, MeshOutline &intersection, vector<int> &result)
+{
+	for (int i = 0; i < nodes.size(); i++)
+		// FIXME
+		// only local nodes?
+		if (nodes[i].placement_type == LOCAL)
+		{
+			bool flag = true;
+			for (int j = 0; j < 3; j++)
+				if (nodes[i].coords[j] < intersection.min_coords[j] || nodes[i].coords[j] > intersection.max_coords[j])
+				{
+					flag = false;
+					break;
+				}
+			if (flag)
+				result.push_back(i);
+		}
+}
+
 void CollisionDetector::find_faces_in_intersection(vector<Triangle> &faces, vector<ElasticNode> &nodes, MeshOutline &intersection, vector<Triangle> &result)
 {
 	for (int i = 0; i < faces.size(); i++)
