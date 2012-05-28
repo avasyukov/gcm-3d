@@ -2,83 +2,83 @@
 
 CollisionDetectorForLayers::CollisionDetectorForLayers()
 {
-	logger = NULL;
 	index_shift = -1;
 	shift_direction = -1;
 };
 
 CollisionDetectorForLayers::~CollisionDetectorForLayers() { };
 
-void CollisionDetectorForLayers::attach(Logger* new_logger)
+void CollisionDetectorForLayers::find_collisions(vector<ElasticNode> &virt_nodes)
 {
-	logger = new_logger;
-};
+	if( data_bus == NULL )
+		throw GCMException( GCMException::COLLISION_EXCEPTION, "DataBus is not attached!");
+	if( mesh_set == NULL )
+		throw GCMException( GCMException::COLLISION_EXCEPTION, "MeshSet is not attached!");
 
-void CollisionDetectorForLayers::set_treshold(float value)
-{
-	treshold = value;
-};
+	vector<int> local_nodes;
 
-int CollisionDetectorForLayers::find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2, vector<ElasticNode>* virt_nodes, float time_step)
-{
-	mesh1_nodes.clear();
-	mesh2_nodes.clear();
+	*logger < "Processing collisions";
 
-	MeshOutline outline1 = mesh1->outline;
-	MeshOutline outline2 = mesh2->outline;
+	// sync meshes outlines
+	data_bus->sync_outlines();
 
-	*logger < "Mesh outline 1:";
-	*logger << "MinX: " < outline1.min_coords[0];
-	*logger << "MaxX: " < outline1.max_coords[0];
-	*logger << "MinY: " < outline1.min_coords[1];
-	*logger << "MaxY: " < outline1.max_coords[1];
-	*logger << "MinZ: " < outline1.min_coords[2];
-	*logger << "MaxZ: " < outline1.max_coords[2];
-
-	*logger < "Mesh outline 2:";
-	*logger << "MinX: " < outline2.min_coords[0];
-	*logger << "MaxX: " < outline2.max_coords[0];
-	*logger << "MinY: " < outline2.min_coords[1];
-	*logger << "MaxY: " < outline2.max_coords[1];
-	*logger << "MinZ: " < outline2.min_coords[2];
-	*logger << "MaxZ: " < outline2.max_coords[2];
-
-	MeshOutline intersect;
-
-	bool colliding = true;
-	for(int j = 0; j < 3; j++) {
-		intersect.min_coords[j] = fmaxf(outline1.min_coords[j] - treshold, outline2.min_coords[j] - treshold);
-		intersect.max_coords[j] = fminf(outline1.max_coords[j] + treshold, outline2.max_coords[j] + treshold);
-		if(intersect.min_coords[j] > intersect.max_coords[j])
-			colliding = false;
+	MeshOutline **inters = new MeshOutline*[mesh_set->get_number_of_local_meshes()];
+	int **fs = new int*[mesh_set->get_number_of_local_meshes()];
+	int **fl = new int*[mesh_set->get_number_of_local_meshes()];
+	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
+	{
+		inters[i] = new MeshOutline[mesh_set->get_number_of_remote_meshes()];
+		fs[i] = new int[mesh_set->get_number_of_remote_meshes()];
+		fl[i] = new int[mesh_set->get_number_of_remote_meshes()];
 	}
 
-	if(!colliding) {
-		*logger < "Not colliding";
-		return 0;
+	// check outlines to determine possible collisions
+	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
+		for (int j = 0; j < mesh_set->get_number_of_remote_meshes(); j++)
+			if (find_intersection(mesh_set->get_local_mesh(i)->outline, mesh_set->get_remote_mesh(j)->outline, inters[i][j]))
+				*logger << "Collision detected between mesh zone #" << mesh_set->get_local_mesh(i)->zone_num 
+							<< " and mesh zone #" < mesh_set->get_remote_mesh(j)->zone_num;
+			else
+				inters[i][j].min_coords[0] = inters[i][j].max_coords[0] = 0.0;
+
+	// sync and process faces in intersection
+	data_bus->sync_faces_in_intersection(inters, fs, fl);
+
+	for (int i = 0; i < mesh_set->get_number_of_remote_meshes(); i++)
+		renumber_surface(mesh_set->get_remote_mesh(i)->border, mesh_set->get_remote_mesh(i)->nodes);
+
+	// process collisions
+	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
+		for (int j = 0; j < mesh_set->get_number_of_remote_meshes(); j++)	
+			if( inters[i][j].min_coords[0] != inters[i][j].max_coords[0] )
+			{
+				TetrMesh_1stOrder* mesh1 = mesh_set->get_local_mesh(i);
+				TetrMesh_1stOrder* mesh2 = mesh_set->get_remote_mesh(j);
+
+				// If it is the first run - process mesh once and find and remember index_shift
+				if(index_shift < 0 )
+					find_index_shift(mesh1, mesh2);
+
+				// Find nodes in intersection and process them
+				find_nodes_in_intersection(mesh1->nodes, inters[i][j], local_nodes);
+//for(int z = 0; z < local_nodes.size(); z++)
+//	*logger << "LOCAL NODE: " < local_nodes[z];
+				process_mesh(local_nodes, mesh1, mesh2, virt_nodes);
+
+				local_nodes.clear();
+			}
+
+	for (int i = 0; i < mesh_set->get_number_of_local_meshes(); i++)
+	{
+		delete[] inters[i];
+		delete[] fs[i];
+		delete[] fl[i];
 	}
+	delete[] inters;
+	delete[] fs;
+	delete[] fl;
 
-	*logger < "Colliding!";
-	*logger < "Intersection:";
-	*logger << "MinX: " < intersect.min_coords[0];
-	*logger << "MaxX: " < intersect.max_coords[0];
-	*logger << "MinY: " < intersect.min_coords[1];
-	*logger << "MaxY: " < intersect.max_coords[1];
-	*logger << "MinZ: " < intersect.min_coords[2];
-	*logger << "MaxZ: " < intersect.max_coords[2];
-
-	// If it is the first run - process mesh once and find and remember index_shift
-	if(index_shift < 0 )
-		find_index_shift(mesh1, mesh2);
-
-	// Find nodes in intersection to check them in details later
-	find_nodes_in_intersect(mesh1, &intersect, &mesh1_nodes);
-	find_nodes_in_intersect(mesh2, &intersect, &mesh2_nodes);
-
-	process_mesh(&mesh1_nodes, mesh1, mesh2, virt_nodes);
-	process_mesh(&mesh2_nodes, mesh2, mesh1, virt_nodes);
-
-	return 0;
+	*logger < "Collisions processed";
 };
 
 void CollisionDetectorForLayers::find_index_shift(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2)
@@ -148,39 +148,20 @@ void CollisionDetectorForLayers::find_index_shift(TetrMesh_1stOrder* mesh1, Tetr
 		}
 	}
 
-	*logger << "DEBUG: Treshold " < treshold;
 	*logger << "DEBUG: Layer shift direction " < shift_direction;
 	*logger << "DEBUG: Layer shift value " < shift_value;
 	*logger << "DEBUG: Resulting node index delta " < index_shift;
 };
 
-void CollisionDetectorForLayers::find_nodes_in_intersect(TetrMesh_1stOrder* mesh, MeshOutline* intersect, vector<int>* nodes_vector)
-{
-	for(int i = 0; i < (mesh->nodes).size(); i++) {
-		(mesh->nodes).at(i).contact_type = FREE;
-		if(node_in_intersection( &((mesh->nodes).at(i)), intersect ) ) {
-			nodes_vector->push_back(i);
-		}
-	}
-};
-
-bool CollisionDetectorForLayers::node_in_intersection(ElasticNode* node, MeshOutline* intersect)
-{
-	for(int j = 0; j < 3; j++)
-		if( (node->coords[j] < intersect->min_coords[j]) || (node->coords[j] > intersect->max_coords[j]) )
-			return false;
-	return true;
-};
-
-void CollisionDetectorForLayers::process_mesh(vector<int>* nodes_vector, TetrMesh_1stOrder* current_mesh, TetrMesh_1stOrder* other_mesh, vector<ElasticNode>* virt_nodes)
+void CollisionDetectorForLayers::process_mesh(vector<int> &nodes_vector, TetrMesh_1stOrder* current_mesh, TetrMesh_1stOrder* other_mesh, vector<ElasticNode> &virt_nodes)
 {
 	ElasticNode* node;
 	float h = current_mesh->get_min_h() / 2;
 	MeshOutline outline = current_mesh->outline;
 
-	for(int i = 0; i < nodes_vector->size(); i++)
+	for(int i = 0; i < nodes_vector.size(); i++)
 	{
-		node = &(current_mesh->nodes).at( nodes_vector->at(i) );
+		node = &(current_mesh->nodes).at( nodes_vector[i] );
 		if( node->border_type == BORDER )
 		{
 			current_mesh->clear_contact_data( node );
@@ -197,14 +178,14 @@ void CollisionDetectorForLayers::process_mesh(vector<int>* nodes_vector, TetrMes
 				{
 					node->contact_type = IN_CONTACT;
 					// We always set 'axis_plus[0]' (!!!) because the first axis goes along _outer_ normal
-					node->contact_data->axis_plus[0] = virt_nodes->size();
-					virt_nodes->push_back( (other_mesh->nodes).at( nodes_vector->at(i) + index_shift ) );
+					node->contact_data->axis_plus[0] = virt_nodes.size();
+					add_node_by_local_num(other_mesh, nodes_vector[i] + index_shift, virt_nodes);
 				}
 				else if( fabs( node->coords[shift_direction] - outline.max_coords[shift_direction] ) < h )
 				{
 					node->contact_type = IN_CONTACT;
-					node->contact_data->axis_plus[0] = virt_nodes->size();
-					virt_nodes->push_back( (other_mesh->nodes).at( nodes_vector->at(i) - index_shift ) );
+					node->contact_data->axis_plus[0] = virt_nodes.size();
+					add_node_by_local_num(other_mesh, nodes_vector[i] - index_shift, virt_nodes);
 				}
 			}
 		}
@@ -212,3 +193,39 @@ void CollisionDetectorForLayers::process_mesh(vector<int>* nodes_vector, TetrMes
 
 };
 
+void CollisionDetectorForLayers::add_node_by_local_num(TetrMesh_1stOrder* other_mesh, int local_num, vector<ElasticNode> &virt_nodes)
+{
+	ElasticNode new_node;
+	int index = -1;
+//*logger << "DEBUG: looking for node with local_num " << local_num << " other_mesh nodes: " < (other_mesh->nodes).size();
+	for(int i = 0; i < (other_mesh->nodes).size(); i++) {
+//*logger << "DEBUG: remote node local num " < (other_mesh->nodes).at(i).local_num;
+		if((other_mesh->nodes).at(i).local_num == local_num) {
+			index = i;
+			break;
+		}
+	}
+	if(index == -1)
+		throw GCMException( GCMException::COLLISION_EXCEPTION, "Can not find node in remote mesh!");
+
+	new_node = (other_mesh->nodes).at(index);
+
+	// remote_num here should be remote face (!) num
+	new_node.remote_zone_num = other_mesh->zone_num;
+	for(int i = 0; i < (other_mesh->border).size(); i++)
+	{
+		bool flag = false;
+		for(int j = 0; j < 3; j++)
+			if( (other_mesh->border)[i].vert[j] == index )
+				flag = true;
+		if(flag) {
+			new_node.remote_num = (other_mesh->border)[i].local_num;
+			break;
+		}
+	}
+
+	// remember real remote num of one of verticles - this node itself should work
+	new_node.absolute_num = new_node.local_num;
+
+	virt_nodes.push_back(new_node);
+};
