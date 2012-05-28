@@ -125,6 +125,8 @@ void CollisionDetector::find_faces_in_intersection(vector<Triangle> &faces, vect
 
 void CollisionDetector::renumber_surface(vector<Triangle> &faces, vector<ElasticNode> &nodes)
 {
+	if (!faces.size() || !nodes.size())
+		return;
 	int max_node_num = -1;
 	for(int k = 0; k < nodes.size(); k++)
 		if( nodes[k].local_num > max_node_num )
@@ -149,6 +151,8 @@ void CollisionDetector::renumber_surface(vector<Triangle> &faces, vector<Elastic
 
 void CollisionDetector::renumber_volume(vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes)
 {
+	if (!tetrs.size() || !nodes.size())
+		return;
 	int max_node_num = -1;
 	for(int k = 0; k < nodes.size(); k++)
 		if( nodes[k].local_num > max_node_num )
