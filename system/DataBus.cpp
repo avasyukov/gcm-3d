@@ -639,19 +639,17 @@ void DataBus::sync_faces_in_intersection(MeshOutline **intersections, int **fs, 
 			outl[s],
 			fidx[idx][source]
 		);
+		bool *flag = new bool[mesh->nodes.size()];
+		for (int i = 0; i < mesh->nodes.size(); i++)
+			flag[i] = false;
 		for (int i = 0; i < fidx[idx][source].size(); i++)
 			for (int j = 0; j < 3; j++ )
-			{
-				bool found = false;
-				for (int k = 0; k < nidx[idx][source].size(); k++)
-					if (nidx[idx][source][k] == mesh->border[fidx[idx][source][i]].vert[j])
-					{
-						found = true;
-						break;
-					}
-				if (!found)
+				if (!flag[mesh->border[fidx[idx][source][i]].vert[j]])
+				{
 					nidx[idx][source].push_back(mesh->border[fidx[idx][source][i]].vert[j]);
-			}
+					flag[mesh->border[fidx[idx][source][i]].vert[j]] = true;
+				}
+		delete[] flag;
 		tmp.push_back(fidx[idx][source].size()-fsz);
 		tmp.push_back(nidx[idx][source].size()-nsz);
 		tmp.push_back(ptr[0]);
@@ -963,7 +961,9 @@ void DataBus::sync_tetrs()
 			int zn = ptr[0];
 			int source = s;
 			TetrMesh_1stOrder *mesh = mesh_set->get_mesh_by_zone_num(zn);
-			bool found;
+			bool *flag = new bool[mesh->tetrs.size()];
+			for (int i = 0; i < mesh->tetrs.size(); i++)
+				flag[i] = false;
 			for (int i = 0; i < ptr[1]; i++)
 			{
 				Triangle *face = &mesh->border[0]+req_idx[cur_idx][i];
@@ -971,34 +971,31 @@ void DataBus::sync_tetrs()
 					for (int k = 0; k < mesh->nodes[face->vert[j]].elements->size(); k++)
 					{
 						Tetrahedron_1st_order *tetr = &mesh->tetrs[0]+mesh->nodes[face->vert[j]].elements->at(k);
-						found = false;
-						for (int q = 0; q < tidx[zn][source].size(); q++)
-							if (tidx[zn][source][q] == tetr->local_num)
-							{
-								found = true;
-								break;
-							}
-						if (!found)
+						if (!flag[tetr->local_num])
+						{
 							tidx[zn][source].push_back(tetr->local_num);
+							flag[tetr->local_num] = true;
+						}
 					}
 			}
+			delete[] flag;
+			flag = new bool[mesh->nodes.size()];
+			for (int i = 0; i < mesh->nodes.size(); i++)
+				flag[i] = false;
 			for (int i = 0; i < tidx[zn][source].size(); i++)
 			{
 				Tetrahedron_1st_order *tetr = &mesh->tetrs[0]+tidx[zn][source][i];
 				for (int j = 0; j < 4; j++)
 				{
-					found = false;
 					ElasticNode *node = &mesh->nodes[0]+tetr->vert[j];
-					for (int k = 0; k < nidx[zn][source].size(); k++)
-						if (nidx[zn][source][k] == node->local_num)
-						{
-							found = true;
-							break;
-						}
-					if (!found)
+					if (!flag[node->local_num])
+					{
 						nidx[zn][source].push_back(node->local_num);
+						flag[node->local_num] = true;
+					}
 				}
 			}
+			delete[] flag;
 			cur_idx++;
 		}
 	
