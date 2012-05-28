@@ -18,7 +18,6 @@ void BruteforceCollisionDetector::find_collisions(vector<ElasticNode> &virt_node
 	data_bus->sync_outlines();
 
 	vector<ElasticNode> local_nodes;
-	int procs_to_sync = data_bus->get_procs_total_num();
 
 	*logger < "Processing local/local collisions";
 
