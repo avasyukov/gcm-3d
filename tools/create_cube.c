@@ -1,9 +1,13 @@
 #include <stdio.h>
 
 // Number of zones to create
+#ifndef Nnum
 #define Nnum 4
+#endif
 // Number of layers in zone
+#ifndef Mnum
 #define Mnum 10
+#endif
 
 // Example:
 // If you set Nnum to 10 and Mnum to 2
