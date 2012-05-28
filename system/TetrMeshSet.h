@@ -46,6 +46,7 @@ public:
 	ElasticNode* getNode(int num);
 	
 	void init_mesh_container(vector<int> &zones_info);	
+	void sync_remote_data();
 protected:
 	Logger* logger;
 	RheologyCalculator* rheology;

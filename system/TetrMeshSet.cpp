@@ -18,6 +18,9 @@ void TetrMeshSet::attach(Logger* new_logger)
 
 	for(int i = 0; i < local_meshes.size(); i++)
 		local_meshes[i]->attach(logger);
+
+	if(collision_detector != NULL)
+		collision_detector->attach(logger);
 };
 
 void TetrMeshSet::attach(TetrMesh_1stOrder* new_mesh)
@@ -50,6 +53,9 @@ void TetrMeshSet::attach(DataBus* new_data_bus)
 	data_bus = new_data_bus;
 
 	data_bus->attach(this);
+
+	if(collision_detector != NULL)
+		collision_detector->attach(data_bus);
 
 //	for(int i = 0; i < local_meshes.size(); i++)
 //		local_meshes[i]->attach_data_bus(new_data_bus);
@@ -90,6 +96,9 @@ void TetrMeshSet::attach(TetrNumericalMethod* new_numerical_method)
 void TetrMeshSet::attach(CollisionDetector* new_collision_detector)
 {
 	collision_detector = new_collision_detector;
+	collision_detector->attach(data_bus);
+	collision_detector->attach(this);
+	collision_detector->attach(logger);
 };
 
 void TetrMeshSet::log_meshes_types()
@@ -131,208 +140,9 @@ int TetrMeshSet::do_next_step()
 	// Clear virtual nodes because they change between time steps
 	virt_nodes.clear();
 
-	for (int i = 0; i < remote_meshes.size(); i++)		
-		remote_meshes[i]->clear_data();
-
-	// FIXME
-	// all collisions-related code should be moved to the method of
-	// CollisionDetector implementation; a proper class hierarchy should be
-	// introduced
-	MeshOutline intersection;
-
-	vector<Triangle> local_faces;
-
-	data_bus->sync_outlines();
-
-	vector<ElasticNode> local_nodes;
-	int procs_to_sync = data_bus->get_procs_total_num();
-
-	*logger < "Processing local/local collisions";
-
-	// process collisions between local nodes and local faces
-	// we start both cycles from zero because collision should be 'symmetric'
-	for (int i = 0; i < local_meshes.size(); i++)
-		for (int j = 0; j < local_meshes.size(); j++)
-			if ( ( i != j ) && ( collision_detector->find_intersection(local_meshes[i]->outline, local_meshes[j]->outline, intersection) ) )
-			{
-				*logger << "Collision detected between local mesh zone #" << local_meshes[i]->zone_num << " and local mesh zone #" < local_meshes[j]->zone_num;
-				// find local nodes inside intersection
-				collision_detector->find_nodes_in_intersection(local_meshes[i]->nodes, intersection, local_nodes);
-				// find local faces inside intersection
-				collision_detector->find_faces_in_intersection(local_meshes[j]->border, local_meshes[j]->nodes, intersection, local_faces);
-				*logger << "Got " << local_nodes.size() << " nodes and " << local_faces.size() < " local faces";
-
-				// process collisions
-				ElasticNode new_node;
-				float direction[3];
-				basis *local_basis;
-				for(int k = 0; k < local_nodes.size(); k++) {
-					for(int l = 0; l < local_faces.size(); l++) {
-
-						local_basis = local_nodes[k].local_basis;
-						direction[0] = local_basis->ksi[0][0];
-						direction[1] = local_basis->ksi[0][1];
-						direction[2] = local_basis->ksi[0][2];
-
-						if( local_meshes[i]->vector_intersects_triangle( 
-								local_meshes[j]->nodes[ local_faces[l].vert[0] ].coords,
-								local_meshes[j]->nodes[ local_faces[l].vert[1] ].coords,
-								local_meshes[j]->nodes[ local_faces[l].vert[2] ].coords,
-								local_nodes[k].coords,
-								direction, collision_detector->get_treshold(), new_node.coords ) )
-						{
-							( local_meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_type = IN_CONTACT;
-							( local_meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_data->axis_plus[0] 
-											= virt_nodes.size();
-
-							local_meshes[i]->interpolate_triangle(
-								local_meshes[j]->nodes[ local_faces[l].vert[0] ].coords,
-								local_meshes[j]->nodes[ local_faces[l].vert[1] ].coords,
-								local_meshes[j]->nodes[ local_faces[l].vert[2] ].coords,
-								new_node.coords,
-								local_meshes[j]->nodes[ local_faces[l].vert[0] ].values,
-								local_meshes[j]->nodes[ local_faces[l].vert[1] ].values,
-								local_meshes[j]->nodes[ local_faces[l].vert[2] ].values,
-								new_node.values);
-
-							// remote_num here should be remote face (!) num
-							new_node.remote_zone_num = local_meshes[j]->zone_num;
-							new_node.remote_num = local_faces[l].local_num;
-							// remember real remote num of one of verticles
-							new_node.absolute_num = local_meshes[j]->nodes[ local_faces[l].vert[0] ].local_num;
-
-							virt_nodes.push_back(new_node);
-
-							break;
-						}
-					}
-				}
-
-				// clear
-				local_nodes.clear();
-				local_faces.clear();
-			}
-
-	*logger < "Local/local collisions processed";
-	
-	MeshOutline **inters = new MeshOutline*[local_meshes.size()];
-	int **fs = new int*[local_meshes.size()];
-	int **fl = new int*[local_meshes.size()];
-	for (int i = 0; i < local_meshes.size(); i++)
-	{
-		inters[i] = new MeshOutline[remote_meshes.size()];
-		fs[i] = new int[remote_meshes.size()];
-		fl[i] = new int[remote_meshes.size()];
-	}
-
-	// process collisions between local nodes and remote faces
-	for (int i = 0; i < local_meshes.size(); i++)
-		for (int j = 0; j < remote_meshes.size(); j++)
-			if (collision_detector->find_intersection(local_meshes[i]->outline, remote_meshes[j]->outline, inters[i][j]))
-				*logger << "Collision detected between local mesh zone #" << local_meshes[i]->zone_num << " and remote mesh zone #" < remote_meshes[j]->zone_num;
-			else
-				inters[i][j].min_coords[0] = inters[i][j].max_coords[0] = 0.0;
-	
-	for (int i = 0; i < remote_meshes.size(); i++)		
-		remote_meshes[i]->clear_data();
-		
-	data_bus->sync_faces_in_intersection(inters, fs, fl);
-	for (int i = 0; i < remote_meshes.size(); i++)
-		collision_detector->renumber_surface(remote_meshes[i]->border, remote_meshes[i]->nodes);
-		
-	ElasticNode *remote_nodes;
-	Triangle *remote_faces;
-	for (int i = 0; i < local_meshes.size(); i++)
-		for (int j = 0; j < remote_meshes.size(); j++)	
-			if (inters[i][j].min_coords[0] != inters[i][j].max_coords[0])
-			{
-				// find local nodes inside intersection
-				collision_detector->find_nodes_in_intersection(local_meshes[i]->nodes, inters[i][j], local_nodes);
-				// get remote faces inside intersection
-//				data_bus->get_remote_faces_in_intersection(remote_meshes[j]->proc_num, remote_meshes[j]->zone_num, intersection, remote_nodes, remote_faces, procs_to_sync);
-				*logger << "Got " << local_nodes.size() << " local nodes, " << fl[i][j] < " remote faces";
-
-				// process collisions
-				ElasticNode new_node;
-				float direction[3];
-				basis *local_basis;
-				remote_faces = &remote_meshes[j]->border[0];
-				remote_nodes = &remote_meshes[j]->nodes[0];
-
-				// debug print for faces sync
-				/* for( int k = 0; k < local_nodes.size(); k++ )
-				* 	*logger << "Node " << k << " coords: " << local_nodes[k].coords[0] << " "
-				* 			<< local_nodes[k].coords[1] << " " < local_nodes[k].coords[2];
-				* for( int k = 0; k < fl[i][j]; k++ )
-				* 	*logger << "Face " << k << " verts: " << remote_faces[k].vert[0] << " " << remote_faces[k].vert[1] << " "
-				* 			< remote_faces[k].vert[2];
-				* for( int k = 0; k < remote_meshes[j]->nodes.size(); k++ )
-				* 	*logger << "Remote node " << k << " coords: " << remote_nodes[k].coords[0] << " "
-				* 			<< remote_nodes[k].coords[1] << " " < remote_nodes[k].coords[2];
-				*/
-
-				for(int k = 0; k < local_nodes.size(); k++) {
-					for(int l = fs[i][j]; l < fs[i][j]+fl[i][j]; l++) {
-
-						local_basis = local_nodes[k].local_basis;
-						direction[0] = local_basis->ksi[0][0];
-						direction[1] = local_basis->ksi[0][1];
-						direction[2] = local_basis->ksi[0][2];
-
-						if( local_meshes[i]->vector_intersects_triangle( 
-								remote_nodes[ remote_faces[l].vert[0] ].coords,
-								remote_nodes[ remote_faces[l].vert[1] ].coords,
-								remote_nodes[ remote_faces[l].vert[2] ].coords,
-								local_nodes[k].coords,
-								direction, collision_detector->get_treshold(), new_node.coords ) )
-						{
-							( local_meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_type = IN_CONTACT;
-							( local_meshes[i]->nodes[ local_nodes[k].local_num ] ).contact_data->axis_plus[0] 
-											= virt_nodes.size();
-
-							local_meshes[i]->interpolate_triangle(
-								remote_nodes[ remote_faces[l].vert[0] ].coords,
-								remote_nodes[ remote_faces[l].vert[1] ].coords,
-								remote_nodes[ remote_faces[l].vert[2] ].coords,
-								new_node.coords,
-								remote_nodes[ remote_faces[l].vert[0] ].values,
-								remote_nodes[ remote_faces[l].vert[1] ].values,
-								remote_nodes[ remote_faces[l].vert[2] ].values,
-								new_node.values);
-
-							// remote_num here should be remote face (!) num
-							new_node.remote_zone_num = remote_meshes[j]->zone_num;
-							new_node.remote_num = remote_faces[l].local_num;
-							// remember real remote num of one of verticles
-							new_node.absolute_num = remote_nodes[ remote_faces[l].vert[0] ].local_num;
-
-							virt_nodes.push_back(new_node);
-
-							break;
-						}
-					}
-				}
-
-				// clear
-				local_nodes.clear();
-			}
-	
+	// Find collisions and fill virtual nodes
+	collision_detector->find_collisions(virt_nodes);
 	*logger << "Virtual nodes: " < virt_nodes.size();
-	
-	for (int i = 0; i < local_meshes.size(); i++)
-	{
-		delete[] inters[i];
-		delete[] fs[i];
-		delete[] fl[i];
-	}
-	delete[] inters;
-	delete[] fs;
-	delete[] fl;
-	
-	*logger < "Local/remote collisions processed";
-
-	for (int i = 0; i < remote_meshes.size(); i++)		
-		remote_meshes[i]->clear_data();
 
 	// number of stages for current numerical method
 	int number_of_stages;
@@ -361,70 +171,12 @@ int TetrMeshSet::do_next_step()
 	// do part steps
 	for(int s = 0; s < number_of_stages; s++)
 	{
-
 		*logger << "Part step #" << s < " Syncing remote meshes";
-
-		data_bus->sync_tetrs();
-
-		// process synced data for remote meshes
-		for (int r = 0; r < remote_meshes.size(); r++)
-		{
-			*logger << "Remote mesh #" << remote_meshes[r]->zone_num << " Pre-processing virtual mesh. "
-					<< "Tetrs: " << (remote_meshes[r]->tetrs).size() << " Nodes: " < (remote_meshes[r]->nodes).size();
-
-			collision_detector->renumber_volume(remote_meshes[r]->tetrs, remote_meshes[r]->nodes);
-			remote_meshes[r]->attach(logger);
-			remote_meshes[r]->pre_process_mesh();
-
-			// debug print for tetr sync
-//			*logger << "BORDER size " < remote_meshes[r]->border.size();
-//			for(int i = 0; i < (remote_meshes[r]->nodes).size(); i++)
-//				*logger << "Node " << i << " abs num " << (remote_meshes[r]->nodes)[i].absolute_num << " coords: " 
-//						<< (remote_meshes[r]->nodes)[i].coords[0] << " "
-//						<< (remote_meshes[r]->nodes)[i].coords[1] << " " < (remote_meshes[r]->nodes)[i].coords[2];
-		}
+		sync_remote_data();
 
 		// calculation for local meshes
 		for(int l = 0; l < local_meshes.size(); l++)
 		{
-			// link virtual nodes for this mesh
-			*logger << "Mesh " << local_meshes[l]->zone_num << " Stage " << s < " Linking virt nodes to remote mesh";
-
-			for(int i = 0; i < local_meshes[l]->nodes.size(); i++)
-			{
-				if(local_meshes[l]->nodes[i].border_type == BORDER)
-				{
-					if(local_meshes[l]->nodes[i].contact_data->axis_plus[0] != -1)
-					{
-						ElasticNode *vnode = getNode( local_meshes[l]->nodes[i].contact_data->axis_plus[0] );
-//						*logger << "Looking for remote mesh with rnum: " < vnode->remote_zone_num;
-						vnode->mesh = get_mesh_by_zone_num(vnode->remote_zone_num);
-						if(vnode->mesh == NULL)
-							throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find remote zone for vnode");
-
-//						*logger << "Looking for node with num: " < vnode->absolute_num;
-						bool node_found = false;
-						for(int z = 0; z < (vnode->mesh->nodes).size(); z++)
-							if((vnode->mesh->nodes)[z].absolute_num == vnode->absolute_num)
-							{
-//						*logger << "DEBUG VNODE " << (vnode->mesh->nodes)[z].placement_type << " " 
-//							<< (vnode->mesh->nodes)[z].elements->size() 
-//							<< " " < (vnode->mesh->nodes)[z].border_elements->size();
-								node_found = true;
-								vnode->placement_type = LOCAL;
-								vnode->border_type = BORDER;
-								vnode->contact_type = IN_CONTACT;
-								vnode->elements = (vnode->mesh->nodes)[z].elements;
-								vnode->border_elements = (vnode->mesh->nodes)[z].border_elements;
-								vnode->local_num = (vnode->mesh->nodes)[z].local_num;
-								break;
-							}
-						if( !node_found )
-							throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find virt node origin");
-					}
-				}
-			}
-
 			// real calculation
 			*logger << "Mesh " << local_meshes[l]->zone_num << " Stage " << s < " Start calculation";
 
@@ -447,6 +199,69 @@ int TetrMeshSet::do_next_step()
 		local_meshes[i]->update_current_time(time_step);
 
 	return 0;
+};
+
+void TetrMeshSet::sync_remote_data()
+{
+	data_bus->sync_tetrs();
+
+	// process synced data for remote meshes
+	for (int r = 0; r < remote_meshes.size(); r++)
+	{
+		*logger << "Remote mesh #" << remote_meshes[r]->zone_num << " Pre-processing virtual mesh. "
+				<< "Tetrs: " << (remote_meshes[r]->tetrs).size() << " Nodes: " < (remote_meshes[r]->nodes).size();
+
+		collision_detector->renumber_volume(remote_meshes[r]->tetrs, remote_meshes[r]->nodes);
+		remote_meshes[r]->attach(logger);
+		remote_meshes[r]->pre_process_mesh();
+
+		// debug print for tetr sync
+//		*logger << "BORDER size " < remote_meshes[r]->border.size();
+//		for(int i = 0; i < (remote_meshes[r]->nodes).size(); i++)
+//			*logger << "Node " << i << " abs num " << (remote_meshes[r]->nodes)[i].absolute_num << " coords: " 
+//					<< (remote_meshes[r]->nodes)[i].coords[0] << " "
+//					<< (remote_meshes[r]->nodes)[i].coords[1] << " " < (remote_meshes[r]->nodes)[i].coords[2];
+	}
+
+	// link data for local meshes
+	for(int l = 0; l < local_meshes.size(); l++)
+	{
+		// link virtual nodes for this mesh
+		*logger << "Local mesh #" << local_meshes[l]->zone_num < " Linking virt nodes to remote mesh";
+
+		for(int i = 0; i < local_meshes[l]->nodes.size(); i++)
+		{
+			if( (local_meshes[l]->nodes[i].border_type == BORDER) 
+				&& (local_meshes[l]->nodes[i].contact_data->axis_plus[0] != -1) )
+			{
+				ElasticNode *vnode = getNode( local_meshes[l]->nodes[i].contact_data->axis_plus[0] );
+//				*logger << "Looking for remote mesh with rnum: " < vnode->remote_zone_num;
+				vnode->mesh = get_mesh_by_zone_num(vnode->remote_zone_num);
+				if(vnode->mesh == NULL)
+					throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find remote zone for vnode");
+
+//				*logger << "Looking for node with num: " < vnode->absolute_num;
+				bool node_found = false;
+				for(int z = 0; z < (vnode->mesh->nodes).size(); z++)
+					if((vnode->mesh->nodes)[z].absolute_num == vnode->absolute_num)
+					{
+//						*logger << "DEBUG VNODE " << (vnode->mesh->nodes)[z].placement_type << " " 
+//							<< (vnode->mesh->nodes)[z].elements->size() 
+//							<< " " < (vnode->mesh->nodes)[z].border_elements->size();
+						node_found = true;
+						vnode->placement_type = LOCAL;
+						vnode->border_type = BORDER;
+						vnode->contact_type = IN_CONTACT;
+						vnode->elements = (vnode->mesh->nodes)[z].elements;
+						vnode->border_elements = (vnode->mesh->nodes)[z].border_elements;
+						vnode->local_num = (vnode->mesh->nodes)[z].local_num;
+						break;
+					}
+				if( !node_found )
+					throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find virt node origin");
+			}
+		}
+	}
 };
 
 int TetrMeshSet::get_number_of_local_meshes()

@@ -13,6 +13,8 @@ class CollisionDetector;
 #include "../meshtypes/TetrMesh_1stOrder.h"
 #include "Logger.h"
 #include "GCMException.h"
+#include "DataBus.h"
+#include "TetrMeshSet.h"
 
 class CollisionDetector
 {
@@ -22,7 +24,9 @@ public:
 	void set_treshold(float value);
 	float get_treshold();
 	void attach(Logger* new_logger);
-	virtual int find_collisions(TetrMesh_1stOrder* mesh1, TetrMesh_1stOrder* mesh2, vector<ElasticNode>* virt_nodes, float time_step) = 0;
+	void attach(DataBus* new_data_bus);
+	void attach(TetrMeshSet* new_mesh_set);
+	void find_collisions(vector<ElasticNode> &virt_nodes);
 	// return elements that are in intersection
 	void find_nodes_in_intersection(vector<ElasticNode> &nodes, MeshOutline &intersection, vector<ElasticNode> &result);
 	void find_faces_in_intersection(vector<Triangle> &faces, vector<ElasticNode> &nodes, MeshOutline &intersection, vector<Triangle> &result);
@@ -34,11 +38,13 @@ public:
 	// finds collisions between nodes and faces 
 	// FIXME
 	// it seems this function is not ElasticNode-specific
-	void find_collisions(vector<ElasticNode> &nodes, vector<ElasticNode> &border_nodes, vector<Triangle> &border_faces);
+	// void find_collisions(vector<ElasticNode> &nodes, vector<ElasticNode> &border_nodes, vector<Triangle> &border_faces);
 	// checks two outlines for intersection, returns true if found
 	bool find_intersection(MeshOutline &outline1, MeshOutline &outline2, MeshOutline &intersection);
 protected:
 	Logger* logger;
+	DataBus* data_bus;
+	TetrMeshSet* mesh_set;
 	float treshold;
 };
 
