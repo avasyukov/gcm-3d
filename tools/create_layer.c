@@ -1,11 +1,17 @@
 #include <stdio.h>
 
 // Number of points in layer sample
+#ifndef Size
 #define Size 201
+#endif
 // Number of layers in zone
+#ifndef Width
 #define Width 10
+#endif
 
+#ifndef ZonesPerEdge
 #define ZonesPerEdge 2
+#endif
 
 // Example:
 // If you set Size to 60 and Width to 10
