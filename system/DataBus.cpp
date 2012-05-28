@@ -111,25 +111,24 @@ int DataBus::sync_nodes()
 					);
 				}
 	
-	MPI::COMM_WORLD.Barrier();
-	
 	for (int i = 0; i < zones_info.size(); i++)
 		if (get_proc_for_zone(i) == proc_num)
 			for (int j = 0; j < zones_info.size(); j++)
 				if (local_numbers[i][j].size())
 				{
 					*logger << "Receiving nodes from zone " << j << " to zone " < i;
-					MPI::COMM_WORLD.Recv(
-						&mesh_set->get_mesh_by_zone_num(i)->nodes[0],
-						1,
-						MPI_NODE_TYPES[i][j],
-						get_proc_for_zone(j),
-						TAG_SYNC_NODE+100*i+j
+					reqs.push_back(
+						MPI::COMM_WORLD.Irecv(
+							&mesh_set->get_mesh_by_zone_num(i)->nodes[0],
+							1,
+							MPI_NODE_TYPES[i][j],
+							get_proc_for_zone(j),
+							TAG_SYNC_NODE+100*i+j
+						)
 					);
 				}
 
 	MPI::Request::Waitall(reqs.size(), &reqs[0]);
-	MPI::COMM_WORLD.Barrier();
 	
 	*logger < "Nodes sync done";
 
