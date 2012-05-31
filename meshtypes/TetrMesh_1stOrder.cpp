@@ -1111,28 +1111,30 @@ Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(ElasticNode* node, flo
 	// TODO - clean the code - unnecessary 'x <-> dx' and node 'pointer <-> index' intermix
 	int base_node = node->local_num;
 
-	float x = nodes[base_node].coords[0] + dx;
-	float y = nodes[base_node].coords[1] + dy;
-	float z = nodes[base_node].coords[2] + dz;
-
-// We used this implementation when tau was min_h/max_L
-// In that case if not found in adjacent tetrs - not found at all and out of body
-/*	// Checking adjacent tetrahedrons
+	// We use this implementation now because tau is still min_h/max_L
+	// In that case if not found in adjacent tetrs - not found at all and out of body
+	// Checking adjacent tetrahedrons
 	for(int i = 0; i < (node->elements)->size(); i++)
 	{
-		if( point_in_tetr(x, y, z, &tetrs[(node->elements)->at(i)]) )
+		if( point_in_tetr(base_node, dx, dy, dz, &tetrs[(node->elements)->at(i)], debug) )
 		{
 			return &tetrs[(node->elements)->at(i)];
 		}
 	}
 
 	return NULL;
-*/
+
+	// FIXME TODO
+	// The code below is about 10 times (!) slower compared with simple implementation above
+	// Checked for the case tau = min_h/max_L
+
+	float x = nodes[base_node].coords[0] + dx;
+	float y = nodes[base_node].coords[1] + dy;
+	float z = nodes[base_node].coords[2] + dz;
 
 	// A square of distance between point in question and local node
 	// Will be used to check if it is worth to continue search or point in question is out of body
-	float R2 = (node->coords[0] - x) * (node->coords[0] - x) + (node->coords[1] - y) * (node->coords[1] - y)
-			+ (node->coords[2] - z) * (node->coords[2] - z);
+	float R2 = dx * dx + dy * dy + dz * dz;
 
 	#ifdef DEBUG_MESH_GEOMETRY
 	*logger < "DEBUG: TetrMesh_1stOrder::find_owner_tetr";
