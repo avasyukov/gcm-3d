@@ -178,7 +178,10 @@ int TetrMeshSet::do_next_step()
 	for(int s = 0; s < number_of_stages; s++)
 	{
 		*logger << "Part step #" << s < " Syncing remote meshes";
+
+		// Sync parts of remote meshes that are required for virtual nodes
 		sync_remote_data();
+		// Sync remote nodes in local meshes
 		data_bus->sync_nodes();
 
 		// calculation for local meshes
