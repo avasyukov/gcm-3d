@@ -223,6 +223,32 @@ void TetrMeshSet::sync_remote_data()
 //					<< (remote_meshes[r]->nodes)[i].coords[1] << " " < (remote_meshes[r]->nodes)[i].coords[2];
 	}
 
+	*logger << "Preparing lookups for virt nodes linking. Number of meshes: " < get_number_of_meshes();
+	// create renum mapping for fast renum
+	int **renum = new int*[get_number_of_meshes()];
+	for (int i = 0; i < get_number_of_meshes(); i++)
+	{
+		int zone_num = meshes[i].zone_num;
+		*logger << "Preparing lookups for mesh #" << i << " with zone_num " < zone_num;
+
+		int max_node_num = -1;
+		for(int k = 0; k < meshes[i].nodes.size(); k++)
+			if( meshes[i].nodes[k].absolute_num > max_node_num )
+				max_node_num = meshes[i].nodes[k].absolute_num;
+
+		*logger << "Mesh #" << i << " Max absolute num: " < max_node_num;
+
+		if(max_node_num >= 0) {
+			renum[zone_num] = new int[max_node_num + 1];
+			memset(renum[zone_num], 0, max_node_num * sizeof(int));
+		} else {
+			renum[zone_num] = NULL;
+		}
+
+		for(int k = 0; k < meshes[i].nodes.size(); k++)
+			renum[zone_num][ meshes[i].nodes[k].absolute_num ] = k + 1;	// +1 to avoid misinterpreting with zeroed memory
+	}
+
 	// link data for local meshes
 	for(int l = 0; l < local_meshes.size(); l++)
 	{
@@ -235,33 +261,34 @@ void TetrMeshSet::sync_remote_data()
 				&& (local_meshes[l]->nodes[i].contact_data->axis_plus[0] != -1) )
 			{
 				ElasticNode *vnode = getNode( local_meshes[l]->nodes[i].contact_data->axis_plus[0] );
-//				*logger << "Looking for remote mesh with rnum: " < vnode->remote_zone_num;
 				vnode->mesh = get_mesh_by_zone_num(vnode->remote_zone_num);
 				if(vnode->mesh == NULL)
 					throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find remote zone for vnode");
 
-//				*logger << "Looking for node with num: " < vnode->absolute_num;
-				bool node_found = false;
-				for(int z = 0; z < (vnode->mesh->nodes).size(); z++)
-					if((vnode->mesh->nodes)[z].absolute_num == vnode->absolute_num)
-					{
-//						*logger << "DEBUG VNODE " << (vnode->mesh->nodes)[z].placement_type << " " 
-//							<< (vnode->mesh->nodes)[z].elements->size() 
-//							<< " " < (vnode->mesh->nodes)[z].border_elements->size();
-						node_found = true;
-						vnode->placement_type = LOCAL;
-						vnode->border_type = BORDER;
-						vnode->contact_type = IN_CONTACT;
-						vnode->elements = (vnode->mesh->nodes)[z].elements;
-						vnode->border_elements = (vnode->mesh->nodes)[z].border_elements;
-						vnode->local_num = (vnode->mesh->nodes)[z].local_num;
-						break;
-					}
-				if( !node_found )
+//				*logger << "DEBUG: looking for origin: " << vnode->remote_zone_num << " " < vnode->absolute_num;
+
+				int origin_index = renum[ vnode->remote_zone_num ][ vnode->absolute_num ] - 1;
+
+				if( origin_index < 0 )
 					throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find virt node origin");
+
+				vnode->placement_type = LOCAL;
+				vnode->border_type = BORDER;
+				vnode->contact_type = IN_CONTACT;
+				vnode->elements = (vnode->mesh->nodes)[origin_index].elements;
+				vnode->border_elements = (vnode->mesh->nodes)[origin_index].border_elements;
+				vnode->local_num = (vnode->mesh->nodes)[origin_index].local_num;		
 			}
 		}
+
+		*logger << "Local mesh #" << local_meshes[l]->zone_num < " Linking virt nodes done";
 	}
+
+	for (int i = 0; i < get_number_of_meshes(); i++)
+		if(renum[i] != NULL)
+			delete[] renum[i];
+
+	delete[] renum;
 };
 
 int TetrMeshSet::get_number_of_local_meshes()
