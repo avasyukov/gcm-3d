@@ -152,6 +152,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 	CollisionDetector* col_det;
 	// Default col det type
 	string col_det_type = "BruteforceCollisionDetector";
+	string static_col_det = "false";
 
 	// Try to open task file
 	TiXmlDocument task_document( task_file.c_str() );
@@ -185,6 +186,9 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 			string ecd_type = ecd->Attribute( "type" );
 			if( ecd_type != "" )
 				col_det_type = ecd_type;
+			string static_cd = ecd->Attribute( "static" );
+			if( static_cd != "" )
+				static_col_det = static_cd;
 		}
 	}
 
@@ -195,6 +199,9 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 		col_det = new CollisionDetectorForLayers();
 	else
 		col_det = new BruteforceCollisionDetector();
+
+	if( static_col_det == "true" )
+		col_det->set_static(true);
 
 	// Configure collision detector and attach to mesh set
 	col_det->set_treshold( 0.1 );

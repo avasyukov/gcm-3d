@@ -137,11 +137,17 @@ int TetrMeshSet::do_next_step()
 
 	float time_step = data_bus->get_max_possible_tau(get_max_possible_tau());
 
-	// Clear virtual nodes because they change between time steps
-	virt_nodes.clear();
+	// Static detector means you are sure virt nodes don't change between time steps and there is no need to recalculate them
+	// Static collision detector is run only once at the first time step
+	// Otherwise - clear the list and recalc
+	if( (! collision_detector->is_static() ) || (get_current_time() == 0.0) )
+	{
+		// Clear virtual nodes because they change between time steps
+		virt_nodes.clear();
+		// Find collisions and fill virtual nodes
+		collision_detector->find_collisions(virt_nodes);
+	}
 
-	// Find collisions and fill virtual nodes
-	collision_detector->find_collisions(virt_nodes);
 	*logger << "Virtual nodes: " < virt_nodes.size();
 
 	// number of stages for current numerical method

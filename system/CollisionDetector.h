@@ -42,11 +42,14 @@ public:
 	// void find_collisions(vector<ElasticNode> &nodes, vector<ElasticNode> &border_nodes, vector<Triangle> &border_faces);
 	// checks two outlines for intersection, returns true if found
 	bool find_intersection(MeshOutline &outline1, MeshOutline &outline2, MeshOutline &intersection);
+	void set_static(bool state);
+	bool is_static();
 protected:
 	Logger* logger;
 	DataBus* data_bus;
 	TetrMeshSet* mesh_set;
 	float treshold;
+	bool static_operation;
 };
 
 #endif

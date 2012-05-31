@@ -5,10 +5,21 @@ CollisionDetector::CollisionDetector()
 	logger = NULL;
 	data_bus = NULL;
 	mesh_set = NULL;
+	static_operation = false;
 }
 
 CollisionDetector::~CollisionDetector() {
 	//
+}
+
+void CollisionDetector::set_static(bool state)
+{
+	static_operation = state;
+}
+
+bool CollisionDetector::is_static()
+{
+	return static_operation;
 }
 
 void CollisionDetector::attach(Logger* new_logger)
