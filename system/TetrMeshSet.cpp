@@ -179,6 +179,7 @@ int TetrMeshSet::do_next_step()
 	{
 		*logger << "Part step #" << s < " Syncing remote meshes";
 		sync_remote_data();
+		data_bus->sync_nodes();
 
 		// calculation for local meshes
 		for(int l = 0; l < local_meshes.size(); l++)
