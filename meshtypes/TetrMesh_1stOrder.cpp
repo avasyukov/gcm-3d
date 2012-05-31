@@ -1114,15 +1114,15 @@ Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(ElasticNode* node, flo
 	// We use this implementation now because tau is still min_h/max_L
 	// In that case if not found in adjacent tetrs - not found at all and out of body
 	// Checking adjacent tetrahedrons
-	for(int i = 0; i < (node->elements)->size(); i++)
-	{
-		if( point_in_tetr(base_node, dx, dy, dz, &tetrs[(node->elements)->at(i)], debug) )
-		{
-			return &tetrs[(node->elements)->at(i)];
-		}
-	}
-
-	return NULL;
+//	for(int i = 0; i < (node->elements)->size(); i++)
+//	{
+//		if( point_in_tetr(base_node, dx, dy, dz, &tetrs[(node->elements)->at(i)], debug) )
+//		{
+//			return &tetrs[(node->elements)->at(i)];
+//		}
+//	}
+//
+//	return NULL;
 
 	// FIXME TODO
 	// The code below is about 10 times (!) slower compared with simple implementation above
