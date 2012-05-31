@@ -132,8 +132,8 @@ void CollisionDetector::renumber_surface(vector<Triangle> &faces, vector<Elastic
 		if( nodes[k].local_num > max_node_num )
 			max_node_num = nodes[k].local_num;
 
-	int *renum = (int*) malloc( max_node_num * sizeof(int) );
-	memset(renum, 0, max_node_num * sizeof(int));
+	int *renum = (int*) malloc( (max_node_num + 1) * sizeof(int) );
+	memset(renum, 0, (max_node_num + 1) * sizeof(int));
 
 	for(int k = 0; k < nodes.size(); k++)
 		renum[ nodes[k].local_num ] = k + 1;	// +1 to avoid misinterpreting with zeroed memory
@@ -158,8 +158,8 @@ void CollisionDetector::renumber_volume(vector<Tetrahedron_1st_order> &tetrs, ve
 		if( nodes[k].local_num > max_node_num )
 			max_node_num = nodes[k].local_num;
 
-	int *renum = (int*) malloc( max_node_num * sizeof(int) );
-	memset(renum, 0, max_node_num * sizeof(int));
+	int *renum = (int*) malloc( (max_node_num + 1) * sizeof(int) );
+	memset(renum, 0, (max_node_num + 1) * sizeof(int));
 
 	for(int k = 0; k < nodes.size(); k++)
 		renum[ nodes[k].local_num ] = k + 1;	// +1 to avoid misinterpreting with zeroed memory
