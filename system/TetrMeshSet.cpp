@@ -135,7 +135,7 @@ float TetrMeshSet::get_current_time()
 int TetrMeshSet::do_next_step()
 {
 
-	float time_step = data_bus->get_max_possible_tau(get_max_possible_tau());
+	float time_step = 0.99 * data_bus->get_max_possible_tau(get_max_possible_tau());
 
 	// Static detector means you are sure virt nodes don't change between time steps and there is no need to recalculate them
 	// Static collision detector is run only once at the first time step
