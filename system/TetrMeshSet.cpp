@@ -250,7 +250,7 @@ void TetrMeshSet::sync_remote_data()
 
 		if(max_node_num >= 0) {
 			renum[zone_num] = new int[max_node_num + 1];
-			memset(renum[zone_num], 0, max_node_num * sizeof(int));
+			memset(renum[zone_num], 0, (max_node_num + 1) * sizeof(int));
 		} else {
 			renum[zone_num] = NULL;
 		}
