@@ -134,7 +134,8 @@ float TetrMeshSet::get_current_time()
 
 int TetrMeshSet::do_next_step()
 {
-
+	// We need this 0.99 to avoid false 'outer characteristics' exception because of floating point operations rounding errors.
+	// This happen when the point should be exactly on the face of the tetrahedron.
 	float time_step = 0.99 * data_bus->get_max_possible_tau(get_max_possible_tau());
 
 	// Static detector means you are sure virt nodes don't change between time steps and there is no need to recalculate them
