@@ -27,22 +27,11 @@ void TetrMeshSet::attach(TetrMesh_1stOrder* new_mesh)
 {
 	if(new_mesh != NULL) {
 		new_mesh->attach(logger);
-//		new_mesh->attach_data_bus(data_bus);
 		new_mesh->attach(stresser);
 		new_mesh->attach(rheology);
 		// FIXME - never ever do it! We need separate copy of method class for each mesh - see below.
 		// new_mesh->attach(numerical_method);
 		new_mesh->attach(this);
-//		meshes.push_back(new_mesh);
-//		if (new_mesh->local)
-//			local_meshes.push_back(new_mesh);
-//		// process mesh and add all remote nodes to list of nodes to be synchronized
-//		for (int i = 0; i < new_mesh->nodes.size(); i++) {
-//			ElasticNode *node = &new_mesh->nodes[i];
-//			if (node->placement_type == REMOTE)
-//				remote_nodes[data_bus->get_proc_for_zone(node->zone_num)].push_back(node);
-//		}
-//	TODO process remote nodes
 	}
 };
 
@@ -56,15 +45,6 @@ void TetrMeshSet::attach(DataBus* new_data_bus)
 
 	if(collision_detector != NULL)
 		collision_detector->attach(data_bus);
-
-//	for(int i = 0; i < local_meshes.size(); i++)
-//		local_meshes[i]->attach_data_bus(new_data_bus);
-
-//	// initialize remote nodes store
-//	FIXME
-//	for (i = 0; i < data_bus->get_total_proc_num(); i++)
-//		remote_nodes.push_back(vector<ElasticNode*>());
-
 };
 
 void TetrMeshSet::attach(Stresser* new_stresser)
@@ -278,8 +258,6 @@ void TetrMeshSet::sync_remote_data()
 				vnode->mesh = get_mesh_by_zone_num(vnode->remote_zone_num);
 				if(vnode->mesh == NULL)
 					throw GCMException( GCMException::COLLISION_EXCEPTION, "Can't find remote zone for vnode");
-
-//				*logger << "DEBUG: looking for origin: " << vnode->remote_zone_num << " " < vnode->absolute_num;
 
 				int origin_index = renum[ vnode->remote_zone_num ][ vnode->absolute_num ] - 1;
 
