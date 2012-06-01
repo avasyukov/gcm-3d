@@ -1181,6 +1181,10 @@ Tetrahedron_1st_order* TetrMesh_1stOrder::find_owner_tetr(ElasticNode* node, flo
 				// For all verticles of current tetr
 				for(int j = 0; j < 4; j++)
 				{
+					// Skip base node. Otherwise we'll get false positive insideR for the 1st and 2nd layers
+					if( nodes[ tetrs[checking[i]].vert[j] ].local_num == base_node )
+						break;
+
 					local_x = nodes[ tetrs[checking[i]].vert[j] ].coords[0];
 					local_y = nodes[ tetrs[checking[i]].vert[j] ].coords[1];
 					local_z = nodes[ tetrs[checking[i]].vert[j] ].coords[2];
