@@ -48,10 +48,9 @@ int main(int argc, char **argv)
 	string log_file = "";
 	bool dump = true;
 
-	while ( true ) {
-		c = getopt_long (argc, argv, "t:z:d:r:l:hn", long_options, &option_index);
-		if (c == -1)
-			break;
+	// suppress error messages
+	opterr = 0;
+	while ((c = getopt_long (argc, argv, "t:z:d:r:l:hn", long_options, &option_index)) != -1)
 		switch (c)
 		{
 			case 't':
@@ -80,7 +79,6 @@ int main(int argc, char **argv)
 			default:
 				return -1;
 		}
-	}
 
 	if(data_dir[data_dir.length()-1] != '/')
 		data_dir += '/';
@@ -93,39 +91,25 @@ int main(int argc, char **argv)
 	int step_per_snap = -1;
 
 	// Top level objects
-	Logger* logger = NULL;
+	Logger* logger = Logger::getInstace();
 	TaskPreparator* task_prep = NULL;
-	TetrMeshSet* mesh_set = NULL;
-	DataBus *data_bus = NULL;
+	TetrMeshSet* mesh_set = TetrMeshSet::getInstance();
+	DataBus *data_bus = DataBus::getInstance();
+	mesh_set->init();
 
 	try
 	{
-		// Create logger to be used by all other objects
-		if (log_file != "")
-			logger = new Logger(log_file);
-		else
-			logger = new Logger();
-
 		// Create task preparator
-		task_prep = new TaskPreparator(logger);
+		task_prep = new TaskPreparator();
 
-		// Create mesh set
-		mesh_set = new TetrMeshSet();
-		mesh_set->attach(logger);
-
-		// Create data bus
-		data_bus = new DataBus(logger);
 		
 		*logger << "Task file: " < task_file;
 		*logger << "Zones info file: " < zones_info_file;
 		*logger << "Data dir: " < data_dir;
 		*logger << "Res dir: " < res_dir;
 
-		// Attach mesh set and data bus to each other
-		mesh_set->attach(data_bus);
-
 		// Load real task info
-		task_prep->load_task( task_file, zones_info_file, data_dir, &snap_num, &step_per_snap, mesh_set, data_bus );
+		task_prep->load_task( task_file, zones_info_file, data_dir, &snap_num, &step_per_snap);
 		
 		// create custom types for fast sync
 		data_bus->create_custom_types();
@@ -141,11 +125,11 @@ int main(int argc, char **argv)
 		mesh_set->log_meshes_stats();
 
 		// Create snapshot writer
-		SnapshotWriter* sw = NULL;
+		VTKSnapshotWriter* sw = NULL;
 		if (dump)
 		{
-			sw = new SnapshotWriter(res_dir);
-			if (sw->dump_vtk(mesh_set, 0) < 0)
+			sw = new VTKSnapshotWriter(res_dir);
+			if (sw->dump_vtk( 0) < 0)
 				return -1;
 		}
 
@@ -162,7 +146,7 @@ int main(int argc, char **argv)
 					return -1;
 		
 			if (dump)
-				if (sw->dump_vtk(mesh_set, i) < 0)
+				if (sw->dump_vtk(i) < 0)
 					return -1;
 
 			if( (cur_time = mesh_set->get_current_time()) < 0)
@@ -170,9 +154,7 @@ int main(int argc, char **argv)
 			*logger << "Finished step " << i << ". Time = " << cur_time < ".";
 		}
 
-		// Delete data bus to finalize MPI
-		// TODO: delete all other objects?
-		delete data_bus;	
+		// TODO: delete all objects?
 	}
 	catch (GCMException& e)
 	{

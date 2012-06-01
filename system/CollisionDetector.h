@@ -11,21 +11,17 @@ class CollisionDetector;
 
 #include "../datatypes/ElasticNode.h"
 #include "../meshtypes/TetrMesh_1stOrder.h"
-#include "Logger.h"
 #include "GCMException.h"
 #include "DataBus.h"
 #include "TetrMeshSet.h"
 
-class CollisionDetector
+class CollisionDetector: protected LoggerUser
 {
 public:
 	CollisionDetector();
 	~CollisionDetector();
 	void set_treshold(float value);
 	float get_treshold();
-	void attach(Logger* new_logger);
-	void attach(DataBus* new_data_bus);
-	void attach(TetrMeshSet* new_mesh_set);
 	virtual void find_collisions(vector<ElasticNode> &virt_nodes) = 0;
 	// return elements that are in intersection
 	void find_nodes_in_intersection(vector<ElasticNode> &nodes, MeshOutline &intersection, vector<ElasticNode> &result);
@@ -45,7 +41,6 @@ public:
 	void set_static(bool state);
 	bool is_static();
 protected:
-	Logger* logger;
 	DataBus* data_bus;
 	TetrMeshSet* mesh_set;
 	float treshold;

@@ -13,12 +13,9 @@ class TetrMesh : public Mesh
 public:
 	TetrMesh();
 	~TetrMesh();
-	void attach(Logger* new_logger);
 	void attach(TetrNumericalMethod* new_numerical_method);
 	void attach(RheologyCalculator* new_rheology);
 	void attach(Stresser* new_stresser);
-//	void attach(DataBus* new_data_bus);
-	void attach(TetrMeshSet* new_mesh_set);
 
 	void translate(float x, float y, float z);
 

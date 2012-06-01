@@ -1,34 +1,29 @@
-#include "SnapshotWriter.h"
+#include "VTKSnapshotWriter.h"
 
-SnapshotWriter::SnapshotWriter()
+VTKSnapshotWriter::VTKSnapshotWriter()
 {
 	snapshot_writer_type.assign("Generic snapshot writer");
 };
 
-SnapshotWriter::SnapshotWriter(string new_result_dir)
+VTKSnapshotWriter::VTKSnapshotWriter(string new_result_dir)
 {
-	SnapshotWriter();
+	VTKSnapshotWriter();
 	set_result_dir(new_result_dir);
 };
 
-void SnapshotWriter::set_result_dir(string new_result_dir)
+void VTKSnapshotWriter::set_result_dir(string new_result_dir)
 {
 	result_dir = new_result_dir;
 };
 
-SnapshotWriter::~SnapshotWriter() { };
+VTKSnapshotWriter::~VTKSnapshotWriter() { };
 
-string* SnapshotWriter::get_snapshot_writer_type()
+string* VTKSnapshotWriter::get_snapshot_writer_type()
 {
 	return &snapshot_writer_type;
 };
 
-void SnapshotWriter::attach(Logger* new_logger)
-{
-	logger = new_logger;
-};
-
-int SnapshotWriter::dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num)
+int VTKSnapshotWriter::dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num)
 {
 	if(tetr_mesh == NULL)
 		throw GCMException( GCMException::SNAP_EXCEPTION, "No mesh provided");
@@ -38,8 +33,9 @@ int SnapshotWriter::dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, i
 	return 0;
 };
 
-int SnapshotWriter::dump_vtk(TetrMeshSet* mesh_set, int snap_num)
+int VTKSnapshotWriter::dump_vtk(int snap_num)
 {
+	TetrMeshSet *mesh_set = TetrMeshSet::getInstance();
 	for(int i = 0; i < mesh_set->get_number_of_local_meshes(); i++) 
 		if( dump_vtk( mesh_set->get_local_mesh(i), snap_num ) < 0 )
 			return -1;
@@ -47,7 +43,7 @@ int SnapshotWriter::dump_vtk(TetrMeshSet* mesh_set, int snap_num)
 };
 
 // TODO - think about local, remote, unused, etc
-int SnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
+int VTKSnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 {
 	int zone_num = tetr_mesh->zone_num;
 

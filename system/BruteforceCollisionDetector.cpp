@@ -6,11 +6,6 @@ BruteforceCollisionDetector::~BruteforceCollisionDetector() { };
 
 void BruteforceCollisionDetector::find_collisions(vector<ElasticNode> &virt_nodes)
 {
-	if( data_bus == NULL )
-		throw GCMException( GCMException::COLLISION_EXCEPTION, "DataBus is not attached!");
-	if( mesh_set == NULL )
-		throw GCMException( GCMException::COLLISION_EXCEPTION, "MeshSet is not attached!");
-
 	MeshOutline intersection;
 
 	vector<Triangle> local_faces;

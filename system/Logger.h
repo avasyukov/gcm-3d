@@ -19,10 +19,8 @@ using namespace std;
 class Logger
 {
 public:
-	Logger();
-	Logger(string filename);
-	Logger(Logger &logger);
-	~Logger();
+	static Logger* getInstace();
+	void setFileOutput(string fname);
 	void write(string str);
 	// stores process number to make logging more verbose
 	void set_proc_num(int proc_num);
@@ -47,6 +45,10 @@ public:
 		return *this;
 	}
 protected:
+	Logger();
+	Logger(string filename);
+	Logger(Logger &logger);
+	~Logger();
 	ofstream *outs;
 	string logger_type;
 	stringstream ss;

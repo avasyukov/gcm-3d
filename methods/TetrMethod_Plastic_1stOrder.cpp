@@ -51,7 +51,7 @@ int GCM_Tetr_Plastic_Interpolation_1stOrder_Rotate_Axis::prepare_part_step(Elast
 	if(stage < 3) {
 		if( matrix->prepare_matrix( cur_node->la, cur_node->mu, cur_node->rho, 
 					random_axis_inv[basis_num].ksi[0][stage], random_axis_inv[basis_num].ksi[1][stage], 
-								random_axis_inv[basis_num].ksi[2][stage], logger) < 0) {
+								random_axis_inv[basis_num].ksi[2][stage]) < 0) {
 			return -1;
 		}
 	} else {

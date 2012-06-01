@@ -13,11 +13,6 @@ ElasticMatrix3D::~ElasticMatrix3D() { };
 
 int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, int stage)
 {
-	return prepare_matrix(la, mu, ro, stage, NULL);
-};
-
-int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, int stage, Logger* logger)
-{
 	if((la <= 0) || (mu <= 0) || (ro <= 0))
 		throw GCMException( GCMException::CONFIG_EXCEPTION, "Bad rheology");
 
@@ -33,14 +28,7 @@ int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, int stage, Log
 	return 0;
 };
 
-
 int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, float qjx, float qjy, float qjz)
-{
-	return prepare_matrix(la, mu, ro, qjx, qjy, qjz, NULL);
-};
-
-
-int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, float qjx, float qjy, float qjz, Logger* logger)
 {
 	if((la <= 0) || (mu <= 0) || (ro <= 0))
 		throw GCMException( GCMException::CONFIG_EXCEPTION, "Bad rheology");
@@ -53,28 +41,12 @@ int ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, float qjx, flo
 	return 0;
 };
 
-int ElasticMatrix3D::self_check(Logger* logger)
+int ElasticMatrix3D::self_check()
 {
 	gcm_matrix E;
 	E.createE();
-	if( (U1 * L * U != A) || (A * U1 != U1 * L) || (U * A != L * U) || (U1 * U !=  E) ) {
-		if(logger != NULL) {
-			throw GCMException( GCMException::CONFIG_EXCEPTION, "Self check failed");
-			//cout << "A:\n";
-			//cout << A;
-			//cout << "U1 * L * U:\n";
-			//cout << U1 * L * U;
-			//cout << "Delta:\n";
-			//cout << A - U1 * L * U;
-			//cout << "L:\n";
-			//cout << L;
-			//cout << "Omega:\n";
-			//cout << U;
-			//cout << "Omega-1:\n";
-			//cout << U1;
-		}
-		return -1;
-	}
+	if( (U1 * L * U != A) || (A * U1 != U1 * L) || (U * A != L * U) || (U1 * U !=  E) )
+		throw GCMException( GCMException::CONFIG_EXCEPTION, "Self check failed");
 	return 0;
 }
 

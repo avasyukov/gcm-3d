@@ -1,8 +1,10 @@
 #include "TetrMesh.h"
+#include "../system/TetrMeshSet.h"
 
 TetrMesh::TetrMesh()
 {
 	mesh_type.assign("Basic tetrahedron mesh");
+	mesh_set = TetrMeshSet::getInstance();
 };
 
 TetrMesh::~TetrMesh() { };
@@ -11,23 +13,7 @@ void TetrMesh::attach(TetrNumericalMethod* new_numerical_method)
 {
 	method = new_numerical_method;
 	if(method != NULL)
-	{
-		method->attach(logger);
-		if(logger != NULL)
-		{
-			*logger << "Attached numerical method. Type: " < *(method->get_num_method_type());
-		}
-	}
-};
-
-void TetrMesh::attach(Logger* new_logger)
-{
-	Mesh::attach(new_logger);
-};
-
-void TetrMesh::attach(TetrMeshSet* new_mesh_set)
-{
-	mesh_set = new_mesh_set;
+		*logger << "Attached numerical method. Type: " < *(method->get_num_method_type());
 };
 
 void TetrMesh::attach(RheologyCalculator* new_rheology)
@@ -39,12 +25,7 @@ void TetrMesh::attach(Stresser* new_stresser)
 {
 	Mesh::attach(new_stresser);
 };
-/*
-void TetrMesh::attach(DataBus* new_data_bus)
-{
-	Mesh::attach(new_data_bus);
-};
-*/
+
 void TetrMesh::translate(float x, float y, float z)
 {
 	for(int i = 0; i < nodes.size(); i++) {

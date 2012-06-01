@@ -21,25 +21,22 @@ using std::stringstream;
 
 #include "../meshtypes/TetrMesh_1stOrder.h"
 #include "TetrMeshSet.h"
-#include "Logger.h"
 
-class SnapshotWriter
+class VTKSnapshotWriter: LoggerUser
 {
 public:
-	SnapshotWriter();
-	SnapshotWriter(string result_dir);
-	~SnapshotWriter();
+	VTKSnapshotWriter();
+	VTKSnapshotWriter(string result_dir);
+	~VTKSnapshotWriter();
 	void set_result_dir(string new_result_dir);
 	string* get_snapshot_writer_type();
 	int dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num);
-	int dump_vtk(TetrMeshSet* mesh_set, int snap_num);
-	void attach(Logger* new_logger);
+	int dump_vtk(int snap_num);
 	int dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
 
 protected:
 	string snapshot_writer_type;
 	string result_dir;
-	Logger* logger;
 };
 
 #endif

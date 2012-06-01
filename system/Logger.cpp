@@ -9,16 +9,6 @@ Logger::Logger()
 	ss.precision(10);
 }
 
-Logger::Logger(string filename)
-{
-	logger_type.assign("Generic logger (file output)");
-	// set defautl options
-	ss.setf(ios::fixed,ios::floatfield);
-	ss.precision(10);
-
-	fname = filename;
-}
-
 Logger::Logger(Logger &logger)
 {
 	this->proc_num = logger.proc_num;
@@ -59,4 +49,15 @@ void Logger::set_proc_num(int proc_num)
 stringstream &Logger::get_ss()
 {
 	return ss;
+}
+
+Logger* Logger::getInstace()
+{
+	static Logger l;
+	return &l;
+}
+void Logger::setFileOutput(string fname)
+{
+	logger_type.assign("Generic logger (file output)");
+	this->fname = fname;
 }
