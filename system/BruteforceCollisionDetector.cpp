@@ -112,6 +112,9 @@ void BruteforceCollisionDetector::find_collisions(vector<ElasticNode> &virt_node
 			else
 				inters[i][j].min_coords[0] = inters[i][j].max_coords[0] = 0.0;
 		
+	for (int r = 0; r < mesh_set->get_number_of_remote_meshes(); r++)
+		mesh_set->get_remote_mesh(r)->clear_data();
+
 	data_bus->sync_faces_in_intersection(inters, fs, fl);
 
 	for (int i = 0; i < mesh_set->get_number_of_remote_meshes(); i++)

@@ -213,6 +213,9 @@ int TetrMeshSet::do_next_step()
 
 void TetrMeshSet::sync_remote_data()
 {
+	for (int r = 0; r < remote_meshes.size(); r++)
+		remote_meshes[r]->clear_data();
+
 	data_bus->sync_tetrs();
 
 	// process synced data for remote meshes
