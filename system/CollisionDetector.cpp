@@ -67,7 +67,7 @@ void CollisionDetector::find_nodes_in_intersection(vector<ElasticNode> &nodes, M
 	for (int i = 0; i < nodes.size(); i++)
 		// FIXME
 		// only local nodes?
-		if (nodes[i].placement_type == LOCAL)
+		if ( (nodes[i].placement_type == LOCAL) && (nodes[i].border_type == BORDER) )
 		{
 			bool flag = true;
 			for (int j = 0; j < 3; j++)
@@ -86,7 +86,7 @@ void CollisionDetector::find_nodes_in_intersection(vector<ElasticNode> &nodes, M
 	for (int i = 0; i < nodes.size(); i++)
 		// FIXME
 		// only local nodes?
-		if (nodes[i].placement_type == LOCAL)
+		if ( (nodes[i].placement_type == LOCAL) && (nodes[i].border_type == BORDER) )
 		{
 			bool flag = true;
 			for (int j = 0; j < 3; j++)
