@@ -1,10 +1,13 @@
-#ifndef _GCM_SNAPSHOT_WRITER_H
-#define _GCM_SNAPSHOT_WRITER_H  1
+#ifndef _GCM_VTK_SNAPSHOT_WRITER_H
+#define _GCM_VTK_SNAPSHOT_WRITER_H  1
 
 #include <string>
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <getopt.h>
+#include <stdlib.h>
+#include "Utils.h"
 
 using std::string;
 using std::vector;
@@ -21,22 +24,23 @@ using std::stringstream;
 
 #include "../meshtypes/TetrMesh_1stOrder.h"
 #include "TetrMeshSet.h"
+#include "SnapshotWriter.h"
 
-class VTKSnapshotWriter: LoggerUser
+class VTKSnapshotWriter: public SnapshotWriter
 {
 public:
-	VTKSnapshotWriter();
-	VTKSnapshotWriter(string result_dir);
+	VTKSnapshotWriter(char *param);
 	~VTKSnapshotWriter();
-	void set_result_dir(string new_result_dir);
 	string* get_snapshot_writer_type();
 	int dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num);
 	int dump_vtk(int snap_num);
 	int dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
-
+	void dump(int snap_num);
+	void parseArgs(int argc, char **argv);
 protected:
 	string snapshot_writer_type;
-	string result_dir;
+	string fname;
+	string resultdir;
 };
 
 #endif

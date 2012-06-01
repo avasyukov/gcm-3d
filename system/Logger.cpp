@@ -1,4 +1,5 @@
 #include "Logger.h"
+#include "Utils.h"
 
 Logger::Logger()
 {
@@ -7,6 +8,7 @@ Logger::Logger()
 	fname = "/dev/stdout";
 	ss.setf(ios::fixed,ios::floatfield);
 	ss.precision(10);
+	available = false;
 }
 
 Logger::Logger(Logger &logger)
@@ -16,23 +18,14 @@ Logger::Logger(Logger &logger)
 	this->ss.precision(logger.ss.precision());
 	this->ss << logger.ss.str();
 	this->outs = logger.outs;
+	this->outbuff << logger.outbuff.str();
+	this->available = logger.outbuff;
 }
 
 Logger::~Logger()
 {
 	outs->close();
 }
-
-void Logger::write(string str)
-{
-	time_t now = time(0);
-	struct tm tstruct;
-	char buf[80];
-	tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%d/%m/%Y %X", &tstruct);
-
-	*outs << buf << " PE #" << proc_num << ": " << str << endl;
-};
 
 string* Logger::get_logger_type()
 {
@@ -42,9 +35,6 @@ string* Logger::get_logger_type()
 void Logger::set_proc_num(int proc_num)
 {
 	this->proc_num = proc_num;
-	char filename[1000];
-	sprintf(filename, fname.c_str(), proc_num);
-	outs = new ofstream(filename, fstream::app);	
 }
 stringstream &Logger::get_ss()
 {
@@ -60,4 +50,11 @@ void Logger::setFileOutput(string fname)
 {
 	logger_type.assign("Generic logger (file output)");
 	this->fname = fname;
+}
+
+void Logger::init()
+{
+	Utils::replaceAll(fname, "%p", Utils::t_to_string(proc_num));
+	outs = new ofstream(fname.c_str(), fstream::app);	
+	available = true;
 }

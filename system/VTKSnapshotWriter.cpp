@@ -1,19 +1,13 @@
 #include "VTKSnapshotWriter.h"
 
-VTKSnapshotWriter::VTKSnapshotWriter()
+VTKSnapshotWriter::VTKSnapshotWriter(char *param)
 {
 	snapshot_writer_type.assign("Generic snapshot writer");
-};
-
-VTKSnapshotWriter::VTKSnapshotWriter(string new_result_dir)
-{
-	VTKSnapshotWriter();
-	set_result_dir(new_result_dir);
-};
-
-void VTKSnapshotWriter::set_result_dir(string new_result_dir)
-{
-	result_dir = new_result_dir;
+	resultdir = "./";
+	if (!strcmp("@", param))
+		fname = "snap_volume_zone_%z_snap_%n.vtu";
+	else
+		fname = param;
 };
 
 VTKSnapshotWriter::~VTKSnapshotWriter() { };
@@ -134,9 +128,12 @@ int VTKSnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 	rho->Delete();
 	contact->Delete();
 
-	stringstream name;
-	name << result_dir << "snap_volume_zone_" << zone_num << "_snap_" << snap_num << ".vtu";
-	string filename = name.str();
+	string filename = fname;
+	Utils::replaceAll(filename, "%z", Utils::t_to_string(zone_num));
+	Utils::replaceAll(filename, "%n", Utils::t_to_string(snap_num));
+	filename = resultdir+filename;
+	
+	*logger << "Dumping VTK snapshot to file " < filename;
 
 	xgw->SetInput(g);
 	xgw->SetFileName(filename.c_str());
@@ -150,3 +147,32 @@ int VTKSnapshotWriter::dump_vtk(TetrMesh_1stOrder* tetr_mesh, int snap_num)
 	return 0;
 };
 
+void VTKSnapshotWriter::dump(int snap_num)
+{
+	dump_vtk(snap_num);
+}
+
+void VTKSnapshotWriter::parseArgs(int argc, char **argv)
+{
+	static struct option long_options[] =
+	{
+		{"output-dir", required_argument, 0, 'o'},
+		{0           , 0                , 0, 0  }
+	};
+	
+	int option_index = 0;
+
+	int c;
+	while ((c = getopt_long (argc, argv, "o:", long_options, &option_index)) != -1)
+		switch (c)
+		{
+			case 'o':
+				resultdir = optarg;
+				if (resultdir[resultdir.length()-1] != '/')
+					resultdir += '/';
+				break;
+			default:
+				optind--;
+				return;
+		}
+}

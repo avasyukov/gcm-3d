@@ -36,6 +36,7 @@ set ( SOURCES
 	./system/GCMException.cpp
 	./system/TaskPreparator.cpp
 	./system/TetrMeshSet.cpp
+	./system/SnapshotWriter.cpp
 	./system/VTKSnapshotWriter.cpp
 	./system/CylTest.cpp
 	./system/CollisionDetector.cpp
@@ -47,6 +48,7 @@ set ( SOURCES
 	./system/LoggerUser.cpp
 	./system/Logger.cpp
 	./system/DataBus.cpp
+	./system/Utils.cpp
 	./main.cpp )
 
 add_executable (${PROJECT} ${SOURCES})
