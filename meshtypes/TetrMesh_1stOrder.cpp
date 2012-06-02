@@ -1649,7 +1649,7 @@ bool TetrMesh_1stOrder::vector_intersects_triangle(float *p1, float *p2, float *
 	return true;
 };
 
-bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, float *p, float *v1, float *v2, float *v3, float *v)
+bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, float *p, float *v1, float *v2, float *v3, float *v, int n)
 {
 	float n1, n2, n3;
 	float p1l[3];
@@ -1682,12 +1682,16 @@ bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, fl
 	gsl_matrix_set(T, 0, 2, n3);
 
 	pl[0] = sqrt(sqr(n1)+sqr(n3));
+	if (pl[0] == 0.0)
+		throw new GCMException(GCMException::MATH_EXCEPTION, "New basis is invalid");
 	gsl_matrix_set(T, 1, 0, n3/pl[0]);
 	gsl_matrix_set(T, 1, 1, 0);
 	gsl_matrix_set(T, 1, 2, -n1/pl[0]);
 
 	pl[0] = -(sqr(n1)+sqr(n3));
-	pl[1] = sqrt(sqrt(n1*n2)+sqr(pl[0])+sqrt(n2*n3));
+	pl[1] = sqrt(sqr(n1*n2)+sqr(sqr(n1)+sqr(n3))+sqr(n2*n3));
+	if (pl[1] == 0.0)
+		throw new GCMException(GCMException::MATH_EXCEPTION, "New basis is invalid");
 	gsl_matrix_set(T, 2, 0, n1*n2/pl[1]);
 	gsl_matrix_set(T, 2, 1, pl[0]/pl[1]);
 	gsl_matrix_set(T, 2, 2, n2*n3/pl[1]);
@@ -1731,7 +1735,7 @@ bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, fl
 	float l3 = 1-l2-l1;
 
 	// interpolate
-	for(int i = 0; i < 13; i++)
+	for(int i = 0; i < n; i++)
 		v[i] = l1*v1[i] + l2*v2[i] + l3*v3[i];
 
 	// check if point is inside of face

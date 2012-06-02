@@ -20,6 +20,7 @@ public:
 	static const int SYNC_EXCEPTION = 1;
 	static const int CONFIG_EXCEPTION = 2;
 	static const int METHOD_EXCEPTION = 3;
+	static const int MATH_EXCEPTION = 7;
 	static const int MESH_EXCEPTION = 4;
 	static const int SNAP_EXCEPTION = 5;
 	static const int COLLISION_EXCEPTION = 6;
