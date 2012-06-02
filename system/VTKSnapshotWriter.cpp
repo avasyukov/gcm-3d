@@ -10,8 +10,6 @@ VTKSnapshotWriter::VTKSnapshotWriter(char *param)
 		fname = param;
 };
 
-VTKSnapshotWriter::~VTKSnapshotWriter() { };
-
 string* VTKSnapshotWriter::get_snapshot_writer_type()
 {
 	return &snapshot_writer_type;
