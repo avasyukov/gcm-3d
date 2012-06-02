@@ -2,9 +2,8 @@
 
 CollisionDetector::CollisionDetector()
 {
-	logger = NULL;
-	data_bus = NULL;
-	mesh_set = NULL;
+	data_bus = DataBus::getInstance();
+	mesh_set = TetrMeshSet::getInstance();
 	static_operation = false;
 }
 
@@ -20,21 +19,6 @@ void CollisionDetector::set_static(bool state)
 bool CollisionDetector::is_static()
 {
 	return static_operation;
-}
-
-void CollisionDetector::attach(Logger* new_logger)
-{
-	logger = new_logger;
-}
-
-void CollisionDetector::attach(DataBus* new_data_bus)
-{
-	data_bus = new_data_bus;
-}
-
-void CollisionDetector::attach(TetrMeshSet* new_mesh_set)
-{
-	mesh_set = new_mesh_set;
 }
 
 void CollisionDetector::set_treshold(float value)

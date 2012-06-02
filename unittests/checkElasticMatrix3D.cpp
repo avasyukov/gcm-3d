@@ -2,8 +2,6 @@
 
 int main()
 {
-	Logger* log = new Logger();
-
 	ElasticMatrix3D* simple = new ElasticMatrix3D();
 	ElasticMatrix3D* advanced = new ElasticMatrix3D();
 

@@ -7,31 +7,19 @@
 #include <iostream>
 #include <fstream>
 
-//using std::string;
-//using std::vector;
-//using std::cout;
-//using std::endl;
-//using std::stringstream;
-//using std::ios;
-//
 using namespace std;
 
 class Logger
 {
 public:
-	Logger();
-	Logger(string filename);
-	Logger(Logger &logger);
-	~Logger();
-	void write(string str);
+	static Logger* getInstace();
+	void setFileOutput(string fname);
+	void init();
 	// stores process number to make logging more verbose
 	void set_proc_num(int proc_num);
 	// returns stringstream
 	stringstream &get_ss();
 	string* get_logger_type();
-	// FIXME
-	// it seems to be impossible to move this template operator outside of a
-	// header file so it's declared here
 	template<class T>
 	Logger &operator<<(T val)
 	{
@@ -42,16 +30,36 @@ public:
 	Logger &operator<(T val)
 	{
 		ss << val;
-		write(ss.str());
+		time_t now = time(0);
+		struct tm tstruct;
+		char buf[80];
+		tstruct = *localtime(&now);
+		strftime(buf, sizeof(buf), "%d/%m/%Y %X", &tstruct);
+
+		outbuff  << buf << " PE #" << proc_num << ": " << ss.str() << endl;					
 		ss.str(std::string());
+		if (available)
+		{
+			*outs << outbuff.str();
+			outs->flush();
+			outbuff.str(std::string());
+		}
+
 		return *this;
 	}
 protected:
+	Logger();
+	Logger(string filename);
+	Logger(Logger &logger);
+	~Logger();
+	void write(string str);	
 	ofstream *outs;
 	string logger_type;
 	stringstream ss;
 	string fname;
 	int proc_num;
+	bool available;
+	stringstream outbuff;
 };
 
 #endif

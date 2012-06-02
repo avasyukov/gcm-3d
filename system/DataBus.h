@@ -14,7 +14,6 @@ using std::vector;
 
 class DataBus;
 
-#include "Logger.h"
 #include "CollisionDetector.h"
 #include "../datatypes/Tetrahedron_1st_order.h"
 #include "TetrMeshSet.h"
@@ -22,19 +21,13 @@ class DataBus;
 #include <mpi.h>
 #include <memory.h>
 
-#include "Logger.h"
 #include "GCMException.h"
 
 
-class DataBus
+class DataBus: LoggerUser
 {
 public:
-	DataBus();
-	DataBus(Logger* new_logger);
-	~DataBus();
 	string* get_data_bus_type();
-	void attach(Logger* new_logger);
-	void attach(TetrMeshSet* new_mesh_set);
 	void attach(CollisionDetector* cd);
 	virtual float get_max_possible_tau(float local_time_step);
 	// performs nodes sync
@@ -58,12 +51,14 @@ public:
 	void sync_faces_in_intersection(MeshOutline **intersections, int **fs, int **fl);
 	// sync tetrs
 	void sync_tetrs();
+	static DataBus* getInstance();
 protected:
+	DataBus();
+	~DataBus();
 	MPI::Errhandler error_handler;
 	vector<int> **local_numbers;
 	TetrMeshSet* mesh_set;
 	CollisionDetector *collision_detector;
-	Logger* logger;
 	string data_bus_type;
 	int proc_num;
 	int procs_total_num;

@@ -37,6 +37,8 @@ set ( SOURCES
 	./system/TaskPreparator.cpp
 	./system/TetrMeshSet.cpp
 	./system/SnapshotWriter.cpp
+	./system/VTKSnapshotWriter.cpp
+	./system/LineSnapshotWriter.cpp
 	./system/CylTest.cpp
 	./system/CollisionDetector.cpp
 	./system/VoidCollisionDetector.cpp
@@ -44,8 +46,10 @@ set ( SOURCES
 	./system/CollisionDetectorForLayers.cpp
 	./system/Stresser.cpp
 	./system/quick_math.cpp
+	./system/LoggerUser.cpp
 	./system/Logger.cpp
 	./system/DataBus.cpp
+	./system/Utils.cpp
 	./main.cpp )
 
 add_executable (${PROJECT} ${SOURCES})

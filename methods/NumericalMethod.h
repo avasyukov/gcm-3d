@@ -7,19 +7,17 @@
 using std::string;
 using std::vector;
 
-#include "../system/Logger.h"
 #include "../system/GCMException.h"
+#include "../system//LoggerUser.h"
 
-class NumericalMethod
+class NumericalMethod: protected LoggerUser
 {
 public:
 	NumericalMethod();
 	~NumericalMethod();
-	void attach(Logger* new_logger);
 	virtual int get_number_of_stages() = 0;
 	string* get_num_method_type();
 protected:
-	Logger* logger;
 	string num_method_type;
 };
 

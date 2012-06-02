@@ -3,6 +3,7 @@ CMakeFiles/*
 Makefile
 cmake_install.cmake
 gcm3d
+gcm3d-profile
 nbproject/*
 materials/*
 tools/*.bin

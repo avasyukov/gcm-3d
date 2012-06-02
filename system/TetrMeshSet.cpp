@@ -2,7 +2,6 @@
 
 TetrMeshSet::TetrMeshSet()
 {
-	logger = NULL;
 	data_bus = NULL;
 	stresser = NULL;
 	rheology = NULL;
@@ -12,39 +11,12 @@ TetrMeshSet::TetrMeshSet()
 
 TetrMeshSet::~TetrMeshSet() { };
 
-void TetrMeshSet::attach(Logger* new_logger)
-{
-	logger = new_logger;
-
-	for(int i = 0; i < local_meshes.size(); i++)
-		local_meshes[i]->attach(logger);
-
-	if(collision_detector != NULL)
-		collision_detector->attach(logger);
-};
-
 void TetrMeshSet::attach(TetrMesh_1stOrder* new_mesh)
 {
 	if(new_mesh != NULL) {
-		new_mesh->attach(logger);
 		new_mesh->attach(stresser);
 		new_mesh->attach(rheology);
-		// FIXME - never ever do it! We need separate copy of method class for each mesh - see below.
-		// new_mesh->attach(numerical_method);
-		new_mesh->attach(this);
 	}
-};
-
-void TetrMeshSet::attach(DataBus* new_data_bus)
-{
-	int i;
-	
-	data_bus = new_data_bus;
-
-	data_bus->attach(this);
-
-	if(collision_detector != NULL)
-		collision_detector->attach(data_bus);
 };
 
 void TetrMeshSet::attach(Stresser* new_stresser)
@@ -76,9 +48,6 @@ void TetrMeshSet::attach(TetrNumericalMethod* new_numerical_method)
 void TetrMeshSet::attach(CollisionDetector* new_collision_detector)
 {
 	collision_detector = new_collision_detector;
-	collision_detector->attach(data_bus);
-	collision_detector->attach(this);
-	collision_detector->attach(logger);
 };
 
 void TetrMeshSet::log_meshes_types()
@@ -206,7 +175,6 @@ void TetrMeshSet::sync_remote_data()
 				<< "Tetrs: " << (remote_meshes[r]->tetrs).size() << " Nodes: " < (remote_meshes[r]->nodes).size();
 
 		collision_detector->renumber_volume(remote_meshes[r]->tetrs, remote_meshes[r]->nodes);
-		remote_meshes[r]->attach(logger);
 		remote_meshes[r]->pre_process_mesh();
 
 		// debug print for tetr sync
@@ -360,10 +328,7 @@ void TetrMeshSet::init_mesh_container(vector<int> &zones_info)
 	meshes = new TetrMesh_1stOrder[meshes_number];
 	meshes_at_proc = (int*)calloc(data_bus->get_procs_total_num(), sizeof(int));
 	for (int i = 0; i < meshes_number; i++)
-	{
 		meshes_at_proc[zones_info[i]]++;
-		meshes[i].attach(logger);
-	}
 	int k = 0;
 	for (int i = 0; i < data_bus->get_procs_total_num(); i++)
 	{
@@ -383,4 +348,15 @@ void TetrMeshSet::init_mesh_container(vector<int> &zones_info)
 			k++;
 		}
 	}
+}
+
+TetrMeshSet* TetrMeshSet::getInstance()
+{
+	static TetrMeshSet ms;
+	return &ms;
+}
+
+void TetrMeshSet::init()
+{
+	data_bus = DataBus::getInstance();
 }

@@ -13,14 +13,7 @@ void error_handler_function(MPI::Comm& comm, int* error_code, ...)
 
 DataBus::DataBus()
 {
-	logger = new Logger();
-	DataBus(logger);
-};
-
-DataBus::DataBus(Logger* new_logger)
-{
 	data_bus_type.assign("Basic MPI DataBus");
-	attach(new_logger);
 	// try to initialize MPI
 	// TODO: add command line arguments processing if we really need it
 	MPI::Init();
@@ -32,6 +25,7 @@ DataBus::DataBus(Logger* new_logger)
 	procs_total_num = MPI::COMM_WORLD.Get_size();
 	logger->set_proc_num(proc_num);
 	*logger < "MPI initialized";
+	mesh_set = TetrMeshSet::getInstance();
 };
 
 DataBus::~DataBus()
@@ -44,16 +38,6 @@ DataBus::~DataBus()
 string* DataBus::get_data_bus_type()
 {
 	return &data_bus_type;
-};
-
-void DataBus::attach(Logger* new_logger)
-{
-	logger = new_logger;
-};
-
-void DataBus::attach(TetrMeshSet* new_mesh_set)
-{
-	mesh_set = new_mesh_set;
 };
 
 void DataBus::attach(CollisionDetector* cd)
@@ -1144,5 +1128,10 @@ void DataBus::sync_tetrs()
 	delete[] buff;
 	
 	*logger < "Tetrs sync done";
+}
 
+DataBus* DataBus::getInstance()
+{
+	static DataBus db;
+	return &db;
 }

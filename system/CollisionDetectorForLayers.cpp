@@ -10,11 +10,6 @@ CollisionDetectorForLayers::~CollisionDetectorForLayers() { };
 
 void CollisionDetectorForLayers::find_collisions(vector<ElasticNode> &virt_nodes)
 {
-	if( data_bus == NULL )
-		throw GCMException( GCMException::COLLISION_EXCEPTION, "DataBus is not attached!");
-	if( mesh_set == NULL )
-		throw GCMException( GCMException::COLLISION_EXCEPTION, "MeshSet is not attached!");
-
 	vector<int> local_nodes;
 
 	*logger < "Processing collisions";
