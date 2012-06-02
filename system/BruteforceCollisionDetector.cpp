@@ -6,11 +6,6 @@ BruteforceCollisionDetector::~BruteforceCollisionDetector() { };
 
 void BruteforceCollisionDetector::find_collisions(vector<ElasticNode> &virt_nodes)
 {
-	if( data_bus == NULL )
-		throw GCMException( GCMException::COLLISION_EXCEPTION, "DataBus is not attached!");
-	if( mesh_set == NULL )
-		throw GCMException( GCMException::COLLISION_EXCEPTION, "MeshSet is not attached!");
-
 	MeshOutline intersection;
 
 	vector<Triangle> local_faces;
@@ -70,7 +65,7 @@ void BruteforceCollisionDetector::find_collisions(vector<ElasticNode> &virt_node
 								mesh2->nodes[ local_faces[l].vert[0] ].values,
 								mesh2->nodes[ local_faces[l].vert[1] ].values,
 								mesh2->nodes[ local_faces[l].vert[2] ].values,
-								new_node.values);
+								new_node.values, 13);
 
 							// remote_num here should be remote face (!) num
 							new_node.remote_zone_num = mesh2->zone_num;
@@ -180,7 +175,7 @@ void BruteforceCollisionDetector::find_collisions(vector<ElasticNode> &virt_node
 								remote_nodes[ remote_faces[l].vert[0] ].values,
 								remote_nodes[ remote_faces[l].vert[1] ].values,
 								remote_nodes[ remote_faces[l].vert[2] ].values,
-								new_node.values);
+								new_node.values, 13);
 
 							// remote_num here should be remote face (!) num
 							new_node.remote_zone_num = rem_mesh->zone_num;

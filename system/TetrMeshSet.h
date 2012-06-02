@@ -10,18 +10,15 @@ using std::string;
 #include "../meshtypes/TetrMesh_1stOrder.h"
 #include "../methods/TetrNumericalMethod.h"
 #include "../rheotypes/RheologyCalculator.h"
-#include "Logger.h"
 #include "DataBus.h"
 #include "Stresser.h"
 #include "CollisionDetector.h"
 
-class TetrMeshSet
+class TetrMeshSet: LoggerUser
 {
 public:
-	TetrMeshSet();
-	~TetrMeshSet();
-	void attach(Logger* new_logger);
-	void attach(DataBus* new_data_bus);
+	void init();
+	static TetrMeshSet* getInstance();
 	void attach(Stresser* new_stresser);
 	void attach(RheologyCalculator* new_rheology);
 	void attach(TetrNumericalMethod* new_numerical_method);
@@ -48,7 +45,8 @@ public:
 	void init_mesh_container(vector<int> &zones_info);	
 	void sync_remote_data();
 protected:
-	Logger* logger;
+	TetrMeshSet();
+	~TetrMeshSet();
 	RheologyCalculator* rheology;
 	DataBus* data_bus;
 	Stresser* stresser;

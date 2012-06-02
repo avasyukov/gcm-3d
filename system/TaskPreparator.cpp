@@ -2,21 +2,10 @@
 
 TaskPreparator::TaskPreparator()
 {
-	logger = NULL;
-};
-
-TaskPreparator::TaskPreparator(Logger* new_logger)
-{
-	logger = new_logger;
 	task_preparator_type.assign("Generic task preparator");
 };
 
 TaskPreparator::~TaskPreparator() { };
-
-void TaskPreparator::attach(Logger* new_logger)
-{
-	logger = new_logger;
-};
 
 string* TaskPreparator::get_task_preparator_type()
 {
@@ -101,16 +90,17 @@ int TaskPreparator::load_zones_info(string zones_file, vector<int>* zones_info)
 };
 
 int TaskPreparator::load_task( string task_file, string zones_file, string data_dir, 
-				int* snap_num, int* steps_per_snap, TetrMeshSet* mesh_set, DataBus* data_bus )
+				int* snap_num, int* steps_per_snap)
 {
 	*logger < "Loading task from XML";
 
 	// Current process number
+	DataBus *data_bus = DataBus::getInstance();
+	TetrMeshSet *mesh_set = TetrMeshSet::getInstance();
 	int proc_num = data_bus->get_proc_num();
 
 	// Create stresser
 	Stresser* stresser = new GCMStresser();
-	stresser->attach(logger);
 	// Stresser loads data from the file on its own
 	// TODO - load should be done by task preparator as well
 	stresser->loadTask(task_file);
@@ -192,7 +182,7 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 		}
 	}
 
-	// Create collision detector 
+	// Create collision detector
 	if( col_det_type == "VoidCollisionDetector" )
 		col_det = new VoidCollisionDetector();
 	else if( col_det_type == "CollisionDetectorForLayers" )
@@ -205,7 +195,6 @@ int TaskPreparator::load_task( string task_file, string zones_file, string data_
 
 	// Configure collision detector and attach to mesh set
 	col_det->set_treshold( 0.1 );
-	col_det->attach(logger);
 	mesh_set->attach( col_det );
 
 

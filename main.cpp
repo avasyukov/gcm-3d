@@ -7,6 +7,7 @@
 #include "system/TetrMeshSet.h"
 #include "system/DataBus.h"
 #include "system/GCMException.h"
+#include "system/LineSnapshotWriter.h"
 
 using std::cout;
 
@@ -33,9 +34,9 @@ int main(int argc, char **argv)
 		{"task"      , required_argument, 0, 't'},
 		{"zones"     , required_argument, 0, 'z'},
 		{"data-dir"  , required_argument, 0, 'd'},
-		{"result-dir", required_argument, 0, 'r'},
 		{"log-file"  , required_argument, 0, 'l'},
-		{"no-dumps"  , no_argument      , 0, 'n'},
+		{"dump-vtk"  , required_argument, 0, 'D'},
+		{"dump-line" , required_argument, 0, 'L'},
 		{"help"      , no_argument      , 0, 'h'},
 		{0           , 0                , 0, 0  }
 	};
@@ -44,14 +45,19 @@ int main(int argc, char **argv)
 	string task_file = "./task.xml";
 	string zones_info_file = "./zones.xml";
 	string data_dir = "./";
-	string res_dir = "./";
-	string log_file = "";
-	bool dump = true;
+	
+	vector<SnapshotWriter*> sw;
 
-	while ( true ) {
-		c = getopt_long (argc, argv, "t:z:d:r:l:hn", long_options, &option_index);
-		if (c == -1)
-			break;
+	// Top level objects
+	Logger* logger = Logger::getInstace();
+	TaskPreparator* task_prep = NULL;
+	TetrMeshSet* mesh_set = TetrMeshSet::getInstance();
+	DataBus *data_bus = DataBus::getInstance();
+	mesh_set->init();	
+	
+	// suppress error messages
+	opterr = 0;
+	while ((c = getopt_long (argc, argv, "t:z:d:l:hD:", long_options, &option_index)) != -1)
 		switch (c)
 		{
 			case 't':
@@ -63,69 +69,46 @@ int main(int argc, char **argv)
 			case 'd':
 				data_dir = optarg;
 				break;
-			case 'r':
-				res_dir = optarg;
-				break;
 			case 'h':
 				print_help();
 				return 0;
 			case 'l':
-				log_file = optarg;
+				logger->setFileOutput(optarg);
 				break;
-			case 'n':
-				dump = false;
+			case 'D':
+				sw.push_back(new VTKSnapshotWriter(optarg));
+				sw[sw.size()-1]->parseArgs(argc, argv);
 				break;
+			case 'L':
+				sw.push_back(new LineSnapshotWriter(optarg));
+				sw[sw.size()-1]->parseArgs(argc, argv);
+				break;				
 			case '?':
 				print_help();
 			default:
 				return -1;
 		}
-	}
+		
+	logger->init();
 
 	if(data_dir[data_dir.length()-1] != '/')
 		data_dir += '/';
-	if(res_dir[res_dir.length()-1] != '/')
-		res_dir += '/';
 
 	// Number of snapshots in task
 	int snap_num = -1;
 	// Number of steps between snapshots
 	int step_per_snap = -1;
-
-	// Top level objects
-	Logger* logger = NULL;
-	TaskPreparator* task_prep = NULL;
-	TetrMeshSet* mesh_set = NULL;
-	DataBus *data_bus = NULL;
-
 	try
 	{
-		// Create logger to be used by all other objects
-		if (log_file != "")
-			logger = new Logger(log_file);
-		else
-			logger = new Logger();
-
 		// Create task preparator
-		task_prep = new TaskPreparator(logger);
-
-		// Create mesh set
-		mesh_set = new TetrMeshSet();
-		mesh_set->attach(logger);
-
-		// Create data bus
-		data_bus = new DataBus(logger);
+		task_prep = new TaskPreparator();
 		
 		*logger << "Task file: " < task_file;
 		*logger << "Zones info file: " < zones_info_file;
 		*logger << "Data dir: " < data_dir;
-		*logger << "Res dir: " < res_dir;
-
-		// Attach mesh set and data bus to each other
-		mesh_set->attach(data_bus);
 
 		// Load real task info
-		task_prep->load_task( task_file, zones_info_file, data_dir, &snap_num, &step_per_snap, mesh_set, data_bus );
+		task_prep->load_task( task_file, zones_info_file, data_dir, &snap_num, &step_per_snap);
 		
 		// create custom types for fast sync
 		data_bus->create_custom_types();
@@ -140,14 +123,8 @@ int main(int argc, char **argv)
 		mesh_set->log_meshes_types();
 		mesh_set->log_meshes_stats();
 
-		// Create snapshot writer
-		SnapshotWriter* sw = NULL;
-		if (dump)
-		{
-			sw = new SnapshotWriter(res_dir);
-			if (sw->dump_vtk(mesh_set, 0) < 0)
-				return -1;
-		}
+		for (int i = 0; i < sw.size(); i++)
+			sw[i]->dump(0);
 
 		// Do calculation
 		float cur_time;
@@ -161,18 +138,15 @@ int main(int argc, char **argv)
 				if (mesh_set->do_next_step() < 0)
 					return -1;
 		
-			if (dump)
-				if (sw->dump_vtk(mesh_set, i) < 0)
-					return -1;
+			for (int j = 0; j < sw.size(); j++)
+				sw[j]->dump(i);
 
 			if( (cur_time = mesh_set->get_current_time()) < 0)
 				return -1;
 			*logger << "Finished step " << i << ". Time = " << cur_time < ".";
 		}
 
-		// Delete data bus to finalize MPI
-		// TODO: delete all other objects?
-		delete data_bus;	
+		// TODO: delete all objects?
 	}
 	catch (GCMException& e)
 	{
@@ -180,8 +154,8 @@ int main(int argc, char **argv)
 		*logger << "ERROR: " < e.getMessage();
 		// terminate all other procs
 		// FIXME
-		// return -1 works too, but I think it's beter to call a specialized
-		// function to stop execturion 
+		// return -1 works too, but I think it's better to call a specialized
+		// function to stop execution 
 		data_bus->terminate();
 	}
 

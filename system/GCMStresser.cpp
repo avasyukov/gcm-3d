@@ -384,8 +384,6 @@ GCMStressArea* GCMStresser::createArea( const string& type, const string& str ) 
 		return 0;
 	}
 	
-	area->attach(logger);
-	
 	return area;	
 }
 
@@ -488,12 +486,6 @@ bool GCMStresser::loadTask(string fname)
 		*logger < "failed to load xml task. exiting";
 	}
 
-	for  (int i = 0; i < stresses.size(); i++)
-	{
-		stresses[i]->attach(logger);
-		stresses[i]->performer->attach(logger);
-	}
-
 	return true;
 }
 
@@ -504,24 +496,4 @@ void GCMStresser::print()
 		*logger < i;
 		stresses[i]->print();
 	}	
-}
-
-void GCMStressArea::attach(Logger *logger)
-{
-	this->logger = logger;
-}
-
-void GCMStressForm::attach(Logger *logger)
-{
-	this->logger = logger;
-}
-
-void GCMStressPerformer::attach(Logger *logger)
-{
-	this->logger = logger;
-}
-
-void GCMStress::attach(Logger *logger)
-{
-	this->logger = logger;
 }

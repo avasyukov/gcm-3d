@@ -2,7 +2,6 @@
 #define _GCM_ELASTIC_MATRIX_3D_H  1
 
 #include "matrixes.h"
-#include "../system/Logger.h"
 #include "../system/GCMException.h"
 
 class ElasticMatrix3D
@@ -11,12 +10,10 @@ public:
 	ElasticMatrix3D();
 	~ElasticMatrix3D();
 	int prepare_matrix(float la, float mu, float ro, int stage);
-	int prepare_matrix(float la, float mu, float ro, int stage, Logger* logger);
 	int prepare_matrix(float la, float mu, float ro, float qjx, float qjy, float qjz);
-	int prepare_matrix(float la, float mu, float ro, float qjx, float qjy, float qjz, Logger* logger);
 	float max_lambda();
 
-	int self_check(Logger* logger);
+	int self_check();
 
 	gcm_matrix A;
 	gcm_matrix L;

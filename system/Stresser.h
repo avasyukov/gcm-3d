@@ -9,21 +9,19 @@ using std::string;
 using std::vector;
 
 #include "../datatypes/ElasticNode.h"
-#include "Logger.h"
+#include "../system/LoggerUser.h"
 
-class Stresser
+class Stresser: protected LoggerUser
 {
 public:
 	Stresser();
 	~Stresser();
 	string* get_stresser_type();
-	void attach(Logger* new_logger);
 	virtual void set_current_stress(ElasticNode* cur_node, ElasticNode* new_node, float current_time) = 0;
 	virtual bool loadTask(string fname) = 0;
 	virtual void print() = 0;
 protected:
 	string stresser_type;
-	Logger* logger;
 };
 
 #endif

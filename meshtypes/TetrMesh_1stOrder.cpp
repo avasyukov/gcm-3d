@@ -32,19 +32,6 @@ void TetrMesh_1stOrder::clear_data()
 	border.clear();
 };
 
-//void TetrMesh_1stOrder::attach_data_bus(DataBus* new_data_bus)
-//{
-//	data_bus = new_data_bus;
-//	if(data_bus != NULL)
-//	{
-//		data_bus->attach(logger);
-//		if(logger != NULL)
-//		{
-//			*logger << "Attached data bus. Type: " < *(data_bus->get_data_bus_type());
-//		}
-//	}
-//};
-
 //TODO - ugly hack - think about if we need it and how to implement it
 void TetrMesh_1stOrder::add_node(ElasticNode* node)
 {
@@ -1505,176 +1492,6 @@ int TetrMesh_1stOrder::run_mesh_filter()
 	return 0;
 };
 
-/*
-int TetrMesh_1stOrder::do_next_step(float time_step)
-{
-	int number_of_stages;
-
-	if(method == NULL)
-		throw GCMException( GCMException::MESH_EXCEPTION, "No NM attached");
-
-	if(rheology == NULL)
-		throw GCMException( GCMException::MESH_EXCEPTION, "No RC attached");
-
-	// FIXME - add time_step adjustment
-	// time_step = time_step * 2;
-
-	if(time_step < 0)
-		throw GCMException( GCMException::MESH_EXCEPTION, "Time step is negative");
-
-	if( (number_of_stages = method->get_number_of_stages()) <= 0 )
-		throw GCMException( GCMException::MESH_EXCEPTION, "Incorrect number of stages");
-
-	if(set_stress(current_time) < 0)
-		throw GCMException( GCMException::MESH_EXCEPTION, "Set stress failed");
-
-	for(int s = 0; s < number_of_stages; s++)
-	{
-		*logger << "Mesh " << zone_num << " Stage " << s < " Start calculation";
-
-		vector<ElasticNode> remote_nodes;
-		vector<Tetrahedron_1st_order> remote_tetrs;
-		vector<ElasticNode> current_virt_nodes;
-		TetrMesh_1stOrder *tmp_mesh = new TetrMesh_1stOrder();
-		tmp_mesh->attach(logger);
-		tmp_mesh->attach(mesh_set);
-
-		*logger << "Mesh " << zone_num << " Stage " << s < " Preparing virt node vector";
-
-		// find virt nodes required for current mesh 
-		for(int i = 0; i < nodes.size(); i++)
-			if(nodes[i].border_type == BORDER)
-				if(nodes[i].contact_data->axis_plus[0] != -1)
-					current_virt_nodes.push_back( *( mesh_set->getNode( nodes[i].contact_data->axis_plus[0] ) ) );
-
-		*logger << "Mesh " << zone_num << " Stage " << s < " Getting virt node vector";
-
-		// ... and get them
-		if(current_virt_nodes.size() > 0)
-		{
-			data_bus->get_remote_tetrahedrons(current_virt_nodes, remote_tetrs, remote_nodes);
-			*logger << "Mesh " << zone_num << " required " << current_virt_nodes.size() << " faces and got " 
-					<< remote_tetrs.size() << " tetrs and " << remote_nodes.size() < " nodes";
-		}
-
-		*logger << "Mesh " << zone_num << " Stage " << s < " Creating virtual mesh";
-
-		// copy to mesh removing duplicates
-		for(int i = 0; i < remote_nodes.size(); i++)
-		{
-			bool found = false;
-			for(int j = 0; j < (tmp_mesh->nodes).size(); j++)
-				if( (tmp_mesh->nodes)[j].local_num == remote_nodes[i].local_num ) {
-					found = true;
-					break;
-				}
-			if( !found ) {
-				remote_nodes[i].placement_type = LOCAL;
-				tmp_mesh->add_node( &remote_nodes[i] );
-			}
-		}
-		for(int i = 0; i < remote_tetrs.size(); i++)
-		{
-			bool found = false;
-			for(int j = 0; j < (tmp_mesh->tetrs).size(); j++)
-				if( (tmp_mesh->tetrs)[j].local_num == remote_tetrs[i].local_num ) {
-					found = true;
-					break;
-				}
-			if( !found )
-				tmp_mesh->add_tetr( &remote_tetrs[i] );
-		}
-		*logger << "After dedup has " << (tmp_mesh->tetrs).size() << " tetrs and " << (tmp_mesh->nodes).size() < " nodes";
-
-		*logger << "Mesh " << zone_num << " Stage " << s < " Renumbering virtual mesh";
-
-		// renumber everything
-		for(int i = 0; i < (tmp_mesh->tetrs).size(); i++)
-		{
-			(tmp_mesh->tetrs)[i].absolute_num = (tmp_mesh->tetrs)[i].local_num;
-			(tmp_mesh->tetrs)[i].local_num = i;
-			for(int j = 0; j < 4; j++) {
-				bool node_found = false;
-				for(int k = 0; k < (tmp_mesh->nodes).size(); k++) {
-					if((tmp_mesh->tetrs)[i].vert[j] == (tmp_mesh->nodes)[k].local_num) {
-						(tmp_mesh->tetrs)[i].vert[j] = k;
-						node_found = true;
-						break;
-					}
-				}
-				if( ! node_found )
-					throw GCMException( GCMException::COLLISION_EXCEPTION, "Can not create correct numbering for volume");
-			}
-		}
-		for(int i = 0; i < (tmp_mesh->nodes).size(); i++)
-		{
-			(tmp_mesh->nodes)[i].absolute_num = (tmp_mesh->nodes)[i].local_num;
-			(tmp_mesh->nodes)[i].local_num = i;
-		}
-
-		*logger << "Mesh " << zone_num << " Stage " << s < " Pre-processing virtual mesh";
-
-		// create links, etc
-		tmp_mesh->pre_process_mesh();
-
-		*logger << "Mesh " << zone_num << " Stage " << s < " Linking virt nodes to virtual mesh";
-
-		// link virtual nodes to this virtual mesh
-		for(int i = 0; i < nodes.size(); i++)
-			if(nodes[i].border_type == BORDER)
-				if(nodes[i].contact_data->axis_plus[0] != -1)
-				{
-					ElasticNode *vnode = mesh_set->getNode( nodes[i].contact_data->axis_plus[0] );
-					vnode->mesh = tmp_mesh;
-					bool node_found = false;
-					for(int z = 0; z < (tmp_mesh->nodes).size(); z++)
-						if((tmp_mesh->nodes)[z].absolute_num == vnode->absolute_num)
-						{
-							node_found = true;
-							vnode->placement_type = LOCAL;
-							vnode->border_type = BORDER;
-							vnode->contact_type = IN_CONTACT;
-							vnode->elements = (tmp_mesh->nodes)[z].elements;
-							vnode->border_elements = (tmp_mesh->nodes)[z].border_elements;
-							vnode->local_num = (tmp_mesh->nodes)[z].local_num;
-							break;
-						}
-					if( ! node_found )
-						throw GCMException( GCMException::COLLISION_EXCEPTION, "Can not find virt node origin");
-				}
-
-		*logger << "Mesh " << zone_num << " Stage " << s < " Syncing remote nodes";
-
-		if(data_bus != NULL)
-			data_bus->sync_nodes();
-
-		// TODO Add interaction with scheduler
-
-		*logger << "Mesh " << zone_num << " Stage " << s < " Doing current part step";
-
-		if(do_next_part_step(time_step, s) < 0)
-			throw GCMException( GCMException::MESH_EXCEPTION, "Do next part step failed");
-
-		delete(tmp_mesh);
-
-		*logger << "Mesh " << zone_num << " Stage " << s < " Calculation done";
-	}
-// FIXME
-//	move_coords(time_step);
-
-	if(proceed_rheology() < 0)
-		throw GCMException( GCMException::MESH_EXCEPTION, "Proceed rheology failed");
-
-	current_time += time_step;
-
-	// Clear bad nodes that cause instabilities
-	// TODO - how filter interacts with sync?
-	//run_mesh_filter();
-
-	return 0;
-};
-*/
-
 Tetrahedron* TetrMesh_1stOrder::get_tetrahedron(int index)
 {
 	return &tetrs[index];
@@ -1832,7 +1649,7 @@ bool TetrMesh_1stOrder::vector_intersects_triangle(float *p1, float *p2, float *
 	return true;
 };
 
-bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, float *p, float *v1, float *v2, float *v3, float *v)
+bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, float *p, float *v1, float *v2, float *v3, float *v, int n)
 {
 	float n1, n2, n3;
 	float p1l[3];
@@ -1865,12 +1682,16 @@ bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, fl
 	gsl_matrix_set(T, 0, 2, n3);
 
 	pl[0] = sqrt(sqr(n1)+sqr(n3));
+	if (pl[0] == 0.0)
+		throw new GCMException(GCMException::MATH_EXCEPTION, "New basis is invalid");
 	gsl_matrix_set(T, 1, 0, n3/pl[0]);
 	gsl_matrix_set(T, 1, 1, 0);
 	gsl_matrix_set(T, 1, 2, -n1/pl[0]);
 
 	pl[0] = -(sqr(n1)+sqr(n3));
-	pl[1] = sqrt(sqrt(n1*n2)+sqr(pl[0])+sqrt(n2*n3));
+	pl[1] = sqrt(sqr(n1*n2)+sqr(sqr(n1)+sqr(n3))+sqr(n2*n3));
+	if (pl[1] == 0.0)
+		throw new GCMException(GCMException::MATH_EXCEPTION, "New basis is invalid");
 	gsl_matrix_set(T, 2, 0, n1*n2/pl[1]);
 	gsl_matrix_set(T, 2, 1, pl[0]/pl[1]);
 	gsl_matrix_set(T, 2, 2, n2*n3/pl[1]);
@@ -1914,7 +1735,7 @@ bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, fl
 	float l3 = 1-l2-l1;
 
 	// interpolate
-	for(int i = 0; i < 13; i++)
+	for(int i = 0; i < n; i++)
 		v[i] = l1*v1[i] + l2*v2[i] + l3*v3[i];
 
 	// check if point is inside of face

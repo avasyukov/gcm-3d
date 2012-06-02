@@ -8,18 +8,16 @@ using std::string;
 using std::vector;
 
 #include "../datatypes/ElasticNode.h"
-#include "../system/Logger.h"
+#include "../system/LoggerUser.h"
 
-class RheologyCalculator
+class RheologyCalculator: LoggerUser
 {
 public:
 	RheologyCalculator();
 	~RheologyCalculator();
 	virtual int do_calc(ElasticNode* cur_node, ElasticNode* new_node) = 0;
-	void attach(Logger* new_logger);
 	string* get_rheology_type();
 protected:
-	Logger* logger;
 	string rheology_type;
 };
 
