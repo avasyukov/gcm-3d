@@ -24,7 +24,8 @@ Logger::Logger(Logger &logger)
 
 Logger::~Logger()
 {
-	outs->close();
+	if (available)
+		outs->close();
 }
 
 string* Logger::get_logger_type()

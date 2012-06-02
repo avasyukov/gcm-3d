@@ -41,6 +41,7 @@ public:
 		if (available)
 		{
 			*outs << outbuff.str();
+			outs->flush();
 			outbuff.str(std::string());
 		}
 
