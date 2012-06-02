@@ -89,7 +89,9 @@ private:
 
 	vector<ElasticNode> new_nodes;
 
-//	DataBus* data_bus;
+	gsl_matrix *T;
+	gsl_matrix *S;
+	gsl_permutation *P;
 
 	quick_math qm_engine;
 };
