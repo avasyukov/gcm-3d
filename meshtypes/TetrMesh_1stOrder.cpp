@@ -3,11 +3,16 @@
 TetrMesh_1stOrder::TetrMesh_1stOrder()
 {
 	mesh_type.assign("Tetrahedron mesh 1st order");
-//	data_bus = NULL;
+	T = gsl_matrix_alloc(3, 3);
+	S = gsl_matrix_alloc(3, 3);
+	P = gsl_permutation_alloc(3);
 };
 
 TetrMesh_1stOrder::~TetrMesh_1stOrder()
 {
+	gsl_matrix_free(T);
+	gsl_matrix_free(S);
+	gsl_permutation_free(P);
 	clear_data();
 };
 
@@ -1669,62 +1674,59 @@ bool TetrMesh_1stOrder::interpolate_triangle(float *p1, float *p2, float *p3, fl
 	// [n3, 0, -n1]
 	// [n1*n2, -(n1^2+n3^2), n2*n3]
 
-	// FIXME
-	// since we do not use threads it is ok to allocate these matrices only once
-	// FIXME
-	// remove dynamic matrix inversion, use pre-calculated values
-	gsl_matrix *T = gsl_matrix_alloc(3, 3);
-	gsl_matrix *S = gsl_matrix_alloc(3, 3);
-	gsl_permutation *P = gsl_permutation_alloc(3);
-
-	gsl_matrix_set(T, 0, 0, n1);
-	gsl_matrix_set(T, 0, 1, n2);
-	gsl_matrix_set(T, 0, 2, n3);
-
-	pl[0] = sqrt(sqr(n1)+sqr(n3));
-	if (pl[0] == 0.0)
-		throw new GCMException(GCMException::MATH_EXCEPTION, "New basis is invalid");
-	gsl_matrix_set(T, 1, 0, n3/pl[0]);
-	gsl_matrix_set(T, 1, 1, 0);
-	gsl_matrix_set(T, 1, 2, -n1/pl[0]);
-
-	pl[0] = -(sqr(n1)+sqr(n3));
-	pl[1] = sqrt(sqr(n1*n2)+sqr(sqr(n1)+sqr(n3))+sqr(n2*n3));
-	if (pl[1] == 0.0)
-		throw new GCMException(GCMException::MATH_EXCEPTION, "New basis is invalid");
-	gsl_matrix_set(T, 2, 0, n1*n2/pl[1]);
-	gsl_matrix_set(T, 2, 1, pl[0]/pl[1]);
-	gsl_matrix_set(T, 2, 2, n2*n3/pl[1]);
-
-	// transpose
-	gsl_matrix_transpose(T);
-
-	// invert matrix
-	int s;
-	gsl_linalg_LU_decomp(T, P, &s);
-	gsl_linalg_LU_invert(T, P, S);
-
-	// get coordinates in the new basis
-	for  (int i = 0; i < 3; i++)
+	if (n3 != 0.0 && n1 != 0.0)
 	{
+		gsl_matrix_set(T, 0, 0, n1);
+		gsl_matrix_set(T, 0, 1, n2);
+		gsl_matrix_set(T, 0, 2, n3);
 
-		p1l[i] = 0.0;
-		p2l[i] = 0.0;
-		p3l[i] = 0.0;
-		pl[i] = 0.0;
-		for (int j = 0; j < 3; j++)
+		pl[0] = sqrt(sqr(n1)+sqr(n3));
+		gsl_matrix_set(T, 1, 0, n3/pl[0]);
+		gsl_matrix_set(T, 1, 1, 0);
+		gsl_matrix_set(T, 1, 2, -n1/pl[0]);
+
+		pl[0] = -(sqr(n1)+sqr(n3));
+		pl[1] = sqrt(sqr(n1*n2)+sqr(sqr(n1)+sqr(n3))+sqr(n2*n3));
+		gsl_matrix_set(T, 2, 0, n1*n2/pl[1]);
+		gsl_matrix_set(T, 2, 1, pl[0]/pl[1]);
+		gsl_matrix_set(T, 2, 2, n2*n3/pl[1]);
+
+		// transpose
+		gsl_matrix_transpose(T);
+
+		// invert matrix
+		int s;
+		gsl_linalg_LU_decomp(T, P, &s);
+		gsl_linalg_LU_invert(T, P, S);
+
+		// get coordinates in the new basis
+		for  (int i = 0; i < 3; i++)
 		{
-			p1l[i] += gsl_matrix_get(S, i, j)*p1[j];
-			p2l[i] += gsl_matrix_get(S, i, j)*p2[j];
-			p3l[i] += gsl_matrix_get(S, i, j)*p3[j];
-			pl[i]  += gsl_matrix_get(S, i, j)*p[j];
+
+			p1l[i] = 0.0;
+			p2l[i] = 0.0;
+			p3l[i] = 0.0;
+			pl[i] = 0.0;
+			for (int j = 0; j < 3; j++)
+			{
+				p1l[i] += gsl_matrix_get(S, i, j)*p1[j];
+				p2l[i] += gsl_matrix_get(S, i, j)*p2[j];
+				p3l[i] += gsl_matrix_get(S, i, j)*p3[j];
+				pl[i]  += gsl_matrix_get(S, i, j)*p[j];
+			}
 		}
 	}
-
-	// free memory
-	gsl_permutation_free(P);
-	gsl_matrix_free(T);
-	gsl_matrix_free(S);
+	else
+	{
+		p1l[1] = p1[0];
+		p1l[2] = p1[2];
+		p2l[1] = p2[0];
+		p2l[2] = p2[2];
+		p3l[1] = p3[0];
+		p3l[2] = p3[2];
+		pl[1] = p[0];
+		pl[2] = p[2];
+	}
 
 	// in the new basis we ignore coord #0, because it's the same for all points
 	// in face

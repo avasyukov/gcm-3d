@@ -16,6 +16,7 @@ public:
 	LineSnapshotWriter(char *param);
 	void dump(int step);
 	void parseArgs(int argc, char **argv);
+	void init();
 protected:
 	float from[3], fromr[3];
 	float to[3];

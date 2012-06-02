@@ -138,8 +138,9 @@ void LineSnapshotWriter::parseArgs(int argc, char **argv)
 	int option_index = 0;
 
 	int c;
-	bool flag = true;
-	while ((c = getopt_long (argc, argv, "F:T:o:", long_options, &option_index)) != -1 && flag)
+	while ((c = getopt_long (argc, argv, "F:T:o:", long_options, &option_index)) != -1)
+	{
+		*logger << "Parsing argument: " < (char)c;
 		switch (c)
 		{
 			case 'o':
@@ -162,9 +163,13 @@ void LineSnapshotWriter::parseArgs(int argc, char **argv)
 				break;
 			default:
 				optind--;
-				flag = false;
+				return;
 		}
-		
+	}
+}
+
+void LineSnapshotWriter::init()
+{
 	len = 0.0;	
 		
 	for (int i = 0; i < 3; i++)

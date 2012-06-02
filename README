@@ -16,6 +16,10 @@ Build requires gcc-c++, gsl-devel, vtk-devel, tinyxml-devel. To build from sourc
 
 4. Run
 
-./gcm3d --task ~/gcm-3d-materials/data/tasks/basic-contact-task.xml --data-dir ~/gcm-3d-materials/data/models/ --result-dir ./test/
+Without dumps: ./gcm3d --task ~/gcm-3d-materials/data/tasks/basic-contact-task.xml --data-dir ~/gcm-3d-materials/data/models/ 
+VTK dumps    : ./gcm3d --task ~/gcm-3d-materials/data/tasks/basic-contact-task.xml --data-dir ~/gcm-3d-materials/data/models/ --dump-vtk @
+               ./gcm3d --task ~/gcm-3d-materials/data/tasks/basic-contact-task.xml --data-dir ~/gcm-3d-materials/data/models/ --dump-vtk zone_%z_num_%n.vtu
+Line dumps   : ./gcm3d --task ~/gcm-3d-materials/data/tasks/basic-contact-task.xml --data-dir ~/gcm-3d-materials/data/models/ --dump-line @
+             : ./gcm3d --task ~/gcm-3d-materials/data/tasks/basic-contact-task.xml --data-dir ~/gcm-3d-materials/data/models/ --dump-line line_%n.txt --threshold 0.1 --from 0,0,0 --to 1,1,1
 
 Please see ./gcm3d --help for details.

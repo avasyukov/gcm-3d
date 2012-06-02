@@ -174,3 +174,7 @@ void VTKSnapshotWriter::parseArgs(int argc, char **argv)
 				return;
 		}
 }
+
+void VTKSnapshotWriter::init()
+{
+}

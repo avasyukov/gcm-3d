@@ -18,9 +18,7 @@ void print_help()
 		<< "\t--task - xml file with task description, defaults to ./task.xml\n"
 		<< "\t--zones - xml file with mapping between mesh zones and CPUs, defaults to ./zones.xml\n"
 		<< "\t--data-dir - where gcm3d will look for models specified in task.xml, defaults to ./\n"
-		<< "\t--result-dir - where gcm3d will save snapshots, defaults to ./\n"
-		<< "\t--log-file - file to write all output, defaults to stdout\n"
-		<< "\t--no-dumps - disable snapshots for benchmarking purposes\n\n";
+		<< "\t--log-file - file to write all output, defaults to stdout\n";
 };
 
 int main(int argc, char **argv)
@@ -57,7 +55,8 @@ int main(int argc, char **argv)
 	
 	// suppress error messages
 	opterr = 0;
-	while ((c = getopt_long (argc, argv, "t:z:d:l:hD:", long_options, &option_index)) != -1)
+	SnapshotWriter *s;
+	while ((c = getopt_long (argc, argv, "t:z:d:l:hD:L:", long_options, &option_index)) != -1)
 		switch (c)
 		{
 			case 't':
@@ -76,12 +75,16 @@ int main(int argc, char **argv)
 				logger->setFileOutput(optarg);
 				break;
 			case 'D':
-				sw.push_back(new VTKSnapshotWriter(optarg));
-				sw[sw.size()-1]->parseArgs(argc, argv);
+				s = new VTKSnapshotWriter(optarg);
+				sw.push_back(s);
+				s->parseArgs(argc, argv);
+				s->init();
 				break;
 			case 'L':
-				sw.push_back(new LineSnapshotWriter(optarg));
-				sw[sw.size()-1]->parseArgs(argc, argv);
+				s = new LineSnapshotWriter(optarg);
+				sw.push_back(s);
+				s->parseArgs(argc, argv);
+				s->init();
 				break;				
 			case '?':
 				print_help();

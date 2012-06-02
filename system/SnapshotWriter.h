@@ -9,6 +9,7 @@ public:
 	SnapshotWriter(char *param){};
 	virtual void parseArgs(int argc, char **argv) = 0;
 	virtual void dump(int step) = 0;
+	virtual void init() = 0;
 };
 
 #endif
