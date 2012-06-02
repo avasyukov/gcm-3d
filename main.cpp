@@ -7,6 +7,7 @@
 #include "system/TetrMeshSet.h"
 #include "system/DataBus.h"
 #include "system/GCMException.h"
+#include "system/LineSnapshotWriter.h"
 
 using std::cout;
 
@@ -35,6 +36,7 @@ int main(int argc, char **argv)
 		{"data-dir"  , required_argument, 0, 'd'},
 		{"log-file"  , required_argument, 0, 'l'},
 		{"dump-vtk"  , required_argument, 0, 'D'},
+		{"dump-line" , required_argument, 0, 'L'},
 		{"help"      , no_argument      , 0, 'h'},
 		{0           , 0                , 0, 0  }
 	};
@@ -43,7 +45,6 @@ int main(int argc, char **argv)
 	string task_file = "./task.xml";
 	string zones_info_file = "./zones.xml";
 	string data_dir = "./";
-	bool dump = true;
 	
 	vector<SnapshotWriter*> sw;
 
@@ -78,6 +79,10 @@ int main(int argc, char **argv)
 				sw.push_back(new VTKSnapshotWriter(optarg));
 				sw[sw.size()-1]->parseArgs(argc, argv);
 				break;
+			case 'L':
+				sw.push_back(new LineSnapshotWriter(optarg));
+				sw[sw.size()-1]->parseArgs(argc, argv);
+				break;				
 			case '?':
 				print_help();
 			default:
@@ -118,7 +123,6 @@ int main(int argc, char **argv)
 		mesh_set->log_meshes_types();
 		mesh_set->log_meshes_stats();
 
-		// Create snapshot writer
 		for (int i = 0; i < sw.size(); i++)
 			sw[i]->dump(0);
 

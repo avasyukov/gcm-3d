@@ -38,6 +38,7 @@ set ( SOURCES
 	./system/TetrMeshSet.cpp
 	./system/SnapshotWriter.cpp
 	./system/VTKSnapshotWriter.cpp
+	./system/LineSnapshotWriter.cpp
 	./system/CylTest.cpp
 	./system/CollisionDetector.cpp
 	./system/VoidCollisionDetector.cpp
