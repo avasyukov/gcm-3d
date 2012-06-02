@@ -37,6 +37,7 @@ public:
 	int dump_tetr_mesh(TetrMesh_1stOrder* tetr_mesh, int zone_num, int snap_num);
 	void dump(int snap_num);
 	void parseArgs(int argc, char **argv);
+	void init();
 protected:
 	string snapshot_writer_type;
 	string fname;
