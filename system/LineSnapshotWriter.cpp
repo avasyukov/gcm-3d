@@ -1,5 +1,4 @@
 #include "LineSnapshotWriter.h"
-#include "GCMException.h"
 
 int line_compar(const void *p1, const void *p2)
 {

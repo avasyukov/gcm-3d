@@ -6,7 +6,10 @@
 #include <mpi.h>
 #include <getopt.h>
 #include <stdlib.h>
-
+#include "GCMException.h"
+#include "DataBus.h"
+#include "TetrMeshSet.h"
+#include "../meshtypes/TetrMesh_1stOrder.h"
 
 class LineSnapshotWriter: public SnapshotWriter {
 public:
