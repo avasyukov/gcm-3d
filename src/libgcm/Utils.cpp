@@ -1,5 +1,9 @@
 #include "Utils.h"
 
+gcm::Params::Params() {
+	
+}
+
 gcm::Params::Params(map<string, string> attrs) {
 	foreach(attr, attrs)
 	{

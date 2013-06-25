@@ -23,9 +23,10 @@ namespace gcm {
 	class Params: public map<string, string> {
 		public:
 			/*
-			 * Constructor
+			 * Constructors
 			 */
-			Params(/*xmlpp::Element* el*/map<string, string> attrs);
+			Params();
+			Params(map<string, string> attrs);
 			/*
 			 * Checks if specified key is in params.
 			 */

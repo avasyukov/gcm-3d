@@ -88,9 +88,10 @@ void loadSceneFromFile(Engine *engine, string fileName)
 			
 			LOG_INFO("Loading mesh");
 			// TODO - think about multiple bodies and multiple meshes per body
-			AABB& scene = engine->scene;
+			AABB scene;
 			meshLoader->preLoadMesh(params, &scene);
-			LOG_DEBUG("Mesh preloaded. Scene size: " << scene );
+			engine->setScene(scene);
+			LOG_DEBUG("Mesh preloaded. Scene size: " << engine->getScene() );
 
 			engine->getDispatcher()->prepare(engine->getNumberOfWorkers(), &scene);
 			engine->getDataBus()->syncOutlines();
