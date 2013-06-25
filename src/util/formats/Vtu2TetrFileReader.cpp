@@ -56,6 +56,11 @@ void gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene)
 
 void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank)
 {
+	readFile(file, mesh, dispatcher, rank, false);
+}
+
+void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher)
+{
 	vtkXMLUnstructuredGridReader *xgr = vtkXMLUnstructuredGridReader::New();
 	vtkUnstructuredGrid *g = vtkUnstructuredGrid::New();
 
@@ -86,7 +91,7 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 	for( int i = 0; i < g->GetNumberOfPoints(); i++ )
 	{
 		double* dp = g->GetPoint(i);
-		if( dispatcher->isMine( dp ) )
+		if( ignoreDispatcher || dispatcher->isMine( dp ) )
 		{
 			ElasticNode* node = new ElasticNode();
 			node->number = nodeNumber->GetValue(i);
@@ -108,7 +113,8 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 			node->rho = rho->GetValue(i);
 			node->setPublicFlags( publicFlags->GetValue(i) );
 			node->setPrivateFlags( privateFlags->GetValue(i) );
-			node->setPlacement(Local);
+			if( !ignoreDispatcher )
+				node->setPlacement(Local);
 			nodes->push_back( node );
 		}
 	}

@@ -64,3 +64,13 @@ void gcm::AABB::findIntersection(AABB* box, AABB* intersection)
 	*intersection = *created;
 	delete created;
 }
+
+void gcm::AABB::transfer(float x, float y, float z)
+{
+	min_coords[0] += x;
+	min_coords[1] += y;
+	min_coords[2] += z;
+	max_coords[0] += x;
+	max_coords[1] += y;
+	max_coords[2] += z;
+}

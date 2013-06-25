@@ -675,7 +675,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 {
 	//TetrFirstOrder* tetr;
 	int tetr;
-	if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h + EQUALITY_TOLERANCE * EQUALITY_TOLERANCE )
+	if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h * (1 + EQUALITY_TOLERANCE) )
 	{
 		tetr = fastScanForOwnerTetr (node, dx, dy, dz, debug);
 		coords[0] = node->coords[0] + dx;
@@ -696,7 +696,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	//TetrFirstOrder* tetr;
 	int tetr;
 	float coords[3];
-	if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h + EQUALITY_TOLERANCE * EQUALITY_TOLERANCE )
+	if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h * (1 + EQUALITY_TOLERANCE) )
 		return fastScanForOwnerTetr (node, dx, dy, dz, debug);
 	else
 	{
@@ -1693,4 +1693,7 @@ void gcm::TetrMeshFirstOrder::transfer(float x, float y, float z)
 		areaOfInterest.max_coords[1] += y;
 		areaOfInterest.max_coords[2] += z;
 	}
+	
+	// TODO@avasyukov - think about additional checks
+	body->getEngine()->transferScene(x, y, z);
 }

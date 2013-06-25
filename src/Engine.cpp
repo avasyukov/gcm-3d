@@ -29,6 +29,7 @@ gcm::Engine::Engine()
 	registerMeshLoader(new Geo2MeshLoader());
 	registerMeshLoader(new VtuMeshLoader());
 	registerMeshLoader(new Vtu2MeshLoader());
+	registerMeshLoader(new Vtu2MeshZoneLoader());
 	LOG_DEBUG("Registering default node factories");
 	registerNodeFactory(new ElasticNodeFactory());
 	LOG_DEBUG("Registering default methods");
@@ -393,4 +394,16 @@ void gcm::Engine::setStepsPerSnap(int number) {
 
 DataBus* gcm::Engine::getDataBus() {
 	return dataBus;
+}
+
+AABB gcm::Engine::getScene() {
+	return scene;
+}
+
+void gcm::Engine::setScene(AABB src) {
+	scene = src;
+}
+
+void gcm::Engine::transferScene(float x, float y, float z) {
+	scene.transfer(x, y, z);
 }

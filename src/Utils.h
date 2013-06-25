@@ -4,6 +4,7 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "Exception.h"
 
@@ -21,6 +22,10 @@ namespace gcm {
 
 	class Params: public map<string, string> {
 		public:
+			/*
+			 * Constructor
+			 */
+			Params(/*xmlpp::Element* el*/map<string, string> attrs);
 			/*
 			 * Checks if specified key is in params.
 			 */
@@ -49,5 +54,7 @@ static std::string t_to_string(T i)
 	s = ss.str();
 	return s;
 }
+
+void split (const std::string& str, std::vector<std::string>& dest, char delim);
 
 #endif

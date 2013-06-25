@@ -31,6 +31,7 @@ namespace gcm {
 		bool includes( AABB* box );
 		AABB* findIntersection( AABB* box );
 		void findIntersection( AABB* box, AABB* intersection );
+		void transfer( float x, float y, float z );
 	};
 }
 

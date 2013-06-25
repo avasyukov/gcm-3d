@@ -42,6 +42,9 @@ namespace gcm {
 			virtual int getNumberOfBodies() = 0;
 			virtual Body* getBody(unsigned int num) = 0;
 			virtual void syncNodes() = 0;
+			virtual AABB getScene() = 0;
+			virtual void setScene(AABB src) = 0;
+			virtual void transferScene(float x, float y, float z) = 0;
 	};
 
 	class IBody {
