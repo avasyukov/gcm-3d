@@ -1,7 +1,6 @@
 nbproject/
-libgcm.so*
-opengcm
-*.o
 *.vtu
 *.msh
 *.cas
+*.pyc
+build
