@@ -12,7 +12,12 @@ gcm::GeoMeshLoader::GeoMeshLoader() {
 }
 
 gcm::GeoMeshLoader::~GeoMeshLoader() {
+}
+
+void gcm::GeoMeshLoader::cleanUp() {
 	GmshFinalize();
+	LOG_DEBUG("Deleting generated file: " << mshFileName);
+	remove( mshFileName.c_str() );
 }
 
 void gcm::GeoMeshLoader::createMshFile(Params params)

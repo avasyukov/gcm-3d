@@ -39,6 +39,7 @@ namespace gcm {
 		 USE_LOGGER;
 		 bool mshFileCreated;
 		 string mshFileName;
+		 string vtkFileName;
 	public:
 		Geo2MeshLoader();
 		~Geo2MeshLoader();
@@ -46,6 +47,7 @@ namespace gcm {
 		 * Returns mesh loader type
 		 */
 		string getType();
+		void cleanUp();
 	};
 }
 

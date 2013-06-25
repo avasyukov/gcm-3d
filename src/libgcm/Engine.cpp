@@ -71,6 +71,11 @@ gcm::Engine::~Engine()
 	// clear memory
 	foreach(b, bodies)
 		delete *b;
+	foreach(ml, meshLoaders)
+	{
+		(ml->second)->cleanUp();
+		delete (ml->second);
+	}
 	// decrement engines counter
 	enginesNumber--;
 	delete dataBus;
