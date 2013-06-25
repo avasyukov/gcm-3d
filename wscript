@@ -6,10 +6,10 @@ def options(opt):
     '''Sets gcm3d specific options'''
 
     opt.add_option(
-        '--with-launcher',
+        '--without-launcher',
         action='store_true',
         default=False,
-        help='Build gcm3d launcher'
+        help='Disable gcm3d launcher'
     )
 
     opt.add_option(
@@ -37,7 +37,7 @@ def configure(conf):
         return 'yes' if b else 'no'
 
     conf.msg('Prefix', conf.options.prefix)
-    conf.msg('Build launcher', yes_no(conf.options.with_launcher))
+    conf.msg('Build launcher', yes_no(not conf.options.without_launcher))
     conf.msg('Enable logging', yes_no(not conf.options.without_logging))
 
     libs = [
@@ -49,7 +49,7 @@ def configure(conf):
         'libvtk'
     ]
 
-    conf.env.with_launcher = conf.options.with_launcher
+    conf.env.without_launcher = conf.options.without_launcher
     conf.env.without_logging = conf.options.without_logging
 
     conf.env.CXXFLAGS = []
@@ -61,7 +61,7 @@ def configure(conf):
         conf.env.CXXFLAGS += ['-DCONFIG_ENABLE_LOGGING']
         libs.append('liblog4cxx')
 
-    if conf.env.with_launcher:
+    if not conf.env.without_launcher:
         libs.append('libxmlpp')
 
     conf.load(libs, tooldir='waftools')
@@ -81,7 +81,7 @@ def build(bld):
         target='gcm'
     )
 
-    if bld.env.with_launcher:
+    if not bld.env.without_launcher:
         bld.env.INCLUDES_LIBGCM = ['src/libgcm']
         bld.env.LIBPATH_LIBGCM = [bld.bldnode.abspath()]
         bld.env.LIB_LIBGCM = ['gcm']
