@@ -19,6 +19,13 @@ def options(opt):
         help='Disable libgcm logging routines'
     )
 
+    opt.add_option(
+        '--without-default-cxxflags',
+        action='store_true',
+        default=False,
+        help='Disable default cxxflags'
+    )
+
     opt.load('compiler_cxx')
     opt.load('utils', tooldir='waftools')
 
@@ -55,6 +62,9 @@ def configure(conf):
     conf.env.LIBS = libs
 
     conf.env.CXXFLAGS = []
+
+    if not conf.options.without_default_cxxflags:
+        conf.env.CXXFLAGS += ['-Wno-deprecated']
 
 
 def build(bld):
