@@ -22,6 +22,8 @@
 using namespace std;
 using namespace gcm;
 
+extern USE_LOGGER;
+
 // Just scalar product of two vectors
 inline float scalarProduct(float* a, float* b, float n)
 {
