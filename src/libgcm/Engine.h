@@ -54,6 +54,10 @@ namespace gcm
 	class Engine: public IEngine {
 	protected:
 		/*
+		 * File lookup service
+		 */
+		 FileLookupService fls;
+		/*
 		 * Engines counter.
 		 */
 		static int enginesNumber;
@@ -240,6 +244,8 @@ namespace gcm
 		void transferScene(float x, float y, float z);
 		
 		DataBus* getDataBus();
+
+		FileLookupService& getFileLookupService();
 	};
 }
 

@@ -45,7 +45,7 @@ void gcm::GeoMeshLoader::createMshFile(Params params)
 
 	GModel gmshModel;
 	gmshModel.setFactory ("Gmsh");
-	gmshModel.readGEO (params[PARAM_FILE]);
+	gmshModel.readGEO (engine->getFileLookupService().lookupFile(params[PARAM_FILE]));
 	gmshModel.mesh (3);
 	gmshModel.writeMSH (mshFileName);
 	mshFileCreated = true;

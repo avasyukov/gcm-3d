@@ -1,11 +1,14 @@
 #include <iostream>
 #include <string>
+#include <vector>
+#include <exception>
 
 #ifdef CONFIG_ENABLE_LOGGING
 #include <log4cxx/basicconfigurator.h>
 #endif
 
 #include "Engine.h"
+#include "Utils.h"
 #include "mesh/Mesh.h"
 #include "Logging.h"
 
@@ -37,16 +40,17 @@ Params paramsFromXmlElement(xmlpp::Element* el) {
 	return result;
 }
 
-
 void loadSceneFromFile(Engine *engine, string fileName)
 {
 	USE_LOGGER;
 	INIT_LOGGER("gcm.launcher.TaskLoader");
 	// FIXME shoul we validate task file against xml schema?
-	LOG_INFO("Loading scene from file " << fileName);
+	FileLookupService& fls =  engine->getFileLookupService();
+	string fname = fls.lookupFile(fileName);
+	LOG_INFO("Loading scene from file " << fname);
 	// parse file
 	xmlpp::DomParser parser;
-	parser.parse_file(fileName);
+	parser.parse_file(fname);
 	Element* rootElement = parser.get_document()->get_root_node();
 	// search for bodies
 	NodeSet bodyNodes = rootElement->find("/task/bodies/body");
@@ -192,10 +196,15 @@ int main(int argc, char **argv, char **envp)
 	#ifdef CONFIG_ENABLE_LOGGING
 	log4cxx::BasicConfigurator::configure();
 	#endif
+	
 	Engine* engine = new Engine();
 	USE_AND_INIT_LOGGER("gcm");
+
+	FileLookupService& fls =  engine->getFileLookupService();
+	fls.addPath(CONFIG_SHARE_GCM);
+
 	try {
-		loadSceneFromFile(engine, "test.xml");
+		loadSceneFromFile(engine, "tasks/test.xml");
 		
 		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)engine->getBody(0)->getMeshes();
 		/*AABB* zone1 = new AABB(0, 70, 0, 19.1, 0, 70);

@@ -57,6 +57,9 @@ def configure(conf):
     if not conf.options.without_default_cxxflags:
         conf.env.CXXFLAGS += ['-Wno-deprecated']
 
+    conf.env.CXXFLAGS += ['-DCONFIG_PREFIX="%s"' % conf.options.prefix]
+    conf.env.CXXFLAGS += ['-DCONFIG_SHARE_GCM="%s/share/gcm3d"' % conf.options.prefix]
+
     if not conf.env.without_logging:
         conf.env.CXXFLAGS += ['-DCONFIG_ENABLE_LOGGING']
         libs.append('liblog4cxx')
@@ -75,6 +78,8 @@ def build(bld):
 
     libs = [l.upper() for l in bld.env.LIBS]
 
+    src_dir = bld.path.find_dir('src/libgcm')
+
     bld(
         features='cxx cxxshlib',
         source=bld.path.ant_glob('src/libgcm/**/*.cpp'),
@@ -92,4 +97,26 @@ def build(bld):
             source=['src/launcher/launcher.cpp'],
             use=['LIBGCM'] + libs,
             target='gcmlauncher'
+        )
+
+    bld.install_files(
+        '${PREFIX}/share/doc/%s' % APPNAME,
+        ['README']
+    )
+
+    bld.install_files(
+        '${PREFIX}/include/%s-%s/%s' % (APPNAME, VERSION, APPNAME),
+        bld.path.ant_glob('**/*.h'),
+        cwd=src_dir,
+        relative_trick=True
+    )
+
+    if not bld.env.without_launcher:
+        bld.install_files(
+            '${PREFIX}/share/%s/models' % APPNAME,
+            bld.path.ant_glob('models/*')
+        )
+        bld.install_files(
+            '${PREFIX}/share/%s/tasks' % APPNAME,
+            bld.path.ant_glob('tasks/*')
         )

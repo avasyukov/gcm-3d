@@ -14,6 +14,7 @@
 #include "interpolator/TetrFirstOrderInterpolator.h"
 #include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
 #include "GCMDispatcher.h"
+#include "Utils.h"
 
 namespace gcm {
 	class Body;
@@ -45,6 +46,7 @@ namespace gcm {
 			virtual AABB getScene() = 0;
 			virtual void setScene(AABB src) = 0;
 			virtual void transferScene(float x, float y, float z) = 0;
+			virtual FileLookupService& getFileLookupService() = 0;
 	};
 
 	class IBody {

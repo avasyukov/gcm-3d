@@ -35,7 +35,22 @@ namespace gcm {
 			 * Checks if value stored in map equals to specifie one.
 			 */
 			bool paramEquals(string param, string value);
-	 };
+	};
+
+
+	class FileLookupService {
+		private:
+			vector<string> paths;
+		public:
+			/*
+			 * Adds path to lookup list
+			 */
+			void addPath(string path);
+			/*
+			 * Looks up file by relative name
+			 */
+			string lookupFile(string fname);
+	};
 
 }
 

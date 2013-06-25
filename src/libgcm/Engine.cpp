@@ -412,3 +412,7 @@ void gcm::Engine::setScene(AABB src) {
 void gcm::Engine::transferScene(float x, float y, float z) {
 	scene.transfer(x, y, z);
 }
+
+FileLookupService& gcm::Engine::getFileLookupService() {
+	return fls;
+}

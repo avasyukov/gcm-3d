@@ -22,6 +22,22 @@ bool gcm::Params::paramEquals(string param, string value) {
 	return false;
 }
 
+void gcm::FileLookupService::addPath(string path) {
+	paths.push_back(path);
+}
+
+string gcm::FileLookupService::lookupFile(string fname) {
+	foreach(path, paths) {
+		// FIXME should we use different separators for different 
+		// target platforms? Windows is ok with /-sep
+		string fullName = *path + "/" + fname;
+		ifstream ifile(fullName.c_str());
+		if (ifile)
+			return fullName;
+	}
+	THROW_INVALID_ARG("File not found");
+}
+
 void checkStream(fstream &f) {
 	if (f.eof() || f.fail() || f.bad()) 
 		THROW_INVALID_INPUT("Input file is corrupted");

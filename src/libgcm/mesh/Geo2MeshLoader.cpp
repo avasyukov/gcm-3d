@@ -40,7 +40,7 @@ void gcm::Geo2MeshLoader::createMshFile(Params params)
 	 * In future need to undestand GMsh meshing algorithms and set these options correctly.
 	 */
 	float tetrSize = params.count ("tetrSize") > 0 ? atof (params.at ("tetrSize").c_str ()) : 1.0;
-	LOG_DEBUG("loadGeoScriptFile (" << params[PARAM_FILE] << "): will mesh with H = " << tetrSize);
+	LOG_DEBUG("loadGeoScriptFile (" << engine->getFileLookupService().lookupFile(params[PARAM_FILE]) << "): will mesh with H = " << tetrSize);
 	GmshSetOption ("General", "Terminal", 1.0);
 	GmshSetOption ("Mesh", "CharacteristicLengthMin", tetrSize);
 	GmshSetOption ("Mesh", "CharacteristicLengthMax", tetrSize);
@@ -48,7 +48,7 @@ void gcm::Geo2MeshLoader::createMshFile(Params params)
 
 	GModel gmshModel;
 	gmshModel.setFactory ("Gmsh");
-	gmshModel.readGEO (params[PARAM_FILE]);
+	gmshModel.readGEO (engine->getFileLookupService().lookupFile(params[PARAM_FILE]));
 	gmshModel.mesh (3);
 	gmshModel.writeMSH (mshFileName);
 	mshFileCreated = true;
