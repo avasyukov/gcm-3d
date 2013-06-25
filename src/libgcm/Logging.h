@@ -6,9 +6,6 @@
 #include <log4cxx/logger.h>
 #include <log4cxx/mdc.h>
 
-#include "config.h"
-
-//#define CONFIG_ENABLE_LOGGING 1
 #ifdef CONFIG_ENABLE_LOGGING
 	#define USE_LOGGER log4cxx::LoggerPtr logger;
 	#define INIT_LOGGER(name) do { logger = log4cxx::Logger::getLogger(name); } while (0)

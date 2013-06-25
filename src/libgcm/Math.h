@@ -22,7 +22,9 @@
 using namespace std;
 using namespace gcm;
 
+#ifdef CONFIG_ENABLE_LOGGING
 extern USE_LOGGER;
+#endif
 
 // Just scalar product of two vectors
 inline float scalarProduct(float* a, float* b, float n)

@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
+
+#ifdef CONFIG_ENABLE_LOGGING
 #include <log4cxx/basicconfigurator.h>
+#endif
 
 #include "Engine.h"
 #include "mesh/Mesh.h"
@@ -186,10 +189,11 @@ void loadSceneFromFile(Engine *engine, string fileName)
 
 int main(int argc, char **argv, char **envp)
 {
+	#ifdef CONFIG_ENABLE_LOGGING
 	log4cxx::BasicConfigurator::configure();
+	#endif
 	Engine* engine = new Engine();
-	USE_LOGGER;
-	INIT_LOGGER("gcm");
+	USE_AND_INIT_LOGGER("gcm");
 	try {
 		loadSceneFromFile(engine, "test.xml");
 		

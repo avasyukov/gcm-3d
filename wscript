@@ -52,7 +52,13 @@ def configure(conf):
     conf.env.with_launcher = conf.options.with_launcher
     conf.env.without_logging = conf.options.without_logging
 
+    conf.env.CXXFLAGS = []
+
+    if not conf.options.without_default_cxxflags:
+        conf.env.CXXFLAGS += ['-Wno-deprecated']
+
     if not conf.env.without_logging:
+        conf.env.CXXFLAGS += ['-DCONFIG_ENABLE_LOGGING']
         libs.append('liblog4cxx')
 
     if conf.env.with_launcher:
@@ -60,12 +66,6 @@ def configure(conf):
 
     conf.load(libs, tooldir='waftools')
     conf.env.LIBS = libs
-
-    conf.env.CXXFLAGS = []
-
-    if not conf.options.without_default_cxxflags:
-        conf.env.CXXFLAGS += ['-Wno-deprecated']
-
 
 def build(bld):
     '''Builds project'''

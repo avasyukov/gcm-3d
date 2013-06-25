@@ -5,7 +5,6 @@
 #include <string>
 
 #include "../Body.h"
-#include "../Config.h"
 #include "../Interfaces.h"
 #include "Mesh.h"
 #include "../util/AABB.h"
