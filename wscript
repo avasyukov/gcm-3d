@@ -67,6 +67,7 @@ def configure(conf):
     conf.load(libs, tooldir='waftools')
     conf.env.LIBS = libs
 
+
 def build(bld):
     '''Builds project'''
 
@@ -90,5 +91,5 @@ def build(bld):
             features='cxx cxxprogram',
             source=['src/launcher/launcher.cpp'],
             use=['LIBGCM'] + libs,
-            target='launcher'
+            target='gcmlauncher'
         )
