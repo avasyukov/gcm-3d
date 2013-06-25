@@ -42,6 +42,7 @@ namespace gcm {
 		 * Returns mesh loader type
 		 */
 		string getType();
+		void cleanUp();
 	};
 }
 

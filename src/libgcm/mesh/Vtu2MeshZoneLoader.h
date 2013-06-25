@@ -1,5 +1,5 @@
-#ifndef GCM_MSH2_MESH_LOADER_H_
-#define GCM_MSH2_MESH_LOADER_H_
+#ifndef GCM_VTU2_MESH_ZONE_LOADER_H_
+#define GCM_VTU2_MESH_ZONE_LOADER_H_
 
 #include <map>
 #include <string>
@@ -9,16 +9,13 @@
 #include "../Exception.h"
 #include "../Utils.h"
 #include "../Logging.h"
-#include "MshMeshLoader.h"
-#include "../DummyDispatcher.h"
-#include "../snapshot/VTK2SnapshotWriter.h"
 #include "../util/formats/Vtu2TetrFileReader.h"
 
 using namespace gcm;
 using namespace std;
 
 namespace gcm {
-	class Msh2MeshLoader: public TemplatedMeshLoader<TetrMeshSecondOrder>
+	class Vtu2MeshZoneLoader: public TemplatedMeshLoader<TetrMeshSecondOrder>
 	{
 	protected:
 		/*
@@ -27,16 +24,14 @@ namespace gcm {
 		 void loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher);
 		 void preLoadMesh(Params params, AABB* scene);
 		 USE_LOGGER;
-		 string vtkFileName;
 	public:
-		Msh2MeshLoader();
-		~Msh2MeshLoader();
+		Vtu2MeshZoneLoader();
+		~Vtu2MeshZoneLoader();
 		/*
 		 * Returns mesh loader type
 		 */
 		string getType();
-		void cleanUp();
 	};
 }
 
-#endif /* GCM_MSH2_MESH_LOADER_H_ */
+#endif /* GCM_VTU_MESH_ZONE_LOADER_H_ */

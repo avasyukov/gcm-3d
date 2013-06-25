@@ -32,6 +32,7 @@ namespace gcm {
 		 * Returns mesh loader type.
 		 */
 		virtual string getType() = 0;
+		virtual void cleanUp() = 0;
 
 		/*
 		 * Loads mesh using passed configuration.
@@ -83,6 +84,9 @@ namespace gcm {
 			// invoke mesh type-specific code
 			loadMesh(params, mesh, body->getEngine()->getDispatcher());
 			return mesh;
+		}
+		
+		void cleanUp() {
 		}
 	};
 }

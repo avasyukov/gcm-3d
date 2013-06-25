@@ -1,5 +1,16 @@
 #include "Utils.h"
 
+gcm::Params::Params() {
+	
+}
+
+gcm::Params::Params(map<string, string> attrs) {
+	foreach(attr, attrs)
+	{
+		(*this)[attr->first] = attr->second;
+	}
+}
+
 bool gcm::Params::has(string param) {
 	return find(param) != end();
 }
@@ -22,4 +33,14 @@ void replaceAll(std::string& str, const std::string& from, const std::string& to
         str.replace(start_pos, from.length(), to);
         start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
     }
+}
+
+void split (const std::string& str, std::vector<std::string>& dest, char delim)
+{
+	std::stringstream ss (str);
+	std::string s;
+	while (std::getline (ss, s, delim))
+	{
+		dest.push_back (s);
+	}
 }

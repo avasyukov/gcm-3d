@@ -231,7 +231,7 @@ inline bool vectorIntersectsTriangle(float *p1, float *p2, float *p3, float *p0,
 
 	// If vector is parallel to face - no intersection
 	float vn = scalarProduct(n[0], n[1], n[2], v[0], v[1], v[2]);
-	if( fabs(vn) < EQUALITY_TOLERANCE )
+	if (vn * vn < EQUALITY_TOLERANCE * vectorSquareNorm (n[0], n[1], n[2]) * vectorSquareNorm (v[0], v[1], v[2]))
 		result = false;
 
 	// find plane parameter
@@ -352,12 +352,15 @@ inline bool pointInTriangle(float x, float y, float z,
 	v2[0] = x - coordsP0[0];
 	v2[1] = y - coordsP0[1];
 	v2[2] = z - coordsP0[2];
-	
+
+	float l = (fabs (v0[0]) + fabs (v0[1]) + fabs (v0[2])
+			+ fabs (v1[0]) + fabs (v1[1]) + fabs (v1[2])
+			+ fabs (v2[0]) + fabs (v2[1]) + fabs (v2[2])) / 9;
 	// Check if point is in plane defined by triangle
 	// If not - just return false
 	if( fabs( tetrVolume( v0[0], v0[1], v0[2], 
 						  v1[0], v1[1], v1[2], 
-						  v2[0], v2[1], v2[2]) ) > EQUALITY_TOLERANCE )
+						  v2[0], v2[1], v2[2]) ) > EQUALITY_TOLERANCE * l * l * l )
 		return false;
 	
 	// Otherwise use this algorithm - http://www.blackpawn.com/texts/pointinpoly/default.html

@@ -17,6 +17,7 @@
 #include "mesh/Geo2MeshLoader.h"
 #include "mesh/VtuMeshLoader.h"
 #include "mesh/Vtu2MeshLoader.h"
+#include "mesh/Vtu2MeshZoneLoader.h"
 #include "node/NodeFactory.h"
 #include "node/ElasticNodeFactory.h"
 #include "snapshot/SnapshotWriter.h"
@@ -110,12 +111,13 @@ namespace gcm
 		
 		int numberOfSnaps;
 		int stepsPerSnap;
+		
+		AABB scene;
 		/*
 		 * Logger.
 		 */
 		USE_LOGGER;
 	public:
-		AABB scene;
 		/*
 		 * Default constructor. Engine uses log4cxx as logging subsystem, so
 		 * it must be initialized *before* creating engine instance.
@@ -233,7 +235,10 @@ namespace gcm
 		void calculate();
 		void setNumberOfSnaps(int number);
 		void setStepsPerSnap(int number);
-
+		AABB getScene();
+		void setScene(AABB src);
+		void transferScene(float x, float y, float z);
+		
 		DataBus* getDataBus();
 	};
 }

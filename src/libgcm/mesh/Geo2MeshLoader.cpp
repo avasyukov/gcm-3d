@@ -9,10 +9,18 @@ gcm::Geo2MeshLoader::Geo2MeshLoader() {
 	GmshInitialize();
 	mshFileCreated = false;
 	mshFileName = "tmp.msh";
+	vtkFileName = "tmp.vtu";
 }
 
 gcm::Geo2MeshLoader::~Geo2MeshLoader() {
+}
+
+void gcm::Geo2MeshLoader::cleanUp() {
 	GmshFinalize();
+	LOG_DEBUG("Deleting generated file: " << mshFileName);
+	remove( mshFileName.c_str() );
+	LOG_DEBUG("Deleting generated file: " << vtkFileName);
+	remove( vtkFileName.c_str() );
 }
 
 void gcm::Geo2MeshLoader::createMshFile(Params params)
@@ -83,7 +91,7 @@ void gcm::Geo2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 		soMesh->preProcess();
 		
 		VTK2SnapshotWriter* sw = new VTK2SnapshotWriter();
-		sw->setFileName("tmp.vtu");
+		sw->setFileName(vtkFileName);
 		sw->dump(soMesh, -1);
 		
 		delete sw;
@@ -97,7 +105,7 @@ void gcm::Geo2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 	
 	LOG_DEBUG("Starting reading mesh");
 	Vtu2TetrFileReader* reader = new Vtu2TetrFileReader();
-	reader->readFile("tmp.vtu", mesh, dispatcher, engine->getRank());
+	reader->readFile(vtkFileName, mesh, dispatcher, engine->getRank());
 	delete reader;
 	
 	mesh->preProcess();
