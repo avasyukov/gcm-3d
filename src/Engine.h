@@ -5,7 +5,6 @@
 #include <stdexcept>
 #include <vector>
 #include <mpi.h>
-#include <libxml++/libxml++.h>
 #include <limits>
 
 #include "Logging.h"
@@ -45,7 +44,6 @@
 
 using namespace std;
 using namespace gcm;
-using namespace xmlpp;
 
 namespace gcm
 {
@@ -138,10 +136,6 @@ namespace gcm
 		int getRank();
 		int getNumberOfWorkers();
 		int getNumberOfBodies();
-		/*
-		 * Loads scene from specified file.
-		 */
-		void loadSceneFromFile(string fileName);
 		/*
 		 * Performs calculation of one time step. If step is omitted
 		 * then actual time step is determined automatically.
@@ -239,6 +233,8 @@ namespace gcm
 		void calculate();
 		void setNumberOfSnaps(int number);
 		void setStepsPerSnap(int number);
+
+		DataBus* getDataBus();
 	};
 }
 

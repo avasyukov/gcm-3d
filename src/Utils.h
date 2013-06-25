@@ -5,8 +5,6 @@
 #include <map>
 #include <string>
 
-#include <libxml++/libxml++.h>
-
 #include "Exception.h"
 
 /*
@@ -24,10 +22,6 @@ namespace gcm {
 	class Params: public map<string, string> {
 		public:
 			/*
-			 * Constructor
-			 */
-			Params(xmlpp::Element* el);
-			/*
 			 * Checks if specified key is in params.
 			 */
 			bool has(string param);
@@ -43,11 +37,6 @@ namespace gcm {
  * Checks if previous read operation succeeded.
  */
 void checkStream(fstream &f);
-
-/*
- * Returns value of named attribute.
- */
-string getAttributeByName(xmlpp::Element::AttributeList attrs, string name);
 
 void replaceAll(std::string& str, const std::string& from, const std::string& to);
 
