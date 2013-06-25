@@ -2,12 +2,6 @@ VERSION = '0.1'
 APPNAME = 'gcm3d'
 
 
-def yes_no(b):
-    '''Helper function that returns yes or no depending on b value'''
-
-    return 'yes' if b else 'no'
-
-
 def options(opt):
     '''Sets gcm3d specific options'''
 
@@ -30,6 +24,9 @@ def options(opt):
 
 def configure(conf):
     '''Configures build environment'''
+
+    def yes_no(b):
+        return 'yes' if b else 'no'
 
     conf.msg('Prefix', conf.options.prefix)
     conf.msg('Build launcher', yes_no(conf.options.with_launcher))
