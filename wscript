@@ -20,6 +20,7 @@ def options(opt):
     )
 
     opt.load('compiler_cxx')
+    opt.load('utils', tooldir='waftools')
 
 
 def configure(conf):
@@ -53,11 +54,11 @@ def configure(conf):
     conf.load(libs, tooldir='waftools')
     conf.env.LIBS = libs
 
+    conf.env.CXXFLAGS = []
+
 
 def build(bld):
     '''Builds project'''
-
-    bld.env.CXXFLAGS += ['-Wno-deprecated']
 
     bld.load(bld.env.LIBS, tooldir='waftools')
 
