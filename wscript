@@ -26,6 +26,13 @@ def options(opt):
         help='Disable default cxxflags'
     )
 
+    opt.add_option(
+        '--without-headers',
+        action='store_true',
+        default=False,
+        help='Do not install header files'
+    )
+
     opt.load('compiler_cxx')
     opt.load('utils', tooldir='waftools')
 
@@ -39,6 +46,7 @@ def configure(conf):
     conf.msg('Prefix', conf.options.prefix)
     conf.msg('Build launcher', yes_no(not conf.options.without_launcher))
     conf.msg('Enable logging', yes_no(not conf.options.without_logging))
+    conf.msg('Install headers', yes_no(not conf.options.without_headers))
 
     libs = [
         'utils',
@@ -51,6 +59,7 @@ def configure(conf):
 
     conf.env.without_launcher = conf.options.without_launcher
     conf.env.without_logging = conf.options.without_logging
+    conf.env.without_headers = conf.options.without_headers
 
     conf.env.CXXFLAGS = []
 
@@ -109,12 +118,13 @@ def build(bld):
         ['src/launcher/log4cxx.properties']
     )
 
-    bld.install_files(
-        '${PREFIX}/include/%s-%s/%s' % (APPNAME, VERSION, APPNAME),
-        bld.path.ant_glob('**/*.h'),
-        cwd=src_dir,
-        relative_trick=True
-    )
+    if not bld.env.without_headers:
+        bld.install_files(
+            '${PREFIX}/include/%s-%s/%s' % (APPNAME, VERSION, APPNAME),
+            bld.path.ant_glob('**/*.h'),
+            cwd=src_dir,
+            relative_trick=True
+        )
 
     if not bld.env.without_launcher:
         bld.install_files(
