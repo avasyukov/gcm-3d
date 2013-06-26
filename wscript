@@ -96,12 +96,17 @@ def build(bld):
             features='cxx cxxprogram',
             source=['src/launcher/launcher.cpp'],
             use=['LIBGCM'] + libs,
-            target='gcmlauncher'
+            target='gcm3d'
         )
 
     bld.install_files(
         '${PREFIX}/share/doc/%s' % APPNAME,
         ['README']
+    )
+
+    bld.install_files(
+        '${PREFIX}/share/%s' % APPNAME,
+        ['src/launcher/log4cxx.properties']
     )
 
     bld.install_files(

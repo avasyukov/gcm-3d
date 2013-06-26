@@ -4,7 +4,7 @@
 #include <exception>
 
 #ifdef CONFIG_ENABLE_LOGGING
-#include <log4cxx/basicconfigurator.h>
+#include <log4cxx/propertyconfigurator.h>
 #endif
 
 #include "Engine.h"
@@ -193,15 +193,17 @@ void loadSceneFromFile(Engine *engine, string fileName)
 
 int main(int argc, char **argv, char **envp)
 {
-	#ifdef CONFIG_ENABLE_LOGGING
-	log4cxx::BasicConfigurator::configure();
-	#endif
-	
 	Engine* engine = new Engine();
-	USE_AND_INIT_LOGGER("gcm");
 
 	FileLookupService& fls =  engine->getFileLookupService();
 	fls.addPath(CONFIG_SHARE_GCM);
+
+	#ifdef CONFIG_ENABLE_LOGGING
+	log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
+	#endif
+
+	USE_AND_INIT_LOGGER("gcm");
+
 
 	try {
 		loadSceneFromFile(engine, "tasks/test.xml");
