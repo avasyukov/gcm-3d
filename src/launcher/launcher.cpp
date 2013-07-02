@@ -52,6 +52,19 @@ void loadSceneFromFile(Engine *engine, string fileName)
 	xmlpp::DomParser parser;
 	parser.parse_file(fname);
 	Element* rootElement = parser.get_document()->get_root_node();
+	
+	NodeSet taskNodes = rootElement->find("/task");
+	if( taskNodes.size() != 1 )
+		THROW_INVALID_INPUT("Multiple <task/> elements in config file");
+	foreach(taskNode, taskNodes)
+	{
+		Element* taskEl = dynamic_cast<Element*>(*taskNode);
+		int numberOfSnaps = atoi( getAttributeByName(taskEl->get_attributes(), "numberOfSnaps").c_str() );
+		int stepsPerSnap = atoi( getAttributeByName(taskEl->get_attributes(), "stepsPerSnap").c_str() );
+		engine->setNumberOfSnaps(numberOfSnaps);
+		engine->setStepsPerSnap(stepsPerSnap);
+	}
+	
 	// search for bodies
 	NodeSet bodyNodes = rootElement->find("/task/bodies/body");
 	foreach(bodyNode, bodyNodes)
@@ -215,8 +228,6 @@ int main(int argc, char **argv, char **envp)
 		mesh->setRheology(53, 268, 4.94, zone1);*/
 		mesh->setRheology(70000, 10000, 1);
 		
-		engine->setNumberOfSnaps(10);
-		engine->setStepsPerSnap(1);
 		engine->calculate();
 		
 		//delete zone1;
