@@ -14,6 +14,10 @@
 
 #include "libxml++/libxml++.h"
 
+#ifndef CONFIG_SHARE_GCM
+#define CONFIG_SHARE_GCM "/usr/share/gcm3d"
+#endif
+
 using namespace std;
 using namespace gcm;
 using namespace xmlpp;
