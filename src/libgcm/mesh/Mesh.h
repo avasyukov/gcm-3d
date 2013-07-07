@@ -80,6 +80,7 @@ namespace gcm {
 		// FIXME
 		virtual void addTetr(TetrFirstOrder* tetr) = 0;
 		virtual void setRheology(float la, float mu, float rho) = 0;
+		virtual void setRheology(float la, float mu, float rho, Area* area) = 0;
 		virtual void checkTopology(float tau) = 0;
 		virtual	void transfer(float x, float y, float z) = 0;
 

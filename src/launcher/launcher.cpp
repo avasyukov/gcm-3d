@@ -65,6 +65,23 @@ void loadSceneFromFile(Engine *engine, string fileName)
 		engine->setStepsPerSnap(stepsPerSnap);
 	}
 	
+	NodeSet matNodes = rootElement->find("/task/materials/material");
+	foreach(matNode, matNodes)
+	{
+		Element* matEl = dynamic_cast<Element*>(*matNode);
+		string id = getAttributeByName(matEl->get_attributes(), "id");
+		float la = atof( getAttributeByName(matEl->get_attributes(), "la").c_str() );
+		float mu = atof( getAttributeByName(matEl->get_attributes(), "mu").c_str() );
+		float rho = atof( getAttributeByName(matEl->get_attributes(), "rho").c_str() );
+		if( la <= 0 || mu <= 0 || rho <= 0 )
+			LOG_ERROR("Incorrect rheology in task file for material: " << id);
+		LOG_DEBUG("Loaded material " << id << " with properties: (" << la << "; " << mu << "; " << rho << ")");
+		Material* mat = new Material(id);
+		mat->setRho(rho);
+		mat->setLame(la, mu);
+		engine->addMaterial(mat);
+	}
+	
 	// search for bodies
 	NodeSet bodyNodes = rootElement->find("/task/bodies/body");
 	foreach(bodyNode, bodyNodes)
@@ -122,10 +139,57 @@ void loadSceneFromFile(Engine *engine, string fileName)
 			
 			// use loader to load mesh
 			Mesh* mesh = meshLoader->load(body, params);
+			
 			// attach mesh to body
 			body->attachMesh(mesh);
 			LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  meshLoader->getType() << "' created");
 		}
+					
+		// set material properties
+		xmlpp::Node::NodeList matNodes = bodyEl->get_children("material");
+		if (matNodes.size() < 1)
+			THROW_INVALID_INPUT("Material not set");
+		foreach(matNode, matNodes)
+		{
+			Element* matEl = dynamic_cast<Element*>(*matNode);
+			string id = getAttributeByName(matEl->get_attributes(), "id");
+			Material* mat = engine->getMaterial(id);
+			Mesh* mesh = body->getMeshes();
+			
+			xmlpp::Node::NodeList areaNodes = matEl->get_children("area");
+			if (areaNodes.size() == 0)
+			{
+				mesh->setRheology(mat->getLambda(), mat->getMu(), mat->getRho());
+			}
+			else if (areaNodes.size() == 1)
+			{
+				Area* matArea = NULL;
+				Element *areaEl = dynamic_cast<Element*>(areaNodes.front());
+				string areaType = getAttributeByName(areaEl->get_attributes(), "type");
+				if( areaType == "box" )
+				{
+					LOG_DEBUG("Material area: " << areaType);
+					float minX = atof( getAttributeByName(areaEl->get_attributes(), "minX").c_str() );
+					float maxX = atof( getAttributeByName(areaEl->get_attributes(), "maxX").c_str() );
+					float minY = atof( getAttributeByName(areaEl->get_attributes(), "minY").c_str() );
+					float maxY = atof( getAttributeByName(areaEl->get_attributes(), "maxY").c_str() );
+					float minZ = atof( getAttributeByName(areaEl->get_attributes(), "minZ").c_str() );
+					float maxZ = atof( getAttributeByName(areaEl->get_attributes(), "maxZ").c_str() );
+					LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] " 
+										<< "[" << minY << ", " << maxY << "] " 
+										<< "[" << minZ << ", " << maxZ << "]");
+					matArea = new BoxArea(minX, maxX, minY, maxY, minZ, maxZ);
+				} else {
+					LOG_WARN("Unknown initial state area: " << areaType);
+				}
+				mesh->setRheology(mat->getLambda(), mat->getMu(), mat->getRho(), matArea);
+			}
+			else
+			{
+				THROW_INVALID_INPUT("Only one or zero area elements are allowed for material");
+			}
+		}
+		
 		// add body to scene
 		engine->addBody(body);
 		LOG_DEBUG("Body '" << id << "' loaded");
@@ -220,18 +284,7 @@ int main(int argc, char **argv, char **envp)
 
 	try {
 		loadSceneFromFile(engine, "tasks/test.xml");
-		
-		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)engine->getBody(0)->getMeshes();
-		/*AABB* zone1 = new AABB(0, 70, 0, 19.1, 0, 70);
-		AABB* zone2 = new AABB(0, 70, 19.2, 39, 0, 70);
-		mesh->setRheology(53, 268, 1, zone2);
-		mesh->setRheology(53, 268, 4.94, zone1);*/
-		mesh->setRheology(70000, 10000, 1);
-		
 		engine->calculate();
-		
-		//delete zone1;
-		//delete zone2;
 		delete engine;
 	} catch (Exception &e) {
 		LOG_FATAL("Exception was thrown: " << e.getMessage() << "\n @" << e.getFile() << ":" << e.getLine() << "\nCall stack: \n"<< e.getCallStack());

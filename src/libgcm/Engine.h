@@ -36,6 +36,7 @@
 #include "GCMDispatcher.h"
 #include "DummyDispatcher.h"
 #include "DataBus.h"
+#include "Material.h"
 #include "snapshot/VTKSnapshotWriter.h"
 
 // FIXME
@@ -101,6 +102,8 @@ namespace gcm
 		map<string, TetrInterpolator*> interpolators;
 		
 		vector<BorderCondition*> borderConditions;
+		
+		vector<Material*> materials;
 		/*
 		 * Scene bodies.
 		 */
@@ -192,6 +195,8 @@ namespace gcm
 		
 		void addBorderCondition(BorderCondition *borderCondition);
 		
+		int addMaterial(Material *material);
+		
 		/*
 		 * Returns mesh loader by type or NULL if not found.
 		 */
@@ -219,6 +224,10 @@ namespace gcm
 		 * Returns body object by its id or NULL if not found
 		 */
 		Body* getBodyById(string id);
+		
+		int getMaterialIndex(string id);
+		Material* getMaterial(string id);
+		Material* getMaterial(int index);
 		
 		Body* getBody(unsigned int num);
 		/*

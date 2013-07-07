@@ -183,12 +183,46 @@ void gcm::Engine::registerRheologyCalculator(RheologyCalculator* rheologyCalcula
 	LOG_DEBUG("Registered rheology calculator: " << rheologyCalculator->getType());	
 }
 
+int gcm::Engine::addMaterial(Material* material)
+{
+	if( !material )
+		THROW_INVALID_ARG("Material parameter cannot be NULL");
+	materials.push_back(material);
+	int index = materials.size() - 1;
+	LOG_DEBUG("Added new material. Id: " << material->getId() << " Index: " << index);
+	return index;
+}
+
 void gcm::Engine::addBorderCondition(BorderCondition *borderCondition)
 {
 	if (!borderCondition)
 		THROW_INVALID_ARG("Border condition parameter cannot be NULL");
 	borderConditions.push_back(borderCondition);
 	LOG_DEBUG("Added new border condition.");
+}
+
+int gcm::Engine::getMaterialIndex(string id)
+{
+	for (size_t i = 0; i < materials.size(); i++)
+		if (materials[i]->getId() == id)
+			return i;
+	LOG_WARN("Material with id '" << id << "' was not found");
+	return -1;
+}
+
+Material* gcm::Engine::getMaterial(string id)
+{
+	for (size_t i = 0; i < materials.size(); i++)
+		if (materials[i]->getId() == id)
+			return materials[i];
+	LOG_WARN("Material with id '" << id << "' was not found");
+	return NULL;
+}
+
+Material* gcm::Engine::getMaterial(int index)
+{
+	assert( index >=0 && index < materials.size() );
+	return materials[index];
 }
 
 Body* gcm::Engine::getBodyById(string id)

@@ -184,7 +184,7 @@ namespace gcm {
 		void printBorder();
 		void setInitialState(Area* area, float* values);
 		void setRheology(float la, float mu, float rho);
-		void setRheology(float la, float mu, float rho, AABB* box);
+		void setRheology(float la, float mu, float rho, Area* area);
 		void checkTopology(float tau);
 		void interpolate(ElasticNode* node, TetrFirstOrder* tetr);
 		inline AABB* getOutline()

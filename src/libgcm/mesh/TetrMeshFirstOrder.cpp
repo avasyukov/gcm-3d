@@ -1379,13 +1379,13 @@ void gcm::TetrMeshFirstOrder::setRheology(float la, float mu, float rho) {
 	}
 }
 
-void gcm::TetrMeshFirstOrder::setRheology(float la, float mu, float rho, AABB* box) {
+void gcm::TetrMeshFirstOrder::setRheology(float la, float mu, float rho, Area* area) {
 	ElasticNode* node;
 	//for( int i = 0; i < nodesNumber; i++ ) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
 		node = getNode(i);
-		if( box->isInAABB(node) )
+		if( area->isInArea(node) )
 		{
 			node->la = la;
 			node->mu = mu;
