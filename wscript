@@ -41,7 +41,10 @@ def configure(conf):
     '''Configures build environment'''
 
     def yes_no(b):
-        return 'yes' if b else 'no'
+        if b:
+            return 'yes'
+        else:
+            return 'no'
 
     conf.msg('Prefix', conf.options.prefix)
     conf.msg('Build launcher', yes_no(not conf.options.without_launcher))
