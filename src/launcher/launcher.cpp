@@ -12,7 +12,7 @@
 #include "mesh/Mesh.h"
 #include "Logging.h"
 
-#include "libxml++/libxml++.h"
+#include "xml.h"
 
 #ifndef CONFIG_SHARE_GCM
 #define CONFIG_SHARE_GCM "/usr/share/gcm3d"
@@ -20,28 +20,17 @@
 
 using namespace std;
 using namespace gcm;
-using namespace xmlpp;
+using namespace xml;
 
 /*
  * Returns value of named attribute.
  */
 
-string getAttributeByName(xmlpp::Element::AttributeList attrs, string name) {
-	foreach(attr, attrs)
-		if ((*attr)->get_name() == name)
-			return (*attr)->get_value();
+string getAttributeByName(AttrList attrs, string name) {
+	AttrList::iterator iter = attrs.find(name);
+	if (iter != attrs.end())
+		return iter->second;
 	THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list");
-}
-
-Params paramsFromXmlElement(xmlpp::Element* el) {
-	xmlpp::Element::AttributeList attrs = el->get_attributes();
-	Params result;
-	foreach(attr, attrs)
-	{
-		result[(*attr)->get_name()] = (*attr)->get_value();
-	}
-
-	return result;
 }
 
 void loadSceneFromFile(Engine *engine, string fileName)
@@ -53,35 +42,30 @@ void loadSceneFromFile(Engine *engine, string fileName)
 	string fname = fls.lookupFile(fileName);
 	LOG_INFO("Loading scene from file " << fname);
 	// parse file
-	xmlpp::DomParser parser;
-	parser.parse_file(fname);
-	Element* rootElement = parser.get_document()->get_root_node();
+	Doc doc = Doc(fname);
+	xml::Node rootNode = doc.getRootElement();
 	// search for bodies
-	NodeSet bodyNodes = rootElement->find("/task/bodies/body");
+	NodeList bodyNodes = rootNode.xpath("/task/bodies/body");
 	foreach(bodyNode, bodyNodes)
 	{
-		Element* bodyEl = dynamic_cast<Element*>(*bodyNode);
-		string id = bodyEl->get_attribute_value("id");
+		string id = bodyNode->getAttributes()["id"];
 		LOG_DEBUG("Loading body '" << id << "'");
 		// create body instance
 		Body* body = new Body(id);
 		body->setEngine(engine);
 		// set rheology
-		xmlpp::Node::NodeList rheologyNodes = bodyEl->get_children("rheology");
+		NodeList rheologyNodes = bodyNode->getChildrenByName("rheology");
 		if (rheologyNodes.size() > 1)
 			THROW_INVALID_INPUT("Only one rheology element allowed for body declaration");
 		if (rheologyNodes.size()) {
-			Element *rheologyEl = dynamic_cast<Element*>(rheologyNodes.front());
-			body->setRheology(getAttributeByName(rheologyEl->get_attributes(), "type"));
+			body->setRheology(getAttributeByName(rheologyNodes.front().getAttributes(), "type"));
 		}
 
 		// load meshes
-		xmlpp::Node::NodeList meshNodes = bodyEl->get_children("mesh");
+		NodeList meshNodes = bodyNode->getChildrenByName("mesh");
 		foreach(meshNode, meshNodes)
 		{
-			Element* meshEl = static_cast<Element*>(*meshNode);
-			// get mesh parameters
-			Params params = paramsFromXmlElement(meshEl);
+			Params params = Params(meshNode->getAttributes());
 			if (!params.has("type"))
 			{
 				// FIXME should we throw exception here?
@@ -122,27 +106,25 @@ void loadSceneFromFile(Engine *engine, string fileName)
 		LOG_DEBUG("Body '" << id << "' loaded");
 	}	
 	// FIXME - rewrite this indian style code
-	NodeSet initialStateNodes = rootElement->find("/task/initialState");
+	NodeList initialStateNodes = rootNode.xpath("/task/initialState");
 	foreach(initialStateNode, initialStateNodes)
 	{
-		Element* stateEl = dynamic_cast<Element*>(*initialStateNode);
 		Area* stateArea = NULL;
 		float values[9];
-		xmlpp::Node::NodeList areaNodes = stateEl->get_children("area");
+		NodeList areaNodes = initialStateNode->getChildrenByName("area");
 		if (areaNodes.size() > 1)
 			THROW_INVALID_INPUT("Only one area element allowed for initial state");
 		if (areaNodes.size()) {
-			Element *areaEl = dynamic_cast<Element*>(areaNodes.front());
-			string areaType = getAttributeByName(areaEl->get_attributes(), "type");
+			string areaType = getAttributeByName(areaNodes.front().getAttributes(), "type");
 			if( areaType == "box" )
 			{
 				LOG_DEBUG("Initial state area: " << areaType);
-				float minX = atof( getAttributeByName(areaEl->get_attributes(), "minX").c_str() );
-				float maxX = atof( getAttributeByName(areaEl->get_attributes(), "maxX").c_str() );
-				float minY = atof( getAttributeByName(areaEl->get_attributes(), "minY").c_str() );
-				float maxY = atof( getAttributeByName(areaEl->get_attributes(), "maxY").c_str() );
-				float minZ = atof( getAttributeByName(areaEl->get_attributes(), "minZ").c_str() );
-				float maxZ = atof( getAttributeByName(areaEl->get_attributes(), "maxZ").c_str() );
+				float minX = atof( getAttributeByName(areaNodes.front().getAttributes(), "minX").c_str() );
+				float maxX = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxX").c_str() );
+				float minY = atof( getAttributeByName(areaNodes.front().getAttributes(), "minY").c_str() );
+				float maxY = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxY").c_str() );
+				float minZ = atof( getAttributeByName(areaNodes.front().getAttributes(), "minZ").c_str() );
+				float maxZ = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxZ").c_str() );
 				LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] " 
 									<< "[" << minY << ", " << maxY << "] " 
 									<< "[" << minZ << ", " << maxZ << "]");
@@ -151,37 +133,36 @@ void loadSceneFromFile(Engine *engine, string fileName)
 				LOG_WARN("Unknown initial state area: " << areaType);
 			}
 		}
-		xmlpp::Node::NodeList valuesNodes = stateEl->get_children("values");
+		NodeList valuesNodes = initialStateNode->getChildrenByName("values");
 		if (valuesNodes.size() > 1)
 			THROW_INVALID_INPUT("Only one values element allowed for initial state");
 		if (valuesNodes.size()) {
 			memset(values, 0, 9*sizeof(float));
-			Element *valuesEl = dynamic_cast<Element*>(valuesNodes.front());
-			string vx = valuesEl->get_attribute_value("vx");
+			string vx = valuesNodes.front().getAttributes()["vx"];
 			if( !vx.empty() )
 				values[0] = atof( vx.c_str() );
-			string vy = valuesEl->get_attribute_value("vy");
+			string vy = valuesNodes.front().getAttributes()["vy"];
 			if( !vy.empty() )
 				values[1] = atof( vy.c_str() );
-			string vz = valuesEl->get_attribute_value("vz");
+			string vz = valuesNodes.front().getAttributes()["vz"];
 			if( !vz.empty() )
 				values[2] = atof( vz.c_str() );
-			string sxx = valuesEl->get_attribute_value("sxx");
+			string sxx = valuesNodes.front().getAttributes()["sxx"];
 			if( !sxx.empty() )
 				values[3] = atof( sxx.c_str() );
-			string sxy = valuesEl->get_attribute_value("sxy");
+			string sxy = valuesNodes.front().getAttributes()["sxy"];
 			if( !sxy.empty() )
 				values[4] = atof( sxy.c_str() );
-			string sxz = valuesEl->get_attribute_value("sxz");
+			string sxz = valuesNodes.front().getAttributes()["sxz"];
 			if( !sxz.empty() )
 				values[5] = atof( sxz.c_str() );
-			string syy = valuesEl->get_attribute_value("syy");
+			string syy = valuesNodes.front().getAttributes()["syy"];
 			if( !syy.empty() )
 				values[6] = atof( syy.c_str() );
-			string syz = valuesEl->get_attribute_value("syz");
+			string syz = valuesNodes.front().getAttributes()["syz"];
 			if( !syz.empty() )
 				values[7] = atof( syz.c_str() );
-			string szz = valuesEl->get_attribute_value("szz");
+			string szz = valuesNodes.front().getAttributes()["szz"];
 			if( !szz.empty() )
 				values[8] = atof( szz.c_str() );
 			LOG_DEBUG("Initial state values: " 

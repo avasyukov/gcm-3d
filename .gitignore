@@ -5,3 +5,5 @@ nbproject/
 *.pyc
 .lock-waf_linux2_build
 build
+install
+*.sublime-*

@@ -73,9 +73,6 @@ def configure(conf):
         conf.env.CXXFLAGS += ['-DCONFIG_ENABLE_LOGGING']
         libs.append('liblog4cxx')
 
-    if not conf.env.without_launcher:
-        libs.append('libxmlpp')
-
     conf.load(libs, tooldir='waftools')
     conf.env.LIBS = libs
 
@@ -103,7 +100,7 @@ def build(bld):
 
         bld(
             features='cxx cxxprogram',
-            source=['src/launcher/launcher.cpp'],
+            source=bld.path.ant_glob('src/launcher/**/*.cpp'),
             use=['LIBGCM'] + libs,
             target='gcm3d'
         )
