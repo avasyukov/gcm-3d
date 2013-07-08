@@ -36,6 +36,6 @@ def configure(conf):
     conf.msg('Additional include paths', ','.join(conf.options.includepath))
     conf.msg('Additional paths to search libraries', ','.join(conf.options.libpath))
 
-    conf.env.LIBPATH_UTILS = conf.options.libpath
-    conf.env.INCLUDES_UTILS = conf.options.includepath
-    conf.env.CXXFLAGS_UTILS = conf.options.cxxflags
+    conf.env.LIBPATH += conf.options.libpath
+    conf.env.INCLUDES += conf.options.includepath
+    conf.env.CXXFLAGS += conf.options.cxxflags
