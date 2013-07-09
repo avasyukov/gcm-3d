@@ -39,6 +39,13 @@ def options(opt):
         default=False,
         help='Link against mpich2 instead of openmpi'
     )
+    
+    opt.add_option(
+        '--static',
+        action='store_true',
+        default=False,
+        help='Build static library instead of dynamic one'
+    )
 
     opt.load('compiler_cxx')
     opt.load('utils', tooldir='waftools')
@@ -54,6 +61,7 @@ def configure(conf):
             return 'no'
 
     conf.msg('Prefix', conf.options.prefix)
+    conf.msg('Build static lib', yes_no(conf.options.static))
     conf.msg('Build launcher', yes_no(not conf.options.without_launcher))
     conf.msg('Enable logging', yes_no(not conf.options.without_logging))
     conf.msg('Install headers', yes_no(not conf.options.without_headers))
@@ -70,6 +78,7 @@ def configure(conf):
     conf.env.without_logging = conf.options.without_logging
     conf.env.without_headers = conf.options.without_headers
     conf.env.use_mpich2 = conf.options.use_mpich2
+    conf.env.static = conf.options.static
 
     if conf.env.use_mpich2:
         libs.append('libmpich2')
@@ -101,8 +110,13 @@ def build(bld):
 
     src_dir = bld.path.find_dir('src/libgcm')
 
+    if bld.env.static:
+        lib_type = 'cxxstlib'
+    else:
+        lib_type = 'cxxshlib'
+
     bld(
-        features='cxx cxxshlib',
+        features='cxx %s' % lib_type,
         source=bld.path.ant_glob('src/libgcm/**/*.cpp'),
         use=libs,
         target='gcm'
