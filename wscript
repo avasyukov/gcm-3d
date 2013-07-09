@@ -62,6 +62,7 @@ def configure(conf):
 
     conf.msg('Prefix', conf.options.prefix)
     conf.msg('Build static lib', yes_no(conf.options.static))
+    conf.msg('Use mpich2', yes_no(conf.options.use_mpich2))
     conf.msg('Build launcher', yes_no(not conf.options.without_launcher))
     conf.msg('Enable logging', yes_no(not conf.options.without_logging))
     conf.msg('Install headers', yes_no(not conf.options.without_headers))
