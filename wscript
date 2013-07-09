@@ -33,6 +33,13 @@ def options(opt):
         help='Do not install header files'
     )
 
+    opt.add_option(
+        '--use-mpich2',
+        action='store_true',
+        default=False,
+        help='Link against mpich2 instead of openmpi'
+    )
+
     opt.load('compiler_cxx')
     opt.load('utils', tooldir='waftools')
 
@@ -56,13 +63,18 @@ def configure(conf):
         'libgsl',
         'libxml2',
         'libgmsh',
-        'libopenmpi',
         'libvtk'
     ]
 
     conf.env.without_launcher = conf.options.without_launcher
     conf.env.without_logging = conf.options.without_logging
     conf.env.without_headers = conf.options.without_headers
+    conf.env.use_mpich2 = conf.options.use_mpich2
+
+    if conf.env.use_mpich2:
+        libs.append('libmpich2')
+    else:
+        libs.append('libopenmpi')
 
     conf.env.CXXFLAGS = []
 
