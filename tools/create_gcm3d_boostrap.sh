@@ -201,8 +201,7 @@ install_vtk() {
 }
 
 patch_bashrc() {
-    if [[ ! -f "$HOME/.bashrc" ]] || ! grep -q 'source "$HOME/.gcm3d_bashrc"' "$HOME/.bashrc"; then
-        echo 'source "$HOME/.gcm3d_bashrc"'                                          >> "$HOME/.bashrc"
+    if [[ ! -f "$HOME/.bashrc" ]] || ! grep -q         echo 'source "$HOME/.gcm3d_bashrc"'                                          >> "$HOME/.bashrc"
     fi
     echo "export GCM3D_INSTALL_PATH=\"$GCM3D_INSTALL_PATH\""                         >  "$HOME/.gcm3d_bashrc"
     echo 'export PATH="$GCM3D_INSTALL_PATH/bin:$PATH"'                               >> "$HOME/.gcm3d_bashrc"
