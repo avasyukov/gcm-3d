@@ -178,14 +178,15 @@ void loadSceneFromFile(Engine *engine, string fileName)
 
 int main(int argc, char **argv, char **envp)
 {
-	Engine* engine = new Engine();
-
-	FileLookupService& fls =  engine->getFileLookupService();
+	FileLookupService fls;
 	fls.addPath(CONFIG_SHARE_GCM);
 
 	#ifdef CONFIG_ENABLE_LOGGING
 	log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
 	#endif
+
+	Engine* engine = new Engine();
+	engine->getFileLookupService().addPath(CONFIG_SHARE_GCM);
 
 	USE_AND_INIT_LOGGER("gcm");
 
