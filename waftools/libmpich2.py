@@ -17,16 +17,8 @@ def configure(conf):
         '/usr/lib64/mpich2/lib'
     ]
 
-    conf.env.LINKFLAGS_LIBMPICH2 = [
-        '-Wl,-z,noexecstack'
-    ]
-
-    conf.env.CXXFLAGS_LIBMPICH2 = [
-        '-fPIC'
-    ]
-
     LIBS = [
-        ['mpich', 'opa', 'mpl', 'rt', 'pthread', 'mpichcxx']
+        ['mpich', 'mpichcxx']
     ]
 
     for libs in LIBS:
