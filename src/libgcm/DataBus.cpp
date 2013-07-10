@@ -2,6 +2,13 @@
 #include "Body.h"
 #include "mesh/TetrMeshSecondOrder.h"
 
+#define BARRIER(name) \
+do { \
+	LOG_DEBUG("Entering barrier: " << name); \
+	MPI::COMM_WORLD.Barrier(); \
+	LOG_DEBUG("Barrier passed: " << name); \
+} while(0)
+
 gcm::DataBus::DataBus() {
 	INIT_LOGGER("gcm.DataBus");
 	MPI_NODE_TYPES = NULL;
@@ -44,7 +51,7 @@ IEngine* gcm::DataBus::getEngine() {
 
 void gcm::DataBus::syncTimeStep(float* tau) {
 	float t;
-	MPI::COMM_WORLD.Barrier();
+	BARRIER("gcm::DataBus::syncTimeStep#1");
 	MPI::COMM_WORLD.Allreduce(tau, &t, 1, MPI::FLOAT, MPI::MIN);
 	memcpy(tau, &t, sizeof(float));
 }
@@ -56,7 +63,7 @@ void gcm::DataBus::syncNodes(float tau)
 	LOG_DEBUG("Creating dynamic types done");
 	
 	vector<MPI::Request> reqs;
-	MPI::COMM_WORLD.Barrier();
+	BARRIER("gcm::DataBus::syncNodes#1");
 	LOG_DEBUG("Starting nodes sync");
 	
 	Body* body = engine->getBody(0);
@@ -95,6 +102,7 @@ void gcm::DataBus::syncNodes(float tau)
 			}
 
 	MPI::Request::Waitall(reqs.size(), &reqs[0]);
+	BARRIER("gcm::DataBus::syncNodes#2");
 	
 	LOG_DEBUG("Nodes sync done");
 	
@@ -384,7 +392,8 @@ void gcm::DataBus::createDynamicTypes()
 			remote_numbers[rank][owner].push_back(node->number);
 		}
 	}
-	MPI::COMM_WORLD.Barrier();
+
+	BARRIER("gcm::DataBus::createDynamicTypes#1");
 	
 	LOG_DEBUG("Requests prepared:");
 	for (int i = 0; i < numberOfWorkers; i++)
@@ -439,7 +448,7 @@ void gcm::DataBus::createDynamicTypes()
 				);
 			}
 
-	MPI::COMM_WORLD.Barrier();
+	BARRIER("gcm::DataBus::createDynamicTypes#2");
 	
 	MPI::Status status;	
 	
@@ -474,7 +483,7 @@ void gcm::DataBus::createDynamicTypes()
 	}
 
 	MPI::Request::Waitall(reqs.size(), &reqs[0]);
-	MPI::COMM_WORLD.Barrier();
+	BARRIER("gcm::DataBus::createDynamicTypes#3");
 	
 	for (int i = 0 ; i < numberOfWorkers; i++)
 		delete[] remote_numbers[i];
@@ -484,10 +493,12 @@ void gcm::DataBus::createDynamicTypes()
 
 void gcm::DataBus::syncOutlines()
 {
-	MPI::COMM_WORLD.Barrier();
+	BARRIER("gcm::DataBus::syncOutlines#1");
 	AABB* outlines = engine->getDispatcher()->getOutline(0);
-	if( outlines == NULL )
+	if( outlines == NULL ) {
+		THROW_BAD_METHOD("We can't do this because it will cause all MPI routines to freeze");
 		return;
+	}
 	AABB aabb;
 	memcpy(&aabb, &outlines[rank], sizeof(AABB));
 	LOG_DEBUG("Syncing outlines");
@@ -510,8 +521,12 @@ void gcm::DataBus::syncMissedNodes(float tau)
 	// FIXME@avasyukov
 	// Workaround for SphProxyDispatcher
 	// But we still need this 
-	if( dispatcher->getOutline(0) == NULL )
+	if( dispatcher->getOutline(0) == NULL ) {
+		THROW_BAD_METHOD("We can't do this because it will cause all MPI routines to freeze");
 		return;
+	}
+
+	BARRIER("gcm::DataBus::syncMissedNodes#1");
 	
 	Body* body = engine->getBody(0);
 	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
@@ -528,7 +543,8 @@ void gcm::DataBus::syncMissedNodes(float tau)
 				areaOfInterest->findIntersection(dispatcher->getOutline(i), &reqZones[rank][i]);
 	}
 	
-	MPI::COMM_WORLD.Barrier();
+	BARRIER("gcm::DataBus::syncMissedNodes#2");
+
 	AABB* aabbs = new AABB[numberOfWorkers];
 	memcpy(aabbs, reqZones[rank], sizeof(AABB)*numberOfWorkers);	
 	MPI::COMM_WORLD.Allgather(
@@ -538,7 +554,7 @@ void gcm::DataBus::syncMissedNodes(float tau)
 		numberOfWorkers, MPI_OUTLINE
 	);
 
-	MPI::COMM_WORLD.Barrier();
+	BARRIER("gcm::DataBus::syncMissedNodes#3");
 	delete[] aabbs;
 	
 	vector<AABB> *_reqZones = new vector<AABB>[numberOfWorkers];
@@ -555,7 +571,7 @@ void gcm::DataBus::syncMissedNodes(float tau)
 	if(transferRequired)
 	{
 		transferNodes(_reqZones);
-		MPI::COMM_WORLD.Barrier();
+		BARRIER("gcm::DataBus::syncMissedNodes#3");
 		LOG_DEBUG("Rebuilding data types");
 		createDynamicTypes();
 		LOG_DEBUG("Processing mesh after the sync");
@@ -656,14 +672,15 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 	
 	int* sb = new int[numberOfWorkers];
 	memcpy(sb, numberOfNodes[rank], sizeof(int)*numberOfWorkers);
-	MPI::COMM_WORLD.Barrier();
+	BARRIER("gcm::DataBus::transferNodes#1");
 	MPI::COMM_WORLD.Allgather(
 		sb,
 		numberOfWorkers, MPI_INT, 
 		numberOfNodes,
 		numberOfWorkers, MPI_INT
 	);
-	MPI::COMM_WORLD.Barrier();
+
+	BARRIER("gcm::DataBus::transferNodes#2");
 
 	memcpy(sb, numberOfTetrs[rank], sizeof(int)*numberOfWorkers);
 	MPI::COMM_WORLD.Allgather(
@@ -672,7 +689,8 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 		numberOfTetrs,
 		numberOfWorkers, MPI_INT
 	);
-	MPI::COMM_WORLD.Barrier();
+
+	BARRIER("gcm::DataBus::transferNodes#3");
 
 	delete[] sb;
 
@@ -784,7 +802,7 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 	}
 	
 	MPI::Request::Waitall(reqs.size(), &reqs[0]);
-	MPI::COMM_WORLD.Barrier();
+	BARRIER("gcm::DataBus::transferNodes#4");
 	LOG_DEBUG("Processing received data");
 	for( int i = 0; i < numberOfWorkers; i++ )
 	{
