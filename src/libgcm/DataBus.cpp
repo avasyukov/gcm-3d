@@ -43,8 +43,10 @@ IEngine* gcm::DataBus::getEngine() {
 }
 
 void gcm::DataBus::syncTimeStep(float* tau) {
+	float t;
 	MPI::COMM_WORLD.Barrier();
-	MPI::COMM_WORLD.Allreduce(tau, tau, 1, MPI::FLOAT, MPI::MIN);
+	MPI::COMM_WORLD.Allreduce(tau, &t, 1, MPI::FLOAT, MPI::MIN);
+	memcpy(tau, &t, sizeof(float));
 }
 
 void gcm::DataBus::syncNodes(float tau)
@@ -486,16 +488,16 @@ void gcm::DataBus::syncOutlines()
 	AABB* outlines = engine->getDispatcher()->getOutline(0);
 	if( outlines == NULL )
 		return;
-	AABB* buf = new AABB[numberOfWorkers];
+	AABB aabb;
+	memcpy(&aabb, &outlines[rank], sizeof(AABB));
 	LOG_DEBUG("Syncing outlines");
 	MPI::COMM_WORLD.Allgather(
-		&outlines[rank],
+		&aabb,
 		1, MPI_OUTLINE, 
 		outlines,
 		1, MPI_OUTLINE
 	);
 	LOG_DEBUG("Outlines synced");
-	delete[] buf;
 }
 
 void gcm::DataBus::syncMissedNodes(float tau)
@@ -527,12 +529,17 @@ void gcm::DataBus::syncMissedNodes(float tau)
 	}
 	
 	MPI::COMM_WORLD.Barrier();
+	AABB* aabbs = new AABB[numberOfWorkers];
+	memcpy(aabbs, reqZones[rank], sizeof(AABB)*numberOfWorkers);	
 	MPI::COMM_WORLD.Allgather(
-		reqZones[rank],
+		aabbs,
 		numberOfWorkers, MPI_OUTLINE, 
 		reqZones,
 		numberOfWorkers, MPI_OUTLINE
 	);
+
+	MPI::COMM_WORLD.Barrier();
+	delete[] aabbs;
 	
 	vector<AABB> *_reqZones = new vector<AABB>[numberOfWorkers];
 	for (int i = 0 ; i < numberOfWorkers; i++)
@@ -647,19 +654,28 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 		}
 	}
 	
+	int* sb = new int[numberOfWorkers];
+	memcpy(sb, numberOfNodes[rank], sizeof(int)*numberOfWorkers);
 	MPI::COMM_WORLD.Barrier();
 	MPI::COMM_WORLD.Allgather(
-		numberOfNodes[rank],
+		sb,
 		numberOfWorkers, MPI_INT, 
 		numberOfNodes,
 		numberOfWorkers, MPI_INT
 	);
+	MPI::COMM_WORLD.Barrier();
+
+	memcpy(sb, numberOfTetrs[rank], sizeof(int)*numberOfWorkers);
 	MPI::COMM_WORLD.Allgather(
-		numberOfTetrs[rank],
+		sb,
 		numberOfWorkers, MPI_INT, 
 		numberOfTetrs,
 		numberOfWorkers, MPI_INT
 	);
+	MPI::COMM_WORLD.Barrier();
+
+	delete[] sb;
+
 	for (int i = 0 ; i < numberOfWorkers; i++)
 		for (int j = 0 ; j < numberOfWorkers; j++)
 			if( numberOfNodes[i][j] != 0 )
