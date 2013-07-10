@@ -5,7 +5,10 @@
 
 #ifdef CONFIG_ENABLE_LOGGING
 #include <log4cxx/propertyconfigurator.h>
+#include <log4cxx/mdc.h>
 #endif
+
+#include <mpi.h>
 
 #include "Engine.h"
 #include "Utils.h"
@@ -182,6 +185,10 @@ int main(int argc, char **argv, char **envp)
 	fls.addPath(CONFIG_SHARE_GCM);
 
 	#ifdef CONFIG_ENABLE_LOGGING
+	MPI::Init();
+	char pe[5];
+	sprintf(pe, "%d", MPI::COMM_WORLD.Get_rank());
+	log4cxx::MDC::put("PE", pe);
 	log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
 	#endif
 
