@@ -34,12 +34,19 @@ def options(opt):
     )
 
     opt.add_option(
+        '--without-resources',
+        action='store_true',
+        default=False,
+        help='Do not install resources files'
+    )
+
+    opt.add_option(
         '--use-mpich2',
         action='store_true',
         default=False,
         help='Link against mpich2 instead of openmpi'
     )
-    
+
     opt.add_option(
         '--static',
         action='store_true',
@@ -66,6 +73,7 @@ def configure(conf):
     conf.msg('Build launcher', yes_no(not conf.options.without_launcher))
     conf.msg('Enable logging', yes_no(not conf.options.without_logging))
     conf.msg('Install headers', yes_no(not conf.options.without_headers))
+    conf.msg('Install resources', yes_no(not conf.options.without_resources))
 
     libs = [
         'utils',
@@ -78,6 +86,7 @@ def configure(conf):
     conf.env.without_launcher = conf.options.without_launcher
     conf.env.without_logging = conf.options.without_logging
     conf.env.without_headers = conf.options.without_headers
+    conf.env.without_resources = conf.options.without_resources
     conf.env.use_mpich2 = conf.options.use_mpich2
     conf.env.static = conf.options.static
 
@@ -135,15 +144,17 @@ def build(bld):
             target='gcm3d'
         )
 
-    bld.install_files(
-        '${PREFIX}/share/doc/%s' % APPNAME,
-        ['README']
-    )
+    if not bld.env.without_resources:
+        bld.install_files(
+            '${PREFIX}/share/doc/%s' % APPNAME,
+            ['README']
+        )
 
-    bld.install_files(
-        '${PREFIX}/share/%s' % APPNAME,
-        ['src/launcher/log4cxx.properties']
-    )
+    if not bld.env.without_resources:
+        bld.install_files(
+            '${PREFIX}/share/%s' % APPNAME,
+            ['src/launcher/log4cxx.properties']
+        )
 
     if not bld.env.without_headers:
         bld.install_files(
@@ -153,7 +164,7 @@ def build(bld):
             relative_trick=True
         )
 
-    if not bld.env.without_launcher:
+    if not bld.env.without_resources:
         bld.install_files(
             '${PREFIX}/share/%s/models' % APPNAME,
             bld.path.ant_glob('models/*')
