@@ -19,7 +19,8 @@ void gcm::MshMeshLoader::loadMesh(Params params, TetrMeshFirstOrder* mesh, GCMDi
 		THROW_INVALID_ARG("Msh file name was not provided");
 	}
 	MshTetrFileReader* reader = new MshTetrFileReader();
-	reader->readFile(params[PARAM_FILE], mesh, dispatcher, mesh->getBody()->getEngine()->getRank());
+	reader->readFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]), 
+							mesh, dispatcher, mesh->getBody()->getEngine()->getRank());
 	delete reader;
 	
 	mesh->preProcess();
@@ -30,6 +31,6 @@ void gcm::MshMeshLoader::preLoadMesh(Params params, AABB* scene) {
 		THROW_INVALID_ARG("Msh file name was not provided");
 	}
 	MshTetrFileReader* reader = new MshTetrFileReader();
-	reader->preReadFile(params[PARAM_FILE], scene);
+	reader->preReadFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]), scene);
 	delete reader;
 }
