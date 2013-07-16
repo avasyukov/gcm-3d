@@ -1,0 +1,22 @@
+<task numberOfSnaps="50" stepsPerSnap="1">
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.25" />
+			<material id="testMaterial1">
+				<area type="box" minX="-6" maxX="6" minY="0" maxY="6" minZ="-6" maxZ="6"/>
+			</material>
+			<material id="testMaterial2">
+				<area type="box" minX="-6" maxX="6" minY="-6" maxY="0.1" minZ="-6" maxZ="6"/>
+			</material>
+		</body>
+	</bodies>
+	<materials>
+		<material id="testMaterial1" la="53" mu="268" rho="1" />
+		<material id="testMaterial2" la="53" mu="268" rho="4.94" />
+	</materials>
+	<initialState>
+		<area type="box" minX="-6" maxX="6" minY="2" maxY="4" minZ="-6" maxZ="6"/>
+		<values vy="24.27" sxx="53" syy="589" szz="53" />
+	</initialState>
+</task>

@@ -1,0 +1,16 @@
+<task numberOfSnaps="20" stepsPerSnap="5">
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="geo2" file="models/panel.geo" tetrSize="0.2" />
+			<material id="testMaterial" />
+		</body>
+	</bodies>
+	<materials>
+		<material id="testMaterial" la="70000" mu="10000" rho="1" />
+	</materials>
+	<initialState>
+		<area type="box" minX="12.9" maxX="15.1" minY="7" maxY="8" minZ="13.9" maxZ="16.1"/>
+		<values vy="-10" />
+	</initialState>
+</task>
