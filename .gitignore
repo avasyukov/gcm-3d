@@ -7,3 +7,7 @@ nbproject/
 build
 install
 *.sublime-*
+bin/
+lib/
+include/
+share/
