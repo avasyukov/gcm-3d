@@ -35,7 +35,7 @@ string gcm::FileLookupService::lookupFile(string fname) {
 		if (ifile)
 			return fullName;
 	}
-	THROW_INVALID_ARG("File not found");
+	THROW_INVALID_ARG("File not found: " + fname);
 }
 
 void checkStream(fstream &f) {
