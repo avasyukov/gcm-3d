@@ -10,6 +10,7 @@ def configure(conf):
     conf.check_linux()
 
     conf.env.INCLUDES_LIBOPENMPI = [
+        '/usr/include/openmpi',
         '/usr/include/openmpi-x86_64'
     ]
 

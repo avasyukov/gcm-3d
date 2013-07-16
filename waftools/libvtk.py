@@ -10,13 +10,15 @@ def configure(conf):
     conf.check_linux()
 
     conf.env.INCLUDES_LIBVTK = [
-        '/usr/include/vtk'
+        '/usr/include/vtk',
+        '/usr/include/vtk-5.8/'
     ]
 
     conf.env.LIBPATH_LIBVTK = [
         '/usr/lib',
         '/usr/lib64',
-        '/usr/lib64/vtk'
+        '/usr/lib64/vtk',
+        '/usr/lib/vtk-5.8/'
     ]
 
     LIBS = [
