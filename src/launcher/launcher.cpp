@@ -322,7 +322,7 @@ int main(int argc, char **argv, char **envp)
 		
 		Engine* engine = new Engine();
 		engine->getFileLookupService().addPath(dataDir);
-		loadSceneFromFile(engine, "tasks/test.xml");
+		loadSceneFromFile(engine, taskFile);
 		engine->calculate();
 		
 		delete engine;
