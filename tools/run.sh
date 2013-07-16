@@ -20,5 +20,5 @@ if [[ -z $task ]]; then
 fi
 
 rm -R *vtu
-echo -e "Complete command:\n\ttime LD_LIBRARY_PATH=/usr/lib64/openmpi/lib/:./build/ mpirun -np $cpus ./build/gcm3d --data-dir . --task $task"
-time LD_LIBRARY_PATH=/usr/lib64/openmpi/lib/:./build/ mpirun -np $cpus ./build/gcm3d --data-dir . --task $task
+echo -e "Complete command:\n\ttime mpirun -np $cpus ./build/gcm3d --data-dir . --task $task"
+time mpirun -np $cpus ./build/gcm3d --data-dir . --task $task
