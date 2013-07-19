@@ -101,7 +101,10 @@ def configure(conf):
         conf.env.CXXFLAGS += ['-Wno-deprecated']
 
     conf.env.CXXFLAGS += ['-DCONFIG_PREFIX="%s"' % conf.options.prefix]
-    conf.env.CXXFLAGS += ['-DCONFIG_SHARE_GCM="%s/share/gcm3d"' % conf.options.prefix]
+    if not conf.env.without_resources:
+        conf.env.CXXFLAGS += ['-DCONFIG_SHARE_GCM="%s/share/gcm3d"' % conf.options.prefix]
+    else:
+        conf.env.CXXFLAGS += ['-DCONFIG_SHARE_GCM="."']
 
     if not conf.env.without_logging:
         conf.env.CXXFLAGS += ['-DCONFIG_ENABLE_LOGGING']
