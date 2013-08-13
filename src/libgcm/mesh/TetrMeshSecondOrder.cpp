@@ -60,6 +60,15 @@ TetrSecondOrder* gcm::TetrMeshSecondOrder::getTetr2ByLocalIndex(int index) {
 	return (TetrSecondOrder*)((char*)tetrs2 + index * tetrSizeInBytes);
 }
 
+void gcm::TetrMeshSecondOrder::rebuildMaps() {
+	nodesMap.clear();
+	for( int i = 0; i < nodesNumber; i++ )
+		nodesMap[getNodeByLocalIndex(i)->number] = i;
+	tetrsMap.clear();
+	for( int i = 0; i < tetrsNumber; i++ )
+		tetrsMap[getTetr2ByLocalIndex(i)->number] = i;
+}
+
 void gcm::TetrMeshSecondOrder::addTetr(TetrFirstOrder* tetr) {
 	assert( tetrsNumber < tetrsStorageSize );
 	tetrs2[tetrsNumber].number = tetr->number;
@@ -91,22 +100,26 @@ void gcm::TetrMeshSecondOrder::copyMesh(TetrMeshFirstOrder* src)
 	firstOrderNodesNumber = src->getNodesNumber();
 	secondOrderNodesNumber = countSecondOrderNodes(src);
 	
+	LOG_DEBUG("Copying first order nodes");
+	
 	createNodes(firstOrderNodesNumber + secondOrderNodesNumber);
 	for( int i = 0; i < firstOrderNodesNumber; i++ )
-		addNode( src->getNode(i) );
+		addNode( src->getNodeByLocalIndex(i) );
+	
+	LOG_DEBUG("Copying first order tetrs");
 	
 	createTetrs(src->getTetrsNumber());
 	//for( int i = 0; i < tetrsNumber; i++ )
-	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
-		int i = itr->first;
-		addTetr( src->getTetr(i) );
-	}
+	//for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
+	//	int i = itr->first;
+	//	addTetr( src->getTetr(i) );
+	//}
 	for( int i = 0; i < src->getTetrsNumber(); i++ )
 	{
 		addTetr( src->getTetrByLocalIndex(i) );
-		
 	}
 	
+	LOG_DEBUG("Generating second order nodes");
 	generateSecondOrderNodes();
 }
 
@@ -543,11 +556,18 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 	if( secondOrderNodesAreGenerated )
 		return;
 	
+	int minNodeNum = getNodeByLocalIndex(0)->number;
+	
 	for( int i = 0; i < firstOrderNodesNumber; i++)
-		getNode(i)->setOrder( FirstOrder );
+	{
+		getNodeByLocalIndex(i)->setOrder( FirstOrder );
+		if( getNodeByLocalIndex(i)->number < minNodeNum )
+			minNodeNum = getNodeByLocalIndex(i)->number;
+	}
 	
 	LOG_DEBUG( "Creating second order nodes" );
 	LOG_DEBUG( "Number of first order nodes: " << nodesNumber );
+	assert( firstOrderNodesNumber == nodesNumber );
 	
 	IntPair combinations[6];
 	combinations[0] = make_pair(0,1);
@@ -557,10 +577,10 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 	combinations[4] = make_pair(1,3);
 	combinations[5] = make_pair(2,3);
 	
-	vector<IntPair>** processed = new vector<IntPair>*[firstOrderNodesNumber];
-	for(int i = 0; i < firstOrderNodesNumber; i++)
+	vector<IntPair>** processed = new vector<IntPair>*[minNodeNum + firstOrderNodesNumber];
+	for(int i = 0; i < minNodeNum + firstOrderNodesNumber; i++)
 		processed[i] = new vector<IntPair>;
-	
+
 	int secondOrderNodesCount = 0;
 	int v1, v2;
 	int ind;
@@ -579,7 +599,7 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 
 			if( ind == -1 )
 			{
-				ind = firstOrderNodesNumber + secondOrderNodesCount;
+				ind = minNodeNum + firstOrderNodesNumber + secondOrderNodesCount;
 				fillSecondOrderNode( &node, v1, v2 );
 				node.number = ind;
 				addNode( &node );
@@ -595,7 +615,7 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 		}
 	}
 
-	for( int i = 0; i < firstOrderNodesNumber; i++ )
+	for( int i = 0; i < minNodeNum + firstOrderNodesNumber; i++ )
 		delete processed[i];
 	delete[] processed;
 

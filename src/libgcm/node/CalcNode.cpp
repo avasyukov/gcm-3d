@@ -7,6 +7,8 @@ gcm::CalcNode::CalcNode()
 	publicFlags = 0;
 	privateFlags = 0;
 	errorFlags = 0;
+	// Border condition '1' is 'default' one, since '0' is reserved for 'failsafe' one
+	borderCondId = 1;
 	addOwner( GCM );
 	elements = new vector<int>;
 	border_elements = new vector<int>;
@@ -27,6 +29,7 @@ gcm::CalcNode::CalcNode(const CalcNode& src) {
 	publicFlags = src.publicFlags;
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;
+	borderCondId = src.borderCondId;
 	elements = new vector<int>;
 	border_elements = new vector<int>;
 	for( unsigned int i = 0; i < src.elements->size(); i++ )
@@ -43,6 +46,7 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
 	publicFlags = src.publicFlags;
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;
+	borderCondId = src.borderCondId;
 	elements = new vector<int>;
 	border_elements = new vector<int>;
 	for( unsigned int i = 0; i < src.elements->size(); i++ )

@@ -58,6 +58,7 @@ namespace gcm {
 		
 		void addTetr(TetrFirstOrder* tetr);
 		void addTetr2(TetrSecondOrder* tetr);
+		void rebuildMaps();
 		
 		TriangleFirstOrder* getTriangle(int index);
 		TriangleSecondOrder* getTriangle2(int index);

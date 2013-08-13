@@ -44,7 +44,9 @@ gcm::Engine::Engine()
 	registerBorderCalculator( new FreeBorderCalculator() );
 	registerBorderCalculator( new SmoothBorderCalculator() );
 	LOG_DEBUG("Registering default border condition");
+	// Failsafe border condition
 	addBorderCondition( new BorderCondition( NULL, new StepPulseForm(-1, -1), getBorderCalculator("SmoothBorderCalculator") ) );
+	// Default border condition
 	addBorderCondition( new BorderCondition( NULL, new StepPulseForm(-1, -1), getBorderCalculator("FreeBorderCalculator") ) );
 	LOG_DEBUG("Creating dispatcher");
 	dispatcher = new DummyDispatcher();
@@ -193,12 +195,22 @@ int gcm::Engine::addMaterial(Material* material)
 	return index;
 }
 
-void gcm::Engine::addBorderCondition(BorderCondition *borderCondition)
+unsigned int gcm::Engine::addBorderCondition(BorderCondition *borderCondition)
 {
 	if (!borderCondition)
 		THROW_INVALID_ARG("Border condition parameter cannot be NULL");
 	borderConditions.push_back(borderCondition);
 	LOG_DEBUG("Added new border condition.");
+	return borderConditions.size () - 1;
+}
+
+void gcm::Engine::replaceDefaultBorderCondition(BorderCondition *borderCondition)
+{
+	assert( borderConditions.size() > 1 );
+	if (!borderCondition)
+		THROW_INVALID_ARG("Border condition parameter cannot be NULL");
+	borderConditions[1] = borderCondition;
+	LOG_DEBUG("Default border condition set");
 }
 
 int gcm::Engine::getMaterialIndex(string id)

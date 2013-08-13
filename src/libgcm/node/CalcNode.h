@@ -233,6 +233,16 @@ namespace gcm {
 			   return publicFlags;
 		   }
 
+		   void inline setBorderConditionId (unsigned char newBorderCondId)
+		   {
+			   borderCondId = newBorderCondId;
+		   }
+		   
+		   unsigned int inline getBorderConditionId ()
+		   {
+			   return borderCondId;
+		   }
+		   
    		   /**
 			* This method is only to be used to dump mesh state into a file or any other output stream
 			* @return
@@ -279,6 +289,10 @@ namespace gcm {
 			* Flags to indicate different issues with this node during calculations
 			*/
 		   unsigned int errorFlags;
+		   /**
+			* Border condition that is used for this node. Condition should be registered in Engine.
+			*/
+		   unsigned char borderCondId;
 	};
 }
 

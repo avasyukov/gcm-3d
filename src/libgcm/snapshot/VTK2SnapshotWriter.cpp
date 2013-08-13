@@ -63,6 +63,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 	vtkIntArray	   *nodePublicFlags = vtkIntArray::New ();
 	vtkIntArray	   *nodePrivateFlags = vtkIntArray::New ();
 	vtkIntArray	   *nodeErrorFlags = vtkIntArray::New ();
+	vtkIntArray	   *nodeBorderCondId = vtkIntArray::New ();
 	vtkDoubleArray *sxx = vtkDoubleArray::New();
 	vtkDoubleArray *sxy = vtkDoubleArray::New();
 	vtkDoubleArray *sxz = vtkDoubleArray::New();
@@ -103,6 +104,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 		nodePublicFlags->InsertNextValue (node->getPublicFlags ());
 		nodePrivateFlags->InsertNextValue (node->getPrivateFlags ());
 		nodeErrorFlags->InsertNextValue (node->getErrorFlags());
+		nodeBorderCondId->InsertNextValue(node->getBorderConditionId());
 		
 	}
 	g->SetPoints(pts);
@@ -175,6 +177,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 	nodePublicFlags->SetName ("publicFlags");
 	nodePrivateFlags->SetName ("privateFlags");
 	nodeErrorFlags->SetName ("errorFlags");
+	nodeBorderCondId->SetName("borderCalcId");
 	
 	g->GetPointData()->SetVectors(vel);
 	g->GetPointData()->AddArray(sxx);
@@ -191,6 +194,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 	g->GetPointData ()->AddArray (nodePublicFlags);
 	g->GetPointData ()->AddArray (nodePrivateFlags);
 	g->GetPointData ()->AddArray (nodeErrorFlags);
+	g->GetPointData()->AddArray(nodeBorderCondId);
 	
 	tetr1stOrderNodes->SetName ("tetr1stOrderNodes");
 	g->GetCellData ()->AddArray (tetr1stOrderNodes);
@@ -214,6 +218,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 	nodePublicFlags->Delete ();
 	nodePrivateFlags->Delete ();
 	nodeErrorFlags->Delete ();
+	nodeBorderCondId->Delete();
 	
 	tetr1stOrderNodes->Delete ();
 	tetr2ndOrderNodes->Delete ();

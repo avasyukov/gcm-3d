@@ -26,6 +26,7 @@ gcm::ElasticNode::ElasticNode(const ElasticNode& src) {
 	publicFlags = src.publicFlags;
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;
+	borderCondId = src.borderCondId;
 	elements = new vector<int>;
 	border_elements = new vector<int>;
 	for( unsigned int i = 0; i < src.elements->size(); i++ )
@@ -43,6 +44,7 @@ ElasticNode& gcm::ElasticNode::operator=(const ElasticNode &src)
 	publicFlags = src.publicFlags;
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;
+	borderCondId = src.borderCondId;
 	elements->clear();
 	border_elements->clear();
 	for( unsigned int i = 0; i < src.elements->size(); i++ )
@@ -61,4 +63,5 @@ void gcm::ElasticNode::fastCopy(const ElasticNode& src)
 	publicFlags = src.publicFlags;
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;
+	borderCondId = src.borderCondId;
 }

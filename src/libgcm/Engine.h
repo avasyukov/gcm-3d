@@ -193,7 +193,8 @@ namespace gcm
 		
 		void registerRheologyCalculator(RheologyCalculator *rheologyCalculator);
 		
-		void addBorderCondition(BorderCondition *borderCondition);
+		unsigned int addBorderCondition(BorderCondition *borderCondition);
+		void replaceDefaultBorderCondition(BorderCondition *borderCondition);
 		
 		int addMaterial(Material *material);
 		
