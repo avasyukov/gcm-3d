@@ -1,6 +1,7 @@
 #include "DataBus.h"
 #include "Body.h"
 #include "mesh/TetrMeshSecondOrder.h"
+#include "node/CalcNode.h"
 
 #define BARRIER(name) \
 do { \
@@ -253,13 +254,15 @@ void gcm::DataBus::createStaticTypes()
 		tetr_types
 	);
 	
-	ElasticNode elnodes[2];
+	CalcNode elnodes[2];
 	MPI::Datatype elnode_types[] = {
 		MPI::LB,
 		MPI::FLOAT,
 		MPI::FLOAT,
 		MPI::FLOAT,
+		MPI::UNSIGNED_CHAR,
 		MPI::UNSIGNED,
+		MPI::UNSIGNED_CHAR,
 		MPI::UB
 	};
 	
@@ -267,7 +270,9 @@ void gcm::DataBus::createStaticTypes()
 		1,
 		9,
 		3,
-		3,
+		1,
+		1,
+		1,
 		1,
 		1
 	};
@@ -276,15 +281,17 @@ void gcm::DataBus::createStaticTypes()
 		MPI::Get_address(&elnodes[0]),
 		MPI::Get_address(&elnodes[0].values[0]),
 		MPI::Get_address(&elnodes[0].coords[0]),
-		MPI::Get_address(&elnodes[0].elasticRheologyProperties[0]),
+		MPI::Get_address(&elnodes[0].rho),
+		MPI::Get_address(&elnodes[0].materialId),
 		MPI::Get_address(&elnodes[0].publicFlags),
+		MPI::Get_address(&elnodes[0].borderCondId),
 		MPI::Get_address(&elnodes[1])
 	};
-	for (int i = 5; i >= 0; i--)
+	for (int i = 7; i >= 0; i--)
 		elnode_displs[i] -= elnode_displs[0];
 	
 	MPI_ELNODE = MPI::Datatype::Create_struct(
-		6,
+		8,
 		elnode_lens,
 		elnode_displs,
 		elnode_types
@@ -297,7 +304,9 @@ void gcm::DataBus::createStaticTypes()
 		MPI::FLOAT,
 		MPI::FLOAT,
 		MPI::FLOAT,
+		MPI::UNSIGNED_CHAR,
 		MPI::UNSIGNED,
+		MPI::UNSIGNED_CHAR,
 		MPI::UB
 	};
 	
@@ -306,7 +315,9 @@ void gcm::DataBus::createStaticTypes()
 		1,
 		9,
 		3,
-		3,
+		1,
+		1,
+		1,
 		1,
 		1
 	};
@@ -316,15 +327,17 @@ void gcm::DataBus::createStaticTypes()
 		MPI::Get_address(&elnodes[0].number),
 		MPI::Get_address(&elnodes[0].values[0]),
 		MPI::Get_address(&elnodes[0].coords[0]),
-		MPI::Get_address(&elnodes[0].elasticRheologyProperties[0]),
+		MPI::Get_address(&elnodes[0].rho),
+		MPI::Get_address(&elnodes[0].materialId),
 		MPI::Get_address(&elnodes[0].publicFlags),
+		MPI::Get_address(&elnodes[0].borderCondId),
 		MPI::Get_address(&elnodes[1])
 	};
-	for (int i = 6; i >= 0; i--)
+	for (int i = 8; i >= 0; i--)
 		elnoden_displs[i] -= elnoden_displs[0];
 	
 	MPI_ELNODE_NUMBERED = MPI::Datatype::Create_struct(
-		7,
+		9,
 		elnoden_lens,
 		elnoden_displs,
 		elnoden_types
@@ -366,8 +379,7 @@ void gcm::DataBus::createDynamicTypes()
 		delete[] local_numbers;
 	}
 
-	// FIXME
-	// it's overhead
+	// FIXME - it's overhead
 	local_numbers = new vector<int>*[numberOfWorkers];
 	vector<int> **remote_numbers = new vector<int>*[numberOfWorkers];	
 	MPI_NODE_TYPES = new MPI::Datatype*[numberOfWorkers];	
@@ -379,7 +391,7 @@ void gcm::DataBus::createDynamicTypes()
 		MPI_NODE_TYPES[i] = new MPI::Datatype[numberOfWorkers];
 	}		
 	
-	ElasticNode* node;
+	CalcNode* node;
 	// find all remote nodes
 	for (int j = 0; j < mesh->getNodesNumber(); j++)
 	{
@@ -518,8 +530,7 @@ void gcm::DataBus::syncMissedNodes(float tau)
 	
 	GCMDispatcher* dispatcher = engine->getDispatcher();
 	
-	// FIXME@avasyukov
-	// Workaround for SphProxyDispatcher
+	// FIXME@avasyukov - workaround for SphProxyDispatcher
 	// But we still need this 
 	if( dispatcher->getOutline(0) == NULL ) {
 		THROW_BAD_METHOD("We can't do this because it will cause all MPI routines to freeze");
@@ -624,7 +635,7 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 		{
 			for( int j = 0; j < mesh->nodesNumber; j++ )
 			{
-				ElasticNode* node = &(mesh->nodes[j]);
+				CalcNode* node = &(mesh->nodes[j]);
 				if( reqZones[i][rank].isInAABB( node ) )
 				{
 					numberOfNodes[rank][i]++;
@@ -708,13 +719,13 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 	
 	
 	vector<MPI::Request> reqs;
-	ElasticNode** recNodes = new ElasticNode*[numberOfWorkers];
+	CalcNode** recNodes = new CalcNode*[numberOfWorkers];
 	TetrSecondOrder** recTetrs = new TetrSecondOrder*[numberOfWorkers];
 	for( int i = 0; i < numberOfWorkers; i++ )
 	{
 		if( i != rank && numberOfNodes[i][rank] > 0 )
 		{
-			recNodes[i] = new ElasticNode[numberOfNodes[i][rank]];
+			recNodes[i] = new CalcNode[numberOfNodes[i][rank]];
 			recTetrs[i] = new TetrSecondOrder[numberOfTetrs[i][rank]];
 			reqs.push_back(
 				MPI::COMM_WORLD.Irecv(

@@ -1,4 +1,5 @@
 #include "TetrMeshSecondOrder.h"
+#include "../node/CalcNode.h"
 
 gcm::TetrMeshSecondOrder::TetrMeshSecondOrder() {
 	tetrs2 = NULL;
@@ -206,7 +207,7 @@ void gcm::TetrMeshSecondOrder::build_volume_reverse_lookups()
 {
 	LOG_DEBUG("Building volume reverse lookups for second order mesh");
 
-	ElasticNode* node;
+	CalcNode* node;
 	TetrFirstOrder* tetr;
 	TetrSecondOrder* tetr2;
 	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
@@ -243,7 +244,7 @@ void gcm::TetrMeshSecondOrder::build_volume_reverse_lookups()
 	}
 	
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
-		ElasticNode* node = getNode(itr->first);
+		CalcNode* node = getNode(itr->first);
 		int num = node->elements->size();
 		if( num <= 0 )
 			LOG_WARN("Node is not a part of volumes. Node: " << *node);
@@ -268,7 +269,7 @@ void gcm::TetrMeshSecondOrder::build_first_order_border()
 	
 	// Check border using solid angle comparation with 4*PI
 
-	ElasticNode* node;
+	CalcNode* node;
 	//for( int i = 0; i < nodesNumber; i++ ) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
@@ -443,7 +444,7 @@ void gcm::TetrMeshSecondOrder::build_surface_reverse_lookups()
 	}
 	
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
-		ElasticNode* node = getNode(itr->first);
+		CalcNode* node = getNode(itr->first);
 		int num = node->border_elements->size();
 		if( node->isBorder() && num <= 0 )
 			LOG_WARN("Border node is not a part of faces. Node: " << *node);
@@ -456,10 +457,10 @@ void gcm::TetrMeshSecondOrder::move_coords(float tau)
 	mesh_min_h *= 0.5;
 }
 
-void gcm::TetrMeshSecondOrder::fillSecondOrderNode(ElasticNode* newNode, int nodeIdx1, int nodeIdx2)
+void gcm::TetrMeshSecondOrder::fillSecondOrderNode(CalcNode* newNode, int nodeIdx1, int nodeIdx2)
 {
-	ElasticNode* node1 = getNode(nodeIdx1);
-	ElasticNode* node2 = getNode(nodeIdx2);
+	CalcNode* node1 = getNode(nodeIdx1);
+	CalcNode* node2 = getNode(nodeIdx2);
 	
 	for( int i = 0; i < 3; i++ )
 		newNode->coords[i] = ( node1->coords[i] + node2->coords[i] ) * 0.5;
@@ -467,9 +468,8 @@ void gcm::TetrMeshSecondOrder::fillSecondOrderNode(ElasticNode* newNode, int nod
 	for(int i = 0; i < 9; i++)
 		newNode->values[i] = ( node1->values[i] + node2->values[i] ) * 0.5;
 	
-	for( int i = 0; i < 3; i++ )
-		newNode->elasticRheologyProperties[i] = 
-				( node1->elasticRheologyProperties[i] + node2->elasticRheologyProperties[i] ) * 0.5;
+	newNode->setRho( ( node1->getRho() + node2->getRho() ) * 0.5 );
+	newNode->setMaterialId( node1->getMaterialId() );
 	
 	newNode->setPlacement(Local);
 	newNode->setOrder( SecondOrder );
@@ -551,7 +551,7 @@ int gcm::TetrMeshSecondOrder::countSecondOrderNodes(TetrMeshFirstOrder* src)
 
 void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 {
-	ElasticNode node;
+	CalcNode node;
 	
 	if( secondOrderNodesAreGenerated )
 		return;

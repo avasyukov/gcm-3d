@@ -2,12 +2,12 @@
 #define GCM_SNAPSHOTWRITER_H_
 
 #include <string>
-#include "../mesh/TetrMeshFirstOrder.h"
 
 using namespace std;
-using namespace gcm;
 
 namespace gcm {
+	class TetrMeshFirstOrder;
+	
 	class SnapshotWriter {
 	public:
 		/*

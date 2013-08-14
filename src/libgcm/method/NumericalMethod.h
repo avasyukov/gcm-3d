@@ -9,12 +9,11 @@
 #define	GCM_NUMERICAL_METHOD_H
 
 #include <string>
-//FIXME
 #include "../Interfaces.h"
-#include "../node/ElasticNode.h"
 #include "../mesh/Mesh.h"
 
 namespace gcm {
+	class CalcNode;
 	/*
 	 * Numerical method
 	 */
@@ -35,12 +34,12 @@ namespace gcm {
 		/*
 		 * Computes next state (after the next part step) for the given node
 		 */
-		virtual void doNextPartStep(ElasticNode* cur_node, ElasticNode* new_node, float time_step, int stage, Mesh* mesh) = 0;
+		virtual void doNextPartStep(CalcNode* cur_node, CalcNode* new_node, float time_step, int stage, Mesh* mesh) = 0;
 		/*
 		 * Returns maximum lambda for the given node
 		 * TODO@avasyukov: Should we replace it with getMaxTimeStep?
 		 */
-		virtual float getMaxLambda(ElasticNode* node) = 0; //(ElasticNode* node, TetrMesh* mesh)
+		virtual float getMaxLambda(CalcNode* node) = 0; //(CalcNode* node, TetrMesh* mesh)
 		
 		virtual string getType() = 0;
 		

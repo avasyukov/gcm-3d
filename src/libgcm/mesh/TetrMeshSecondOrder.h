@@ -32,7 +32,7 @@ namespace gcm {
 	protected:
 		int countSecondOrderNodes(TetrMeshFirstOrder* src);
 		void generateSecondOrderNodes();
-		void fillSecondOrderNode(ElasticNode* newNode, int nodeIdx1, int nodeIdx2);
+		void fillSecondOrderNode(CalcNode* newNode, int nodeIdx1, int nodeIdx2);
 		
 		void verifyTetrahedraVertices();
 		void build_volume_reverse_lookups();

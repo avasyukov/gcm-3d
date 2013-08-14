@@ -6,6 +6,7 @@
  */
 
 #include "TetrFirstOrderInterpolator.h"
+#include "../node/CalcNode.h"
 
 gcm::TetrFirstOrderInterpolator::TetrFirstOrderInterpolator() {
 	type = "TetrFirstOrderInterpolator";
@@ -15,7 +16,7 @@ gcm::TetrFirstOrderInterpolator::TetrFirstOrderInterpolator() {
 gcm::TetrFirstOrderInterpolator::~TetrFirstOrderInterpolator() {
 }
 
-void gcm::TetrFirstOrderInterpolator::interpolate(ElasticNode* node, ElasticNode* node0, ElasticNode* node1, ElasticNode* node2, ElasticNode* node3)
+void gcm::TetrFirstOrderInterpolator::interpolate(CalcNode* node, CalcNode* node0, CalcNode* node1, CalcNode* node2, CalcNode* node3)
 {
 	LOG_TRACE("Start interpolation");
 	assert( node != NULL );
@@ -135,12 +136,9 @@ void gcm::TetrFirstOrderInterpolator::interpolate(ElasticNode* node, ElasticNode
 				+ node3->values[i]*factor[3]);
 	}
 
-	node->la = (node0->la*factor[0] + node1->la*factor[1] 
-		+ node2->la*factor[2] + node3->la*factor[3]);
-	node->mu = (node0->mu*factor[0] + node1->mu*factor[1] 
-		+ node2->mu*factor[2] + node3->mu*factor[3]);
-	node->rho = (node0->rho*factor[0] + node1->rho*factor[1] 
-		+ node2->rho*factor[2] + node3->rho*factor[3]);
+	node->setMaterialId( node0->getMaterialId() );
+	node->setRho( node0->getRho()*factor[0] + node1->getRho()*factor[1] 
+		+ node2->getRho()*factor[2] + node3->getRho()*factor[3] );
 	
 	LOG_TRACE("Interpolation done");
 }

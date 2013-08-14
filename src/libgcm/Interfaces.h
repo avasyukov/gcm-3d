@@ -3,20 +3,19 @@
 
 #include <mpi.h>
 #include <string>
-//#include "mesh/Mesh.h"
-//#include "method/NumericalMethod.h"
-
-#include "calc/volume/VolumeCalculator.h"
-#include "calc/border/BorderCalculator.h"
-#include "calc/contact/ContactCalculator.h"
-#include "BorderCondition.h"
-#include "rheology/RheologyCalculator.h"
-#include "interpolator/TetrFirstOrderInterpolator.h"
-#include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
-#include "GCMDispatcher.h"
 #include "Utils.h"
 
 namespace gcm {
+	class Area;
+	class AABB;
+	class VolumeCalculator;
+	class BorderCalculator;
+	class ContactCalculator;
+	class BorderCondition;
+	class RheologyCalculator;
+	class TetrFirstOrderInterpolator;
+	class TetrSecondOrderMinMaxInterpolator;
+	class GCMDispatcher;
 	class Body;
 	class Mesh;
 	class NumericalMethod;
@@ -51,7 +50,7 @@ namespace gcm {
 		public:
 			virtual Mesh* getMesh(string id) = 0;
 			virtual IEngine* getEngine() = 0;
-			virtual string getRheology() = 0;
+			virtual void setInitialState(Area* area, float values[9]) = 0;
 	};
 }
 

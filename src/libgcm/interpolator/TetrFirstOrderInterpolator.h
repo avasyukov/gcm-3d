@@ -9,7 +9,6 @@
 #define	GCM_TETR_FIRST_ORDER_INTERPOLATOR_H
 
 #include <string>
-#include "../node/ElasticNode.h"
 #include "../Math.h"
 #include "../Logging.h"
 #include "TetrInterpolator.h"
@@ -18,13 +17,14 @@ using namespace std;
 using namespace gcm;
 
 namespace gcm {
+	class CalcNode;
 
 	class TetrFirstOrderInterpolator : public TetrInterpolator {
 	public:
 		TetrFirstOrderInterpolator();
 		~TetrFirstOrderInterpolator();
-		void interpolate( ElasticNode* node, 
-				ElasticNode* node0, ElasticNode* node1, ElasticNode* node2, ElasticNode* node3 );
+		void interpolate( CalcNode* node, 
+				CalcNode* node0, CalcNode* node1, CalcNode* node2, CalcNode* node3 );
 	private:
 		USE_LOGGER;
 	};

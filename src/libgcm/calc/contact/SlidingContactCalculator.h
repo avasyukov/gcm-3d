@@ -10,7 +10,7 @@ class SlidingContactCalculator : public ContactCalculator
 public:
 	SlidingContactCalculator();
 	~SlidingContactCalculator();
-	void do_calc(ElasticNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[], float scale);
+	void do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[], float scale);
 	inline string getType() {
 		return "SlidingContactCalculator";
 	}

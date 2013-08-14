@@ -1,4 +1,5 @@
 #include "FixedBorderCalculator.h"
+#include "../../node/CalcNode.h"
 
 FixedBorderCalculator::FixedBorderCalculator()
 {
@@ -16,7 +17,7 @@ FixedBorderCalculator::~FixedBorderCalculator()
 	gsl_permutation_free(p_gsl);
 };
 
-void FixedBorderCalculator::do_calc(ElasticNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
+void FixedBorderCalculator::do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
 {
 
 	// Tmp value for GSL solver

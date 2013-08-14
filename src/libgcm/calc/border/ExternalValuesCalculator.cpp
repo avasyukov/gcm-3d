@@ -1,4 +1,5 @@
 #include "ExternalValuesCalculator.h"
+#include "../../node/CalcNode.h"
 
 ExternalValuesCalculator::ExternalValuesCalculator()
 {
@@ -24,7 +25,7 @@ void ExternalValuesCalculator::set_parameters(int vars[], float vals[])
 	}
 };
 
-void ExternalValuesCalculator::do_calc(ElasticNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
+void ExternalValuesCalculator::do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
 {
 
 	// Tmp value for GSL solver

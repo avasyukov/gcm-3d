@@ -19,6 +19,9 @@
 using namespace std;
 
 namespace gcm {
+	class GCMDispatcher;
+	class AABB;
+	
 	class VtuTetrFileReader
 	{
 	protected:

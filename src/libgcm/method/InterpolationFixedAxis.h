@@ -10,7 +10,7 @@
 
 #include "NumericalMethod.h"
 #include "../mesh/Mesh.h"
-#include "../node/ElasticNode.h"
+#include "../node/CalcNode.h"
 #include "../Logging.h"
 #include "../Exception.h"
 #include "../util/ElasticMatrix3D.h"
@@ -25,14 +25,14 @@ namespace gcm
 		InterpolationFixedAxis();
 		~InterpolationFixedAxis();
 		int getNumberOfStages();
-		void doNextPartStep(ElasticNode* cur_node, ElasticNode* new_node, float time_step, int stage, Mesh* mesh);
-		float getMaxLambda(ElasticNode* node);
+		void doNextPartStep(CalcNode* cur_node, CalcNode* new_node, float time_step, int stage, Mesh* mesh);
+		float getMaxLambda(CalcNode* node);
 		inline string getType() {
 			return "InterpolationFixedAxis";
 		}
 	protected:
-		int prepare_node(ElasticNode* cur_node, float time_step, int stage, Mesh* mesh);
-		int find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, Mesh* mesh);
+		int prepare_node(CalcNode* cur_node, float time_step, int stage, Mesh* mesh);
+		int find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage, Mesh* mesh);
 		void interpolateNode(Mesh* mesh, int tetrInd, int prevNodeInd);
 		
 		// Used for real node
@@ -52,7 +52,7 @@ namespace gcm
 		// We will store interpolated nodes on previous time layer here
 		// We know that we need five nodes for each direction (corresponding to Lambdas -C1, -C2, 0, C2, C1)
 		// TODO  - We can  deal with (lambda == 0) separately
-		ElasticNode previous_nodes[5];
+		CalcNode previous_nodes[5];
 
 		// Outer normal at current point
 		float outer_normal[3];

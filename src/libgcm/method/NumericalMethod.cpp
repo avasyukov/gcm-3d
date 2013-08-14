@@ -6,6 +6,7 @@
  */
 
 #include "NumericalMethod.h"
+#include "../node/CalcNode.h"
 
 gcm::NumericalMethod::NumericalMethod() {
 	spaceOrder = 1;

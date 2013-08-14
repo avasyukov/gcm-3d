@@ -11,33 +11,22 @@
 #include "Body.h"
 #include "Interfaces.h"
 #include "mesh/MeshLoader.h"
-#include "mesh/MshMeshLoader.h"
-#include "mesh/Msh2MeshLoader.h"
-#include "mesh/GeoMeshLoader.h"
-#include "mesh/Geo2MeshLoader.h"
-#include "mesh/VtuMeshLoader.h"
-#include "mesh/Vtu2MeshLoader.h"
-#include "mesh/Vtu2MeshZoneLoader.h"
 #include "snapshot/SnapshotWriter.h"
 #include "Utils.h"
 #include "method/NumericalMethod.h"
-#include "method/InterpolationFixedAxis.h"
 #include "calc/volume/VolumeCalculator.h"
-#include "calc/volume/SimpleVolumeCalculator.h"
 #include "calc/border/BorderCalculator.h"
-#include "calc/border/FreeBorderCalculator.h"
-#include "calc/border/SmoothBorderCalculator.h"
 #include "calc/contact/ContactCalculator.h"
 #include "rheology/RheologyCalculator.h"
-#include "util/forms/StepPulseForm.h"
+#include "util/forms/PulseForm.h"
 #include "util/areas/BoxArea.h"
 #include "GCMDispatcher.h"
 #include "DummyDispatcher.h"
 #include "DataBus.h"
 #include "Material.h"
-#include "snapshot/VTKSnapshotWriter.h"
+#include "BorderCondition.h"
 
-// FIXME
+// FIXME - do we need it here?
 #include "interpolator/TetrInterpolator.h"
 #include "interpolator/TetrFirstOrderInterpolator.h"
 #include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
@@ -92,7 +81,7 @@ namespace gcm
 		
 		map<string, RheologyCalculator*> rheologyCalculators;
 		
-		// FIXME
+		// FIXME - tetr-specific is bad
 		map<string, TetrInterpolator*> interpolators;
 		
 		vector<BorderCondition*> borderConditions;
@@ -193,7 +182,7 @@ namespace gcm
 		unsigned int addBorderCondition(BorderCondition *borderCondition);
 		void replaceDefaultBorderCondition(BorderCondition *borderCondition);
 		
-		int addMaterial(Material *material);
+		unsigned char addMaterial(Material *material);
 		
 		/*
 		 * Returns mesh loader by type or NULL if not found.
@@ -219,9 +208,9 @@ namespace gcm
 		 */
 		Body* getBodyById(string id);
 		
-		int getMaterialIndex(string id);
+		unsigned char getMaterialIndex(string id);
 		Material* getMaterial(string id);
-		Material* getMaterial(int index);
+		Material* getMaterial(unsigned char index);
 		
 		Body* getBody(unsigned int num);
 		/*

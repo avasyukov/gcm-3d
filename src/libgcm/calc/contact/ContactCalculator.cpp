@@ -6,6 +6,7 @@
  */
 
 #include "ContactCalculator.h"
+#include "../../node/CalcNode.h"
 
 gcm::ContactCalculator::ContactCalculator() {
 }

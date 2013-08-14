@@ -34,10 +34,6 @@ namespace gcm {
 		 * Logger.
 		 */
 		USE_LOGGER;
-		/*
-	 	 * Body rheology.
-	 	 */
-		string rheology;
 	public:
 		/*
 		 * Constructor.
@@ -63,11 +59,6 @@ namespace gcm {
 		 * Returns body id.
 		 */
 		string getId();
-		/*
-		 * Rheology setter and getter.
-		 */
-		void setRheology(string rheology);
-		string getRheology();
 		
 		void setEngine(IEngine& engine);
 		IEngine* getEngine();

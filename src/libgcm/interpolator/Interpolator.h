@@ -2,7 +2,6 @@
 #define	GCM_INTERPOLATOR_H
 
 #include <string>
-#include "../node/ElasticNode.h"
 #include "../Math.h"
 #include "../Logging.h"
 

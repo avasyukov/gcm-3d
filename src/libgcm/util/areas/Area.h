@@ -5,10 +5,12 @@
 #include "../../Exception.h"
 #include "../../Math.h"
 
-class Area
-{
-public:
-	virtual bool isInArea( Node* cur_node ) = 0;
-};
+namespace gcm {
+	class Area
+	{
+	public:
+		virtual bool isInArea( Node* cur_node ) = 0;
+	};
+}
 
 #endif

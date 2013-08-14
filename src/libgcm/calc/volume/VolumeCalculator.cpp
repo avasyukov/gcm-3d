@@ -6,6 +6,7 @@
  */
 
 #include "VolumeCalculator.h"
+#include "../../node/CalcNode.h"
 
 gcm::VolumeCalculator::VolumeCalculator() {
 }

@@ -89,7 +89,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		if (rheologyNodes.size() > 1)
 			THROW_INVALID_INPUT("Only one rheology element allowed for body declaration");
 		if (rheologyNodes.size()) {
-			body->setRheology(getAttributeByName(rheologyNodes.front().getAttributes(), "type"));
+			// We can do smth here when we have more than one rheology calculators
 		}
 
 		// load meshes
@@ -147,7 +147,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			NodeList areaNodes = matNode->getChildrenByName("area");
 			if (areaNodes.size() == 0)
 			{
-				mesh->setRheology(mat->getLambda(), mat->getMu(), mat->getRho());
+				mesh->setRheology( engine.getMaterialIndex(id) );
 			}
 			else if (areaNodes.size() == 1)
 			{
@@ -169,7 +169,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 				} else {
 					LOG_WARN("Unknown initial state area: " << areaType);
 				}
-				mesh->setRheology(mat->getLambda(), mat->getMu(), mat->getRho(), matArea);
+				mesh->setRheology( engine.getMaterialIndex(id), matArea );
 			}
 			else
 			{

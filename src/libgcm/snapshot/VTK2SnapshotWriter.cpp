@@ -50,7 +50,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 	vtkXMLUnstructuredGridWriter *xgw = vtkXMLUnstructuredGridWriter::New();
 	vtkUnstructuredGrid *g = vtkUnstructuredGrid::New();
 
-	ElasticNode* node;
+	CalcNode* node;
 	TetrSecondOrder* tetr;
 
 	vtkPoints *pts = vtkPoints::New();
@@ -70,8 +70,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 	vtkDoubleArray *syy = vtkDoubleArray::New();
 	vtkDoubleArray *syz = vtkDoubleArray::New();
 	vtkDoubleArray *szz = vtkDoubleArray::New();
-	vtkDoubleArray *la = vtkDoubleArray::New();
-	vtkDoubleArray *mu = vtkDoubleArray::New();
+	vtkIntArray    *matId = vtkIntArray::New();
 	vtkDoubleArray *rho = vtkDoubleArray::New();
 
 	float v[3];
@@ -96,9 +95,8 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 		syy->InsertNextValue( node->values[6] );
 		syz->InsertNextValue( node->values[7] );
 		szz->InsertNextValue( node->values[8] );
-		la->InsertNextValue( node->la );
-		mu->InsertNextValue( node->mu );
-		rho->InsertNextValue( node->rho );
+		matId->InsertNextValue( node->getMaterialId() );
+		rho->InsertNextValue( node->getRho() );
 		nodeNumber->InsertNextValue( node->number );
 		contact->InsertNextValue( node->isInContact () ? 1 : 0 );
 		nodePublicFlags->InsertNextValue (node->getPublicFlags ());
@@ -126,13 +124,13 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 		bool shouldSnapshotTetr = true;
 		for( int z = 0; z < 4; z++)
 		{
-			ElasticNode* node = mesh->getNode( tetr->verts[z] );
+			CalcNode* node = mesh->getNode( tetr->verts[z] );
 			if( ! shouldSnapshot(node, mesh) )
 				shouldSnapshotTetr = false;
 		}
 		for( int z = 0; z < 6; z++)
 		{
-			ElasticNode* node = mesh->getNode( tetr->addVerts[z] );
+			CalcNode* node = mesh->getNode( tetr->addVerts[z] );
 			if( ! shouldSnapshot(node, mesh) )
 				shouldSnapshotTetr = false;
 		}
@@ -169,8 +167,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 	syy->SetName("syy");
 	syz->SetName("syz");
 	szz->SetName("szz");
-	la->SetName("lambda");
-	mu->SetName("mu");
+	matId->SetName("materialID");
 	rho->SetName("rho");
 	contact->SetName("contact");
 	nodeNumber->SetName("nodeNumber");
@@ -186,8 +183,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 	g->GetPointData()->AddArray(syy);
 	g->GetPointData()->AddArray(syz);
 	g->GetPointData()->AddArray(szz);
-	g->GetPointData()->AddArray(la);
-	g->GetPointData()->AddArray(mu);
+	g->GetPointData()->AddArray(matId);
 	g->GetPointData()->AddArray(rho);
 	g->GetPointData()->AddArray(nodeNumber);
 	g->GetPointData()->AddArray(contact);
@@ -210,8 +206,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 	syy->Delete();
 	syz->Delete();
 	szz->Delete();
-	la->Delete();
-	mu->Delete();
+	matId->Delete();
 	rho->Delete();
 	nodeNumber->Delete();
 	contact->Delete();
@@ -234,7 +229,7 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
 	tetra->Delete();
 }
 
-bool gcm::VTK2SnapshotWriter::shouldSnapshot(ElasticNode* node, TetrMeshSecondOrder* mesh)
+bool gcm::VTK2SnapshotWriter::shouldSnapshot(CalcNode* node, TetrMeshSecondOrder* mesh)
 {
 	// Case 1 - unused node
 	if( ! node->isUsed() )

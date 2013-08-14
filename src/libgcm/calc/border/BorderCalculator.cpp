@@ -6,6 +6,7 @@
  */
 
 #include "BorderCalculator.h"
+#include "../../node/CalcNode.h"
 
 gcm::BorderCalculator::BorderCalculator() {
 }

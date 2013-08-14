@@ -2,12 +2,12 @@
 #define GCM_RHEOLOGY_CALCULATOR_H_
 
 #include <string>
-#include "../node/ElasticNode.h"
 
 using namespace std;
-using namespace gcm;
 
 namespace gcm {
+	class CalcNode;
+	
 	class RheologyCalculator {
 	public:
 		RheologyCalculator();
@@ -18,7 +18,7 @@ namespace gcm {
 		inline string getType() {
 			return "DummyRheology";
 		}
-		inline void doCalc(ElasticNode* src, ElasticNode* dst) {
+		inline void doCalc(CalcNode* src, CalcNode* dst) {
 			// do nothing
 		}
 	};

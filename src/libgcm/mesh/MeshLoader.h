@@ -4,8 +4,8 @@
 #include <map>
 #include <string>
 
-#include "../Body.h"
 #include "../Interfaces.h"
+#include "../Body.h"
 #include "Mesh.h"
 #include "../util/AABB.h"
 #include "../Utils.h"

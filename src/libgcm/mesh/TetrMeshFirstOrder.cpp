@@ -1,4 +1,5 @@
 #include "TetrMeshFirstOrder.h"
+#include "../node/CalcNode.h"
 
 gcm::TetrMeshFirstOrder::TetrMeshFirstOrder() {
 	nodes = NULL;
@@ -44,7 +45,7 @@ int gcm::TetrMeshFirstOrder::getTriangleNumber() {
 	return faceNumber;
 }
 
-ElasticNode* gcm::TetrMeshFirstOrder::getNode(int index) {
+CalcNode* gcm::TetrMeshFirstOrder::getNode(int index) {
 	assert( index >= 0 );
 	map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
@@ -54,7 +55,7 @@ ElasticNode* gcm::TetrMeshFirstOrder::getNode(int index) {
 	//return nodes+nodesMap[index];
 }
 
-ElasticNode* gcm::TetrMeshFirstOrder::getNewNode(int index) {
+CalcNode* gcm::TetrMeshFirstOrder::getNewNode(int index) {
 	assert( index >= 0 );
 	map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
@@ -64,7 +65,7 @@ ElasticNode* gcm::TetrMeshFirstOrder::getNewNode(int index) {
 	//return new_nodes+nodesMap[index];
 }
 
-ElasticNode* gcm::TetrMeshFirstOrder::getNodeByLocalIndex(int index) {
+CalcNode* gcm::TetrMeshFirstOrder::getNodeByLocalIndex(int index) {
 	assert( index >= 0 );
 	return nodes + index;
 }
@@ -103,9 +104,8 @@ void gcm::TetrMeshFirstOrder::createNodes(int number) {
 		delete[] nodes;
 		delete[] new_nodes;
 	}
-	// FIXME think how to avoid typecasts or make them safe
-	nodes = new ElasticNode[(int)(number*STORAGE_OVERCOMMIT_RATIO)];
-	new_nodes = new ElasticNode[(int)(number*STORAGE_OVERCOMMIT_RATIO)];
+	nodes = new CalcNode[(int)(number*STORAGE_OVERCOMMIT_RATIO)];
+	new_nodes = new CalcNode[(int)(number*STORAGE_OVERCOMMIT_RATIO)];
 	nodesNumber = 0;
 	nodesStorageSize = number*STORAGE_OVERCOMMIT_RATIO;
 }
@@ -124,7 +124,7 @@ void gcm::TetrMeshFirstOrder::createTriangles(int number) {
 	faceStorageSize = number;
 }
 
-void gcm::TetrMeshFirstOrder::addNode(ElasticNode* node) {
+void gcm::TetrMeshFirstOrder::addNode(CalcNode* node) {
 	assert( nodesNumber < nodesStorageSize );
 	nodes[nodesNumber] = *node;
 	nodesMap[node->number] = nodesNumber;
@@ -138,7 +138,7 @@ void gcm::TetrMeshFirstOrder::addTetr(TetrFirstOrder* tetr) {
 	tetrsNumber++;
 }
 
-/*ElasticNode* gcm::TetrMeshFirstOrder::getNodes() {
+/*CalcNode* gcm::TetrMeshFirstOrder::getNodes() {
 	return nodes;
 }*/
 
@@ -207,8 +207,8 @@ void gcm::TetrMeshFirstOrder::preProcess() {
 }
 
 void gcm::TetrMeshFirstOrder::initNewNodes() {
-	ElasticNode* node;
-	ElasticNode* newNode;
+	CalcNode* node;
+	CalcNode* newNode;
 	//for( int i = 0; i < nodesNumber; i++ ) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
@@ -216,15 +216,15 @@ void gcm::TetrMeshFirstOrder::initNewNodes() {
 		newNode = getNewNode(i);
 		memcpy( newNode->coords, node->coords, 3*sizeof(float) );
 		memcpy( newNode->values, node->values, GCM_VALUES_SIZE*sizeof(float) );
-		// FIXME - we can not be sure that nodes are Elastic
-		memcpy( newNode->elasticRheologyProperties, node->elasticRheologyProperties, 3*sizeof(float) );
+		newNode->setRho( node->getRho() );
+		newNode->setMaterialId( node->getMaterialId() );
 	}
 }
 
 void gcm::TetrMeshFirstOrder::build_volume_reverse_lookups() {
 	LOG_DEBUG("Building volume reverse lookups");
 
-	ElasticNode* node;
+	CalcNode* node;
 	TetrFirstOrder* tetr;
 	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
 	//for(int i = 0; i < nodesNumber; i++) { 
@@ -285,7 +285,7 @@ void gcm::TetrMeshFirstOrder::build_border() {
 	LOG_DEBUG("Looking for border nodes using angles");
 	int nodeCount = 0;
 	
-	ElasticNode* node;
+	CalcNode* node;
 	TetrFirstOrder* tetr;
 	
 	// Check border using solid angle comparation with 4*PI
@@ -359,7 +359,7 @@ void gcm::TetrMeshFirstOrder::build_border() {
 void gcm::TetrMeshFirstOrder::build_surface_reverse_lookups() {
 	LOG_DEBUG("Building surface reverse lookups");
 
-	ElasticNode* node;
+	CalcNode* node;
 	TriangleFirstOrder* tri;
 	// Init vectors for "reverse lookups" of border triangles current node is a member of.
 	//for(int i = 0; i < nodesNumber; i++) {
@@ -383,7 +383,7 @@ void gcm::TetrMeshFirstOrder::build_surface_reverse_lookups() {
 void gcm::TetrMeshFirstOrder::check_unused_nodes() {
 	LOG_DEBUG("Looking for unused nodes");
 
-	ElasticNode* node;
+	CalcNode* node;
 	// Check all the nodes and find 'unused'
 
 	// Case 1 - node has no connections at all
@@ -434,7 +434,7 @@ void gcm::TetrMeshFirstOrder::check_outer_normals() {
 	// Displacement
 	//float dx[3];
 	
-	ElasticNode* node;
+	CalcNode* node;
 	
 	// Guaranteed allowed step
 	//float step_h = get_min_h() * 0.5;
@@ -475,7 +475,7 @@ void gcm::TetrMeshFirstOrder::create_outline() {
 	{
 		LOG_DEBUG("Creating outline");
 
-		ElasticNode* node;
+		CalcNode* node;
 		
 		// Create outline
 		for(int j = 0; j < 3; j++)
@@ -568,10 +568,10 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap)
 bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool debug)
 {
 	*needSwap = false;
-	ElasticNode* v1 = getNode( v[0] );
-	ElasticNode* v2 = getNode( v[1] );
-	ElasticNode* v3 = getNode( v[2] );
-	ElasticNode* tetr_vert = getNode( v[3] );
+	CalcNode* v1 = getNode( v[0] );
+	CalcNode* v2 = getNode( v[1] );
+	CalcNode* v3 = getNode( v[2] );
+	CalcNode* tetr_vert = getNode( v[3] );
 
 	if( !v1->isBorder() || !v2->isBorder() || !v3->isBorder() )
 		return false;
@@ -668,7 +668,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	return true;
 };
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::findTargetPoint(ElasticNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
 	//TetrFirstOrder* tetr;
 	int tetr;
@@ -687,7 +687,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	}
 }
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::find_owner_tetr(ElasticNode* node, float dx, float dy, float dz, bool debug)
+/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::find_owner_tetr(CalcNode* node, float dx, float dy, float dz, bool debug)
 {
 	bool innerPoint;
 	//TetrFirstOrder* tetr;
@@ -702,7 +702,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	}
 }
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(ElasticNode* node, float dx, float dy, float dz, bool debug)
+/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode* node, float dx, float dy, float dz, bool debug)
 {
 	if( debug )
 		LOG_TRACE("Fast scan - debug ON (however, consider !inAABB condition)");
@@ -739,7 +739,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	return -1;
 }
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::expandingScanForPoint (ElasticNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::expandingScanForPoint (CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
 	if( debug )
 		LOG_TRACE("Expanding scan - debug ON");
@@ -830,9 +830,9 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 						|| curTetr->verts[i3] == node->number )
 					continue;*/
 				
-				ElasticNode* n1 = getNode( curTetr->verts[i1] );
-				ElasticNode* n2 = getNode( curTetr->verts[i2] );
-				ElasticNode* n3 = getNode( curTetr->verts[i3] );
+				CalcNode* n1 = getNode( curTetr->verts[i1] );
+				CalcNode* n2 = getNode( curTetr->verts[i2] );
+				CalcNode* n3 = getNode( curTetr->verts[i3] );
 
 				if( pointInTriangle( node->coords[0], node->coords[1], node->coords[2],
 										n1->coords, n2->coords, n3->coords, false ) 
@@ -878,7 +878,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 				// For all verticles of current tetr
 				for(int j = 0; j < 4; j++)
 				{
-					ElasticNode* vertJ = getNode( curTetr->verts[j] );
+					CalcNode* vertJ = getNode( curTetr->verts[j] );
 					// Skip base node. Otherwise we'll get false positive insideR for the 1st and 2nd layers
 					if( vertJ->number == node->number )
 						continue;
@@ -931,7 +931,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 			checkedTetr = getTetr(checkedTetrNum);
 			for(int j = 0; j < 4; j++)
 			{
-				ElasticNode* vertJ = getNode( checkedTetr->verts[j] );
+				CalcNode* vertJ = getNode( checkedTetr->verts[j] );
 				for(unsigned k = 0; k < vertJ->elements->size(); k++)
 				{
 					nextTetrNum = vertJ->elements->at(k);
@@ -955,7 +955,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 
 void gcm::TetrMeshFirstOrder::find_border_node_normal(int border_node_index, float* x, float* y, float* z, bool debug)
 {
-	ElasticNode* node = getNode( border_node_index );
+	CalcNode* node = getNode( border_node_index );
 	assert( node->isBorder() );
 	
 	float final_normal[3];
@@ -1024,7 +1024,7 @@ void gcm::TetrMeshFirstOrder::find_border_node_normal(int border_node_index, flo
 float gcm::TetrMeshFirstOrder::get_solid_angle(int node_index, int tetr_index)
 {
 	TetrFirstOrder* tetr = getTetr(tetr_index);
-	ElasticNode* node = getNode(node_index);
+	CalcNode* node = getNode(node_index);
 	// Node should belong to Tetr
 	assert( ( tetr->verts[0] == node_index ) 
 			|| ( tetr->verts[1] == node_index ) 
@@ -1052,9 +1052,9 @@ float gcm::TetrMeshFirstOrder::get_solid_angle(int node_index, int tetr_index)
 	// We are to find 3 other verticles to form the face we are looking at
 	assert( count == 3 );
 	
-	ElasticNode* v0 = getNode( verts[0] );
-	ElasticNode* v1 = getNode( verts[1] );
-	ElasticNode* v2 = getNode( verts[2] );
+	CalcNode* v0 = getNode( verts[0] );
+	CalcNode* v1 = getNode( verts[1] );
+	CalcNode* v2 = getNode( verts[2] );
 	
 	return solidAngle(
 			v0->coords[0] - node->coords[0],
@@ -1190,7 +1190,7 @@ float gcm::TetrMeshFirstOrder::tetr_h(int i)
 
 void gcm::TetrMeshFirstOrder::clearErrorFlags()
 {
-	ElasticNode* node;
+	CalcNode* node;
 	//for( int i = 0; i < nodesNumber; i++ ) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
@@ -1213,8 +1213,8 @@ void gcm::TetrMeshFirstOrder::do_next_part_step(float tau, int stage)
 		clearErrorFlags();
 	}
 	
-	ElasticNode* node;
-	// FIXME
+	CalcNode* node;
+	// FIXME - hardcoded name
 	NumericalMethod *method = body->getEngine()->getNumericalMethod("InterpolationFixedAxis");
 	method->setSpaceOrder(numericalMethodOrder);
 
@@ -1260,8 +1260,8 @@ void gcm::TetrMeshFirstOrder::do_next_part_step(float tau, int stage)
 void gcm::TetrMeshFirstOrder::move_coords(float tau)
 {
 	LOG_DEBUG("Moving mesh coords");
-	ElasticNode* node;
-	ElasticNode* newNode;
+	CalcNode* node;
+	CalcNode* newNode;
 	//for(int i = 0; i < nodesNumber; i++) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
@@ -1288,7 +1288,7 @@ void gcm::TetrMeshFirstOrder::move_coords(float tau)
 // TODO
 int gcm::TetrMeshFirstOrder::proceed_rheology()
 {
-	ElasticNode* node;
+	CalcNode* node;
 	RheologyCalculator* rheoCalc = body->getEngine()->getRheologyCalculator("DummyRheology");
 	//for(int i = 0; i < nodesNumber; i++) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
@@ -1302,12 +1302,12 @@ int gcm::TetrMeshFirstOrder::proceed_rheology()
 	return 0;
 };
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::find_border_cross(ElasticNode* node, float dx, float dy, float dz, bool debug, ElasticNode* cross)
+/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::find_border_cross(CalcNode* node, float dx, float dy, float dz, bool debug, CalcNode* cross)
 {
 	return find_border_cross(node, dx, dy, dz, debug, cross->coords);
 };
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::find_border_cross(ElasticNode* node, float dx, float dy, float dz, bool debug, float* coords)
+/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::find_border_cross(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords)
 {
 	bool innerPoint;
 	/*TetrFirstOrder*/ int tetr = expandingScanForPoint (node, dx, dy, dz, debug, coords, &innerPoint);
@@ -1353,7 +1353,7 @@ void gcm::TetrMeshFirstOrder::printBorder()
 
 void gcm::TetrMeshFirstOrder::setInitialState(Area* area, float* values)
 {
-	ElasticNode* node;
+	CalcNode* node;
 	//for( int i = 0; i < nodesNumber; i++ ) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
@@ -1364,29 +1364,27 @@ void gcm::TetrMeshFirstOrder::setInitialState(Area* area, float* values)
 	}
 }
 
-void gcm::TetrMeshFirstOrder::setRheology(float la, float mu, float rho) {
-	ElasticNode* node;
+void gcm::TetrMeshFirstOrder::setRheology(unsigned char matId) {
+	CalcNode* node;
 	//for( int i = 0; i < nodesNumber; i++ ) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
 		node = getNode(i);
-		node->la = la;
-		node->mu = mu;
-		node->rho = rho;
+		node->setMaterialId( matId );
+		node->initRheology();
 	}
 }
 
-void gcm::TetrMeshFirstOrder::setRheology(float la, float mu, float rho, Area* area) {
-	ElasticNode* node;
+void gcm::TetrMeshFirstOrder::setRheology(unsigned char matId, Area* area) {
+	CalcNode* node;
 	//for( int i = 0; i < nodesNumber; i++ ) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
 		node = getNode(i);
 		if( area->isInArea(node) )
 		{
-			node->la = la;
-			node->mu = mu;
-			node->rho = rho;
+			node->setMaterialId( matId );
+			node->initRheology();
 		}
 	}
 }
@@ -1504,7 +1502,7 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
 	memcpy( syncedArea.min_coords, expandedOutline.min_coords, 3 * sizeof(float) );
 	memcpy( syncedArea.max_coords, expandedOutline.max_coords, 3 * sizeof(float) );
 	
-	ElasticNode* node;
+	CalcNode* node;
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr )
 	{
 		int i = itr->first;
@@ -1612,7 +1610,7 @@ float gcm::TetrMeshFirstOrder::getRecommendedTimeStep() {
 	return get_avg_h() / getMaxLambda();
 };
 
-void gcm::TetrMeshFirstOrder::interpolate(ElasticNode* node, TetrFirstOrder* tetr) {
+void gcm::TetrMeshFirstOrder::interpolate(CalcNode* node, TetrFirstOrder* tetr) {
 	body->getEngine()->getFirstOrderInterpolator("TetrFirstOrderInterpolator")->
 	interpolate(
 				node,
@@ -1646,7 +1644,7 @@ float gcm::TetrMeshFirstOrder::get_avg_h()
 
 void gcm::TetrMeshFirstOrder::transfer(float x, float y, float z)
 {
-	ElasticNode* node;
+	CalcNode* node;
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
 		node = getNode(i);

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string.h>
 #include "Node.h"
+#include "../Engine.h"
 
 #define GCM_VALUES_SIZE 9
 
@@ -55,6 +56,11 @@ namespace gcm {
 	 * Base class for all nodes used in calculations
 	 */
 	class CalcNode: public Node {
+		
+		friend class DataBus;
+		friend class VtuTetrFileReader;
+		friend class Vtu2TetrFileReader;
+		
 		public:
 			
 			CalcNode();
@@ -90,20 +96,10 @@ namespace gcm {
 				};
 			};
 			
-			/*
-			 * Elastic rheology parameters.
-			 */
-			union {
-				float elasticRheologyProperties[3];
-				struct {
-					float la;
-					float mu;
-					float rho;
-				};
-			};
+			
 
 			inline bool rheologyIsValid() {
-				return ( la > 0 && mu > 0 && rho > 0 );
+				return ( materialId >= 0 && rho > 0 );
 			}
 			
 			vector<int>* elements;
@@ -254,9 +250,47 @@ namespace gcm {
 			   borderCondId = newBorderCondId;
 		   }
 		   
-		   unsigned int inline getBorderConditionId ()
+		   unsigned char inline getBorderConditionId ()
 		   {
 			   return borderCondId;
+		   }
+		   
+		   void inline setMaterialId (unsigned char id)
+		   {
+			   materialId = id;
+		   }
+		   
+		   void inline initRheology()
+		   {
+			   if( rho == 0 )
+			   {
+				   rho = Engine::getInstance().getMaterial(materialId)->getRho();
+			   }
+		   }
+		   
+		   unsigned char inline getMaterialId ()
+		   {
+			   return materialId;
+		   }
+		   
+		   void inline setRho (float _rho)
+		   {
+			   rho = _rho;
+		   }
+		   
+		   float inline getRho () const
+		   {
+			   return rho;
+		   }
+		   
+		   float inline getLambda()
+		   {
+			   return Engine::getInstance().getMaterial(materialId)->getLambda();
+		   }
+		   
+		   float inline getMu()
+		   {
+			   return Engine::getInstance().getMaterial(materialId)->getMu();
 		   }
 		   
    		   /**
@@ -309,6 +343,12 @@ namespace gcm {
 			* Border condition that is used for this node. Condition should be registered in Engine.
 			*/
 		   unsigned char borderCondId;
+		   
+		   /*
+		    * Rheology parameters.
+		    */
+		   float rho;
+		   unsigned char materialId;
 	};
 }
 
@@ -324,6 +364,7 @@ namespace std {
 		os << "\n\tStress:";
 		for( int i = 3; i < GCM_VALUES_SIZE; i++ )
 			os << " " << node.values[i];
+		os << "\n\tRho: " << node.getRho();
 		return os;
 	}
 }

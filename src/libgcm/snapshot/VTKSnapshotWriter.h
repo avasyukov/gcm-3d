@@ -4,7 +4,7 @@
 #include <string>
 #include "SnapshotWriter.h"
 #include "../Utils.h"
-#include "../node/ElasticNode.h"
+#include "../node/CalcNode.h"
 #include "../elem/TetrFirstOrder.h"
 #include "../mesh/TetrMeshFirstOrder.h"
 #include "../mesh/TetrMeshSecondOrder.h"

@@ -1,4 +1,17 @@
 #include "Engine.h"
+#include "mesh/MshMeshLoader.h"
+#include "mesh/Msh2MeshLoader.h"
+#include "mesh/GeoMeshLoader.h"
+#include "mesh/Geo2MeshLoader.h"
+#include "mesh/VtuMeshLoader.h"
+#include "mesh/Vtu2MeshLoader.h"
+#include "mesh/Vtu2MeshZoneLoader.h"
+#include "method/InterpolationFixedAxis.h"
+#include "calc/volume/SimpleVolumeCalculator.h"
+#include "calc/border/FreeBorderCalculator.h"
+#include "calc/border/SmoothBorderCalculator.h"
+#include "util/forms/StepPulseForm.h"
+#include "snapshot/VTKSnapshotWriter.h"
 
 // initialiaze static fields
 int gcm::Engine::enginesNumber = 0;
@@ -174,13 +187,13 @@ void gcm::Engine::registerRheologyCalculator(RheologyCalculator* rheologyCalcula
 	LOG_DEBUG("Registered rheology calculator: " << rheologyCalculator->getType());	
 }
 
-int gcm::Engine::addMaterial(Material* material)
+unsigned char gcm::Engine::addMaterial(Material* material)
 {
 	if( !material )
 		THROW_INVALID_ARG("Material parameter cannot be NULL");
 	materials.push_back(material);
-	int index = materials.size() - 1;
-	LOG_DEBUG("Added new material. Id: " << material->getId() << " Index: " << index);
+	unsigned char index = materials.size() - 1;
+	LOG_DEBUG("Added new material. Id: " << material->getId() << " Index: " << (int)index);
 	return index;
 }
 
@@ -202,25 +215,23 @@ void gcm::Engine::replaceDefaultBorderCondition(BorderCondition *borderCondition
 	LOG_DEBUG("Default border condition set");
 }
 
-int gcm::Engine::getMaterialIndex(string id)
+unsigned char gcm::Engine::getMaterialIndex(string id)
 {
-	for (size_t i = 0; i < materials.size(); i++)
+	for (unsigned char i = 0; i < materials.size(); i++)
 		if (materials[i]->getId() == id)
 			return i;
-	LOG_WARN("Material with id '" << id << "' was not found");
-	return -1;
+	THROW_INVALID_ARG("Material was not found");
 }
 
 Material* gcm::Engine::getMaterial(string id)
 {
-	for (size_t i = 0; i < materials.size(); i++)
+	for (unsigned char i = 0; i < materials.size(); i++)
 		if (materials[i]->getId() == id)
 			return materials[i];
-	LOG_WARN("Material with id '" << id << "' was not found");
-	return NULL;
+	THROW_INVALID_ARG("Material was not found");
 }
 
-Material* gcm::Engine::getMaterial(int index)
+Material* gcm::Engine::getMaterial(unsigned char index)
 {
 	assert( index >=0 && index < materials.size() );
 	return materials[index];

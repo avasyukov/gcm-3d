@@ -4,7 +4,7 @@
 #include <string>
 #include "SnapshotWriter.h"
 #include "../Utils.h"
-#include "../node/ElasticNode.h"
+#include "../node/CalcNode.h"
 #include "../elem/TetrFirstOrder.h"
 #include "../mesh/TetrMeshFirstOrder.h"
 #include "../mesh/TetrMeshSecondOrder.h"
@@ -24,7 +24,7 @@ namespace gcm {
 	class VTK2SnapshotWriter : public SnapshotWriter {
 	private:
 		void dumpVTK(string filename, TetrMeshSecondOrder* mesh, int step);
-		bool shouldSnapshot(ElasticNode* node, TetrMeshSecondOrder* mesh);
+		bool shouldSnapshot(CalcNode* node, TetrMeshSecondOrder* mesh);
 		string fname;
 		USE_LOGGER;
 	public:

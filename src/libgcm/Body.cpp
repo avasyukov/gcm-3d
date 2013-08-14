@@ -21,14 +21,6 @@ void gcm::Body::attachMesh(Mesh* mesh) {
 	meshes.push_back(mesh);
 }
 
-void gcm::Body::setRheology(string rheology) {
-	this->rheology = rheology;
-}
-
-string gcm::Body::getRheology() {
-	return rheology;
-}
-
 Mesh* gcm::Body::getMeshes() {
 	return meshes.size() ?  meshes[0] : NULL;
 }

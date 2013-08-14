@@ -3,9 +3,9 @@
 
 #include <string>
 
-// FIXME
+// FIXME - it's bad to have 'firstOrder' specifics here
 #include "../elem/TetrFirstOrder.h"
-#include "../node/ElasticNode.h"
+//#include "../node/CalcNode.h"
 
 #include "../Interfaces.h"
 #include "../node/Node.h"
@@ -14,6 +14,8 @@ using namespace std;
 using namespace gcm;
 
 namespace gcm {
+	class CalcNode;
+	class Area;
 	/*
 	 * Base class for all meshes
 	 */
@@ -37,7 +39,7 @@ namespace gcm {
 		 */
 		IBody* body;
 		
-		// FIXME;
+		// FIXME - do we need it in mesh?
 		float current_time;
 	public:
 		/*
@@ -56,10 +58,10 @@ namespace gcm {
 		/*
 		 * Returns node by its index.
 		 */
-		virtual Node* getNode(int index) = 0;
+		virtual CalcNode* getNode(int index) = 0;
 		
-		// FIXME
-		virtual int findTargetPoint(ElasticNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint) = 0;
+		// FIXME - do we need it in pure virtual Mesh?
+		virtual int findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint) = 0;
 		virtual void find_border_node_normal(int border_node_index, float* x, float* y, float* z, bool debug) = 0;
 		virtual void printBorder() = 0;
 		void update_current_time(float time_step);
@@ -70,12 +72,12 @@ namespace gcm {
 		virtual float getRecommendedTimeStep() = 0;
 		virtual float getMaxLambda() = 0;
 		virtual void do_next_part_step(float tau, int stage) = 0;
-		// FIXME
-		virtual void addNode(ElasticNode* node) = 0;
-		// FIXME
+		// FIXME - do we need it in Mesh
+		virtual void addNode(CalcNode* node) = 0;
+		// FIXME - it's bad to have firstOrder specific here
 		virtual void addTetr(TetrFirstOrder* tetr) = 0;
-		virtual void setRheology(float la, float mu, float rho) = 0;
-		virtual void setRheology(float la, float mu, float rho, Area* area) = 0;
+		virtual void setRheology(unsigned char matId) = 0;
+		virtual void setRheology(unsigned char matId, Area* area) = 0;
 		virtual void checkTopology(float tau) = 0;
 		virtual	void transfer(float x, float y, float z) = 0;
 

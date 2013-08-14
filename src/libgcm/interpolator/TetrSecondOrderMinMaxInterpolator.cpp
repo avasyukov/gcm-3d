@@ -6,6 +6,7 @@
  */
 
 #include "TetrSecondOrderMinMaxInterpolator.h"
+#include "../node/CalcNode.h"
 
 gcm::TetrSecondOrderMinMaxInterpolator::TetrSecondOrderMinMaxInterpolator() {
 	type = "TetrSecondOrderMinMaxInterpolator";
@@ -15,10 +16,10 @@ gcm::TetrSecondOrderMinMaxInterpolator::TetrSecondOrderMinMaxInterpolator() {
 gcm::TetrSecondOrderMinMaxInterpolator::~TetrSecondOrderMinMaxInterpolator() {
 }
 
-void gcm::TetrSecondOrderMinMaxInterpolator::interpolate( ElasticNode* node, 
-				ElasticNode* node0, ElasticNode* node1, ElasticNode* node2, ElasticNode* node3,
-				ElasticNode* addNode0, ElasticNode* addNode1, ElasticNode* addNode2, 
-				ElasticNode* addNode3, ElasticNode* addNode4, ElasticNode* addNode5 )
+void gcm::TetrSecondOrderMinMaxInterpolator::interpolate( CalcNode* node, 
+				CalcNode* node0, CalcNode* node1, CalcNode* node2, CalcNode* node3,
+				CalcNode* addNode0, CalcNode* addNode1, CalcNode* addNode2, 
+				CalcNode* addNode3, CalcNode* addNode4, CalcNode* addNode5 )
 {
 	LOG_TRACE("Start interpolation");
 	assert( node != NULL );
@@ -170,40 +171,43 @@ void gcm::TetrSecondOrderMinMaxInterpolator::interpolate( ElasticNode* node,
 			node->values[i] = max;
 	}
 
-	for (int i = 0; i < 3; i++)
 	{
-		float min = baseNodes[0]->elasticRheologyProperties[i];
-		float max = baseNodes[0]->elasticRheologyProperties[i];
+		float min = baseNodes[0]->getRho();
+		float max = baseNodes[0]->getRho();
 		for(int z = 1; z < 4; z++) {
-			if( baseNodes[z]->elasticRheologyProperties[i] < min )
-				min = baseNodes[z]->elasticRheologyProperties[i];
-			if( baseNodes[z]->elasticRheologyProperties[i] > max )
-				max = baseNodes[z]->elasticRheologyProperties[i];
+			if( baseNodes[z]->getRho() < min )
+				min = baseNodes[z]->getRho();
+			if( baseNodes[z]->getRho() > max )
+				max = baseNodes[z]->getRho();
 		}
 		for(int z = 0; z < 6; z++) {
-			if( addNodes[z]->elasticRheologyProperties[i] < min )
-				min = addNodes[z]->elasticRheologyProperties[i];
-			if( addNodes[z]->elasticRheologyProperties[i] > max )
-				max = addNodes[z]->elasticRheologyProperties[i];
+			if( addNodes[z]->getRho() < min )
+				min = addNodes[z]->getRho();
+			if( addNodes[z]->getRho() > max )
+				max = addNodes[z]->getRho();
 		}
 
-		node->elasticRheologyProperties[i] = ( baseNodes[0]->elasticRheologyProperties[i] * factor[0] * ( 2 * factor[0] - 1 )
-					+ baseNodes[1]->elasticRheologyProperties[i] * factor[1] * ( 2 * factor[1] - 1 )
-					+ baseNodes[2]->elasticRheologyProperties[i] * factor[2] * ( 2 * factor[2] - 1 )
-					+ baseNodes[3]->elasticRheologyProperties[i] * factor[3] * ( 2 * factor[3] - 1 )
-					+ addNodes[0]->elasticRheologyProperties[i] * 4 * factor[0] * factor[1]
-					+ addNodes[1]->elasticRheologyProperties[i] * 4 * factor[0] * factor[2]
-					+ addNodes[2]->elasticRheologyProperties[i] * 4 * factor[0] * factor[3]
-					+ addNodes[3]->elasticRheologyProperties[i] * 4 * factor[1] * factor[2]
-					+ addNodes[4]->elasticRheologyProperties[i] * 4 * factor[1] * factor[3]
-					+ addNodes[5]->elasticRheologyProperties[i] * 4 * factor[2] * factor[3]
+		float rho = ( baseNodes[0]->getRho() * factor[0] * ( 2 * factor[0] - 1 )
+					+ baseNodes[1]->getRho() * factor[1] * ( 2 * factor[1] - 1 )
+					+ baseNodes[2]->getRho() * factor[2] * ( 2 * factor[2] - 1 )
+					+ baseNodes[3]->getRho() * factor[3] * ( 2 * factor[3] - 1 )
+					+ addNodes[0]->getRho() * 4 * factor[0] * factor[1]
+					+ addNodes[1]->getRho() * 4 * factor[0] * factor[2]
+					+ addNodes[2]->getRho() * 4 * factor[0] * factor[3]
+					+ addNodes[3]->getRho() * 4 * factor[1] * factor[2]
+					+ addNodes[4]->getRho() * 4 * factor[1] * factor[3]
+					+ addNodes[5]->getRho() * 4 * factor[2] * factor[3]
 					);
 
-		if( node->elasticRheologyProperties[i] < min )
-			node->elasticRheologyProperties[i] = min;
-		if( node->elasticRheologyProperties[i] > max )
-			node->elasticRheologyProperties[i] = max;
+		if( rho < min )
+			rho = min;
+		if( rho > max )
+			rho = max;
+		
+		node->setRho(rho);
 	}
+	
+	node->setMaterialId( baseNodes[0]->getMaterialId() );
 	
 	LOG_TRACE("Interpolation done");
 }

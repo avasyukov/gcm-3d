@@ -9,7 +9,6 @@
 #define GCM_BORDER_CALCULATOR_H_  1
 
 #include <string>
-#include "../../node/ElasticNode.h"
 #include "../../util/ElasticMatrix3D.h"
 #include "../../Logging.h"
 
@@ -17,6 +16,7 @@ using namespace std;
 
 namespace gcm
 {
+	class CalcNode;
 	/*
 	 * Base class for inner points calculators
 	 */
@@ -33,7 +33,7 @@ namespace gcm
 		/*
 		 * Calculate next state for the given node
 		 */
-		virtual void do_calc(ElasticNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float magnitude) = 0;
+		virtual void do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float magnitude) = 0;
 		/*
 		 * Returns type of the calculator
 		 */

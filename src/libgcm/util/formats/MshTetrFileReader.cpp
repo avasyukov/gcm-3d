@@ -1,4 +1,8 @@
 #include "MshTetrFileReader.h"
+#include "../../mesh/TetrMeshFirstOrder.h"
+#include "../../GCMDispatcher.h"
+#include "../AABB.h"
+#include "../../node/CalcNode.h"
 
 gcm::MshTetrFileReader::MshTetrFileReader()
 {
@@ -123,7 +127,7 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 
 	infile >> number_of_nodes;
 	LOG_DEBUG("File contains " << number_of_nodes << " nodes");
-	vector<ElasticNode*>* nodes = new vector<ElasticNode*>;
+	vector<CalcNode*>* nodes = new vector<CalcNode*>;
 	
 	for(int i = 0; i < number_of_nodes; i++)
 	{
@@ -134,7 +138,7 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 			infile >> coords[0] >> coords[1] >> coords[2];
 			if( dispatcher->isMine( coords ) )
 			{
-				ElasticNode* node = new ElasticNode();
+				CalcNode* node = new CalcNode();
 				node->number = tmp_int - 1;
 				node->coords[0] = coords[0];
 				node->coords[1] = coords[1];
@@ -258,7 +262,7 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 		THROW_INVALID_INPUT("Wrong file format");
 
 	infile >> number_of_nodes;
-	ElasticNode tmpNode;
+	CalcNode tmpNode;
 	for(int i = 0; i < number_of_nodes; i++)
 	{
 		infile >> tmpNode.number;

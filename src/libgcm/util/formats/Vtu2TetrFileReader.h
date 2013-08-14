@@ -20,6 +20,9 @@
 using namespace std;
 
 namespace gcm {
+	class GCMDispatcher;
+	class AABB;
+	
 	class Vtu2TetrFileReader
 	{
 	protected:

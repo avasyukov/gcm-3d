@@ -18,13 +18,13 @@ int gcm::InterpolationFixedAxis::getNumberOfStages() {
 	return 3;
 }
 
-float gcm::InterpolationFixedAxis::getMaxLambda(ElasticNode* node) {
+float gcm::InterpolationFixedAxis::getMaxLambda(CalcNode* node) {
 	assert( node != NULL );
 	assert ( node->rheologyIsValid() );
-	return sqrt( ( (node->la) + 2 * (node->mu) ) / (node->rho) );
+	return sqrt( ( (node->getLambda()) + 2 * (node->getMu()) ) / (node->getRho()) );
 };
 
-void gcm::InterpolationFixedAxis::doNextPartStep(ElasticNode* cur_node, ElasticNode* new_node, 
+void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* new_node, 
 													float time_step, int stage, Mesh* mesh)
 {
 	assert( stage >= 0 && stage <= 2 );
@@ -54,7 +54,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(ElasticNode* cur_node, ElasticN
 	{
 		LOG_TRACE("Start inner node calc");
 		if( outer_count == 0 )
-			// FIXME
+			// FIXME - hardcoded name
 			engine->getVolumeCalculator("SimpleVolumeCalculator")->do_calc(
 									new_node, &elastic_matrix3d, previous_values);
 		else
@@ -72,7 +72,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(ElasticNode* cur_node, ElasticN
 		// If there is no 'outer' omega - it is ok, border node can be inner for some directions
 		if( outer_count == 0 )
 		{
-			// FIXME
+			// FIXME - hardcoded name
 			engine->getVolumeCalculator("SimpleVolumeCalculator")->do_calc(
 									new_node, &elastic_matrix3d, previous_values);
 		}
@@ -85,7 +85,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(ElasticNode* cur_node, ElasticN
 					new_node, &elastic_matrix3d, previous_values, inner, outer_normal);
 		// It means smth went wrong. Just interpolate the values and report bad node.
 		} else {
-			// FIXME
+			// FIXME - implement border and contact completely
 			LOG_TRACE("Using calculator: " << engine->getBorderCondition(0)->calc->getType());
 			engine->getBorderCondition(0)->do_calc(mesh->get_current_time(), cur_node->coords, 
 					new_node, &elastic_matrix3d, previous_values, inner, outer_normal);
@@ -139,7 +139,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(ElasticNode* cur_node, ElasticN
 
 		} else {
 
-			ElasticNode* virt_node;
+			CalcNode* virt_node;
 			if( cur_node->contact_data->axis_plus[stage] != -1 )
 				virt_node = mesh->mesh_set->getNode( cur_node->contact_data->axis_plus[stage] );
 			else 
@@ -167,7 +167,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(ElasticNode* cur_node, ElasticN
 			// We will store interpolated nodes on previous time layer here
 			// We know that we need five nodes for each direction (corresponding to Lambdas -C1, -C2, 0, C2, C1)
 			// TODO  - We can  deal with (lambda == 0) separately
-			ElasticNode virt_previous_nodes[5];
+			CalcNode virt_previous_nodes[5];
 
 			// Outer normal at current point
 			float virt_outer_normal[3];
@@ -263,7 +263,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(ElasticNode* cur_node, ElasticN
 		}*/
 }
 
-int gcm::InterpolationFixedAxis::prepare_node(ElasticNode* cur_node, float time_step, int stage, Mesh* mesh)
+int gcm::InterpolationFixedAxis::prepare_node(CalcNode* cur_node, float time_step, int stage, Mesh* mesh)
 {
 	assert( stage >= 0 && stage <= 2 );
 	
@@ -272,7 +272,7 @@ int gcm::InterpolationFixedAxis::prepare_node(ElasticNode* cur_node, float time_
 
 	LOG_TRACE("Preparing elastic matrix");
 	//  Prepare matrixes  A, Lambda, Omega, Omega^(-1)
-	elastic_matrix3d.prepare_matrix( cur_node->la, cur_node->mu, cur_node->rho, stage );
+	elastic_matrix3d.prepare_matrix( cur_node->getLambda(), cur_node->getMu(), cur_node->getRho(), stage );
 	LOG_TRACE("Preparing elastic matrix done");
 	
 	LOG_TRACE("Elastic matrix eigen values:\n" << elastic_matrix3d.L);
@@ -283,7 +283,7 @@ int gcm::InterpolationFixedAxis::prepare_node(ElasticNode* cur_node, float time_
 	return find_nodes_on_previous_time_layer(cur_node, stage, mesh);
 };
 
-int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(ElasticNode* cur_node, int stage, Mesh* mesh)
+int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage, Mesh* mesh)
 {
 	LOG_TRACE("Start looking for nodes on previous time layer");
 	
@@ -419,25 +419,25 @@ void gcm::InterpolationFixedAxis::interpolateNode(Mesh* mesh, int tetrInd, int p
 
 		engine->getFirstOrderInterpolator("TetrFirstOrderInterpolator")->interpolate(
 				&previous_nodes[prevNodeInd], 
-				(ElasticNode*) mesh->getNode( tmp_tetr->verts[0] ),
-				(ElasticNode*) mesh->getNode( tmp_tetr->verts[1] ),
-				(ElasticNode*) mesh->getNode( tmp_tetr->verts[2] ),
-				(ElasticNode*) mesh->getNode( tmp_tetr->verts[3] ) );
+				(CalcNode*) mesh->getNode( tmp_tetr->verts[0] ),
+				(CalcNode*) mesh->getNode( tmp_tetr->verts[1] ),
+				(CalcNode*) mesh->getNode( tmp_tetr->verts[2] ),
+				(CalcNode*) mesh->getNode( tmp_tetr->verts[3] ) );
 	}
 	else if( spaceOrder == 2 )
 	{
 		TetrSecondOrder* tmp_tetr = ((TetrMeshSecondOrder*)mesh)->getTetr2( tetrInd );
 		engine->getSecondOrderInterpolator("TetrSecondOrderMinMaxInterpolator")->interpolate(
 				&previous_nodes[prevNodeInd], 
-				(ElasticNode*) mesh->getNode( tmp_tetr->verts[0] ), 
-				(ElasticNode*) mesh->getNode( tmp_tetr->verts[1] ), 
-				(ElasticNode*) mesh->getNode( tmp_tetr->verts[2] ), 
-				(ElasticNode*) mesh->getNode( tmp_tetr->verts[3] ), 
-				(ElasticNode*) mesh->getNode( tmp_tetr->addVerts[0] ), 
-				(ElasticNode*) mesh->getNode( tmp_tetr->addVerts[1] ), 
-				(ElasticNode*) mesh->getNode( tmp_tetr->addVerts[2] ), 
-				(ElasticNode*) mesh->getNode( tmp_tetr->addVerts[3] ), 
-				(ElasticNode*) mesh->getNode( tmp_tetr->addVerts[4] ), 
-				(ElasticNode*) mesh->getNode( tmp_tetr->addVerts[5] ) );
+				(CalcNode*) mesh->getNode( tmp_tetr->verts[0] ), 
+				(CalcNode*) mesh->getNode( tmp_tetr->verts[1] ), 
+				(CalcNode*) mesh->getNode( tmp_tetr->verts[2] ), 
+				(CalcNode*) mesh->getNode( tmp_tetr->verts[3] ), 
+				(CalcNode*) mesh->getNode( tmp_tetr->addVerts[0] ), 
+				(CalcNode*) mesh->getNode( tmp_tetr->addVerts[1] ), 
+				(CalcNode*) mesh->getNode( tmp_tetr->addVerts[2] ), 
+				(CalcNode*) mesh->getNode( tmp_tetr->addVerts[3] ), 
+				(CalcNode*) mesh->getNode( tmp_tetr->addVerts[4] ), 
+				(CalcNode*) mesh->getNode( tmp_tetr->addVerts[5] ) );
 	}
 }

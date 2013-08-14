@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <gsl/gsl_linalg.h>
-#include "../node/ElasticNode.h"
 #include "Mesh.h"
 #include "../elem/TetrFirstOrder.h"
 #include "../elem/TriangleFirstOrder.h"
@@ -19,6 +18,7 @@ using namespace gcm;
 #define STORAGE_OVERCOMMIT_RATIO 3.0
 
 namespace gcm {
+	class CalcNode;
 	/*
 	 * Tetrahedral 1st order mesh.
 	 */
@@ -43,8 +43,8 @@ namespace gcm {
 		/*
 		 * List of mesh nodes.
 		 */
-		ElasticNode* nodes;
-		ElasticNode* new_nodes;
+		CalcNode* nodes;
+		CalcNode* new_nodes;
 		int nodesNumber;
 		int nodesStorageSize;
 		int tetrsNumber;
@@ -77,8 +77,8 @@ namespace gcm {
 		
 		void logMeshStats();
 	
-		/*TetrFirstOrder*/ int find_border_cross(ElasticNode* node, float dx, float dy, float dz, bool debug, float* cross);
-		/*TetrFirstOrder*/ int find_border_cross(ElasticNode* node, float dx, float dy, float dz, bool debug, ElasticNode* cross);
+		/*TetrFirstOrder*/ int find_border_cross(CalcNode* node, float dx, float dy, float dz, bool debug, float* cross);
+		/*TetrFirstOrder*/ int find_border_cross(CalcNode* node, float dx, float dy, float dz, bool debug, CalcNode* cross);
 		
 		void calc_min_h();
 		void calc_avg_h();
@@ -97,9 +97,9 @@ namespace gcm {
 		AABB syncedArea;
 		AABB areaOfInterest;
 		
-		/*TetrFirstOrder*/ int expandingScanForPoint (ElasticNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
-		/*TetrFirstOrder*/ int expandingScanForOwnerTetr(ElasticNode* node, float dx, float dy, float dz, bool debug);
-		/*TetrFirstOrder*/ int fastScanForOwnerTetr(ElasticNode* node, float dx, float dy, float dz, bool debug);
+		/*TetrFirstOrder*/ int expandingScanForPoint (CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+		/*TetrFirstOrder*/ int expandingScanForOwnerTetr(CalcNode* node, float dx, float dy, float dz, bool debug);
+		/*TetrFirstOrder*/ int fastScanForOwnerTetr(CalcNode* node, float dx, float dy, float dz, bool debug);
 		
 		gsl_matrix *T;
 		gsl_matrix *S;
@@ -124,14 +124,14 @@ namespace gcm {
 		/*
 		 * Returns node by its index.
 		 */
-		ElasticNode* getNode(int index);
-		ElasticNode* getNewNode(int index);
+		CalcNode* getNode(int index);
+		CalcNode* getNewNode(int index);
 		
-		ElasticNode* getNodeByLocalIndex(int index);
+		CalcNode* getNodeByLocalIndex(int index);
 		
 		int getNodeLocalIndex(int index);
 		
-		void addNode(ElasticNode* node);
+		void addNode(CalcNode* node);
 		void addTetr(TetrFirstOrder* tetr);
 		/*
 		 * Returns tetr by its index.
@@ -155,7 +155,7 @@ namespace gcm {
 		/*
 		 * Return arrays containing mesh nodes and tetrahedrons. Use carefully.
 		 */
-		//ElasticNode* getNodes();
+		//CalcNode* getNodes();
 		
 		// TetrFirstOrder* getTetrs();
 		
@@ -178,15 +178,15 @@ namespace gcm {
 		void move_coords(float tau);
 		int proceed_rheology();
 		
-		/*TetrFirstOrder*/ int find_owner_tetr(ElasticNode* node, float dx, float dy, float dz, bool debug);
-		/*TetrFirstOrder*/ int findTargetPoint(ElasticNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+		/*TetrFirstOrder*/ int find_owner_tetr(CalcNode* node, float dx, float dy, float dz, bool debug);
+		/*TetrFirstOrder*/ int findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
 		void find_border_node_normal(int border_node_index, float* x, float* y, float* z, bool debug);
 		void printBorder();
 		void setInitialState(Area* area, float* values);
-		void setRheology(float la, float mu, float rho);
-		void setRheology(float la, float mu, float rho, Area* area);
+		void setRheology(unsigned char matId);
+		void setRheology(unsigned char matId, Area* area);
 		void checkTopology(float tau);
-		void interpolate(ElasticNode* node, TetrFirstOrder* tetr);
+		void interpolate(CalcNode* node, TetrFirstOrder* tetr);
 		inline AABB* getOutline()
 		{
 			return &outline;

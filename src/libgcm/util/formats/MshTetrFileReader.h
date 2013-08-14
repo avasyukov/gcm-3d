@@ -8,7 +8,6 @@
 #ifndef GCM_MSH_FILE_READER_H
 #define	GCM_MSH_FILE_READER_H
 
-#include "../../mesh/TetrMeshFirstOrder.h"
 #include "../../Logging.h"
 #include <string>
 #include <fstream>
@@ -17,6 +16,10 @@
 using namespace std;
 
 namespace gcm {
+	class TetrMeshFirstOrder;
+	class GCMDispatcher;
+	class AABB;
+	
 	class MshTetrFileReader
 	{
 	protected:

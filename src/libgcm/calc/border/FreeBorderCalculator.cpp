@@ -1,4 +1,5 @@
 #include "FreeBorderCalculator.h"
+#include "../../node/CalcNode.h"
 
 FreeBorderCalculator::FreeBorderCalculator()
 {
@@ -17,7 +18,7 @@ FreeBorderCalculator::~FreeBorderCalculator()
 	gsl_permutation_free(p_gsl);
 };
 
-void FreeBorderCalculator::do_calc(ElasticNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
+void FreeBorderCalculator::do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
 {
 	LOG_TRACE("Starting calc");
 	
