@@ -1654,39 +1654,19 @@ void gcm::TetrMeshFirstOrder::transfer(float x, float y, float z)
 	}
 	if( !isinf(outline.minX) )
 	{
-		outline.min_coords[0] += x;
-		outline.min_coords[1] += y;
-		outline.min_coords[2] += z;
-		outline.max_coords[0] += x;
-		outline.max_coords[1] += y;
-		outline.max_coords[2] += z;
+		outline.transfer(x, y, z);
 	}
 	if( !isinf(expandedOutline.minX) )
 	{
-		expandedOutline.min_coords[0] += x;
-		expandedOutline.min_coords[1] += y;
-		expandedOutline.min_coords[2] += z;
-		expandedOutline.max_coords[0] += x;
-		expandedOutline.max_coords[1] += y;
-		expandedOutline.max_coords[2] += z;
+		expandedOutline.transfer(x, y, z);
 	}
 	if( !isinf(syncedArea.minX) )
 	{
-		syncedArea.min_coords[0] += x;
-		syncedArea.min_coords[1] += y;
-		syncedArea.min_coords[2] += z;
-		syncedArea.max_coords[0] += x;
-		syncedArea.max_coords[1] += y;
-		syncedArea.max_coords[2] += z;
+		syncedArea.transfer(x, y, z);
 	}
 	if( !isinf(areaOfInterest.minX) )
 	{
-		areaOfInterest.min_coords[0] += x;
-		areaOfInterest.min_coords[1] += y;
-		areaOfInterest.min_coords[2] += z;
-		areaOfInterest.max_coords[0] += x;
-		areaOfInterest.max_coords[1] += y;
-		areaOfInterest.max_coords[2] += z;
+		areaOfInterest.transfer(x, y, z);
 	}
 	
 	// TODO@avasyukov - think about additional checks

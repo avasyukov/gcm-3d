@@ -4,6 +4,7 @@
 			<rheology type="elastic" />
 			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.25" />
 			<material id="testMaterial" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="0" />
 		</body>
 	</bodies>
 	<materials>

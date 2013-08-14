@@ -133,7 +133,22 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			body->attachMesh(mesh);
 			LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  meshLoader->getType() << "' created");
 		}
-					
+		
+		// transform meshes
+		NodeList transformNodes = bodyNode->getChildrenByName("transform");
+		foreach(transformNode, transformNodes)
+		{
+			string transformType = getAttributeByName(transformNode->getAttributes(), "type");
+			if( transformType == "translate" )
+			{
+				float x = atof( getAttributeByName(transformNode->getAttributes(), "moveX").c_str() );
+				float y = atof( getAttributeByName(transformNode->getAttributes(), "moveY").c_str() );
+				float z = atof( getAttributeByName(transformNode->getAttributes(), "moveZ").c_str() );
+				LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
+				body->getMeshes()->transfer(x, y, z);
+			}
+		}
+		
 		// set material properties
 		NodeList matNodes = bodyNode->getChildrenByName("material");
 		if (matNodes.size() < 1)
