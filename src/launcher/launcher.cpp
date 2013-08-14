@@ -37,12 +37,12 @@ string getAttributeByName(AttrList attrs, string name) {
 	THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list");
 }
 
-void loadSceneFromFile(Engine *engine, string fileName)
+void loadSceneFromFile(Engine& engine, string fileName)
 {
 	USE_LOGGER;
 	INIT_LOGGER("gcm.launcher.TaskLoader");
 	// FIXME shoul we validate task file against xml schema?
-	FileLookupService& fls =  engine->getFileLookupService();
+	FileLookupService& fls =  engine.getFileLookupService();
 	string fname = fls.lookupFile(fileName);
 	LOG_INFO("Loading scene from file " << fname);
 	// parse file
@@ -56,8 +56,8 @@ void loadSceneFromFile(Engine *engine, string fileName)
 	{
 		int numberOfSnaps = atoi( getAttributeByName(taskNode->getAttributes(), "numberOfSnaps").c_str() );
 		int stepsPerSnap = atoi( getAttributeByName(taskNode->getAttributes(), "stepsPerSnap").c_str() );
-		engine->setNumberOfSnaps(numberOfSnaps);
-		engine->setStepsPerSnap(stepsPerSnap);
+		engine.setNumberOfSnaps(numberOfSnaps);
+		engine.setStepsPerSnap(stepsPerSnap);
 	}
 	// reading materials
 	NodeList matNodes = rootNode.xpath("/task/materials/material");
@@ -73,7 +73,7 @@ void loadSceneFromFile(Engine *engine, string fileName)
 		Material* mat = new Material(id);
 		mat->setRho(rho);
 		mat->setLame(la, mu);
-		engine->addMaterial(mat);
+		engine.addMaterial(mat);
 	}
 	// search for bodies
 	NodeList bodyNodes = rootNode.xpath("/task/bodies/body");
@@ -103,7 +103,7 @@ void loadSceneFromFile(Engine *engine, string fileName)
 				LOG_WARN("Mesh type is not specified, mesh will be ignored.");
 				break;
 			}
-			MeshLoader* meshLoader = engine->getMeshLoader(params["type"]);
+			MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
 			if (!meshLoader)
 			{
 				// FIXME should we throw exception?
@@ -116,14 +116,14 @@ void loadSceneFromFile(Engine *engine, string fileName)
 			// TODO - think about multiple bodies and multiple meshes per body
 			AABB scene;
 			meshLoader->preLoadMesh(params, &scene);
-			engine->setScene(scene);
-			LOG_DEBUG("Mesh preloaded. Scene size: " << engine->getScene() );
+			engine.setScene(scene);
+			LOG_DEBUG("Mesh preloaded. Scene size: " << engine.getScene() );
 
-			engine->getDispatcher()->prepare(engine->getNumberOfWorkers(), &scene);
-			engine->getDataBus()->syncOutlines();
-			for( int i = 0; i < engine->getNumberOfWorkers(); i++)
+			engine.getDispatcher()->prepare(engine.getNumberOfWorkers(), &scene);
+			engine.getDataBus()->syncOutlines();
+			for( int i = 0; i < engine.getNumberOfWorkers(); i++)
 			{
-				LOG_DEBUG("Area scheduled for worker " << i << ": " << *(engine->getDispatcher()->getOutline(i)));
+				LOG_DEBUG("Area scheduled for worker " << i << ": " << *(engine.getDispatcher()->getOutline(i)));
 			}	
 			
 			// use loader to load mesh
@@ -141,7 +141,7 @@ void loadSceneFromFile(Engine *engine, string fileName)
 		foreach(matNode, matNodes)
 		{
 			string id = getAttributeByName(matNode->getAttributes(), "id");
-			Material* mat = engine->getMaterial(id);
+			Material* mat = engine.getMaterial(id);
 			Mesh* mesh = body->getMeshes();
 			
 			NodeList areaNodes = matNode->getChildrenByName("area");
@@ -178,7 +178,7 @@ void loadSceneFromFile(Engine *engine, string fileName)
 		}
 		
 		// add body to scene
-		engine->addBody(body);
+		engine.addBody(body);
 		LOG_DEBUG("Body '" << id << "' loaded");
 	}	
 	// FIXME - rewrite this indian style code
@@ -246,8 +246,8 @@ void loadSceneFromFile(Engine *engine, string fileName)
 							<< values[3] << " " << values[4] << " " << values[5] << " "
 							<< values[6] << " " << values[7] << " " << values[8] );
 		}
-		for( int i = 0; i < engine->getNumberOfBodies(); i++ )
-			engine->getBody(i)->setInitialState(stateArea, values);
+		for( int i = 0; i < engine.getNumberOfBodies(); i++ )
+			engine.getBody(i)->setInitialState(stateArea, values);
 	}
 	LOG_DEBUG("Scene loaded");
 }
@@ -320,12 +320,10 @@ int main(int argc, char **argv, char **envp)
 			dataDir = CONFIG_SHARE_GCM;
 		LOG_INFO("Staring with taskFile '" << taskFile << "' and dataDir '" << dataDir << "'");
 		
-		Engine* engine = new Engine();
-		engine->getFileLookupService().addPath(dataDir);
+		Engine& engine = Engine::getInstance();
+		engine.getFileLookupService().addPath(dataDir);
 		loadSceneFromFile(engine, taskFile);
-		engine->calculate();
-		
-		delete engine;
+		engine.calculate();
 		
 	} catch (Exception &e) {
 		LOG_FATAL("Exception was thrown: " << e.getMessage() << "\n @" << e.getFile() << ":" << e.getLine() << "\nCall stack: \n"<< e.getCallStack());

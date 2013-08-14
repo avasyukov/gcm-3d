@@ -69,7 +69,7 @@ namespace gcm {
 		void setRheology(string rheology);
 		string getRheology();
 		
-		void setEngine(IEngine* engine);
+		void setEngine(IEngine& engine);
 		IEngine* getEngine();
 		
 		void setInitialState(Area* area, float values[9]);

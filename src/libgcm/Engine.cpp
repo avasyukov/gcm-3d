@@ -3,6 +3,12 @@
 // initialiaze static fields
 int gcm::Engine::enginesNumber = 0;
 
+Engine& gcm::Engine::getInstance()
+{
+	static Engine engine;
+	return engine;
+}
+
 gcm::Engine::Engine()
 {
 	// check engines counter
@@ -59,13 +65,6 @@ gcm::Engine::Engine()
 	fixedTimeStep = -1;
 	numberOfSnaps = 0;
 	stepsPerSnap = 1;
-}
-
-gcm::Engine::Engine(int* argc, char*** argv)
-{
-	// TODO process arguments
-	// call default constructor
-	Engine();
 }
 
 gcm::Engine::~Engine()

@@ -40,8 +40,8 @@ Mesh* gcm::Body::getMesh(string id) {
 	return NULL;
 }
 
-void gcm::Body::setEngine(IEngine* engine) {
-	this->engine = engine;
+void gcm::Body::setEngine(IEngine& engine) {
+	this->engine = &engine;
 }
 
 IEngine* gcm::Body::getEngine() {

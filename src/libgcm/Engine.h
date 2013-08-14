@@ -124,21 +124,30 @@ namespace gcm
 		 * Logger.
 		 */
 		USE_LOGGER;
-	public:
+		
+	private:
+		/* 
+		 * Engine is a singletone, so constructors are private
+		 * Limitation of current design: single threaded only
+		 */ 
+		
 		/*
 		 * Default constructor. Engine uses log4cxx as logging subsystem, so
 		 * it must be initialized *before* creating engine instance.
 		 */
 		Engine();
-		/*
-		 * Constructor to create scene taking into account
-		 * command line arguments.
-		 */
-		Engine(int *argc, char ***argv);
+		Engine(Engine const& copy);	// Not implemented
+		Engine& operator=(Engine const& copy); //Not implemented
 		/*
 		 * Destructor.
 		 */
 		~Engine();
+		
+	public:
+		/*
+		 * Returns singletone engine instance
+		 */
+		static Engine& getInstance();
 		/*
 		 * Returns process rank.
 		 */
