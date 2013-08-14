@@ -9,7 +9,6 @@
 
 #include "../Interfaces.h"
 #include "../node/Node.h"
-#include "../node/NodeFactory.h"
 
 using namespace std;
 using namespace gcm;
@@ -33,10 +32,6 @@ namespace gcm {
 		 */
 		string id;
 	protected:
-		/*
-		 * Node factory.
-		 */
-		NodeFactory* nodeFactory;
 		/*
 		 * Body
 		 */
@@ -100,10 +95,6 @@ namespace gcm {
 		 * Returns calc flag.
 		 */
 		bool getCalc();
-		/*
-		 * Sets node factory for mesh.
-		 */
-		void setNodeFactory(NodeFactory* nodeFactory);
 		/*
 		 * Sets body mesh belongs to.
 		 */

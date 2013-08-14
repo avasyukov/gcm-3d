@@ -36,8 +36,6 @@ gcm::Engine::Engine()
 	registerMeshLoader(new VtuMeshLoader());
 	registerMeshLoader(new Vtu2MeshLoader());
 	registerMeshLoader(new Vtu2MeshZoneLoader());
-	LOG_DEBUG("Registering default node factories");
-	registerNodeFactory(new ElasticNodeFactory());
 	LOG_DEBUG("Registering default methods");
 	registerNumericalMethod( new InterpolationFixedAxis() );
 	LOG_DEBUG("Registering default interpolators");
@@ -126,14 +124,6 @@ void gcm::Engine::registerSnapshotWriter(SnapshotWriter* snapshotWriter)
 		THROW_INVALID_ARG("Snapshot writer parameter cannot be NULL");
 	snapshotWriters[snapshotWriter->getType()] = snapshotWriter;
 	LOG_DEBUG("Registered snapshot writer: " << snapshotWriter->getType());
-}
-
-void gcm::Engine::registerNodeFactory(NodeFactory* nodeFactory)
-{
-	if (!nodeFactory)
-		THROW_INVALID_ARG("Snapshot writer parameter cannot be NULL");
-	nodeFactories[nodeFactory->getType()] = nodeFactory;
-	LOG_DEBUG("Registered node factory: " << nodeFactory->getType());
 }
 
 void gcm::Engine::registerVolumeCalculator(VolumeCalculator *volumeCalculator)
@@ -264,11 +254,6 @@ MeshLoader* gcm::Engine::getMeshLoader(string type)
 SnapshotWriter* gcm::Engine::getSnapshotWriter(string type)
 {
 	return snapshotWriters.find(type) != snapshotWriters.end() ? snapshotWriters[type] : NULL;
-}
-
-NodeFactory* gcm::Engine::getNodeFactory(string type)
-{
-	return nodeFactories.find(type) != nodeFactories.end() ? nodeFactories[type] : NULL;
 }
 
 NumericalMethod* gcm::Engine::getNumericalMethod(string type)

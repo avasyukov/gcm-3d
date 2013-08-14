@@ -23,10 +23,8 @@ gcm::TetrMeshFirstOrder::~TetrMeshFirstOrder() {
 	LOG_DEBUG("Destroying mesh '" << getId() << "'");
 	if( nodes != NULL )
 		delete[] nodes;
-		//nodeFactory->destroyNodes(nodes);
 	if( new_nodes != NULL )
 		delete[] new_nodes;
-		//nodeFactory->destroyNodes(new_nodes);
 	if( tetrs1 != NULL )
 		delete[] tetrs1;
 	if( border1 != NULL )
@@ -100,15 +98,14 @@ TriangleFirstOrder* gcm::TetrMeshFirstOrder::getTriangle(int index) {
 }
 
 void gcm::TetrMeshFirstOrder::createNodes(int number) {
-	assert( nodeFactory != NULL );
 	// FIXME currently it's not possible to add more nodes
 	if( nodesStorageSize > 0 ) {
-		nodeFactory->destroyNodes(nodes);
-		nodeFactory->destroyNodes(new_nodes);
+		delete[] nodes;
+		delete[] new_nodes;
 	}
 	// FIXME think how to avoid typecasts or make them safe
-	nodes = static_cast<ElasticNode*>(nodeFactory->makeNodes(number*STORAGE_OVERCOMMIT_RATIO));
-	new_nodes = static_cast<ElasticNode*>(nodeFactory->makeNodes(number*STORAGE_OVERCOMMIT_RATIO));
+	nodes = new ElasticNode[(int)(number*STORAGE_OVERCOMMIT_RATIO)];
+	new_nodes = new ElasticNode[(int)(number*STORAGE_OVERCOMMIT_RATIO)];
 	nodesNumber = 0;
 	nodesStorageSize = number*STORAGE_OVERCOMMIT_RATIO;
 }

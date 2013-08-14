@@ -90,6 +90,22 @@ namespace gcm {
 				};
 			};
 			
+			/*
+			 * Elastic rheology parameters.
+			 */
+			union {
+				float elasticRheologyProperties[3];
+				struct {
+					float la;
+					float mu;
+					float rho;
+				};
+			};
+
+			inline bool rheologyIsValid() {
+				return ( la > 0 && mu > 0 && rho > 0 );
+			}
+			
 			vector<int>* elements;
 			vector<int>* border_elements;
 			

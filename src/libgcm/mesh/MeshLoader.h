@@ -37,7 +37,6 @@ namespace gcm {
 		 * Loads mesh using passed configuration.
 		 */
 		virtual Mesh* load(Body* body, Params params) = 0;
-		void setNodeFactory(NodeFactory* nodeFactory);
 		virtual void preLoadMesh(Params params, AABB* scene) = 0;
 		
 		/*
@@ -74,8 +73,6 @@ namespace gcm {
 			// set calc
 			if (params.find(PARAM_CALC) != params.end())
 				mesh->setCalc(params[PARAM_CALC] == PARAM_VALUE_TRUE);
-			// set node factory
-			mesh->setNodeFactory(engine->getNodeFactory(body->getRheology()));
 			// set body
 			mesh->setBody(body);
 			assert( body->getEngine() != NULL );

@@ -1,9 +1,9 @@
 #ifndef GCM_INTERFACES_H
 #define GCM_INTERFACES_H
 
+#include <mpi.h>
 #include <string>
 //#include "mesh/Mesh.h"
-#include "node/NodeFactory.h"
 //#include "method/NumericalMethod.h"
 
 #include "calc/volume/VolumeCalculator.h"
@@ -20,14 +20,12 @@ namespace gcm {
 	class Body;
 	class Mesh;
 	class NumericalMethod;
-	class NodeFactory;
 	//class GCMDispatcher;
 	/*
 	 * Helper interfaces to solve compilation problems with cross-dependant classes.
 	 */
 	class IEngine {
 		public:
-			virtual NodeFactory* getNodeFactory(string type) = 0;
 			virtual NumericalMethod* getNumericalMethod(string type) = 0;
 			virtual VolumeCalculator* getVolumeCalculator(string type) = 0;
 			virtual BorderCalculator* getBorderCalculator(string type) = 0;

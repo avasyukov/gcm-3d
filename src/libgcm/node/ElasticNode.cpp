@@ -1,9 +1,6 @@
 #include "ElasticNode.h"
 
 gcm::ElasticNode::ElasticNode() {
-	la = 0;
-	mu = 0;
-	rho = 0;
 }
 
 gcm::ElasticNode::ElasticNode(int _num) {
@@ -52,16 +49,4 @@ ElasticNode& gcm::ElasticNode::operator=(const ElasticNode &src)
 	for( unsigned int i = 0; i < src.border_elements->size(); i++ )
 		border_elements->push_back( src.border_elements->at(i) );
 	return *this;
-}
-
-void gcm::ElasticNode::fastCopy(const ElasticNode& src)
-{
-	number = src.number;
-	memcpy( coords, src.coords, 3*sizeof(float) );
-	memcpy( values, src.values, 9*sizeof(float) );
-	memcpy( elasticRheologyProperties, src.elasticRheologyProperties, 3*sizeof(float) );
-	publicFlags = src.publicFlags;
-	privateFlags = src.privateFlags;
-	errorFlags = src.errorFlags;
-	borderCondId = src.borderCondId;
 }

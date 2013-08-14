@@ -30,11 +30,9 @@ void gcm::Msh2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 	{
 		LOG_DEBUG("Worker 0 started generating second order mesh");
 		TetrMeshFirstOrder* foMesh = new TetrMeshFirstOrder();
-		foMesh->setNodeFactory(engine->getNodeFactory(body->getRheology()));
 		foMesh->setBody(body);
 		
 		TetrMeshSecondOrder* soMesh = new TetrMeshSecondOrder();
-		soMesh->setNodeFactory(engine->getNodeFactory(body->getRheology()));
 		soMesh->setBody(body);
 		
 		AABB scene;

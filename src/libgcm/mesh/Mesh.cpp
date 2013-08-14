@@ -28,10 +28,6 @@ bool gcm::Mesh::getCalc() {
 	return calc;
 }
 
-void gcm::Mesh::setNodeFactory(NodeFactory* nodeFactory) {
-	this->nodeFactory = nodeFactory;
-}
-
 void gcm::Mesh::setBody(IBody* body) {
 	this->body = body;
 }

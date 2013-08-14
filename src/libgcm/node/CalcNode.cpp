@@ -2,8 +2,10 @@
 
 gcm::CalcNode::CalcNode()
 {
-	for( int i = 0; i < 9; i++ )
-		values[i] = 0;
+	la = 0;
+	mu = 0;
+	rho = 0;
+	memset(values, 0, 9*sizeof(float));
 	publicFlags = 0;
 	privateFlags = 0;
 	errorFlags = 0;
@@ -26,6 +28,7 @@ gcm::CalcNode::CalcNode(const CalcNode& src) {
 	number = src.number;
 	memcpy( coords, src.coords, 3*sizeof(float) );
 	memcpy( values, src.values, 9*sizeof(float) );
+	memcpy( elasticRheologyProperties, src.elasticRheologyProperties, 3*sizeof(float) );
 	publicFlags = src.publicFlags;
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;
@@ -43,6 +46,7 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
 	number = src.number;
 	memcpy( coords, src.coords, 3*sizeof(float) );
 	memcpy( values, src.values, 9*sizeof(float) );
+	memcpy( elasticRheologyProperties, src.elasticRheologyProperties, 3*sizeof(float) );
 	publicFlags = src.publicFlags;
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;

@@ -18,8 +18,6 @@
 #include "mesh/VtuMeshLoader.h"
 #include "mesh/Vtu2MeshLoader.h"
 #include "mesh/Vtu2MeshZoneLoader.h"
-#include "node/NodeFactory.h"
-#include "node/ElasticNodeFactory.h"
 #include "snapshot/SnapshotWriter.h"
 #include "Utils.h"
 #include "method/NumericalMethod.h"
@@ -75,10 +73,6 @@ namespace gcm
 		 * Snapshot writers.
 		 */
 		map<string, SnapshotWriter*> snapshotWriters;
-		/*
-		 * Node factories.
-		 */
-		map<string, NodeFactory*> nodeFactories;
 		/*
 		 * Numerical methods
 		 */
@@ -172,12 +166,6 @@ namespace gcm
 		 */
 		void registerSnapshotWriter(SnapshotWriter *snapshotWriter);
 		/*
-		 * Registers new node factory. Out-of-box node factories are
-		 * registered automatically at engine creation. Note, that if node factory
-		 * with the same type is registered already it will be replaced.
-		 */
-		void registerNodeFactory(NodeFactory *nodeFactory);
-		/*
 		 * Registers new volume calculator. Out-of-box calculators are
 		 * registered automatically at engine creation. Note, that if calculator
 		 * with the same type is registered already it will be replaced.
@@ -215,10 +203,6 @@ namespace gcm
 		 * Returns snapshot writer by type or NULL if not found.
 		 */
 		SnapshotWriter* getSnapshotWriter(string type);
-		/*
-		 * Returns node factory by type or NULL if not found.
-		 */
-		NodeFactory* getNodeFactory(string type);
 		
 		NumericalMethod* getNumericalMethod(string type);
 		VolumeCalculator* getVolumeCalculator(string type);

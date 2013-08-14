@@ -19,24 +19,7 @@ namespace gcm {
 			ElasticNode(const ElasticNode& src);
 			~ElasticNode();
 			
-			void fastCopy(const ElasticNode& src);
-			
 			ElasticNode &operator=(const ElasticNode &src);
-			/*
-			 * Elastic rheology parameters.
-			 */
-			union {
-				float elasticRheologyProperties[3];
-				struct {
-					float la;
-					float mu;
-					float rho;
-				};
-			};
-			
-			inline bool rheologyIsValid() {
-				return ( la > 0 && mu > 0 && rho > 0 );
-			}
 	};
 }
 
