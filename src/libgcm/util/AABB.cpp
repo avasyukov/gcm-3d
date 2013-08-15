@@ -38,6 +38,24 @@ bool gcm::AABB::includes(AABB* box)
 			&& ( maxX >= box->maxX ) && ( maxY >= box->maxY ) && ( maxZ >= box->maxZ );
 }
 
+bool gcm::AABB::intersects(AABB* box)
+{
+	AABB* inters = findIntersection(box);
+	if(inters == NULL)
+		return false;
+	delete inters;
+	return true;
+}
+
+bool gcm::AABB::intersects(AABB box)
+{
+	AABB* inters = findIntersection(&box);
+	if(inters == NULL)
+		return false;
+	delete inters;
+	return true;
+}
+
 AABB* gcm::AABB::findIntersection(AABB* box)
 {
 	float int_min_coords[3];

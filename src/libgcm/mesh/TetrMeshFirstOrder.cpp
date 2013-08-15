@@ -1599,11 +1599,33 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
 		if( areaOfInterest.max_coords[j] > globalOutline.max_coords[j] )
 			areaOfInterest.max_coords[j] = globalOutline.max_coords[j];
 	}
+	for(int j = 0; j < e->getNumberOfBodies(); j++)
+	{
+		Mesh* m = e->getBody(j)->getMeshes();
+		if( m->getId() == getId() )
+			continue;
+		bool intersects = false;
+		if( areaOfInterest.intersects(m->getOutline()) )
+			intersects = true;
+		if( !intersects )
+		{
+			for( int i = 0; i < 3; i++ )
+			{
+				areaOfInterest.min_coords[i] = outline.min_coords[i];
+				areaOfInterest.max_coords[i] = outline.max_coords[i];
+			}
+		}
+	}
 	
 	LOG_DEBUG("Mesh outline: " << outline);
 	LOG_DEBUG("Mesh expanded outline: " << expandedOutline);
 	LOG_DEBUG("Mesh area of interest: " << areaOfInterest);
 	LOG_DEBUG("Mesh synced area: " << syncedArea);
+}
+
+AABB gcm::TetrMeshFirstOrder::getOutline()
+{
+	return outline;
 }
 
 float gcm::TetrMeshFirstOrder::getRecommendedTimeStep() {

@@ -12,6 +12,7 @@
 #include "calc/border/SmoothBorderCalculator.h"
 #include "util/forms/StepPulseForm.h"
 #include "snapshot/VTKSnapshotWriter.h"
+#include "snapshot/VTK2SnapshotWriter.h"
 
 // initialiaze static fields
 int gcm::Engine::enginesNumber = 0;
@@ -71,6 +72,9 @@ gcm::Engine::Engine()
 	LOG_DEBUG("Creating data bus");
 	dataBus = new DataBus();
 	dataBus->setEngine(this);
+	LOG_DEBUG("Creating snapshot writers");
+	vtkSnapshotWriter = new VTKSnapshotWriter();
+	vtkDumpWriter = new VTK2SnapshotWriter();
 	LOG_INFO("GCM engine initialized");
 	currentTime = 0;
 	fixedTimeStep = -1;
@@ -91,6 +95,8 @@ gcm::Engine::~Engine()
 	// decrement engines counter
 	enginesNumber--;
 	delete dataBus;
+	delete vtkSnapshotWriter;
+	delete vtkDumpWriter;
 	// shutdown MPI
 	if( !MPI::Is_finalized() )
 		MPI::Finalize();
@@ -327,6 +333,7 @@ void gcm::Engine::doNextStepStages(const float maxAllowedStep, float& actualTime
 	LOG_DEBUG("Space zones for parallel calculations:");
 	dispatcher->printZones();
 	
+	// FIXME - hardcoded name
 	NumericalMethod *method = getNumericalMethod("InterpolationFixedAxis");
 	LOG_DEBUG( "Number of stages: " << method->getNumberOfStages() );
 	
@@ -335,13 +342,7 @@ void gcm::Engine::doNextStepStages(const float maxAllowedStep, float& actualTime
 	if( fixedTimeStep > 0 ) {
 		tau = fixedTimeStep;
 	} else {
-		for( unsigned int i = 0; i < bodies.size(); i++ )
-		{
-			Mesh* mesh = bodies[i]->getMeshes();
-			float t = mesh->getRecommendedTimeStep();
-			if( t < tau )
-				tau = t;
-		}
+		tau = calculateRecommendedTimeStep();
 	}
 	LOG_DEBUG( "Local time step " << tau );
 	if (tau > maxAllowedStep) tau = maxAllowedStep;
@@ -404,33 +405,54 @@ void gcm::Engine::syncOutlines() {
 	LOG_DEBUG("Syncing outlines");
 }
 
-
 void gcm::Engine::calculate()
 {
-	VTKSnapshotWriter* sw = new VTKSnapshotWriter();
-	VTK2SnapshotWriter* sw2 = new VTK2SnapshotWriter();
-	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(0)->getMeshes();
+	// We set time step once and do not change it during calculation
+	float tau = calculateRecommendedTimeStep();
+	setTimeStep( tau );
 	
-	setTimeStep( mesh->getRecommendedTimeStep() );
-	//engine->setTimeStep( 2 * mesh->getMaxPossibleTimeStep() );
-		
 	for( int i = 0; i < numberOfSnaps; i++ )
 	{
-		LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
-		sw->dump(mesh, i);
-		
+		createSnapshot(i);
 		for( int j = 0; j < stepsPerSnap; j++ )
 			doNextStep();
 	}
-		
-	LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
-	sw->dump(mesh, numberOfSnaps);
 	
-	LOG_INFO( "Dumping mesh " << mesh->getId() );
-	sw2->dump(mesh, numberOfSnaps);
-	
-	delete sw;
-	delete sw2;
+	createSnapshot(numberOfSnaps);
+	createDump(numberOfSnaps);
+}
+
+float gcm::Engine::calculateRecommendedTimeStep()
+{
+	float timeStep = numeric_limits<float>::infinity();
+	for( int j = 0; j < getNumberOfBodies(); j++ )
+	{
+		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
+		float tau = mesh->getRecommendedTimeStep();
+		if( tau < timeStep )
+			timeStep = tau;
+	}
+	return timeStep;
+}
+
+void gcm::Engine::createSnapshot(int number)
+{
+	for( int j = 0; j < getNumberOfBodies(); j++ )
+	{
+		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
+		LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
+		vtkSnapshotWriter->dump(mesh, number);
+	}
+}
+
+void gcm::Engine::createDump(int number)
+{
+	for( int j = 0; j < getNumberOfBodies(); j++ )
+	{
+		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
+		LOG_INFO( "Creating dump for mesh '" << mesh->getId() << "'" );
+		vtkDumpWriter->dump(mesh, number);
+	}
 }
 
 void gcm::Engine::setNumberOfSnaps(int number) {

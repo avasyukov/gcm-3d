@@ -121,6 +121,8 @@ namespace gcm {
 		int getTetrsNumber();
 		
 		int getTriangleNumber();
+		
+		AABB getOutline();
 		/*
 		 * Returns node by its index.
 		 */
@@ -187,10 +189,6 @@ namespace gcm {
 		void setRheology(unsigned char matId, Area* area);
 		void checkTopology(float tau);
 		void interpolate(CalcNode* node, TetrFirstOrder* tetr);
-		inline AABB* getOutline()
-		{
-			return &outline;
-		};
 		
 		void transfer(float x, float y, float z);
 	};

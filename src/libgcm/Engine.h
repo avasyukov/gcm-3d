@@ -36,6 +36,8 @@ using namespace gcm;
 
 namespace gcm
 {
+	class VTKSnapshotWriter;
+	class VTK2SnapshotWriter;
 	/*
 	 * Main class to operate calculation scene.
 	 */
@@ -95,6 +97,9 @@ namespace gcm
 		gcm::GCMDispatcher* dispatcher;
 		
 		DataBus* dataBus;
+		
+		VTKSnapshotWriter* vtkSnapshotWriter;
+		VTK2SnapshotWriter* vtkDumpWriter;
 		
 		float fixedTimeStep;
 		float currentTime;
@@ -218,6 +223,9 @@ namespace gcm
 		 */
 		void addBody(Body *body);
 		
+		float calculateRecommendedTimeStep();
+		void createSnapshot(int number);
+		void createDump(int number);
 		void doNextStep();
 		void doNextStepStages( const float maxAllowedStep, float& actualTimeStep );
 		void doNextStepAfterStages (const float time_step);

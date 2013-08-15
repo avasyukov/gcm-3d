@@ -55,6 +55,8 @@ namespace gcm {
 		 * Returns number of nodes in mesh.
 		 */
 		virtual int getNodesNumber() = 0;
+		
+		virtual AABB getOutline() = 0;
 		/*
 		 * Returns node by its index.
 		 */

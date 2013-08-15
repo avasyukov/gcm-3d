@@ -75,8 +75,13 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		mat->setLame(la, mu);
 		engine.addMaterial(mat);
 	}
+	
+	AABB globalScene;
+	
 	// search for bodies
 	NodeList bodyNodes = rootNode.xpath("/task/bodies/body");
+	
+	// prepare basic bodies parameters
 	foreach(bodyNode, bodyNodes)
 	{
 		string id = bodyNode->getAttributes()["id"];
@@ -91,41 +96,88 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		if (rheologyNodes.size()) {
 			// We can do smth here when we have more than one rheology calculators
 		}
-
-		// load meshes
+		
+		// preload meshes for dispatcher
 		NodeList meshNodes = bodyNode->getChildrenByName("mesh");
 		foreach(meshNode, meshNodes)
 		{
 			Params params = Params(meshNode->getAttributes());
 			if (!params.has("type"))
-			{
-				// FIXME should we throw exception here?
-				LOG_WARN("Mesh type is not specified, mesh will be ignored.");
-				break;
-			}
+				THROW_INVALID_INPUT("Mesh type is not specified.");
+			
 			MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
 			if (!meshLoader)
+				THROW_INVALID_INPUT("Mesh loader not found.");
+			
+			LOG_INFO("Preloading mesh");
+			
+			AABB localScene;
+			meshLoader->preLoadMesh(params, &localScene);
+			
+			// transform meshes
+			NodeList transformNodes = bodyNode->getChildrenByName("transform");
+			foreach(transformNode, transformNodes)
 			{
-				// FIXME should we throw exception?
-				LOG_WARN("Mesh loader for type '" << params["type"] << "' " <<
-						"not found, mesh will be ignored.");
-				break;
+				string transformType = getAttributeByName(transformNode->getAttributes(), "type");
+				if( transformType == "translate" )
+				{
+					float x = atof( getAttributeByName(transformNode->getAttributes(), "moveX").c_str() );
+					float y = atof( getAttributeByName(transformNode->getAttributes(), "moveY").c_str() );
+					float z = atof( getAttributeByName(transformNode->getAttributes(), "moveZ").c_str() );
+					LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
+					localScene.transfer(x, y, z);
+				}
 			}
+			LOG_DEBUG("Mesh preloaded. Mesh size: " << localScene );
+			
+			if( isinf(globalScene.maxX) )
+			{
+				globalScene = localScene;
+			}
+			else
+			{
+				for( int k = 0; k < 3; k++ )
+				{
+					if( globalScene.min_coords[k] > localScene.min_coords[k] )
+						globalScene.min_coords[k] = localScene.min_coords[k];
+					if( globalScene.max_coords[k] < localScene.max_coords[k] )
+						globalScene.max_coords[k] = localScene.max_coords[k];
+				}
+			}
+		}
+		
+		// add body to scene
+		engine.addBody(body);
+	}
+	
+	engine.setScene(globalScene);
+	LOG_DEBUG("Total scene: " << engine.getScene());
+	
+	// FIXME - think about multiple bodies
+	// run dispatcher
+	engine.getDispatcher()->prepare(engine.getNumberOfWorkers(), &globalScene);
+	engine.getDataBus()->syncOutlines();
+	for( int i = 0; i < engine.getNumberOfWorkers(); i++)
+	{
+		LOG_DEBUG("Area scheduled for worker " << i << ": " << *(engine.getDispatcher()->getOutline(i)));
+	}	
+	
+	// read meshes for all bodies
+	foreach(bodyNode, bodyNodes)
+	{
+		string id = bodyNode->getAttributes()["id"];
+		LOG_DEBUG("Loading meshes for body '" << id << "'");
+		// get body instance
+		Body* body = engine.getBodyById(id);
+		
+		// load meshes
+		NodeList meshNodes = bodyNode->getChildrenByName("mesh");
+		foreach(meshNode, meshNodes)
+		{
+			Params params = Params(meshNode->getAttributes());
+			MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
 			
 			LOG_INFO("Loading mesh");
-			// TODO - think about multiple bodies and multiple meshes per body
-			AABB scene;
-			meshLoader->preLoadMesh(params, &scene);
-			engine.setScene(scene);
-			LOG_DEBUG("Mesh preloaded. Scene size: " << engine.getScene() );
-
-			engine.getDispatcher()->prepare(engine.getNumberOfWorkers(), &scene);
-			engine.getDataBus()->syncOutlines();
-			for( int i = 0; i < engine.getNumberOfWorkers(); i++)
-			{
-				LOG_DEBUG("Area scheduled for worker " << i << ": " << *(engine.getDispatcher()->getOutline(i)));
-			}	
-			
 			// use loader to load mesh
 			Mesh* mesh = meshLoader->load(body, params);
 			
@@ -191,11 +243,9 @@ void loadSceneFromFile(Engine& engine, string fileName)
 				THROW_INVALID_INPUT("Only one or zero area elements are allowed for material");
 			}
 		}
-		
-		// add body to scene
-		engine.addBody(body);
 		LOG_DEBUG("Body '" << id << "' loaded");
 	}	
+	
 	// FIXME - rewrite this indian style code
 	NodeList initialStateNodes = rootNode.xpath("/task/initialState");
 	foreach(initialStateNode, initialStateNodes)
