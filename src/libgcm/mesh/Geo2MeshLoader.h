@@ -37,9 +37,10 @@ namespace gcm {
 		 void preLoadMesh(Params params, AABB* scene);
 		 void createMshFile(Params params);
 		 USE_LOGGER;
-		 bool mshFileCreated;
-		 string mshFileName;
-		 string vtkFileName;
+		 bool isMshFileCreated(Params params);
+		 string getMshFileName(string geoFile);
+		 string getVtkFileName(string geoFile);
+		 map<string,bool> createdFiles;
 	public:
 		Geo2MeshLoader();
 		~Geo2MeshLoader();

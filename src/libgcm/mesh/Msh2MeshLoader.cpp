@@ -7,15 +7,17 @@ string gcm::Msh2MeshLoader::getType(){
 
 gcm::Msh2MeshLoader::Msh2MeshLoader() {
 	INIT_LOGGER("gcm.Msh2MeshLoader");
-	vtkFileName = "tmp.vtu";
 }
 
 gcm::Msh2MeshLoader::~Msh2MeshLoader() {
 }
 
+string gcm::Msh2MeshLoader::getVtkFileName(string mshFile)
+{
+	return mshFile + ".tmp.vtu";
+}
+
 void gcm::Msh2MeshLoader::cleanUp() {
-	LOG_DEBUG("Deleting generated file: " << vtkFileName);
-	remove( vtkFileName.c_str() );
 }
 
 void gcm::Msh2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher)
@@ -48,7 +50,7 @@ void gcm::Msh2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 		soMesh->preProcess();
 		
 		VTK2SnapshotWriter* sw = new VTK2SnapshotWriter();
-		sw->setFileName(vtkFileName);
+		sw->setFileName(getVtkFileName(params[PARAM_FILE]));
 		sw->dump(soMesh, -1);
 		
 		delete sw;
@@ -62,8 +64,10 @@ void gcm::Msh2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 	
 	LOG_DEBUG("Starting reading mesh");
 	Vtu2TetrFileReader* reader = new Vtu2TetrFileReader();
-	reader->readFile(vtkFileName, mesh, dispatcher, engine->getRank());
+	reader->readFile(getVtkFileName(params[PARAM_FILE]), mesh, dispatcher, engine->getRank());
 	delete reader;
+	LOG_DEBUG("Deleting generated file: " << getVtkFileName(params[PARAM_FILE]));
+	remove( getVtkFileName(params[PARAM_FILE]).c_str() );
 	
 	mesh->preProcess();
 }

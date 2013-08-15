@@ -7,8 +7,6 @@ string gcm::GeoMeshLoader::getType(){
 gcm::GeoMeshLoader::GeoMeshLoader() {
 	INIT_LOGGER("gcm.GeoMeshLoader");
 	GmshInitialize();
-	mshFileCreated = false;
-	mshFileName = "tmp.msh";
 }
 
 gcm::GeoMeshLoader::~GeoMeshLoader() {
@@ -16,8 +14,21 @@ gcm::GeoMeshLoader::~GeoMeshLoader() {
 
 void gcm::GeoMeshLoader::cleanUp() {
 	GmshFinalize();
-	LOG_DEBUG("Deleting generated file: " << mshFileName);
-	remove( mshFileName.c_str() );
+	for( map<string, bool>::const_iterator itr = createdFiles.begin(); itr != createdFiles.end(); ++itr )
+	{
+		LOG_DEBUG("Deleting generated file: " << getMshFileName(itr->first));
+		remove( getMshFileName(itr->first).c_str() );
+	}
+}
+
+bool gcm::GeoMeshLoader::isMshFileCreated(Params params)
+{
+	return ( createdFiles.find( params[PARAM_FILE] ) != createdFiles.end() );
+}
+
+string gcm::GeoMeshLoader::getMshFileName(string geoFile)
+{
+	return geoFile + ".tmp.msh";
 }
 
 void gcm::GeoMeshLoader::createMshFile(Params params)
@@ -27,7 +38,7 @@ void gcm::GeoMeshLoader::createMshFile(Params params)
 		if( engine->getRank() != 0 )
 		{
 			MPI::COMM_WORLD.Barrier();
-			mshFileCreated = true;
+			//mshFileCreated = true;
 			return;
 		}
 	}
@@ -48,8 +59,9 @@ void gcm::GeoMeshLoader::createMshFile(Params params)
 	gmshModel.setFactory ("Gmsh");
 	gmshModel.readGEO (engine->getFileLookupService().lookupFile(params[PARAM_FILE]));
 	gmshModel.mesh (3);
-	gmshModel.writeMSH (mshFileName);
-	mshFileCreated = true;
+	gmshModel.writeMSH (getMshFileName(params[PARAM_FILE]));
+	//mshFileCreated = true;
+	createdFiles[ params[PARAM_FILE] ] = true;
 	
 	if( engine->getNumberOfWorkers() > 1 )
 		MPI::COMM_WORLD.Barrier();
@@ -62,10 +74,10 @@ void gcm::GeoMeshLoader::loadMesh(Params params, TetrMeshFirstOrder* mesh, GCMDi
 		delete mesh; 
 		THROW_INVALID_ARG("Geo file name was not provided");
 	}
-	if( ! mshFileCreated )
+	if( ! isMshFileCreated(params) )
 		createMshFile(params);
 	MshTetrFileReader* reader = new MshTetrFileReader();
-	reader->readFile(mshFileName, mesh, dispatcher, mesh->getBody()->getEngine()->getRank());
+	reader->readFile(getMshFileName(params[PARAM_FILE]), mesh, dispatcher, mesh->getBody()->getEngine()->getRank());
 	delete reader;
 	
 	mesh->preProcess();
@@ -75,9 +87,9 @@ void gcm::GeoMeshLoader::preLoadMesh(Params params, AABB* scene) {
 	if (params.find(PARAM_FILE) == params.end()) {
 		THROW_INVALID_ARG("Msh file name was not provided");
 	}
-	if( ! mshFileCreated )
+	if( ! isMshFileCreated(params) )
 		createMshFile(params);
 	MshTetrFileReader* reader = new MshTetrFileReader();
-	reader->preReadFile(mshFileName, scene);
+	reader->preReadFile(getMshFileName(params[PARAM_FILE]), scene);
 	delete reader;
 }

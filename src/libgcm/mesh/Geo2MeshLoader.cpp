@@ -4,12 +4,14 @@ string gcm::Geo2MeshLoader::getType(){
 	return "geo2";
 }
 
+bool gcm::Geo2MeshLoader::isMshFileCreated(Params params)
+{
+	return ( createdFiles.find( params[PARAM_FILE] ) != createdFiles.end() );
+}
+
 gcm::Geo2MeshLoader::Geo2MeshLoader() {
 	INIT_LOGGER("gcm.Geo2MeshLoader");
 	GmshInitialize();
-	mshFileCreated = false;
-	mshFileName = "tmp.msh";
-	vtkFileName = "tmp.vtu";
 }
 
 gcm::Geo2MeshLoader::~Geo2MeshLoader() {
@@ -17,10 +19,23 @@ gcm::Geo2MeshLoader::~Geo2MeshLoader() {
 
 void gcm::Geo2MeshLoader::cleanUp() {
 	GmshFinalize();
-	LOG_DEBUG("Deleting generated file: " << mshFileName);
-	remove( mshFileName.c_str() );
-	LOG_DEBUG("Deleting generated file: " << vtkFileName);
-	remove( vtkFileName.c_str() );
+	for( map<string, bool>::const_iterator itr = createdFiles.begin(); itr != createdFiles.end(); ++itr )
+	{
+		LOG_DEBUG("Deleting generated file: " << getMshFileName(itr->first));
+		remove( getMshFileName(itr->first).c_str() );
+		LOG_DEBUG("Deleting generated file: " << getVtkFileName(itr->first));
+		remove( getVtkFileName(itr->first).c_str() );
+	}
+}
+
+string gcm::Geo2MeshLoader::getMshFileName(string geoFile)
+{
+	return geoFile + ".tmp.msh";
+}
+
+string gcm::Geo2MeshLoader::getVtkFileName(string geoFile)
+{
+	return geoFile + ".tmp.vtu";
 }
 
 void gcm::Geo2MeshLoader::createMshFile(Params params)
@@ -30,7 +45,7 @@ void gcm::Geo2MeshLoader::createMshFile(Params params)
 		if( engine->getRank() != 0 )
 		{
 			MPI::COMM_WORLD.Barrier();
-			mshFileCreated = true;
+			//mshFileCreated = true;
 			return;
 		}
 	}
@@ -50,8 +65,9 @@ void gcm::Geo2MeshLoader::createMshFile(Params params)
 	gmshModel.setFactory ("Gmsh");
 	gmshModel.readGEO (engine->getFileLookupService().lookupFile(params[PARAM_FILE]));
 	gmshModel.mesh (3);
-	gmshModel.writeMSH (mshFileName);
-	mshFileCreated = true;
+	gmshModel.writeMSH (getMshFileName(params[PARAM_FILE]));
+	//mshFileCreated = true;
+	createdFiles[ params[PARAM_FILE] ] = true;
 	
 	if( engine->getNumberOfWorkers() > 1 )
 		MPI::COMM_WORLD.Barrier();
@@ -63,7 +79,7 @@ void gcm::Geo2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 		delete mesh; 
 		THROW_INVALID_ARG("Geo file name was not provided");
 	}
-	if( ! mshFileCreated )
+	if( ! isMshFileCreated(params) )
 		createMshFile(params);
 	
 	IBody* body = mesh->getBody();
@@ -84,12 +100,12 @@ void gcm::Geo2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 		myDispatcher->prepare(1, &scene);
 		
 		MshTetrFileReader* reader = new MshTetrFileReader();
-		reader->readFile(mshFileName, foMesh, myDispatcher, engine->getRank());
+		reader->readFile(getMshFileName(params[PARAM_FILE]), foMesh, myDispatcher, engine->getRank());
 		soMesh->copyMesh(foMesh);
 		soMesh->preProcess();
 		
 		VTK2SnapshotWriter* sw = new VTK2SnapshotWriter();
-		sw->setFileName(vtkFileName);
+		sw->setFileName(getVtkFileName(params[PARAM_FILE]));
 		sw->dump(soMesh, -1);
 		
 		delete sw;
@@ -103,7 +119,7 @@ void gcm::Geo2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 	
 	LOG_DEBUG("Starting reading mesh");
 	Vtu2TetrFileReader* reader = new Vtu2TetrFileReader();
-	reader->readFile(vtkFileName, mesh, dispatcher, engine->getRank());
+	reader->readFile(getVtkFileName(params[PARAM_FILE]), mesh, dispatcher, engine->getRank());
 	delete reader;
 	
 	mesh->preProcess();
@@ -113,9 +129,9 @@ void gcm::Geo2MeshLoader::preLoadMesh(Params params, AABB* scene) {
 	if (params.find(PARAM_FILE) == params.end()) {
 		THROW_INVALID_ARG("Msh file name was not provided");
 	}
-	if( ! mshFileCreated )
+	if( ! isMshFileCreated(params) )
 		createMshFile(params);
 	MshTetrFileReader* reader = new MshTetrFileReader();
-	reader->preReadFile(mshFileName, scene);
+	reader->preReadFile(getMshFileName(params[PARAM_FILE]), scene);
 	delete reader;
 }

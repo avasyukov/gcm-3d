@@ -27,7 +27,7 @@ namespace gcm {
 		 void loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher);
 		 void preLoadMesh(Params params, AABB* scene);
 		 USE_LOGGER;
-		 string vtkFileName;
+		 string getVtkFileName(string mshFile);
 	public:
 		Msh2MeshLoader();
 		~Msh2MeshLoader();
