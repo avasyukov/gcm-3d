@@ -408,6 +408,7 @@ void gcm::Engine::syncOutlines() {
 void gcm::Engine::calculate()
 {
 	VTKSnapshotWriter* sw = new VTKSnapshotWriter();
+	VTK2SnapshotWriter* sw2 = new VTK2SnapshotWriter();
 	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(0)->getMeshes();
 	
 	setTimeStep( mesh->getRecommendedTimeStep() );
@@ -415,19 +416,21 @@ void gcm::Engine::calculate()
 		
 	for( int i = 0; i < numberOfSnaps; i++ )
 	{
-		LOG_INFO( "Dumping mesh " << mesh->getId() );
-		//syncNodes();
+		LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
 		sw->dump(mesh, i);
 		
 		for( int j = 0; j < stepsPerSnap; j++ )
 			doNextStep();
 	}
 		
-	LOG_INFO( "Dumping mesh " << mesh->getId() );
-	//syncNodes();
+	LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
 	sw->dump(mesh, numberOfSnaps);
 	
+	LOG_INFO( "Dumping mesh " << mesh->getId() );
+	sw2->dump(mesh, numberOfSnaps);
+	
 	delete sw;
+	delete sw2;
 }
 
 void gcm::Engine::setNumberOfSnaps(int number) {

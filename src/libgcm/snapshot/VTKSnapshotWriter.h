@@ -33,7 +33,7 @@ namespace gcm {
 		/*
 		 * Returns snapshot writer type
 		 */
-		string getFileName(int cpuNum, int step);
+		string getFileName(int cpuNum, int step, string meshId);
 		void setFileName(string name);
 		string getType();
 		void dump(TetrMeshFirstOrder* mesh, int step);
