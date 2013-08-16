@@ -104,6 +104,7 @@ namespace gcm {
 			
 			vector<int>* elements;
 			vector<int>* border_elements;
+			int contactNodeNum;
 			
 			bool inline isInContact ()
 			{

@@ -25,6 +25,7 @@
 #include "DataBus.h"
 #include "Material.h"
 #include "BorderCondition.h"
+#include "CollisionDetector.h"
 
 // FIXME - do we need it here?
 #include "interpolator/TetrInterpolator.h"
@@ -97,6 +98,8 @@ namespace gcm
 		gcm::GCMDispatcher* dispatcher;
 		
 		DataBus* dataBus;
+		CollisionDetector* colDet;
+		vector<CalcNode> virtNodes;
 		
 		VTKSnapshotWriter* vtkSnapshotWriter;
 		VTK2SnapshotWriter* vtkDumpWriter;
@@ -224,9 +227,11 @@ namespace gcm
 		void addBody(Body *body);
 		
 		float calculateRecommendedTimeStep();
+		float calculateRecommendedContactTreshold();
 		void createSnapshot(int number);
 		void createDump(int number);
 		void doNextStep();
+		void doNextStepBeforeStages (const float time_step);
 		void doNextStepStages( const float maxAllowedStep, float& actualTimeStep );
 		void doNextStepAfterStages (const float time_step);
 		
@@ -244,6 +249,7 @@ namespace gcm
 		void transferScene(float x, float y, float z);
 		
 		DataBus* getDataBus();
+		CalcNode* getVirtNode(int i);
 
 		FileLookupService& getFileLookupService();
 	};

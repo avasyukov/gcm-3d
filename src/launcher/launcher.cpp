@@ -130,6 +130,8 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			}
 			LOG_DEBUG("Mesh preloaded. Mesh size: " << localScene );
 			
+			engine.getDispatcher()->addBodyOutline(id, localScene);
+			
 			if( isinf(globalScene.maxX) )
 			{
 				globalScene = localScene;
@@ -153,7 +155,6 @@ void loadSceneFromFile(Engine& engine, string fileName)
 	engine.setScene(globalScene);
 	LOG_DEBUG("Total scene: " << engine.getScene());
 	
-	// FIXME - think about multiple bodies
 	// run dispatcher
 	engine.getDispatcher()->prepare(engine.getNumberOfWorkers(), &globalScene);
 	engine.getDataBus()->syncOutlines();
@@ -169,6 +170,24 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		LOG_DEBUG("Loading meshes for body '" << id << "'");
 		// get body instance
 		Body* body = engine.getBodyById(id);
+		
+		// FIXME - WA - we need this to determine isMine() correctly for moved points
+		float dX = 0;
+		float dY = 0;
+		float dZ = 0;
+		NodeList tmpTransformNodes = bodyNode->getChildrenByName("transform");
+		foreach(transformNode, tmpTransformNodes)
+		{
+			string transformType = getAttributeByName(transformNode->getAttributes(), "type");
+			if( transformType == "translate" )
+			{
+				dX += atof( getAttributeByName(transformNode->getAttributes(), "moveX").c_str() );
+				dY += atof( getAttributeByName(transformNode->getAttributes(), "moveY").c_str() );
+				dZ += atof( getAttributeByName(transformNode->getAttributes(), "moveZ").c_str() );
+			}
+		}
+		if( engine.getNumberOfWorkers() != 1 )
+			engine.getDispatcher()->setTransferVector(dX, dY, dZ, id);
 		
 		// load meshes
 		NodeList meshNodes = bodyNode->getChildrenByName("mesh");
@@ -200,6 +219,10 @@ void loadSceneFromFile(Engine& engine, string fileName)
 				body->getMeshes()->transfer(x, y, z);
 			}
 		}
+		
+		// FIXME - Part of the WA above
+		if( engine.getNumberOfWorkers() != 1 )
+			engine.getDispatcher()->setTransferVector(-dX, -dY, -dZ, id);
 		
 		// set material properties
 		NodeList matNodes = bodyNode->getChildrenByName("material");

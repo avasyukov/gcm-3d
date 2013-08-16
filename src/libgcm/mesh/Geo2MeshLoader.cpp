@@ -46,6 +46,7 @@ void gcm::Geo2MeshLoader::createMshFile(Params params)
 		{
 			MPI::COMM_WORLD.Barrier();
 			//mshFileCreated = true;
+			createdFiles[ params[PARAM_FILE] ] = true;
 			return;
 		}
 	}
@@ -100,7 +101,7 @@ void gcm::Geo2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 		myDispatcher->prepare(1, &scene);
 		
 		MshTetrFileReader* reader = new MshTetrFileReader();
-		reader->readFile(getMshFileName(params[PARAM_FILE]), foMesh, myDispatcher, engine->getRank());
+		reader->readFile(getMshFileName(params[PARAM_FILE]), foMesh, myDispatcher, engine->getRank(), true);
 		soMesh->copyMesh(foMesh);
 		soMesh->preProcess();
 		

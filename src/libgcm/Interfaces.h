@@ -39,6 +39,7 @@ namespace gcm {
 			virtual int getNumberOfWorkers() = 0;
 			virtual int getNumberOfBodies() = 0;
 			virtual Body* getBody(unsigned int num) = 0;
+			virtual Body* getBodyById(string id) = 0;
 			virtual void syncNodes() = 0;
 			virtual AABB getScene() = 0;
 			virtual void setScene(AABB src) = 0;
@@ -48,6 +49,7 @@ namespace gcm {
 
 	class IBody {
 		public:
+			virtual string getId() = 0;
 			virtual Mesh* getMesh(string id) = 0;
 			virtual IEngine* getEngine() = 0;
 			virtual void setInitialState(Area* area, float values[9]) = 0;

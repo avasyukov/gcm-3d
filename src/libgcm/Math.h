@@ -206,6 +206,23 @@ inline void findTriangleFaceNormal(float *p1, float *p2, float *p3, float *x, fl
 	*z = normal[2] * scale;
 }
 
+inline void interpolateTriangle(float *p1, float *p2, float *p3, float *p, float *v1, float *v2, float *v3, float *v, int n)
+{
+	float areas[3];
+	areas[0] = fabs( triArea(p3[0] - p[0], p3[1] - p[1], p3[2] - p[2], p2[0] - p[0], p2[1] - p[1], p2[2] - p[2]) );
+	areas[1] = fabs( triArea(p1[0] - p[0], p1[1] - p[1], p1[2] - p[2], p2[0] - p[0], p2[1] - p[1], p2[2] - p[2]) );
+	areas[2] = fabs( triArea(p3[0] - p[0], p3[1] - p[1], p3[2] - p[2], p1[0] - p[0], p1[1] - p[1], p1[2] - p[2]) );
+
+	float l = areas[0] + areas[1] + areas[2];
+	float _l1 = areas[0] / l;
+	float _l2 = areas[2] / l;
+	float _l3 = areas[1] / l;
+
+	// interpolate
+	for(int i = 0; i < n; i++)
+		v[i] = _l1*v1[i] + _l2*v2[i] + _l3*v3[i];
+}
+
 // checks if vector from p0 in direction v with lenght l intersects triangle p1-p2-p3
 // if yes - point of intersection will be returned in p
 // For algo - see http://www.cs.princeton.edu/courses/archive/fall00/cs426/lectures/raycast/sld016.htm and use the brain

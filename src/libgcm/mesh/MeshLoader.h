@@ -9,6 +9,7 @@
 #include "Mesh.h"
 #include "../util/AABB.h"
 #include "../Utils.h"
+#include "../GCMDispatcher.h"
 
 using namespace std;
 

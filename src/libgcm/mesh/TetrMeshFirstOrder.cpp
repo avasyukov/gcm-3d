@@ -1599,14 +1599,46 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
 		if( areaOfInterest.max_coords[j] > globalOutline.max_coords[j] )
 			areaOfInterest.max_coords[j] = globalOutline.max_coords[j];
 	}
-	for(int j = 0; j < e->getNumberOfBodies(); j++)
+	
+	LOG_DEBUG("Mesh initial area of interest: " << areaOfInterest);
+	if( e->getNumberOfWorkers() == 1 )
 	{
-		Mesh* m = e->getBody(j)->getMeshes();
-		if( m->getId() == getId() )
-			continue;
+		// Everything is local anyway
+		for( int i = 0; i < 3; i++ )
+		{
+			areaOfInterest.min_coords[i] = outline.min_coords[i];
+			areaOfInterest.max_coords[i] = outline.max_coords[i];
+		}
+		/*bool intersects = false;
+		for(int j = 0; j < e->getNumberOfBodies(); j++)
+		{
+			Mesh* m = e->getBody(j)->getMeshes();
+			if( m->getId() == getId() )
+				continue;
+			AABB box = m->getOutline();
+			if( areaOfInterest.intersects(&box) )
+				intersects = true;
+		}
+		if( !intersects )
+		{
+			for( int i = 0; i < 3; i++ )
+			{
+				areaOfInterest.min_coords[i] = outline.min_coords[i];
+				areaOfInterest.max_coords[i] = outline.max_coords[i];
+			}
+		}*/
+	}
+	else
+	{
 		bool intersects = false;
-		if( areaOfInterest.intersects(m->getOutline()) )
-			intersects = true;
+		for(int j = 0; j < e->getNumberOfWorkers(); j++)
+		{
+			if( j == e->getRank() )
+				continue;
+			AABB box = *(e->getDispatcher()->getOutline(j));
+			if( areaOfInterest.intersects(&box) )
+				intersects = true;
+		}
 		if( !intersects )
 		{
 			for( int i = 0; i < 3; i++ )

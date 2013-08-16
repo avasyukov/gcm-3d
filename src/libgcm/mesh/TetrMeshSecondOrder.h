@@ -18,6 +18,8 @@ namespace gcm {
 		
 	friend class VTK2SnapshotWriter;
 	friend class DataBus;
+	friend class CollisionDetector;
+	friend class BruteforceCollisionDetector;
 		
 	private:
 		/*

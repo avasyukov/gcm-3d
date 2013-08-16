@@ -77,7 +77,7 @@ void gcm::GeoMeshLoader::loadMesh(Params params, TetrMeshFirstOrder* mesh, GCMDi
 	if( ! isMshFileCreated(params) )
 		createMshFile(params);
 	MshTetrFileReader* reader = new MshTetrFileReader();
-	reader->readFile(getMshFileName(params[PARAM_FILE]), mesh, dispatcher, mesh->getBody()->getEngine()->getRank());
+	reader->readFile(getMshFileName(params[PARAM_FILE]), mesh, dispatcher, mesh->getBody()->getEngine()->getRank(), false);
 	delete reader;
 	
 	mesh->preProcess();

@@ -26,6 +26,8 @@ namespace gcm {
 		
 	friend class VTKSnapshotWriter;
 	friend class DataBus;
+	friend class CollisionDetector;
+	friend class BruteforceCollisionDetector;
 		
 	protected:
 		map<int, int> tetrsMap;

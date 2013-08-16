@@ -1,4 +1,5 @@
 #include "DummyDispatcher.h"
+#include "Body.h"
 
 gcm::DummyDispatcher::DummyDispatcher() {
 	INIT_LOGGER("gcm.Dispatcher");
@@ -18,54 +19,151 @@ void gcm::DummyDispatcher::setEngine(IEngine* e) {
 
 void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
 {
+	myNumberOfWorkers =  numberOfWorkers;
+	if( numberOfWorkers > 1 && numberOfWorkers < engine->getNumberOfBodies() )
+		throw logic_error("You should have either 1 worker OR more workers than bodies. It's crazy stupid internal dispatcher limitation. We are really sorry.");
+	
 	LOG_DEBUG("Start preparation for " << numberOfWorkers << " workers");
 	assert( numberOfWorkers > 0 );
+	
 	if( outlines != NULL )
 		delete[] outlines;
 	outlines = new AABB[numberOfWorkers];
 	outlinesNum = numberOfWorkers;
 	rank = engine->getRank();
 	
-	float h = ( scene->maxZ - scene->minZ ) / numberOfWorkers;
+	if( numberOfWorkers == 1)
+	{
+		outlines[rank] = *scene;
+		myBodyId = "__any";
+		LOG_DEBUG("Preparation done");
+		return;
+	}
+	
+	int numberOfBodies = engine->getNumberOfBodies();
+	LOG_DEBUG("Start preparation for " << numberOfBodies << " bodies");
+	workersPerBody = new int[numberOfBodies];
+	float totalVolume = 0;
+	float* volumes = new float[numberOfBodies];
+	for( int i = 0; i < numberOfBodies; i++ )
+	{
+		volumes[i] = getBodyOutline(engine->getBody(i)->getId()).getVolume();
+		totalVolume += volumes[i];
+		LOG_DEBUG("Volume[" << i <<"]: " << volumes[i]);
+	}
+	LOG_DEBUG("Total volume: " << totalVolume);
+	float volumePerProcess = totalVolume / numberOfWorkers;
+	LOG_DEBUG("Volume per process: " << volumePerProcess);
+	
+	for( int i = 0; i < numberOfBodies; i++ )
+	{
+		workersPerBody[i] = (int)(volumes[i]/volumePerProcess);
+		if( workersPerBody[i] == 0 )
+			workersPerBody[i] = 1;
+	}
+	
+	while( distributionIsOk() != 0 )
+	{
+		adjustDistribution();
+	}
+	
+	for( int i = 0; i < numberOfBodies; i++ )
+		LOG_DEBUG("Workers for body " << i << ": " << workersPerBody[i]);
+	
+	int workersPassed = 0;
+	int bodyNum = 0;
+	while( workersPassed + workersPerBody[bodyNum] < rank + 1 )
+	{
+		workersPassed += workersPerBody[bodyNum];
+		bodyNum++;
+	}
+	myBodyId = engine->getBody(bodyNum)->getId();
+	LOG_DEBUG("Scheduled to work with body: " << myBodyId);
+	
+	AABB myScene = getBodyOutline(engine->getBody(bodyNum)->getId());
+	float h = ( myScene.maxZ - myScene.minZ ) / workersPerBody[bodyNum];
 	LOG_DEBUG("Slice: " << h);
 	
-	//for( int i = 0; i < numberOfWorkers; i++ )
-	//{
-	int i = rank;
-		outlines[i].minX = scene->minX;
-		outlines[i].minY = scene->minY;
-		outlines[i].minZ = scene->minZ + i * h;
-		outlines[i].maxX = scene->maxX;
-		outlines[i].maxY = scene->maxY;
-		outlines[i].maxZ = scene->minZ + (i+1) * h;
-	//}
+	int i = rank - workersPassed;
+	outlines[rank].minX = myScene.minX;
+	outlines[rank].minY = myScene.minY;
+	outlines[rank].minZ = myScene.minZ + i * h;
+	outlines[rank].maxX = myScene.maxX;
+	outlines[rank].maxY = myScene.maxY;
+	outlines[rank].maxZ = myScene.minZ + (i+1) * h;
 	LOG_DEBUG("Preparation done");
+	
+	delete[] volumes;
+	delete[] workersPerBody;
 }
 
-bool gcm::DummyDispatcher::isMine(float coords[3]) {
-	return ( getOwner( coords[0], coords[1], coords[2] ) == rank );
-}
-
-bool gcm::DummyDispatcher::isMine(double coords[3]) {
-	return ( getOwner( coords[0], coords[1], coords[2] ) == rank );
-}
-
-int gcm::DummyDispatcher::getOwner(float coords[3])
+int gcm::DummyDispatcher::distributionIsOk()
 {
-	return getOwner( coords[0], coords[1], coords[2] );
-}
-
-int gcm::DummyDispatcher::getOwner(float x, float y, float z)
-{
-	float h = (outlines[ outlinesNum - 1 ].maxZ - outlines[0].minZ) / outlinesNum;
-	int ind = (int)( (z - outlines[0].minZ) / h );
-	if( ind == outlinesNum )
-		ind--;
-	if( ind < 0 || ind >= outlinesNum )
+	int totalNum = 0;
+	for( int i = 0; i < engine->getNumberOfBodies(); i++ )
+		totalNum += workersPerBody[i];
+	if( totalNum > myNumberOfWorkers )
+		return 1;
+	else if( totalNum < myNumberOfWorkers )
 		return -1;
-	assert( ind >= 0 && ind < outlinesNum );
-	assert( outlines[ind].isInAABB(x,y,z) );
-	return ind;
+	else
+		return 0;
+}
+
+int gcm::DummyDispatcher::getLeastComputedBody()
+{
+	int num = 0;
+	for( int i = 0; i < engine->getNumberOfBodies(); i++ )
+		if( workersPerBody[num] > workersPerBody[i] )
+			num = i;
+	return num;
+}
+
+int gcm::DummyDispatcher::getMostComputedBody()
+{
+	int num = 0;
+	for( int i = 0; i < engine->getNumberOfBodies(); i++ )
+		if( workersPerBody[num] < workersPerBody[i] )
+			num = i;
+	return num;
+}
+
+void gcm::DummyDispatcher::adjustDistribution()
+{
+	int res = distributionIsOk();
+	if( res > 0 )
+		workersPerBody[ getMostComputedBody() ]--;
+	if( res < 0 )
+		workersPerBody[ getLeastComputedBody() ]++;
+}
+
+bool gcm::DummyDispatcher::isMine(float coords[3], string bodyId) {
+	return ( getOwner( coords[0], coords[1], coords[2], bodyId ) == rank );
+}
+
+bool gcm::DummyDispatcher::isMine(double coords[3], string bodyId) {
+	return ( getOwner( coords[0], coords[1], coords[2], bodyId ) == rank );
+}
+
+int gcm::DummyDispatcher::getOwner(float coords[3], string bodyId)
+{
+	return getOwner( coords[0], coords[1], coords[2], bodyId );
+}
+
+int gcm::DummyDispatcher::getOwner(float x, float y, float z, string bodyId)
+{
+	//LOG_DEBUG("w: " << engine->getNumberOfWorkers() << " bid:" << bodyId << " mbid: " << myBodyId);
+	if( engine->getNumberOfWorkers() != 1 && bodyId != myBodyId )
+		return -1;
+	//LOG_DEBUG("dr: " << dX << " " << dY << " " << dZ);
+	for( int i = 0; i < outlinesNum; i++ )
+	{
+		//LOG_DEBUG("OUTL [" << i << "] " << outlines[i]);
+		//LOG_DEBUG("Point: "  << x + dX << " " << y + dY << " " << z + dZ);
+		if( outlines[i].isInAABB(x+dX,y+dY,z+dZ) )
+			return i;
+	}
+	return -1;
 }
 
 AABB* gcm::DummyDispatcher::getOutline(int index)

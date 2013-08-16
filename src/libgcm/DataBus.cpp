@@ -59,6 +59,9 @@ void gcm::DataBus::syncTimeStep(float* tau) {
 
 void gcm::DataBus::syncNodes(float tau)
 {
+	if( numberOfWorkers == 1 )
+		return;
+	
 	LOG_DEBUG("Creating dynamic types");
 	createDynamicTypes();
 	LOG_DEBUG("Creating dynamic types done");
@@ -67,7 +70,7 @@ void gcm::DataBus::syncNodes(float tau)
 	BARRIER("gcm::DataBus::syncNodes#1");
 	LOG_DEBUG("Starting nodes sync");
 	
-	Body* body = engine->getBody(0);
+	Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
 	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
 	
 	for (int i = 0; i < numberOfWorkers; i++)
@@ -354,7 +357,7 @@ void gcm::DataBus::createDynamicTypes()
 {
 	LOG_DEBUG("Building dynamic MPI types for fast node sync");
 	GCMDispatcher* dispatcher = engine->getDispatcher();
-	Body* body = engine->getBody(0);
+	Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
 	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
 	
 	// TODO add more cleanup code here to prevent memory leaks
@@ -391,14 +394,19 @@ void gcm::DataBus::createDynamicTypes()
 		MPI_NODE_TYPES[i] = new MPI::Datatype[numberOfWorkers];
 	}		
 	
+	BARRIER("gcm::DataBus::createDynamicTypes#0");
+	
 	CalcNode* node;
 	// find all remote nodes
 	for (int j = 0; j < mesh->getNodesNumber(); j++)
 	{
+		//LOG_DEBUG("N: " << j);
 		node = &(mesh->nodes[j]);
 		if ( node->isRemote() )
 		{
-			int owner = dispatcher->getOwner(node->coords);
+			//LOG_DEBUG("R1: " << j << " " << mesh->getBody()->getId());
+			int owner = dispatcher->getOwner(node->coords, mesh->getBody()->getId());
+			//LOG_DEBUG("R2: " << owner);
 			assert( owner != rank );
 			local_numbers[rank][owner].push_back( mesh->nodesMap[node->number] );
 			remote_numbers[rank][owner].push_back(node->number);
@@ -525,6 +533,9 @@ void gcm::DataBus::syncOutlines()
 
 void gcm::DataBus::syncMissedNodes(float tau)
 {
+	if( numberOfWorkers == 1 )
+		return;
+	
 	bool transferRequired = false;
 	AABB reqZones[numberOfWorkers][numberOfWorkers];
 	
@@ -539,7 +550,7 @@ void gcm::DataBus::syncMissedNodes(float tau)
 
 	BARRIER("gcm::DataBus::syncMissedNodes#1");
 	
-	Body* body = engine->getBody(0);
+	Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
 	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
 	AABB* areaOfInterest = &(mesh->areaOfInterest);
 	if( (mesh->syncedArea).includes( areaOfInterest ) )
@@ -612,7 +623,7 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 				LOG_DEBUG("CPU " << i << " asks from CPU " << j << " area: " << reqZones[i][j]);
 			}
 	
-	Body* body = engine->getBody(0);
+	Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
 	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
 	
 	int numberOfNodes[numberOfWorkers][numberOfWorkers];

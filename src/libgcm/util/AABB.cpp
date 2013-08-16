@@ -40,21 +40,28 @@ bool gcm::AABB::includes(AABB* box)
 
 bool gcm::AABB::intersects(AABB* box)
 {
-	AABB* inters = findIntersection(box);
-	if(inters == NULL)
-		return false;
-	delete inters;
+	float int_min_coords[3];
+	float int_max_coords[3];
+	// check for intersection
+	for(int j = 0; j < 3; j++) {
+		int_min_coords[j] = fmaxf(min_coords[j], box->min_coords[j]);
+		int_max_coords[j] = fminf(max_coords[j], box->max_coords[j]);
+		if(int_min_coords[j] > int_max_coords[j])
+		{
+			return false;
+		}
+	}
 	return true;
 }
 
-bool gcm::AABB::intersects(AABB box)
+/*bool gcm::AABB::intersects(AABB box)
 {
 	AABB* inters = findIntersection(&box);
 	if(inters == NULL)
 		return false;
 	delete inters;
 	return true;
-}
+}*/
 
 AABB* gcm::AABB::findIntersection(AABB* box)
 {
@@ -91,4 +98,9 @@ void gcm::AABB::transfer(float x, float y, float z)
 	max_coords[0] += x;
 	max_coords[1] += y;
 	max_coords[2] += z;
+}
+
+float gcm::AABB::getVolume()
+{
+	return (maxX - minX) * (maxY - minY) * (maxZ - minZ);
 }

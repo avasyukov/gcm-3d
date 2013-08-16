@@ -13,6 +13,7 @@
 #include "util/forms/StepPulseForm.h"
 #include "snapshot/VTKSnapshotWriter.h"
 #include "snapshot/VTK2SnapshotWriter.h"
+#include "BruteforceCollisionDetector.h"
 
 // initialiaze static fields
 int gcm::Engine::enginesNumber = 0;
@@ -75,6 +76,8 @@ gcm::Engine::Engine()
 	LOG_DEBUG("Creating snapshot writers");
 	vtkSnapshotWriter = new VTKSnapshotWriter();
 	vtkDumpWriter = new VTK2SnapshotWriter();
+	LOG_DEBUG("Creating collision detector");
+	colDet = new BruteforceCollisionDetector();
 	LOG_INFO("GCM engine initialized");
 	currentTime = 0;
 	fixedTimeStep = -1;
@@ -97,6 +100,7 @@ gcm::Engine::~Engine()
 	delete dataBus;
 	delete vtkSnapshotWriter;
 	delete vtkDumpWriter;
+	delete colDet;
 	// shutdown MPI
 	if( !MPI::Is_finalized() )
 		MPI::Finalize();
@@ -319,11 +323,24 @@ void gcm::Engine::addBody(Body* body)
 	bodies.push_back(body);
 }
 
+CalcNode* gcm::Engine::getVirtNode(int i)
+{
+	assert( i >=0 && i < virtNodes.size() );
+	return &virtNodes[i];
+}
+
 void gcm::Engine::doNextStep()
 {
 	float step;
+	doNextStepBeforeStages(step);
 	doNextStepStages(numeric_limits<float>::infinity(), step);
 	doNextStepAfterStages(step);
+}
+
+void gcm::Engine::doNextStepBeforeStages(const float time_step) {
+	virtNodes.clear();
+	colDet->set_treshold( calculateRecommendedContactTreshold() );
+	colDet->find_collisions(virtNodes);
 }
 
 void gcm::Engine::doNextStepStages(const float maxAllowedStep, float& actualTimeStep)
@@ -435,13 +452,29 @@ float gcm::Engine::calculateRecommendedTimeStep()
 	return timeStep;
 }
 
+float gcm::Engine::calculateRecommendedContactTreshold()
+{
+	float treshold = numeric_limits<float>::infinity();
+	for( int j = 0; j < getNumberOfBodies(); j++ )
+	{
+		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
+		float h = mesh->get_avg_h();
+		if( h < treshold )
+			treshold = h;
+	}
+	return treshold;
+}
+
 void gcm::Engine::createSnapshot(int number)
 {
 	for( int j = 0; j < getNumberOfBodies(); j++ )
 	{
 		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
-		LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
-		vtkSnapshotWriter->dump(mesh, number);
+		if( mesh->getNodesNumber() != 0 )
+		{
+			LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
+			vtkSnapshotWriter->dump(mesh, number);
+		}
 	}
 }
 
@@ -450,8 +483,11 @@ void gcm::Engine::createDump(int number)
 	for( int j = 0; j < getNumberOfBodies(); j++ )
 	{
 		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
-		LOG_INFO( "Creating dump for mesh '" << mesh->getId() << "'" );
-		vtkDumpWriter->dump(mesh, number);
+		if( mesh->getNodesNumber() != 0 )
+		{
+			LOG_INFO( "Creating dump for mesh '" << mesh->getId() << "'" );
+			vtkDumpWriter->dump(mesh, number);
+		}
 	}
 }
 

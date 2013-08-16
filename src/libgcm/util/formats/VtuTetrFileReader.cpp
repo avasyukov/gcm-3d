@@ -86,7 +86,7 @@ void gcm::VtuTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 	for( int i = 0; i < g->GetNumberOfPoints(); i++ )
 	{
 		double* dp = g->GetPoint(i);
-		if( dispatcher->isMine( dp ) )
+		if( dispatcher->isMine( dp, mesh->getBody()->getId() ) )
 		{
 			CalcNode* node = new CalcNode();
 			node->number = i;

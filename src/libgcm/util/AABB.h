@@ -29,11 +29,12 @@ namespace gcm {
 		bool isInAABB( float x, float y, float z );
 		bool isInAABB( Node* node );
 		bool includes( AABB* box );
-		bool intersects( AABB box );
+		//bool intersects( AABB box );
 		bool intersects( AABB* box );
 		AABB* findIntersection( AABB* box );
 		void findIntersection( AABB* box, AABB* intersection );
 		void transfer( float x, float y, float z );
+		float getVolume();
 	};
 }
 

@@ -45,7 +45,7 @@ void gcm::Msh2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 		
 		MshTetrFileReader* reader = new MshTetrFileReader();
 		reader->readFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]), 
-							foMesh, myDispatcher, engine->getRank());
+							foMesh, myDispatcher, engine->getRank(), true);
 		soMesh->copyMesh(foMesh);
 		soMesh->preProcess();
 		

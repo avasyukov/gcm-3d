@@ -89,7 +89,7 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene)
 	infile.close();
 }
 
-void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank)
+void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher)
 {
 	assert( mesh != NULL );
 	assert( dispatcher != NULL );
@@ -136,7 +136,7 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 		{
 			float coords[3];
 			infile >> coords[0] >> coords[1] >> coords[2];
-			if( dispatcher->isMine( coords ) )
+			if( ignoreDispatcher || dispatcher->isMine( coords, mesh->getBody()->getId() ) )
 			{
 				CalcNode* node = new CalcNode();
 				node->number = tmp_int - 1;

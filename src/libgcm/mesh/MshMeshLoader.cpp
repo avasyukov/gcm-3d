@@ -20,7 +20,7 @@ void gcm::MshMeshLoader::loadMesh(Params params, TetrMeshFirstOrder* mesh, GCMDi
 	}
 	MshTetrFileReader* reader = new MshTetrFileReader();
 	reader->readFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]), 
-							mesh, dispatcher, mesh->getBody()->getEngine()->getRank());
+							mesh, dispatcher, mesh->getBody()->getEngine()->getRank(), false);
 	delete reader;
 	
 	mesh->preProcess();
