@@ -1,22 +1,22 @@
-<task numberOfSnaps="0" stepsPerSnap="1">
+<task numberOfSnaps="1" stepsPerSnap="1">
 	<bodies>
 		<body id="target">
 			<rheology type="elastic" />
-			<mesh id="target" type="geo2" file="models/stringer-sample.geo" tetrSize="1" />
+			<mesh id="target" type="geo2" file="models/stringer-sample.geo" tetrSize="1.5" />
 			<material id="testMaterial" />
 		</body>
                 <body id="striker">
                         <rheology type="elastic" />
-                        <mesh id="striker" type="geo2" file="models/striker-sample.geo" tetrSize="1" />
+                        <mesh id="striker" type="geo2" file="models/striker-sample.geo" tetrSize="1.5" />
                         <material id="testMaterial" />
-			<transform type="translate" moveX="0" moveY="0" moveZ="-12.701" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-13.0" />
                 </body>
         </bodies>
 	<materials>
 		<material id="testMaterial" la="70000" mu="10000" rho="1" />
 	</materials>
 	<initialState>
-		<area type="box" minX="-20" maxX="20" minY="-50" maxY="10" minZ="-120" maxZ="-0.00001"/>
+		<area type="box" minX="-20" maxX="20" minY="-20" maxY="20" minZ="-120" maxZ="-0.00001"/>
 		<values vz="0.2" />
 	</initialState>
 </task>
