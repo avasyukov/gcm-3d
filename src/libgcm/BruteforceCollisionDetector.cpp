@@ -58,9 +58,9 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 								&direction[0], &direction[1], &direction[2], false);
 
 						if( vectorIntersectsTriangle( 
-								mesh2->nodes[ local_faces[l].verts[0] ].coords,
-								mesh2->nodes[ local_faces[l].verts[1] ].coords,
-								mesh2->nodes[ local_faces[l].verts[2] ].coords,
+								mesh2->getNode( local_faces[l].verts[0] )->coords,
+								mesh2->getNode( local_faces[l].verts[1] )->coords,
+								mesh2->getNode( local_faces[l].verts[2] )->coords,
 								local_nodes[k].coords,
 								direction, get_treshold(), new_node.coords, false ) )
 						{
