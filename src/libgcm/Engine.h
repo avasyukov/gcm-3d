@@ -25,6 +25,7 @@
 #include "DataBus.h"
 #include "Material.h"
 #include "BorderCondition.h"
+#include "ContactCondition.h"
 #include "CollisionDetector.h"
 
 // FIXME - do we need it here?
@@ -88,6 +89,7 @@ namespace gcm
 		map<string, TetrInterpolator*> interpolators;
 		
 		vector<BorderCondition*> borderConditions;
+		vector<ContactCondition*> contactConditions;
 		
 		vector<Material*> materials;
 		/*
@@ -190,6 +192,9 @@ namespace gcm
 		unsigned int addBorderCondition(BorderCondition *borderCondition);
 		void replaceDefaultBorderCondition(BorderCondition *borderCondition);
 		
+		unsigned int addContactCondition(ContactCondition *contactCondition);
+		void replaceDefaultContactCondition(ContactCondition *contactCondition);
+		
 		unsigned char addMaterial(Material *material);
 		
 		/*
@@ -206,6 +211,7 @@ namespace gcm
 		BorderCalculator* getBorderCalculator(string type);
 		ContactCalculator* getContactCalculator(string type);
 		BorderCondition* getBorderCondition(unsigned int num);
+		ContactCondition* getContactCondition(unsigned int num);
 		TetrFirstOrderInterpolator* getFirstOrderInterpolator(string type);
 		TetrSecondOrderMinMaxInterpolator* getSecondOrderInterpolator(string type);
 		RheologyCalculator* getRheologyCalculator(string type);

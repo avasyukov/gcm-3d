@@ -51,44 +51,61 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 				// process collisions
 				CalcNode new_node;
 				float direction[3];
-				for(int k = 0; k < local_nodes.size(); k++) {
-					for(int l = 0; l < local_faces.size(); l++) {
-
-						mesh1->find_border_node_normal(local_nodes[k].number, 
-								&direction[0], &direction[1], &direction[2], false);
-
-						if( vectorIntersectsTriangle( 
-								mesh2->getNode( local_faces[l].verts[0] )->coords,
-								mesh2->getNode( local_faces[l].verts[1] )->coords,
-								mesh2->getNode( local_faces[l].verts[2] )->coords,
-								local_nodes[k].coords,
-								direction, get_treshold(), new_node.coords, false ) )
+				for(int k = 0; k < local_nodes.size(); k++)
+				{
+					for(int l = 0; l < local_faces.size(); l++)
+					{
+						// Check axis directions
+						for( int m = 0; m < 3; m++)
 						{
-							//float vel[3];
-							//vel[0] = local_nodes[k].values[0] - mesh2->nodes[ local_faces[l].vert[0] ].values[0];
-							//vel[1] = local_nodes[k].values[1] - mesh2->nodes[ local_faces[l].vert[0] ].values[1];
-							//vel[2] = local_nodes[k].values[2] - mesh2->nodes[ local_faces[l].vert[0] ].values[2];
-							//if( vel[0] * direction[0] + vel[1] * direction[1] + vel[2] * direction[2] > 0 )
+							mesh1->find_border_node_normal(local_nodes[k].number, 
+									&direction[0], &direction[1], &direction[2], false);
+							
+							if( direction[m] > 0 )
+								direction[m] = 1;
+							else
+								direction[m] = -1;
+							for( int z = 0; z < 3; z++ )
+								if( z != m)
+									direction[z] = 0;
+
+							// FIXME - ugly WA
+							new_node = *( mesh2->getNode( local_faces[l].verts[0] ) );
+							new_node.contactNodeNum = j;
+
+							if( vectorIntersectsTriangle( 
+									mesh2->getNode( local_faces[l].verts[0] )->coords,
+									mesh2->getNode( local_faces[l].verts[1] )->coords,
+									mesh2->getNode( local_faces[l].verts[2] )->coords,
+									local_nodes[k].coords,
+									direction, get_treshold(), new_node.coords, false ) )
 							{
-								mesh1->getNode( local_nodes[k].number )->setContactType (InContact);
-								mesh1->getNode( local_nodes[k].number )->contactNodeNum = virt_nodes.size();
+								//float vel[3];
+								//vel[0] = local_getNode[k].values[0] - mesh2->getNode[ local_faces[l].vert[0] ].values[0];
+								//vel[1] = local_getNode[k].values[1] - mesh2->getNode[ local_faces[l].vert[0] ].values[1];
+								//vel[2] = local_getNode[k].values[2] - mesh2->getNode[ local_faces[l].vert[0] ].values[2];
+								//if( vel[0] * direction[0] + vel[1] * direction[1] + vel[2] * direction[2] > 0 )
+								{
+									mesh1->getNode( local_nodes[k].number )->setContactType (InContact);
+									mesh1->getNode( local_nodes[k].number )->contactNodeNum = virt_nodes.size();
+									mesh1->getNode( local_nodes[k].number )->contactDirection = m;
 
-								interpolateTriangle(
-									mesh2->nodes[ local_faces[l].verts[0] ].coords,
-									mesh2->nodes[ local_faces[l].verts[1] ].coords,
-									mesh2->nodes[ local_faces[l].verts[2] ].coords,
-									new_node.coords,
-									mesh2->nodes[ local_faces[l].verts[0] ].values,
-									mesh2->nodes[ local_faces[l].verts[1] ].values,
-									mesh2->nodes[ local_faces[l].verts[2] ].values,
-									new_node.values, 9);
-								new_node.setRho( mesh2->nodes[ local_faces[l].verts[0] ].getRho() );
-								new_node.setMaterialId( mesh2->nodes[ local_faces[l].verts[0] ].getMaterialId() );
+									interpolateTriangle(
+										mesh2->getNode( local_faces[l].verts[0] )->coords,
+										mesh2->getNode( local_faces[l].verts[1] )->coords,
+										mesh2->getNode( local_faces[l].verts[2] )->coords,
+										new_node.coords,
+										mesh2->getNode( local_faces[l].verts[0] )->values,
+										mesh2->getNode( local_faces[l].verts[1] )->values,
+										mesh2->getNode( local_faces[l].verts[2] )->values,
+										new_node.values, 9);
+									new_node.setRho( mesh2->getNode( local_faces[l].verts[0] )->getRho() );
+									new_node.setMaterialId( mesh2->getNode( local_faces[l].verts[0] )->getMaterialId() );
 
-								// remote_num here should be remote face (!) num
-								virt_nodes.push_back(new_node);
+									virt_nodes.push_back(new_node);
 
-								break;
+									break;
+								}
 							}
 						}
 					}

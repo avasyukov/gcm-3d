@@ -29,6 +29,8 @@ gcm::CalcNode::CalcNode(const CalcNode& src) {
 	memcpy( values, src.values, 9*sizeof(float) );
 	rho = src.rho;
 	materialId = src.materialId;
+	contactNodeNum = src.contactNodeNum;
+	contactDirection = src.contactDirection;
 	publicFlags = src.publicFlags;
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;
@@ -48,6 +50,8 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
 	memcpy( values, src.values, 9*sizeof(float) );
 	rho = src.rho;
 	materialId = src.materialId;
+	contactNodeNum = src.contactNodeNum;
+	contactDirection = src.contactDirection;
 	publicFlags = src.publicFlags;
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;

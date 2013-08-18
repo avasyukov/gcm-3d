@@ -12,6 +12,7 @@ namespace gcm {
 	class BorderCalculator;
 	class ContactCalculator;
 	class BorderCondition;
+	class ContactCondition;
 	class RheologyCalculator;
 	class TetrFirstOrderInterpolator;
 	class TetrSecondOrderMinMaxInterpolator;
@@ -19,6 +20,7 @@ namespace gcm {
 	class Body;
 	class Mesh;
 	class NumericalMethod;
+	class CalcNode;
 	//class GCMDispatcher;
 	/*
 	 * Helper interfaces to solve compilation problems with cross-dependant classes.
@@ -30,6 +32,7 @@ namespace gcm {
 			virtual BorderCalculator* getBorderCalculator(string type) = 0;
 			virtual ContactCalculator* getContactCalculator(string type) = 0;
 			virtual BorderCondition* getBorderCondition(unsigned int num) = 0;
+			virtual ContactCondition* getContactCondition(unsigned int num) = 0;
 			virtual TetrFirstOrderInterpolator* getFirstOrderInterpolator(string type) = 0;
 			virtual TetrSecondOrderMinMaxInterpolator* getSecondOrderInterpolator(string type) = 0;
 			virtual RheologyCalculator* getRheologyCalculator(string type) = 0;
@@ -45,6 +48,7 @@ namespace gcm {
 			virtual void setScene(AABB src) = 0;
 			virtual void transferScene(float x, float y, float z) = 0;
 			virtual FileLookupService& getFileLookupService() = 0;
+			virtual CalcNode* getVirtNode(int i) = 0;
 	};
 
 	class IBody {

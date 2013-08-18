@@ -10,6 +10,7 @@
 #include "calc/volume/SimpleVolumeCalculator.h"
 #include "calc/border/FreeBorderCalculator.h"
 #include "calc/border/SmoothBorderCalculator.h"
+#include "calc/contact/SlidingContactCalculator.h"
 #include "util/forms/StepPulseForm.h"
 #include "snapshot/VTKSnapshotWriter.h"
 #include "snapshot/VTK2SnapshotWriter.h"
@@ -62,11 +63,14 @@ gcm::Engine::Engine()
 	registerVolumeCalculator( new SimpleVolumeCalculator() );
 	registerBorderCalculator( new FreeBorderCalculator() );
 	registerBorderCalculator( new SmoothBorderCalculator() );
+	registerContactCalculator( new SlidingContactCalculator() );
 	LOG_DEBUG("Registering default border condition");
 	// Failsafe border condition
 	addBorderCondition( new BorderCondition( NULL, new StepPulseForm(-1, -1), getBorderCalculator("SmoothBorderCalculator") ) );
 	// Default border condition
 	addBorderCondition( new BorderCondition( NULL, new StepPulseForm(-1, -1), getBorderCalculator("FreeBorderCalculator") ) );
+	LOG_DEBUG("Registering default contact condition");
+	addContactCondition( new ContactCondition( NULL, new StepPulseForm(-1, -1), getContactCalculator("SlidingContactCalculator") ) );
 	LOG_DEBUG("Creating dispatcher");
 	dispatcher = new DummyDispatcher();
 	dispatcher->setEngine(this);
@@ -225,6 +229,24 @@ void gcm::Engine::replaceDefaultBorderCondition(BorderCondition *borderCondition
 	LOG_DEBUG("Default border condition set");
 }
 
+unsigned int gcm::Engine::addContactCondition(ContactCondition *contactCondition)
+{
+	if (!contactCondition)
+		THROW_INVALID_ARG("Contact condition parameter cannot be NULL");
+	contactConditions.push_back(contactCondition);
+	LOG_DEBUG("Added new contact condition.");
+	return contactConditions.size () - 1;
+}
+
+void gcm::Engine::replaceDefaultContactCondition(ContactCondition *contactCondition)
+{
+	assert( contactConditions.size() > 0 );
+	if (!contactCondition)
+		THROW_INVALID_ARG("Contact condition parameter cannot be NULL");
+	contactConditions[0] = contactCondition;
+	LOG_DEBUG("Default contact condition set");
+}
+
 unsigned char gcm::Engine::getMaterialIndex(string id)
 {
 	for (unsigned char i = 0; i < materials.size(); i++)
@@ -316,6 +338,12 @@ BorderCondition* gcm::Engine::getBorderCondition(unsigned int num)
 {
 	assert( num < borderConditions.size() );
 	return borderConditions[num];
+}
+
+ContactCondition* gcm::Engine::getContactCondition(unsigned int num)
+{
+	assert( num < contactConditions.size() );
+	return contactConditions[num];
 }
 
 void gcm::Engine::addBody(Body* body)

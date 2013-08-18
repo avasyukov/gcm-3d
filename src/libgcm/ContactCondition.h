@@ -5,13 +5,22 @@
 #include "util/forms/PulseForm.h"
 #include "calc/contact/ContactCalculator.h"
 
-class ContactCondition
-{
-public:
-	Area* area;
-	PulseForm* form;
-	ContactCalculator* calc;
-	void do_calc(float time, float* cur_coords, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[]);
-};
+namespace gcm {
+	class PulseForm;
+	class CalcNode;
+
+	class ContactCondition
+	{
+	public:
+		ContactCondition();
+		ContactCondition(Area* _area, PulseForm* _form, ContactCalculator* _calc);
+		~ContactCondition();
+	
+		Area* area;
+		PulseForm* form;
+		ContactCalculator* calc;
+		void do_calc(float time, float* cur_coords, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[]);
+	};
+}
 
 #endif
