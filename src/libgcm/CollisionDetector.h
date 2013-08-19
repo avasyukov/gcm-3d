@@ -19,15 +19,15 @@ namespace gcm {
 		
 	protected:
 		USE_LOGGER;
-		float treshold;
+		float threshold;
 		bool static_operation;
 		
 	public:
 		CollisionDetector();
 		~CollisionDetector();
 		virtual string getType () const = 0;
-		void set_treshold(float value);
-		float get_treshold();
+		void set_threshold(float value);
+		float get_threshold();
 		virtual void find_collisions(vector<CalcNode> &virt_nodes) = 0;
 		bool find_intersection(AABB &outline1, AABB &outline2, AABB &intersection);
 		// return elements that are in intersection

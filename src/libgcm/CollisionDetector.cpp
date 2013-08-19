@@ -19,23 +19,23 @@ bool gcm::CollisionDetector::is_static()
 	return static_operation;
 }
 
-void gcm::CollisionDetector::set_treshold(float value)
+void gcm::CollisionDetector::set_threshold(float value)
 {
-	treshold = value;
-	LOG_DEBUG("Current treshold value: " << treshold);
+	threshold = value;
+	LOG_DEBUG("Current threshold value: " << threshold);
 }
 
-float gcm::CollisionDetector::get_treshold()
+float gcm::CollisionDetector::get_threshold()
 {
-	return treshold;
+	return threshold;
 }
 
 bool gcm::CollisionDetector::find_intersection(AABB &outline1, AABB &outline2, AABB &intersection)
 {
 	// check for intersection
 	for(int j = 0; j < 3; j++) {
-		intersection.min_coords[j] = fmaxf(outline1.min_coords[j] - treshold, outline2.min_coords[j] - treshold);
-		intersection.max_coords[j] = fminf(outline1.max_coords[j] + treshold, outline2.max_coords[j] + treshold);
+		intersection.min_coords[j] = fmaxf(outline1.min_coords[j] - threshold, outline2.min_coords[j] - threshold);
+		intersection.max_coords[j] = fminf(outline1.max_coords[j] + threshold, outline2.max_coords[j] + threshold);
 		if(intersection.min_coords[j] > intersection.max_coords[j])
 			return false;
 	}

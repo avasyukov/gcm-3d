@@ -81,7 +81,7 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 									mesh2->getNode( local_faces[l].verts[1] )->coords,
 									mesh2->getNode( local_faces[l].verts[2] )->coords,
 									local_nodes[k].coords,
-									direction, get_treshold(), new_node.coords, false ) )
+									direction, get_threshold(), new_node.coords, false ) )
 							{
 								//float vel[3];
 								//vel[0] = local_getNode[k].values[0] - mesh2->getNode[ local_faces[l].vert[0] ].values[0];

@@ -378,7 +378,7 @@ void gcm::Engine::doNextStep()
 
 void gcm::Engine::doNextStepBeforeStages(const float time_step) {
 	virtNodes.clear();
-	colDet->set_treshold( calculateRecommendedContactTreshold() );
+	colDet->set_threshold( calculateRecommendedContactTreshold() );
 }
 
 void gcm::Engine::doNextStepStages(const float maxAllowedStep, float& actualTimeStep)
@@ -493,15 +493,15 @@ float gcm::Engine::calculateRecommendedTimeStep()
 
 float gcm::Engine::calculateRecommendedContactTreshold()
 {
-	float treshold = numeric_limits<float>::infinity();
+	float threshold = numeric_limits<float>::infinity();
 	for( int j = 0; j < getNumberOfBodies(); j++ )
 	{
 		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
 		float h = mesh->get_avg_h();
-		if( h < treshold )
-			treshold = h;
+		if( h < threshold )
+			threshold = h;
 	}
-	return treshold;
+	return threshold;
 }
 
 void gcm::Engine::createSnapshot(int number)
