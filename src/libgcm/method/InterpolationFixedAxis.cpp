@@ -119,10 +119,10 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 				CalcNode* virt_node = engine->getVirtNode(cur_node->contactNodeNum);
 				
 				
-				LOG_DEBUG("We are going to calc contact. Target virt node: " 
+				LOG_TRACE("We are going to calc contact. Target virt node: " 
 						<< cur_node->contactNodeNum << " Target mesh: " << virt_node->contactNodeNum );
 						
-				LOG_DEBUG( "Mesh: " << mesh->getId()
+				LOG_TRACE( "Mesh: " << mesh->getId()
 						<< " Virt mesh: " << engine->getBody(virt_node->contactNodeNum)->getMeshes()->getId()
 						<< "\nReal node: " << *cur_node << "\nVirt node: " << *virt_node);
 				
@@ -156,7 +156,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 				int virt_ppoint_num[9];
 
 				// Number of outer characteristics
-				LOG_DEBUG("Start virt node calc");
+				LOG_TRACE("Start virt node calc");
 				int virt_outer_count = prepare_node( virt_node, &virt_elastic_matrix3d, 
 						time_step, stage, engine->getBody(virt_node->contactNodeNum)->getMeshes()/*FIXME - WA*/, 
 						virt_dksi, virt_inner, virt_previous_nodes, 
@@ -243,7 +243,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 					}*/
 //				}
 
-				LOG_DEBUG("Using calculator: " << engine->getContactCondition(0)->calc->getType());
+				LOG_TRACE("Using calculator: " << engine->getContactCondition(0)->calc->getType());
 				engine->getContactCondition(0)->do_calc(mesh->get_current_time(), cur_node->coords, 
 						new_node, &elastic_matrix3d, previous_values, inner, 
 						&virt_elastic_matrix3d, virt_previous_values, virt_inner, outer_normal);
