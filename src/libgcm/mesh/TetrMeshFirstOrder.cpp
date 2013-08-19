@@ -2,19 +2,14 @@
 #include "../node/CalcNode.h"
 
 gcm::TetrMeshFirstOrder::TetrMeshFirstOrder() {
-	nodes = NULL;
-	new_nodes = NULL;
-	tetrs1 = NULL;
-	border1 = NULL;
 	nodesNumber = 0;
 	nodesStorageSize = 0;
 	tetrsNumber = 0;
+	tetrsStorageSize = 0;
 	faceNumber = 0;
 	mesh_min_h = numeric_limits<float>::infinity();
 	mesh_max_h = numeric_limits<float>::infinity();
 	mesh_avg_h = numeric_limits<float>::infinity();
-	triSizeInBytes = sizeof(TriangleFirstOrder);
-	tetrSizeInBytes = sizeof(TetrFirstOrder);
 	numericalMethodOrder = 1;
 	INIT_LOGGER("gcm.TetrMeshFirstOrder");
 	LOG_DEBUG("Creating mesh");
@@ -22,14 +17,11 @@ gcm::TetrMeshFirstOrder::TetrMeshFirstOrder() {
 
 gcm::TetrMeshFirstOrder::~TetrMeshFirstOrder() {
 	LOG_DEBUG("Destroying mesh '" << getId() << "'");
-	if( nodes != NULL )
-		delete[] nodes;
-	if( new_nodes != NULL )
-		delete[] new_nodes;
-	if( tetrs1 != NULL )
-		delete[] tetrs1;
-	if( border1 != NULL )
-		delete[] border1;
+	// TODO - does it really trigger destructors?
+	nodes.clear();
+	new_nodes.clear();
+	tetrs1.clear();
+	border1.clear();
 	LOG_DEBUG("Mesh destroyed");
 }
 
@@ -49,25 +41,19 @@ CalcNode* gcm::TetrMeshFirstOrder::getNode(int index) {
 	assert( index >= 0 );
 	map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
-	return ( itr != nodesMap.end() ? nodes + itr->second : NULL );
-	//if(  == nodesMap.end() )
-	//	return NULL;
-	//return nodes+nodesMap[index];
+	return ( itr != nodesMap.end() ? &nodes[itr->second] : NULL );
 }
 
 CalcNode* gcm::TetrMeshFirstOrder::getNewNode(int index) {
 	assert( index >= 0 );
 	map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
-	return ( itr != nodesMap.end() ? new_nodes + itr->second : NULL );
-	//if( nodesMap.find(index) == nodesMap.end() )
-	//	return NULL;
-	//return new_nodes+nodesMap[index];
+	return ( itr != nodesMap.end() ? &new_nodes[itr->second] : NULL );
 }
 
 CalcNode* gcm::TetrMeshFirstOrder::getNodeByLocalIndex(int index) {
 	assert( index >= 0 );
-	return nodes + index;
+	return &nodes[index];
 }
 
 int gcm::TetrMeshFirstOrder::getNodeLocalIndex(int index) {
@@ -81,50 +67,43 @@ TetrFirstOrder* gcm::TetrMeshFirstOrder::getTetr(int index) {
 	assert( index >= 0 );
 	map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
-	return ( itr != tetrsMap.end() ? 
-		(TetrFirstOrder*)((char*)tetrs1 + itr->second * tetrSizeInBytes) : NULL );
-	//if( tetrsMap.find(index) == tetrsMap.end() )
-	//	return NULL;
-	//return (TetrFirstOrder*)((char*)tetrs1 + tetrsMap[index] * tetrSizeInBytes);
+	return ( itr != tetrsMap.end() ? &tetrs1[itr->second] : NULL );
 }
 
 TetrFirstOrder* gcm::TetrMeshFirstOrder::getTetrByLocalIndex(int index) {
 	assert( index >= 0 );
-	return (TetrFirstOrder*)((char*)tetrs1 + index * tetrSizeInBytes);
+	return &tetrs1[index];
 }
 
 TriangleFirstOrder* gcm::TetrMeshFirstOrder::getTriangle(int index) {
 	assert( index >= 0 );
-	return (TriangleFirstOrder*)((char*)border1 + index * triSizeInBytes);
+	return &border1[index];
 }
 
 void gcm::TetrMeshFirstOrder::createNodes(int number) {
-	// FIXME currently it's not possible to add more nodes
-	if( nodesStorageSize > 0 ) {
-		delete[] nodes;
-		delete[] new_nodes;
-	}
-	nodes = new CalcNode[(int)(number*STORAGE_OVERCOMMIT_RATIO)];
-	new_nodes = new CalcNode[(int)(number*STORAGE_OVERCOMMIT_RATIO)];
-	nodesNumber = 0;
+	LOG_DEBUG("Creating nodes storage, size: " << (int)(number*STORAGE_OVERCOMMIT_RATIO));
+	nodes.resize((int)(number*STORAGE_OVERCOMMIT_RATIO));
+	new_nodes.resize((int)(number*STORAGE_OVERCOMMIT_RATIO));
 	nodesStorageSize = number*STORAGE_OVERCOMMIT_RATIO;
 }
 
 void gcm::TetrMeshFirstOrder::createTetrs(int number) {
-	delete[] tetrs1;
-	tetrs1 = new TetrFirstOrder[(int)(number*STORAGE_OVERCOMMIT_RATIO)];
-	tetrsNumber = 0;
+	LOG_DEBUG("Creating first order tetrs storage, size: " << (int)(number*STORAGE_OVERCOMMIT_RATIO));
+	tetrs1.resize((int)(number*STORAGE_OVERCOMMIT_RATIO));
 	tetrsStorageSize = number*STORAGE_OVERCOMMIT_RATIO;
 }
 
 void gcm::TetrMeshFirstOrder::createTriangles(int number) {
-	delete[] border1;
-	border1 = new TriangleFirstOrder[number];
+	LOG_DEBUG("Creating first order border storage, size: " << number);
+	// TODO - make border working through addTriangle() / faceNumber++ / etc
+	border1.resize(number);
 	faceNumber = number;
 	faceStorageSize = number;
 }
 
 void gcm::TetrMeshFirstOrder::addNode(CalcNode* node) {
+	if( nodesNumber == nodesStorageSize )
+		createNodes(nodesStorageSize*STORAGE_ONDEMAND_GROW_RATE);
 	assert( nodesNumber < nodesStorageSize );
 	nodes[nodesNumber] = *node;
 	nodesMap[node->number] = nodesNumber;
@@ -132,6 +111,8 @@ void gcm::TetrMeshFirstOrder::addNode(CalcNode* node) {
 }
 
 void gcm::TetrMeshFirstOrder::addTetr(TetrFirstOrder* tetr) {
+	if( tetrsNumber == tetrsStorageSize )
+		createTetrs(tetrsStorageSize*STORAGE_ONDEMAND_GROW_RATE);
 	assert( tetrsNumber < tetrsStorageSize );
 	tetrs1[tetrsNumber] = *tetr;
 	tetrsMap[tetr->number] = tetrsNumber;

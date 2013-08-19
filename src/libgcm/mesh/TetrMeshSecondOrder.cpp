@@ -2,11 +2,7 @@
 #include "../node/CalcNode.h"
 
 gcm::TetrMeshSecondOrder::TetrMeshSecondOrder() {
-	tetrs2 = NULL;
-	border2 = NULL;
 	secondOrderNodesAreGenerated = false;
-	triSizeInBytes = sizeof(TriangleSecondOrder);
-	tetrSizeInBytes = sizeof(TetrSecondOrder);
 	numericalMethodOrder = 2;
 	INIT_LOGGER("gcm.TetrMeshSecondOrder");
 }
@@ -15,50 +11,41 @@ gcm::TetrMeshSecondOrder::~TetrMeshSecondOrder() {
 }
 
 void gcm::TetrMeshSecondOrder::createTetrs(int number) {
-	delete[] tetrs2;
-	tetrs2 = new TetrSecondOrder[(int)(number*STORAGE_OVERCOMMIT_RATIO)];
-	tetrs1 = tetrs2;
-	tetrsNumber = 0;
+	LOG_DEBUG("Creating second order tetrs storage, size: " << (int)(number*STORAGE_OVERCOMMIT_RATIO));
+	tetrs2.resize(number*STORAGE_OVERCOMMIT_RATIO);
 	tetrsStorageSize = number*STORAGE_OVERCOMMIT_RATIO;
 }
 
 void gcm::TetrMeshSecondOrder::createTriangles(int number) {
-	delete[] border2;
-	border2 = new TriangleSecondOrder[number];
-	border1 = border2;
+	LOG_DEBUG("Creating second order border storage, size: " << number);
+	// TODO - make border working through addTriangle() / faceNumber++ / etc
+	border2.resize(number);
 	faceNumber = number;
+	faceStorageSize = number;
 }
 
 TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetr(int index) {
 	assert( index >= 0 );
 	map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
-	return ( itr != tetrsMap.end() ? 
-		(TetrFirstOrder*)((char*)tetrs2 + itr->second * tetrSizeInBytes) : NULL );
-	//if( tetrsMap.find(index) == tetrsMap.end() )
-	//	return NULL;
-	//return (TetrFirstOrder*)((char*)tetrs2 + tetrsMap[index] * tetrSizeInBytes);
+	return ( itr != tetrsMap.end() ? &tetrs2[itr->second] : NULL );
 }
 
 TetrSecondOrder* gcm::TetrMeshSecondOrder::getTetr2(int index) {
 	assert( index >= 0 );
 	map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
-	return ( itr != tetrsMap.end() ? 
-		(TetrSecondOrder*)((char*)tetrs2 + itr->second * tetrSizeInBytes) : NULL );
-	//if( tetrsMap.find(index) == tetrsMap.end() )
-	//	return NULL;
-	//return (TetrSecondOrder*)((char*)tetrs2 + tetrsMap[index] * tetrSizeInBytes);
+	return ( itr != tetrsMap.end() ? &tetrs2[itr->second] : NULL );
 }
 
 TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetrByLocalIndex(int index) {
 	assert( index >= 0 );
-	return (TetrFirstOrder*)((char*)tetrs2 + index * tetrSizeInBytes);
+	return &tetrs2[index];
 }
 
 TetrSecondOrder* gcm::TetrMeshSecondOrder::getTetr2ByLocalIndex(int index) {
 	assert( index >= 0 );
-	return (TetrSecondOrder*)((char*)tetrs2 + index * tetrSizeInBytes);
+	return &tetrs2[index];
 }
 
 void gcm::TetrMeshSecondOrder::rebuildMaps() {
@@ -71,6 +58,8 @@ void gcm::TetrMeshSecondOrder::rebuildMaps() {
 }
 
 void gcm::TetrMeshSecondOrder::addTetr(TetrFirstOrder* tetr) {
+	if( tetrsNumber == tetrsStorageSize )
+		createTetrs(tetrsStorageSize*STORAGE_ONDEMAND_GROW_RATE);
 	assert( tetrsNumber < tetrsStorageSize );
 	tetrs2[tetrsNumber].number = tetr->number;
 	memcpy(tetrs2[tetrsNumber].verts, tetr->verts, 4*sizeof(int));
@@ -79,6 +68,8 @@ void gcm::TetrMeshSecondOrder::addTetr(TetrFirstOrder* tetr) {
 }
 
 void gcm::TetrMeshSecondOrder::addTetr2(TetrSecondOrder* tetr) {
+	if( tetrsNumber == tetrsStorageSize )
+		createTetrs(tetrsStorageSize*STORAGE_ONDEMAND_GROW_RATE);
 	assert( tetrsNumber < tetrsStorageSize );
 	tetrs2[tetrsNumber] = *tetr;
 	tetrsMap[tetr->number] = tetrsNumber;
@@ -87,12 +78,12 @@ void gcm::TetrMeshSecondOrder::addTetr2(TetrSecondOrder* tetr) {
 
 TriangleFirstOrder* gcm::TetrMeshSecondOrder::getTriangle(int index) {
 	assert( index >= 0 );
-	return (TriangleFirstOrder*)((char*)border2 + index * triSizeInBytes);
+	return &border2[index];
 }
 
 TriangleSecondOrder* gcm::TetrMeshSecondOrder::getTriangle2(int index) {
 	assert( index >= 0 );
-	return (TriangleSecondOrder*)((char*)border2 + index * triSizeInBytes);
+	return &border2[index];
 }
 
 void gcm::TetrMeshSecondOrder::copyMesh(TetrMeshFirstOrder* src)

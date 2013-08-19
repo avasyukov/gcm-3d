@@ -25,8 +25,8 @@ namespace gcm {
 		/*
 		 * List of mesh tetrahedrons.
 		 */
-		TetrSecondOrder* tetrs2;
-		TriangleSecondOrder* border2;
+		vector<TetrSecondOrder> tetrs2;
+		vector<TriangleSecondOrder> border2;
 		bool secondOrderNodesAreGenerated;
 		int firstOrderNodesNumber;
 		int secondOrderNodesNumber;

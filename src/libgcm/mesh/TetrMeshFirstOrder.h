@@ -15,7 +15,8 @@
 using namespace gcm;
 
 #define MapIter map<int, int>::const_iterator
-#define STORAGE_OVERCOMMIT_RATIO 10.0
+#define STORAGE_OVERCOMMIT_RATIO 1.0
+#define STORAGE_ONDEMAND_GROW_RATE 1.25
 
 namespace gcm {
 	class CalcNode;
@@ -35,18 +36,15 @@ namespace gcm {
 		/*
 		 * List of mesh tetrahedrons.
 		 */
-		TetrFirstOrder* tetrs1;
-		TriangleFirstOrder* border1;
+		vector<TetrFirstOrder> tetrs1;
+		vector<TriangleFirstOrder> border1;
 
-		int triSizeInBytes;
-		int tetrSizeInBytes;
-		
 		int numericalMethodOrder;
 		/*
 		 * List of mesh nodes.
 		 */
-		CalcNode* nodes;
-		CalcNode* new_nodes;
+		vector<CalcNode> nodes;
+		vector<CalcNode> new_nodes;
 		int nodesNumber;
 		int nodesStorageSize;
 		int tetrsNumber;

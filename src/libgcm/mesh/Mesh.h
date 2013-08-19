@@ -5,6 +5,7 @@
 
 // FIXME - it's bad to have 'firstOrder' specifics here
 #include "../elem/TetrFirstOrder.h"
+#include "../elem/TriangleFirstOrder.h"
 //#include "../node/CalcNode.h"
 
 #include "../Interfaces.h"
@@ -61,6 +62,20 @@ namespace gcm {
 		 * Returns node by its index.
 		 */
 		virtual CalcNode* getNode(int index) = 0;
+		virtual CalcNode* getNewNode(int index) = 0;
+		virtual CalcNode* getNodeByLocalIndex(int index) = 0;
+		virtual TetrFirstOrder* getTetr(int index) = 0;
+		virtual TetrFirstOrder* getTetrByLocalIndex(int index) = 0;
+		virtual TriangleFirstOrder* getTriangle(int index) = 0;
+		
+		virtual void createNodes(int number) = 0;
+		virtual void createTetrs(int number) = 0;
+		virtual void createTriangles(int number) = 0;
+		
+		// FIXME - do we need it in Mesh
+		virtual void addNode(CalcNode* node) = 0;
+		// FIXME - it's bad to have firstOrder specific here
+		virtual void addTetr(TetrFirstOrder* tetr) = 0;
 		
 		// FIXME - do we need it in pure virtual Mesh?
 		virtual int findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint) = 0;
@@ -69,15 +84,10 @@ namespace gcm {
 		void update_current_time(float time_step);
 		float get_current_time();
 		virtual void setInitialState(Area* area, float* values) = 0;
-		virtual TetrFirstOrder* getTetr(int i) = 0;
 		virtual float getMaxPossibleTimeStep() = 0;
 		virtual float getRecommendedTimeStep() = 0;
 		virtual float getMaxLambda() = 0;
 		virtual void do_next_part_step(float tau, int stage) = 0;
-		// FIXME - do we need it in Mesh
-		virtual void addNode(CalcNode* node) = 0;
-		// FIXME - it's bad to have firstOrder specific here
-		virtual void addTetr(TetrFirstOrder* tetr) = 0;
 		virtual void setRheology(unsigned char matId) = 0;
 		virtual void setRheology(unsigned char matId, Area* area) = 0;
 		virtual void checkTopology(float tau) = 0;
