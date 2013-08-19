@@ -15,6 +15,8 @@
 #include "Utils.h"
 #include "mesh/Mesh.h"
 #include "Logging.h"
+#include "util/forms/StepPulseForm.h"
+#include "ContactCondition.h"
 
 #include "xml.h"
 
@@ -59,6 +61,29 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		engine.setNumberOfSnaps(numberOfSnaps);
 		engine.setStepsPerSnap(stepsPerSnap);
 	}
+	
+	// reading system properties
+	NodeList defaultContactCalculatorList = rootNode.xpath("/task/system/defaultContactCalculator");
+	if( defaultContactCalculatorList.size() > 1 )
+		THROW_INVALID_INPUT("Config file can contain only one <system/> element");
+	if( defaultContactCalculatorList.size() == 1 )
+	{
+		xml::Node defaultContactCalculator = defaultContactCalculatorList.front();
+		string type = getAttributeByName(defaultContactCalculator.getAttributes(), "type");
+		if( type == "SlidingContactCalculator" )
+		{
+			engine.replaceDefaultContactCondition( new ContactCondition( 
+							NULL, new StepPulseForm(-1, -1), 
+							engine.getContactCalculator("SlidingContactCalculator") ) );
+		}
+		else if( type == "AdhesionContactCalculator" )
+		{
+			engine.replaceDefaultContactCondition( new ContactCondition( 
+							NULL, new StepPulseForm(-1, -1), 
+							engine.getContactCalculator("AdhesionContactCalculator") ) );
+		}
+	}
+	
 	// reading materials
 	NodeList matNodes = rootNode.xpath("/task/materials/material");
 	foreach(matNode, matNodes)
