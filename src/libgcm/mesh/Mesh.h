@@ -93,6 +93,7 @@ namespace gcm {
 		virtual void checkTopology(float tau) = 0;
 		virtual	void transfer(float x, float y, float z) = 0;
 		virtual void setBodyNum(unsigned char id) = 0;
+		virtual void clearContactState() = 0;
 
 		/*
 		 * Sets mesh id.

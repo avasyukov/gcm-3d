@@ -1734,3 +1734,14 @@ void gcm::TetrMeshFirstOrder::transfer(float x, float y, float z)
 	// TODO@avasyukov - think about additional checks
 	body->getEngine()->transferScene(x, y, z);
 }
+
+void gcm::TetrMeshFirstOrder::clearContactState()
+{
+	CalcNode* node;
+	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+		int i = itr->first;
+		node = getNode(i);
+		if( node->isLocal() )
+			node->setContactType(Free);
+	}
+}

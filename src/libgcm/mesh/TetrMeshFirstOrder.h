@@ -194,6 +194,7 @@ namespace gcm {
 		void transfer(float x, float y, float z);
 		void setBodyNum(unsigned char id);
 		int getNumberOfLocalNodes();
+		void clearContactState();
 	};
 }
 #endif

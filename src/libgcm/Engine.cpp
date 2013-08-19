@@ -385,6 +385,12 @@ void gcm::Engine::doNextStep()
 
 void gcm::Engine::doNextStepBeforeStages(const float time_step) {
 	virtNodes.clear();
+	for( unsigned int i = 0; i < bodies.size(); i++ )
+	{
+			LOG_DEBUG("Clear contact state for body " << i );
+			Mesh* mesh = bodies[i]->getMeshes();
+			mesh->clearContactState();
+	}
 }
 
 void gcm::Engine::doNextStepStages(const float maxAllowedStep, float& actualTimeStep)
