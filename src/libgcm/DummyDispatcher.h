@@ -34,6 +34,8 @@ namespace gcm {
 		~DummyDispatcher();
 		void setEngine(IEngine* e);
 		void prepare(int numberOfWorkers, AABB* scene);
+		int getOwner(float x, float y, float z);
+		int getOwner(float coords[3]);
 		int getOwner(float x, float y, float z, string bodyId);
 		int getOwner(float coords[3], string bodyId);
 		bool isMine(float coords[3], string bodyId);

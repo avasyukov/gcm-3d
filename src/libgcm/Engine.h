@@ -221,6 +221,7 @@ namespace gcm
 		 * Returns body object by its id or NULL if not found
 		 */
 		Body* getBodyById(string id);
+		int getBodyNum(string id);
 		
 		unsigned char getMaterialIndex(string id);
 		Material* getMaterial(string id);

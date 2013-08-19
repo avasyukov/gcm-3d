@@ -32,8 +32,11 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 		{
 			TetrMeshSecondOrder* mesh1 = (TetrMeshSecondOrder*)e.getBody(i)->getMeshes();
 			TetrMeshSecondOrder* mesh2 = (TetrMeshSecondOrder*)e.getBody(j)->getMeshes();
-			AABB outl1 = mesh1->getOutline();
-			AABB outl2 = mesh2->getOutline();
+			AABB outl1 = mesh1->getExpandedOutline();
+			AABB outl2 = mesh2->getExpandedOutline();
+			
+			LOG_DEBUG("Local mesh #" << mesh1->getId() << " with outline " << outl1 
+						<< " and local mesh #" << mesh2->getId() << " with outline " << outl2);
 			
 			if ( ( i != j ) && ( find_intersection(outl1, outl2, intersection) ) )
 			{

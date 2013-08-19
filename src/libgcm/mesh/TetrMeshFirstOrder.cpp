@@ -1389,6 +1389,28 @@ void gcm::TetrMeshFirstOrder::setRheology(unsigned char matId, Area* area) {
 	}
 }
 
+void gcm::TetrMeshFirstOrder::setBodyNum(unsigned char id)
+{
+	CalcNode* node;
+	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr )
+	{
+		int i = itr->first;
+		node = getNode(i);
+		node->bodyId = id;
+	}
+}
+
+int gcm::TetrMeshFirstOrder::getNumberOfLocalNodes()
+{
+	int num = 0;
+	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+		int i = itr->first;
+		if( getNode(i)->isLocal() )
+			num++;
+	}
+	return num;
+}
+
 void gcm::TetrMeshFirstOrder::logMeshStats()
 {
 	if( isinf( get_max_h() ) )
@@ -1658,6 +1680,11 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
 AABB gcm::TetrMeshFirstOrder::getOutline()
 {
 	return outline;
+}
+
+AABB gcm::TetrMeshFirstOrder::getExpandedOutline()
+{
+	return expandedOutline;
 }
 
 float gcm::TetrMeshFirstOrder::getRecommendedTimeStep() {

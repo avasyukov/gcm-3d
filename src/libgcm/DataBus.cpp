@@ -59,18 +59,25 @@ void gcm::DataBus::syncTimeStep(float* tau) {
 
 void gcm::DataBus::syncNodes(float tau)
 {
+	for(int i = 0; i < engine->getNumberOfBodies(); i++ )
+		syncNodes(i, tau);
+}
+
+void gcm::DataBus::syncNodes(int bodyNum, float tau)
+{
 	if( numberOfWorkers == 1 )
 		return;
 	
+	LOG_DEBUG("Working with body " << bodyNum);
 	LOG_DEBUG("Creating dynamic types");
-	createDynamicTypes();
+	createDynamicTypes(bodyNum);
 	LOG_DEBUG("Creating dynamic types done");
 	
 	vector<MPI::Request> reqs;
 	BARRIER("gcm::DataBus::syncNodes#1");
 	LOG_DEBUG("Starting nodes sync");
 	
-	Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
+	Body* body = engine->getBody(bodyNum);//ById( engine->getDispatcher()->getMyBodyId() );
 	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
 	
 	for (int i = 0; i < numberOfWorkers; i++)
@@ -264,6 +271,7 @@ void gcm::DataBus::createStaticTypes()
 		MPI::FLOAT,
 		MPI::FLOAT,
 		MPI::UNSIGNED_CHAR,
+		MPI::UNSIGNED_CHAR,
 		MPI::UNSIGNED,
 		MPI::UNSIGNED_CHAR,
 		MPI::UB
@@ -277,6 +285,7 @@ void gcm::DataBus::createStaticTypes()
 		1,
 		1,
 		1,
+		1,
 		1
 	};
 	
@@ -285,16 +294,17 @@ void gcm::DataBus::createStaticTypes()
 		MPI::Get_address(&elnodes[0].values[0]),
 		MPI::Get_address(&elnodes[0].coords[0]),
 		MPI::Get_address(&elnodes[0].rho),
+		MPI::Get_address(&elnodes[0].bodyId),
 		MPI::Get_address(&elnodes[0].materialId),
 		MPI::Get_address(&elnodes[0].publicFlags),
 		MPI::Get_address(&elnodes[0].borderCondId),
 		MPI::Get_address(&elnodes[1])
 	};
-	for (int i = 7; i >= 0; i--)
+	for (int i = 8; i >= 0; i--)
 		elnode_displs[i] -= elnode_displs[0];
 	
 	MPI_ELNODE = MPI::Datatype::Create_struct(
-		8,
+		9,
 		elnode_lens,
 		elnode_displs,
 		elnode_types
@@ -307,6 +317,7 @@ void gcm::DataBus::createStaticTypes()
 		MPI::FLOAT,
 		MPI::FLOAT,
 		MPI::FLOAT,
+		MPI::UNSIGNED_CHAR,
 		MPI::UNSIGNED_CHAR,
 		MPI::UNSIGNED,
 		MPI::UNSIGNED_CHAR,
@@ -322,6 +333,7 @@ void gcm::DataBus::createStaticTypes()
 		1,
 		1,
 		1,
+		1,
 		1
 	};
 	
@@ -331,16 +343,17 @@ void gcm::DataBus::createStaticTypes()
 		MPI::Get_address(&elnodes[0].values[0]),
 		MPI::Get_address(&elnodes[0].coords[0]),
 		MPI::Get_address(&elnodes[0].rho),
+		MPI::Get_address(&elnodes[0].bodyId),
 		MPI::Get_address(&elnodes[0].materialId),
 		MPI::Get_address(&elnodes[0].publicFlags),
 		MPI::Get_address(&elnodes[0].borderCondId),
 		MPI::Get_address(&elnodes[1])
 	};
-	for (int i = 8; i >= 0; i--)
+	for (int i = 9; i >= 0; i--)
 		elnoden_displs[i] -= elnoden_displs[0];
 	
 	MPI_ELNODE_NUMBERED = MPI::Datatype::Create_struct(
-		9,
+		10,
 		elnoden_lens,
 		elnoden_displs,
 		elnoden_types
@@ -353,11 +366,11 @@ void gcm::DataBus::createStaticTypes()
 	MPI_OUTLINE.Commit();
 }
 
-void gcm::DataBus::createDynamicTypes()
+void gcm::DataBus::createDynamicTypes(int bodyNum)
 {
 	LOG_DEBUG("Building dynamic MPI types for fast node sync");
 	GCMDispatcher* dispatcher = engine->getDispatcher();
-	Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
+	Body* body = engine->getBody(bodyNum);//ById( engine->getDispatcher()->getMyBodyId() );
 	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
 	
 	// TODO add more cleanup code here to prevent memory leaks
@@ -400,12 +413,12 @@ void gcm::DataBus::createDynamicTypes()
 	// find all remote nodes
 	for (int j = 0; j < mesh->getNodesNumber(); j++)
 	{
-		//LOG_DEBUG("N: " << j);
 		node = &(mesh->nodes[j]);
 		if ( node->isRemote() )
 		{
+			//LOG_DEBUG("N: " << j);
 			//LOG_DEBUG("R1: " << j << " " << mesh->getBody()->getId());
-			int owner = dispatcher->getOwner(node->coords, mesh->getBody()->getId());
+			int owner = dispatcher->getOwner(node->coords/*, mesh->getBody()->getId()*/);
 			//LOG_DEBUG("R2: " << owner);
 			assert( owner != rank );
 			local_numbers[rank][owner].push_back( mesh->nodesMap[node->number] );
@@ -531,7 +544,7 @@ void gcm::DataBus::syncOutlines()
 	LOG_DEBUG("Outlines synced");
 }
 
-void gcm::DataBus::syncMissedNodes(float tau)
+void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
 {
 	if( numberOfWorkers == 1 )
 		return;
@@ -550,8 +563,9 @@ void gcm::DataBus::syncMissedNodes(float tau)
 
 	BARRIER("gcm::DataBus::syncMissedNodes#1");
 	
-	Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
-	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
+	//Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
+	//TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
+	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*) _mesh;
 	AABB* areaOfInterest = &(mesh->areaOfInterest);
 	if( (mesh->syncedArea).includes( areaOfInterest ) )
 	{
@@ -561,14 +575,24 @@ void gcm::DataBus::syncMissedNodes(float tau)
 	{
 		LOG_DEBUG("Yes, we need additional nodes");
 		for (int i = 0 ; i < numberOfWorkers; i++)
+		{
 			if( i != rank)
+			{
+				LOG_DEBUG("Our area of interest: " << *areaOfInterest << " Outline[" << i << "]: " << *(dispatcher->getOutline(i)));
 				areaOfInterest->findIntersection(dispatcher->getOutline(i), &reqZones[rank][i]);
+			}
+		}
 	}
 	
 	BARRIER("gcm::DataBus::syncMissedNodes#2");
 
 	AABB* aabbs = new AABB[numberOfWorkers];
-	memcpy(aabbs, reqZones[rank], sizeof(AABB)*numberOfWorkers);	
+	for( int i = 0; i < numberOfWorkers; i++) 
+	{
+		LOG_DEBUG("Local req from " << rank << " to " << i << ": " << reqZones[rank][i]);
+		aabbs[i] =  reqZones[rank][i];
+		memcpy(aabbs, reqZones[rank], sizeof(AABB)*numberOfWorkers);
+	}
 	MPI::COMM_WORLD.Allgather(
 		aabbs,
 		numberOfWorkers, MPI_OUTLINE, 
@@ -592,13 +616,18 @@ void gcm::DataBus::syncMissedNodes(float tau)
 	
 	if(transferRequired)
 	{
-		transferNodes(_reqZones);
+		transferNodes(mesh, _reqZones);
 		BARRIER("gcm::DataBus::syncMissedNodes#3");
-		LOG_DEBUG("Rebuilding data types");
-		createDynamicTypes();
+		//LOG_DEBUG("Rebuilding data types");
+		//createDynamicTypes();
 		LOG_DEBUG("Processing mesh after the sync");
-		mesh->preProcess();
-		mesh->checkTopology(tau);
+		// Overhead
+		for( int z = 0; z < engine->getNumberOfBodies(); z++ )
+		{
+			TetrMeshSecondOrder* tmpMesh = (TetrMeshSecondOrder*) engine->getBody(z)->getMeshes();
+			tmpMesh->preProcess();
+			tmpMesh->checkTopology(tau);
+		}
 		//FIXME@avasyukov - rethink it
 		for( int z = 0; z < 3; z++ )
 		{
@@ -612,7 +641,7 @@ void gcm::DataBus::syncMissedNodes(float tau)
 	delete[] _reqZones;
 }
 
-void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
+void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZones)
 {
 	AABB reqZones[numberOfWorkers][numberOfWorkers];
 	for (int i = 0 ; i < numberOfWorkers; i++)
@@ -624,7 +653,7 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 			}
 	
 	Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
-	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
+	TetrMeshSecondOrder* myMesh = (TetrMeshSecondOrder*)body->getMeshes();
 	
 	int numberOfNodes[numberOfWorkers][numberOfWorkers];
 	int numberOfTetrs[numberOfWorkers][numberOfWorkers];
@@ -644,18 +673,18 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 	{
 		if( !isinf(reqZones[i][rank].minX) )
 		{
-			for( int j = 0; j < mesh->nodesNumber; j++ )
+			for( int j = 0; j < myMesh->nodesNumber; j++ )
 			{
-				CalcNode* node = &(mesh->nodes[j]);
+				CalcNode* node = &(myMesh->nodes[j]);
 				if( reqZones[i][rank].isInAABB( node ) )
 				{
 					numberOfNodes[rank][i]++;
 					sendNodesMap[i][ node->number ] = j;
 				}
 			}
-			for( int j = 0; j < mesh->tetrsNumber; j++ )
+			for( int j = 0; j < myMesh->tetrsNumber; j++ )
 			{
-				TetrSecondOrder* tetr = mesh->getTetr2ByLocalIndex(j);
+				TetrSecondOrder* tetr = myMesh->getTetr2ByLocalIndex(j);
 				if( sendNodesMap[i].find(tetr->verts[0]) != sendNodesMap[i].end() 
 					|| sendNodesMap[i].find(tetr->verts[1]) != sendNodesMap[i].end() 
 					|| sendNodesMap[i].find(tetr->verts[2]) != sendNodesMap[i].end() 
@@ -675,7 +704,7 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 								&& addNodesMap[i].find(tetr->verts[k]) == addNodesMap[i].end() )
 						{
 							numberOfNodes[rank][i]++;
-							addNodesMap[i][ tetr->verts[k] ] = mesh->getNodeLocalIndex(tetr->verts[k]);
+							addNodesMap[i][ tetr->verts[k] ] = myMesh->getNodeLocalIndex(tetr->verts[k]);
 						}
 					}
 					for( int k = 0; k < 6; k++ )
@@ -684,7 +713,7 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 								&& addNodesMap[i].find(tetr->addVerts[k]) == addNodesMap[i].end() )
 						{
 							numberOfNodes[rank][i]++;
-							addNodesMap[i][ tetr->addVerts[k] ] = mesh->getNodeLocalIndex(tetr->addVerts[k]);
+							addNodesMap[i][ tetr->addVerts[k] ] = myMesh->getNodeLocalIndex(tetr->addVerts[k]);
 						}
 					}
 				}
@@ -804,7 +833,7 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 			
 			reqs.push_back(
 				MPI::COMM_WORLD.Isend(
-					&(mesh->nodes[0]),
+					&(myMesh->nodes[0]),
 					1,
 					n[i],
 					i,
@@ -813,7 +842,7 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 			);
 			reqs.push_back(
 				MPI::COMM_WORLD.Isend(
-					&(mesh->tetrs2[0]),//mesh->getTetrByLocalIndex(0),
+					&(myMesh->tetrs2[0]),//mesh->getTetrByLocalIndex(0),
 					1,
 					t[i],
 					i,
@@ -823,6 +852,8 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 		}
 	}
 	
+	// FIXME - we suppose here that one process will send nodes for one mesh only (!)
+	TetrMeshSecondOrder* targetMesh = NULL;
 	MPI::Request::Waitall(reqs.size(), &reqs[0]);
 	BARRIER("gcm::DataBus::transferNodes#4");
 	LOG_DEBUG("Processing received data");
@@ -831,33 +862,37 @@ void gcm::DataBus::transferNodes(vector<AABB>* _reqZones)
 		if( i != rank && numberOfNodes[i][rank] > 0 )
 		{
 			LOG_DEBUG("Processing nodes");
-			LOG_DEBUG("Worker " << rank << " data from " << i << " size " << numberOfNodes[i][rank]);
-			if( mesh->getNodesNumber() == 0 )
-			{
-				mesh->createNodes( numberOfNodes[i][rank] );
-				LOG_DEBUG("Nodes storage created");
-			}
+			LOG_DEBUG("Worker " << rank << " data from " << i << ". " 
+						<< "Nodes size " << numberOfNodes[i][rank] << " "
+						<< "Tetrs size " << numberOfTetrs[i][rank]);
 			for( int j = 0; j < numberOfNodes[i][rank]; j++ )
 			{
 				int num = recNodes[i][j].number;
-				if( mesh->getNode(num) == NULL )
+				unsigned char bodyNum = recNodes[i][j].bodyId;
+				targetMesh = (TetrMeshSecondOrder*) engine->getBody(bodyNum)->getMeshes();
+				if( targetMesh->getNodesNumber() == 0 )
+				{
+					targetMesh->createNodes( numberOfNodes[i][rank] );
+					LOG_DEBUG("Nodes storage created for body " << (int)bodyNum << ". Size: " << numberOfNodes[i][rank]);
+				}
+				if( targetMesh->getNode(num) == NULL )
 				{
 					recNodes[i][j].setPlacement(Remote);
-					mesh->addNode(&recNodes[i][j]);
+					targetMesh->addNode(&recNodes[i][j]);
 				}
 			}
 			LOG_DEBUG("Processing tetrs");
-			if( mesh->getTetrsNumber() == 0 )
+			if( targetMesh->getTetrsNumber() == 0 )
 			{
-				mesh->createTetrs( numberOfTetrs[i][rank] );
-				LOG_DEBUG("Tetrs storage created");
+				targetMesh->createTetrs( numberOfTetrs[i][rank] );
+				LOG_DEBUG("Tetrs storage created. Size: " << numberOfTetrs[i][rank]);
 			}
 			for( int j = 0; j < numberOfTetrs[i][rank]; j++ )
 			{
 				int num = recTetrs[i][j].number;
-				if( mesh->getTetr(num) == NULL )
+				if( targetMesh->getTetr(num) == NULL )
 				{
-					mesh->addTetr2(&recTetrs[i][j]);
+					targetMesh->addTetr2(&recTetrs[i][j]);
 				}
 			}
 		}

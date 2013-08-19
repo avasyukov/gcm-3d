@@ -15,7 +15,7 @@
 using namespace gcm;
 
 #define MapIter map<int, int>::const_iterator
-#define STORAGE_OVERCOMMIT_RATIO 3.0
+#define STORAGE_OVERCOMMIT_RATIO 10.0
 
 namespace gcm {
 	class CalcNode;
@@ -125,6 +125,7 @@ namespace gcm {
 		int getTriangleNumber();
 		
 		AABB getOutline();
+		AABB getExpandedOutline();
 		/*
 		 * Returns node by its index.
 		 */
@@ -193,6 +194,8 @@ namespace gcm {
 		void interpolate(CalcNode* node, TetrFirstOrder* tetr);
 		
 		void transfer(float x, float y, float z);
+		void setBodyNum(unsigned char id);
+		int getNumberOfLocalNodes();
 	};
 }
 #endif

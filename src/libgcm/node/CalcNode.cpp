@@ -2,6 +2,7 @@
 
 gcm::CalcNode::CalcNode()
 {
+	bodyId = -1;
 	memset(values, 0, 9*sizeof(float));
 	rho = 0;
 	materialId = -1;
@@ -27,6 +28,7 @@ gcm::CalcNode::CalcNode(const CalcNode& src) {
 	number = src.number;
 	memcpy( coords, src.coords, 3*sizeof(float) );
 	memcpy( values, src.values, 9*sizeof(float) );
+	bodyId = src.bodyId;
 	rho = src.rho;
 	materialId = src.materialId;
 	contactNodeNum = src.contactNodeNum;
@@ -48,6 +50,7 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
 	number = src.number;
 	memcpy( coords, src.coords, 3*sizeof(float) );
 	memcpy( values, src.values, 9*sizeof(float) );
+	bodyId = src.bodyId;
 	rho = src.rho;
 	materialId = src.materialId;
 	contactNodeNum = src.contactNodeNum;

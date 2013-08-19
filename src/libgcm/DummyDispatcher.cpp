@@ -166,6 +166,27 @@ int gcm::DummyDispatcher::getOwner(float x, float y, float z, string bodyId)
 	return -1;
 }
 
+int gcm::DummyDispatcher::getOwner(float coords[3])
+{
+	return getOwner( coords[0], coords[1], coords[2] );
+}
+
+int gcm::DummyDispatcher::getOwner(float x, float y, float z)
+{
+	//LOG_DEBUG("w: " << engine->getNumberOfWorkers() << " bid:" << bodyId << " mbid: " << myBodyId);
+	//if( engine->getNumberOfWorkers() != 1 && bodyId != myBodyId )
+	//	return -1;
+	//LOG_DEBUG("dr: " << dX << " " << dY << " " << dZ);
+	for( int i = 0; i < outlinesNum; i++ )
+	{
+		//LOG_DEBUG("OUTL [" << i << "] " << outlines[i]);
+		//LOG_DEBUG("Point: "  << x + dX << " " << y + dY << " " << z + dZ);
+		if( outlines[i].isInAABB(x+dX,y+dY,z+dZ) )
+			return i;
+	}
+	return -1;
+}
+
 AABB* gcm::DummyDispatcher::getOutline(int index)
 {
 	assert( index >= 0 && index < outlinesNum );
@@ -176,4 +197,5 @@ void gcm::DummyDispatcher::printZones()
 {
 	for( int i = 0; i < outlinesNum; i++ )
 		LOG_DEBUG("Zone " << i << ": " << outlines[i]);
+	LOG_DEBUG("My space shift: [" << dX << "; " << dY << "; " << dZ << "]");
 }

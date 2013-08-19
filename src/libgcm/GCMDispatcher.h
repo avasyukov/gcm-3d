@@ -27,6 +27,8 @@ namespace gcm {
 		~GCMDispatcher();
 		virtual void setEngine(IEngine* e) = 0;
 		virtual void prepare(int numberOfWorkers, AABB* scene) = 0;
+		virtual int getOwner(float x, float y, float z) = 0;
+		virtual int getOwner(float coords[3]) = 0;
 		virtual int getOwner(float x, float y, float z, string bodyId) = 0;
 		virtual int getOwner(float coords[3], string bodyId) = 0;
 		virtual bool isMine(float coords[3], string bodyId) = 0;
@@ -47,11 +49,12 @@ namespace gcm {
 		}
 		inline void setTransferVector(float x, float y, float z, string bodyId)
 		{
+			LOG_DEBUG("setTransferVector called. Bodies: " << bodyId << " " << myBodyId << " Vector: " << x << " " << y << " " << z << "\n");
 			if( bodyId != myBodyId )
 				return;
-			dX = x;
-			dY = y;
-			dZ = z;
+			dX += x;
+			dY += y;
+			dZ += z;
 		}
 	};
 }

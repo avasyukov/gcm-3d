@@ -202,6 +202,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			
 			// attach mesh to body
 			body->attachMesh(mesh);
+			mesh->setBodyNum( engine.getBodyNum(id) );
 			LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  meshLoader->getType() << "' created");
 		}
 		

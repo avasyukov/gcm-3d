@@ -82,6 +82,7 @@ namespace gcm {
 		virtual void setRheology(unsigned char matId, Area* area) = 0;
 		virtual void checkTopology(float tau) = 0;
 		virtual	void transfer(float x, float y, float z) = 0;
+		virtual void setBodyNum(unsigned char id) = 0;
 
 		/*
 		 * Sets mesh id.

@@ -278,6 +278,15 @@ Body* gcm::Engine::getBodyById(string id)
 	return NULL;
 }
 
+int gcm::Engine::getBodyNum(string id)
+{
+	for (size_t i = 0; i < bodies.size(); i++)
+		if (bodies[i]->getId() == id)
+			return i;
+	LOG_WARN("Body with id '" << id << "' was not found");
+	return -1;
+}
+
 Body* gcm::Engine::getBody(unsigned int num)
 {
 	assert( num < bodies.size() );
@@ -368,7 +377,6 @@ void gcm::Engine::doNextStep()
 void gcm::Engine::doNextStepBeforeStages(const float time_step) {
 	virtNodes.clear();
 	colDet->set_treshold( calculateRecommendedContactTreshold() );
-	colDet->find_collisions(virtNodes);
 }
 
 void gcm::Engine::doNextStepStages(const float maxAllowedStep, float& actualTimeStep)
@@ -410,9 +418,10 @@ void gcm::Engine::doNextStepStages(const float maxAllowedStep, float& actualTime
 			mesh->checkTopology(tau);
 			LOG_DEBUG("Checking topology done");
 			LOG_DEBUG("Looking for missed nodes");
-			dataBus->syncMissedNodes(tau);
+			dataBus->syncMissedNodes(mesh, tau);
 			LOG_DEBUG("Looking for missed nodes done");
 		}
+		colDet->find_collisions(virtNodes);
 		for( unsigned int i = 0; i < bodies.size(); i++ )
 		{
 			LOG_DEBUG( "Doing calculations for mesh " << i );
@@ -498,7 +507,7 @@ void gcm::Engine::createSnapshot(int number)
 	for( int j = 0; j < getNumberOfBodies(); j++ )
 	{
 		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
-		if( mesh->getNodesNumber() != 0 )
+		if( mesh->getNumberOfLocalNodes() != 0 )
 		{
 			LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
 			vtkSnapshotWriter->dump(mesh, number);

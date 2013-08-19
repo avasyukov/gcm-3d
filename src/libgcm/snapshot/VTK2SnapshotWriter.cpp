@@ -237,11 +237,9 @@ bool gcm::VTK2SnapshotWriter::shouldSnapshot(CalcNode* node, TetrMeshSecondOrder
 		return false;
 	
 	// Case 2 - remote ones that have connections only with remote ones
-//	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
-//		int i = itr->first;
-//		node = getNode(i);
-		// If node is remote
-	if( node->isRemote() )
+	// Disable it, since VTK2 is used for 'dumps' only (not for 'snapshots') 
+	// and we need remote nodes in dumps for debug purposes
+	/*if( node->isRemote() )
 	{
 		int count = 0;
 		// Check tetrahedrons it is a member of
@@ -266,7 +264,7 @@ bool gcm::VTK2SnapshotWriter::shouldSnapshot(CalcNode* node, TetrMeshSecondOrder
 		// If remote node is NOT connected with at least one local - it is unused one
 		if(count == 0)
 			return false;
-	}
+	}*/
 	
 	return true;
 }

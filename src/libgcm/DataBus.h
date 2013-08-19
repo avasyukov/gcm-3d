@@ -10,6 +10,8 @@ using namespace gcm;
 
 namespace gcm
 {
+	class TetrMeshSecondOrder;
+	
 	class DataBus {
 	public:
 		DataBus();
@@ -20,11 +22,12 @@ namespace gcm
 		void syncTimeStep(float* tau);
 		void syncNodes(float tau);
 		void syncOutlines();
-		void syncMissedNodes(float tau);
-		void transferNodes(vector<AABB>* _reqZones);
+		void syncMissedNodes(Mesh* _mesh, float tau);
+		void transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZones);
 	private:
 		void createStaticTypes();
-		void createDynamicTypes();
+		void syncNodes(int bodyNum, float tau);
+		void createDynamicTypes(int bodyNum);
 		USE_LOGGER;
 		IEngine* engine;
 		MPI::Datatype **MPI_NODE_TYPES;
