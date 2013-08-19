@@ -65,7 +65,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 	// reading system properties
 	NodeList defaultContactCalculatorList = rootNode.xpath("/task/system/defaultContactCalculator");
 	if( defaultContactCalculatorList.size() > 1 )
-		THROW_INVALID_INPUT("Config file can contain only one <system/> element");
+		THROW_INVALID_INPUT("Config file can contain only one <defaultContactCalculator/> element");
 	if( defaultContactCalculatorList.size() == 1 )
 	{
 		xml::Node defaultContactCalculator = defaultContactCalculatorList.front();
@@ -81,6 +81,35 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			engine.replaceDefaultContactCondition( new ContactCondition( 
 							NULL, new StepPulseForm(-1, -1), 
 							engine.getContactCalculator("AdhesionContactCalculator") ) );
+		}
+	}
+	
+	NodeList contactThresholdList = rootNode.xpath("/task/system/contactThreshold");
+	if( contactThresholdList.size() > 1 )
+		THROW_INVALID_INPUT("Config file can contain only one <contactThreshold/> element");
+	if( contactThresholdList.size() == 1 )
+	{
+		xml::Node contactThreshold = contactThresholdList.front();
+		string measure = getAttributeByName(contactThreshold.getAttributes(), "measure");
+		float value = atof( getAttributeByName(contactThreshold.getAttributes(), "value").c_str() );
+		if( measure == "avgH" )
+		{
+			engine.setContactThresholdType(CONTACT_THRESHOLD_BY_AVG_H);
+			engine.setContactThresholdFactor(value);
+		}
+		else if( measure == "lambdaTau" )
+		{
+			engine.setContactThresholdType(CONTACT_THRESHOLD_BY_MAX_LT);
+			engine.setContactThresholdFactor(value);
+		}
+		else if( measure == "abs" )
+		{
+			engine.setContactThresholdType(CONTACT_THRESHOLD_FIXED);
+			engine.setContactThresholdFactor(value);
+		}
+		else
+		{
+			THROW_INVALID_INPUT("Unknown units of measure for <contactThreshold/>");
 		}
 	}
 	

@@ -1,4 +1,9 @@
 <task numberOfSnaps="1" stepsPerSnap="1">
+	<system>
+		<contactThreshold measure="avgH" value="1.0" />
+		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
+		<!--contactThreshold measure="abs" value="0.5" /-->
+	</system>
 	<bodies>
 		<body id="target">
 			<rheology type="elastic" />

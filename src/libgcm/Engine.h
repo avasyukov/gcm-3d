@@ -33,6 +33,10 @@
 #include "interpolator/TetrFirstOrderInterpolator.h"
 #include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
 
+#define CONTACT_THRESHOLD_BY_AVG_H 0
+#define CONTACT_THRESHOLD_BY_MAX_LT 1
+#define CONTACT_THRESHOLD_FIXED 2
+
 using namespace std;
 using namespace gcm;
 
@@ -106,6 +110,8 @@ namespace gcm
 		VTKSnapshotWriter* vtkSnapshotWriter;
 		VTK2SnapshotWriter* vtkDumpWriter;
 		
+		unsigned char contactThresholdType;
+		float contactThresholdFactor;
 		float fixedTimeStep;
 		float currentTime;
 		
@@ -147,6 +153,7 @@ namespace gcm
 		int getRank();
 		int getNumberOfWorkers();
 		int getNumberOfBodies();
+		int getNumberOfMaterials();
 		/*
 		 * Performs calculation of one time step. If step is omitted
 		 * then actual time step is determined automatically.
@@ -234,7 +241,7 @@ namespace gcm
 		void addBody(Body *body);
 		
 		float calculateRecommendedTimeStep();
-		float calculateRecommendedContactTreshold();
+		float calculateRecommendedContactTreshold(float tau);
 		void createSnapshot(int number);
 		void createDump(int number);
 		void doNextStep();
@@ -259,6 +266,10 @@ namespace gcm
 		CalcNode* getVirtNode(int i);
 
 		FileLookupService& getFileLookupService();
+		void setContactThresholdType(unsigned char type);
+		unsigned char getContactThresholdType();
+		void setContactThresholdFactor(float val);
+		float getContactThresholdFactor();
 	};
 }
 

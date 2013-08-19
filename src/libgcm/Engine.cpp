@@ -89,6 +89,8 @@ gcm::Engine::Engine()
 	fixedTimeStep = -1;
 	numberOfSnaps = 0;
 	stepsPerSnap = 1;
+	contactThresholdType = CONTACT_THRESHOLD_BY_AVG_H;
+	contactThresholdFactor = 1.0;
 }
 
 gcm::Engine::~Engine()
@@ -300,6 +302,11 @@ int gcm::Engine::getNumberOfBodies()
 	return bodies.size();
 }
 
+int gcm::Engine::getNumberOfMaterials()
+{
+	return materials.size();
+}
+
 MeshLoader* gcm::Engine::getMeshLoader(string type)
 {
 	return meshLoaders.find(type) != meshLoaders.end() ? meshLoaders[type] : NULL;
@@ -378,7 +385,6 @@ void gcm::Engine::doNextStep()
 
 void gcm::Engine::doNextStepBeforeStages(const float time_step) {
 	virtNodes.clear();
-	colDet->set_threshold( calculateRecommendedContactTreshold() );
 }
 
 void gcm::Engine::doNextStepStages(const float maxAllowedStep, float& actualTimeStep)
@@ -403,6 +409,8 @@ void gcm::Engine::doNextStepStages(const float maxAllowedStep, float& actualTime
 	if (tau > maxAllowedStep) tau = maxAllowedStep;
 	dataBus->syncTimeStep(&tau);
 	LOG_INFO("Time step synchronized, value is: " << tau);
+	
+	colDet->set_threshold( calculateRecommendedContactTreshold(tau) );
 	
 	for( int j = 0;  j < method->getNumberOfStages(); j++ )
 	{
@@ -491,17 +499,37 @@ float gcm::Engine::calculateRecommendedTimeStep()
 	return timeStep;
 }
 
-float gcm::Engine::calculateRecommendedContactTreshold()
+float gcm::Engine::calculateRecommendedContactTreshold(float tau)
 {
 	float threshold = numeric_limits<float>::infinity();
-	for( int j = 0; j < getNumberOfBodies(); j++ )
+	// Threshold depends on mesh avg h
+	if( contactThresholdType == CONTACT_THRESHOLD_BY_AVG_H )
 	{
-		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
-		float h = mesh->get_avg_h();
-		if( h < threshold )
-			threshold = h;
+		for( int j = 0; j < getNumberOfBodies(); j++ )
+		{
+			TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
+			float h = mesh->get_avg_h();
+			if( h < threshold )
+				threshold = h;
+		}
 	}
-	return threshold;
+	// Threshold depends on max lambda * tau
+	else if( contactThresholdType == CONTACT_THRESHOLD_BY_MAX_LT )
+	{
+		for( int j = 0; j < getNumberOfMaterials(); j++ )
+		{
+			Material* mat = getMaterial(j);
+			float lt = tau * sqrt( ( mat->getLambda() + 2 * mat->getMu() ) / mat->getRho() );
+			if( lt < threshold )
+				threshold = lt;
+		}
+	}
+	// Absolute threshold value
+	else if( contactThresholdType == CONTACT_THRESHOLD_FIXED )
+	{
+		threshold = 1.0;
+	}
+	return threshold * contactThresholdFactor;
 }
 
 void gcm::Engine::createSnapshot(int number)
@@ -556,4 +584,28 @@ void gcm::Engine::transferScene(float x, float y, float z) {
 
 FileLookupService& gcm::Engine::getFileLookupService() {
 	return fls;
+}
+
+void gcm::Engine::setContactThresholdType(unsigned char type)
+{
+	assert( type == CONTACT_THRESHOLD_BY_AVG_H 
+			|| type == CONTACT_THRESHOLD_BY_MAX_LT 
+			|| type == CONTACT_THRESHOLD_FIXED );
+	contactThresholdType = type;
+}
+
+unsigned char gcm::Engine::getContactThresholdType()
+{
+	return contactThresholdType;
+}
+
+void gcm::Engine::setContactThresholdFactor(float val)
+{
+	assert( val > 0 );
+	contactThresholdFactor = val;
+}
+
+float gcm::Engine::getContactThresholdFactor()
+{
+	return contactThresholdFactor;
 }
