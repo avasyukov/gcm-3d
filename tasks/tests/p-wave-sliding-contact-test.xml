@@ -1,4 +1,7 @@
 <task numberOfSnaps="75" stepsPerSnap="1">
+	<system>
+		<defaultContactCalculator type="SlidingContactCalculator" />
+	</system>
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />

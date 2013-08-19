@@ -1,6 +1,6 @@
 <task numberOfSnaps="75" stepsPerSnap="1">
 	<system>
-		<defaultContactCalculator type="SlidingContactCalculator" />
+		<defaultContactCalculator type="AdhesionContactCalculator" />
 	</system>
 	<bodies>
 		<body id="cube">

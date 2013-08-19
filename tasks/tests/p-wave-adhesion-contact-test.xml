@@ -1,6 +1,6 @@
 <task numberOfSnaps="75" stepsPerSnap="1">
 	<system>
-		<defaultContactCalculator type="SlidingContactCalculator" />
+		<defaultContactCalculator type="AdhesionContactCalculator" />
 	</system>
 	<bodies>
 		<body id="cube">
@@ -14,12 +14,12 @@
                         <material id="testMaterial" />
 			<transform type="translate" moveX="10.01" moveY="0" moveZ="0" />
                 </body>
-	</bodies>
+        </bodies>
 	<materials>
 		<material id="testMaterial" la="70000" mu="10000" rho="1" />
 	</materials>
 	<initialState>
 		<area type="box" minX="6" maxX="8" minY="-10" maxY="10" minZ="-10" maxZ="10"/>
-		<values vz="100" sxz="10000" />
+		<values vx="300" sxx="90000" syy="70000" szz="70000" />
 	</initialState>
 </task>
