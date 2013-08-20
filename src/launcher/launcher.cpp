@@ -46,7 +46,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 	// FIXME shoul we validate task file against xml schema?
 	FileLookupService& fls =  engine.getFileLookupService();
 	string fname = fls.lookupFile(fileName);
-	LOG_INFO("Loading scene from file " << fname);
+	LOG_DEBUG("Loading scene from file " << fname);
 	// parse file
 	Doc doc = Doc(fname);
 	xml::Node rootNode = doc.getRootElement();
@@ -163,7 +163,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			if (!meshLoader)
 				THROW_INVALID_INPUT("Mesh loader not found.");
 			
-			LOG_INFO("Preloading mesh");
+			LOG_INFO("Preparing mesh for body '" << id << "'");
 			
 			AABB localScene;
 			meshLoader->preLoadMesh(params, &localScene);
@@ -250,14 +250,15 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			Params params = Params(meshNode->getAttributes());
 			MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
 			
-			LOG_INFO("Loading mesh");
+			LOG_INFO("Loading mesh for body '" << id << "'");
 			// use loader to load mesh
 			Mesh* mesh = meshLoader->load(body, params);
 			
 			// attach mesh to body
 			body->attachMesh(mesh);
 			mesh->setBodyNum( engine.getBodyNum(id) );
-			LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  meshLoader->getType() << "' created");
+			LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  meshLoader->getType() << "' created. " 
+						<< "Number of nodes: " << mesh->getNodesNumber() << ".");
 		}
 		
 		// transform meshes
@@ -461,7 +462,7 @@ int main(int argc, char **argv, char **envp)
 			THROW_INVALID_ARG("No task file provided");
 		if( dataDir.empty() )
 			dataDir = CONFIG_SHARE_GCM;
-		LOG_INFO("Staring with taskFile '" << taskFile << "' and dataDir '" << dataDir << "'");
+		LOG_INFO("Starting with taskFile '" << taskFile << "' and dataDir '" << dataDir << "'");
 		
 		Engine& engine = Engine::getInstance();
 		engine.getFileLookupService().addPath(dataDir);

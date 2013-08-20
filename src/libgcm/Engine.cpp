@@ -86,6 +86,7 @@ gcm::Engine::Engine()
 	colDet = new BruteforceCollisionDetector();
 	LOG_INFO("GCM engine initialized");
 	currentTime = 0;
+	currentTimeStep = 0;
 	fixedTimeStep = -1;
 	numberOfSnaps = 0;
 	stepsPerSnap = 1;
@@ -378,77 +379,98 @@ CalcNode* gcm::Engine::getVirtNode(int i)
 void gcm::Engine::doNextStep()
 {
 	float step;
-	doNextStepBeforeStages(step);
-	doNextStepStages(numeric_limits<float>::infinity(), step);
+	doNextStepBeforeStages(numeric_limits<float>::infinity(), step);
+	doNextStepStages(step);
 	doNextStepAfterStages(step);
+	currentTimeStep++;
 }
 
-void gcm::Engine::doNextStepBeforeStages(const float time_step) {
+void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actualTimeStep)
+{
+	// Clear virtual nodes
 	virtNodes.clear();
+	
+	// Clear contact state
 	for( unsigned int i = 0; i < bodies.size(); i++ )
 	{
 			LOG_DEBUG("Clear contact state for body " << i );
 			Mesh* mesh = bodies[i]->getMeshes();
 			mesh->clearContactState();
 	}
-}
-
-void gcm::Engine::doNextStepStages(const float maxAllowedStep, float& actualTimeStep)
-{	
-	LOG_INFO("Starting next step, current time is " << currentTime);
 	
+	// Print debug info
+	LOG_INFO("Preparing next time step");
 	LOG_DEBUG("Space zones for parallel calculations:");
 	dispatcher->printZones();
-	
 	// FIXME - hardcoded name
 	NumericalMethod *method = getNumericalMethod("InterpolationFixedAxis");
 	LOG_DEBUG( "Number of stages: " << method->getNumberOfStages() );
 	
+	// Determine allowed time step
 	float tau = numeric_limits<float>::infinity();
-	
 	if( fixedTimeStep > 0 ) {
 		tau = fixedTimeStep;
 	} else {
 		tau = calculateRecommendedTimeStep();
 	}
 	LOG_DEBUG( "Local time step " << tau );
+	
+	// Sync time step across processes, get final value
 	if (tau > maxAllowedStep) tau = maxAllowedStep;
 	dataBus->syncTimeStep(&tau);
-	LOG_INFO("Time step synchronized, value is: " << tau);
+	actualTimeStep = tau;
+	LOG_INFO("Starting step "<< currentTimeStep << ". Current time: " << currentTime << ". " 
+				<< "Time step: " << tau << ".");
 	
+	// Set contact threshold
 	colDet->set_threshold( calculateRecommendedContactTreshold(tau) );
+
+	// Sync remote data
+	LOG_DEBUG("Syncing outlines");
+	dataBus->syncOutlines();
+	LOG_DEBUG("Syncing outlines done");
 	
+	LOG_DEBUG("Syncing remote nodes");
+	dataBus->syncNodes(tau);
+	LOG_DEBUG("Syncing remote nodes done");
+	
+	for( unsigned int i = 0; i < bodies.size(); i++ )
+	{
+		Mesh* mesh = bodies[i]->getMeshes();
+		LOG_DEBUG("Checking topology for mesh " << mesh->getId() );
+		mesh->checkTopology(tau);
+		LOG_DEBUG("Checking topology done");
+		
+		LOG_DEBUG("Looking for missed nodes");
+		dataBus->syncMissedNodes(mesh, tau);
+		LOG_DEBUG("Looking for missed nodes done");
+	}
+	
+	// Run collision detector
+	colDet->find_collisions(virtNodes);
+}
+
+void gcm::Engine::doNextStepStages(const float time_step)
+{
+	// FIXME - hardcoded name
+	NumericalMethod *method = getNumericalMethod("InterpolationFixedAxis");
 	for( int j = 0;  j < method->getNumberOfStages(); j++ )
 	{
-		LOG_INFO( "Doing stage " << j );
-		LOG_DEBUG("Syncing outlines");
-		dataBus->syncOutlines();
-		LOG_DEBUG("Syncing outlines done");
+		LOG_DEBUG("Doing stage " << j);
 		LOG_DEBUG("Syncing remote nodes");
-		dataBus->syncNodes(tau);
+		dataBus->syncNodes(time_step);
 		LOG_DEBUG("Syncing remote nodes done");
+		
 		for( unsigned int i = 0; i < bodies.size(); i++ )
 		{
-			LOG_DEBUG("Checking topology for mesh " << i );
 			Mesh* mesh = bodies[i]->getMeshes();
-			mesh->checkTopology(tau);
-			LOG_DEBUG("Checking topology done");
-			LOG_DEBUG("Looking for missed nodes");
-			dataBus->syncMissedNodes(mesh, tau);
-			LOG_DEBUG("Looking for missed nodes done");
-		}
-		colDet->find_collisions(virtNodes);
-		for( unsigned int i = 0; i < bodies.size(); i++ )
-		{
-			LOG_DEBUG( "Doing calculations for mesh " << i );
-			Mesh* mesh = bodies[i]->getMeshes();
-			mesh->do_next_part_step(tau, j);
+			LOG_DEBUG( "Doing calculations for mesh " << mesh->getId() );
+			mesh->do_next_part_step(time_step, j);
 			LOG_DEBUG( "Mesh calculation done" );
 		}
 		LOG_DEBUG( "Stage done" );
 	}
-	LOG_INFO("Step done");
-	actualTimeStep = tau;
+	LOG_DEBUG("Step done");
 }
 
 void gcm::Engine::doNextStepAfterStages(const float time_step) {

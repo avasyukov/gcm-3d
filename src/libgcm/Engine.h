@@ -114,6 +114,7 @@ namespace gcm
 		float contactThresholdFactor;
 		float fixedTimeStep;
 		float currentTime;
+		int currentTimeStep;
 		
 		int numberOfSnaps;
 		int stepsPerSnap;
@@ -245,8 +246,8 @@ namespace gcm
 		void createSnapshot(int number);
 		void createDump(int number);
 		void doNextStep();
-		void doNextStepBeforeStages (const float time_step);
-		void doNextStepStages( const float maxAllowedStep, float& actualTimeStep );
+		void doNextStepBeforeStages (const float maxAllowedStep, float& actualTimeStep);
+		void doNextStepStages(const float time_step);
 		void doNextStepAfterStages (const float time_step);
 		
 		void setTimeStep(float dt);

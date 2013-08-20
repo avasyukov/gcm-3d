@@ -7,7 +7,7 @@ string gcm::Body::getId() {
 gcm::Body::Body(string id) {
 	this->id = id;
 	INIT_LOGGER("gcm.Body");
-	LOG_INFO("Body created");
+	LOG_INFO("Body '" << id << "' created");
 }
 
 gcm::Body::~Body() {

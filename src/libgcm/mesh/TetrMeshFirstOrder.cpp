@@ -133,7 +133,7 @@ void gcm::TetrMeshFirstOrder::addTetr(TetrFirstOrder* tetr) {
 
 void gcm::TetrMeshFirstOrder::copyMesh(TetrMeshFirstOrder* src)
 {
-	LOG_INFO("Creating mesh using copy");
+	LOG_DEBUG("Creating mesh using copy");
 	int firstOrderNodesNumber = src->getNodesNumber();
 	
 	createNodes( firstOrderNodesNumber );
@@ -1399,70 +1399,17 @@ void gcm::TetrMeshFirstOrder::logMeshStats()
 		LOG_DEBUG("Mesh is empty");
 		return;
 	}
-	/*float h = 0;
 	
-	float min_h = tetr_h( tetrsMap.begin()->first );
-	float max_h = tetr_h( tetrsMap.begin()->first );
-	float avg_h = 0;
-	
-	float hyst[10];
-	hyst[0] = hyst[1] = hyst[2] = hyst[3] = hyst[4] = hyst[5] = hyst[6] = hyst[7] = hyst[8] = hyst[9] = 0;
-	
-	int num;*/
-	
-	LOG_INFO("Number of nodes: " << nodesNumber);
-	LOG_INFO("Number of tetrs: " << tetrsNumber);
+	LOG_DEBUG("Number of nodes: " << nodesNumber);
+	LOG_DEBUG("Number of tetrs: " << tetrsNumber);
 
-	/*for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr )
-	{
-		int i = itr->first;
-		TetrFirstOrder* tetr;
-		tetr = getTetr(i);
-		if ( (!nodes[tetr->verts[0]].isUsed ())
-			|| (!nodes[tetr->verts[1]].isUsed ())
-			|| (!nodes[tetr->verts[2]].isUsed ())
-			|| (!nodes[tetr->verts[3]].isUsed ()) )
-			continue;
-		
-		// Get current h
-		h = tetr_h(i);
-		assert( h > 0 );
-		if( h > max_h )
-			max_h = h;
-		if( h < min_h )
-			min_h = h;
-		avg_h += h;
-	}
-	avg_h /= tetrsNumber;
+	LOG_DEBUG("Mesh outline:" << outline);
+	LOG_DEBUG("Mesh expanded outline:" << expandedOutline);
 	
-	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr )
-	{
-		int i = itr->first;
-		TetrFirstOrder* tetr;
-		tetr = getTetr(i);
-		if ( (!nodes[tetr->verts[0]].isUsed ())
-			|| (!nodes[tetr->verts[1]].isUsed ())
-			|| (!nodes[tetr->verts[2]].isUsed ())
-			|| (!nodes[tetr->verts[3]].isUsed ()) )
-			continue;
-		
-		// Get current h
-		h = tetr_h(i);
-		h = h / max_h;
-		num = (int)(h/0.1);
-		hyst[num]++;
-	}*/
-
-	LOG_INFO("Mesh outline:" << outline);
-	LOG_INFO("Mesh expanded outline:" << expandedOutline);
-	
-	LOG_INFO("Mesh quality:");
-	LOG_INFO("Max H = " << get_max_h());
-	LOG_INFO("Min H = " << get_min_h());
-	LOG_INFO("Avg H = " << get_avg_h());
-	/*LOG_INFO("Histogramm:");
-	for(int i = 0; i < 10; i++)
-		LOG_INFO("\t" << max_h * i / 10 << " to " << max_h * (i+1) / 10 << ": " << hyst[i]);*/
+	LOG_DEBUG("Mesh quality:");
+	LOG_DEBUG("Max H = " << get_max_h());
+	LOG_DEBUG("Min H = " << get_min_h());
+	LOG_DEBUG("Avg H = " << get_avg_h());
 };
 
 void gcm::TetrMeshFirstOrder::checkTopology(float tau)

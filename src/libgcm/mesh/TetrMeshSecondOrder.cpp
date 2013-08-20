@@ -88,7 +88,7 @@ TriangleSecondOrder* gcm::TetrMeshSecondOrder::getTriangle2(int index) {
 
 void gcm::TetrMeshSecondOrder::copyMesh(TetrMeshFirstOrder* src)
 {
-	LOG_INFO("Creating mesh using copy");
+	LOG_DEBUG("Creating mesh using copy");
 	firstOrderNodesNumber = src->getNodesNumber();
 	secondOrderNodesNumber = countSecondOrderNodes(src);
 	
@@ -117,7 +117,7 @@ void gcm::TetrMeshSecondOrder::copyMesh(TetrMeshFirstOrder* src)
 
 void gcm::TetrMeshSecondOrder::copyMesh2(TetrMeshSecondOrder* src)
 {
-	LOG_INFO("Creating second order mesh using copy");
+	LOG_DEBUG("Creating second order mesh using copy");
 	
 	LOG_DEBUG("Nodes: " << src->getNodesNumber());
 	createNodes( src->getNodesNumber() );
