@@ -1,0 +1,56 @@
+<task numberOfSnaps="10" stepsPerSnap="20">
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="geo2" file="models/plate.geo" tetrSize="0.06" />
+			<material id="testMaterial1">
+				<area type="box" minX="-6" maxX="6" minY="-6" maxY="6" minZ="-6" maxZ="6"/>
+			</material>
+			<material id="testMaterial2">
+				<area type="box" minX="-4.6" maxX="-4.2" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+			</material>
+			<material id="testMaterial2">
+                                <area type="box" minX="-3.8" maxX="-3.4" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+                        </material>
+			<material id="testMaterial2">
+                                <area type="box" minX="-3.0" maxX="-2.6" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+                        </material>
+			<material id="testMaterial2">
+                                <area type="box" minX="-2.2" maxX="-1.8" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+                        </material>
+                        <material id="testMaterial2">
+                                <area type="box" minX="-1.4" maxX="-1.0" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+                        </material>
+			<material id="testMaterial2">
+                                <area type="box" minX="-0.6" maxX="-0.2" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+                        </material>
+                        <material id="testMaterial2">
+                                <area type="box" minX="0.2" maxX="0.6" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+                        </material>
+			<material id="testMaterial2">
+                                <area type="box" minX="1.0" maxX="1.4" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+                        </material>
+                        <material id="testMaterial2">
+                                <area type="box" minX="1.8" maxX="2.2" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+                        </material>
+ 			<material id="testMaterial2">
+                                <area type="box" minX="2.6" maxX="3.0" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+                        </material>
+                        <material id="testMaterial2">
+                                <area type="box" minX="3.4" maxX="3.8" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+                        </material>
+ 			<material id="testMaterial2">
+                                <area type="box" minX="4.2" maxX="4.6" minY="-6" maxY="6" minZ="-0.6" maxZ="-0.2"/>
+                        </material> 			
+		</body>
+	</bodies>
+	<materials>
+		<material id="testMaterial1" la="100" mu="50" rho="1.5" />
+                <material id="testMaterial2" la="500" mu="250" rho="7.94" />
+
+	</materials>
+	<initialState>
+		<area type="box" minX="-5.1" maxX="5.1" minY="-5.1" maxY="-4.9" minZ="-5.1" maxZ="6"/>
+		<values vy="1" />
+	</initialState>
+</task>
