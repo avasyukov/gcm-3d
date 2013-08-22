@@ -1,5 +1,5 @@
 <!-- demensionlessed by millimeter-gram-second /-->
-<task numberOfSnaps="10" stepsPerSnap="1">
+<task numberOfSnaps="10" stepsPerSnap="2020">
 	<system>
 		<contactThreshold measure="avgH" value="1.0" />
 		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
@@ -25,8 +25,8 @@
 	</materials>
 	<initialState>
 		<area type="box" minX="-20" maxX="20" minY="-20" maxY="20" minZ="-120" maxZ="-0.00001"/>
-		<values vz="0.0199" />
+		<values vz="19900" />
 		<!-- E(J)	45	85	135	205	235	/-->
-		<!-- v(mm/sec)	0.0145	0.0199	0.0251	0.0309	0.0331	/-->
+		<!-- v(mm/sec)	14500	19900	25100	30900	33100	/-->
 	</initialState>
 </task>
