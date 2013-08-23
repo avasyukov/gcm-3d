@@ -33,6 +33,28 @@ namespace gcm {
 	protected:
 		map<int, int> tetrsMap;
 		map<int, int> nodesMap;
+		
+		// Cache for characteristics hits
+		bool charactCacheAvailable();
+		bool checkCharactCache(CalcNode* node, float dx, float dy, float dz, int& tetrNum);
+		void updateCharactCache(CalcNode* node, float dx, float dy, float dz, int tetrNum);
+		int getCharactCacheIndex(CalcNode* node, float dx, float dy, float dz);
+		map<int, int> charactCache[12];
+		/*map<int, int> charactCacheXps;
+		map<int, int> charactCacheXpl;
+		map<int, int> charactCacheXms;
+		map<int, int> charactCacheXml;
+		map<int, int> charactCacheYps;
+		map<int, int> charactCacheYpl;
+		map<int, int> charactCacheYms;
+		map<int, int> charactCacheYml;
+		map<int, int> charactCacheZps;
+		map<int, int> charactCacheZpl;
+		map<int, int> charactCacheZms;
+		map<int, int> charactCacheZml;*/
+		unsigned long long cacheHits;
+		unsigned long long cacheMisses;
+		
 		/*
 		 * List of mesh tetrahedrons.
 		 */
@@ -100,6 +122,7 @@ namespace gcm {
 		/*TetrFirstOrder*/ int expandingScanForPoint (CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
 		/*TetrFirstOrder*/ int expandingScanForOwnerTetr(CalcNode* node, float dx, float dy, float dz, bool debug);
 		/*TetrFirstOrder*/ int fastScanForOwnerTetr(CalcNode* node, float dx, float dy, float dz, bool debug);
+		/*TetrFirstOrder*/ int find_owner_tetr(CalcNode* node, float dx, float dy, float dz, bool debug);
 		
 		gsl_matrix *T;
 		gsl_matrix *S;
@@ -181,7 +204,6 @@ namespace gcm {
 		void move_coords(float tau);
 		int proceed_rheology();
 		
-		/*TetrFirstOrder*/ int find_owner_tetr(CalcNode* node, float dx, float dy, float dz, bool debug);
 		/*TetrFirstOrder*/ int findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
 		void find_border_node_normal(int border_node_index, float* x, float* y, float* z, bool debug);
 		void printBorder();

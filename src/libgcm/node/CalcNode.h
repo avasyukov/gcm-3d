@@ -299,6 +299,26 @@ namespace gcm {
 			   return Engine::getInstance().getMaterial(materialId)->getMu();
 		   }
 		   
+		   float inline getC1()
+		   {
+			   return sqrt( (getLambda() + 2 * getMu()) / getRho() );
+		   }
+		   
+		   float inline getC2()
+		   {
+			   return sqrt( getMu() / getRho() );
+		   }
+		   
+		   float inline getC1sqr()
+		   {
+			   return (getLambda() + 2 * getMu()) / getRho();
+		   }
+		   
+		   float inline getC2sqr()
+		   {
+			   return getMu() / getRho();
+		   }
+		   
    		   /**
 			* This method is only to be used to dump mesh state into a file or any other output stream
 			* @return

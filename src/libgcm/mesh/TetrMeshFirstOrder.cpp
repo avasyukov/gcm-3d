@@ -13,9 +13,15 @@ gcm::TetrMeshFirstOrder::TetrMeshFirstOrder() {
 	numericalMethodOrder = 1;
 	INIT_LOGGER("gcm.TetrMeshFirstOrder");
 	LOG_DEBUG("Creating mesh");
+	cacheHits = 0;
+	cacheMisses = 0;
 }
 
 gcm::TetrMeshFirstOrder::~TetrMeshFirstOrder() {
+	if( cacheHits > 0 || cacheMisses > 0 )
+		LOG_DEBUG("CharactCache stats for mesh '" << getId() << "': "
+				<< cacheHits << " hits, " << cacheMisses << " misses. " 
+				<< "Efficiency: " << ((float)cacheHits / (float)(cacheHits + cacheMisses)) );
 	LOG_DEBUG("Destroying mesh '" << getId() << "'");
 	// TODO - does it really trigger destructors?
 	nodes.clear();
@@ -689,6 +695,17 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 		LOG_TRACE("Fast scan - debug ON (however, consider !inAABB condition)");
 	//assert( vectorSquareNorm(dx, dy, dz) <= mesh_min_h * mesh_min_h );
 	
+	int res;
+	if( charactCacheAvailable() )
+	{
+		if( checkCharactCache(node, dx, dy, dz, res) )
+		{
+			cacheHits++;
+			return res;
+		}
+		cacheMisses++;
+	}
+	
 	TetrFirstOrder* tetr;
 	float x = node->coords[0] + dx;
 	float y = node->coords[1] + dy;
@@ -712,11 +729,13 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 				debug) )
 		{
 			//return tetr;
+			updateCharactCache(node, dx, dy, dz, tetr->number);
 			return tetr->number;
 		}
 	}
 
 	//return NULL;
+	updateCharactCache(node, dx, dy, dz, -1);
 	return -1;
 }
 
@@ -724,6 +743,25 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 {
 	if( debug )
 		LOG_TRACE("Expanding scan - debug ON");
+
+	float x = node->coords[0] + dx;
+	float y = node->coords[1] + dy;
+	float z = node->coords[2] + dz;
+	
+	int res;
+	if( charactCacheAvailable() )
+	{
+		if( checkCharactCache(node, dx, dy, dz, res) )
+		{
+			cacheHits++;
+			// Tell that point found is inner and set coords
+			coords[0] = x;	coords[1] = y;	coords[2] = z;
+			*innerPoint = true;
+			return res;
+		}
+		cacheMisses++;
+	}
+	
 	// A square of distance between point in question and local node
 	// Will be used to check if it is worth to continue search or point in question is out of body
 	float R2 = vectorSquareNorm(dx, dy, dz);
@@ -735,10 +773,6 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 		//LOG_WARN("Expanding scan started for small distance: most probably, smth is wrong with normals");
 		//THROW_BAD_MESH("Expanding scan started for small distance: most probably, smth is wrong with normals");
 	}
-	
-	float x = node->coords[0] + dx;
-	float y = node->coords[1] + dy;
-	float z = node->coords[2] + dz;
 	
 	float dist = sqrt(R2);
 	float direction[3];
@@ -797,6 +831,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 					LOG_TRACE("Expanding scan done");
 				}
 				//return curTetr;
+				updateCharactCache(node, dx, dy, dz, curTetr->number);
 				return curTetr->number;
 			}
 			
@@ -841,6 +876,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 							LOG_TRACE("Expanding scan done");
 						}
 						//return curTetr;
+						updateCharactCache(node, dx, dy, dz, -1);
 						return curTetr->number;
 					}
 					else
@@ -891,6 +927,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 				LOG_TRACE("Expanding scan done");
 			}
 			//return NULL;
+			updateCharactCache(node, dx, dy, dz, -1);
 			return -1;
 		}
 
@@ -931,6 +968,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 		LOG_TRACE("Expanding scan done");
 	}
 	//return NULL;
+	updateCharactCache(node, dx, dy, dz, -1);
 	return -1;
 }
 
@@ -1691,4 +1729,86 @@ void gcm::TetrMeshFirstOrder::clearContactState()
 		if( node->isLocal() )
 			node->setContactType(Free);
 	}
+}
+
+bool gcm::TetrMeshFirstOrder::checkCharactCache(CalcNode* node, float dx, float dy, float dz, int& tetrNum)
+{
+	int cacheIndex = getCharactCacheIndex(node, dx, dy, dz);
+	map<int, int>::const_iterator itr;
+	itr = charactCache[cacheIndex].find(node->number);
+	if( itr == charactCache[cacheIndex].end() )
+		return false;
+	tetrNum = itr->second;
+	if( tetrNum == -1 )
+		return false;
+	TetrFirstOrder* curTetr = getTetr(tetrNum);
+	return pointInTetr(
+					node->coords[0] + dx, node->coords[1] + dy, node->coords[2] + dz, 
+					getNode( curTetr->verts[0] )->coords, 
+					getNode( curTetr->verts[1] )->coords, 
+					getNode( curTetr->verts[2] )->coords, 
+					getNode( curTetr->verts[3] )->coords, 
+				false);
+}
+
+void gcm::TetrMeshFirstOrder::updateCharactCache(CalcNode* node, float dx, float dy, float dz, int tetrNum)
+{
+	if( !charactCacheAvailable() )
+		return;
+	int cacheIndex = getCharactCacheIndex(node, dx, dy, dz);
+	charactCache[cacheIndex][node->number] = tetrNum;
+}
+
+int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode* node, float dx, float dy, float dz)
+{
+	float fdx = fabs(dx);
+	float fdy = fabs(dy);
+	float fdz = fabs(dz);
+	
+	short sign = -1;
+	short direction = -1;
+	if( fdx > fdy )
+		if( fdx > fdz )
+		{
+			direction = 1;
+			sign = (dx > 0 ? 2 : 1);
+		}
+		else
+		{
+			direction = 3;
+			sign = (dz > 0 ? 2 : 1);
+		}
+	else
+		if( fdy > fdz )
+		{
+			direction = 2;
+			sign = (dy > 0 ? 2 : 1);
+		}
+		else
+		{
+			direction = 3;
+			sign = (dz > 0 ? 2 : 1);
+		}
+	
+	float l2 = dx*dx + dy*dy + dz*dz;
+	float tau = gcm::Engine::getInstance().getTimeStep();
+	float c2sqr = node->getC2sqr();
+	
+	short scale = -1;
+	if( fabs(l2 - tau*tau*c2sqr) < l2 * EQUALITY_TOLERANCE )
+		scale = 1;
+	else
+		scale = 2;
+	
+	assert( direction > 0 && direction < 4 && (scale == 1 || scale == 2) && (sign == 1 || sign == 2) );
+	
+	return (direction - 1)*4 + (sign-1)*2 + (scale-1);
+}
+
+bool gcm::TetrMeshFirstOrder::charactCacheAvailable()
+{
+	return ( nodesNumber > 0 
+			&& gcm::Engine::getInstance().getTimeStep() > 0 
+			&& getNodeByLocalIndex(0)->getMaterialId() >= 0
+			&& getNodeByLocalIndex(0)->getMaterialId() < gcm::Engine::getInstance().getNumberOfMaterials() );
 }

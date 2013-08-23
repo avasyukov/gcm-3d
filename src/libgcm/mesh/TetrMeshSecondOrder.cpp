@@ -238,7 +238,7 @@ void gcm::TetrMeshSecondOrder::build_volume_reverse_lookups()
 		CalcNode* node = getNode(itr->first);
 		int num = node->elements->size();
 		if( num <= 0 )
-			LOG_WARN("Node is not a part of volumes. Node: " << *node);
+			LOG_DEBUG("Node is not a part of volumes. Node: " << *node);
 	}
 	/*for(int i = 0; i < nodesNumber; i++)
 	{
@@ -438,7 +438,7 @@ void gcm::TetrMeshSecondOrder::build_surface_reverse_lookups()
 		CalcNode* node = getNode(itr->first);
 		int num = node->border_elements->size();
 		if( node->isBorder() && num <= 0 )
-			LOG_WARN("Border node is not a part of faces. Node: " << *node);
+			LOG_DEBUG("Border node is not a part of faces. Node: " << *node);
 	}
 }
 
