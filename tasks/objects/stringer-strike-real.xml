@@ -1,5 +1,11 @@
-<!-- demensionlessed by millimeter-gram-second /-->
 <task numberOfSnaps="10" stepsPerSnap="2020">
+	<!-- 
+		L = 10^-3 m
+		P = 1 Pa
+		rho = 10^6 kg/m^3
+		v = 10^-3 m/s
+		t = 1 s
+	-->
 	<system>
 		<contactThreshold measure="avgH" value="1.0" />
 		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
@@ -11,13 +17,13 @@
 			<mesh id="target" type="geo2" file="models/stringer-sample.geo" tetrSize="1.5" />
 			<material id="subpacket" />
 		</body>
-                <body id="striker">
-                        <rheology type="elastic" />
-                        <mesh id="striker" type="geo2" file="models/striker-sample.geo" tetrSize="1.5" />
-                        <material id="steel" />
+		<body id="striker">
+			<rheology type="elastic" />
+			<mesh id="striker" type="geo2" file="models/striker-sample.geo" tetrSize="1.5" />
+			<material id="steel" />
 			<transform type="translate" moveX="0" moveY="0" moveZ="-13.0" />
-                </body>
-        </bodies>
+		</body>
+	</bodies>
 	<materials>
 		<material id="subpacket" 	la="5720000000"  mu="3220000000"  rho="0.00158" />
 		<material id="steel" 		la="99430000000" mu="78130000000" rho="0.0078" />
