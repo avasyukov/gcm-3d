@@ -96,7 +96,10 @@ namespace gcm {
 				};
 			};
 			
-			
+			float getCompression();
+			float getTension();
+			float getShear();
+			float getDeviator();
 
 			inline bool rheologyIsValid() {
 				return ( materialId >= 0 && rho > 0 );

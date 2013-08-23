@@ -58,26 +58,26 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 
 	vtkDoubleArray *vel = vtkDoubleArray::New();
 	vel->SetNumberOfComponents(3);
-	vel->SetName("velocity");
-	vtkIntArray	   *nodeNumber = vtkIntArray::New ();
-	vtkDoubleArray *contact = vtkDoubleArray::New();
-	vtkIntArray	   *nodePublicFlags = vtkIntArray::New ();
-	vtkIntArray	   *nodePrivateFlags = vtkIntArray::New ();
-	vtkIntArray	   *nodeErrorFlags = vtkIntArray::New ();
 	vtkDoubleArray *sxx = vtkDoubleArray::New();
 	vtkDoubleArray *sxy = vtkDoubleArray::New();
 	vtkDoubleArray *sxz = vtkDoubleArray::New();
 	vtkDoubleArray *syy = vtkDoubleArray::New();
 	vtkDoubleArray *syz = vtkDoubleArray::New();
 	vtkDoubleArray *szz = vtkDoubleArray::New();
+	vtkDoubleArray *compression = vtkDoubleArray::New();
+	vtkDoubleArray *tension = vtkDoubleArray::New();
+	vtkDoubleArray *shear = vtkDoubleArray::New();
+	vtkDoubleArray *deviator = vtkDoubleArray::New();
 	vtkIntArray    *matId = vtkIntArray::New();
-	vtkDoubleArray *rho = vtkDoubleArray::New();
+	vtkIntArray    *borderState = vtkIntArray::New();
+	vtkIntArray    *mpiState = vtkIntArray::New();
+	vtkIntArray	   *nodeErrorFlags = vtkIntArray::New ();
 
 	float v[3];
 	int snapNodeCount = 0;
 	
-	for(int i = 0; i < mesh->getNodesNumber(); i++) {
-	//for( MapIter itr = mesh->nodesMap.begin(); itr != mesh->nodesMap.end(); ++itr ) {
+	for(int i = 0; i < mesh->getNodesNumber(); i++)
+	{
 		node = mesh->getNodeByLocalIndex(i);
 		
 		if( node->isFirstOrder() )
@@ -93,28 +93,21 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 			syy->InsertNextValue( node->values[6] );
 			syz->InsertNextValue( node->values[7] );
 			szz->InsertNextValue( node->values[8] );
+			compression->InsertNextValue( node->getCompression() );
+			tension->InsertNextValue( node->getTension() );
+			shear->InsertNextValue( node->getShear() );
+			deviator->InsertNextValue( node->getDeviator() );
 			matId->InsertNextValue( node->getMaterialId() );
-			rho->InsertNextValue( node->getRho() );
-			nodeNumber->InsertNextValue( node->number );
-			contact->InsertNextValue( node->isInContact () ? 1 : 0 );
-			nodePublicFlags->InsertNextValue (node->getPublicFlags ());
-			nodePrivateFlags->InsertNextValue (node->getPrivateFlags ());
+			borderState->InsertNextValue( node->isBorder() ? ( node->isInContact() ? 2 : 1 ) : 0 );
+			mpiState->InsertNextValue( node->isRemote() ? 1 : 0 );
 			nodeErrorFlags->InsertNextValue (node->getErrorFlags());
 		}
 	}
 	g->SetPoints(pts);
 
-	vtkIntArray* tetr1stOrderNodes = vtkIntArray::New ();
-	tetr1stOrderNodes->SetNumberOfComponents (4);
-	vtkIntArray* tetrNumber = vtkIntArray::New ();
 	vtkTetra *tetra=vtkTetra::New();
-	for(int i = 0; i < mesh->getTetrsNumber(); i++) {
-		/*tetr = mesh->getTetr(i);
-		tetra->GetPointIds()->SetId(0,tetr->verts[0]);
-		tetra->GetPointIds()->SetId(1,tetr->verts[1]);
-		tetra->GetPointIds()->SetId(2,tetr->verts[2]);
-		tetra->GetPointIds()->SetId(3,tetr->verts[3]);*/
-		//tetr = &(mesh->tetrs1[i]);
+	for(int i = 0; i < mesh->getTetrsNumber(); i++)
+	{
 		tetr = mesh->getTetr2ByLocalIndex(i);
 		for( int z = 0; z < 4; z++)
 		{
@@ -122,35 +115,22 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 			tetra->GetPointIds()->SetId( z, snapIndex );
 		}
 		g->InsertNextCell(tetra->GetCellType(),tetra->GetPointIds());
-		
-		tetr1stOrderNodes->InsertNextTupleValue (tetr->verts);
-		tetrNumber->InsertNextValue (tetr->number);
-		
-		/*if( MPI::COMM_WORLD.Get_rank() == 1)
-		{
-			LOG_DEBUG("Tetr A: " << tetr->verts[0] 
-								<< " " << tetr->verts[1] 
-								<< " " << tetr->verts[2] 
-								<< " " << tetr->verts[3] );
-			LOG_DEBUG("Tetr B: " << mesh->nodesMap[tetr->verts[0]] 
-								<< " " << mesh->nodesMap[tetr->verts[1]] 
-								<< " " << mesh->nodesMap[tetr->verts[2]] 
-								<< " " << mesh->nodesMap[tetr->verts[3]] );
-		}*/
 	}
 
+	vel->SetName("velocity");
 	sxx->SetName("sxx");
 	sxy->SetName("sxy");
 	sxz->SetName("sxz");
 	syy->SetName("syy");
 	syz->SetName("syz");
 	szz->SetName("szz");
+	compression->SetName("compression");
+	tension->SetName("tension");
+	shear->SetName("shear");
+	deviator->SetName("deviator");
 	matId->SetName("materialID");
-	rho->SetName("rho");
-	contact->SetName("contact");
-	nodeNumber->SetName("nodeNumber");
-	nodePublicFlags->SetName ("publicFlags");
-	nodePrivateFlags->SetName ("privateFlags");
+	borderState->SetName("borderState");
+	mpiState->SetName("mpiState");
 	nodeErrorFlags->SetName ("errorFlags");
 	
 	g->GetPointData()->SetVectors(vel);
@@ -160,18 +140,14 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	g->GetPointData()->AddArray(syy);
 	g->GetPointData()->AddArray(syz);
 	g->GetPointData()->AddArray(szz);
+	g->GetPointData()->AddArray(compression);
+	g->GetPointData()->AddArray(tension);
+	g->GetPointData()->AddArray(shear);
+	g->GetPointData()->AddArray(deviator);
 	g->GetPointData()->AddArray(matId);
-	g->GetPointData()->AddArray(rho);
-	g->GetPointData()->AddArray(nodeNumber);
-	g->GetPointData()->AddArray(contact);
-	g->GetPointData ()->AddArray (nodePublicFlags);
-	g->GetPointData ()->AddArray (nodePrivateFlags);
+	g->GetPointData()->AddArray(borderState);
+	g->GetPointData()->AddArray(mpiState);
 	g->GetPointData ()->AddArray (nodeErrorFlags);
-	
-	tetr1stOrderNodes->SetName ("tetr1stOrderNodes");
-	g->GetCellData ()->AddArray (tetr1stOrderNodes);
-	tetrNumber->SetName ("tetrNumber");
-	g->GetCellData ()->AddArray (tetrNumber);
 	
 	vel->Delete();
 	sxx->Delete();
@@ -180,16 +156,14 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	syy->Delete();
 	syz->Delete();
 	szz->Delete();
+	compression->Delete();
+	tension->Delete();
+	shear->Delete();
+	deviator->Delete();
 	matId->Delete();
-	rho->Delete();
-	nodeNumber->Delete();
-	contact->Delete();
-	nodePublicFlags->Delete ();
-	nodePrivateFlags->Delete ();
+	borderState->Delete();
+	mpiState->Delete();
 	nodeErrorFlags->Delete ();
-	
-	tetr1stOrderNodes->Delete ();
-	tetrNumber->Delete ();
 	
 	xgw->SetInput(g);
 	xgw->SetFileName(filename.c_str());

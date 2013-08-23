@@ -80,3 +80,51 @@ void gcm::CalcNode::clearErrorFlags()
 {
 	errorFlags = 0;
 }
+
+float gcm::CalcNode::getCompression()
+{
+	float compression = 0;
+	// FIXME - we need main tensor components, not diagonal components
+	if( values[3] < compression )
+		compression = values[3];
+	if( values[6] < compression )
+		compression = values[6];
+	if( values[8] < compression )
+		compression = values[8];
+	return fabs(compression);
+}
+
+float gcm::CalcNode::getTension()
+{
+	float tension = 0;
+	// FIXME - we need main tensor components, not diagonal components
+	if( values[3] > tension )
+		tension = values[3];
+	if( values[6] > tension )
+		tension = values[6];
+	if( values[8] > tension )
+		tension = values[8];
+	return tension;
+}
+
+float gcm::CalcNode::getShear()
+{
+	float shear = 0;
+	// FIXME - we need main tensor components, not diagonal components
+	if( fabs(values[4]) > shear )
+		shear = fabs(values[4]);
+	if( fabs(values[5]) > shear )
+		shear = fabs(values[5]);
+	if( fabs(values[7]) > shear )
+		shear = fabs(values[7]);
+	return shear;
+}
+
+float gcm::CalcNode::getDeviator()
+{
+	return sqrt( ( (values[3] - values[6]) * (values[3] - values[6]) 
+					+ (values[6] - values[8]) * (values[6] - values[8])
+					+ (values[3] - values[8]) * (values[3] - values[8])
+					+ 6 * ( (values[4]) * (values[4]) + (values[5]) * (values[5])
+							+ (values[7]) * (values[7])) ) / 6 );
+}
