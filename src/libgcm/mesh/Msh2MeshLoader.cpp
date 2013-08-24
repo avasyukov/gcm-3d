@@ -72,11 +72,12 @@ void gcm::Msh2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 	mesh->preProcess();
 }
 
-void gcm::Msh2MeshLoader::preLoadMesh(Params params, AABB* scene) {
+int gcm::Msh2MeshLoader::preLoadMesh(Params params, AABB* scene) {
 	if (params.find(PARAM_FILE) == params.end()) {
 		THROW_INVALID_ARG("Msh file name was not provided");
 	}
 	MshTetrFileReader* reader = new MshTetrFileReader();
-	reader->preReadFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]), scene);
+	int dir = reader->preReadFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]), scene);
 	delete reader;
+	return dir;
 }

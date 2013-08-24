@@ -26,11 +26,12 @@ void gcm::VtuMeshLoader::loadMesh(Params params, TetrMeshFirstOrder* mesh, GCMDi
 	mesh->preProcess();
 }
 
-void gcm::VtuMeshLoader::preLoadMesh(Params params, AABB* scene) {
+int gcm::VtuMeshLoader::preLoadMesh(Params params, AABB* scene) {
 	if (params.find(PARAM_FILE) == params.end()) {
 		THROW_INVALID_ARG("Vtu file name was not provided");
 	}
 	VtuTetrFileReader* reader = new VtuTetrFileReader();
-	reader->preReadFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]), scene);
+	int dir = reader->preReadFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]), scene);
 	delete reader;
+	return dir;
 }

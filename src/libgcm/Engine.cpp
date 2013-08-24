@@ -399,7 +399,7 @@ void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actu
 	}
 	
 	// Print debug info
-	LOG_INFO("Preparing next time step");
+	LOG_DEBUG("Preparing next time step");
 	LOG_DEBUG("Space zones for parallel calculations:");
 	dispatcher->printZones();
 	// FIXME - hardcoded name

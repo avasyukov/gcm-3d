@@ -30,7 +30,7 @@ namespace gcm {
 		VtuTetrFileReader();
 		~VtuTetrFileReader();
 		void readFile( string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank);
-		void preReadFile( string file, AABB* scene);
+		int preReadFile( string file, AABB* scene);
 	};
 }
 

@@ -14,7 +14,7 @@ gcm::MshTetrFileReader::~MshTetrFileReader()
 	
 }
 
-void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene)
+int gcm::MshTetrFileReader::preReadFile(string file, AABB* scene)
 {
 	scene->minX = numeric_limits<float>::infinity();
 	scene->minY = numeric_limits<float>::infinity();
@@ -84,9 +84,89 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene)
 
 	LOG_DEBUG("Nodes Ok");
 	
-	LOG_DEBUG("File successfylly pre-read.");
-
 	infile.close();
+	
+	// FIXME - rewrite it
+	LOG_DEBUG("Determine slicing direction");
+	infile.open(file.c_str(), ifstream::in);
+
+	infile >> str;
+	infile >> tmp_float >> tmp_int >> tmp_int;
+	infile >> str;
+	infile >> str;
+	infile >> number_of_nodes;
+
+	int numberOfSlices = 10;
+	int distrX[10];
+	int distrY[10];
+	int distrZ[10];
+	for( int i = 0; i < 10; i++ )
+		distrX[i] = distrY[i] = distrZ[i] = 0;
+
+	float x,y,z;
+	float sliceX = (scene->maxX - scene->minX ) / numberOfSlices;
+	float sliceY = (scene->maxY - scene->minY ) / numberOfSlices;
+	float sliceZ = (scene->maxZ - scene->minZ ) / numberOfSlices;
+	
+	for(int i = 0; i < number_of_nodes; i++)
+	{
+		infile >> tmp_int;
+		infile >> x;
+		infile >> y;
+		infile >> z;
+		int xZoneNum = (int)( (x - scene->minX) / sliceX );
+		int yZoneNum = (int)( (y - scene->minY) / sliceY );
+		int zZoneNum = (int)( (z - scene->minZ) / sliceZ );
+		distrX[xZoneNum]++;
+		distrY[yZoneNum]++;
+		distrZ[zZoneNum]++;
+	}
+	
+	int minDistrX = distrX[0];
+	int maxDistrX = distrX[0];
+	int minDistrY = distrY[0];
+	int maxDistrY = distrY[0];
+	int minDistrZ = distrZ[0];
+	int maxDistrZ = distrZ[0];
+	for( int i = 0; i < 10; i++ )
+	{
+		if( distrX[i] > maxDistrX )
+			maxDistrX = distrX[i];
+		if( distrX[i] < minDistrX )
+			minDistrX = distrX[i];
+		
+		if( distrY[i] > maxDistrY )
+			maxDistrY = distrY[i];
+		if( distrY[i] < minDistrY )
+			minDistrY = distrY[i];
+		
+		if( distrZ[i] > maxDistrZ )
+			maxDistrZ = distrZ[i];
+		if( distrZ[i] < minDistrZ )
+			minDistrZ = distrZ[i];
+	}
+	float qualityX = (float)minDistrX / (float)maxDistrX;
+	float qualityY = (float)minDistrY / (float)maxDistrY;
+	float qualityZ = (float)minDistrZ / (float)maxDistrZ;
+	
+	LOG_DEBUG("File successfylly pre-read.");
+	
+	int dir = 0;
+	if( qualityX > qualityY )
+		if( qualityX > qualityZ )
+			dir = 0;
+		else
+			dir = 2;
+	else
+		if( qualityY > qualityZ )
+			dir = 1;
+		else
+			dir = 2;
+	
+	LOG_DEBUG("qualityX: " << qualityX << " qualityY: " << qualityY << " qualityZ: " << qualityZ);
+	LOG_DEBUG("slice direction: " << dir);
+	
+	return dir;
 }
 
 void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher)

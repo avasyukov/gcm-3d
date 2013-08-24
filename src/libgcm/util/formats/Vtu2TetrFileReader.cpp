@@ -13,7 +13,7 @@ gcm::Vtu2TetrFileReader::~Vtu2TetrFileReader()
 	
 }
 
-void gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene)
+int gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene)
 {
 	scene->minX = numeric_limits<float>::infinity();
 	scene->minY = numeric_limits<float>::infinity();
@@ -55,6 +55,8 @@ void gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene)
 	//xgr->Delete();
 	//g->Delete();
 	LOG_DEBUG("File successfylly pre-read.");
+	// z-axis
+	return 2;
 }
 
 void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank)

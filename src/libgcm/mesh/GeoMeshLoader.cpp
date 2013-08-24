@@ -83,13 +83,14 @@ void gcm::GeoMeshLoader::loadMesh(Params params, TetrMeshFirstOrder* mesh, GCMDi
 	mesh->preProcess();
 }
 
-void gcm::GeoMeshLoader::preLoadMesh(Params params, AABB* scene) {
+int gcm::GeoMeshLoader::preLoadMesh(Params params, AABB* scene) {
 	if (params.find(PARAM_FILE) == params.end()) {
 		THROW_INVALID_ARG("Msh file name was not provided");
 	}
 	if( ! isMshFileCreated(params) )
 		createMshFile(params);
 	MshTetrFileReader* reader = new MshTetrFileReader();
-	reader->preReadFile(getMshFileName(params[PARAM_FILE]), scene);
+	int dir = reader->preReadFile(getMshFileName(params[PARAM_FILE]), scene);
 	delete reader;
+	return dir;
 }

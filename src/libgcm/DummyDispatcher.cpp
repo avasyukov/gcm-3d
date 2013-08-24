@@ -79,18 +79,26 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
 	}
 	myBodyId = engine->getBody(bodyNum)->getId();
 	LOG_DEBUG("Scheduled to work with body: " << myBodyId);
-	
-	AABB myScene = getBodyOutline(engine->getBody(bodyNum)->getId());
-	float h = ( myScene.maxZ - myScene.minZ ) / workersPerBody[bodyNum];
-	LOG_DEBUG("Slice: " << h);
+
+	int slicingDirection = getBodySlicingDirection(myBodyId);
+	AABB myScene = getBodyOutline(myBodyId);
+	float h = ( myScene.max_coords[slicingDirection] - myScene.min_coords[slicingDirection] ) / workersPerBody[bodyNum];
+	LOG_DEBUG("Slicing direction: " << slicingDirection << " Slice: " << h);
 	
 	int i = rank - workersPassed;
-	outlines[rank].minX = myScene.minX;
-	outlines[rank].minY = myScene.minY;
-	outlines[rank].minZ = myScene.minZ + i * h;
-	outlines[rank].maxX = myScene.maxX;
-	outlines[rank].maxY = myScene.maxY;
-	outlines[rank].maxZ = myScene.minZ + (i+1) * h;
+	for( int j = 0; j < 3; j++ )
+	{
+		if( j != slicingDirection )
+		{
+			outlines[rank].min_coords[j] = myScene.min_coords[j];
+			outlines[rank].max_coords[j] = myScene.max_coords[j];
+		}
+		else
+		{
+			outlines[rank].min_coords[j] = myScene.min_coords[j] + i * h;
+			outlines[rank].max_coords[j] = myScene.min_coords[j] + (i+1) * h;;
+		}
+	}
 	LOG_DEBUG("Preparation done");
 	
 	delete[] volumes;
