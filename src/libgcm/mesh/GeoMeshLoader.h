@@ -30,7 +30,7 @@ namespace gcm {
 		 * Loads mesh from using passed configuration
 		 */
 		 void loadMesh(Params params, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher);
-		 int preLoadMesh(Params params, AABB* scene);
+		 void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes);
 		 void createMshFile(Params params);
 		 USE_LOGGER;
 		 bool isMshFileCreated(Params params);

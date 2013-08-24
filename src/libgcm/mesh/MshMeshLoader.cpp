@@ -26,12 +26,11 @@ void gcm::MshMeshLoader::loadMesh(Params params, TetrMeshFirstOrder* mesh, GCMDi
 	mesh->preProcess();
 }
 
-int gcm::MshMeshLoader::preLoadMesh(Params params, AABB* scene) {
+void gcm::MshMeshLoader::preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes) {
 	if (params.find(PARAM_FILE) == params.end()) {
 		THROW_INVALID_ARG("Msh file name was not provided");
 	}
 	MshTetrFileReader* reader = new MshTetrFileReader();
-	int dir = reader->preReadFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]), scene);
+	reader->preReadFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]), scene, sliceDirection, numberOfNodes);
 	delete reader;
-	return dir;
 }

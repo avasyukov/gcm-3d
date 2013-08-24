@@ -167,7 +167,8 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			
 			AABB localScene;
 			int slicingDirection;
-			slicingDirection = meshLoader->preLoadMesh(params, &localScene);
+			int numberOfNodes;
+			meshLoader->preLoadMesh(params, &localScene, slicingDirection, numberOfNodes);
 			
 			// transform meshes
 			NodeList transformNodes = bodyNode->getChildrenByName("transform");
@@ -183,10 +184,11 @@ void loadSceneFromFile(Engine& engine, string fileName)
 					localScene.transfer(x, y, z);
 				}
 			}
-			LOG_DEBUG("Mesh preloaded. Mesh size: " << localScene );
+			LOG_DEBUG("Mesh preloaded. Mesh size: " << localScene << " Number of nodes: " << numberOfNodes);
 			
 			engine.getDispatcher()->addBodyOutline(id, localScene);
 			engine.getDispatcher()->addBodySlicingDirection(id, slicingDirection);
+			engine.getDispatcher()->addBodyNodesNumber(id, numberOfNodes);
 			
 			if( isinf(globalScene.maxX) )
 			{

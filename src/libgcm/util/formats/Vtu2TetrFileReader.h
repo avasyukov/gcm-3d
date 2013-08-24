@@ -32,7 +32,7 @@ namespace gcm {
 		~Vtu2TetrFileReader();
 		void readFile( string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank);
 		void readFile( string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher);
-		int preReadFile( string file, AABB* scene);
+		void preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes);
 	};
 }
 

@@ -23,6 +23,7 @@ namespace gcm {
 		string myBodyId;
 		map<string,AABB> bodiesOutlines;
 		map<string,int> bodiesSlicingDirections;
+		map<string,int> bodiesNodesNumbers;
 	public:
 		GCMDispatcher();
 		~GCMDispatcher();
@@ -55,6 +56,14 @@ namespace gcm {
 		inline int getBodySlicingDirection(string id)
 		{
 			return bodiesSlicingDirections[id];
+		}
+		inline void addBodyNodesNumber(string id, int num)
+		{
+			bodiesNodesNumbers[id] = num;
+		}
+		inline int getBodyNodesNumber(string id)
+		{
+			return bodiesNodesNumbers[id];
 		}
 		inline void setTransferVector(float x, float y, float z, string bodyId)
 		{

@@ -13,7 +13,7 @@ gcm::Vtu2TetrFileReader::~Vtu2TetrFileReader()
 	
 }
 
-int gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene)
+void gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes)
 {
 	scene->minX = numeric_limits<float>::infinity();
 	scene->minY = numeric_limits<float>::infinity();
@@ -56,7 +56,8 @@ int gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene)
 	//g->Delete();
 	LOG_DEBUG("File successfylly pre-read.");
 	// z-axis
-	return 2;
+	sliceDirection = 2;
+	numberOfNodes = g->GetNumberOfPoints();
 }
 
 void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank)

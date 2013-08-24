@@ -14,7 +14,7 @@ gcm::MshTetrFileReader::~MshTetrFileReader()
 	
 }
 
-int gcm::MshTetrFileReader::preReadFile(string file, AABB* scene)
+void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes)
 {
 	scene->minX = numeric_limits<float>::infinity();
 	scene->minY = numeric_limits<float>::infinity();
@@ -166,7 +166,8 @@ int gcm::MshTetrFileReader::preReadFile(string file, AABB* scene)
 	LOG_DEBUG("qualityX: " << qualityX << " qualityY: " << qualityY << " qualityZ: " << qualityZ);
 	LOG_DEBUG("slice direction: " << dir);
 	
-	return dir;
+	sliceDirection = dir;
+	numberOfNodes = number_of_nodes;
 }
 
 void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher)

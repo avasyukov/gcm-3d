@@ -43,6 +43,7 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
 	int numberOfBodies = engine->getNumberOfBodies();
 	LOG_DEBUG("Start preparation for " << numberOfBodies << " bodies");
 	workersPerBody = new int[numberOfBodies];
+	/*
 	float totalVolume = 0;
 	float* volumes = new float[numberOfBodies];
 	for( int i = 0; i < numberOfBodies; i++ )
@@ -58,6 +59,24 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
 	for( int i = 0; i < numberOfBodies; i++ )
 	{
 		workersPerBody[i] = (int)(volumes[i]/volumePerProcess);
+		if( workersPerBody[i] == 0 )
+			workersPerBody[i] = 1;
+	}
+	delete[] volumes;
+	*/
+	float totalNodes = 0;
+	for( int i = 0; i < numberOfBodies; i++ )
+	{
+		totalNodes += getBodyNodesNumber(engine->getBody(i)->getId());
+		LOG_DEBUG("NumberOfNodes[" << i <<"]: " << getBodyNodesNumber(engine->getBody(i)->getId()));
+	}
+	LOG_DEBUG("Total nodes: " << totalNodes);
+	float nodesPerProcess = totalNodes / numberOfWorkers;
+	LOG_DEBUG("Nodes per process: " << nodesPerProcess);
+	
+	for( int i = 0; i < numberOfBodies; i++ )
+	{
+		workersPerBody[i] = (int)( getBodyNodesNumber(engine->getBody(i)->getId()) / nodesPerProcess );
 		if( workersPerBody[i] == 0 )
 			workersPerBody[i] = 1;
 	}
@@ -101,7 +120,6 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
 	}
 	LOG_DEBUG("Preparation done");
 	
-	delete[] volumes;
 	delete[] workersPerBody;
 }
 

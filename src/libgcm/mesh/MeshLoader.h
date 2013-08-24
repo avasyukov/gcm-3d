@@ -38,7 +38,7 @@ namespace gcm {
 		 * Loads mesh using passed configuration.
 		 */
 		virtual Mesh* load(Body* body, Params params) = 0;
-		virtual int preLoadMesh(Params params, AABB* scene) = 0;
+		virtual void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes) = 0;
 		
 		/*
 		 * Constants
