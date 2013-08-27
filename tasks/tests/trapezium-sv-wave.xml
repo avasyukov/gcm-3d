@@ -1,0 +1,16 @@
+<task numberOfSnaps="125" stepsPerSnap="1">
+	<bodies>
+		<body id="trapezium">
+			<rheology type="elastic" />
+			<mesh id="main" type="geo2" file="models/trapezium-15deg.geo" tetrSize="0.25" />
+			<material id="testMaterial" />
+		</body>
+	</bodies>
+	<materials>
+		<material id="testMaterial" la="70000" mu="10000" rho="1" />
+	</materials>
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-2.32" maxZ="-1.32"/>
+		<values vx="100" sxz="10000" />
+	</initialState>
+</task>
