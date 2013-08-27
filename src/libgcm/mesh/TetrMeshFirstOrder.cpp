@@ -1731,6 +1731,17 @@ void gcm::TetrMeshFirstOrder::clearContactState()
 	}
 }
 
+void gcm::TetrMeshFirstOrder::applyRheology(RheologyCalculator* rc)
+{
+	CalcNode* node;
+	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+		int i = itr->first;
+		node = getNode(i);
+		if( node->isLocal() )
+			rc->doCalc(node, node);
+	}
+}
+
 bool gcm::TetrMeshFirstOrder::checkCharactCache(CalcNode* node, float dx, float dy, float dz, int& tetrNum)
 {
 	int cacheIndex = getCharactCacheIndex(node, dx, dy, dz);

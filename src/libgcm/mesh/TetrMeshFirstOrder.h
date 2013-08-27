@@ -217,6 +217,8 @@ namespace gcm {
 		void setBodyNum(unsigned char id);
 		int getNumberOfLocalNodes();
 		void clearContactState();
+		
+		void applyRheology(RheologyCalculator* rc);
 	};
 }
 #endif

@@ -15,12 +15,8 @@ namespace gcm {
 		/*
 		 * Returns snapshot writer type
 		 */
-		inline string getType() {
-			return "DummyRheology";
-		}
-		inline void doCalc(CalcNode* src, CalcNode* dst) {
-			// do nothing
-		}
+		virtual string getType() = 0;
+		virtual void doCalc(CalcNode* src, CalcNode* dst) = 0;
 	};
 }
 
