@@ -100,6 +100,7 @@ namespace gcm {
 			float getTension();
 			float getShear();
 			float getDeviator();
+			float getPressure();
 
 			inline bool rheologyIsValid() {
 				return ( materialId >= 0 && rho > 0 );
@@ -287,6 +288,12 @@ namespace gcm {
 		   float inline getRho () const
 		   {
 			   return rho;
+		   }
+		   
+		   float inline getRho0 () const
+		   {
+			   return Engine::getInstance().getMaterial(materialId)->getRho();
+
 		   }
 		   
 		   float inline getLambda()
