@@ -69,6 +69,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	vtkDoubleArray *shear = vtkDoubleArray::New();
 	vtkDoubleArray *deviator = vtkDoubleArray::New();
 	vtkIntArray    *matId = vtkIntArray::New();
+	vtkDoubleArray *rho = vtkDoubleArray::New();
 	vtkIntArray    *borderState = vtkIntArray::New();
 	vtkIntArray    *mpiState = vtkIntArray::New();
 	vtkIntArray	   *nodeErrorFlags = vtkIntArray::New ();
@@ -98,6 +99,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 			shear->InsertNextValue( node->getShear() );
 			deviator->InsertNextValue( node->getDeviator() );
 			matId->InsertNextValue( node->getMaterialId() );
+			rho->InsertNextValue( node->getRho() );
 			borderState->InsertNextValue( node->isBorder() ? ( node->isInContact() ? 2 : 1 ) : 0 );
 			mpiState->InsertNextValue( node->isRemote() ? 1 : 0 );
 			nodeErrorFlags->InsertNextValue (node->getErrorFlags());
@@ -129,6 +131,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	shear->SetName("shear");
 	deviator->SetName("deviator");
 	matId->SetName("materialID");
+	rho->SetName("rho");
 	borderState->SetName("borderState");
 	mpiState->SetName("mpiState");
 	nodeErrorFlags->SetName ("errorFlags");
@@ -145,6 +148,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	g->GetPointData()->AddArray(shear);
 	g->GetPointData()->AddArray(deviator);
 	g->GetPointData()->AddArray(matId);
+	g->GetPointData()->AddArray(rho);
 	g->GetPointData()->AddArray(borderState);
 	g->GetPointData()->AddArray(mpiState);
 	g->GetPointData ()->AddArray (nodeErrorFlags);
@@ -161,6 +165,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	shear->Delete();
 	deviator->Delete();
 	matId->Delete();
+	rho->Delete();
 	borderState->Delete();
 	mpiState->Delete();
 	nodeErrorFlags->Delete ();
