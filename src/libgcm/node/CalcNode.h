@@ -293,7 +293,6 @@ namespace gcm {
 		   float inline getRho0 () const
 		   {
 			   return Engine::getInstance().getMaterial(materialId)->getRho();
-
 		   }
 		   
 		   float inline getLambda()

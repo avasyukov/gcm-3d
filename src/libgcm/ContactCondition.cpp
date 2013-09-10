@@ -1,4 +1,5 @@
 #include "ContactCondition.h"
+#include "node/CalcNode.h"
 
 gcm::ContactCondition::ContactCondition() {
 	area = NULL;
@@ -16,7 +17,7 @@ gcm::ContactCondition::~ContactCondition() {
 	
 }
 
-void gcm::ContactCondition::do_calc(float time, float* cur_coords, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[])
+void gcm::ContactCondition::do_calc(float time, CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[])
 {
-	calc->do_calc(new_node, matrix, values, inner, virt_matrix, virt_values, virt_inner, outer_normal, form->calcMagnitudeNorm(time, cur_coords, area) );
+	calc->do_calc(cur_node, new_node, matrix, values, inner, virt_matrix, virt_values, virt_inner, outer_normal, form->calcMagnitudeNorm(time, cur_node->coords, area) );
 };

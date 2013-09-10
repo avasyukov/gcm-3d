@@ -109,8 +109,9 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 			if( ! cur_node->isInContact() || cur_node->contactDirection != stage )
 			{
 				// FIXME
-				LOG_TRACE("Using calculator: " << engine->getBorderCondition(1)->calc->getType());
-				engine->getBorderCondition(1)->do_calc(mesh->get_current_time(), cur_node->coords, 
+				int borderCondId = cur_node->getBorderConditionId();
+				LOG_TRACE("Using calculator: " << engine->getBorderCondition(borderCondId)->calc->getType());
+				engine->getBorderCondition(borderCondId)->do_calc(mesh->get_current_time(), cur_node->coords, 
 					new_node, &elastic_matrix3d, previous_values, inner, outer_normal);
 			}
 			// Contact
@@ -244,7 +245,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 //				}
 
 				LOG_TRACE("Using calculator: " << engine->getContactCondition(0)->calc->getType());
-				engine->getContactCondition(0)->do_calc(mesh->get_current_time(), cur_node->coords, 
+				engine->getContactCondition(0)->do_calc(mesh->get_current_time(), cur_node, 
 						new_node, &elastic_matrix3d, previous_values, inner, 
 						&virt_elastic_matrix3d, virt_previous_values, virt_inner, outer_normal);
 			}

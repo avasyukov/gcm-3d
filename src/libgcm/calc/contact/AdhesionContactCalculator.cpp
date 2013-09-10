@@ -17,7 +17,7 @@ AdhesionContactCalculator::~AdhesionContactCalculator()
 	gsl_permutation_free(p_gsl);
 };
 
-void AdhesionContactCalculator::do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[], float scale)
+void AdhesionContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[], float scale)
 {
 	// Here we will store (omega = Matrix_OMEGA * u)
 	float omega[9];
