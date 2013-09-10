@@ -246,7 +246,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 
 				LOG_TRACE("Using calculator: " << engine->getContactCondition(0)->calc->getType());
 				engine->getContactCondition(0)->do_calc(mesh->get_current_time(), cur_node, 
-						new_node, &elastic_matrix3d, previous_values, inner, 
+						new_node, virt_node, &elastic_matrix3d, previous_values, inner, 
 						&virt_elastic_matrix3d, virt_previous_values, virt_inner, outer_normal);
 			}
 		// It means smth went wrong. Just interpolate the values and report bad node.
