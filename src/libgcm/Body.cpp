@@ -6,6 +6,7 @@ string gcm::Body::getId() {
 
 gcm::Body::Body(string id) {
 	this->id = id;
+	rheoCalcType = "DummyRheologyCalculator";
 	INIT_LOGGER("gcm.Body");
 	LOG_INFO("Body '" << id << "' created");
 }
@@ -43,4 +44,12 @@ IEngine* gcm::Body::getEngine() {
 void gcm::Body::setInitialState(Area* area, float values[9]) {
 	for( unsigned int i = 0; i < meshes.size(); i++ )
 		meshes[i]->setInitialState(area, values);
+}
+
+void gcm::Body::setRheologyCalculatorType(string calcType) {
+	rheoCalcType = calcType;
+}
+
+string gcm::Body::getRheologyCalculatorType() {
+	return rheoCalcType;
 }

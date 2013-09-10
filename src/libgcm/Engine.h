@@ -120,6 +120,8 @@ namespace gcm
 		int stepsPerSnap;
 		
 		AABB scene;
+		
+		string defaultRheoCalcType;
 		/*
 		 * Logger.
 		 */
@@ -204,6 +206,9 @@ namespace gcm
 		void replaceDefaultContactCondition(ContactCondition *contactCondition);
 		
 		unsigned char addMaterial(Material *material);
+		
+		void setDefaultRheologyCalculatorType(string calcType);
+		string getDefaultRheologyCalculatorType();
 		
 		/*
 		 * Returns mesh loader by type or NULL if not found.

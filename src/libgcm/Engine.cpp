@@ -63,6 +63,7 @@ gcm::Engine::Engine()
 	LOG_DEBUG("Registering default rheology calculators");
 	registerRheologyCalculator( new DummyRheologyCalculator() );
 	registerRheologyCalculator( new StdRheologyCalculator() );
+	defaultRheoCalcType = "DummyRheologyCalculator";
 	LOG_DEBUG("Registering default calculators");
 	registerVolumeCalculator( new SimpleVolumeCalculator() );
 	registerBorderCalculator( new FreeBorderCalculator() );
@@ -477,14 +478,14 @@ void gcm::Engine::doNextStepStages(const float time_step)
 }
 
 void gcm::Engine::doNextStepAfterStages(const float time_step) {
-	RheologyCalculator* rc = getRheologyCalculator("StdRheologyCalculator");
 	for( unsigned int i = 0; i < bodies.size(); i++ )
-		{
-			Mesh* mesh = bodies[i]->getMeshes();
-			LOG_DEBUG( "Applying rheology for mesh " << mesh->getId() );
-			mesh->applyRheology(rc);
-			LOG_DEBUG( "Applying rheology done" );
-		}
+	{
+		RheologyCalculator* rc = getRheologyCalculator( bodies[i]->getRheologyCalculatorType() );
+		Mesh* mesh = bodies[i]->getMeshes();
+		LOG_DEBUG( "Applying rheology for mesh " << mesh->getId() );
+		mesh->applyRheology(rc);
+		LOG_DEBUG( "Applying rheology done" );
+	}
 	currentTime += time_step;
 }
 
@@ -647,4 +648,14 @@ void gcm::Engine::setContactThresholdFactor(float val)
 float gcm::Engine::getContactThresholdFactor()
 {
 	return contactThresholdFactor;
+}
+
+void gcm::Engine::setDefaultRheologyCalculatorType(string calcType)
+{
+	defaultRheoCalcType = calcType;
+}
+
+string gcm::Engine::getDefaultRheologyCalculatorType()
+{
+	return defaultRheoCalcType;
 }

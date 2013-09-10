@@ -83,6 +83,16 @@ void loadSceneFromFile(Engine& engine, string fileName)
 							engine.getContactCalculator("AdhesionContactCalculator") ) );
 		}
 	}
+
+	NodeList defaultRheoCalculatorList = rootNode.xpath("/task/system/defaultRheologyCalculator");
+	if( defaultRheoCalculatorList.size() > 1 )
+		THROW_INVALID_INPUT("Config file can contain only one <defaultRheologyCalculator/> element");
+	if( defaultRheoCalculatorList.size() == 1 )
+	{
+		xml::Node defaultRheoCalculator = defaultRheoCalculatorList.front();
+		string type = getAttributeByName(defaultRheoCalculator.getAttributes(), "type");
+		engine.setDefaultRheologyCalculatorType(type);
+	}
 	
 	NodeList contactThresholdList = rootNode.xpath("/task/system/contactThreshold");
 	if( contactThresholdList.size() > 1 )
@@ -142,6 +152,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		LOG_DEBUG("Loading body '" << id << "'");
 		// create body instance
 		Body* body = new Body(id);
+		body->setRheologyCalculatorType(engine.getDefaultRheologyCalculatorType());
 		body->setEngine(engine);
 		// set rheology
 		NodeList rheologyNodes = bodyNode->getChildrenByName("rheology");
