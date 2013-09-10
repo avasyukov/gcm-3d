@@ -128,3 +128,9 @@ float gcm::CalcNode::getDeviator()
 					+ 6 * ( (values[4]) * (values[4]) + (values[5]) * (values[5])
 							+ (values[7]) * (values[7])) ) / 6 );
 }
+
+float gcm::CalcNode::getPressure()
+{
+	float pressure = -(values[3]+values[6]+values[8])/3;
+	return pressure;
+}
