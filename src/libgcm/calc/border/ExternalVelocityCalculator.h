@@ -10,7 +10,7 @@ class ExternalVelocityCalculator : public BorderCalculator
 public:
 	ExternalVelocityCalculator();
 	~ExternalVelocityCalculator();
-	void do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale);
+	void do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale);
 	inline string getType() {
 		return "ExternalVelocityCalculator";
 	}

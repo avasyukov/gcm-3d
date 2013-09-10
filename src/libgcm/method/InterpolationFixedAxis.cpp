@@ -111,7 +111,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 				// FIXME
 				int borderCondId = cur_node->getBorderConditionId();
 				LOG_TRACE("Using calculator: " << engine->getBorderCondition(borderCondId)->calc->getType());
-				engine->getBorderCondition(borderCondId)->do_calc(mesh->get_current_time(), cur_node->coords, 
+				engine->getBorderCondition(borderCondId)->do_calc(mesh->get_current_time(), cur_node, 
 					new_node, &elastic_matrix3d, previous_values, inner, outer_normal);
 			}
 			// Contact
@@ -253,7 +253,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 		} else {
 			// FIXME - implement border and contact completely
 			LOG_TRACE("Using calculator: " << engine->getBorderCondition(0)->calc->getType());
-			engine->getBorderCondition(0)->do_calc(mesh->get_current_time(), cur_node->coords, 
+			engine->getBorderCondition(0)->do_calc(mesh->get_current_time(), cur_node, 
 					new_node, &elastic_matrix3d, previous_values, inner, outer_normal);
 			cur_node->setNeighError(stage);
 		}
