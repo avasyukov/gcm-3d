@@ -33,7 +33,7 @@ namespace gcm
 		/*
 		 * Calculate next state for the given node
 		 */
-		virtual void do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float magnitude) = 0;
+		virtual void do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float magnitude) = 0;
 		/*
 		 * Returns type of the calculator
 		 */

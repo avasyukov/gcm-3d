@@ -10,7 +10,7 @@ SmoothBorderCalculator::~SmoothBorderCalculator()
 {
 };
 
-void SmoothBorderCalculator::do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
+void SmoothBorderCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
 {
 	LOG_TRACE("Starting calc with SmoothBorderCalculator");
 	

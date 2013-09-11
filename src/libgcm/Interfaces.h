@@ -57,6 +57,8 @@ namespace gcm {
 			virtual Mesh* getMesh(string id) = 0;
 			virtual IEngine* getEngine() = 0;
 			virtual void setInitialState(Area* area, float values[9]) = 0;
+			virtual string getRheologyCalculatorType() = 0;
+			virtual void setRheologyCalculatorType(string calcType) = 0;
 	};
 }
 
