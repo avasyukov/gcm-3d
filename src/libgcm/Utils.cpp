@@ -5,9 +5,9 @@ gcm::Params::Params() {
 }
 
 gcm::Params::Params(map<string, string> attrs) {
-	foreach(attr, attrs)
+	for(auto& attr: attrs)
 	{
-		(*this)[attr->first] = attr->second;
+		(*this)[attr.first] = attr.second;
 	}
 }
 
@@ -27,10 +27,10 @@ void gcm::FileLookupService::addPath(string path) {
 }
 
 string gcm::FileLookupService::lookupFile(string fname) {
-	foreach(path, paths) {
+	for(auto& path: paths) {
 		// FIXME should we use different separators for different 
 		// target platforms? Windows is ok with /-sep
-		string fullName = *path + "/" + fname;
+		string fullName = path + "/" + fname;
 		ifstream ifile(fullName.c_str());
 		if (ifile)
 			return fullName;

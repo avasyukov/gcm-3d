@@ -1,6 +1,7 @@
 #ifndef GCM_TETR_MESH_FIRST_ORDER_H_
 #define GCM_TETR_MESH_FIRST_ORDER_H_
 
+#include <unordered_map>
 #include <algorithm>
 #include <gsl/gsl_linalg.h>
 #include "Mesh.h"
@@ -14,7 +15,7 @@
 
 using namespace gcm;
 
-#define MapIter map<int, int>::const_iterator
+#define MapIter unordered_map<int, int>::const_iterator
 #define STORAGE_OVERCOMMIT_RATIO 1.0
 #define STORAGE_ONDEMAND_GROW_RATE 1.25
 
@@ -31,15 +32,15 @@ namespace gcm {
 	friend class BruteforceCollisionDetector;
 		
 	protected:
-		map<int, int> tetrsMap;
-		map<int, int> nodesMap;
+		unordered_map<int, int> tetrsMap;
+		unordered_map<int, int> nodesMap;
 		
 		// Cache for characteristics hits
 		bool charactCacheAvailable();
 		bool checkCharactCache(CalcNode* node, float dx, float dy, float dz, int& tetrNum);
 		void updateCharactCache(CalcNode* node, float dx, float dy, float dz, int tetrNum);
 		int getCharactCacheIndex(CalcNode* node, float dx, float dy, float dz);
-		map<int, int> charactCache[12];
+		unordered_map<int, int> charactCache[12];
 		/*map<int, int> charactCacheXps;
 		map<int, int> charactCacheXpl;
 		map<int, int> charactCacheXms;

@@ -99,6 +99,7 @@ def configure(conf):
 
     if not conf.options.without_default_cxxflags:
         conf.env.CXXFLAGS += ['-Wno-deprecated']
+        conf.env.CXXFLAGS += ['-std=c++11']
 
     conf.env.CXXFLAGS += ['-DCONFIG_PREFIX="%s"' % conf.options.prefix]
     if not conf.env.without_resources:

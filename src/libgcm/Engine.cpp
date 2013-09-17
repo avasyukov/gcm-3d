@@ -101,12 +101,12 @@ gcm::Engine::Engine()
 gcm::Engine::~Engine()
 {
 	// clear memory
-	foreach(b, bodies)
-		delete *b;
-	foreach(ml, meshLoaders)
+	for(auto& b: bodies)
+		delete b;
+	for(auto& ml: meshLoaders)
 	{
-		(ml->second)->cleanUp();
-		delete (ml->second);
+		(ml.second)->cleanUp();
+		delete (ml.second);
 	}
 	// decrement engines counter
 	enginesNumber--;

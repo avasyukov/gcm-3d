@@ -26,14 +26,14 @@ void gcm::TetrMeshSecondOrder::createTriangles(int number) {
 
 TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetr(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
 	return ( itr != tetrsMap.end() ? &tetrs2[itr->second] : NULL );
 }
 
 TetrSecondOrder* gcm::TetrMeshSecondOrder::getTetr2(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
 	return ( itr != tetrsMap.end() ? &tetrs2[itr->second] : NULL );
 }

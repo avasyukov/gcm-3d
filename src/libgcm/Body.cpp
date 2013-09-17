@@ -13,8 +13,8 @@ gcm::Body::Body(string id) {
 
 gcm::Body::~Body() {
 	// clear memory
-	foreach(m, meshes)
-		delete *m;	
+	for(auto& m: meshes)
+		delete m;	
 	LOG_INFO("Body destroyed");
 }
 
@@ -27,9 +27,9 @@ Mesh* gcm::Body::getMeshes() {
 }
 
 Mesh* gcm::Body::getMesh(string id) {
-	foreach(mesh, meshes)
-		if ((*mesh)->getId() == id)
-			return (*mesh);
+	for(auto& mesh: meshes)
+		if (mesh->getId() == id)
+			return mesh;
 	return NULL;
 }
 

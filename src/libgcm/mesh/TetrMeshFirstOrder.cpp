@@ -45,14 +45,14 @@ int gcm::TetrMeshFirstOrder::getTriangleNumber() {
 
 CalcNode* gcm::TetrMeshFirstOrder::getNode(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
 	return ( itr != nodesMap.end() ? &nodes[itr->second] : NULL );
 }
 
 CalcNode* gcm::TetrMeshFirstOrder::getNewNode(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
 	return ( itr != nodesMap.end() ? &new_nodes[itr->second] : NULL );
 }
@@ -64,14 +64,14 @@ CalcNode* gcm::TetrMeshFirstOrder::getNodeByLocalIndex(int index) {
 
 int gcm::TetrMeshFirstOrder::getNodeLocalIndex(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
 	return ( itr != nodesMap.end() ? itr->second : -1 );
 }
 
 TetrFirstOrder* gcm::TetrMeshFirstOrder::getTetr(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
 	return ( itr != tetrsMap.end() ? &tetrs1[itr->second] : NULL );
 }
@@ -784,8 +784,8 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	//	return NULL;
 
 	vector<int> tetrsToCheck;
-	map<int, bool> checkedWithNeigh;
-	map<int, bool>::const_iterator itr;
+	unordered_map<int, bool> checkedWithNeigh;
+	unordered_map<int, bool>::const_iterator itr;
 	
 	// If current tetrs are inside sphere of radius R or not. If not - we should stop search and return NULL
 	bool inside_R = true;
@@ -1745,7 +1745,7 @@ void gcm::TetrMeshFirstOrder::applyRheology(RheologyCalculator* rc)
 bool gcm::TetrMeshFirstOrder::checkCharactCache(CalcNode* node, float dx, float dy, float dz, int& tetrNum)
 {
 	int cacheIndex = getCharactCacheIndex(node, dx, dy, dz);
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = charactCache[cacheIndex].find(node->number);
 	if( itr == charactCache[cacheIndex].end() )
 		return false;
