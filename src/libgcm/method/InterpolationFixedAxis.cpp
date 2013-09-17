@@ -402,7 +402,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode* cur
 		LOG_TRACE( "Looking for characteristic " << i << " done" );
 	}
 
-	assert( count == 5 );
+	assert( count == 5 || count == 3 );
 	
 	int outer_count = 0;
 	for(int i = 0; i < 9; i++)

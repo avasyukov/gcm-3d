@@ -39,6 +39,12 @@ namespace gcm
 		 */
 		virtual string getType() = 0;
 		
+		/*
+		 * Intended for SPGCM. Sorry for that.
+		 */
+		virtual unsigned int getXmlValue() {};
+		virtual const char* getXmlName() {};
+		
 	private:
 	};
 	

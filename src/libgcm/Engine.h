@@ -18,6 +18,8 @@
 #include "calc/border/BorderCalculator.h"
 #include "calc/contact/ContactCalculator.h"
 #include "rheology/RheologyCalculator.h"
+#include "rheology/DummyRheologyCalculator.h"
+#include "rheology/StdRheologyCalculator.h"
 #include "util/forms/PulseForm.h"
 #include "util/areas/BoxArea.h"
 #include "GCMDispatcher.h"
@@ -127,7 +129,7 @@ namespace gcm
 		 */
 		USE_LOGGER;
 		
-	private:
+	protected:
 		/* 
 		 * Engine is a singletone, so constructors are private
 		 * Limitation of current design: single threaded only
