@@ -21,11 +21,12 @@
 
 // initialiaze static fields
 int gcm::Engine::enginesNumber = 0;
+Engine* gcm::Engine::engineInstance = 0;
 
 Engine& gcm::Engine::getInstance()
 {
-	static Engine engine;
-	return engine;
+	if (!engineInstance) initInstance();
+	return *engineInstance;
 }
 
 gcm::Engine::Engine()
@@ -37,6 +38,7 @@ gcm::Engine::Engine()
 		// only one instance of engine at the same time
 		throw logic_error("Only one engine can be used at the same time");
 	}
+	engineInstance = this;
 	enginesNumber++;
 	// init MPI subsystem used for IPC
 	if( ! MPI::Is_initialized() )

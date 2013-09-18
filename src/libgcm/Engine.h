@@ -50,6 +50,9 @@ namespace gcm
 	 * Main class to operate calculation scene.
 	 */
 	class Engine: public IEngine {
+		
+		static Engine* engineInstance;
+		
 	protected:
 		/*
 		 * File lookup service
@@ -152,6 +155,7 @@ namespace gcm
 		 * Returns singletone engine instance
 		 */
 		static Engine& getInstance();
+		static void initInstance() { new Engine; }
 		/*
 		 * Returns process rank.
 		 */
