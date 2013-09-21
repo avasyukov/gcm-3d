@@ -133,18 +133,16 @@ def build(bld):
         features='cxx %s' % lib_type,
         source=bld.path.ant_glob('src/libgcm/**/*.cpp'),
         use=libs,
+        name='gcm',
         target='gcm'
     )
 
     if not bld.env.without_launcher:
-        bld.env.INCLUDES_LIBGCM = ['src/libgcm']
-        bld.env.LIBPATH_LIBGCM = [bld.bldnode.abspath()]
-        bld.env.LIB_LIBGCM = ['gcm']
-
         bld(
             features='cxx cxxprogram',
             source=bld.path.ant_glob('src/launcher/**/*.cpp'),
-            use=['LIBGCM'] + libs,
+            includes='src/libgcm',
+            use=['gcm'] + libs,
             target='gcm3d'
         )
 
