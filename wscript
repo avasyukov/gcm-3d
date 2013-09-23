@@ -163,10 +163,18 @@ def build(bld):
     if not bld.env.without_tests:
         bld(
             features='cxx cxxprogram test',
-            source=bld.path.ant_glob('src/tests/**/*.cpp'),
+            source=bld.path.ant_glob('src/tests/unit/*.cpp'),
             includes='src/libgcm',
             use=['gcm'] + libs,
             target='gcm3d_tests',
+            install_path=None
+        )
+        bld(
+            features='cxx cxxprogram',
+            source=bld.path.ant_glob('src/tests/perf/fast_map.cpp'),
+            includes='src/libgcm',
+            use=['gcm'] + libs,
+            target='gcm3d_perf_fast_map',
             install_path=None
         )
         bld.add_post_fun(waf_unit_test.summary)
