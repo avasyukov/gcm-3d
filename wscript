@@ -1,3 +1,5 @@
+from waflib.Tools import waf_unit_test
+
 VERSION = '0.1'
 APPNAME = 'gcm3d'
 
@@ -17,6 +19,13 @@ def options(opt):
         action='store_true',
         default=False,
         help='Disable libgcm logging routines'
+    )
+
+    opt.add_option(
+        '--without-tests',
+        action='store_true',
+        default=False,
+        help='Do not execute tests'
     )
 
     opt.add_option(
@@ -72,6 +81,7 @@ def configure(conf):
     conf.msg('Use mpich2', yes_no(conf.options.use_mpich2))
     conf.msg('Build launcher', yes_no(not conf.options.without_launcher))
     conf.msg('Enable logging', yes_no(not conf.options.without_logging))
+    conf.msg('Execute tests', yes_no(not conf.options.without_tests))
     conf.msg('Install headers', yes_no(not conf.options.without_headers))
     conf.msg('Install resources', yes_no(not conf.options.without_resources))
 
@@ -85,6 +95,7 @@ def configure(conf):
 
     conf.env.without_launcher = conf.options.without_launcher
     conf.env.without_logging = conf.options.without_logging
+    conf.env.without_tests = conf.options.without_tests
     conf.env.without_headers = conf.options.without_headers
     conf.env.without_resources = conf.options.without_resources
     conf.env.use_mpich2 = conf.options.use_mpich2
@@ -111,6 +122,9 @@ def configure(conf):
         conf.env.CXXFLAGS += ['-DCONFIG_ENABLE_LOGGING']
         libs.append('liblog4cxx')
 
+    if not conf.env.without_tests:
+        libs.append('libgtest')
+
     conf.load(libs, tooldir='waftools')
     conf.env.LIBS = libs
 
@@ -133,20 +147,37 @@ def build(bld):
         features='cxx %s' % lib_type,
         source=bld.path.ant_glob('src/libgcm/**/*.cpp'),
         use=libs,
+        name='gcm',
         target='gcm'
     )
 
     if not bld.env.without_launcher:
-        bld.env.INCLUDES_LIBGCM = ['src/libgcm']
-        bld.env.LIBPATH_LIBGCM = [bld.bldnode.abspath()]
-        bld.env.LIB_LIBGCM = ['gcm']
-
         bld(
             features='cxx cxxprogram',
             source=bld.path.ant_glob('src/launcher/**/*.cpp'),
-            use=['LIBGCM'] + libs,
+            includes='src/libgcm',
+            use=['gcm'] + libs,
             target='gcm3d'
         )
+    
+    if not bld.env.without_tests:
+        bld(
+            features='cxx cxxprogram test',
+            source=bld.path.ant_glob('src/tests/unit/*.cpp'),
+            includes='src/libgcm',
+            use=['gcm'] + libs,
+            target='gcm3d_tests',
+            install_path=None
+        )
+        bld(
+            features='cxx cxxprogram',
+            source=bld.path.ant_glob('src/tests/perf/fast_map.cpp'),
+            includes='src/libgcm',
+            use=['gcm'] + libs,
+            target='gcm3d_perf_fast_map',
+            install_path=None
+        )
+        bld.add_post_fun(waf_unit_test.summary)
 
     if not bld.env.without_resources:
         bld.install_files(
