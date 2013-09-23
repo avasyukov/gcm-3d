@@ -123,6 +123,23 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		}
 	}
 	
+	NodeList collisionDetectorList = rootNode.xpath("/task/system/collisionDetector");
+	if( collisionDetectorList.size() > 1 )
+		THROW_INVALID_INPUT("Config file can contain only one <collisionDetector/> element");
+	if( collisionDetectorList.size() == 1 )
+	{
+		xml::Node collisionDetector = collisionDetectorList.front();
+		string isStatic = getAttributeByName(collisionDetector.getAttributes(), "static");
+		if( isStatic == "true" )
+		{
+			engine.setCollisionDetectorStatic(true);
+		}
+		else if( isStatic == "false" )
+		{
+			engine.setCollisionDetectorStatic(false);
+		}
+	}
+	
 	// reading materials
 	NodeList matNodes = rootNode.xpath("/task/materials/material");
 	for(auto& matNode: matNodes)

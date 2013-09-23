@@ -282,6 +282,8 @@ namespace gcm
 		unsigned char getContactThresholdType();
 		void setContactThresholdFactor(float val);
 		float getContactThresholdFactor();
+		void setCollisionDetectorStatic(bool val);
+		bool isCollisionDetectorStatic();
 	};
 }
 
