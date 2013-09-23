@@ -40,3 +40,22 @@ TEST(FastMap, Fuzzy) {
     }
 
 }
+
+#ifndef NDEBUG
+TEST(FastMap, DuplicatedKey) {
+    FastMap<int, int> fm;
+
+    fm.put(1, 1);
+    fm.put(1, 1);
+    ASSERT_THROW(fm.get(1), invalid_argument);
+}
+#endif
+
+#ifndef NDEBUG
+TEST(FastMap, InvalidKey) {
+    FastMap<int, int> fm;
+
+    fm.put(1, 1);
+    ASSERT_THROW(fm.get(2), invalid_argument);
+}
+#endif
