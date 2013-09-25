@@ -101,6 +101,12 @@ namespace gcm {
 			float getShear();
 			float getDeviator();
 			float getPressure();
+			// Tensor invariants
+			float getJ1();
+			float getJ2();
+			float getJ3();
+			// Main stress componenets
+			void calcMainStressComponents(float& s1, float& s2, float& s3);
 
 			inline bool rheologyIsValid() {
 				return ( materialId >= 0 && rho > 0 );

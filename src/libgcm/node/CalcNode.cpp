@@ -122,15 +122,46 @@ float gcm::CalcNode::getShear()
 
 float gcm::CalcNode::getDeviator()
 {
-	return sqrt( ( (values[3] - values[6]) * (values[3] - values[6]) 
-					+ (values[6] - values[8]) * (values[6] - values[8])
-					+ (values[3] - values[8]) * (values[3] - values[8])
-					+ 6 * ( (values[4]) * (values[4]) + (values[5]) * (values[5])
-							+ (values[7]) * (values[7])) ) / 6 );
+	return sqrt( ( (sxx - syy) * (sxx - syy) + (syy - szz) * (syy - szz) + (sxx - szz) * (sxx - szz)
+					+ 6 * ( sxy * sxy + sxz * sxz + syz * syz) ) / 6 );
 }
 
 float gcm::CalcNode::getPressure()
 {
-	float pressure = -(values[3]+values[6]+values[8])/3;
+	float pressure = - ( sxx + syy + szz ) / 3;
 	return pressure;
+}
+
+float gcm::CalcNode::getJ1()
+{
+	return sxx + syy + szz;
+}
+
+float gcm::CalcNode::getJ2()
+{
+	return sxx*syy + sxx*szz + syy*szz - ( sxy*sxy + sxz*sxz + syz*syz );
+}
+
+float gcm::CalcNode::getJ3()
+{
+	return sxx*syy*szz + 2*sxy*sxz*syz - sxx*syz*syz - syy*sxz*sxz - szz*sxy*sxy;
+}
+
+// See http://www.toehelp.ru/theory/sopromat/6.html 
+//	and http://ru.wikipedia.org/wiki/Тригонометрическая_формула_Виета for algo
+void gcm::CalcNode::calcMainStressComponents(float& s1, float& s2, float& s3)
+{
+	float a = - getJ1();
+	float b = getJ2();
+	float c = - getJ3();
+	
+	float p = b - a * a / 3.0;
+	float q = 2.0 * a * a * a / 27.0 - a * b / 3.0 + c;
+	float A = sqrt(- 4.0 * p / 3.0);
+	float c3phi = - 4.0 * q / (A * A * A);
+	float phi = acos(c3phi) / 3.0;
+	
+	s1 = A * cos(phi) - a / 3.0;
+	s2 = A * cos(phi + 2 * M_PI / 3.0) - a / 3.0;
+	s3 = A * cos(phi - 2 * M_PI / 3.0) - a / 3.0;
 }
