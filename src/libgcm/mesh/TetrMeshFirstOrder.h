@@ -106,7 +106,7 @@ namespace gcm {
 		void calc_min_h();
 		void calc_avg_h();
 		void calc_max_h();
-		void clearErrorFlags();
+		void clearNodesState();
 		// It MUST take into account mesh topology.
 		// So, if the mesh will be second order, h = h / 2, etc
 		float mesh_min_h;
@@ -218,6 +218,7 @@ namespace gcm {
 		void setBodyNum(unsigned char id);
 		int getNumberOfLocalNodes();
 		void clearContactState();
+		void processStressState();
 		
 		void applyRheology(RheologyCalculator* rc);
 	};

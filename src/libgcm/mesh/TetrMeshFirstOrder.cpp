@@ -1207,7 +1207,7 @@ float gcm::TetrMeshFirstOrder::tetr_h(int i)
 						getNode(tetr->verts[2])->coords, getNode(tetr->verts[3])->coords );
 };
 
-void gcm::TetrMeshFirstOrder::clearErrorFlags()
+void gcm::TetrMeshFirstOrder::clearNodesState()
 {
 	CalcNode* node;
 	//for( int i = 0; i < nodesNumber; i++ ) {
@@ -1215,9 +1215,20 @@ void gcm::TetrMeshFirstOrder::clearErrorFlags()
 		int i = itr->first;
 		node = getNode(i);
 		if( node->isLocal() )
-			node->clearErrorFlags();
+			node->clearState();
 	}
 };
+
+void gcm::TetrMeshFirstOrder::processStressState()
+{
+	CalcNode* node;
+	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+		int i = itr->first;
+		node = getNode(i);
+		if( node->isLocal() )
+			node->calcMainStressComponents();
+	}
+}
 
 // TODO
 void gcm::TetrMeshFirstOrder::do_next_part_step(float tau, int stage)
@@ -1229,7 +1240,7 @@ void gcm::TetrMeshFirstOrder::do_next_part_step(float tau, int stage)
 	if( stage == 0 )
 	{
 		LOG_DEBUG("Clear error flags on all nodes");
-		clearErrorFlags();
+		clearNodesState();
 	}
 	
 	CalcNode* node;

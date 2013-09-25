@@ -16,7 +16,8 @@ TEST(MainStresses, FuzzCalculate) {
 			node.values[j]= (float) rand() / RAND_MAX;
 
 		float s[3];
-		node.calcMainStressComponents(s[1], s[2], s[3]);
+		node.clearState();
+		node.getMainStressComponents(s[1], s[2], s[3]);
 
 		float err = 0.01 * node.getJ1();
 

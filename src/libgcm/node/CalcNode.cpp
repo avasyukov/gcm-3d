@@ -76,47 +76,64 @@ gcm::CalcNode::~CalcNode()
 	delete border_elements;
 }
 
+void gcm::CalcNode::clearState()
+{
+	clearErrorFlags();
+	clearMainStresses();
+}
+
 void gcm::CalcNode::clearErrorFlags()
 {
 	errorFlags = 0;
 }
 
+void gcm::CalcNode::clearMainStresses()
+{
+	setMainStressCalculated( false );
+}
+
 float gcm::CalcNode::getCompression()
 {
 	float compression = 0;
-	// FIXME - we need main tensor components, not diagonal components
-	if( values[3] < compression )
-		compression = values[3];
-	if( values[6] < compression )
-		compression = values[6];
-	if( values[8] < compression )
-		compression = values[8];
+	float s[3];
+	getMainStressComponents(s[1], s[2], s[3]);
+	
+	for( int i = 0; i < 3; i++ )
+		if( s[i] < compression )
+			compression = s[i];
+	
 	return fabs(compression);
 }
 
 float gcm::CalcNode::getTension()
 {
 	float tension = 0;
-	// FIXME - we need main tensor components, not diagonal components
-	if( values[3] > tension )
-		tension = values[3];
-	if( values[6] > tension )
-		tension = values[6];
-	if( values[8] > tension )
-		tension = values[8];
+	float s[3];
+	getMainStressComponents(s[1], s[2], s[3]);
+	
+	for( int i = 0; i < 3; i++ )
+		if( s[i] > tension )
+			tension = s[i];
+	
 	return tension;
 }
 
+// See http://www.toehelp.ru/theory/sopromat/6.html for details
 float gcm::CalcNode::getShear()
 {
 	float shear = 0;
-	// FIXME - we need main tensor components, not diagonal components
-	if( fabs(values[4]) > shear )
-		shear = fabs(values[4]);
-	if( fabs(values[5]) > shear )
-		shear = fabs(values[5]);
-	if( fabs(values[7]) > shear )
-		shear = fabs(values[7]);
+	float s[3];
+	float t[3];
+	getMainStressComponents(s[1], s[2], s[3]);
+	
+	t[0] = 0.5 * fabs(s[1] - s[0]);
+	t[1] = 0.5 * fabs(s[2] - s[0]);
+	t[2] = 0.5 * fabs(s[2] - s[1]);
+	
+	for( int i = 0; i < 3; i++ )
+		if( t[i] > shear )
+			shear = t[i];
+	
 	return shear;
 }
 
@@ -149,7 +166,7 @@ float gcm::CalcNode::getJ3()
 
 // See http://www.toehelp.ru/theory/sopromat/6.html 
 //	and http://ru.wikipedia.org/wiki/Тригонометрическая_формула_Виета for algo
-void gcm::CalcNode::calcMainStressComponents(float& s1, float& s2, float& s3)
+void gcm::CalcNode::calcMainStressComponents()
 {
 	float a = - getJ1();
 	float b = getJ2();
@@ -161,7 +178,18 @@ void gcm::CalcNode::calcMainStressComponents(float& s1, float& s2, float& s3)
 	float c3phi = - 4.0 * q / (A * A * A);
 	float phi = acos(c3phi) / 3.0;
 	
-	s1 = A * cos(phi) - a / 3.0;
-	s2 = A * cos(phi + 2 * M_PI / 3.0) - a / 3.0;
-	s3 = A * cos(phi - 2 * M_PI / 3.0) - a / 3.0;
+	mainStresses[0] = A * cos(phi) - a / 3.0;
+	mainStresses[1] = A * cos(phi + 2 * M_PI / 3.0) - a / 3.0;
+	mainStresses[2] = A * cos(phi - 2 * M_PI / 3.0) - a / 3.0;
+	setMainStressCalculated( true );
+}
+
+void gcm::CalcNode::getMainStressComponents(float& s1, float& s2, float& s3)
+{
+	if( ! isMainStressCalculated() )
+		calcMainStressComponents();
+	
+	s1 = mainStresses[0];
+	s2 = mainStresses[1];
+	s3 = mainStresses[2];
 }

@@ -423,7 +423,10 @@ void loadSceneFromFile(Engine& engine, string fileName)
 							<< values[6] << " " << values[7] << " " << values[8] );
 		}
 		for( int i = 0; i < engine.getNumberOfBodies(); i++ )
+		{
 			engine.getBody(i)->setInitialState(stateArea, values);
+			engine.getBody(i)->getMeshes()->processStressState();
+		}
 	}
 	LOG_DEBUG("Scene loaded");
 }

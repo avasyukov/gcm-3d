@@ -497,6 +497,9 @@ void gcm::Engine::doNextStepAfterStages(const float time_step) {
 		LOG_DEBUG( "Applying rheology for mesh " << mesh->getId() );
 		mesh->applyRheology(rc);
 		LOG_DEBUG( "Applying rheology done" );
+		LOG_DEBUG( "Processing stress state for mesh " << mesh->getId() );
+		mesh->processStressState();
+		LOG_DEBUG( "Processing stress state done" );
 	}
 	currentTime += time_step;
 }
