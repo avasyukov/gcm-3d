@@ -43,6 +43,8 @@ enum NodeOrder
 	SecondOrder = 64
 };
 
+#define MAIN_STRESS_STATUS_MASK 128
+
 // Error flags
 #define X_NEIGH_ERROR_MASK 1
 #define Y_NEIGH_ERROR_MASK 2
@@ -71,7 +73,9 @@ namespace gcm {
 			
 			CalcNode &operator=(const CalcNode &src);
 			
+			void clearState();
 			void clearErrorFlags();
+			void clearMainStresses();
 			
 			union
 			{
@@ -101,6 +105,13 @@ namespace gcm {
 			float getShear();
 			float getDeviator();
 			float getPressure();
+			// Tensor invariants
+			float getJ1();
+			float getJ2();
+			float getJ3();
+			// Main stress componenets
+			void getMainStressComponents(float& s1, float& s2, float& s3);
+			void calcMainStressComponents();
 
 			inline bool rheologyIsValid() {
 				return ( materialId >= 0 && rho > 0 );
@@ -200,7 +211,20 @@ namespace gcm {
 			{
 				return 0 != (privateFlags & IS_BORDER_MASK);
 			}
+			
+			void inline setMainStressCalculated (bool isCalculated)
+			{
+				if (isCalculated) privateFlags |= MAIN_STRESS_STATUS_MASK;
+				else privateFlags &= (~MAIN_STRESS_STATUS_MASK);
 
+				assert (isCalculated ? isMainStressCalculated () : !isMainStressCalculated ());
+			}
+			
+			bool inline isMainStressCalculated ()
+			{
+				return 0 != (privateFlags & MAIN_STRESS_STATUS_MASK);
+			}
+			
 			bool inline isInner ()
 			{
 				return !isBorder ();
@@ -381,6 +405,10 @@ namespace gcm {
 		    */
 		   float rho;
 		   unsigned char materialId;
+		   /*
+			* Main stress components
+			*/
+		   float mainStresses[3];
 	};
 }
 

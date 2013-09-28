@@ -1,0 +1,57 @@
+<task numberOfSnaps="15" stepsPerSnap="30">
+	<system>
+		<contactThreshold measure="avgH" value="1.0" />
+		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
+		<!--contactThreshold measure="abs" value="0.5" /-->
+		 <defaultContactCalculator type="AdhesionContactCalculator" />
+	</system>
+	<bodies>
+		<body id="target0">
+			<rheology type="elastic" />
+			<mesh id="target" type="geo2" file="models/3-stringer-not-integrated-cut.geo" tetrSize="0.1" />
+			<material id="subpacket" />
+		</body>
+		<body id="target1">
+                        <rheology type="elastic" />
+                        <mesh id="target" type="geo2" file="models/3-stringer-not-integrated-cut.geo" tetrSize="0.1" />
+                        <material id="subpacket" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-5.001" />
+                </body>
+		<body id="target2">
+                        <rheology type="elastic" />
+                        <mesh id="target" type="geo2" file="models/3-stringer-not-integrated-cut.geo" tetrSize="0.1" />
+                        <material id="subpacket" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-10.002" />
+                </body>
+		<body id="target3">
+                        <rheology type="elastic" />
+                        <mesh id="target" type="geo2" file="models/3-stringer-not-integrated-cut.geo" tetrSize="0.1" />
+                        <material id="subpacket" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-15.003" />
+                </body>
+		<body id="target4">
+                        <rheology type="elastic" />
+                        <mesh id="target" type="geo2" file="models/3-stringer-not-integrated-cut.geo" tetrSize="0.1" />
+                        <material id="subpacket" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-20.004" />
+                </body>
+
+                <body id="striker">
+                        <rheology type="elastic" />
+                        <mesh id="striker" type="geo2" file="models/striker-sample.geo" tetrSize="0.2" />
+                        <material id="steel" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-13.0" />
+                </body>
+        </bodies>
+	<materials>
+		<material id="subpacket"        la="5720000000"  mu="3220000000"  rho="0.00158" />
+                <material id="steel"            la="99430000000" mu="78130000000" rho="0.0078" />
+                <material id="epoxy"            la="1440000000"  mu="960000000"   rho="0.00125" />
+	</materials>
+	<initialState>
+		<area type="box" minX="-20" maxX="20" minY="-20" maxY="20" minZ="-120" maxZ="-0.00001"/>
+		<values vz="25100" />
+                <!-- E(J)       45      85      135     205     235     /-->
+                <!-- v(mm/sec)  14500   19900   25100   30900   33100   /-->
+	</initialState>
+</task>

@@ -393,15 +393,18 @@ void gcm::Engine::doNextStep()
 
 void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actualTimeStep)
 {
-	// Clear virtual nodes
-	virtNodes.clear();
-	
-	// Clear contact state
-	for( unsigned int i = 0; i < bodies.size(); i++ )
+	if( ! colDet->is_static() )
 	{
-			LOG_DEBUG("Clear contact state for body " << i );
-			Mesh* mesh = bodies[i]->getMeshes();
-			mesh->clearContactState();
+		// Clear virtual nodes
+		virtNodes.clear();
+		
+		// Clear contact state
+		for( unsigned int i = 0; i < bodies.size(); i++ )
+		{
+				LOG_DEBUG("Clear contact state for body " << i );
+				Mesh* mesh = bodies[i]->getMeshes();
+				mesh->clearContactState();
+		}
 	}
 	
 	// Print debug info
@@ -453,7 +456,14 @@ void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actu
 	}
 	
 	// Run collision detector
-	colDet->find_collisions(virtNodes);
+	if( ! colDet->is_static() || currentTime == 0.0 )
+	{
+		colDet->find_collisions(virtNodes);
+	}
+	else
+	{
+		LOG_DEBUG("Collision detector call skipped since it is in static operation mode");
+	}
 }
 
 void gcm::Engine::doNextStepStages(const float time_step)
@@ -487,6 +497,9 @@ void gcm::Engine::doNextStepAfterStages(const float time_step) {
 		LOG_DEBUG( "Applying rheology for mesh " << mesh->getId() );
 		mesh->applyRheology(rc);
 		LOG_DEBUG( "Applying rheology done" );
+		LOG_DEBUG( "Processing stress state for mesh " << mesh->getId() );
+		mesh->processStressState();
+		LOG_DEBUG( "Processing stress state done" );
 	}
 	currentTime += time_step;
 }
@@ -660,4 +673,14 @@ void gcm::Engine::setDefaultRheologyCalculatorType(string calcType)
 string gcm::Engine::getDefaultRheologyCalculatorType()
 {
 	return defaultRheoCalcType;
+}
+
+void gcm::Engine::setCollisionDetectorStatic(bool val)
+{
+	colDet->set_static(val);
+}
+
+bool gcm::Engine::isCollisionDetectorStatic()
+{
+	return colDet->is_static();
 }
