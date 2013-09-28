@@ -1,3 +1,4 @@
+import sys
 from waflib.Tools import waf_unit_test
 
 VERSION = '0.1'
@@ -50,13 +51,6 @@ def options(opt):
     )
 
     opt.add_option(
-        '--use-mpich2',
-        action='store_true',
-        default=False,
-        help='Link against mpich2 instead of openmpi'
-    )
-
-    opt.add_option(
         '--static',
         action='store_true',
         default=False,
@@ -75,10 +69,9 @@ def configure(conf):
             return 'yes'
         else:
             return 'no'
-
+    
     conf.msg('Prefix', conf.options.prefix)
     conf.msg('Build static lib', yes_no(conf.options.static))
-    conf.msg('Use mpich2', yes_no(conf.options.use_mpich2))
     conf.msg('Build launcher', yes_no(not conf.options.without_launcher))
     conf.msg('Enable logging', yes_no(not conf.options.without_logging))
     conf.msg('Execute tests', yes_no(not conf.options.without_tests))
@@ -87,6 +80,7 @@ def configure(conf):
 
     libs = [
         'utils',
+        'libmpi',
         'libgsl',
         'libxml2',
         'libgmsh',
@@ -98,13 +92,8 @@ def configure(conf):
     conf.env.without_tests = conf.options.without_tests
     conf.env.without_headers = conf.options.without_headers
     conf.env.without_resources = conf.options.without_resources
-    conf.env.use_mpich2 = conf.options.use_mpich2
     conf.env.static = conf.options.static
 
-    if conf.env.use_mpich2:
-        libs.append('libmpich2')
-    else:
-        libs.append('libopenmpi')
 
     conf.env.CXXFLAGS = []
 
