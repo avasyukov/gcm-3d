@@ -70,10 +70,10 @@ chmod +x build.sh
 cd "$DIR"
 
 echo "Creating bootstrap script"
-get_bootstrap_script > gcm3d-boostrap.sh
+get_bootstrap_script > gcm3d-bootstrap.sh
 echo "Packing source code and dependencies"
-tar -cvz -C /tmp/gcm-3d-bundle . >> gcm3d-boostrap.sh
-chmod +x gcm3d-boostrap.sh
+tar -cvz -C /tmp/gcm-3d-bundle . >> gcm3d-bootstrap.sh
+chmod +x gcm3d-bootstrap.sh
 echo "Done"
 
 exit
@@ -333,7 +333,7 @@ echo "Preparing installation..."
 mkdir -p "$GCM3D_INSTALL_TMP"
 cd "$GCM3D_INSTALL_TMP"
 
-rm -rf gcm-3d-boostrap && mkdir gcm-3d-boostrap && cd gcm-3d-boostrap
+rm -rf gcm-3d-bootstrap && mkdir gcm-3d-bootstrap && cd gcm-3d-bootstrap
 sed -e '1,/^exit$/d' "$SCRIPT" | tar xzf - && ./build.sh
 
 exit
