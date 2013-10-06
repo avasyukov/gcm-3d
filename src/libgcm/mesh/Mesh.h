@@ -96,6 +96,7 @@ namespace gcm {
 		virtual void clearContactState() = 0;
 		virtual void processStressState() = 0;
 		virtual void applyRheology(RheologyCalculator* rc) = 0;
+		virtual void move_coords(float tau) = 0;
 
 		/*
 		 * Sets mesh id.
