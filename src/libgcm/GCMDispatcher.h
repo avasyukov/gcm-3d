@@ -68,7 +68,7 @@ namespace gcm {
 		inline void setTransferVector(float x, float y, float z, string bodyId)
 		{
 			LOG_DEBUG("setTransferVector called. Bodies: " << bodyId << " " << myBodyId << " Vector: " << x << " " << y << " " << z << "\n");
-			if( bodyId != myBodyId )
+			if( (bodyId != myBodyId ) && (myBodyId != "__any") )
 				return;
 			dX += x;
 			dY += y;

@@ -272,8 +272,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 				dZ += atof( getAttributeByName(transformNode.getAttributes(), "moveZ").c_str() );
 			}
 		}
-		if( engine.getNumberOfWorkers() != 1 )
-			engine.getDispatcher()->setTransferVector(dX, dY, dZ, id);
+		engine.getDispatcher()->setTransferVector(dX, dY, dZ, id);
 		
 		// load meshes
 		NodeList meshNodes = bodyNode.getChildrenByName("mesh");
