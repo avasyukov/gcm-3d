@@ -503,6 +503,7 @@ int main(int argc, char **argv, char **envp)
 		engine.getFileLookupService().addPath(dataDir);
 		loadSceneFromFile(engine, taskFile);
 		engine.calculate();
+		engine.cleanUp();
 		
 	} catch (Exception &e) {
 		LOG_FATAL("Exception was thrown: " << e.getMessage() << "\n @" << e.getFile() << ":" << e.getLine() << "\nCall stack: \n"<< e.getCallStack());

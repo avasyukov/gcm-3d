@@ -102,6 +102,12 @@ gcm::Engine::Engine()
 
 gcm::Engine::~Engine()
 {
+	cleanUp();
+	LOG_INFO("GCM engine destroyed");
+}
+
+void gcm::Engine::cleanUp()
+{
 	// clear memory
 	for(auto& b: bodies)
 		delete b;
@@ -119,7 +125,7 @@ gcm::Engine::~Engine()
 	// shutdown MPI
 	if( !MPI::Is_finalized() )
 		MPI::Finalize();
-	LOG_INFO("GCM engine destroyed");
+	LOG_INFO("Clean up done");
 }
 
 int gcm::Engine::getRank()
