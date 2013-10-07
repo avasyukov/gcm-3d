@@ -7,12 +7,12 @@
 	<bodies>
 		<body id="target">
 			<rheology type="elastic" />
-			<mesh id="target" type="geo2" file="models/3-stringer-integrated.geo" tetrSize="1.0" />
+			<mesh id="target" type="geo2" file="models/3-stringer-integrated.geo" tetrSize="1.5" />
 			<material id="subpacket" />
 		</body>
                 <body id="striker">
                         <rheology type="elastic" />
-                        <mesh id="striker" type="geo2" file="models/striker-sample.geo" tetrSize="1.0" />
+                        <mesh id="striker" type="geo2" file="models/striker-sample.geo" tetrSize="1.5" />
                         <material id="steel" />
 			<transform type="translate" moveX="0" moveY="0" moveZ="-13.0" />
                 </body>
