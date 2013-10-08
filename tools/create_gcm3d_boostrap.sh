@@ -35,6 +35,10 @@ rm -rf gcm-3d-bundle && mkdir gcm-3d-bundle && cd gcm-3d-bundle
 # http://apache-mirror.rbc.ru/pub/apache//apr/apr-util-1.5.2.tar.gz
 # http://www.sai.msu.su/apache/logging/log4cxx/0.10.0/apache-log4cxx-0.10.0.tar.gz
 # http://www.vtk.org/files/release/5.2/vtk-5.2.1.tar.gz
+# ftp://ftp.freedesktop.org/pub/mesa/older-versions/7.x/7.7.1/MesaLib-7.7.1.tar.gz
+# http://python.org/ftp/python/2.7.5/Python-2.7.5.tar.bz2
+# http://www.paraview.org/paraview-downloads/download.php?submit=Download&version=v4.0&type=source&os=all&downloadFile=ParaView-v4.0.1-source.tgz
+
 
 echo "Downloading dependencies"
 if [[ -z "$GCM3D_DEPS_PATH" ]]; then
@@ -55,6 +59,9 @@ if [[ -z "$GCM3D_DEPS_PATH" ]]; then
     wget -nv https://dl.dropboxusercontent.com/u/19548163/mipt/gcm3d-deps/apr-util-1.5.2.tar.gz
     wget -nv https://dl.dropboxusercontent.com/u/19548163/mipt/gcm3d-deps/apache-log4cxx-0.10.0.tar.gz
     wget -nv https://dl.dropboxusercontent.com/u/19548163/mipt/gcm3d-deps/vtk-5.2.1.tar.gz
+    wget -nv https://dl.dropboxusercontent.com/u/19548163/mipt/gcm3d-deps/MesaLib-7.7.1.tar.gz
+    wget -nv https://dl.dropboxusercontent.com/u/19548163/mipt/gcm3d-deps/Python-2.7.5.tar.bz2
+    wget -nv https://dl.dropboxusercontent.com/u/19548163/mipt/gcm3d-deps/ParaView-v4.0.1-source.tgz
     wget -nv https://dl.dropboxusercontent.com/u/19548163/mipt/gcm3d-deps/patches.tar.gz
 else
     cp -v "$GCM3D_DEPS_PATH"/* .
@@ -80,10 +87,7 @@ exit
 
 # ----- attachment 1: script to build gcm3d with all dependencies
 #!/bin/bash
-# dependencies: gcc, g++, make, patch, gfortran
-
-SCRIPT="`readlink -f $0`"
-DIR="`dirname "$SCRIPT"`"
+# dependencies: gcc, g++, make, patch, gfortran (and a bunch of paraview dependencies)
 
 die() {
     echo "$1" 2>&1
@@ -103,49 +107,54 @@ prepare_env() {
 
 unpack() {
     echo "Checking md5 sums"
-    md5sum -c md5  &> /dev/null || return -1
     echo "Unpacking"
-    cd "$DIR"                             && \
-    mkdir patches                         && \
-    tar -xf patches.tar.gz -C patches     && \
-    tar -xf mpfr-3.1.2.tar.gz             && \
-    tar -xf gmp-5.1.2.tar.bz2             && \
-    tar -xf mpc-1.0.1.tar.gz              && \
-    tar -xf cloog-0.18.0.tar.gz           && \
-    tar -xf isl-0.11.1.tar.bz2            && \
-    tar -xf gcc-4.8.1.tar.bz2             && \
-    tar -xf gsl-1.15.tar.gz               && \
-    tar -xf libxml2-2.9.1.tar.gz          && \
-    tar -xf cmake-2.8.11.2.tar.gz         && \
-    tar -xf gmsh-2.7.1-source.tgz         && \
-    tar -xf apr-1.4.8.tar.gz              && \
-    tar -xf apr-util-1.5.2.tar.gz         && \
-    tar -xf apache-log4cxx-0.10.0.tar.gz  && \
-    tar -xf vtk-5.2.1.tar.gz
+    {
+        md5sum -c md5  || return -1           && \
+        cd "$DIR"                             && \
+        mkdir patches                         && \
+        tar -xf patches.tar.gz -C patches     && \
+        tar -xf mpfr-3.1.2.tar.gz             && \
+        tar -xf gmp-5.1.2.tar.bz2             && \
+        tar -xf mpc-1.0.1.tar.gz              && \
+        tar -xf cloog-0.18.0.tar.gz           && \
+        tar -xf isl-0.11.1.tar.bz2            && \
+        tar -xf gcc-4.8.1.tar.bz2             && \
+        tar -xf gsl-1.15.tar.gz               && \
+        tar -xf libxml2-2.9.1.tar.gz          && \
+        tar -xf cmake-2.8.11.2.tar.gz         && \
+        tar -xf gmsh-2.7.1-source.tgz         && \
+        tar -xf apr-1.4.8.tar.gz              && \
+        tar -xf apr-util-1.5.2.tar.gz         && \
+        tar -xf apache-log4cxx-0.10.0.tar.gz  && \
+        tar -xf vtk-5.2.1.tar.gz              && \
+        tar -xf MesaLib-7.7.1.tar.gz          && \
+        tar -xf Python-2.7.5.tar.bz2          && \
+        tar -xf ParaView-v4.0.1-source.tgz
+    } &> "$DIR/unpacking.log"
 }
 
 install_gcc() {
     echo "Installing gcc"
     {
-        mv gmp-5.1.2 gcc-4.8.1/gmp         && \
-        mv mpc-1.0.1 gcc-4.8.1/mpc         && \
-        mv mpfr-3.1.2 gcc-4.8.1/mpfr       && \
-        mv cloog-0.18.0 gcc-4.8.1/cloog    && \
-        mv isl-0.11.1 gcc-4.8.1/isl        && \
-        chmod +x gcc-4.8.1/configure       && \
-        mkdir gccbuild                     && \
-        cd gccbuild                        && \
-        CXXFLAGS=-DHAVE_ICONV                 \
-        ../gcc-4.8.1/configure                \
-            --prefix="$GCM3D_INSTALL_PATH"    \
-            --disable-multilib                \
-            --enable-languages=c,c++          \
-            --enable-shared                   \
-            --disable-werror                  \
-            --disable-bootstrap            && \
-        make                               && \
+        mv "$DIR/gmp-5.1.2" "$DIR/gcc-4.8.1/gmp"      && \
+        mv "$DIR/mpc-1.0.1" "$DIR/gcc-4.8.1/mpc"      && \
+        mv "$DIR/mpfr-3.1.2" "$DIR/gcc-4.8.1/mpfr"    && \
+        mv "$DIR/cloog-0.18.0" "$DIR/gcc-4.8.1/cloog" && \
+        mv "$DIR/isl-0.11.1" "$DIR/gcc-4.8.1/isl"     && \
+        chmod +x "$DIR/gcc-4.8.1/configure"           && \
+        mkdir "$DIR/gccbuild"                         && \
+        cd "$DIR/gccbuild"                            && \
+        CXXFLAGS=-DHAVE_ICONV                            \
+        ../gcc-4.8.1/configure                           \
+            --prefix="$GCM3D_INSTALL_PATH"               \
+            --disable-multilib                           \
+            --enable-languages=c,c++                     \
+            --enable-shared                              \
+            --disable-werror                             \
+            --disable-bootstrap                       && \
+        make                                          && \
         make install
-    } &> gcc.log
+    } &> "$DIR/gcc.log"
 }
 
 install_waf() {
@@ -156,7 +165,7 @@ install_waf() {
         patch -p0 -i "$DIR/patches/waf_python_binary.patch" && \
         mv waf-1.7.11 "$GCM3D_INSTALL_PATH/bin/waf"         && \
         chmod +x "$GCM3D_INSTALL_PATH/bin/waf"
-    } &> waf.log
+    } &> "$DIR/waf.log"
 }
 
 install_gsl() {
@@ -167,7 +176,7 @@ install_gsl() {
             --prefix="$GCM3D_INSTALL_PATH" && \
         make                               && \
         make install
-    } &> gsl.log
+    } &> "$DIR/gsl.log"
 }
 
 install_libxml2() {
@@ -179,7 +188,7 @@ install_libxml2() {
             --without-python              && \
         make                              && \
         make install
-    } &> libxml2.log
+    } &> "$DIR/libxml2.log"
 }
 
 install_cmake(){
@@ -190,7 +199,7 @@ install_cmake(){
             --prefix="$GCM3D_INSTALL_PATH" && \
         make                               && \
         make install
-    } &> cmake.log
+    } &> "$DIR/cmake.log"
 }
 
 install_gmsh() {
@@ -206,7 +215,7 @@ install_gmsh() {
             -DENABLE_BUILD_SHARED=1                           && \
         make                                                  && \
         make install
-    } &> gmsh.log
+    } &> "$DIR/gmsh.log"
 }
 
 install_apr() {
@@ -217,7 +226,7 @@ install_apr() {
             --prefix="$GCM3D_INSTALL_PATH" && \
         make                               && \
         make install
-    } &> apr.log
+    } &> "$DIR/apr.log"
 }
 
 install_apr_util() {
@@ -229,7 +238,7 @@ install_apr_util() {
             --with-apr="$GCM3D_INSTALL_PATH/bin/apr-1-config" && \
         make                                                  && \
         make install
-    } &> apr_util.log
+    } &> "$DIR/apr_util.log"
 }
 
 install_log4cxx() {
@@ -248,7 +257,7 @@ install_log4cxx() {
             --with-apr-util="$GCM3D_INSTALL_PATH/bin/apu-1-config" && \
         make                                                       && \
         make install
-    } &> log4cxx.log
+    } &> "$DIR/log4cxx.log"
 }
 
 install_vtk() {
@@ -267,7 +276,7 @@ install_vtk() {
         make clean                                       && \
         make                                             && \
         make install
-    } &> vtk.log
+    } &> "$DIR/vtk.log"
 }
 
 install_gcm3d() {
@@ -288,8 +297,64 @@ install_gcm3d() {
             --libpath="$GCM3D_INSTALL_PATH/lib"                    \
             --libpath="$GCM3D_INSTALL_PATH/lib64"               && \
         waf build                                               && \
-        waf install                                                 
-    } &> gcm3d.log
+        waf install
+    } &> "$DIR/gcm3d.log"
+}
+
+install_mesa() {
+    echo "Installing mesa3D"
+    {
+        cd "$DIR/Mesa-7.7.1"               && \
+        ./configure                           \
+            --prefix="$GCM3D_INSTALL_PATH"    \
+            --with-driver=xlib                \
+            --enable-gl-osmesa                \
+            --disable-glw                  && \
+        make                               && \
+        make install
+    } &> "$DIR/mesa3d.log"
+}
+
+install_python() {
+    echo "Installing python"
+    {
+        cd "$DIR/Python-2.7.5"             && \
+        ./configure                           \
+            --prefix="$GCM3D_INSTALL_PATH"    \
+            --enable-shared                && \
+        make                               && \
+        make install
+
+    } &> "$DIR/python.log"
+}
+
+install_paraview() {
+    echo "Installing paraview"
+    {
+        mkdir "$DIR/pvbuild"                                       && \
+        cd "$DIR/pvbuild"                                          && \
+        CXX=mpicxx                                                    \
+        CC=mpicc                                                      \
+        cmake                                                         \
+            -DCMAKE_INSTALL_PREFIX="$GCM3D_INSTALL_PATH"              \
+            -DPARAVIEW_BUILD_QT_GUI=0                                 \
+            -DPARAVIEW_USE_MPI=1                                      \
+            -DBUILD_SHARED_LIBS=1                                     \
+            -DPARAVIEW_ENABLE_PYTHON=1                                \
+            -DVTK_USE_X=0                                             \
+            -DCMAKE_BUILD_TYPE=Release                                \
+            -DPARAVIEW_INSTALL_DEVELOPMENT_FILES=0                    \
+            -DBUILD_TESTING=0                                         \
+            -DVTK_OPENGL_HAS_OSMESA=1                                 \
+            -DOSMESA_INCLUDE_DIR="$GCM3D_INSTALL_PATH/include"        \
+            -DOSMESA_LIBRARY="$GCM3D_INSTALL_PATH/lib/libOSMesa.so"   \
+            -DOPENGL_INCLUDE_DIR="$GCM3D_INSTALL_PATH/include"        \
+            -DOPENGL_gl_LIBRARY="$GCM3D_INSTALL_PATH/lib/libGL.so"    \
+            -DOPENGL_glu_LIBRARY="$GCM3D_INSTALL_PATH/lib/libGLU.so"  \
+            "$DIR/ParaView-v4.0.1-source"                          && \
+        make                                                       && \
+        make install
+    } &> "$DIR/paraview.log"
 }
 
 patch_bashrc() {
@@ -303,20 +368,52 @@ patch_bashrc() {
     echo 'export LD_LIBRARY_PATH="$GCM3D_INSTALL_PATH/lib/vtk-5.2:$LD_LIBRARY_PATH"' >> "$HOME/.gcm3d_bashrc"
 }
 
-prepare_env       && \
-unpack            && \
-install_gcc       && \
-install_waf       && \
-install_cmake     && \
-install_apr       && \
-install_apr_util  && \
-install_log4cxx   && \
-install_gsl       && \
-install_libxml2   && \
-install_vtk       && \
-install_gmsh      && \
-install_gcm3d     && \
-patch_bashrc      || die "Build failed. See corresponding log file for details."
+install() {
+    SCRIPT="`readlink -f $0`" \
+    DIR="`dirname "$SCRIPT"`" \
+    prepare_env            && \
+    unpack                 && \
+    install_gcc            && \
+    install_waf            && \
+    install_cmake          && \
+    install_apr            && \
+    install_apr_util       && \
+    install_log4cxx        && \
+    install_gsl            && \
+    install_libxml2        && \
+    install_vtk            && \
+    install_gmsh           && \
+    install_gcm3d          && \
+    install_mesa           && \
+    install_python         && \
+    install_paraview       && \
+    patch_bashrc           || die "Build failed. See corresponding log file for details."
+}
+
+clean() {
+    echo "Removing unneeded source code"
+    {
+    rm -rf                            \
+        "$DIR/gcc-4.8.1"              \
+        "$DIR/gccbuild"               \
+        "$DIR/gsl-1.15"               \
+        "$DIR/libxml2-2.9.1"          \
+        "$DIR/cmake-2.8.11.2"         \
+        "$DIR/gmsh-2.7.1-source"      \
+        "$DIR/apr-1.4.8"              \
+        "$DIR/apr-util-1.5.2"         \
+        "$DIR/apache-log4cxx-0.10.0"  \
+        "$DIR/VTK"                    \
+        "$DIR/Mesa-7.7.1"             \
+        "$DIR/Python-2.7.5"           \
+        "$DIR/ParaView-v4.0.1-source" \
+        "$DIR/pvbuild"
+    } &> clean.log
+}
+
+if [[ "x$1" = "xinstall" ]]; then
+    install
+fi
 
 exit
 
@@ -334,6 +431,6 @@ mkdir -p "$GCM3D_INSTALL_TMP"
 cd "$GCM3D_INSTALL_TMP"
 
 rm -rf gcm-3d-bootstrap && mkdir gcm-3d-bootstrap && cd gcm-3d-bootstrap
-sed -e '1,/^exit$/d' "$SCRIPT" | tar xzf - && ./build.sh
+sed -e '1,/^exit$/d' "$SCRIPT" | tar xzf - && ./build.sh install
 
 exit
