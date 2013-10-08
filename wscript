@@ -175,6 +175,7 @@ def build(bld):
             features='cxx cxxprogram',
             source=bld.path.ant_glob('src/tests/perf/fast_map.cpp'),
             includes='src/libgcm',
+            lib=['rt'],
             use=['gcm'] + libs,
             target='gcm3d_perf_fast_map',
             install_path=None
