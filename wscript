@@ -65,10 +65,7 @@ def configure(conf):
     '''Configures build environment'''
 
     def yes_no(b):
-        if b:
-            return 'yes'
-        else:
-            return 'no'
+        return 'yes' if b else 'no'
     
     conf.msg('Prefix', conf.options.prefix)
     conf.msg('Build static lib', yes_no(conf.options.static))

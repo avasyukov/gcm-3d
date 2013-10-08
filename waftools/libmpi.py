@@ -26,12 +26,9 @@ def configure(conf):
     
     conf.start_msg('Extracting MPI comiler and linker flags')
     try:
-        output = subprocess.Popen(['mpicxx', '-show'], stdout=subprocess.PIPE).communicate()[0]
-        #  FIXME
-        # here we use ascii as a workaround for python 2.4 that 'multiplies' slashes in string if it's in utf8
-        # it should work almost in every setup but just keep in mind that actually we do not support paths that
-        # contain non-ascii symbols
-        params = output.encode('ascii').split('\n')[0].split(' ')[1:]
+        output = subprocess.Popen(['mpicxx', '-show'], stdout=subprocess.PIPE).communicate()[0].decode('utf-8')
+        params = output.split('\n')[0].split(' ')[1:]
+
         unprocessed = []
         for x in params:
             if x.startswith('-I'):
@@ -54,6 +51,7 @@ def configure(conf):
         else:
            conf.end_msg('done')
     except:
+        raise
         conf.end_msg('failed')
         conf.fatal('Cannot extract MPI compiler and linker flags')
 
