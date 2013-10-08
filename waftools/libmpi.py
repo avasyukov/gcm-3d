@@ -53,7 +53,6 @@ def configure(conf):
         else:
            conf.end_msg('done')
     except:
-        raise
         conf.end_msg('failed')
         conf.fatal('Cannot extract MPI compiler and linker flags')
 
