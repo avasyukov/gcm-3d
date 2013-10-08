@@ -26,7 +26,9 @@ def configure(conf):
     
     conf.start_msg('Extracting MPI comiler and linker flags')
     try:
-        output = subprocess.Popen(['mpicxx', '-show'], stdout=subprocess.PIPE).communicate()[0].decode('utf-8')
+        output = subprocess.Popen(['mpicxx', '-show'], stdout=subprocess.PIPE).communicate()[0]
+        if not isinstance(output, str):
+            output = output.decode()
         params = output.split('\n')[0].split(' ')[1:]
 
         unprocessed = []
