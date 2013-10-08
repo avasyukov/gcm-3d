@@ -49,6 +49,13 @@ def options(opt):
         default=False,
         help='Do not install resources files'
     )
+    
+    opt.add_option(
+        '--disable-auto-rpath',
+        action='store_true',
+        default=False,
+        help='Do not adjust linker rpath automatically'
+    )
 
     opt.add_option(
         '--static',
@@ -113,6 +120,15 @@ def configure(conf):
 
     conf.load(libs, tooldir='waftools')
     conf.env.LIBS = libs
+ 
+    if not conf.options.disable_auto_rpath:
+        keys = [x for x in conf.env.keys() if x.find('LIBPATH_LIB') >= 0]
+        for key in keys:
+            conf.env.LINKFLAGS += ['-Wl,-rpath,' + x for x in conf.env[key]]
+        if conf.options.prefix:
+            conf.env.LINKFLAGS += ['-Wl,-rpath,' + conf.options.prefix]
+
+        conf.env.LINKFLAGS = list(set(conf.env.LINKFLAGS))
 
 
 def build(bld):
