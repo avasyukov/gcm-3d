@@ -1,4 +1,5 @@
 #include "SlidingContactCalculator.h"
+#include "../border/FreeBorderCalculator.h"
 #include "../../node/CalcNode.h"
 
 SlidingContactCalculator::SlidingContactCalculator()
@@ -25,6 +26,36 @@ void SlidingContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, C
 	local_n[0][2] = outer_normal[2];
 
 	createLocalBasis(local_n[0], local_n[1], local_n[2]);
+
+	//---------------------------------------Check if nodes fall apart
+	float vel_rel[3] = {cur_node->values[0]+virt_node->values[0],
+		   	    cur_node->values[1]+virt_node->values[1],
+			    cur_node->values[2]+virt_node->values[2]};
+	float force_cur[3] = {cur_node->values[3]*outer_normal[0]+cur_node->values[4]*outer_normal[1]+cur_node->values[5]*outer_normal[2],
+			  cur_node->values[4]*outer_normal[0]+cur_node->values[6]*outer_normal[1]+cur_node->values[7]*outer_normal[2],
+			  cur_node->values[5]*outer_normal[0]+cur_node->values[7]*outer_normal[1]+cur_node->values[8]*outer_normal[2]};
+	
+	float vel_abs =  -scalarProduct(vel_rel,outer_normal);
+	float force_cur_abs = scalarProduct(force_cur,outer_normal);
+	
+	float eps = 0.0005;
+	bool free_border = false;
+
+	if (vel_abs < -eps) 			//first check relative speed
+		free_border = true;
+	else if (vel_abs < eps)			//if relative speed is small, we check force
+		if (force_cur_abs > -eps)
+			free_border = true;
+
+	if (free_border) 		
+	{
+		FreeBorderCalculator *fbc = new FreeBorderCalculator();
+		fbc->do_calc(cur_node, new_node, matrix, values, inner, outer_normal, scale);
+		delete fbc;
+		return;
+	}
+	//--------------------------------------------------------------------
+
 
 	// Here we will store (omega = Matrix_OMEGA * u)
 	float omega[9];
