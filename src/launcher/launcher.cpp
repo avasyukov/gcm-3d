@@ -82,6 +82,10 @@ void loadSceneFromFile(Engine& engine, string fileName)
 							NULL, new StepPulseForm(-1, -1), 
 							engine.getContactCalculator("AdhesionContactCalculator") ) );
 		}
+		else if (type == "AdhesionContactDestroyCalculator")
+		{
+			engine.replaceDefaultContactCondition( new ContactCondition( NULL, new StepPulseForm(-1,-1), engine.getContactCalculator("AdhesionContactDestroyCalculator")));
+		}
 	}
 
 	NodeList defaultRheoCalculatorList = rootNode.xpath("/task/system/defaultRheologyCalculator");
@@ -148,12 +152,16 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		float la = atof( getAttributeByName(matNode.getAttributes(), "la").c_str() );
 		float mu = atof( getAttributeByName(matNode.getAttributes(), "mu").c_str() );
 		float rho = atof( getAttributeByName(matNode.getAttributes(), "rho").c_str() );
+		float ct =  atof( getAttributeByName(matNode.getAttributes(), "crackThreshold").c_str() );	
+		float at =  atof( getAttributeByName(matNode.getAttributes(), "adhesionThreshold").c_str() );	
 		if( la <= 0 || mu <= 0 || rho <= 0 )
 			LOG_ERROR("Incorrect rheology in task file for material: " << id);
 		LOG_DEBUG("Loaded material " << id << " with properties: (" << la << "; " << mu << "; " << rho << ")");
 		Material* mat = new Material(id);
 		mat->setRho(rho);
 		mat->setLame(la, mu);
+		mat->setCrackThreshold(ct);
+		mat->setAdhesionThreshold(at);
 		engine.addMaterial(mat);
 	}
 	
@@ -360,22 +368,29 @@ void loadSceneFromFile(Engine& engine, string fileName)
 	NodeList initialStateNodes = rootNode.xpath("/task/initialState");
 	for(auto& initialStateNode: initialStateNodes)
 	{
+		NodeList areaNodes = initialStateNode.getChildrenByName("area");
+        	NodeList valuesNodes = initialStateNode.getChildrenByName("values");
+        	if (areaNodes.size() != valuesNodes.size())
+                //      THROW_INVALID_INPUT("Only one area element allowed for initial state");
+                        THROW_INVALID_INPUT("Number of areas don't coincide with number of values");
+
 		Area* stateArea = NULL;
 		float values[9];
-		NodeList areaNodes = initialStateNode.getChildrenByName("area");
-		if (areaNodes.size() > 1)
-			THROW_INVALID_INPUT("Only one area element allowed for initial state");
-		if (areaNodes.size()) {
+		if (areaNodes.size() != valuesNodes.size())
+		//	THROW_INVALID_INPUT("Only one area element allowed for initial state");
+			THROW_INVALID_INPUT("Number of areas don't coincide with number of values");
+		for (int node=0; node<areaNodes.size(); node++)
+	{
 			string areaType = getAttributeByName(areaNodes.front().getAttributes(), "type");
 			if( areaType == "box" )
 			{
 				LOG_DEBUG("Initial state area: " << areaType);
-				float minX = atof( getAttributeByName(areaNodes.front().getAttributes(), "minX").c_str() );
-				float maxX = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxX").c_str() );
-				float minY = atof( getAttributeByName(areaNodes.front().getAttributes(), "minY").c_str() );
-				float maxY = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxY").c_str() );
-				float minZ = atof( getAttributeByName(areaNodes.front().getAttributes(), "minZ").c_str() );
-				float maxZ = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxZ").c_str() );
+				float minX = atof( getAttributeByName(areaNodes[node].getAttributes(), "minX").c_str() );
+				float maxX = atof( getAttributeByName(areaNodes[node].getAttributes(), "maxX").c_str() );
+				float minY = atof( getAttributeByName(areaNodes[node].getAttributes(), "minY").c_str() );
+				float maxY = atof( getAttributeByName(areaNodes[node].getAttributes(), "maxY").c_str() );
+				float minZ = atof( getAttributeByName(areaNodes[node].getAttributes(), "minZ").c_str() );
+				float maxZ = atof( getAttributeByName(areaNodes[node].getAttributes(), "maxZ").c_str() );
 				LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] " 
 									<< "[" << minY << ", " << maxY << "] " 
 									<< "[" << minZ << ", " << maxZ << "]");
@@ -383,49 +398,46 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			} else {
 				LOG_WARN("Unknown initial state area: " << areaType);
 			}
-		}
-		NodeList valuesNodes = initialStateNode.getChildrenByName("values");
-		if (valuesNodes.size() > 1)
-			THROW_INVALID_INPUT("Only one values element allowed for initial state");
-		if (valuesNodes.size()) {
+		//if (valuesNodes.size() > 1)
+		//	THROW_INVALID_INPUT("Only one values element allowed for initial state");
 			memset(values, 0, 9*sizeof(float));
-			string vx = valuesNodes.front().getAttributes()["vx"];
+			string vx = valuesNodes[node].getAttributes()["vx"];
 			if( !vx.empty() )
 				values[0] = atof( vx.c_str() );
-			string vy = valuesNodes.front().getAttributes()["vy"];
+			string vy = valuesNodes[node].getAttributes()["vy"];
 			if( !vy.empty() )
 				values[1] = atof( vy.c_str() );
-			string vz = valuesNodes.front().getAttributes()["vz"];
+			string vz = valuesNodes[node].getAttributes()["vz"];
 			if( !vz.empty() )
 				values[2] = atof( vz.c_str() );
-			string sxx = valuesNodes.front().getAttributes()["sxx"];
+			string sxx = valuesNodes[node].getAttributes()["sxx"];
 			if( !sxx.empty() )
 				values[3] = atof( sxx.c_str() );
-			string sxy = valuesNodes.front().getAttributes()["sxy"];
+			string sxy = valuesNodes[node].getAttributes()["sxy"];
 			if( !sxy.empty() )
 				values[4] = atof( sxy.c_str() );
-			string sxz = valuesNodes.front().getAttributes()["sxz"];
+			string sxz = valuesNodes[node].getAttributes()["sxz"];
 			if( !sxz.empty() )
 				values[5] = atof( sxz.c_str() );
-			string syy = valuesNodes.front().getAttributes()["syy"];
+			string syy = valuesNodes[node].getAttributes()["syy"];
 			if( !syy.empty() )
 				values[6] = atof( syy.c_str() );
-			string syz = valuesNodes.front().getAttributes()["syz"];
+			string syz = valuesNodes[node].getAttributes()["syz"];
 			if( !syz.empty() )
 				values[7] = atof( syz.c_str() );
-			string szz = valuesNodes.front().getAttributes()["szz"];
+			string szz = valuesNodes[node].getAttributes()["szz"];
 			if( !szz.empty() )
 				values[8] = atof( szz.c_str() );
 			LOG_DEBUG("Initial state values: " 
 							<< values[0] << " " << values[1] << " " << values[2] << " " 
 							<< values[3] << " " << values[4] << " " << values[5] << " "
 							<< values[6] << " " << values[7] << " " << values[8] );
-		}
 		for( int i = 0; i < engine.getNumberOfBodies(); i++ )
 		{
 			engine.getBody(i)->setInitialState(stateArea, values);
 			engine.getBody(i)->getMeshes()->processStressState();
 		}
+	}
 	}
 	LOG_DEBUG("Scene loaded");
 }

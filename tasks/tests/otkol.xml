@@ -1,0 +1,25 @@
+<task numberOfSnaps="25" stepsPerSnap="12">
+	<system>
+		<defaultContactCalculator type="SlidingContactCalculator" />
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="cover" type="geo2" file="models/cover-small.geo" tetrSize="0.7" />
+			<material id="testMaterial" />
+		</body>
+                <body id="cube2">
+                        <rheology type="elastic" />
+                        <mesh id="striker" type="geo2" file="models/oskolok.geo" tetrSize="0.5" />
+                        <material id="testMaterial" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="6.00001" />
+                </body>
+        </bodies>
+	<materials>
+		<material id="testMaterial" la="80300000000" mu="25400000000" rho="2740" crackThreshold="5000000000" adhesionThreshold="0" />
+	</materials>
+	<initialState>
+		<area type="box" minX="-10" maxX="15" minY="-10" maxY="10" minZ="6" maxZ="100"/>
+		<values vz="-720" sxx="-56000" syy="-56000" szz="-72000" />
+	</initialState>
+</task>

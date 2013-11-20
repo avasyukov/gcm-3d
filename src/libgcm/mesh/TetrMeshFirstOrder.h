@@ -219,6 +219,7 @@ namespace gcm {
 		int getNumberOfLocalNodes();
 		void clearContactState();
 		void processStressState();
+		void processCrackState();
 		
 		void applyRheology(RheologyCalculator* rc);
 	};

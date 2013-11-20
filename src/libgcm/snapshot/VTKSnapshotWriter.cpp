@@ -58,6 +58,8 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 
 	vtkDoubleArray *vel = vtkDoubleArray::New();
 	vel->SetNumberOfComponents(3);
+	vtkDoubleArray *crack = vtkDoubleArray::New();
+	crack->SetNumberOfComponents(3);
 	vtkDoubleArray *sxx = vtkDoubleArray::New();
 	vtkDoubleArray *sxy = vtkDoubleArray::New();
 	vtkDoubleArray *sxz = vtkDoubleArray::New();
@@ -71,11 +73,14 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	vtkIntArray    *matId = vtkIntArray::New();
 	vtkDoubleArray *rho = vtkDoubleArray::New();
 	vtkIntArray    *borderState = vtkIntArray::New();
+	vtkIntArray    *contactState = vtkIntArray::New();
 	vtkIntArray    *mpiState = vtkIntArray::New();
 	vtkIntArray	   *nodeErrorFlags = vtkIntArray::New ();
 
 	float v[3];
 	int snapNodeCount = 0;
+	float c[3];
+
 	
 	for(int i = 0; i < mesh->getNodesNumber(); i++)
 	{
@@ -87,7 +92,9 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 			snapNodeCount++;
 			pts->InsertNextPoint( node->coords[0], node->coords[1], node->coords[2] );
 			v[0] = node->values[0];	v[1] = node->values[1];	v[2] = node->values[2];
+			memcpy(c, node->getCrackDirection(), 3*sizeof(float));
 			vel->InsertNextTuple(v);
+			crack->InsertNextTuple(c);
 			sxx->InsertNextValue( node->values[3] );
 			sxy->InsertNextValue( node->values[4] );
 			sxz->InsertNextValue( node->values[5] );
@@ -101,6 +108,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 			matId->InsertNextValue( node->getMaterialId() );
 			rho->InsertNextValue( node->getRho() );
 			borderState->InsertNextValue( node->isBorder() ? ( node->isInContact() ? 2 : 1 ) : 0 );
+			contactState->InsertNextValue(node->getContactConditionId());
 			mpiState->InsertNextValue( node->isRemote() ? 1 : 0 );
 			nodeErrorFlags->InsertNextValue (node->getErrorFlags());
 		}
@@ -120,6 +128,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	}
 
 	vel->SetName("velocity");
+	crack->SetName("crack");
 	sxx->SetName("sxx");
 	sxy->SetName("sxy");
 	sxz->SetName("sxz");
@@ -133,10 +142,12 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	matId->SetName("materialID");
 	rho->SetName("rho");
 	borderState->SetName("borderState");
+	contactState->SetName("contactState");
 	mpiState->SetName("mpiState");
 	nodeErrorFlags->SetName ("errorFlags");
 	
 	g->GetPointData()->SetVectors(vel);
+	g->GetPointData()->AddArray(crack);
 	g->GetPointData()->AddArray(sxx);
 	g->GetPointData()->AddArray(sxy);
 	g->GetPointData()->AddArray(sxz);
@@ -150,10 +161,12 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	g->GetPointData()->AddArray(matId);
 	g->GetPointData()->AddArray(rho);
 	g->GetPointData()->AddArray(borderState);
+	g->GetPointData()->AddArray(contactState);
 	g->GetPointData()->AddArray(mpiState);
 	g->GetPointData ()->AddArray (nodeErrorFlags);
 	
 	vel->Delete();
+	crack->Delete();
 	sxx->Delete();
 	sxy->Delete();
 	sxz->Delete();
@@ -167,6 +180,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	matId->Delete();
 	rho->Delete();
 	borderState->Delete();
+	contactState->Delete();
 	mpiState->Delete();
 	nodeErrorFlags->Delete ();
 	

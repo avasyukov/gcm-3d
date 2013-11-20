@@ -11,9 +11,11 @@ gcm::CalcNode::CalcNode()
 	errorFlags = 0;
 	// Border condition '1' is 'default' one, since '0' is reserved for 'failsafe' one
 	borderCondId = 1;
+	contactCondId = 0;
 	addOwner( GCM );
 	elements = new vector<int>;
 	border_elements = new vector<int>;
+	crackDirection[0] = crackDirection[1] =	crackDirection[2] = 0.0;
 }
 
 gcm::CalcNode::CalcNode(int _num) {
@@ -37,12 +39,14 @@ gcm::CalcNode::CalcNode(const CalcNode& src) {
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;
 	borderCondId = src.borderCondId;
+	contactCondId = src.contactCondId;
 	elements = new vector<int>;
 	border_elements = new vector<int>;
 	for( unsigned int i = 0; i < src.elements->size(); i++ )
 		elements->push_back( src.elements->at(i) );
 	for( unsigned int i = 0; i < src.border_elements->size(); i++ )
 		border_elements->push_back( src.border_elements->at(i) );
+	memcpy( crackDirection, src.crackDirection, 3*sizeof(float));
 }
 
 CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
@@ -59,12 +63,14 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;
 	borderCondId = src.borderCondId;
+	contactCondId = src.contactCondId;
 	elements->clear();
 	border_elements->clear();
 	for( unsigned int i = 0; i < src.elements->size(); i++ )
 		elements->push_back( src.elements->at(i) );
 	for( unsigned int i = 0; i < src.border_elements->size(); i++ )
 		border_elements->push_back( src.border_elements->at(i) );
+	memcpy( crackDirection, src.crackDirection, 3*sizeof(float));
 	return *this;
 }
 
@@ -183,6 +189,47 @@ void gcm::CalcNode::calcMainStressComponents()
 	mainStresses[2] = A * cos(phi - 2 * M_PI / 3.0) - a / 3.0;
 	setMainStressCalculated( true );
 }
+
+void gcm::CalcNode::calcMainStressDirectionByComponent(float s, float* vector)
+{
+	if ( (sxy*sxy-(sxx-s)*(syy-s))*(sxy*(szz-s)-sxz*syz)-(sxy*sxz-(sxx-s)*syz)*(sxy*syz-sxz*(syy-s)) == 0)
+		vector[2]=1;
+	else	vector[2]=0;
+
+	if (sxy*sxy-(sxx-s)*(syy-s) != 0)
+		vector[1] = vector[2]*(-sxy*sxz+(sxx-s)*sxz)/(sxy*sxy-(sxx-s)*(syy-s));
+	else if (sxy*syz-sxz*(syy-s) != 0)
+		vector[1] = vector[2]*(sxz*syz-sxy*(szz-s))/(sxy*syz-sxz*(syy-s));
+	else 	vector[1] = 1;
+
+	if (sxx-s != 0)
+		vector[0] = -vector[1]*sxy/(sxx-s)-vector[2]*sxz/(sxx-s);
+	else if (sxy != 0) 
+		vector[0] = -vector[1]*(syy-s)/sxy-vector[2]*syz/sxy;
+	else if (sxz != 0) 
+		vector[0] = -vector[1]*syz/sxz-vector[2]*(szz-s)/sxz;
+	else 	vector[0] = 1;
+
+	float norm = sqrt(vector[0]*vector[0]+vector[1]*vector[1]+vector[2]*vector[2]);
+	if (norm > 0.0)
+	{
+		vector[0]/=norm;
+		vector[1]/=norm;
+		vector[2]/=norm;
+	}
+}
+
+void gcm::CalcNode::createCrack(int direction)
+{
+	if (scalarProduct(crackDirection,crackDirection) < 0.1)
+		this->calcMainStressDirectionByComponent(mainStresses[direction], crackDirection);
+}
+
+void gcm::CalcNode::createCrack(float* vector)
+{
+	memcpy( crackDirection, vector, 3*sizeof(float) );
+}
+
 
 void gcm::CalcNode::getMainStressComponents(float& s1, float& s2, float& s3)
 {

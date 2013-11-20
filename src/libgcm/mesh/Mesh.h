@@ -95,6 +95,7 @@ namespace gcm {
 		virtual void setBodyNum(unsigned char id) = 0;
 		virtual void clearContactState() = 0;
 		virtual void processStressState() = 0;
+		virtual void processCrackState() = 0;
 		virtual void applyRheology(RheologyCalculator* rc) = 0;
 		virtual void move_coords(float tau) = 0;
 
