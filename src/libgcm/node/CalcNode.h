@@ -49,6 +49,7 @@ enum NodeOrder
 #define X_NEIGH_ERROR_MASK 1
 #define Y_NEIGH_ERROR_MASK 2
 #define Z_NEIGH_ERROR_MASK 4
+#define OUTER_NORMAL_ERROR_MASK 8
 
 using namespace std;
 using namespace gcm;
@@ -255,7 +256,12 @@ namespace gcm {
 			{
 				errorFlags |= Z_NEIGH_ERROR_MASK;
 			}
-			
+		
+			void inline setNormalError ()
+			{
+				errorFlags |= OUTER_NORMAL_ERROR_MASK;
+			}
+	
 			void inline setNeighError (unsigned int axisNum)
 			{
 				assert ( axisNum < 3 );

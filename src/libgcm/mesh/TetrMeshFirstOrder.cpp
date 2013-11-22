@@ -993,6 +993,7 @@ void gcm::TetrMeshFirstOrder::find_border_node_normal(int border_node_index, flo
 	{
 		LOG_WARN("Border node does not belong to any face");
 		LOG_WARN("Can not find normal for the node " << *node);
+		node->setNormalError();
 	}
 
 	for(int i = 0; i < count; i++)
