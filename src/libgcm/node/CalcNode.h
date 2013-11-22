@@ -117,6 +117,7 @@ namespace gcm {
 			inline bool rheologyIsValid() {
 				return ( materialId >= 0 && rho > 0 );
 			}
+			void calcMainStressDirectionByComponent(float stress, float* vector);
 			
 			vector<int>* elements;
 			vector<int>* border_elements;
@@ -291,6 +292,16 @@ namespace gcm {
 		   {
 			   return borderCondId;
 		   }
+			
+		   void inline setContactConditionId(unsigned char newContactConditionId)
+		   {
+			   contactCondId = newContactConditionId;
+		   }
+
+		   unsigned char inline getContactConditionId ()
+		   {
+		  	   return contactCondId;
+		   }
 		   
 		   void inline setMaterialId (unsigned char id)
 		   {
@@ -334,6 +345,16 @@ namespace gcm {
 		   {
 			   return Engine::getInstance().getMaterial(materialId)->getMu();
 		   }
+		
+		   float inline getCrackThreshold()
+                   {
+                           return Engine::getInstance().getMaterial(materialId)->getCrackThreshold();
+                   }
+
+		   float inline getAdhesionThreshold()
+                   {
+                           return Engine::getInstance().getMaterial(materialId)->getAdhesionThreshold();
+                   }
 		   
 		   float inline getC1()
 		   {
@@ -369,6 +390,14 @@ namespace gcm {
 			   return errorFlags;
 		   }
 		   
+		   float* getCrackDirection () 
+		   {
+			   return crackDirection;
+		   }
+		
+		   void createCrack(int direction);
+		   void createCrack(float* vector);
+	           void cleanStressByDirection(float* dir);
 	protected:
 
 		   /**
@@ -405,6 +434,8 @@ namespace gcm {
 			* Border condition that is used for this node. Condition should be registered in Engine.
 			*/
 		   unsigned char borderCondId;
+		   unsigned char contactCondId;
+			
 		   
 		   /*
 		    * Rheology parameters.
@@ -415,6 +446,7 @@ namespace gcm {
 			* Main stress components
 			*/
 		   float mainStresses[3];
+		public:    float crackDirection[3];
 	};
 }
 

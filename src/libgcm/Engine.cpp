@@ -12,6 +12,7 @@
 #include "calc/border/SmoothBorderCalculator.h"
 #include "calc/contact/SlidingContactCalculator.h"
 #include "calc/contact/AdhesionContactCalculator.h"
+#include "calc/contact/AdhesionContactDestroyCalculator.h"
 #include "util/forms/StepPulseForm.h"
 #include "snapshot/VTKSnapshotWriter.h"
 #include "snapshot/VTK2SnapshotWriter.h"
@@ -72,6 +73,7 @@ gcm::Engine::Engine()
 	registerBorderCalculator( new SmoothBorderCalculator() );
 	registerContactCalculator( new SlidingContactCalculator() );
 	registerContactCalculator( new AdhesionContactCalculator() );
+	registerContactCalculator( new AdhesionContactDestroyCalculator() );
 	LOG_DEBUG("Registering default border condition");
 	// Failsafe border condition
 	addBorderCondition( new BorderCondition( NULL, new StepPulseForm(-1, -1), getBorderCalculator("SmoothBorderCalculator") ) );
@@ -459,6 +461,7 @@ void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actu
 		LOG_DEBUG("Looking for missed nodes");
 		dataBus->syncMissedNodes(mesh, tau);
 		LOG_DEBUG("Looking for missed nodes done");
+		mesh->processCrackResponse();
 	}
 	
 	// Run collision detector
@@ -506,6 +509,7 @@ void gcm::Engine::doNextStepAfterStages(const float time_step) {
 		LOG_DEBUG( "Processing stress state for mesh " << mesh->getId() );
 		mesh->processStressState();
 		LOG_DEBUG( "Processing stress state done" );
+		mesh->processCrackState();
 		//LOG_DEBUG( "Moving mesh " << mesh->getId() );
 		//mesh->move_coords(time_step);
 		//LOG_DEBUG( "Moving done" );

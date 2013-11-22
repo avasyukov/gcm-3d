@@ -15,6 +15,14 @@ void gcm::Material::setRho(float _rho) {
 	rho = _rho;
 }
 
+void gcm::Material::setCrackThreshold(float _ct) {
+        crackThreshold = _ct;
+}
+
+void gcm::Material::setAdhesionThreshold(float _at) {
+        adhesionThreshold = _at;
+}
+
 void gcm::Material::setLame(float _la, float _mu) {
 	la = _la;
 	mu = _mu;
@@ -35,3 +43,12 @@ float gcm::Material::getMu() {
 float gcm::Material::getRho() {
 	return rho;
 }
+
+float gcm::Material::getCrackThreshold() {
+        return crackThreshold;
+}
+
+float gcm::Material::getAdhesionThreshold() {
+        return adhesionThreshold;
+}
+

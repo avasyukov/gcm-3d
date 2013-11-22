@@ -205,6 +205,8 @@ void gcm::TetrMeshFirstOrder::initNewNodes() {
 		memcpy( newNode->values, node->values, GCM_VALUES_SIZE*sizeof(float) );
 		newNode->setRho( node->getRho() );
 		newNode->setMaterialId( node->getMaterialId() );
+		newNode->setContactConditionId(node->getContactConditionId());
+		newNode->createCrack(node->getCrackDirection());
 	}
 }
 
@@ -1230,6 +1232,45 @@ void gcm::TetrMeshFirstOrder::processStressState()
 			node->calcMainStressComponents();
 	}
 }
+
+void gcm::TetrMeshFirstOrder::processCrackState()
+{
+        CalcNode* node;
+        for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+                int i = itr->first;
+                node = getNode(i);
+                if( node->isLocal() )
+		{
+			float m_s[3];
+			node->getMainStressComponents(m_s[0], m_s[1], m_s[2]);
+                        int i_ms=0; if (m_s[1]>m_s[i_ms]) i_ms=1; if (m_s[2]>m_s[i_ms]) i_ms = 2;
+			if (m_s[i_ms] > node->getCrackThreshold())
+			{
+				node->createCrack(i_ms);
+				//LOG_INFO("|crack "<<m_s[i_ms]<<"|");
+			}
+		}
+        }
+}
+
+void gcm::TetrMeshFirstOrder::processCrackResponse()
+{
+        CalcNode* node;
+        for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+                int i = itr->first;
+                node = getNode(i);
+                if( node->isLocal() )
+                {
+                        float *m_s = node->getCrackDirection();
+                        if (scalarProduct(m_s,m_s)>0.5)
+                        {
+                                node->cleanStressByDirection(m_s);
+                                //LOG_INFO("|crack "<<m_s[i_ms]<<"|");
+                        }
+                }
+        }
+}
+
 
 // TODO
 void gcm::TetrMeshFirstOrder::do_next_part_step(float tau, int stage)
