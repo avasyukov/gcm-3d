@@ -461,6 +461,7 @@ void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actu
 		LOG_DEBUG("Looking for missed nodes");
 		dataBus->syncMissedNodes(mesh, tau);
 		LOG_DEBUG("Looking for missed nodes done");
+		mesh->processCrackResponse();
 	}
 	
 	// Run collision detector

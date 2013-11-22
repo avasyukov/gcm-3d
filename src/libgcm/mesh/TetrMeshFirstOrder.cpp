@@ -1252,6 +1252,25 @@ void gcm::TetrMeshFirstOrder::processCrackState()
         }
 }
 
+void gcm::TetrMeshFirstOrder::processCrackResponse()
+{
+        CalcNode* node;
+        for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+                int i = itr->first;
+                node = getNode(i);
+                if( node->isLocal() )
+                {
+                        float *m_s = node->getCrackDirection();
+                        if (scalarProduct(m_s,m_s)>0.5)
+                        {
+                                node->cleanStressByDirection(m_s);
+                                //LOG_INFO("|crack "<<m_s[i_ms]<<"|");
+                        }
+                }
+        }
+}
+
+
 // TODO
 void gcm::TetrMeshFirstOrder::do_next_part_step(float tau, int stage)
 {

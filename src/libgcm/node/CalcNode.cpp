@@ -221,7 +221,7 @@ void gcm::CalcNode::calcMainStressDirectionByComponent(float s, float* vector)
 
 void gcm::CalcNode::createCrack(int direction)
 {
-	if (scalarProduct(crackDirection,crackDirection) < 0.1)
+	if (scalarProduct(crackDirection,crackDirection) == 0.0)
 		this->calcMainStressDirectionByComponent(mainStresses[direction], crackDirection);
 }
 
@@ -239,4 +239,15 @@ void gcm::CalcNode::getMainStressComponents(float& s1, float& s2, float& s3)
 	s1 = mainStresses[0];
 	s2 = mainStresses[1];
 	s3 = mainStresses[2];
+}
+
+void gcm::CalcNode::cleanStressByDirection(float* h)
+{
+	float s1=h[0]*(sxx*h[0]+sxy*h[1]+sxz*h[2])+h[1]*(sxy*h[0]+syy*h[1]+syz*h[2])+h[2]*(sxz*h[0]+syz*h[1]+szz*h[2]);//TODO
+	sxx -= h[0]*h[0]*s1;
+	sxy -= h[0]*h[1]*s1;
+	sxz -= h[0]*h[2]*s1;
+	syy -= h[1]*h[1]*s1;
+	syz -= h[1]*h[2]*s1;
+	szz -= h[2]*h[2]*s1;
 }

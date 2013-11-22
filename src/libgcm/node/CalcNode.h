@@ -391,6 +391,7 @@ namespace gcm {
 		
 		   void createCrack(int direction);
 		   void createCrack(float* vector);
+	           void cleanStressByDirection(float* dir);
 	protected:
 
 		   /**

@@ -220,6 +220,7 @@ namespace gcm {
 		void clearContactState();
 		void processStressState();
 		void processCrackState();
+		void processCrackResponse();
 		
 		void applyRheology(RheologyCalculator* rc);
 	};
