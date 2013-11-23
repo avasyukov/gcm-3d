@@ -461,7 +461,10 @@ void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actu
 		LOG_DEBUG("Looking for missed nodes");
 		dataBus->syncMissedNodes(mesh, tau);
 		LOG_DEBUG("Looking for missed nodes done");
+		
+		LOG_DEBUG("Processing response from cracks");
 		mesh->processCrackResponse();
+		LOG_DEBUG("Processing response from cracks done");
 	}
 	
 	// Run collision detector
@@ -509,7 +512,9 @@ void gcm::Engine::doNextStepAfterStages(const float time_step) {
 		LOG_DEBUG( "Processing stress state for mesh " << mesh->getId() );
 		mesh->processStressState();
 		LOG_DEBUG( "Processing stress state done" );
+		LOG_DEBUG( "Processing crack state for mesh " << mesh->getId() );
 		mesh->processCrackState();
+		LOG_DEBUG( "Processing crack state done" );
 		//LOG_DEBUG( "Moving mesh " << mesh->getId() );
 		//mesh->move_coords(time_step);
 		//LOG_DEBUG( "Moving done" );
