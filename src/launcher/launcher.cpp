@@ -32,11 +32,17 @@ using namespace xml;
  * Returns value of named attribute.
  */
 
-string getAttributeByName(AttrList attrs, string name) {
+string getAttributeByName(AttrList attrs, string name, string defaultValue) {
 	AttrList::iterator iter = attrs.find(name);
 	if (iter != attrs.end())
 		return iter->second;
-	THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list");
+	if( defaultValue != "" )
+		return defaultValue;
+	THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list and default value is not provided");
+}
+
+string getAttributeByName(AttrList attrs, string name) {
+	return getAttributeByName(attrs, name, "");
 }
 
 void loadSceneFromFile(Engine& engine, string fileName)
@@ -152,8 +158,9 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		float la = atof( getAttributeByName(matNode.getAttributes(), "la").c_str() );
 		float mu = atof( getAttributeByName(matNode.getAttributes(), "mu").c_str() );
 		float rho = atof( getAttributeByName(matNode.getAttributes(), "rho").c_str() );
-		float ct =  atof( getAttributeByName(matNode.getAttributes(), "crackThreshold").c_str() );	
-		float at =  atof( getAttributeByName(matNode.getAttributes(), "adhesionThreshold").c_str() );	
+		// Use INF as default value for backward compatibility
+		float ct =  atof( getAttributeByName(matNode.getAttributes(), "crackThreshold", "INF").c_str() );
+		float at =  atof( getAttributeByName(matNode.getAttributes(), "adhesionThreshold", "INF").c_str() );
 		if( la <= 0 || mu <= 0 || rho <= 0 )
 			LOG_ERROR("Incorrect rheology in task file for material: " << id);
 		LOG_DEBUG("Loaded material " << id << " with properties: (" << la << "; " << mu << "; " << rho << ")");
