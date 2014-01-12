@@ -41,6 +41,7 @@ namespace gcm {
 		void build_surface_reverse_lookups();
 		void build_first_order_border();
 		void generateSecondOrderBorder();
+		void moveSecondOrderNode(int nodeIdx, int nodeIdx1, int nodeIdx2);
 		
 	public:
 		TetrMeshSecondOrder();

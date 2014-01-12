@@ -38,7 +38,7 @@ namespace gcm {
 		// number returned surface elements (nodes and triangles) sequentially
 		//void renumber_surface(vector<TriangleFirstOrder> &faces, vector<CalcNode> &nodes);
 		// returns surface elements (nodes and triangles) renumbered sequentially
-		//void renumber_volume(vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes);
+		//void renumber_volume(vector<Tetrahedron_1st_order> &tetrs, vector<CalcNode> &nodes);
 		void set_static(bool state);
 		bool is_static();
 	};

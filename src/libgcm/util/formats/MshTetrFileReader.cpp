@@ -107,6 +107,11 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 	float sliceX = (scene->maxX - scene->minX ) / numberOfSlices;
 	float sliceY = (scene->maxY - scene->minY ) / numberOfSlices;
 	float sliceZ = (scene->maxZ - scene->minZ ) / numberOfSlices;
+	float minSlice = sliceX;
+	if( minSlice > sliceY )
+		minSlice = sliceY;
+	if( minSlice > sliceZ )
+		minSlice = sliceZ;
 	
 	for(int i = 0; i < number_of_nodes; i++)
 	{
@@ -151,19 +156,24 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 	
 	LOG_DEBUG("File successfylly pre-read.");
 	
+	float qx = qualityX * sliceX / minSlice;
+	float qy = qualityY * sliceY / minSlice;
+	float qz = qualityZ * sliceZ / minSlice;
+
 	int dir = 0;
-	if( qualityX > qualityY )
-		if( qualityX > qualityZ )
+	if( qx > qy )
+		if( qx > qz )
 			dir = 0;
 		else
 			dir = 2;
 	else
-		if( qualityY > qualityZ )
+		if( qy > qz )
 			dir = 1;
 		else
 			dir = 2;
 	
 	LOG_DEBUG("qualityX: " << qualityX << " qualityY: " << qualityY << " qualityZ: " << qualityZ);
+	LOG_DEBUG("sliceX: " << sliceX / minSlice << " sliceY: " << sliceY / minSlice << " sliceZ: " << sliceZ / minSlice );
 	LOG_DEBUG("slice direction: " << dir);
 	
 	sliceDirection = dir;

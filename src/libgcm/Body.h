@@ -30,6 +30,8 @@ namespace gcm {
 		 * Body id. May be empty or non-unique, but it's not recommended.
 		 */
 		string id;
+		
+		string rheoCalcType;
 		/*
 		 * Logger.
 		 */
@@ -64,6 +66,9 @@ namespace gcm {
 		IEngine* getEngine();
 		
 		void setInitialState(Area* area, float values[9]);
+		
+		string getRheologyCalculatorType();
+		void setRheologyCalculatorType(string calcType);
 	};
 }
 

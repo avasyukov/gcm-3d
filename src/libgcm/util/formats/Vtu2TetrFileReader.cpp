@@ -74,6 +74,15 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 	xgr->Update();
 
 	g = xgr->GetOutput();
+	if( ignoreDispatcher )
+	{
+		LOG_DEBUG("Reading file ignoring dispatcher");
+	}
+	else
+	{
+		LOG_DEBUG("Dispatcher zones:");
+		dispatcher->printZones();
+	}
 	LOG_DEBUG("Number of points: " << g->GetNumberOfPoints());
 	LOG_DEBUG("Number of cells: " << g->GetNumberOfCells());
 	
@@ -200,7 +209,7 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 	CalcNode tmpNode;
 	for( int i = 0; i < g->GetNumberOfPoints(); i++ )
 	{
-		if( remoteNodes.find( i ) != remoteNodes.end() )
+		if( remoteNodes.find( nodeNumber->GetValue(i) ) != remoteNodes.end() )
 		{
 			double* dp = g->GetPoint(i);
 			tmpNode.number = nodeNumber->GetValue(i);
@@ -243,10 +252,16 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 		TetrSecondOrder* tetr = mesh->getTetr2ByLocalIndex(i);
 		for (int j = 0; j < 4; j++)
 			if ( mesh->getNode(tetr->verts[j]) == NULL )
-				LOG_WARN("Bad vert: " << tetr->verts[j]);
+			{
+				LOG_ERROR("Can not find node " << tetr->verts[j] << " required by local tetr " << i);
+				THROW_BAD_MESH("Missed node");
+			}
 		for (int j = 0; j < 6; j++)
 			if ( mesh->getNode(tetr->addVerts[j]) == NULL )
-				LOG_WARN("Bad vert: " << tetr->addVerts[j]);
+			{
+				LOG_ERROR("Can not find node " << tetr->addVerts[j] << " required by local tetr " << i);
+				THROW_BAD_MESH("Missed node");
+			}
 	}
 	
 	//xgr->Delete();

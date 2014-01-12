@@ -12,19 +12,22 @@
 #include "calc/border/SmoothBorderCalculator.h"
 #include "calc/contact/SlidingContactCalculator.h"
 #include "calc/contact/AdhesionContactCalculator.h"
+#include "calc/contact/AdhesionContactDestroyCalculator.h"
 #include "util/forms/StepPulseForm.h"
 #include "snapshot/VTKSnapshotWriter.h"
 #include "snapshot/VTK2SnapshotWriter.h"
 #include "BruteforceCollisionDetector.h"
 #include "rheology/DummyRheologyCalculator.h"
+#include "rheology/StdRheologyCalculator.h"
 
 // initialiaze static fields
 int gcm::Engine::enginesNumber = 0;
+Engine* gcm::Engine::engineInstance = 0;
 
 Engine& gcm::Engine::getInstance()
 {
-	static Engine engine;
-	return engine;
+	if (!engineInstance) initInstance();
+	return *engineInstance;
 }
 
 gcm::Engine::Engine()
@@ -36,6 +39,7 @@ gcm::Engine::Engine()
 		// only one instance of engine at the same time
 		throw logic_error("Only one engine can be used at the same time");
 	}
+	engineInstance = this;
 	enginesNumber++;
 	// init MPI subsystem used for IPC
 	if( ! MPI::Is_initialized() )
@@ -61,12 +65,15 @@ gcm::Engine::Engine()
 	registerInterpolator( new TetrSecondOrderMinMaxInterpolator() );
 	LOG_DEBUG("Registering default rheology calculators");
 	registerRheologyCalculator( new DummyRheologyCalculator() );
+	registerRheologyCalculator( new StdRheologyCalculator() );
+	defaultRheoCalcType = "DummyRheologyCalculator";
 	LOG_DEBUG("Registering default calculators");
 	registerVolumeCalculator( new SimpleVolumeCalculator() );
 	registerBorderCalculator( new FreeBorderCalculator() );
 	registerBorderCalculator( new SmoothBorderCalculator() );
 	registerContactCalculator( new SlidingContactCalculator() );
 	registerContactCalculator( new AdhesionContactCalculator() );
+	registerContactCalculator( new AdhesionContactDestroyCalculator() );
 	LOG_DEBUG("Registering default border condition");
 	// Failsafe border condition
 	addBorderCondition( new BorderCondition( NULL, new StepPulseForm(-1, -1), getBorderCalculator("SmoothBorderCalculator") ) );
@@ -97,13 +104,19 @@ gcm::Engine::Engine()
 
 gcm::Engine::~Engine()
 {
+	cleanUp();
+	LOG_INFO("GCM engine destroyed");
+}
+
+void gcm::Engine::cleanUp()
+{
 	// clear memory
-	foreach(b, bodies)
-		delete *b;
-	foreach(ml, meshLoaders)
+	for(auto& b: bodies)
+		delete b;
+	for(auto& ml: meshLoaders)
 	{
-		(ml->second)->cleanUp();
-		delete (ml->second);
+		(ml.second)->cleanUp();
+		delete (ml.second);
 	}
 	// decrement engines counter
 	enginesNumber--;
@@ -114,7 +127,7 @@ gcm::Engine::~Engine()
 	// shutdown MPI
 	if( !MPI::Is_finalized() )
 		MPI::Finalize();
-	LOG_INFO("GCM engine destroyed");
+	LOG_INFO("Clean up done");
 }
 
 int gcm::Engine::getRank()
@@ -388,15 +401,18 @@ void gcm::Engine::doNextStep()
 
 void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actualTimeStep)
 {
-	// Clear virtual nodes
-	virtNodes.clear();
-	
-	// Clear contact state
-	for( unsigned int i = 0; i < bodies.size(); i++ )
+	if( ! colDet->is_static() )
 	{
-			LOG_DEBUG("Clear contact state for body " << i );
-			Mesh* mesh = bodies[i]->getMeshes();
-			mesh->clearContactState();
+		// Clear virtual nodes
+		virtNodes.clear();
+		
+		// Clear contact state
+		for( unsigned int i = 0; i < bodies.size(); i++ )
+		{
+				LOG_DEBUG("Clear contact state for body " << i );
+				Mesh* mesh = bodies[i]->getMeshes();
+				mesh->clearContactState();
+		}
 	}
 	
 	// Print debug info
@@ -445,10 +461,21 @@ void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actu
 		LOG_DEBUG("Looking for missed nodes");
 		dataBus->syncMissedNodes(mesh, tau);
 		LOG_DEBUG("Looking for missed nodes done");
+		
+		LOG_DEBUG("Processing response from cracks");
+		mesh->processCrackResponse();
+		LOG_DEBUG("Processing response from cracks done");
 	}
 	
 	// Run collision detector
-	colDet->find_collisions(virtNodes);
+	if( ! colDet->is_static() || currentTime == 0.0 )
+	{
+		colDet->find_collisions(virtNodes);
+	}
+	else
+	{
+		LOG_DEBUG("Collision detector call skipped since it is in static operation mode");
+	}
 }
 
 void gcm::Engine::doNextStepStages(const float time_step)
@@ -475,14 +502,23 @@ void gcm::Engine::doNextStepStages(const float time_step)
 }
 
 void gcm::Engine::doNextStepAfterStages(const float time_step) {
-	RheologyCalculator* rc = getRheologyCalculator("DummyRheologyCalculator");
 	for( unsigned int i = 0; i < bodies.size(); i++ )
-		{
-			Mesh* mesh = bodies[i]->getMeshes();
-			LOG_DEBUG( "Applying rheology for mesh " << mesh->getId() );
-			mesh->applyRheology(rc);
-			LOG_DEBUG( "Applying rheology done" );
-		}
+	{
+		RheologyCalculator* rc = getRheologyCalculator( bodies[i]->getRheologyCalculatorType() );
+		Mesh* mesh = bodies[i]->getMeshes();
+		LOG_DEBUG( "Applying rheology for mesh " << mesh->getId() );
+		mesh->applyRheology(rc);
+		LOG_DEBUG( "Applying rheology done" );
+		LOG_DEBUG( "Processing stress state for mesh " << mesh->getId() );
+		mesh->processStressState();
+		LOG_DEBUG( "Processing stress state done" );
+		LOG_DEBUG( "Processing crack state for mesh " << mesh->getId() );
+		mesh->processCrackState();
+		LOG_DEBUG( "Processing crack state done" );
+		//LOG_DEBUG( "Moving mesh " << mesh->getId() );
+		//mesh->move_coords(time_step);
+		//LOG_DEBUG( "Moving done" );
+	}
 	currentTime += time_step;
 }
 
@@ -645,4 +681,24 @@ void gcm::Engine::setContactThresholdFactor(float val)
 float gcm::Engine::getContactThresholdFactor()
 {
 	return contactThresholdFactor;
+}
+
+void gcm::Engine::setDefaultRheologyCalculatorType(string calcType)
+{
+	defaultRheoCalcType = calcType;
+}
+
+string gcm::Engine::getDefaultRheologyCalculatorType()
+{
+	return defaultRheoCalcType;
+}
+
+void gcm::Engine::setCollisionDetectorStatic(bool val)
+{
+	colDet->set_static(val);
+}
+
+bool gcm::Engine::isCollisionDetectorStatic()
+{
+	return colDet->is_static();
 }

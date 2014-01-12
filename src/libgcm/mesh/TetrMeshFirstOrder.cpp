@@ -45,14 +45,14 @@ int gcm::TetrMeshFirstOrder::getTriangleNumber() {
 
 CalcNode* gcm::TetrMeshFirstOrder::getNode(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
 	return ( itr != nodesMap.end() ? &nodes[itr->second] : NULL );
 }
 
 CalcNode* gcm::TetrMeshFirstOrder::getNewNode(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
 	return ( itr != nodesMap.end() ? &new_nodes[itr->second] : NULL );
 }
@@ -64,14 +64,14 @@ CalcNode* gcm::TetrMeshFirstOrder::getNodeByLocalIndex(int index) {
 
 int gcm::TetrMeshFirstOrder::getNodeLocalIndex(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
 	return ( itr != nodesMap.end() ? itr->second : -1 );
 }
 
 TetrFirstOrder* gcm::TetrMeshFirstOrder::getTetr(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
 	return ( itr != tetrsMap.end() ? &tetrs1[itr->second] : NULL );
 }
@@ -205,6 +205,8 @@ void gcm::TetrMeshFirstOrder::initNewNodes() {
 		memcpy( newNode->values, node->values, GCM_VALUES_SIZE*sizeof(float) );
 		newNode->setRho( node->getRho() );
 		newNode->setMaterialId( node->getMaterialId() );
+		newNode->setContactConditionId(node->getContactConditionId());
+		newNode->createCrack(node->getCrackDirection());
 	}
 }
 
@@ -784,8 +786,8 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	//	return NULL;
 
 	vector<int> tetrsToCheck;
-	map<int, bool> checkedWithNeigh;
-	map<int, bool>::const_iterator itr;
+	unordered_map<int, bool> checkedWithNeigh;
+	unordered_map<int, bool>::const_iterator itr;
 	
 	// If current tetrs are inside sphere of radius R or not. If not - we should stop search and return NULL
 	bool inside_R = true;
@@ -993,6 +995,7 @@ void gcm::TetrMeshFirstOrder::find_border_node_normal(int border_node_index, flo
 	{
 		LOG_WARN("Border node does not belong to any face");
 		LOG_WARN("Can not find normal for the node " << *node);
+		node->setNormalError();
 	}
 
 	for(int i = 0; i < count; i++)
@@ -1207,7 +1210,7 @@ float gcm::TetrMeshFirstOrder::tetr_h(int i)
 						getNode(tetr->verts[2])->coords, getNode(tetr->verts[3])->coords );
 };
 
-void gcm::TetrMeshFirstOrder::clearErrorFlags()
+void gcm::TetrMeshFirstOrder::clearNodesState()
 {
 	CalcNode* node;
 	//for( int i = 0; i < nodesNumber; i++ ) {
@@ -1215,9 +1218,59 @@ void gcm::TetrMeshFirstOrder::clearErrorFlags()
 		int i = itr->first;
 		node = getNode(i);
 		if( node->isLocal() )
-			node->clearErrorFlags();
+			node->clearState();
 	}
 };
+
+void gcm::TetrMeshFirstOrder::processStressState()
+{
+	CalcNode* node;
+	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+		int i = itr->first;
+		node = getNode(i);
+		if( node->isLocal() )
+			node->calcMainStressComponents();
+	}
+}
+
+void gcm::TetrMeshFirstOrder::processCrackState()
+{
+	CalcNode* node;
+	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+		int i = itr->first;
+		node = getNode(i);
+		if( node->isLocal() )
+		{
+			float m_s[3];
+			node->getMainStressComponents(m_s[0], m_s[1], m_s[2]);
+			int i_ms=0; if (m_s[1]>m_s[i_ms]) i_ms=1; if (m_s[2]>m_s[i_ms]) i_ms = 2;
+			if (m_s[i_ms] > node->getCrackThreshold())
+			{
+				node->createCrack(i_ms);
+				LOG_TRACE("New crack detected at node " << *node);
+			}
+		}
+	}
+}
+
+void gcm::TetrMeshFirstOrder::processCrackResponse()
+{
+	CalcNode* node;
+	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+		int i = itr->first;
+		node = getNode(i);
+		if( node->isLocal() )
+		{
+			float *m_s = node->getCrackDirection();
+			if (scalarProduct(m_s,m_s)>0.5)
+			{
+				node->cleanStressByDirection(m_s);
+				LOG_TRACE("Existing crack found at node " << *node);
+			}
+		}
+	}
+}
+
 
 // TODO
 void gcm::TetrMeshFirstOrder::do_next_part_step(float tau, int stage)
@@ -1229,7 +1282,7 @@ void gcm::TetrMeshFirstOrder::do_next_part_step(float tau, int stage)
 	if( stage == 0 )
 	{
 		LOG_DEBUG("Clear error flags on all nodes");
-		clearErrorFlags();
+		clearNodesState();
 	}
 	
 	CalcNode* node;
@@ -1745,7 +1798,7 @@ void gcm::TetrMeshFirstOrder::applyRheology(RheologyCalculator* rc)
 bool gcm::TetrMeshFirstOrder::checkCharactCache(CalcNode* node, float dx, float dy, float dz, int& tetrNum)
 {
 	int cacheIndex = getCharactCacheIndex(node, dx, dy, dz);
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = charactCache[cacheIndex].find(node->number);
 	if( itr == charactCache[cacheIndex].end() )
 		return false;

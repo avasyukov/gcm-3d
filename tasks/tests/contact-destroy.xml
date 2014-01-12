@@ -1,0 +1,27 @@
+<task numberOfSnaps="30" stepsPerSnap="3">
+	<system>
+		<defaultContactCalculator type="AdhesionContactDestroyCalculator" />
+	</system>
+	<bodies>
+		<body id="plate_up">
+			<rheology type="elastic" />
+			<mesh id="plate_up" type="geo2" file="models/cover-small.geo" tetrSize="0.8" />
+			<material id="testMaterial" />
+		</body>
+                <body id="plate_down">
+                        <rheology type="elastic" />
+                        <mesh id="plate_down" type="geo2" file="models/cover-small.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-6.05" />
+                </body>
+        </bodies>
+	<materials>
+		<material id="testMaterial" la="7000000000" mu="1000000000" rho="7800000" crackThreshold="1000000" adhesionThreshold="1000000000" />
+	</materials>
+	<initialState>
+		<area type="box" minX="-6" maxX="-4" minY="-1" maxY="1" minZ="5.9" maxZ="10"/>
+		<values vz="0.03" sxx="7" syy="7" szz="9" />
+		<area type="box" minX="4" maxX="6" minY="-1" maxY="1" minZ="5.9" maxZ="10"/>
+                <values vz="0.015" sxx="3.5" syy="3.5" szz="4.5" />
+	</initialState>
+</task>

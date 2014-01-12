@@ -26,14 +26,14 @@ void gcm::TetrMeshSecondOrder::createTriangles(int number) {
 
 TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetr(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
 	return ( itr != tetrsMap.end() ? &tetrs2[itr->second] : NULL );
 }
 
 TetrSecondOrder* gcm::TetrMeshSecondOrder::getTetr2(int index) {
 	assert( index >= 0 );
-	map<int, int>::const_iterator itr;
+	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
 	return ( itr != tetrsMap.end() ? &tetrs2[itr->second] : NULL );
 }
@@ -444,8 +444,45 @@ void gcm::TetrMeshSecondOrder::build_surface_reverse_lookups()
 
 void gcm::TetrMeshSecondOrder::move_coords(float tau)
 {
+	// Move first order nodes
 	gcm::TetrMeshFirstOrder::move_coords(tau);
 	mesh_min_h *= 0.5;
+	
+	// Move second order nodes
+	IntPair combinations[6];
+	combinations[0] = make_pair(0,1);
+	combinations[1] = make_pair(0,2);
+	combinations[2] = make_pair(0,3);
+	combinations[3] = make_pair(1,2);
+	combinations[4] = make_pair(1,3);
+	combinations[5] = make_pair(2,3);
+	
+	int v1, v2, ind;
+	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr )
+	{
+		int i = itr->first;
+		for( int j = 0; j < 6; j++ )
+		{
+			ind = getTetr2(i)->addVerts[j];
+			v1 = getTetr(i)->verts[ combinations[j].first ];
+			v2 = getTetr(i)->verts[ combinations[j].second ];
+			moveSecondOrderNode( ind, v1, v2 );
+		}
+	}
+}
+
+void gcm::TetrMeshSecondOrder::moveSecondOrderNode(int nodeIdx, int nodeIdx1, int nodeIdx2)
+{
+	CalcNode* node = getNode(nodeIdx);
+	CalcNode* newNode = getNewNode(nodeIdx);
+	CalcNode* node1 = getNode(nodeIdx1);
+	CalcNode* node2 = getNode(nodeIdx2);
+	
+	for( int i = 0; i < 3; i++ )
+	{
+		node->coords[i] = ( node1->coords[i] + node2->coords[i] ) * 0.5;
+		newNode->coords[i] = node->coords[i];
+	}
 }
 
 void gcm::TetrMeshSecondOrder::fillSecondOrderNode(CalcNode* newNode, int nodeIdx1, int nodeIdx2)

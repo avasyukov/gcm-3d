@@ -1,0 +1,38 @@
+<task numberOfSnaps="50" stepsPerSnap="10">
+	<!-- 
+		L = 10^-3 m
+		P = 1 Pa
+		rho = 10^6 kg/m^3
+		v = 10^-3 m/s
+		t = 1 s
+	-->
+	<system>
+		<contactThreshold measure="avgH" value="1.0" />
+		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
+		<!--contactThreshold measure="abs" value="0.5" /-->
+	</system>
+	<bodies>
+		<body id="target">
+			<rheology type="elastic" />
+			<mesh id="target" type="geo2" file="models/cover-sample.geo" tetrSize="1.5" />
+			<material id="subpacket" />
+		</body>
+		<body id="striker">
+			<rheology type="elastic" />
+			<mesh id="striker" type="geo2" file="models/striker-sample.geo" tetrSize="1.5" />
+			<material id="steel" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-13.0" />
+		</body>
+	</bodies>
+	<materials>
+		<material id="subpacket" 	la="5720000000"  mu="3220000000"  rho="0.00158" />
+		<material id="steel" 		la="99430000000" mu="78130000000" rho="0.0078" />
+		<material id="epoxy" 		la="1440000000"  mu="960000000"   rho="0.00125" />
+	</materials>
+	<initialState>
+		<area type="box" minX="-20" maxX="20" minY="-20" maxY="20" minZ="-120" maxZ="-0.00001"/>
+		<values vz="20500" />
+		<!-- E(J)	50	90	135	205	235	/-->
+		<!-- v(mm/sec)	15300	20500	25100	30900	33100	/-->
+	</initialState>
+</task>

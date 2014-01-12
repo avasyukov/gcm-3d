@@ -43,27 +43,7 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
 	int numberOfBodies = engine->getNumberOfBodies();
 	LOG_DEBUG("Start preparation for " << numberOfBodies << " bodies");
 	workersPerBody = new int[numberOfBodies];
-	/*
-	float totalVolume = 0;
-	float* volumes = new float[numberOfBodies];
-	for( int i = 0; i < numberOfBodies; i++ )
-	{
-		volumes[i] = getBodyOutline(engine->getBody(i)->getId()).getVolume();
-		totalVolume += volumes[i];
-		LOG_DEBUG("Volume[" << i <<"]: " << volumes[i]);
-	}
-	LOG_DEBUG("Total volume: " << totalVolume);
-	float volumePerProcess = totalVolume / numberOfWorkers;
-	LOG_DEBUG("Volume per process: " << volumePerProcess);
-	
-	for( int i = 0; i < numberOfBodies; i++ )
-	{
-		workersPerBody[i] = (int)(volumes[i]/volumePerProcess);
-		if( workersPerBody[i] == 0 )
-			workersPerBody[i] = 1;
-	}
-	delete[] volumes;
-	*/
+
 	float totalNodes = 0;
 	for( int i = 0; i < numberOfBodies; i++ )
 	{
@@ -178,14 +158,10 @@ int gcm::DummyDispatcher::getOwner(float coords[3], string bodyId)
 
 int gcm::DummyDispatcher::getOwner(float x, float y, float z, string bodyId)
 {
-	//LOG_DEBUG("w: " << engine->getNumberOfWorkers() << " bid:" << bodyId << " mbid: " << myBodyId);
 	if( engine->getNumberOfWorkers() != 1 && bodyId != myBodyId )
 		return -1;
-	//LOG_DEBUG("dr: " << dX << " " << dY << " " << dZ);
 	for( int i = 0; i < outlinesNum; i++ )
 	{
-		//LOG_DEBUG("OUTL [" << i << "] " << outlines[i]);
-		//LOG_DEBUG("Point: "  << x + dX << " " << y + dY << " " << z + dZ);
 		if( outlines[i].isInAABB(x+dX,y+dY,z+dZ) )
 			return i;
 	}
@@ -199,14 +175,8 @@ int gcm::DummyDispatcher::getOwner(float coords[3])
 
 int gcm::DummyDispatcher::getOwner(float x, float y, float z)
 {
-	//LOG_DEBUG("w: " << engine->getNumberOfWorkers() << " bid:" << bodyId << " mbid: " << myBodyId);
-	//if( engine->getNumberOfWorkers() != 1 && bodyId != myBodyId )
-	//	return -1;
-	//LOG_DEBUG("dr: " << dX << " " << dY << " " << dZ);
 	for( int i = 0; i < outlinesNum; i++ )
 	{
-		//LOG_DEBUG("OUTL [" << i << "] " << outlines[i]);
-		//LOG_DEBUG("Point: "  << x + dX << " " << y + dY << " " << z + dZ);
 		if( outlines[i].isInAABB(x+dX,y+dY,z+dZ) )
 			return i;
 	}

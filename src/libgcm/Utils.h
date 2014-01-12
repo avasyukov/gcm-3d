@@ -8,11 +8,6 @@
 
 #include "Exception.h"
 
-/*
- * Foreach macro to iterate over STL containers.
- */
-#define foreach(i, v) for (typeof(v.begin()) i = v.begin(); i != v.end(); i++)
-
 using namespace std;
 
 namespace gcm {

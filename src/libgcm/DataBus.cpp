@@ -51,10 +51,8 @@ IEngine* gcm::DataBus::getEngine() {
 }
 
 void gcm::DataBus::syncTimeStep(float* tau) {
-	float t;
 	BARRIER("gcm::DataBus::syncTimeStep#1");
-	MPI::COMM_WORLD.Allreduce(tau, &t, 1, MPI::FLOAT, MPI::MIN);
-	memcpy(tau, &t, sizeof(float));
+	MPI::COMM_WORLD.Allreduce(MPI_IN_PLACE, tau, 1, MPI::FLOAT, MPI::MIN);
 }
 
 void gcm::DataBus::syncNodes(float tau)
@@ -532,11 +530,9 @@ void gcm::DataBus::syncOutlines()
 		THROW_BAD_METHOD("We can't do this because it will cause all MPI routines to freeze");
 		return;
 	}
-	AABB aabb;
-	memcpy(&aabb, &outlines[rank], sizeof(AABB));
 	LOG_DEBUG("Syncing outlines");
 	MPI::COMM_WORLD.Allgather(
-		&aabb,
+		MPI_IN_PLACE,
 		1, MPI_OUTLINE, 
 		outlines,
 		1, MPI_OUTLINE
@@ -550,8 +546,12 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
 		return;
 	
 	bool transferRequired = false;
-	AABB reqZones[numberOfWorkers][numberOfWorkers];
 	
+	AABB **reqZones = new AABB*[numberOfWorkers];
+	AABB *reqZones_data = new AABB[numberOfWorkers*numberOfWorkers];
+	for ( int i = 0; i < numberOfWorkers; ++i ) {
+		reqZones[i] = reqZones_data + (i*numberOfWorkers);
+	}
 	GCMDispatcher* dispatcher = engine->getDispatcher();
 	
 	// FIXME@avasyukov - workaround for SphProxyDispatcher
@@ -586,22 +586,14 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
 	
 	BARRIER("gcm::DataBus::syncMissedNodes#2");
 
-	AABB* aabbs = new AABB[numberOfWorkers];
-	for( int i = 0; i < numberOfWorkers; i++) 
-	{
-		LOG_DEBUG("Local req from " << rank << " to " << i << ": " << reqZones[rank][i]);
-		aabbs[i] =  reqZones[rank][i];
-		memcpy(aabbs, reqZones[rank], sizeof(AABB)*numberOfWorkers);
-	}
 	MPI::COMM_WORLD.Allgather(
-		aabbs,
+		MPI_IN_PLACE,
 		numberOfWorkers, MPI_OUTLINE, 
-		reqZones,
+		reqZones_data,
 		numberOfWorkers, MPI_OUTLINE
 	);
 
 	BARRIER("gcm::DataBus::syncMissedNodes#3");
-	delete[] aabbs;
 	
 	vector<AABB> *_reqZones = new vector<AABB>[numberOfWorkers];
 	for (int i = 0 ; i < numberOfWorkers; i++)
@@ -639,11 +631,19 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
 	for (int i = 0 ; i < numberOfWorkers; i++)
 		_reqZones[i].clear();
 	delete[] _reqZones;
+	
+	delete[] reqZones_data;
+	delete[] reqZones;
 }
 
 void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZones)
 {
-	AABB reqZones[numberOfWorkers][numberOfWorkers];
+	AABB **reqZones = new AABB*[numberOfWorkers];
+	AABB *reqZones_data = new AABB[numberOfWorkers*numberOfWorkers];
+	for ( int i = 0; i < numberOfWorkers; ++i ) {
+		reqZones[i] = reqZones_data + (i*numberOfWorkers);
+	}
+	
 	for (int i = 0 ; i < numberOfWorkers; i++)
 		for (int j = 0 ; j < numberOfWorkers; j++)
 			if( !isinf(_reqZones[i][j].minX) )
@@ -721,11 +721,9 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 		}
 	}
 	
-	int* sb = new int[numberOfWorkers];
-	memcpy(sb, numberOfNodes[rank], sizeof(int)*numberOfWorkers);
 	BARRIER("gcm::DataBus::transferNodes#1");
 	MPI::COMM_WORLD.Allgather(
-		sb,
+		MPI_IN_PLACE,
 		numberOfWorkers, MPI_INT, 
 		numberOfNodes,
 		numberOfWorkers, MPI_INT
@@ -733,17 +731,14 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 
 	BARRIER("gcm::DataBus::transferNodes#2");
 
-	memcpy(sb, numberOfTetrs[rank], sizeof(int)*numberOfWorkers);
 	MPI::COMM_WORLD.Allgather(
-		sb,
+		MPI_IN_PLACE,
 		numberOfWorkers, MPI_INT, 
 		numberOfTetrs,
 		numberOfWorkers, MPI_INT
 	);
 
 	BARRIER("gcm::DataBus::transferNodes#3");
-
-	delete[] sb;
 
 	for (int i = 0 ; i < numberOfWorkers; i++)
 		for (int j = 0 ; j < numberOfWorkers; j++)
@@ -805,8 +800,8 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 	for (int i = 0; i < max_len; i++)
 		lens[i] = 1;
 	
-	MPI::Datatype n[numberOfWorkers];
-	MPI::Datatype t[numberOfWorkers];
+	MPI::Datatype *n = new MPI::Datatype[numberOfWorkers];
+	MPI::Datatype *t = new MPI::Datatype[numberOfWorkers];
 	vector<int> displ;
 	map<int, int>::const_iterator itr;
 	for( int i = 0; i < numberOfWorkers; i++ )
@@ -916,5 +911,9 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 	delete[] addNodesMap;
 	delete[] sendTetrsMap;
 	delete[] lens;
+	delete[] n;
+	delete[] t;
+	delete[] reqZones_data;
+	delete[] reqZones;
 	LOG_DEBUG("Nodes transfer done");
 }

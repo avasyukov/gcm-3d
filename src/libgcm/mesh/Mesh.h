@@ -94,7 +94,11 @@ namespace gcm {
 		virtual	void transfer(float x, float y, float z) = 0;
 		virtual void setBodyNum(unsigned char id) = 0;
 		virtual void clearContactState() = 0;
+		virtual void processStressState() = 0;
+		virtual void processCrackState() = 0;
+		virtual void processCrackResponse() = 0;
 		virtual void applyRheology(RheologyCalculator* rc) = 0;
+		virtual void move_coords(float tau) = 0;
 
 		/*
 		 * Sets mesh id.

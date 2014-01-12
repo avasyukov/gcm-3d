@@ -9,7 +9,7 @@ class FixedBorderCalculator : public BorderCalculator
 public:
 	FixedBorderCalculator();
 	~FixedBorderCalculator();
-	void do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale);
+	void do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale);
 	inline string getType() {
 		return "FixedBorderCalculator";
 	}

@@ -6,14 +6,15 @@ string gcm::Body::getId() {
 
 gcm::Body::Body(string id) {
 	this->id = id;
+	rheoCalcType = "DummyRheologyCalculator";
 	INIT_LOGGER("gcm.Body");
 	LOG_INFO("Body '" << id << "' created");
 }
 
 gcm::Body::~Body() {
 	// clear memory
-	foreach(m, meshes)
-		delete *m;	
+	for(auto& m: meshes)
+		delete m;	
 	LOG_INFO("Body destroyed");
 }
 
@@ -26,9 +27,9 @@ Mesh* gcm::Body::getMeshes() {
 }
 
 Mesh* gcm::Body::getMesh(string id) {
-	foreach(mesh, meshes)
-		if ((*mesh)->getId() == id)
-			return (*mesh);
+	for(auto& mesh: meshes)
+		if (mesh->getId() == id)
+			return mesh;
 	return NULL;
 }
 
@@ -43,4 +44,12 @@ IEngine* gcm::Body::getEngine() {
 void gcm::Body::setInitialState(Area* area, float values[9]) {
 	for( unsigned int i = 0; i < meshes.size(); i++ )
 		meshes[i]->setInitialState(area, values);
+}
+
+void gcm::Body::setRheologyCalculatorType(string calcType) {
+	rheoCalcType = calcType;
+}
+
+string gcm::Body::getRheologyCalculatorType() {
+	return rheoCalcType;
 }

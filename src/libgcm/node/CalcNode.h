@@ -43,10 +43,13 @@ enum NodeOrder
 	SecondOrder = 64
 };
 
+#define MAIN_STRESS_STATUS_MASK 128
+
 // Error flags
 #define X_NEIGH_ERROR_MASK 1
 #define Y_NEIGH_ERROR_MASK 2
 #define Z_NEIGH_ERROR_MASK 4
+#define OUTER_NORMAL_ERROR_MASK 8
 
 using namespace std;
 using namespace gcm;
@@ -71,7 +74,9 @@ namespace gcm {
 			
 			CalcNode &operator=(const CalcNode &src);
 			
+			void clearState();
 			void clearErrorFlags();
+			void clearMainStresses();
 			
 			union
 			{
@@ -100,10 +105,19 @@ namespace gcm {
 			float getTension();
 			float getShear();
 			float getDeviator();
+			float getPressure();
+			// Tensor invariants
+			float getJ1();
+			float getJ2();
+			float getJ3();
+			// Main stress componenets
+			void getMainStressComponents(float& s1, float& s2, float& s3);
+			void calcMainStressComponents();
 
 			inline bool rheologyIsValid() {
 				return ( materialId >= 0 && rho > 0 );
 			}
+			void calcMainStressDirectionByComponent(float stress, float* vector);
 			
 			vector<int>* elements;
 			vector<int>* border_elements;
@@ -199,7 +213,20 @@ namespace gcm {
 			{
 				return 0 != (privateFlags & IS_BORDER_MASK);
 			}
+			
+			void inline setMainStressCalculated (bool isCalculated)
+			{
+				if (isCalculated) privateFlags |= MAIN_STRESS_STATUS_MASK;
+				else privateFlags &= (~MAIN_STRESS_STATUS_MASK);
 
+				assert (isCalculated ? isMainStressCalculated () : !isMainStressCalculated ());
+			}
+			
+			bool inline isMainStressCalculated ()
+			{
+				return 0 != (privateFlags & MAIN_STRESS_STATUS_MASK);
+			}
+			
 			bool inline isInner ()
 			{
 				return !isBorder ();
@@ -230,7 +257,12 @@ namespace gcm {
 			{
 				errorFlags |= Z_NEIGH_ERROR_MASK;
 			}
-			
+		
+			void inline setNormalError ()
+			{
+				errorFlags |= OUTER_NORMAL_ERROR_MASK;
+			}
+	
 			void inline setNeighError (unsigned int axisNum)
 			{
 				assert ( axisNum < 3 );
@@ -259,6 +291,16 @@ namespace gcm {
 		   unsigned char inline getBorderConditionId ()
 		   {
 			   return borderCondId;
+		   }
+			
+		   void inline setContactConditionId(unsigned char newContactConditionId)
+		   {
+			   contactCondId = newContactConditionId;
+		   }
+
+		   unsigned char inline getContactConditionId ()
+		   {
+		  	   return contactCondId;
 		   }
 		   
 		   void inline setMaterialId (unsigned char id)
@@ -289,6 +331,11 @@ namespace gcm {
 			   return rho;
 		   }
 		   
+		   float inline getRho0 () const
+		   {
+			   return Engine::getInstance().getMaterial(materialId)->getRho();
+		   }
+		   
 		   float inline getLambda()
 		   {
 			   return Engine::getInstance().getMaterial(materialId)->getLambda();
@@ -298,6 +345,16 @@ namespace gcm {
 		   {
 			   return Engine::getInstance().getMaterial(materialId)->getMu();
 		   }
+		
+		   float inline getCrackThreshold()
+                   {
+                           return Engine::getInstance().getMaterial(materialId)->getCrackThreshold();
+                   }
+
+		   float inline getAdhesionThreshold()
+                   {
+                           return Engine::getInstance().getMaterial(materialId)->getAdhesionThreshold();
+                   }
 		   
 		   float inline getC1()
 		   {
@@ -333,6 +390,14 @@ namespace gcm {
 			   return errorFlags;
 		   }
 		   
+		   float* getCrackDirection () 
+		   {
+			   return crackDirection;
+		   }
+		
+		   void createCrack(int direction);
+		   void createCrack(float* vector);
+	           void cleanStressByDirection(float* dir);
 	protected:
 
 		   /**
@@ -369,12 +434,19 @@ namespace gcm {
 			* Border condition that is used for this node. Condition should be registered in Engine.
 			*/
 		   unsigned char borderCondId;
+		   unsigned char contactCondId;
+			
 		   
 		   /*
 		    * Rheology parameters.
 		    */
 		   float rho;
 		   unsigned char materialId;
+		   /*
+			* Main stress components
+			*/
+		   float mainStresses[3];
+		public:    float crackDirection[3];
 	};
 }
 

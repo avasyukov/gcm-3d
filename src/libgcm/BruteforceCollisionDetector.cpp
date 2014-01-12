@@ -56,8 +56,11 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 				float direction[3];
 				for(int k = 0; k < local_nodes.size(); k++)
 				{
+					if( k % 1000 == 0 )
+						LOG_DEBUG("Nodes processed: " << k);
 					for(int l = 0; l < local_faces.size(); l++)
 					{
+						bool intersection_found = false;
 						// Check axis directions
 						for( int m = 0; m < 3; m++)
 						{
@@ -107,10 +110,13 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 
 									virt_nodes.push_back(new_node);
 
+									intersection_found = true;
 									break;
 								}
 							}
 						}
+						if( intersection_found )
+							break;
 					}
 				}
 

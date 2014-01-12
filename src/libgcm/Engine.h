@@ -18,6 +18,8 @@
 #include "calc/border/BorderCalculator.h"
 #include "calc/contact/ContactCalculator.h"
 #include "rheology/RheologyCalculator.h"
+#include "rheology/DummyRheologyCalculator.h"
+#include "rheology/StdRheologyCalculator.h"
 #include "util/forms/PulseForm.h"
 #include "util/areas/BoxArea.h"
 #include "GCMDispatcher.h"
@@ -48,6 +50,9 @@ namespace gcm
 	 * Main class to operate calculation scene.
 	 */
 	class Engine: public IEngine {
+		
+		static Engine* engineInstance;
+		
 	protected:
 		/*
 		 * File lookup service
@@ -120,12 +125,14 @@ namespace gcm
 		int stepsPerSnap;
 		
 		AABB scene;
+		
+		string defaultRheoCalcType;
 		/*
 		 * Logger.
 		 */
 		USE_LOGGER;
 		
-	private:
+	protected:
 		/* 
 		 * Engine is a singletone, so constructors are private
 		 * Limitation of current design: single threaded only
@@ -148,6 +155,8 @@ namespace gcm
 		 * Returns singletone engine instance
 		 */
 		static Engine& getInstance();
+		static void initInstance() { new Engine; }
+		void cleanUp();
 		/*
 		 * Returns process rank.
 		 */
@@ -204,6 +213,9 @@ namespace gcm
 		void replaceDefaultContactCondition(ContactCondition *contactCondition);
 		
 		unsigned char addMaterial(Material *material);
+		
+		void setDefaultRheologyCalculatorType(string calcType);
+		string getDefaultRheologyCalculatorType();
 		
 		/*
 		 * Returns mesh loader by type or NULL if not found.
@@ -271,6 +283,8 @@ namespace gcm
 		unsigned char getContactThresholdType();
 		void setContactThresholdFactor(float val);
 		float getContactThresholdFactor();
+		void setCollisionDetectorStatic(bool val);
+		bool isCollisionDetectorStatic();
 	};
 }
 

@@ -32,11 +32,17 @@ using namespace xml;
  * Returns value of named attribute.
  */
 
-string getAttributeByName(AttrList attrs, string name) {
+string getAttributeByName(AttrList attrs, string name, string defaultValue) {
 	AttrList::iterator iter = attrs.find(name);
 	if (iter != attrs.end())
 		return iter->second;
-	THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list");
+	if( defaultValue != "" )
+		return defaultValue;
+	THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list and default value is not provided");
+}
+
+string getAttributeByName(AttrList attrs, string name) {
+	return getAttributeByName(attrs, name, "");
 }
 
 void loadSceneFromFile(Engine& engine, string fileName)
@@ -54,10 +60,10 @@ void loadSceneFromFile(Engine& engine, string fileName)
 	NodeList taskNodes = rootNode.xpath("/task");
 	if( taskNodes.size() != 1 )
 		THROW_INVALID_INPUT("Config file should contain one <task/> element");
-	foreach(taskNode, taskNodes)
+	for(auto& taskNode: taskNodes)
 	{
-		int numberOfSnaps = atoi( getAttributeByName(taskNode->getAttributes(), "numberOfSnaps").c_str() );
-		int stepsPerSnap = atoi( getAttributeByName(taskNode->getAttributes(), "stepsPerSnap").c_str() );
+		int numberOfSnaps = atoi( getAttributeByName(taskNode.getAttributes(), "numberOfSnaps").c_str() );
+		int stepsPerSnap = atoi( getAttributeByName(taskNode.getAttributes(), "stepsPerSnap").c_str() );
 		engine.setNumberOfSnaps(numberOfSnaps);
 		engine.setStepsPerSnap(stepsPerSnap);
 	}
@@ -82,6 +88,20 @@ void loadSceneFromFile(Engine& engine, string fileName)
 							NULL, new StepPulseForm(-1, -1), 
 							engine.getContactCalculator("AdhesionContactCalculator") ) );
 		}
+		else if (type == "AdhesionContactDestroyCalculator")
+		{
+			engine.replaceDefaultContactCondition( new ContactCondition( NULL, new StepPulseForm(-1,-1), engine.getContactCalculator("AdhesionContactDestroyCalculator")));
+		}
+	}
+
+	NodeList defaultRheoCalculatorList = rootNode.xpath("/task/system/defaultRheologyCalculator");
+	if( defaultRheoCalculatorList.size() > 1 )
+		THROW_INVALID_INPUT("Config file can contain only one <defaultRheologyCalculator/> element");
+	if( defaultRheoCalculatorList.size() == 1 )
+	{
+		xml::Node defaultRheoCalculator = defaultRheoCalculatorList.front();
+		string type = getAttributeByName(defaultRheoCalculator.getAttributes(), "type");
+		engine.setDefaultRheologyCalculatorType(type);
 	}
 	
 	NodeList contactThresholdList = rootNode.xpath("/task/system/contactThreshold");
@@ -113,20 +133,42 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		}
 	}
 	
+	NodeList collisionDetectorList = rootNode.xpath("/task/system/collisionDetector");
+	if( collisionDetectorList.size() > 1 )
+		THROW_INVALID_INPUT("Config file can contain only one <collisionDetector/> element");
+	if( collisionDetectorList.size() == 1 )
+	{
+		xml::Node collisionDetector = collisionDetectorList.front();
+		string isStatic = getAttributeByName(collisionDetector.getAttributes(), "static");
+		if( isStatic == "true" )
+		{
+			engine.setCollisionDetectorStatic(true);
+		}
+		else if( isStatic == "false" )
+		{
+			engine.setCollisionDetectorStatic(false);
+		}
+	}
+	
 	// reading materials
 	NodeList matNodes = rootNode.xpath("/task/materials/material");
-	foreach(matNode, matNodes)
+	for(auto& matNode: matNodes)
 	{
-		string id = getAttributeByName(matNode->getAttributes(), "id");
-		float la = atof( getAttributeByName(matNode->getAttributes(), "la").c_str() );
-		float mu = atof( getAttributeByName(matNode->getAttributes(), "mu").c_str() );
-		float rho = atof( getAttributeByName(matNode->getAttributes(), "rho").c_str() );
+		string id = getAttributeByName(matNode.getAttributes(), "id");
+		float la = atof( getAttributeByName(matNode.getAttributes(), "la").c_str() );
+		float mu = atof( getAttributeByName(matNode.getAttributes(), "mu").c_str() );
+		float rho = atof( getAttributeByName(matNode.getAttributes(), "rho").c_str() );
+		// Use INF as default value for backward compatibility
+		float ct =  atof( getAttributeByName(matNode.getAttributes(), "crackThreshold", "INF").c_str() );
+		float at =  atof( getAttributeByName(matNode.getAttributes(), "adhesionThreshold", "INF").c_str() );
 		if( la <= 0 || mu <= 0 || rho <= 0 )
 			LOG_ERROR("Incorrect rheology in task file for material: " << id);
 		LOG_DEBUG("Loaded material " << id << " with properties: (" << la << "; " << mu << "; " << rho << ")");
 		Material* mat = new Material(id);
 		mat->setRho(rho);
 		mat->setLame(la, mu);
+		mat->setCrackThreshold(ct);
+		mat->setAdhesionThreshold(at);
 		engine.addMaterial(mat);
 	}
 	
@@ -136,15 +178,16 @@ void loadSceneFromFile(Engine& engine, string fileName)
 	NodeList bodyNodes = rootNode.xpath("/task/bodies/body");
 	
 	// prepare basic bodies parameters
-	foreach(bodyNode, bodyNodes)
+	for(auto& bodyNode: bodyNodes)
 	{
-		string id = bodyNode->getAttributes()["id"];
+		string id = bodyNode.getAttributes()["id"];
 		LOG_DEBUG("Loading body '" << id << "'");
 		// create body instance
 		Body* body = new Body(id);
+		body->setRheologyCalculatorType(engine.getDefaultRheologyCalculatorType());
 		body->setEngine(engine);
 		// set rheology
-		NodeList rheologyNodes = bodyNode->getChildrenByName("rheology");
+		NodeList rheologyNodes = bodyNode.getChildrenByName("rheology");
 		if (rheologyNodes.size() > 1)
 			THROW_INVALID_INPUT("Only one rheology element allowed for body declaration");
 		if (rheologyNodes.size()) {
@@ -152,10 +195,10 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		}
 		
 		// preload meshes for dispatcher
-		NodeList meshNodes = bodyNode->getChildrenByName("mesh");
-		foreach(meshNode, meshNodes)
+		NodeList meshNodes = bodyNode.getChildrenByName("mesh");
+		for(auto& meshNode: meshNodes)
 		{
-			Params params = Params(meshNode->getAttributes());
+			Params params = Params(meshNode.getAttributes());
 			if (!params.has("type"))
 				THROW_INVALID_INPUT("Mesh type is not specified.");
 			
@@ -171,15 +214,15 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			meshLoader->preLoadMesh(params, &localScene, slicingDirection, numberOfNodes);
 			
 			// transform meshes
-			NodeList transformNodes = bodyNode->getChildrenByName("transform");
-			foreach(transformNode, transformNodes)
+			NodeList transformNodes = bodyNode.getChildrenByName("transform");
+			for(auto& transformNode: transformNodes)
 			{
-				string transformType = getAttributeByName(transformNode->getAttributes(), "type");
+				string transformType = getAttributeByName(transformNode.getAttributes(), "type");
 				if( transformType == "translate" )
 				{
-					float x = atof( getAttributeByName(transformNode->getAttributes(), "moveX").c_str() );
-					float y = atof( getAttributeByName(transformNode->getAttributes(), "moveY").c_str() );
-					float z = atof( getAttributeByName(transformNode->getAttributes(), "moveZ").c_str() );
+					float x = atof( getAttributeByName(transformNode.getAttributes(), "moveX").c_str() );
+					float y = atof( getAttributeByName(transformNode.getAttributes(), "moveY").c_str() );
+					float z = atof( getAttributeByName(transformNode.getAttributes(), "moveZ").c_str() );
 					LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
 					localScene.transfer(x, y, z);
 				}
@@ -222,9 +265,9 @@ void loadSceneFromFile(Engine& engine, string fileName)
 	}	
 	
 	// read meshes for all bodies
-	foreach(bodyNode, bodyNodes)
+	for(auto& bodyNode: bodyNodes)
 	{
-		string id = bodyNode->getAttributes()["id"];
+		string id = bodyNode.getAttributes()["id"];
 		LOG_DEBUG("Loading meshes for body '" << id << "'");
 		// get body instance
 		Body* body = engine.getBodyById(id);
@@ -233,25 +276,24 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		float dX = 0;
 		float dY = 0;
 		float dZ = 0;
-		NodeList tmpTransformNodes = bodyNode->getChildrenByName("transform");
-		foreach(transformNode, tmpTransformNodes)
+		NodeList tmpTransformNodes = bodyNode.getChildrenByName("transform");
+		for(auto& transformNode: tmpTransformNodes)
 		{
-			string transformType = getAttributeByName(transformNode->getAttributes(), "type");
+			string transformType = getAttributeByName(transformNode.getAttributes(), "type");
 			if( transformType == "translate" )
 			{
-				dX += atof( getAttributeByName(transformNode->getAttributes(), "moveX").c_str() );
-				dY += atof( getAttributeByName(transformNode->getAttributes(), "moveY").c_str() );
-				dZ += atof( getAttributeByName(transformNode->getAttributes(), "moveZ").c_str() );
+				dX += atof( getAttributeByName(transformNode.getAttributes(), "moveX").c_str() );
+				dY += atof( getAttributeByName(transformNode.getAttributes(), "moveY").c_str() );
+				dZ += atof( getAttributeByName(transformNode.getAttributes(), "moveZ").c_str() );
 			}
 		}
-		if( engine.getNumberOfWorkers() != 1 )
-			engine.getDispatcher()->setTransferVector(dX, dY, dZ, id);
+		engine.getDispatcher()->setTransferVector(dX, dY, dZ, id);
 		
 		// load meshes
-		NodeList meshNodes = bodyNode->getChildrenByName("mesh");
-		foreach(meshNode, meshNodes)
+		NodeList meshNodes = bodyNode.getChildrenByName("mesh");
+		for(auto& meshNode: meshNodes)
 		{
-			Params params = Params(meshNode->getAttributes());
+			Params params = Params(meshNode.getAttributes());
 			MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
 			
 			LOG_INFO("Loading mesh for body '" << id << "'");
@@ -266,15 +308,15 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		}
 		
 		// transform meshes
-		NodeList transformNodes = bodyNode->getChildrenByName("transform");
-		foreach(transformNode, transformNodes)
+		NodeList transformNodes = bodyNode.getChildrenByName("transform");
+		for(auto& transformNode: transformNodes)
 		{
-			string transformType = getAttributeByName(transformNode->getAttributes(), "type");
+			string transformType = getAttributeByName(transformNode.getAttributes(), "type");
 			if( transformType == "translate" )
 			{
-				float x = atof( getAttributeByName(transformNode->getAttributes(), "moveX").c_str() );
-				float y = atof( getAttributeByName(transformNode->getAttributes(), "moveY").c_str() );
-				float z = atof( getAttributeByName(transformNode->getAttributes(), "moveZ").c_str() );
+				float x = atof( getAttributeByName(transformNode.getAttributes(), "moveX").c_str() );
+				float y = atof( getAttributeByName(transformNode.getAttributes(), "moveY").c_str() );
+				float z = atof( getAttributeByName(transformNode.getAttributes(), "moveZ").c_str() );
 				LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
 				body->getMeshes()->transfer(x, y, z);
 			}
@@ -285,16 +327,16 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			engine.getDispatcher()->setTransferVector(-dX, -dY, -dZ, id);
 		
 		// set material properties
-		NodeList matNodes = bodyNode->getChildrenByName("material");
+		NodeList matNodes = bodyNode.getChildrenByName("material");
 		if (matNodes.size() < 1)
 			THROW_INVALID_INPUT("Material not set");
-		foreach(matNode, matNodes)
+		for(auto& matNode: matNodes)
 		{
-			string id = getAttributeByName(matNode->getAttributes(), "id");
+			string id = getAttributeByName(matNode.getAttributes(), "id");
 			Material* mat = engine.getMaterial(id);
 			Mesh* mesh = body->getMeshes();
 			
-			NodeList areaNodes = matNode->getChildrenByName("area");
+			NodeList areaNodes = matNode.getChildrenByName("area");
 			if (areaNodes.size() == 0)
 			{
 				mesh->setRheology( engine.getMaterialIndex(id) );
@@ -331,24 +373,31 @@ void loadSceneFromFile(Engine& engine, string fileName)
 	
 	// FIXME - rewrite this indian style code
 	NodeList initialStateNodes = rootNode.xpath("/task/initialState");
-	foreach(initialStateNode, initialStateNodes)
+	for(auto& initialStateNode: initialStateNodes)
 	{
+		NodeList areaNodes = initialStateNode.getChildrenByName("area");
+        	NodeList valuesNodes = initialStateNode.getChildrenByName("values");
+        	if (areaNodes.size() != valuesNodes.size())
+                //      THROW_INVALID_INPUT("Only one area element allowed for initial state");
+                        THROW_INVALID_INPUT("Number of areas don't coincide with number of values");
+
 		Area* stateArea = NULL;
 		float values[9];
-		NodeList areaNodes = initialStateNode->getChildrenByName("area");
-		if (areaNodes.size() > 1)
-			THROW_INVALID_INPUT("Only one area element allowed for initial state");
-		if (areaNodes.size()) {
+		if (areaNodes.size() != valuesNodes.size())
+		//	THROW_INVALID_INPUT("Only one area element allowed for initial state");
+			THROW_INVALID_INPUT("Number of areas don't coincide with number of values");
+		for (int node=0; node<areaNodes.size(); node++)
+	{
 			string areaType = getAttributeByName(areaNodes.front().getAttributes(), "type");
 			if( areaType == "box" )
 			{
 				LOG_DEBUG("Initial state area: " << areaType);
-				float minX = atof( getAttributeByName(areaNodes.front().getAttributes(), "minX").c_str() );
-				float maxX = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxX").c_str() );
-				float minY = atof( getAttributeByName(areaNodes.front().getAttributes(), "minY").c_str() );
-				float maxY = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxY").c_str() );
-				float minZ = atof( getAttributeByName(areaNodes.front().getAttributes(), "minZ").c_str() );
-				float maxZ = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxZ").c_str() );
+				float minX = atof( getAttributeByName(areaNodes[node].getAttributes(), "minX").c_str() );
+				float maxX = atof( getAttributeByName(areaNodes[node].getAttributes(), "maxX").c_str() );
+				float minY = atof( getAttributeByName(areaNodes[node].getAttributes(), "minY").c_str() );
+				float maxY = atof( getAttributeByName(areaNodes[node].getAttributes(), "maxY").c_str() );
+				float minZ = atof( getAttributeByName(areaNodes[node].getAttributes(), "minZ").c_str() );
+				float maxZ = atof( getAttributeByName(areaNodes[node].getAttributes(), "maxZ").c_str() );
 				LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] " 
 									<< "[" << minY << ", " << maxY << "] " 
 									<< "[" << minZ << ", " << maxZ << "]");
@@ -356,46 +405,46 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			} else {
 				LOG_WARN("Unknown initial state area: " << areaType);
 			}
-		}
-		NodeList valuesNodes = initialStateNode->getChildrenByName("values");
-		if (valuesNodes.size() > 1)
-			THROW_INVALID_INPUT("Only one values element allowed for initial state");
-		if (valuesNodes.size()) {
+		//if (valuesNodes.size() > 1)
+		//	THROW_INVALID_INPUT("Only one values element allowed for initial state");
 			memset(values, 0, 9*sizeof(float));
-			string vx = valuesNodes.front().getAttributes()["vx"];
+			string vx = valuesNodes[node].getAttributes()["vx"];
 			if( !vx.empty() )
 				values[0] = atof( vx.c_str() );
-			string vy = valuesNodes.front().getAttributes()["vy"];
+			string vy = valuesNodes[node].getAttributes()["vy"];
 			if( !vy.empty() )
 				values[1] = atof( vy.c_str() );
-			string vz = valuesNodes.front().getAttributes()["vz"];
+			string vz = valuesNodes[node].getAttributes()["vz"];
 			if( !vz.empty() )
 				values[2] = atof( vz.c_str() );
-			string sxx = valuesNodes.front().getAttributes()["sxx"];
+			string sxx = valuesNodes[node].getAttributes()["sxx"];
 			if( !sxx.empty() )
 				values[3] = atof( sxx.c_str() );
-			string sxy = valuesNodes.front().getAttributes()["sxy"];
+			string sxy = valuesNodes[node].getAttributes()["sxy"];
 			if( !sxy.empty() )
 				values[4] = atof( sxy.c_str() );
-			string sxz = valuesNodes.front().getAttributes()["sxz"];
+			string sxz = valuesNodes[node].getAttributes()["sxz"];
 			if( !sxz.empty() )
 				values[5] = atof( sxz.c_str() );
-			string syy = valuesNodes.front().getAttributes()["syy"];
+			string syy = valuesNodes[node].getAttributes()["syy"];
 			if( !syy.empty() )
 				values[6] = atof( syy.c_str() );
-			string syz = valuesNodes.front().getAttributes()["syz"];
+			string syz = valuesNodes[node].getAttributes()["syz"];
 			if( !syz.empty() )
 				values[7] = atof( syz.c_str() );
-			string szz = valuesNodes.front().getAttributes()["szz"];
+			string szz = valuesNodes[node].getAttributes()["szz"];
 			if( !szz.empty() )
 				values[8] = atof( szz.c_str() );
 			LOG_DEBUG("Initial state values: " 
 							<< values[0] << " " << values[1] << " " << values[2] << " " 
 							<< values[3] << " " << values[4] << " " << values[5] << " "
 							<< values[6] << " " << values[7] << " " << values[8] );
-		}
 		for( int i = 0; i < engine.getNumberOfBodies(); i++ )
+		{
 			engine.getBody(i)->setInitialState(stateArea, values);
+			engine.getBody(i)->getMeshes()->processStressState();
+		}
+	}
 	}
 	LOG_DEBUG("Scene loaded");
 }
@@ -472,6 +521,7 @@ int main(int argc, char **argv, char **envp)
 		engine.getFileLookupService().addPath(dataDir);
 		loadSceneFromFile(engine, taskFile);
 		engine.calculate();
+		engine.cleanUp();
 		
 	} catch (Exception &e) {
 		LOG_FATAL("Exception was thrown: " << e.getMessage() << "\n @" << e.getFile() << ":" << e.getLine() << "\nCall stack: \n"<< e.getCallStack());
