@@ -10,12 +10,14 @@ def configure(conf):
     conf.check_linux()
 
     conf.env.INCLUDES_LIBGMSH = [
-        '/usr/include/gmsh'
+        '/usr/include/gmsh',
+        '/usr/local/include/gmsh'
     ]
 
     conf.env.LIBPATH_LIBGMSH = [
         '/usr/lib',
-        '/usr/lib64'
+        '/usr/lib64',
+		'/usr/local/lib'
     ]
 
     LIBS = [

@@ -43,7 +43,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 {
 	USE_LOGGER;
 	INIT_LOGGER("gcm.launcher.TaskLoader");
-	// FIXME shoul we validate task file against xml schema?
+	// FIXME should we validate task file against xml schema?
 	FileLookupService& fls =  engine.getFileLookupService();
 	string fname = fls.lookupFile(fileName);
 	LOG_DEBUG("Loading scene from file " << fname);
