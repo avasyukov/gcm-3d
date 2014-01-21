@@ -4,14 +4,14 @@
 #include <unordered_map>
 #include <algorithm>
 #include <gsl/gsl_linalg.h>
-#include "Mesh.h"
-#include "../elem/TetrFirstOrder.h"
-#include "../elem/TriangleFirstOrder.h"
-#include "../Logging.h"
-#include "../Exception.h"
-#include "../Math.h"
-#include "../util/AABB.h"
-#include "../method/NumericalMethod.h"
+#include "../Mesh.h"
+#include "../../elem/TetrFirstOrder.h"
+#include "../../elem/TriangleFirstOrder.h"
+#include "../../Logging.h"
+#include "../../Exception.h"
+#include "../../Math.h"
+#include "../../util/AABB.h"
+#include "../../method/NumericalMethod.h"
 
 using namespace gcm;
 

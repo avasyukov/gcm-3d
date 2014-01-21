@@ -6,8 +6,8 @@
 #include "../Utils.h"
 #include "../node/CalcNode.h"
 #include "../elem/TetrFirstOrder.h"
-#include "../mesh/TetrMeshFirstOrder.h"
-#include "../mesh/TetrMeshSecondOrder.h"
+#include "../mesh/tetr/TetrMeshFirstOrder.h"
+#include "../mesh/tetr/TetrMeshSecondOrder.h"
 #include "../Logging.h"
 
 #include <vtkUnstructuredGrid.h>

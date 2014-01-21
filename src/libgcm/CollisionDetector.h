@@ -6,7 +6,7 @@
 #include "util/AABB.h"
 #include "Logging.h"
 #include "elem/TriangleFirstOrder.h"
-#include "mesh/TetrMeshSecondOrder.h"
+#include "mesh/tetr/TetrMeshSecondOrder.h"
 
 using namespace std;
 

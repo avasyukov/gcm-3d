@@ -1,5 +1,5 @@
 #include "TetrMeshFirstOrder.h"
-#include "../node/CalcNode.h"
+#include "../../node/CalcNode.h"
 
 gcm::TetrMeshFirstOrder::TetrMeshFirstOrder() {
 	nodesNumber = 0;

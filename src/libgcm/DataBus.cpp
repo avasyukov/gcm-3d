@@ -1,6 +1,6 @@
 #include "DataBus.h"
 #include "Body.h"
-#include "mesh/TetrMeshSecondOrder.h"
+#include "mesh/tetr/TetrMeshSecondOrder.h"
 #include "node/CalcNode.h"
 
 #define BARRIER(name) \

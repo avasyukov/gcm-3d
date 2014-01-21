@@ -1,5 +1,5 @@
 #include "MshTetrFileReader.h"
-#include "../../mesh/TetrMeshFirstOrder.h"
+#include "../../mesh/tetr/TetrMeshFirstOrder.h"
 #include "../../GCMDispatcher.h"
 #include "../AABB.h"
 #include "../../node/CalcNode.h"

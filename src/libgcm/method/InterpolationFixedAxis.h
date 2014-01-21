@@ -14,8 +14,8 @@
 #include "../Logging.h"
 #include "../Exception.h"
 #include "../util/ElasticMatrix3D.h"
-#include "../mesh/TetrMeshFirstOrder.h"
-#include "../mesh/TetrMeshSecondOrder.h"
+#include "../mesh/tetr/TetrMeshFirstOrder.h"
+#include "../mesh/tetr/TetrMeshSecondOrder.h"
 
 namespace gcm
 {

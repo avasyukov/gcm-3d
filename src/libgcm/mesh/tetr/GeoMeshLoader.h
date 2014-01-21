@@ -4,12 +4,12 @@
 #include <map>
 #include <string>
 
-#include "MeshLoader.h"
+#include "../MeshLoader.h"
 #include "TetrMeshFirstOrder.h"
-#include "../Exception.h"
-#include "../Utils.h"
-#include "../Logging.h"
-#include "../util/formats/MshTetrFileReader.h"
+#include "../../Exception.h"
+#include "../../Utils.h"
+#include "../../Logging.h"
+#include "../../util/formats/MshTetrFileReader.h"
 
 #include <gmsh/Gmsh.h>
 #include <gmsh/GModel.h>

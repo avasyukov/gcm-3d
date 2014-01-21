@@ -4,12 +4,12 @@
 #include <map>
 #include <string>
 
-#include "MeshLoader.h"
+#include "../MeshLoader.h"
 #include "TetrMeshFirstOrder.h"
-#include "../Exception.h"
-#include "../Utils.h"
-#include "../Logging.h"
-#include "../util/formats/VtuTetrFileReader.h"
+#include "../../Exception.h"
+#include "../../Utils.h"
+#include "../../Logging.h"
+#include "../../util/formats/VtuTetrFileReader.h"
 
 using namespace gcm;
 using namespace std;
