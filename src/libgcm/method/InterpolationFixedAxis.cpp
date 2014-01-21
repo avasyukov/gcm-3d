@@ -25,8 +25,10 @@ float gcm::InterpolationFixedAxis::getMaxLambda(CalcNode* node) {
 };
 
 void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* new_node, 
-													float time_step, int stage, Mesh* mesh)
+													float time_step, int stage, Mesh* genericMesh)
 {
+	// FIXME - WA
+	TetrMeshFirstOrder* mesh = (TetrMeshFirstOrder*)genericMesh;
 	assert( stage >= 0 && stage <= 2 );
 	
 	IEngine* engine = mesh->getBody()->getEngine();
@@ -158,8 +160,10 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 
 				// Number of outer characteristics
 				LOG_TRACE("Start virt node calc");
+				// FIXME - WA
+				TetrMeshFirstOrder* tetrMesh = (TetrMeshFirstOrder*) engine->getBody(virt_node->contactNodeNum)->getMeshes();
 				int virt_outer_count = prepare_node( virt_node, &virt_elastic_matrix3d, 
-						time_step, stage, engine->getBody(virt_node->contactNodeNum)->getMeshes()/*FIXME - WA*/, 
+						time_step, stage, tetrMesh, 
 						virt_dksi, virt_inner, virt_previous_nodes, 
 						virt_outer_normal, virt_ppoint_num );
 
@@ -262,7 +266,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 }
 
 int gcm::InterpolationFixedAxis::prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
-												float time_step, int stage, Mesh* mesh, 
+												float time_step, int stage, TetrMeshFirstOrder* mesh, 
 												float* dksi, bool* inner, CalcNode* previous_nodes, 
 												float* outer_normal, int* ppoint_num)
 {
@@ -284,7 +288,7 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode* cur_node, ElasticMatrix3
 	return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal, ppoint_num);
 };
 
-int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage, Mesh* mesh, 
+int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage, TetrMeshFirstOrder* mesh, 
 												float dksi[], bool inner[], CalcNode previous_nodes[], 
 												float outer_normal[], int ppoint_num[])
 {
@@ -418,7 +422,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode* cur
 	return outer_count;
 };
 
-void gcm::InterpolationFixedAxis::interpolateNode(Mesh* mesh, int tetrInd, int prevNodeInd, CalcNode* previous_nodes)
+void gcm::InterpolationFixedAxis::interpolateNode(TetrMeshFirstOrder* mesh, int tetrInd, int prevNodeInd, CalcNode* previous_nodes)
 {
 	assert( tetrInd >= 0 );
 	IEngine* engine = mesh->getBody()->getEngine();

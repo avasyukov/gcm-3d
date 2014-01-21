@@ -3,11 +3,6 @@
 
 #include <string>
 
-// FIXME - it's bad to have 'firstOrder' specifics here
-#include "../elem/TetrFirstOrder.h"
-#include "../elem/TriangleFirstOrder.h"
-//#include "../node/CalcNode.h"
-
 #include "../Interfaces.h"
 #include "../node/Node.h"
 
@@ -64,18 +59,13 @@ namespace gcm {
 		virtual CalcNode* getNode(int index) = 0;
 		virtual CalcNode* getNewNode(int index) = 0;
 		virtual CalcNode* getNodeByLocalIndex(int index) = 0;
-		virtual TetrFirstOrder* getTetr(int index) = 0;
-		virtual TetrFirstOrder* getTetrByLocalIndex(int index) = 0;
-		virtual TriangleFirstOrder* getTriangle(int index) = 0;
 		
 		virtual void createNodes(int number) = 0;
 		virtual void createTetrs(int number) = 0;
 		virtual void createTriangles(int number) = 0;
 		
-		// FIXME - do we need it in Mesh
+		// FIXME - do we need it in Mesh?
 		virtual void addNode(CalcNode* node) = 0;
-		// FIXME - it's bad to have firstOrder specific here
-		virtual void addTetr(TetrFirstOrder* tetr) = 0;
 		
 		// FIXME - do we need it in pure virtual Mesh?
 		virtual int findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint) = 0;
