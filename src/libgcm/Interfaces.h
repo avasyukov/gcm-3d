@@ -16,6 +16,7 @@ namespace gcm {
 	class RheologyCalculator;
 	class TetrFirstOrderInterpolator;
 	class TetrSecondOrderMinMaxInterpolator;
+	class LineFirstOrderInterpolator;
 	class GCMDispatcher;
 	class Body;
 	class Mesh;
@@ -35,6 +36,7 @@ namespace gcm {
 			virtual ContactCondition* getContactCondition(unsigned int num) = 0;
 			virtual TetrFirstOrderInterpolator* getFirstOrderInterpolator(string type) = 0;
 			virtual TetrSecondOrderMinMaxInterpolator* getSecondOrderInterpolator(string type) = 0;
+			virtual LineFirstOrderInterpolator* getFirstOrderLineInterpolator(string type) = 0;
 			virtual RheologyCalculator* getRheologyCalculator(string type) = 0;
 			virtual GCMDispatcher* getDispatcher() = 0;
 			virtual void doNextStep() = 0;

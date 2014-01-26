@@ -4,6 +4,7 @@
 gcm::TetrMeshSecondOrder::TetrMeshSecondOrder() {
 	secondOrderNodesAreGenerated = false;
 	numericalMethodOrder = 2;
+	dumpWriterType = "VTK2SnapshotWriter";
 	INIT_LOGGER("gcm.TetrMeshSecondOrder");
 }
 
@@ -137,15 +138,12 @@ void gcm::TetrMeshSecondOrder::copyMesh2(TetrMeshSecondOrder* src)
 	}
 }
 
-void gcm::TetrMeshSecondOrder::preProcess()
+void gcm::TetrMeshSecondOrder::preProcessGeometry()
 {
 	LOG_DEBUG("Preprocessing second order mesh started");
 	
-	initNewNodes();
-	create_outline();
-	calc_min_h();
-	calc_max_h();
-	calc_avg_h();
+	calcMaxH();
+	calcAvgH();
 	mesh_min_h *= 0.5;
 	mesh_max_h *= 0.5;
 	mesh_avg_h *= 0.5;
@@ -168,8 +166,6 @@ void gcm::TetrMeshSecondOrder::preProcess()
 	check_numbering();
 	check_outer_normals();
 	LOG_DEBUG("Preprocessing mesh done.");
-	
-	logMeshStats();
 }
 
 void gcm::TetrMeshSecondOrder::verifyTetrahedraVertices ()
@@ -442,10 +438,10 @@ void gcm::TetrMeshSecondOrder::build_surface_reverse_lookups()
 	}
 }
 
-void gcm::TetrMeshSecondOrder::move_coords(float tau)
+void gcm::TetrMeshSecondOrder::moveCoords(float tau)
 {
 	// Move first order nodes
-	gcm::TetrMeshFirstOrder::move_coords(tau);
+	gcm::TetrMeshFirstOrder::moveCoords(tau);
 	mesh_min_h *= 0.5;
 	
 	// Move second order nodes

@@ -34,6 +34,7 @@
 #include "interpolator/TetrInterpolator.h"
 #include "interpolator/TetrFirstOrderInterpolator.h"
 #include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
+#include  "interpolator/LineFirstOrderInterpolator.h"
 
 #define CONTACT_THRESHOLD_BY_AVG_H 0
 #define CONTACT_THRESHOLD_BY_MAX_LT 1
@@ -112,8 +113,8 @@ namespace gcm
 		CollisionDetector* colDet;
 		vector<CalcNode> virtNodes;
 		
-		VTKSnapshotWriter* vtkSnapshotWriter;
-		VTK2SnapshotWriter* vtkDumpWriter;
+		//VTKSnapshotWriter* vtkSnapshotWriter;
+		//VTK2SnapshotWriter* vtkDumpWriter;
 		
 		unsigned char contactThresholdType;
 		float contactThresholdFactor;
@@ -234,6 +235,7 @@ namespace gcm
 		ContactCondition* getContactCondition(unsigned int num);
 		TetrFirstOrderInterpolator* getFirstOrderInterpolator(string type);
 		TetrSecondOrderMinMaxInterpolator* getSecondOrderInterpolator(string type);
+		LineFirstOrderInterpolator* getFirstOrderLineInterpolator(string type);
 		RheologyCalculator* getRheologyCalculator(string type);
 		GCMDispatcher* getDispatcher();
 		

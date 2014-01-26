@@ -14,34 +14,14 @@ gcm::VTK2SnapshotWriter::~VTK2SnapshotWriter() {
 	
 }
 
-void gcm::VTK2SnapshotWriter::init() {
-	
-}
-
 string gcm::VTK2SnapshotWriter::getType() {
 	return "VTK2SnapshotWriter";
 }
 
-void gcm::VTK2SnapshotWriter::dump(TetrMeshFirstOrder* mesh, int step)
+void gcm::VTK2SnapshotWriter::dump(Mesh* mesh, int step)
 {
-	dump((TetrMeshSecondOrder*)mesh, step);
-}
-
-void gcm::VTK2SnapshotWriter::dump(TetrMeshSecondOrder* mesh, int step)
-{
-	dumpVTK(getFileName(MPI::COMM_WORLD.Get_rank(), step, mesh->getId()), mesh, step);
-}
-
-string gcm::VTK2SnapshotWriter::getFileName(int cpuNum, int step, string meshId) {
-	string filename = fname;
-	replaceAll (filename, "%z", t_to_string (cpuNum));
-	replaceAll (filename, "%n", t_to_string (step));
-	replaceAll (filename, "%m", meshId);
-	return filename;
-}
-
-void gcm::VTK2SnapshotWriter::setFileName(string name) {
-	fname = name;
+	// TODO - check if the mesh is compatible
+	dumpVTK(getFileName(MPI::COMM_WORLD.Get_rank(), step, mesh->getId()), (TetrMeshSecondOrder*)mesh, step);
 }
 
 void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh, int step)

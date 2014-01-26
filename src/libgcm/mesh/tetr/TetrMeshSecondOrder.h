@@ -66,8 +66,8 @@ namespace gcm {
 		TriangleFirstOrder* getTriangle(int index);
 		TriangleSecondOrder* getTriangle2(int index);
 
-		void preProcess();
-		void move_coords(float tau);
+		void preProcessGeometry();
+		void moveCoords(float tau);
 	};
 }
 #endif

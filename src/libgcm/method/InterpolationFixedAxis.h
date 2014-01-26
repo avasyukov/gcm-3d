@@ -27,9 +27,7 @@ namespace gcm
 		int getNumberOfStages();
 		void doNextPartStep(CalcNode* cur_node, CalcNode* new_node, float time_step, int stage, Mesh* genericMesh);
 		float getMaxLambda(CalcNode* node);
-		inline string getType() {
-			return "InterpolationFixedAxis";
-		}
+		string getType();
 	protected:
 		int prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
 												float time_step, int stage, TetrMeshFirstOrder* mesh, 

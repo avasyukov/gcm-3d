@@ -7,6 +7,11 @@
 
 #include "InterpolationFixedAxis.h"
 
+string gcm::InterpolationFixedAxis::getType()
+{
+	return "InterpolationFixedAxis";
+}
+
 gcm::InterpolationFixedAxis::InterpolationFixedAxis() {
 	INIT_LOGGER("gcm.method.InterpolationFixedAxis");
 }
@@ -273,7 +278,7 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode* cur_node, ElasticMatrix3
 	assert( stage >= 0 && stage <= 2 );
 	
 	if( cur_node->isBorder() )
-		mesh->find_border_node_normal(cur_node->number, &outer_normal[0], &outer_normal[1], &outer_normal[2], false);
+		mesh->findBorderNodeNormal(cur_node->number, &outer_normal[0], &outer_normal[1], &outer_normal[2], false);
 
 	LOG_TRACE("Preparing elastic matrix");
 	//  Prepare matrixes  A, Lambda, Omega, Omega^(-1)

@@ -24,7 +24,6 @@ namespace gcm {
 	class VTKSnapshotWriter : public SnapshotWriter {
 	private:
 		void dumpVTK(string filename, TetrMeshSecondOrder* mesh, int step);
-		string fname;
 		USE_LOGGER;
 	public:
 		VTKSnapshotWriter();
@@ -33,12 +32,8 @@ namespace gcm {
 		/*
 		 * Returns snapshot writer type
 		 */
-		string getFileName(int cpuNum, int step, string meshId);
-		void setFileName(string name);
 		string getType();
-		void dump(TetrMeshFirstOrder* mesh, int step);
-		void dump(TetrMeshSecondOrder* mesh, int step);
-		void init();
+		void dump(Mesh* mesh, int step);
 	};
 }
 
