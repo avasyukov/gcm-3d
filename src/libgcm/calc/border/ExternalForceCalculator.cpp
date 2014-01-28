@@ -27,7 +27,7 @@ void ExternalForceCalculator::set_parameters(float sn, float st, float xv, float
 	tangential_direction[2] = zv / dtmp;
 };
 
-void ExternalForceCalculator::do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
+void ExternalForceCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
 {
 
 	float local_n[3][3];

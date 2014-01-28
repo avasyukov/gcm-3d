@@ -7,6 +7,11 @@
 
 #include "InterpolationFixedAxis.h"
 
+string gcm::InterpolationFixedAxis::getType()
+{
+	return "InterpolationFixedAxis";
+}
+
 gcm::InterpolationFixedAxis::InterpolationFixedAxis() {
 	INIT_LOGGER("gcm.method.InterpolationFixedAxis");
 }
@@ -25,8 +30,10 @@ float gcm::InterpolationFixedAxis::getMaxLambda(CalcNode* node) {
 };
 
 void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* new_node, 
-													float time_step, int stage, Mesh* mesh)
+													float time_step, int stage, Mesh* genericMesh)
 {
+	// FIXME - WA
+	TetrMeshFirstOrder* mesh = (TetrMeshFirstOrder*)genericMesh;
 	assert( stage >= 0 && stage <= 2 );
 	
 	IEngine* engine = mesh->getBody()->getEngine();
@@ -109,8 +116,9 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 			if( ! cur_node->isInContact() || cur_node->contactDirection != stage )
 			{
 				// FIXME
-				LOG_TRACE("Using calculator: " << engine->getBorderCondition(1)->calc->getType());
-				engine->getBorderCondition(1)->do_calc(mesh->get_current_time(), cur_node->coords, 
+				int borderCondId = cur_node->getBorderConditionId();
+				LOG_TRACE("Using calculator: " << engine->getBorderCondition(borderCondId)->calc->getType());
+				engine->getBorderCondition(borderCondId)->do_calc(mesh->get_current_time(), cur_node, 
 					new_node, &elastic_matrix3d, previous_values, inner, outer_normal);
 			}
 			// Contact
@@ -157,8 +165,10 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 
 				// Number of outer characteristics
 				LOG_TRACE("Start virt node calc");
+				// FIXME - WA
+				TetrMeshFirstOrder* tetrMesh = (TetrMeshFirstOrder*) engine->getBody(virt_node->contactNodeNum)->getMeshes();
 				int virt_outer_count = prepare_node( virt_node, &virt_elastic_matrix3d, 
-						time_step, stage, engine->getBody(virt_node->contactNodeNum)->getMeshes()/*FIXME - WA*/, 
+						time_step, stage, tetrMesh, 
 						virt_dksi, virt_inner, virt_previous_nodes, 
 						virt_outer_normal, virt_ppoint_num );
 
@@ -244,15 +254,15 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 //				}
 
 				LOG_TRACE("Using calculator: " << engine->getContactCondition(0)->calc->getType());
-				engine->getContactCondition(0)->do_calc(mesh->get_current_time(), cur_node->coords, 
-						new_node, &elastic_matrix3d, previous_values, inner, 
+				engine->getContactCondition(0)->do_calc(mesh->get_current_time(), cur_node, 
+						new_node, virt_node, &elastic_matrix3d, previous_values, inner, 
 						&virt_elastic_matrix3d, virt_previous_values, virt_inner, outer_normal);
 			}
 		// It means smth went wrong. Just interpolate the values and report bad node.
 		} else {
 			// FIXME - implement border and contact completely
 			LOG_TRACE("Using calculator: " << engine->getBorderCondition(0)->calc->getType());
-			engine->getBorderCondition(0)->do_calc(mesh->get_current_time(), cur_node->coords, 
+			engine->getBorderCondition(0)->do_calc(mesh->get_current_time(), cur_node, 
 					new_node, &elastic_matrix3d, previous_values, inner, outer_normal);
 			cur_node->setNeighError(stage);
 		}
@@ -261,14 +271,14 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode* cur_node, CalcNode* n
 }
 
 int gcm::InterpolationFixedAxis::prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
-												float time_step, int stage, Mesh* mesh, 
+												float time_step, int stage, TetrMeshFirstOrder* mesh, 
 												float* dksi, bool* inner, CalcNode* previous_nodes, 
 												float* outer_normal, int* ppoint_num)
 {
 	assert( stage >= 0 && stage <= 2 );
 	
 	if( cur_node->isBorder() )
-		mesh->find_border_node_normal(cur_node->number, &outer_normal[0], &outer_normal[1], &outer_normal[2], false);
+		mesh->findBorderNodeNormal(cur_node->number, &outer_normal[0], &outer_normal[1], &outer_normal[2], false);
 
 	LOG_TRACE("Preparing elastic matrix");
 	//  Prepare matrixes  A, Lambda, Omega, Omega^(-1)
@@ -283,7 +293,7 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode* cur_node, ElasticMatrix3
 	return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal, ppoint_num);
 };
 
-int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage, Mesh* mesh, 
+int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage, TetrMeshFirstOrder* mesh, 
 												float dksi[], bool inner[], CalcNode previous_nodes[], 
 												float outer_normal[], int ppoint_num[])
 {
@@ -401,7 +411,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode* cur
 		LOG_TRACE( "Looking for characteristic " << i << " done" );
 	}
 
-	assert( count == 5 );
+	assert( count == 5 || count == 3 );
 	
 	int outer_count = 0;
 	for(int i = 0; i < 9; i++)
@@ -417,7 +427,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode* cur
 	return outer_count;
 };
 
-void gcm::InterpolationFixedAxis::interpolateNode(Mesh* mesh, int tetrInd, int prevNodeInd, CalcNode* previous_nodes)
+void gcm::InterpolationFixedAxis::interpolateNode(TetrMeshFirstOrder* mesh, int tetrInd, int prevNodeInd, CalcNode* previous_nodes)
 {
 	assert( tetrInd >= 0 );
 	IEngine* engine = mesh->getBody()->getEngine();

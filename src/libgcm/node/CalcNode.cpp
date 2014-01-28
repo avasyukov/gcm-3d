@@ -11,9 +11,11 @@ gcm::CalcNode::CalcNode()
 	errorFlags = 0;
 	// Border condition '1' is 'default' one, since '0' is reserved for 'failsafe' one
 	borderCondId = 1;
+	contactCondId = 0;
 	addOwner( GCM );
 	elements = new vector<int>;
 	border_elements = new vector<int>;
+	crackDirection[0] = crackDirection[1] =	crackDirection[2] = 0.0;
 }
 
 gcm::CalcNode::CalcNode(int _num) {
@@ -37,12 +39,14 @@ gcm::CalcNode::CalcNode(const CalcNode& src) {
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;
 	borderCondId = src.borderCondId;
+	contactCondId = src.contactCondId;
 	elements = new vector<int>;
 	border_elements = new vector<int>;
 	for( unsigned int i = 0; i < src.elements->size(); i++ )
 		elements->push_back( src.elements->at(i) );
 	for( unsigned int i = 0; i < src.border_elements->size(); i++ )
 		border_elements->push_back( src.border_elements->at(i) );
+	memcpy( crackDirection, src.crackDirection, 3*sizeof(float));
 }
 
 CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
@@ -59,12 +63,14 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
 	privateFlags = src.privateFlags;
 	errorFlags = src.errorFlags;
 	borderCondId = src.borderCondId;
+	contactCondId = src.contactCondId;
 	elements->clear();
 	border_elements->clear();
 	for( unsigned int i = 0; i < src.elements->size(); i++ )
 		elements->push_back( src.elements->at(i) );
 	for( unsigned int i = 0; i < src.border_elements->size(); i++ )
 		border_elements->push_back( src.border_elements->at(i) );
+	memcpy( crackDirection, src.crackDirection, 3*sizeof(float));
 	return *this;
 }
 
@@ -76,61 +82,172 @@ gcm::CalcNode::~CalcNode()
 	delete border_elements;
 }
 
+void gcm::CalcNode::clearState()
+{
+	clearErrorFlags();
+	clearMainStresses();
+}
+
 void gcm::CalcNode::clearErrorFlags()
 {
 	errorFlags = 0;
 }
 
+void gcm::CalcNode::clearMainStresses()
+{
+	setMainStressCalculated( false );
+}
+
 float gcm::CalcNode::getCompression()
 {
 	float compression = 0;
-	// FIXME - we need main tensor components, not diagonal components
-	if( values[3] < compression )
-		compression = values[3];
-	if( values[6] < compression )
-		compression = values[6];
-	if( values[8] < compression )
-		compression = values[8];
+	float s[3];
+	getMainStressComponents(s[1], s[2], s[3]);
+	
+	for( int i = 0; i < 3; i++ )
+		if( s[i] < compression )
+			compression = s[i];
+	
 	return fabs(compression);
 }
 
 float gcm::CalcNode::getTension()
 {
 	float tension = 0;
-	// FIXME - we need main tensor components, not diagonal components
-	if( values[3] > tension )
-		tension = values[3];
-	if( values[6] > tension )
-		tension = values[6];
-	if( values[8] > tension )
-		tension = values[8];
+	float s[3];
+	getMainStressComponents(s[1], s[2], s[3]);
+	
+	for( int i = 0; i < 3; i++ )
+		if( s[i] > tension )
+			tension = s[i];
+	
 	return tension;
 }
 
+// See http://www.toehelp.ru/theory/sopromat/6.html for details
 float gcm::CalcNode::getShear()
 {
 	float shear = 0;
-	// FIXME - we need main tensor components, not diagonal components
-	if( fabs(values[4]) > shear )
-		shear = fabs(values[4]);
-	if( fabs(values[5]) > shear )
-		shear = fabs(values[5]);
-	if( fabs(values[7]) > shear )
-		shear = fabs(values[7]);
+	float s[3];
+	float t[3];
+	getMainStressComponents(s[1], s[2], s[3]);
+	
+	t[0] = 0.5 * fabs(s[1] - s[0]);
+	t[1] = 0.5 * fabs(s[2] - s[0]);
+	t[2] = 0.5 * fabs(s[2] - s[1]);
+	
+	for( int i = 0; i < 3; i++ )
+		if( t[i] > shear )
+			shear = t[i];
+	
 	return shear;
 }
 
 float gcm::CalcNode::getDeviator()
 {
-	return sqrt( ( (values[3] - values[6]) * (values[3] - values[6]) 
-					+ (values[6] - values[8]) * (values[6] - values[8])
-					+ (values[3] - values[8]) * (values[3] - values[8])
-					+ 6 * ( (values[4]) * (values[4]) + (values[5]) * (values[5])
-							+ (values[7]) * (values[7])) ) / 6 );
+	return sqrt( ( (sxx - syy) * (sxx - syy) + (syy - szz) * (syy - szz) + (sxx - szz) * (sxx - szz)
+					+ 6 * ( sxy * sxy + sxz * sxz + syz * syz) ) / 6 );
 }
 
 float gcm::CalcNode::getPressure()
 {
-	float pressure = -(values[3]+values[6]+values[8])/3;
+	float pressure = - ( sxx + syy + szz ) / 3;
 	return pressure;
+}
+
+float gcm::CalcNode::getJ1()
+{
+	return sxx + syy + szz;
+}
+
+float gcm::CalcNode::getJ2()
+{
+	return sxx*syy + sxx*szz + syy*szz - ( sxy*sxy + sxz*sxz + syz*syz );
+}
+
+float gcm::CalcNode::getJ3()
+{
+	return sxx*syy*szz + 2*sxy*sxz*syz - sxx*syz*syz - syy*sxz*sxz - szz*sxy*sxy;
+}
+
+// See http://www.toehelp.ru/theory/sopromat/6.html 
+//	and http://ru.wikipedia.org/wiki/Тригонометрическая_формула_Виета for algo
+void gcm::CalcNode::calcMainStressComponents()
+{
+	float a = - getJ1();
+	float b = getJ2();
+	float c = - getJ3();
+	
+	float p = b - a * a / 3.0;
+	float q = 2.0 * a * a * a / 27.0 - a * b / 3.0 + c;
+	float A = sqrt(- 4.0 * p / 3.0);
+	float c3phi = - 4.0 * q / (A * A * A);
+	float phi = acos(c3phi) / 3.0;
+	
+	mainStresses[0] = A * cos(phi) - a / 3.0;
+	mainStresses[1] = A * cos(phi + 2 * M_PI / 3.0) - a / 3.0;
+	mainStresses[2] = A * cos(phi - 2 * M_PI / 3.0) - a / 3.0;
+	setMainStressCalculated( true );
+}
+
+void gcm::CalcNode::calcMainStressDirectionByComponent(float s, float* vector)
+{
+	if ( (sxy*sxy-(sxx-s)*(syy-s))*(sxy*(szz-s)-sxz*syz)-(sxy*sxz-(sxx-s)*syz)*(sxy*syz-sxz*(syy-s)) == 0)
+		vector[2]=1;
+	else	vector[2]=0;
+
+	if (sxy*sxy-(sxx-s)*(syy-s) != 0)
+		vector[1] = vector[2]*(-sxy*sxz+(sxx-s)*sxz)/(sxy*sxy-(sxx-s)*(syy-s));
+	else if (sxy*syz-sxz*(syy-s) != 0)
+		vector[1] = vector[2]*(sxz*syz-sxy*(szz-s))/(sxy*syz-sxz*(syy-s));
+	else 	vector[1] = 1;
+
+	if (sxx-s != 0)
+		vector[0] = -vector[1]*sxy/(sxx-s)-vector[2]*sxz/(sxx-s);
+	else if (sxy != 0) 
+		vector[0] = -vector[1]*(syy-s)/sxy-vector[2]*syz/sxy;
+	else if (sxz != 0) 
+		vector[0] = -vector[1]*syz/sxz-vector[2]*(szz-s)/sxz;
+	else 	vector[0] = 1;
+
+	float norm = sqrt(vector[0]*vector[0]+vector[1]*vector[1]+vector[2]*vector[2]);
+	if (norm > 0.0)
+	{
+		vector[0]/=norm;
+		vector[1]/=norm;
+		vector[2]/=norm;
+	}
+}
+
+void gcm::CalcNode::createCrack(int direction)
+{
+	if (scalarProduct(crackDirection,crackDirection) == 0.0)
+		this->calcMainStressDirectionByComponent(mainStresses[direction], crackDirection);
+}
+
+void gcm::CalcNode::createCrack(float* vector)
+{
+	memcpy( crackDirection, vector, 3*sizeof(float) );
+}
+
+
+void gcm::CalcNode::getMainStressComponents(float& s1, float& s2, float& s3)
+{
+	if( ! isMainStressCalculated() )
+		calcMainStressComponents();
+	
+	s1 = mainStresses[0];
+	s2 = mainStresses[1];
+	s3 = mainStresses[2];
+}
+
+void gcm::CalcNode::cleanStressByDirection(float* h)
+{
+	float s1=h[0]*(sxx*h[0]+sxy*h[1]+sxz*h[2])+h[1]*(sxy*h[0]+syy*h[1]+syz*h[2])+h[2]*(sxz*h[0]+syz*h[1]+szz*h[2]);//TODO
+	sxx -= h[0]*h[0]*s1;
+	sxy -= h[0]*h[1]*s1;
+	sxz -= h[0]*h[2]*s1;
+	syy -= h[1]*h[1]*s1;
+	syz -= h[1]*h[2]*s1;
+	szz -= h[2]*h[2]*s1;
 }

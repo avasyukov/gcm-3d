@@ -2,11 +2,12 @@
 #define GCM_SNAPSHOTWRITER_H_
 
 #include <string>
+#include "../mesh/Mesh.h"
+#include "../Utils.h"
 
 using namespace std;
 
 namespace gcm {
-	class TetrMeshFirstOrder;
 	
 	class SnapshotWriter {
 	public:
@@ -14,8 +15,12 @@ namespace gcm {
 		 * Returns snapshot writer type
 		 */
 		virtual string getType() = 0;
-		virtual void dump(TetrMeshFirstOrder* mesh, int step) = 0;
-		virtual void init() = 0;
+		virtual void dump(Mesh* mesh, int step) = 0;
+		
+		string getFileName(int cpuNum, int step, string meshId);
+		void setFileName(string name);
+	protected:
+		string fname;
 	};
 }
 

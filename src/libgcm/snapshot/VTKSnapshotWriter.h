@@ -6,8 +6,8 @@
 #include "../Utils.h"
 #include "../node/CalcNode.h"
 #include "../elem/TetrFirstOrder.h"
-#include "../mesh/TetrMeshFirstOrder.h"
-#include "../mesh/TetrMeshSecondOrder.h"
+#include "../mesh/tetr/TetrMeshFirstOrder.h"
+#include "../mesh/tetr/TetrMeshSecondOrder.h"
 #include "../Logging.h"
 
 #include <vtkUnstructuredGrid.h>
@@ -24,7 +24,6 @@ namespace gcm {
 	class VTKSnapshotWriter : public SnapshotWriter {
 	private:
 		void dumpVTK(string filename, TetrMeshSecondOrder* mesh, int step);
-		string fname;
 		USE_LOGGER;
 	public:
 		VTKSnapshotWriter();
@@ -33,12 +32,8 @@ namespace gcm {
 		/*
 		 * Returns snapshot writer type
 		 */
-		string getFileName(int cpuNum, int step, string meshId);
-		void setFileName(string name);
 		string getType();
-		void dump(TetrMeshFirstOrder* mesh, int step);
-		void dump(TetrMeshSecondOrder* mesh, int step);
-		void init();
+		void dump(Mesh* mesh, int step);
 	};
 }
 

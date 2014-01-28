@@ -2,8 +2,8 @@
 #define GCM_TETR_MESH_SECOND_ORDER_H_
 
 #include "TetrMeshFirstOrder.h"
-#include "../elem/TetrSecondOrder.h"
-#include "../elem/TriangleSecondOrder.h"
+#include "../../elem/TetrSecondOrder.h"
+#include "../../elem/TriangleSecondOrder.h"
 
 using namespace std;
 using namespace gcm;
@@ -41,6 +41,7 @@ namespace gcm {
 		void build_surface_reverse_lookups();
 		void build_first_order_border();
 		void generateSecondOrderBorder();
+		void moveSecondOrderNode(int nodeIdx, int nodeIdx1, int nodeIdx2);
 		
 	public:
 		TetrMeshSecondOrder();
@@ -65,8 +66,8 @@ namespace gcm {
 		TriangleFirstOrder* getTriangle(int index);
 		TriangleSecondOrder* getTriangle2(int index);
 
-		void preProcess();
-		void move_coords(float tau);
+		void preProcessGeometry();
+		void moveCoords(float tau);
 	};
 }
 #endif

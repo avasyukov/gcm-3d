@@ -27,7 +27,7 @@ void ExternalVelocityCalculator::set_parameters(float vn, float vt, float xv, fl
 	tangential_direction[2] = zv / dtmp;
 };
 
-void ExternalVelocityCalculator::do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
+void ExternalVelocityCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
 {
 
 	float local_n[3][3];

@@ -18,6 +18,8 @@
 #include "calc/border/BorderCalculator.h"
 #include "calc/contact/ContactCalculator.h"
 #include "rheology/RheologyCalculator.h"
+#include "rheology/DummyRheologyCalculator.h"
+#include "rheology/StdRheologyCalculator.h"
 #include "util/forms/PulseForm.h"
 #include "util/areas/BoxArea.h"
 #include "GCMDispatcher.h"
@@ -32,6 +34,7 @@
 #include "interpolator/TetrInterpolator.h"
 #include "interpolator/TetrFirstOrderInterpolator.h"
 #include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
+#include  "interpolator/LineFirstOrderInterpolator.h"
 
 #define CONTACT_THRESHOLD_BY_AVG_H 0
 #define CONTACT_THRESHOLD_BY_MAX_LT 1
@@ -48,6 +51,9 @@ namespace gcm
 	 * Main class to operate calculation scene.
 	 */
 	class Engine: public IEngine {
+		
+		static Engine* engineInstance;
+		
 	protected:
 		/*
 		 * File lookup service
@@ -107,8 +113,8 @@ namespace gcm
 		CollisionDetector* colDet;
 		vector<CalcNode> virtNodes;
 		
-		VTKSnapshotWriter* vtkSnapshotWriter;
-		VTK2SnapshotWriter* vtkDumpWriter;
+		//VTKSnapshotWriter* vtkSnapshotWriter;
+		//VTK2SnapshotWriter* vtkDumpWriter;
 		
 		unsigned char contactThresholdType;
 		float contactThresholdFactor;
@@ -120,12 +126,14 @@ namespace gcm
 		int stepsPerSnap;
 		
 		AABB scene;
+		
+		string defaultRheoCalcType;
 		/*
 		 * Logger.
 		 */
 		USE_LOGGER;
 		
-	private:
+	protected:
 		/* 
 		 * Engine is a singletone, so constructors are private
 		 * Limitation of current design: single threaded only
@@ -148,6 +156,8 @@ namespace gcm
 		 * Returns singletone engine instance
 		 */
 		static Engine& getInstance();
+		static void initInstance() { new Engine; }
+		void cleanUp();
 		/*
 		 * Returns process rank.
 		 */
@@ -205,6 +215,9 @@ namespace gcm
 		
 		unsigned char addMaterial(Material *material);
 		
+		void setDefaultRheologyCalculatorType(string calcType);
+		string getDefaultRheologyCalculatorType();
+		
 		/*
 		 * Returns mesh loader by type or NULL if not found.
 		 */
@@ -222,6 +235,7 @@ namespace gcm
 		ContactCondition* getContactCondition(unsigned int num);
 		TetrFirstOrderInterpolator* getFirstOrderInterpolator(string type);
 		TetrSecondOrderMinMaxInterpolator* getSecondOrderInterpolator(string type);
+		LineFirstOrderInterpolator* getFirstOrderLineInterpolator(string type);
 		RheologyCalculator* getRheologyCalculator(string type);
 		GCMDispatcher* getDispatcher();
 		
@@ -271,6 +285,8 @@ namespace gcm
 		unsigned char getContactThresholdType();
 		void setContactThresholdFactor(float val);
 		float getContactThresholdFactor();
+		void setCollisionDetectorStatic(bool val);
+		bool isCollisionDetectorStatic();
 	};
 }
 

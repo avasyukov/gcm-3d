@@ -1,31 +1,37 @@
 #include "Engine.h"
-#include "mesh/MshMeshLoader.h"
-#include "mesh/Msh2MeshLoader.h"
-#include "mesh/GeoMeshLoader.h"
-#include "mesh/Geo2MeshLoader.h"
-#include "mesh/VtuMeshLoader.h"
-#include "mesh/Vtu2MeshLoader.h"
-#include "mesh/Vtu2MeshZoneLoader.h"
+#include "mesh/tetr/MshMeshLoader.h"
+#include "mesh/tetr/Msh2MeshLoader.h"
+#include "mesh/tetr/GeoMeshLoader.h"
+#include "mesh/tetr/Geo2MeshLoader.h"
+#include "mesh/tetr/VtuMeshLoader.h"
+#include "mesh/tetr/Vtu2MeshLoader.h"
+#include "mesh/tetr/Vtu2MeshZoneLoader.h"
+#include "mesh/cube/BasicCubicMeshGenerator.h"
+#include "method/DummyMethod.h"
 #include "method/InterpolationFixedAxis.h"
+#include "method/BasicRectMethod.h"
 #include "calc/volume/SimpleVolumeCalculator.h"
 #include "calc/border/FreeBorderCalculator.h"
 #include "calc/border/SmoothBorderCalculator.h"
 #include "calc/contact/SlidingContactCalculator.h"
 #include "calc/contact/AdhesionContactCalculator.h"
+#include "calc/contact/AdhesionContactDestroyCalculator.h"
 #include "util/forms/StepPulseForm.h"
 #include "snapshot/VTKSnapshotWriter.h"
 #include "snapshot/VTK2SnapshotWriter.h"
+#include "snapshot/VTKCubicSnapshotWriter.h"
 #include "BruteforceCollisionDetector.h"
 #include "rheology/DummyRheologyCalculator.h"
 #include "rheology/StdRheologyCalculator.h"
 
 // initialiaze static fields
 int gcm::Engine::enginesNumber = 0;
+Engine* gcm::Engine::engineInstance = 0;
 
 Engine& gcm::Engine::getInstance()
 {
-	static Engine engine;
-	return engine;
+	if (!engineInstance) initInstance();
+	return *engineInstance;
 }
 
 gcm::Engine::Engine()
@@ -37,6 +43,7 @@ gcm::Engine::Engine()
 		// only one instance of engine at the same time
 		throw logic_error("Only one engine can be used at the same time");
 	}
+	engineInstance = this;
 	enginesNumber++;
 	// init MPI subsystem used for IPC
 	if( ! MPI::Is_initialized() )
@@ -55,20 +62,26 @@ gcm::Engine::Engine()
 	registerMeshLoader(new VtuMeshLoader());
 	registerMeshLoader(new Vtu2MeshLoader());
 	registerMeshLoader(new Vtu2MeshZoneLoader());
+	registerMeshLoader(new BasicCubicMeshGenerator());
 	LOG_DEBUG("Registering default methods");
+	registerNumericalMethod( new DummyMethod() );
 	registerNumericalMethod( new InterpolationFixedAxis() );
+	registerNumericalMethod( new BasicRectMethod() );
 	LOG_DEBUG("Registering default interpolators");
 	registerInterpolator( new TetrFirstOrderInterpolator() );
 	registerInterpolator( new TetrSecondOrderMinMaxInterpolator() );
+	registerInterpolator( new LineFirstOrderInterpolator() );
 	LOG_DEBUG("Registering default rheology calculators");
 	registerRheologyCalculator( new DummyRheologyCalculator() );
 	registerRheologyCalculator( new StdRheologyCalculator() );
+	defaultRheoCalcType = "DummyRheologyCalculator";
 	LOG_DEBUG("Registering default calculators");
 	registerVolumeCalculator( new SimpleVolumeCalculator() );
 	registerBorderCalculator( new FreeBorderCalculator() );
 	registerBorderCalculator( new SmoothBorderCalculator() );
 	registerContactCalculator( new SlidingContactCalculator() );
 	registerContactCalculator( new AdhesionContactCalculator() );
+	registerContactCalculator( new AdhesionContactDestroyCalculator() );
 	LOG_DEBUG("Registering default border condition");
 	// Failsafe border condition
 	addBorderCondition( new BorderCondition( NULL, new StepPulseForm(-1, -1), getBorderCalculator("SmoothBorderCalculator") ) );
@@ -82,9 +95,10 @@ gcm::Engine::Engine()
 	LOG_DEBUG("Creating data bus");
 	dataBus = new DataBus();
 	dataBus->setEngine(this);
-	LOG_DEBUG("Creating snapshot writers");
-	vtkSnapshotWriter = new VTKSnapshotWriter();
-	vtkDumpWriter = new VTK2SnapshotWriter();
+	LOG_DEBUG("Registering snapshot writers");
+	registerSnapshotWriter( new VTKSnapshotWriter() );
+	registerSnapshotWriter( new VTK2SnapshotWriter() );
+	registerSnapshotWriter( new VTKCubicSnapshotWriter() );
 	LOG_DEBUG("Creating collision detector");
 	colDet = new BruteforceCollisionDetector();
 	LOG_INFO("GCM engine initialized");
@@ -99,24 +113,30 @@ gcm::Engine::Engine()
 
 gcm::Engine::~Engine()
 {
+	cleanUp();
+	LOG_INFO("GCM engine destroyed");
+}
+
+void gcm::Engine::cleanUp()
+{
 	// clear memory
-	foreach(b, bodies)
-		delete *b;
-	foreach(ml, meshLoaders)
+	for(auto& b: bodies)
+		delete b;
+	for(auto& ml: meshLoaders)
 	{
-		(ml->second)->cleanUp();
-		delete (ml->second);
+		(ml.second)->cleanUp();
+		delete (ml.second);
 	}
 	// decrement engines counter
 	enginesNumber--;
 	delete dataBus;
-	delete vtkSnapshotWriter;
-	delete vtkDumpWriter;
+	//delete vtkSnapshotWriter;
+	//delete vtkDumpWriter;
 	delete colDet;
 	// shutdown MPI
 	if( !MPI::Is_finalized() )
 		MPI::Finalize();
-	LOG_INFO("GCM engine destroyed");
+	LOG_INFO("Clean up done");
 }
 
 int gcm::Engine::getRank()
@@ -341,6 +361,11 @@ ContactCalculator* gcm::Engine::getContactCalculator(string type)
 	return contactCalculators.find(type) != contactCalculators.end() ? contactCalculators[type] : NULL;
 }
 
+LineFirstOrderInterpolator* gcm::Engine::getFirstOrderLineInterpolator(string type)
+{
+	return interpolators.find(type) != interpolators.end() ? (LineFirstOrderInterpolator*) interpolators[type] : NULL;
+}
+
 TetrFirstOrderInterpolator* gcm::Engine::getFirstOrderInterpolator(string type)
 {
 	return interpolators.find(type) != interpolators.end() ? (TetrFirstOrderInterpolator*) interpolators[type] : NULL;
@@ -390,15 +415,18 @@ void gcm::Engine::doNextStep()
 
 void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actualTimeStep)
 {
-	// Clear virtual nodes
-	virtNodes.clear();
-	
-	// Clear contact state
-	for( unsigned int i = 0; i < bodies.size(); i++ )
+	if( ! colDet->is_static() )
 	{
-			LOG_DEBUG("Clear contact state for body " << i );
-			Mesh* mesh = bodies[i]->getMeshes();
-			mesh->clearContactState();
+		// Clear virtual nodes
+		virtNodes.clear();
+		
+		// Clear contact state
+		for( unsigned int i = 0; i < bodies.size(); i++ )
+		{
+				LOG_DEBUG("Clear contact state for body " << i );
+				Mesh* mesh = bodies[i]->getMeshes();
+				mesh->clearContactState();
+		}
 	}
 	
 	// Print debug info
@@ -447,10 +475,21 @@ void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actu
 		LOG_DEBUG("Looking for missed nodes");
 		dataBus->syncMissedNodes(mesh, tau);
 		LOG_DEBUG("Looking for missed nodes done");
+		
+		LOG_DEBUG("Processing response from cracks");
+		mesh->processCrackResponse();
+		LOG_DEBUG("Processing response from cracks done");
 	}
 	
 	// Run collision detector
-	colDet->find_collisions(virtNodes);
+	if( ! colDet->is_static() || currentTime == 0.0 )
+	{
+		colDet->find_collisions(virtNodes);
+	}
+	else
+	{
+		LOG_DEBUG("Collision detector call skipped since it is in static operation mode");
+	}
 }
 
 void gcm::Engine::doNextStepStages(const float time_step)
@@ -468,7 +507,7 @@ void gcm::Engine::doNextStepStages(const float time_step)
 		{
 			Mesh* mesh = bodies[i]->getMeshes();
 			LOG_DEBUG( "Doing calculations for mesh " << mesh->getId() );
-			mesh->do_next_part_step(time_step, j);
+			mesh->doNextPartStep(time_step, j);
 			LOG_DEBUG( "Mesh calculation done" );
 		}
 		LOG_DEBUG( "Stage done" );
@@ -477,14 +516,30 @@ void gcm::Engine::doNextStepStages(const float time_step)
 }
 
 void gcm::Engine::doNextStepAfterStages(const float time_step) {
-	RheologyCalculator* rc = getRheologyCalculator("StdRheologyCalculator");
 	for( unsigned int i = 0; i < bodies.size(); i++ )
+	{
+		RheologyCalculator* rc = getRheologyCalculator( bodies[i]->getRheologyCalculatorType() );
+		Mesh* mesh = bodies[i]->getMeshes();
+		LOG_DEBUG( "Applying rheology for mesh " << mesh->getId() );
+		mesh->applyRheology(rc);
+		LOG_DEBUG( "Applying rheology done" );
+		LOG_DEBUG( "Processing stress state for mesh " << mesh->getId() );
+		mesh->processStressState();
+		LOG_DEBUG( "Processing stress state done" );
+		LOG_DEBUG( "Processing crack state for mesh " << mesh->getId() );
+		mesh->processCrackState();
+		LOG_DEBUG( "Processing crack state done" );
+		if( mesh->getMovable() )
 		{
-			Mesh* mesh = bodies[i]->getMeshes();
-			LOG_DEBUG( "Applying rheology for mesh " << mesh->getId() );
-			mesh->applyRheology(rc);
-			LOG_DEBUG( "Applying rheology done" );
+			LOG_DEBUG( "Moving mesh " << mesh->getId() );
+			mesh->moveCoords(time_step);
+			LOG_DEBUG( "Moving done" );
 		}
+		else
+		{
+			LOG_DEBUG( "Not moving mesh " << mesh->getId() );
+		}
+	}
 	currentTime += time_step;
 }
 
@@ -547,7 +602,7 @@ float gcm::Engine::calculateRecommendedContactTreshold(float tau)
 		for( int j = 0; j < getNumberOfBodies(); j++ )
 		{
 			TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
-			float h = mesh->get_avg_h();
+			float h = mesh->getAvgH();
 			if( h < threshold )
 				threshold = h;
 		}
@@ -575,11 +630,11 @@ void gcm::Engine::createSnapshot(int number)
 {
 	for( int j = 0; j < getNumberOfBodies(); j++ )
 	{
-		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
+		Mesh* mesh = getBody(j)->getMeshes();
 		if( mesh->getNumberOfLocalNodes() != 0 )
 		{
 			LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
-			vtkSnapshotWriter->dump(mesh, number);
+			mesh->snapshot(number);
 		}
 	}
 }
@@ -592,7 +647,7 @@ void gcm::Engine::createDump(int number)
 		if( mesh->getNodesNumber() != 0 )
 		{
 			LOG_INFO( "Creating dump for mesh '" << mesh->getId() << "'" );
-			vtkDumpWriter->dump(mesh, number);
+			mesh->dump(number);
 		}
 	}
 }
@@ -647,4 +702,24 @@ void gcm::Engine::setContactThresholdFactor(float val)
 float gcm::Engine::getContactThresholdFactor()
 {
 	return contactThresholdFactor;
+}
+
+void gcm::Engine::setDefaultRheologyCalculatorType(string calcType)
+{
+	defaultRheoCalcType = calcType;
+}
+
+string gcm::Engine::getDefaultRheologyCalculatorType()
+{
+	return defaultRheoCalcType;
+}
+
+void gcm::Engine::setCollisionDetectorStatic(bool val)
+{
+	colDet->set_static(val);
+}
+
+bool gcm::Engine::isCollisionDetectorStatic()
+{
+	return colDet->is_static();
 }

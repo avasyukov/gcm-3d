@@ -101,7 +101,7 @@ void gcm::CollisionDetector::find_faces_in_intersection(TetrMeshSecondOrder* mes
 	}
 }
 
-/*void CollisionDetector::renumber_surface(vector<Triangle> &faces, vector<ElasticNode> &nodes)
+/*void CollisionDetector::renumber_surface(vector<Triangle> &faces, vector<CalcNode> &nodes)
 {
 	if (!faces.size() || !nodes.size())
 		return;
@@ -129,7 +129,7 @@ void gcm::CollisionDetector::find_faces_in_intersection(TetrMeshSecondOrder* mes
 	delete[] renum;
 }
 
-void CollisionDetector::renumber_volume(vector<Tetrahedron_1st_order> &tetrs, vector<ElasticNode> &nodes)
+void CollisionDetector::renumber_volume(vector<Tetrahedron_1st_order> &tetrs, vector<CalcNode> &nodes)
 {
 	if (!tetrs.size() || !nodes.size())
 		return;

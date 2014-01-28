@@ -25,7 +25,7 @@ void ExternalValuesCalculator::set_parameters(int vars[], float vals[])
 	}
 };
 
-void ExternalValuesCalculator::do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
+void ExternalValuesCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
 {
 
 	// Tmp value for GSL solver

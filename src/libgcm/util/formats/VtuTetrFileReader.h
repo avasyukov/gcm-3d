@@ -1,7 +1,7 @@
 #ifndef GCM_VTU_FILE_READER_H
 #define	GCM_VTU_FILE_READER_H
 
-#include "../../mesh/TetrMeshFirstOrder.h"
+#include "../../mesh/tetr/TetrMeshFirstOrder.h"
 #include "../../Logging.h"
 #include <string>
 #include <fstream>

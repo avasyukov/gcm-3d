@@ -9,7 +9,7 @@ gcm::ElasticMatrix3D::~ElasticMatrix3D() { };
 
 void gcm::ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, int stage)
 {
-	assert ( la > 0 && mu > 0 && ro > 0 );
+	assert ( la > 0 && mu >= 0 && ro > 0 );
 
 	if (stage == 0) {
 		CreateAx(la, mu, ro);
@@ -25,7 +25,7 @@ void gcm::ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, int stag
 void gcm::ElasticMatrix3D::prepare_matrix(float la, float mu, float ro, 
 											float qjx, float qjy, float qjz)
 {
-	assert ( la > 0 && mu > 0 && ro > 0 );
+	assert ( la > 0 && mu >= 0 && ro > 0 );
 	assert( fabs( vectorNorm(qjx, qjy, qjz) - 1 ) < EQUALITY_TOLERANCE );
 
 	CreateGeneralizedMatrix(la, mu, ro, qjx, qjy, qjz);

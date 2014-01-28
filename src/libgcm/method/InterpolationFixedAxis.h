@@ -14,8 +14,8 @@
 #include "../Logging.h"
 #include "../Exception.h"
 #include "../util/ElasticMatrix3D.h"
-#include "../mesh/TetrMeshFirstOrder.h"
-#include "../mesh/TetrMeshSecondOrder.h"
+#include "../mesh/tetr/TetrMeshFirstOrder.h"
+#include "../mesh/tetr/TetrMeshSecondOrder.h"
 
 namespace gcm
 {
@@ -25,20 +25,18 @@ namespace gcm
 		InterpolationFixedAxis();
 		~InterpolationFixedAxis();
 		int getNumberOfStages();
-		void doNextPartStep(CalcNode* cur_node, CalcNode* new_node, float time_step, int stage, Mesh* mesh);
+		void doNextPartStep(CalcNode* cur_node, CalcNode* new_node, float time_step, int stage, Mesh* genericMesh);
 		float getMaxLambda(CalcNode* node);
-		inline string getType() {
-			return "InterpolationFixedAxis";
-		}
+		string getType();
 	protected:
 		int prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
-												float time_step, int stage, Mesh* mesh, 
+												float time_step, int stage, TetrMeshFirstOrder* mesh, 
 												float* dksi, bool* inner, CalcNode* previous_nodes, 
 												float* outer_normal, int* ppoint_num);
-		int find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage, Mesh* mesh, 
+		int find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage, TetrMeshFirstOrder* mesh, 
 												float dksi[], bool inner[], CalcNode previous_nodes[], 
 												float outer_normal[], int ppoint_num[]);
-		void interpolateNode(Mesh* mesh, int tetrInd, int prevNodeInd, CalcNode* previous_nodes);
+		void interpolateNode(TetrMeshFirstOrder* mesh, int tetrInd, int prevNodeInd, CalcNode* previous_nodes);
 		
 		USE_LOGGER;
 	};
