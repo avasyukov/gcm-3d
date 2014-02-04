@@ -8,8 +8,6 @@
 
 #include "node/CalcNode.h"
 
-gcm::BorderCalculator::BorderCalculator() {
-}
 
 gcm::BorderCalculator::~BorderCalculator() {
 }

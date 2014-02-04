@@ -31,7 +31,7 @@ namespace gcm {
 	public:
 		VTK2SnapshotWriter();
 		VTK2SnapshotWriter(const char *snapName);
-		~VTK2SnapshotWriter();
+		virtual ~VTK2SnapshotWriter();
 		/*
 		 * Returns snapshot writer type
 		 */

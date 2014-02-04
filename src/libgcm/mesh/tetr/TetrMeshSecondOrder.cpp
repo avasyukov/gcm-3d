@@ -26,7 +26,7 @@ void gcm::TetrMeshSecondOrder::createTriangles(int number) {
 	faceStorageSize = number;
 }
 
-TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetr(int index) {
+TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetr(unsigned int index) {
 	assert( index >= 0 );
 	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
@@ -40,7 +40,7 @@ TetrSecondOrder* gcm::TetrMeshSecondOrder::getTetr2(int index) {
 	return ( itr != tetrsMap.end() ? &tetrs2[itr->second] : NULL );
 }
 
-TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetrByLocalIndex(int index) {
+TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetrByLocalIndex(unsigned int index) {
 	assert( index >= 0 );
 	return &tetrs2[index];
 }

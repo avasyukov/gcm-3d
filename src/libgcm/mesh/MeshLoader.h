@@ -24,6 +24,7 @@ namespace gcm {
 		 */
 		IEngine* engine;		
 	public:
+		virtual ~MeshLoader();
 		/*
 		 * Sets engine
 		 */

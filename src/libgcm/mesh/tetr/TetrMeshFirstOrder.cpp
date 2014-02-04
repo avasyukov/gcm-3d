@@ -47,15 +47,13 @@ int gcm::TetrMeshFirstOrder::getTriangleNumber()
 	return faceNumber;
 }
 
-TetrFirstOrder* gcm::TetrMeshFirstOrder::getTetr(int index) {
-	assert( index >= 0 );
+TetrFirstOrder* gcm::TetrMeshFirstOrder::getTetr(unsigned int index) {
 	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
 	return ( itr != tetrsMap.end() ? &tetrs1[itr->second] : NULL );
 }
 
-TetrFirstOrder* gcm::TetrMeshFirstOrder::getTetrByLocalIndex(int index) {
-	assert( index >= 0  && index < tetrs1.size() );
+TetrFirstOrder* gcm::TetrMeshFirstOrder::getTetrByLocalIndex(unsigned int index) {
 	return &tetrs1[index];
 }
 

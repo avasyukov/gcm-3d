@@ -20,9 +20,9 @@ namespace gcm
 		
 		virtual void addTetr(TetrFirstOrder* tetr) = 0;
 		
-		virtual TetrFirstOrder* getTetr(int index) = 0;
+		virtual TetrFirstOrder* getTetr(unsigned int index) = 0;
 		
-		virtual TetrFirstOrder* getTetrByLocalIndex(int index) = 0;
+		virtual TetrFirstOrder* getTetrByLocalIndex(unsigned int index) = 0;
 		
 		virtual TriangleFirstOrder* getTriangle(int index) = 0;
 		

@@ -8,9 +8,5 @@
 
 #include "node/CalcNode.h"
 
-gcm::ContactCalculator::ContactCalculator() {
-}
-
 gcm::ContactCalculator::~ContactCalculator() {
 }
-

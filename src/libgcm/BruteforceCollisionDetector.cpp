@@ -55,11 +55,11 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 				// process collisions
 				CalcNode new_node;
 				float direction[3];
-				for(int k = 0; k < local_nodes.size(); k++)
+				for(unsigned int k = 0; k < local_nodes.size(); k++)
 				{
 					if( k % 1000 == 0 )
 						LOG_DEBUG("Nodes processed: " << k);
-					for(int l = 0; l < local_faces.size(); l++)
+					for(unsigned int l = 0; l < local_faces.size(); l++)
 					{
 						bool intersection_found = false;
 						// Check axis directions

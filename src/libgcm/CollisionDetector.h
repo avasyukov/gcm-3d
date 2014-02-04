@@ -25,7 +25,7 @@ namespace gcm {
 		
 	public:
 		CollisionDetector();
-		~CollisionDetector();
+		virtual ~CollisionDetector();
 		virtual string getType () const = 0;
 		void set_threshold(float value);
 		float get_threshold();

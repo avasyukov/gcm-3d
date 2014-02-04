@@ -23,13 +23,9 @@ namespace gcm
 	class ContactCalculator {
 	public:
 		/*
-		 * Constructor
-		 */
-		ContactCalculator();
-		/*
 		 * Destructor
 		 */
-		~ContactCalculator();
+		virtual ~ContactCalculator() = 0;
 		/*
 		 * Calculate next state for the given node
 		 */
@@ -38,8 +34,6 @@ namespace gcm
 		 * Returns type of the calculator
 		 */
 		virtual string getType() = 0;
-		
-	private:
 		
 	};
 	

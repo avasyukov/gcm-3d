@@ -399,7 +399,7 @@ void gcm::Engine::addBody(Body* body)
 	bodies.push_back(body);
 }
 
-CalcNode* gcm::Engine::getVirtNode(int i)
+CalcNode* gcm::Engine::getVirtNode(unsigned int i)
 {
 	assert( i >=0 && i < virtNodes.size() );
 	return &virtNodes[i];

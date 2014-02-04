@@ -53,10 +53,10 @@ namespace gcm {
 		/*
 		 * Returns tetr by its index.
 		 */
-		TetrFirstOrder* getTetr(int index);
+		TetrFirstOrder* getTetr(unsigned int index);
 		TetrSecondOrder* getTetr2(int index);
 		
-		TetrFirstOrder* getTetrByLocalIndex(int index);
+		TetrFirstOrder* getTetrByLocalIndex(unsigned int index);
 		TetrSecondOrder* getTetr2ByLocalIndex(int index);
 		
 		void addTetr(TetrFirstOrder* tetr);

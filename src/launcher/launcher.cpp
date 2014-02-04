@@ -334,7 +334,8 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		for(auto& matNode: matNodes)
 		{
 			string id = getAttributeByName(matNode.getAttributes(), "id");
-			Material* mat = engine.getMaterial(id);
+			// FIXME this code seems to be dead
+			//Material* mat = engine.getMaterial(id);
 			Mesh* mesh = body->getMeshes();
 			
 			NodeList areaNodes = matNode.getChildrenByName("area");
@@ -387,7 +388,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		if (areaNodes.size() != valuesNodes.size())
 		//	THROW_INVALID_INPUT("Only one area element allowed for initial state");
 			THROW_INVALID_INPUT("Number of areas don't coincide with number of values");
-		for (int node=0; node<areaNodes.size(); node++)
+		for (unsigned int node=0; node<areaNodes.size(); node++)
 	{
 			string areaType = getAttributeByName(areaNodes.front().getAttributes(), "type");
 			if( areaType == "box" )

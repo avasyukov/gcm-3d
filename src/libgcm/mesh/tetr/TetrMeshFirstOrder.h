@@ -116,9 +116,9 @@ namespace gcm
 		/*
 		 * Returns tetr by its index.
 		 */
-		TetrFirstOrder* getTetr(int index);
+		TetrFirstOrder* getTetr(unsigned int index);
 		
-		TetrFirstOrder* getTetrByLocalIndex(int index);
+		TetrFirstOrder* getTetrByLocalIndex(unsigned int index);
 		
 		TriangleFirstOrder* getTriangle(int index);
 		// FIXME should two functions belowe be moved outside this class?

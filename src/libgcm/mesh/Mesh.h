@@ -143,7 +143,7 @@ namespace gcm {
 		CalcNode* getNode(int index);
 		CalcNode* getNewNode(int index);
 		int getNodeLocalIndex(int index);
-		CalcNode* getNodeByLocalIndex(int index);
+		CalcNode* getNodeByLocalIndex(unsigned int index);
 		void addNode(CalcNode* node);
 		
 		/*
