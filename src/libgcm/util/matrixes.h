@@ -4,7 +4,8 @@
 #include <iostream>
 #include <math.h>
 #include <string.h>
-#include "../Math.h"
+
+#include "Math.h"
 
 #define GCM_MATRIX_SIZE 9
 

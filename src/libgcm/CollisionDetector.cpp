@@ -1,4 +1,5 @@
 #include "CollisionDetector.h"
+
 #include "node/CalcNode.h"
 
 gcm::CollisionDetector::CollisionDetector() {

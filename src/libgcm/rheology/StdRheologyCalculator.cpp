@@ -1,5 +1,6 @@
-#include "StdRheologyCalculator.h"
-#include "../node/CalcNode.h"
+#include "rheology/StdRheologyCalculator.h"
+
+#include "node/CalcNode.h"
 
 gcm::StdRheologyCalculator::StdRheologyCalculator() {
 	INIT_LOGGER("gcm.StdRheologyCalculator");

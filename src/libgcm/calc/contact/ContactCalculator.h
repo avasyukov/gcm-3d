@@ -9,7 +9,8 @@
 #define GCM_CONTACT_CALCULATOR_H_  1
 
 #include <string>
-#include "../../util/ElasticMatrix3D.h"
+
+#include "util/ElasticMatrix3D.h"
 
 using namespace std;
 

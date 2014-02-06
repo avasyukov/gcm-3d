@@ -1,4 +1,4 @@
-#include "VTK2SnapshotWriter.h"
+#include "snapshot/VTK2SnapshotWriter.h"
 
 gcm::VTK2SnapshotWriter::VTK2SnapshotWriter() {
 	INIT_LOGGER("gcm.VTK2SnapshotWriter");

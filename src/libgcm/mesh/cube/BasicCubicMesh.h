@@ -1,10 +1,10 @@
 #ifndef GCM_BASIC_CUBIC_MESH_H_
 #define GCM_BASIC_CUBIC_MESH_H_
 
-#include "../Mesh.h"
-#include "../../Math.h"
-#include "../../Logging.h"
-#include "../../Exception.h"
+#include "mesh/Mesh.h"
+#include "Math.h"
+#include "Logging.h"
+#include "Exception.h"
 
 using namespace gcm;
 

@@ -4,10 +4,10 @@
 #include <unordered_map>
 #include <string>
 
-#include "../util/AABB.h"
-#include "../util/areas/Area.h"
-#include "../Interfaces.h"
-#include "../node/Node.h"
+#include "util/AABB.h"
+#include "util/areas/Area.h"
+#include "Interfaces.h"
+#include "node/Node.h"
 
 #define STORAGE_OVERCOMMIT_RATIO 1.0
 #define STORAGE_ONDEMAND_GROW_RATE 1.25

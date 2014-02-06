@@ -1,5 +1,6 @@
-#include "ExternalValuesCalculator.h"
-#include "../../node/CalcNode.h"
+#include "calc/border/ExternalValuesCalculator.h"
+
+#include "node/CalcNode.h"
 
 ExternalValuesCalculator::ExternalValuesCalculator()
 {

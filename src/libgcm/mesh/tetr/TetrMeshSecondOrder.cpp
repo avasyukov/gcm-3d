@@ -1,5 +1,6 @@
-#include "TetrMeshSecondOrder.h"
-#include "../../node/CalcNode.h"
+#include "mesh/tetr/TetrMeshSecondOrder.h"
+
+#include "node/CalcNode.h"
 
 gcm::TetrMeshSecondOrder::TetrMeshSecondOrder() {
 	secondOrderNodesAreGenerated = false;

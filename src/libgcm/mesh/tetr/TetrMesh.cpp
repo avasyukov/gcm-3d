@@ -1,4 +1,4 @@
-#include "TetrMesh.h"
+#include "mesh/tetr/TetrMesh.h"
 
 gcm::TetrMesh::TetrMesh()
 {

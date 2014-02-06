@@ -1,8 +1,10 @@
 #ifndef GCM_INTERFACES_H
 #define GCM_INTERFACES_H
 
-#include <mpi.h>
 #include <string>
+
+#include <mpi.h>
+
 #include "Utils.h"
 
 namespace gcm {

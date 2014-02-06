@@ -8,14 +8,15 @@
 #ifndef GCM_INTERPOLATION_FIXED_AXIS_H
 #define	GCM_INTERPOLATION_FIXED_AXIS_H
 
-#include "NumericalMethod.h"
-#include "../mesh/Mesh.h"
-#include "../node/CalcNode.h"
-#include "../Logging.h"
-#include "../Exception.h"
-#include "../util/ElasticMatrix3D.h"
-#include "../mesh/tetr/TetrMeshFirstOrder.h"
-#include "../mesh/tetr/TetrMeshSecondOrder.h"
+#include "mesh/tetr/TetrMeshFirstOrder.h"
+#include "mesh/tetr/TetrMeshSecondOrder.h"
+#include "method/NumericalMethod.h"
+#include "mesh/Mesh.h"
+#include "util/ElasticMatrix3D.h"
+#include "node/CalcNode.h"
+#include "Logging.h"
+#include "Exception.h"
+
 
 namespace gcm
 {

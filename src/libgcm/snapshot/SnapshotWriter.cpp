@@ -1,4 +1,4 @@
-#include "SnapshotWriter.h"
+#include "snapshot/SnapshotWriter.h"
 
 string gcm::SnapshotWriter::getFileName(int cpuNum, int step, string meshId) {
 	string filename = fname;

@@ -1,9 +1,10 @@
 #ifndef _GCM_EXTERNAL_FORCE_CALCULATOR_H
 #define _GCM_EXTERNAL_FORCE_CALCULATOR_H  1
 
-#include "BorderCalculator.h"
 #include <gsl/gsl_linalg.h>
-#include "../../Math.h"
+
+#include "calc/border/BorderCalculator.h"
+#include "Math.h"
 
 class ExternalForceCalculator : public BorderCalculator
 {

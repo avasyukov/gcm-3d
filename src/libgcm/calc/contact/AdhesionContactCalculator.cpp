@@ -1,5 +1,6 @@
-#include "AdhesionContactCalculator.h"
-#include "../../node/CalcNode.h"
+#include "calc/contact/AdhesionContactCalculator.h"
+
+#include "node/CalcNode.h"
 
 AdhesionContactCalculator::AdhesionContactCalculator()
 {

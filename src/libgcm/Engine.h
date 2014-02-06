@@ -7,21 +7,23 @@
 #include <mpi.h>
 #include <limits>
 
-#include "Logging.h"
-#include "Body.h"
-#include "Interfaces.h"
-#include "mesh/MeshLoader.h"
-#include "snapshot/SnapshotWriter.h"
-#include "Utils.h"
-#include "method/NumericalMethod.h"
 #include "calc/volume/VolumeCalculator.h"
 #include "calc/border/BorderCalculator.h"
 #include "calc/contact/ContactCalculator.h"
+#include "util/forms/PulseForm.h"
+#include "util/areas/BoxArea.h"
+#include "mesh/MeshLoader.h"
+#include "snapshot/SnapshotWriter.h"
+#include "method/NumericalMethod.h"
+// FIXME - do we need it here?
+#include "interpolator/TetrInterpolator.h"
+#include "interpolator/TetrFirstOrderInterpolator.h"
+#include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
+#include "interpolator/LineFirstOrderInterpolator.h"
+//
 #include "rheology/RheologyCalculator.h"
 #include "rheology/DummyRheologyCalculator.h"
 #include "rheology/StdRheologyCalculator.h"
-#include "util/forms/PulseForm.h"
-#include "util/areas/BoxArea.h"
 #include "GCMDispatcher.h"
 #include "DummyDispatcher.h"
 #include "DataBus.h"
@@ -29,12 +31,10 @@
 #include "BorderCondition.h"
 #include "ContactCondition.h"
 #include "CollisionDetector.h"
-
-// FIXME - do we need it here?
-#include "interpolator/TetrInterpolator.h"
-#include "interpolator/TetrFirstOrderInterpolator.h"
-#include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
-#include  "interpolator/LineFirstOrderInterpolator.h"
+#include "Logging.h"
+#include "Body.h"
+#include "Interfaces.h"
+#include "Utils.h"
 
 #define CONTACT_THRESHOLD_BY_AVG_H 0
 #define CONTACT_THRESHOLD_BY_MAX_LT 1

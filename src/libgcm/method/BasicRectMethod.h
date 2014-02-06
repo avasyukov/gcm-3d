@@ -1,9 +1,9 @@
 #ifndef GCM_BASIC_RECT_METHOD_H
 #define	GCM_BASIC_RECT_METHOD_H
 
-#include "NumericalMethod.h"
-#include "../util/ElasticMatrix3D.h"
-#include "../mesh/cube/BasicCubicMesh.h"
+#include "method/NumericalMethod.h"
+#include "util/ElasticMatrix3D.h"
+#include "mesh/cube/BasicCubicMesh.h"
 
 namespace gcm {
 	/*

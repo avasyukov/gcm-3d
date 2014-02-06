@@ -1,4 +1,5 @@
 #include "Engine.h"
+
 #include "mesh/tetr/MshMeshLoader.h"
 #include "mesh/tetr/Msh2MeshLoader.h"
 #include "mesh/tetr/GeoMeshLoader.h"
@@ -20,9 +21,9 @@
 #include "snapshot/VTKSnapshotWriter.h"
 #include "snapshot/VTK2SnapshotWriter.h"
 #include "snapshot/VTKCubicSnapshotWriter.h"
-#include "BruteforceCollisionDetector.h"
 #include "rheology/DummyRheologyCalculator.h"
 #include "rheology/StdRheologyCalculator.h"
+#include "BruteforceCollisionDetector.h"
 
 // initialiaze static fields
 int gcm::Engine::enginesNumber = 0;

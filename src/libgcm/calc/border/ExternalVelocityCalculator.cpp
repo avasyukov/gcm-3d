@@ -1,5 +1,6 @@
-#include "ExternalVelocityCalculator.h"
-#include "../../node/CalcNode.h"
+#include "calc/border/ExternalVelocityCalculator.h"
+
+#include "node/CalcNode.h"
 
 ExternalVelocityCalculator::ExternalVelocityCalculator()
 {

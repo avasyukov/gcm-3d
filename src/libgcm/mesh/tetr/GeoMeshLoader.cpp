@@ -1,4 +1,4 @@
-#include "GeoMeshLoader.h"
+#include "mesh/tetr/GeoMeshLoader.h"
 
 string gcm::GeoMeshLoader::getType(){
 	return "geo";

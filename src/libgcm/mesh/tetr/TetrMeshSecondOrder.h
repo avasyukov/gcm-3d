@@ -1,9 +1,9 @@
 #ifndef GCM_TETR_MESH_SECOND_ORDER_H_
 #define GCM_TETR_MESH_SECOND_ORDER_H_
 
-#include "TetrMeshFirstOrder.h"
-#include "../../elem/TetrSecondOrder.h"
-#include "../../elem/TriangleSecondOrder.h"
+#include "mesh/tetr/TetrMeshFirstOrder.h"
+#include "elem/TetrSecondOrder.h"
+#include "elem/TriangleSecondOrder.h"
 
 using namespace std;
 using namespace gcm;

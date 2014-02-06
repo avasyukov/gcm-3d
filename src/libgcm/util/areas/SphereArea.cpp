@@ -1,4 +1,4 @@
-#include "SphereArea.h"
+#include "util/areas/SphereArea.h"
 
 SphereArea::SphereArea( float _radius, float x, float y, float z )
 {

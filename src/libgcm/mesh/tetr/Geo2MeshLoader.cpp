@@ -1,4 +1,4 @@
-#include "Geo2MeshLoader.h"
+#include "mesh/tetr/Geo2MeshLoader.h"
 
 string gcm::Geo2MeshLoader::getType(){
 	return "geo2";

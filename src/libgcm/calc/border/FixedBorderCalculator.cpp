@@ -1,5 +1,6 @@
-#include "FixedBorderCalculator.h"
-#include "../../node/CalcNode.h"
+#include "calc/border/FixedBorderCalculator.h"
+
+#include "node/CalcNode.h"
 
 FixedBorderCalculator::FixedBorderCalculator()
 {

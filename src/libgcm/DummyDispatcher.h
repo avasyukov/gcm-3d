@@ -4,12 +4,7 @@
 #include <stdexcept>
 
 #include "Interfaces.h"
-//#include <string>
-//#include "util/AABB.h"
-//#include "Logging.h"
 #include "GCMDispatcher.h"
-//#include "Interfaces.h"
-//#include "DataBus.h"
 
 using namespace std;
 using namespace gcm;

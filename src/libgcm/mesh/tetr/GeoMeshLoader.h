@@ -4,13 +4,6 @@
 #include <map>
 #include <string>
 
-#include "../MeshLoader.h"
-#include "TetrMeshFirstOrder.h"
-#include "../../Exception.h"
-#include "../../Utils.h"
-#include "../../Logging.h"
-#include "../../util/formats/MshTetrFileReader.h"
-
 #include <gmsh/Gmsh.h>
 #include <gmsh/GModel.h>
 #include <gmsh/GEntity.h>
@@ -18,6 +11,14 @@
 #include <gmsh/MVertex.h>
 #include <gmsh/MTriangle.h>
 #include <gmsh/MTetrahedron.h>
+
+#include "mesh/MeshLoader.h"
+#include "mesh/tetr/TetrMeshFirstOrder.h"
+#include "util/formats/MshTetrFileReader.h"
+#include "Exception.h"
+#include "Utils.h"
+#include "Logging.h"
+
 
 using namespace gcm;
 using namespace std;

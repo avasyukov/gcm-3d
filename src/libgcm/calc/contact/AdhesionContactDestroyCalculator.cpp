@@ -1,7 +1,8 @@
-#include "AdhesionContactDestroyCalculator.h"
-#include "AdhesionContactCalculator.h"
-#include "SlidingContactCalculator.h"
-#include "../../node/CalcNode.h"
+#include "calc/contact/AdhesionContactDestroyCalculator.h"
+
+#include "calc/contact/AdhesionContactCalculator.h"
+#include "calc/contact/SlidingContactCalculator.h"
+#include "node/CalcNode.h"
 
 AdhesionContactDestroyCalculator::AdhesionContactDestroyCalculator()
 {

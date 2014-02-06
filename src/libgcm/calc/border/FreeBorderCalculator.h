@@ -1,8 +1,9 @@
 #ifndef _GCM_FREE_BORDER_CALCULATOR_H
 #define _GCM_FREE_BORDER_CALCULATOR_H  1
 
-#include "BorderCalculator.h"
 #include <gsl/gsl_linalg.h>
+
+#include "calc/border/BorderCalculator.h"
 
 class FreeBorderCalculator : public BorderCalculator
 {

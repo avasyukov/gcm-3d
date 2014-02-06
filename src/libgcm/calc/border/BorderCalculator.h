@@ -9,8 +9,9 @@
 #define GCM_BORDER_CALCULATOR_H_  1
 
 #include <string>
-#include "../../util/ElasticMatrix3D.h"
-#include "../../Logging.h"
+
+#include "util/ElasticMatrix3D.h"
+#include "Logging.h"
 
 using namespace std;
 

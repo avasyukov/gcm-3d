@@ -4,12 +4,12 @@
 #include <map>
 #include <string>
 
-#include "../Interfaces.h"
-#include "../Body.h"
-#include "Mesh.h"
-#include "../util/AABB.h"
-#include "../Utils.h"
-#include "../GCMDispatcher.h"
+#include "mesh/Mesh.h"
+#include "util/AABB.h"
+#include "Interfaces.h"
+#include "Body.h"
+#include "Utils.h"
+#include "GCMDispatcher.h"
 
 using namespace std;
 

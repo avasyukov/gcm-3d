@@ -1,7 +1,7 @@
 #ifndef _GCM_AREA_CYLINDER_H
 #define _GCM_AREA_CYLINDER_H 1
 
-#include "./Area.h"
+#include "util/areas/Area.h"
 
 class CylinderArea : public Area
 {

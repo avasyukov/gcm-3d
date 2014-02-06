@@ -1,8 +1,8 @@
 #ifndef _GCM_SIMPLE_VOLUME_CALCULATOR_H
 #define _GCM_SIMPLE_VOLUME_CALCULATOR_H  1
 
-#include "VolumeCalculator.h"
-#include "../../Logging.h"
+#include "calc/volume/VolumeCalculator.h"
+#include "Logging.h"
 
 class SimpleVolumeCalculator : public VolumeCalculator
 {

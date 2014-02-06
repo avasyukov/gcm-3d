@@ -3,10 +3,11 @@
 
 #include <vector>
 #include <string>
+
 #include "util/AABB.h"
-#include "Logging.h"
 #include "elem/TriangleFirstOrder.h"
 #include "mesh/tetr/TetrMeshSecondOrder.h"
+#include "Logging.h"
 
 using namespace std;
 

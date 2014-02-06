@@ -1,4 +1,5 @@
 #include <time.h>
+
 #include <gtest/gtest.h>
 
 #include "node/CalcNode.h"

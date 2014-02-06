@@ -1,5 +1,6 @@
-#include "BasicRectMethod.h"
-#include "../node/CalcNode.h"
+#include "method/BasicRectMethod.h"
+
+#include "node/CalcNode.h"
 
 gcm::BasicRectMethod::BasicRectMethod()
 {

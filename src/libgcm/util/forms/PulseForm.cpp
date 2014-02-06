@@ -1,6 +1,7 @@
-#include "PulseForm.h"
+#include "util/forms/PulseForm.h"
 
 #include <iostream>
+
 using namespace std;
 
 PulseForm::PulseForm(float _startTime, float _duration)

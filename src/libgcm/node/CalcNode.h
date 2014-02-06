@@ -5,8 +5,9 @@
 #include <assert.h>
 #include <iostream>
 #include <string.h>
-#include "Node.h"
-#include "../Engine.h"
+
+#include "node/Node.h"
+#include "Engine.h"
 
 #define GCM_VALUES_SIZE 9
 

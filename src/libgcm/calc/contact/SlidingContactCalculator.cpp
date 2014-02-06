@@ -1,6 +1,7 @@
-#include "SlidingContactCalculator.h"
-#include "../border/FreeBorderCalculator.h"
-#include "../../node/CalcNode.h"
+#include "calc/contact/SlidingContactCalculator.h"
+
+#include "calc/border/FreeBorderCalculator.h"
+#include "node/CalcNode.h"
 
 SlidingContactCalculator::SlidingContactCalculator()
 {

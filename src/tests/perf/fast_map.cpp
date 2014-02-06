@@ -1,10 +1,11 @@
+#include <sys/time.h>
 #include <cmath>
 #include <ctime>
-#include <sys/time.h>
 #include <stdio.h>
 #include <unordered_map>
-#include <util/FastMap.h>
 #include <assert.h>
+
+#include <util/FastMap.h>
 
 using namespace std;
 

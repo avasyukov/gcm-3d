@@ -1,14 +1,12 @@
 #ifndef GCM_DISPATCHER_H_
 #define GCM_DISPATCHER_H_
 
-//#include "Interfaces.h"
 #include <string>
+
 #include "util/AABB.h"
 #include "Logging.h"
-//#include "Engine.h"
 
 using namespace std;
-//using namespace gcm;
 
 namespace gcm {
 

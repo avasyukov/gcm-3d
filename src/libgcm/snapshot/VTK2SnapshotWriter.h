@@ -2,14 +2,8 @@
 #define GCM_VTK2SNAPSHOTWRITER_H_
 
 #include <string>
-#include "SnapshotWriter.h"
-#include "../Utils.h"
-#include "../node/CalcNode.h"
-#include "../elem/TetrFirstOrder.h"
-#include "../mesh/tetr/TetrMeshFirstOrder.h"
-#include "../mesh/tetr/TetrMeshSecondOrder.h"
-#include "../Logging.h"
 
+#include <vtkstd/string>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 #include <vtkUnstructuredGridWriter.h>
@@ -18,7 +12,14 @@
 #include <vtkIntArray.h>
 #include <vtkPointData.h>
 #include <vtkCellData.h>
-#include <vtkstd/string>
+
+#include "snapshot/SnapshotWriter.h"
+#include "mesh/tetr/TetrMeshFirstOrder.h"
+#include "mesh/tetr/TetrMeshSecondOrder.h"
+#include "node/CalcNode.h"
+#include "elem/TetrFirstOrder.h"
+#include "Logging.h"
+#include "Utils.h"
 
 namespace gcm {
 	class VTK2SnapshotWriter : public SnapshotWriter {

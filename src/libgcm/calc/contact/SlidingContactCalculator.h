@@ -1,9 +1,11 @@
 #ifndef _GCM_CONTACT_SLIDING_CALCULATOR_H
 #define _GCM_CONTACT_SLIDING_CALCULATOR_H  1
 
-#include "ContactCalculator.h"
-#include "../../Math.h"
 #include <gsl/gsl_linalg.h>
+
+#include "calc/contact/ContactCalculator.h"
+#include "Math.h"
+
 
 class SlidingContactCalculator : public ContactCalculator
 {

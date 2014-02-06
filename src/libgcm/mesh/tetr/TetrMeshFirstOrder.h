@@ -4,18 +4,20 @@
 #include <unordered_map>
 #include <algorithm>
 #include <gsl/gsl_linalg.h>
-#include "TetrMesh.h"
-#include "../../elem/TetrFirstOrder.h"
-#include "../../elem/TriangleFirstOrder.h"
-#include "../../Logging.h"
-#include "../../Exception.h"
-#include "../../Math.h"
-#include "../../util/AABB.h"
-#include "../../method/NumericalMethod.h"
+
+#include "mesh/tetr/TetrMesh.h"
+#include "elem/TetrFirstOrder.h"
+#include "elem/TriangleFirstOrder.h"
+#include "util/AABB.h"
+#include "method/NumericalMethod.h"
+#include "Logging.h"
+#include "Exception.h"
+#include "Math.h"
 
 using namespace gcm;
+using namespace std;
 
-#define MapIter unordered_map<int, int>::const_iterator
+typedef std::unordered_map<int, int>::const_iterator MapIter;
 
 namespace gcm
 {

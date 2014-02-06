@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <exception>
+
 #include <getopt.h>
 
 #ifdef CONFIG_ENABLE_LOGGING
@@ -11,11 +12,11 @@
 
 #include <mpi.h>
 
+#include "util/forms/StepPulseForm.h"
+#include "mesh/Mesh.h"
 #include "Engine.h"
 #include "Utils.h"
-#include "mesh/Mesh.h"
 #include "Logging.h"
-#include "util/forms/StepPulseForm.h"
 #include "ContactCondition.h"
 
 #include "xml.h"

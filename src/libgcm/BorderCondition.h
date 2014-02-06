@@ -2,6 +2,7 @@
 #define _GCM_BORDER_CONDITION_H 1
 
 #include <string.h>
+
 #include "util/areas/Area.h"
 #include "calc/border/BorderCalculator.h"
 

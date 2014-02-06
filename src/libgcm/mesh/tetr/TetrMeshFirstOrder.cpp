@@ -1,5 +1,6 @@
-#include "TetrMeshFirstOrder.h"
-#include "../../node/CalcNode.h"
+#include "mesh/tetr/TetrMeshFirstOrder.h"
+
+#include "node/CalcNode.h"
 
 gcm::TetrMeshFirstOrder::TetrMeshFirstOrder()
 {

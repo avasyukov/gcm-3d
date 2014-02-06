@@ -2,8 +2,9 @@
 #define GCM_SNAPSHOTWRITER_H_
 
 #include <string>
-#include "../mesh/Mesh.h"
-#include "../Utils.h"
+
+#include "mesh/Mesh.h"
+#include "Utils.h"
 
 using namespace std;
 

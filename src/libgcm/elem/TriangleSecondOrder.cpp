@@ -1,4 +1,4 @@
-#include "TriangleSecondOrder.h"
+#include "elem/TriangleSecondOrder.h"
 
 gcm::TriangleSecondOrder::TriangleSecondOrder() {
 	for( int i = 0; i < 3; i++ )

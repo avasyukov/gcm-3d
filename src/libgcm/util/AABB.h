@@ -1,9 +1,10 @@
 #ifndef _GCM_AABB_OUTLINE_H
 #define _GCM_AABB_OUTLINE_H  1
 
-#include "../Math.h"
-#include "../node/Node.h"
 #include <assert.h>
+
+#include "node/Node.h"
+#include "Math.h"
 
 namespace gcm {
 	class AABB {
