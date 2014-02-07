@@ -5,6 +5,7 @@
 #include <string>
 
 #include "util/AABB.h"
+#include "util/ElasticMatrix3D.h"
 #include "util/areas/Area.h"
 #include "Interfaces.h"
 #include "node/Node.h"
@@ -208,6 +209,15 @@ namespace gcm {
 		float getMaxPossibleTimeStep();
 		
 		void defaultNextPartStep(float tau, int stage);
+
+		virtual int prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
+				float time_step, int stage,
+				float* dksi, bool* inner, CalcNode* previous_nodes,
+				float* outer_normal, int* ppoint_num) = 0;
+		virtual int find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage,
+														float dksi[], bool inner[], CalcNode previous_nodes[],
+														float outer_normal[], int ppoint_num[]) = 0;
+
 	};
 
 	/*

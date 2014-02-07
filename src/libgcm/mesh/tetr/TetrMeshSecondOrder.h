@@ -68,6 +68,8 @@ namespace gcm {
 
 		void preProcessGeometry();
 		void moveCoords(float tau);
+
+		void interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes);
 	};
 }
 #endif

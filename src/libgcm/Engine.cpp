@@ -10,7 +10,6 @@
 #include "mesh/cube/BasicCubicMeshGenerator.h"
 #include "method/DummyMethod.h"
 #include "method/InterpolationFixedAxis.h"
-#include "method/BasicRectMethod.h"
 #include "calc/volume/SimpleVolumeCalculator.h"
 #include "calc/border/FreeBorderCalculator.h"
 #include "calc/border/SmoothBorderCalculator.h"
@@ -67,7 +66,6 @@ gcm::Engine::Engine()
 	LOG_DEBUG("Registering default methods");
 	registerNumericalMethod( new DummyMethod() );
 	registerNumericalMethod( new InterpolationFixedAxis() );
-	registerNumericalMethod( new BasicRectMethod() );
 	LOG_DEBUG("Registering default interpolators");
 	registerInterpolator( new TetrFirstOrderInterpolator() );
 	registerInterpolator( new TetrSecondOrderMinMaxInterpolator() );

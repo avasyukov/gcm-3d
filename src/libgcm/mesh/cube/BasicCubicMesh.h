@@ -40,6 +40,18 @@ namespace gcm
 		
 		void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug);
 		int findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+
+
+		int prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
+														float time_step, int stage,
+														float* dksi, bool* inner, CalcNode* previous_nodes,
+														float* outer_normal, int* ppoint_num);
+		int find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage,
+														float dksi[], bool inner[], CalcNode previous_nodes[],
+														float outer_normal[], int ppoint_num[]);
+
+
+		void interpolateNode(int curInd, int neighInd, int prevNodeInd, CalcNode* previous_nodes);
 	};
 }
 #endif

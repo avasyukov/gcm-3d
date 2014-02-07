@@ -650,3 +650,23 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 
 	secondOrderNodesAreGenerated = true;
 }
+
+void gcm::TetrMeshSecondOrder::interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes)
+{
+	assert( tetrInd >= 0 );
+	IEngine* engine = getBody()->getEngine();
+
+	TetrSecondOrder* tmp_tetr = getTetr2( tetrInd );
+	engine->getSecondOrderInterpolator("TetrSecondOrderMinMaxInterpolator")->interpolate(
+			&previous_nodes[prevNodeInd],
+			(CalcNode*) getNode( tmp_tetr->verts[0] ),
+			(CalcNode*) getNode( tmp_tetr->verts[1] ),
+			(CalcNode*) getNode( tmp_tetr->verts[2] ),
+			(CalcNode*) getNode( tmp_tetr->verts[3] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[0] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[1] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[2] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[3] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[4] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[5] ) );
+}
