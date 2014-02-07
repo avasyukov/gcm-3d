@@ -27,7 +27,7 @@ namespace gcm {
 		/*
 		 * Destructor
 		 */
-		~NumericalMethod();
+		virtual ~NumericalMethod() = 0;
 		/*
 		 * Returns number of stages (part steps) this particular method requires
 		 */

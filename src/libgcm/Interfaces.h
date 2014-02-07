@@ -30,6 +30,7 @@ namespace gcm {
 	 */
 	class IEngine {
 		public:
+			virtual ~IEngine() = 0;
 			virtual NumericalMethod* getNumericalMethod(string type) = 0;
 			virtual VolumeCalculator* getVolumeCalculator(string type) = 0;
 			virtual BorderCalculator* getBorderCalculator(string type) = 0;
@@ -57,6 +58,7 @@ namespace gcm {
 
 	class IBody {
 		public:
+			virtual ~IBody() = 0;
 			virtual string getId() = 0;
 			virtual Mesh* getMesh(string id) = 0;
 			virtual IEngine* getEngine() = 0;

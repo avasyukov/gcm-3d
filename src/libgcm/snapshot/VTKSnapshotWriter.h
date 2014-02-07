@@ -28,8 +28,8 @@ namespace gcm {
 		USE_LOGGER;
 	public:
 		VTKSnapshotWriter();
-		VTKSnapshotWriter(const char *snapName);
 		~VTKSnapshotWriter();
+		VTKSnapshotWriter(const char *snapName);
 		/*
 		 * Returns snapshot writer type
 		 */

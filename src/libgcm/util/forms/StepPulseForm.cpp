@@ -1,9 +1,5 @@
 #include "util/forms/StepPulseForm.h"
 
-StepPulseForm::StepPulseForm(float _startTime, float _duration) : PulseForm(_startTime, _duration)
-{	
-};
-
 float StepPulseForm::calcMagnitudeNorm( float time, float coords[3], Area* area )
 {
 	if( time < startTime )

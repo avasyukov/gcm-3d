@@ -12,6 +12,7 @@ namespace gcm {
 	
 	class SnapshotWriter {
 	public:
+		virtual ~SnapshotWriter() = 0;
 		/*
 		 * Returns snapshot writer type
 		 */

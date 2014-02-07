@@ -12,8 +12,6 @@ CylinderArea::CylinderArea( float _radius, float _bX, float _bY, float _bZ, floa
 	end[2] = _eZ;
 };
 
-CylinderArea::~CylinderArea() { };
-
 bool CylinderArea::isInArea( Node* cur_node )
 {
 	THROW_BAD_CONFIG("CylinderArea.isInArea is not implemented yet!");

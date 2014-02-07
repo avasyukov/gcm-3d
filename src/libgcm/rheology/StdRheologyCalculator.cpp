@@ -6,10 +6,6 @@ gcm::StdRheologyCalculator::StdRheologyCalculator() {
 	INIT_LOGGER("gcm.StdRheologyCalculator");
 }
 
-gcm::StdRheologyCalculator::~StdRheologyCalculator() {
-	
-}
-
 void gcm::StdRheologyCalculator::doCalc(CalcNode* src, CalcNode* dst)
 {
 	float K = src->getLambda() + 2 * src->getMu() / 3;

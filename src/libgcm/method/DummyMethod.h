@@ -14,10 +14,6 @@ namespace gcm {
 		 */
 		DummyMethod();
 		/*
-		 * Destructor
-		 */
-		~DummyMethod();
-		/*
 		 * Returns number of stages (part steps) this particular method requires
 		 */
 		int getNumberOfStages();

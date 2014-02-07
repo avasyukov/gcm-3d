@@ -27,7 +27,6 @@ namespace gcm {
 	public:
 		VTKCubicSnapshotWriter();
 		VTKCubicSnapshotWriter(const char *snapName);
-		~VTKCubicSnapshotWriter();
 		/*
 		 * Returns snapshot writer type
 		 */

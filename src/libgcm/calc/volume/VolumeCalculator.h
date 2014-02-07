@@ -23,13 +23,9 @@ namespace gcm
 	class VolumeCalculator {
 	public:
 		/*
-		 * Constructor
-		 */
-		VolumeCalculator();
-		/*
 		 * Destructor
 		 */
-		~VolumeCalculator();
+		virtual ~VolumeCalculator() = 0;
 		/*
 		 * Calculate next state for the given node
 		 */

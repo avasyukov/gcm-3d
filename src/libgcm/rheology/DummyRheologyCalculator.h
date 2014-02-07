@@ -14,7 +14,6 @@ namespace gcm {
 	class DummyRheologyCalculator : public RheologyCalculator {
 	public:
 		DummyRheologyCalculator();
-		~DummyRheologyCalculator();
 		/*
 		 * Returns rheology calculator type
 		 */

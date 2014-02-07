@@ -7,10 +7,6 @@ gcm::DummyMethod::DummyMethod()
 	INIT_LOGGER("gcm.method.DummyMethod");
 }
 
-gcm::DummyMethod::~DummyMethod()
-{
-}
-
 string gcm::DummyMethod::getType()
 {
 	return "DummyMethod";
