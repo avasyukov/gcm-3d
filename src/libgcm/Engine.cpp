@@ -116,11 +116,18 @@ gcm::Engine::~Engine()
 	LOG_INFO("GCM engine destroyed");
 }
 
-void gcm::Engine::cleanUp()
-{
+void gcm::Engine::clear() {
 	// clear memory
 	for(auto& b: bodies)
 		delete b;
+	bodies.clear();
+	for (auto& ml: meshLoaders)
+		ml.second->cleanUp();
+}
+
+void gcm::Engine::cleanUp()
+{
+	clear();
 	for(auto& ml: meshLoaders)
 	{
 		(ml.second)->cleanUp();

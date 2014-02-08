@@ -84,8 +84,7 @@ namespace gcm {
 			return mesh;
 		}
 		
-		void cleanUp() {
-		}
+		virtual void cleanUp() {};
 	};
 }
 

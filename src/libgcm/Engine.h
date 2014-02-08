@@ -157,6 +157,7 @@ namespace gcm
 		 */
 		static Engine& getInstance();
 		static void initInstance() { new Engine; }
+		void clear();
 		void cleanUp();
 		/*
 		 * Returns process rank.

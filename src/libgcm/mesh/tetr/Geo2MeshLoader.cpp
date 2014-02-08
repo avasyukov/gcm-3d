@@ -26,6 +26,7 @@ void gcm::Geo2MeshLoader::cleanUp() {
 		LOG_DEBUG("Deleting generated file: " << getVtkFileName(itr->first));
 		remove( getVtkFileName(itr->first).c_str() );
 	}
+	createdFiles.clear();
 }
 
 string gcm::Geo2MeshLoader::getMshFileName(string geoFile)
