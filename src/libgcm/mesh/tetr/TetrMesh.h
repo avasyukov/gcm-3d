@@ -30,6 +30,8 @@ namespace gcm
 		
 		virtual void createTriangles(int number) = 0;
 		
+		virtual void interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes) = 0;
+		
 		/*void preProcessGeometry();
 		
 		float getRecommendedTimeStep();
