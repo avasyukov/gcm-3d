@@ -77,6 +77,8 @@ int main(int argc, char **argv, char **envp)
 		if( dataDir.empty() )
 			dataDir = CONFIG_SHARE_GCM;
 		fls.addPath(dataDir);
+        fls.addPath("./src/launcher/");
+
 
 		#ifdef CONFIG_ENABLE_LOGGING
 		MPI::Init();
