@@ -729,3 +729,11 @@ bool gcm::Engine::isCollisionDetectorStatic()
 {
 	return colDet->is_static();
 }
+
+float gcm::Engine::getGmshVerbosity() {
+	return gmshVerbosity;
+}
+
+void gcm::Engine::setGmshVerbosity(float verbosity) {
+	gmshVerbosity = verbosity;
+}
