@@ -36,5 +36,6 @@ namespace xml {
 
 		Node getRootElement();
 	};
-
+	std::string getAttributeByName(AttrList attrs, std::string name, std::string defaultValue);
+	std::string getAttributeByName(AttrList attrs, std::string name);
 };

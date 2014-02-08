@@ -29,23 +29,6 @@ using namespace std;
 using namespace gcm;
 using namespace xml;
 
-/*
- * Returns value of named attribute.
- */
-
-string getAttributeByName(AttrList attrs, string name, string defaultValue) {
-	AttrList::iterator iter = attrs.find(name);
-	if (iter != attrs.end())
-		return iter->second;
-	if( defaultValue != "" )
-		return defaultValue;
-	THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list and default value is not provided");
-}
-
-string getAttributeByName(AttrList attrs, string name) {
-	return getAttributeByName(attrs, name, "");
-}
-
 void loadSceneFromFile(Engine& engine, string fileName)
 {
 	USE_LOGGER;
