@@ -503,7 +503,9 @@ int main(int argc, char **argv, char **envp)
 
 	try {
 		fls.addPath(CONFIG_SHARE_GCM);
-		fls.addPath("./src/launcher/");
+		if( dataDir.empty() )
+			dataDir = CONFIG_SHARE_GCM;
+		fls.addPath(dataDir);
 
 		#ifdef CONFIG_ENABLE_LOGGING
 		MPI::Init();
@@ -515,8 +517,6 @@ int main(int argc, char **argv, char **envp)
 
 		if( taskFile.empty() )
 			THROW_INVALID_ARG("No task file provided");
-		if( dataDir.empty() )
-			dataDir = CONFIG_SHARE_GCM;
 		LOG_INFO("Starting with taskFile '" << taskFile << "' and dataDir '" << dataDir << "'");
 		
 		Engine& engine = Engine::getInstance();
