@@ -116,6 +116,8 @@ def configure(conf):
     if not conf.env.without_tests:
         libs.append('libgtest')
 
+    conf.env.LINKFLAGS += ['-Wl,-rpath,%s/lib' % os.path.abspath(conf.options.prefix)]
+
     conf.load(libs, tooldir='waftools')
     conf.env.LIBS = libs
  
