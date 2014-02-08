@@ -1,5 +1,9 @@
 import sys
-from waflib.Tools import waf_unit_test
+import os
+from waflib.Build import BuildContext
+from waflib.Task import Task
+from waflib.Task import always_run
+
 
 VERSION = '0.1'
 APPNAME = 'gcm3d'
@@ -161,14 +165,25 @@ def build(bld):
             use=['gcm'] + libs,
             target='gcm3d'
         )
-    
+
     if not bld.env.without_tests:
         bld(
-            features='cxx cxxprogram test',
-            source=bld.path.ant_glob('src/tests/unit/*.cpp'),
+            features='cxx cxxprogram',
+            source=bld.path.ant_glob('src/tests/unit/**/*.cpp'),
             includes='src/libgcm',
             use=['gcm'] + libs,
-            target='gcm3d_tests',
+            target='gcm3d_unit_tests',
+            install_path=None
+        )
+        bld(
+            features='cxx cxxprogram',
+            source=bld.path.ant_glob('src/tests/func/**/*.cpp')+[
+                bld.path.find_node('src/launcher/launcher.cpp'),
+                bld.path.find_node('src/launcher/xml.cpp')
+            ],
+            includes='src/libgcm',
+            use=['gcm'] + libs,
+            target='gcm3d_func_tests',
             install_path=None
         )
         bld(
@@ -180,7 +195,6 @@ def build(bld):
             target='gcm3d_perf_fast_map',
             install_path=None
         )
-        bld.add_post_fun(waf_unit_test.summary)
 
     if not bld.env.without_resources:
         bld.install_files(
@@ -211,3 +225,49 @@ def build(bld):
             '${PREFIX}/share/%s/tasks' % APPNAME,
             bld.path.ant_glob('tasks/*')
         )
+
+
+class func_tests_target(BuildContext):
+    '''run gcm3d functional tests'''
+    cmd = 'func-tests'
+    fun = '_func_tests'
+
+
+class unit_tests_target(BuildContext):
+    '''run gcm3d functional tests'''
+    cmd = 'unit-tests'
+    fun = '_unit_tests'
+
+
+@always_run
+class TestRunner(Task):
+    def __init__(self, cwd, *args, **kwargs):
+        self.cwd = cwd
+        super(TestRunner, self).__init__(*args, **kwargs)
+
+    def run(self):
+        self.exec_command(self.inputs[0].abspath(), stdout=sys.stdout, stderr=sys.stderr, cwd=self.cwd)
+
+
+def _func_tests(ctx):
+    if ctx.env.without_tests:
+        ctx.fatal('Project was configured without testing support')
+    build(ctx)
+    r = TestRunner(
+        ctx.path.abspath(),
+        env=ctx.env
+    )
+    r.set_inputs([ctx.path.find_or_declare('gcm3d_func_tests')]),
+    ctx.add_to_group(r)
+
+
+def _unit_tests(ctx):
+    if ctx.env.without_tests:
+        ctx.fatal('Project was configured without testing support')
+    build(ctx)
+    r = TestRunner(
+        ctx.path.abspath(),
+        env=ctx.env
+    )
+    r.set_inputs([ctx.path.find_or_declare('gcm3d_unit_tests')]),
+    ctx.add_to_group(r)
