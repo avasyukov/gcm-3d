@@ -230,13 +230,13 @@ def build(bld):
 class func_tests_target(BuildContext):
     '''run gcm3d functional tests'''
     cmd = 'func-tests'
-    fun = '_func_tests'
+    fun = '__run_tests'
 
 
 class unit_tests_target(BuildContext):
     '''run gcm3d functional tests'''
     cmd = 'unit-tests'
-    fun = '_unit_tests'
+    fun = '__run_tests'
 
 
 @always_run
@@ -249,7 +249,7 @@ class TestRunner(Task):
         self.exec_command(self.inputs[0].abspath(), stdout=sys.stdout, stderr=sys.stderr, cwd=self.cwd)
 
 
-def _func_tests(ctx):
+def __run_tests(ctx):
     if ctx.env.without_tests:
         ctx.fatal('Project was configured without testing support')
     build(ctx)
@@ -257,17 +257,5 @@ def _func_tests(ctx):
         ctx.path.abspath(),
         env=ctx.env
     )
-    r.set_inputs([ctx.path.find_or_declare('gcm3d_func_tests')]),
-    ctx.add_to_group(r)
-
-
-def _unit_tests(ctx):
-    if ctx.env.without_tests:
-        ctx.fatal('Project was configured without testing support')
-    build(ctx)
-    r = TestRunner(
-        ctx.path.abspath(),
-        env=ctx.env
-    )
-    r.set_inputs([ctx.path.find_or_declare('gcm3d_unit_tests')]),
+    r.set_inputs([ctx.path.find_or_declare('gcm3d_unit_tests' if ctx.cmd == 'unit-tests' else 'gcm3d_func_tests')]),
     ctx.add_to_group(r)
