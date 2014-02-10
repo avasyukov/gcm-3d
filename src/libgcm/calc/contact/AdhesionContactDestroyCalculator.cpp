@@ -1,23 +1,25 @@
-#include "AdhesionContactDestroyCalculator.h"
-#include "AdhesionContactCalculator.h"
-#include "SlidingContactCalculator.h"
-#include "../../node/CalcNode.h"
+#include "calc/contact/AdhesionContactDestroyCalculator.h"
 
-AdhesionContactDestroyCalculator::AdhesionContactDestroyCalculator()
-{
-	//U_gsl = gsl_matrix_alloc (18, 18);
-	//om_gsl = gsl_vector_alloc (18);
-	//x_gsl = gsl_vector_alloc (18);
-	//p_gsl = gsl_permutation_alloc (18);
-};
+#include "calc/contact/AdhesionContactCalculator.h"
+#include "calc/contact/SlidingContactCalculator.h"
+#include "node/CalcNode.h"
 
-AdhesionContactDestroyCalculator::~AdhesionContactDestroyCalculator()
-{
-	//gsl_matrix_free(U_gsl);
-	//gsl_vector_free(om_gsl);
-	//gsl_vector_free(x_gsl);
-	//gsl_permutation_free(p_gsl);
-};
+// FIXME this code seems to be dead
+//AdhesionContactDestroyCalculator::AdhesionContactDestroyCalculator()
+//{
+//	//U_gsl = gsl_matrix_alloc (18, 18);
+//	//om_gsl = gsl_vector_alloc (18);
+//	//x_gsl = gsl_vector_alloc (18);
+//	//p_gsl = gsl_permutation_alloc (18);
+//};
+// FIXME this code seems to be dead
+//AdhesionContactDestroyCalculator::~AdhesionContactDestroyCalculator()
+//{
+//	//gsl_matrix_free(U_gsl);
+//	//gsl_vector_free(om_gsl);
+//	//gsl_vector_free(x_gsl);
+//	//gsl_permutation_free(p_gsl);
+//};
 
 void AdhesionContactDestroyCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, CalcNode* virt_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[], float scale)
 {

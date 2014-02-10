@@ -1,11 +1,14 @@
 #include "Engine.h"
-#include "mesh/MshMeshLoader.h"
-#include "mesh/Msh2MeshLoader.h"
-#include "mesh/GeoMeshLoader.h"
-#include "mesh/Geo2MeshLoader.h"
-#include "mesh/VtuMeshLoader.h"
-#include "mesh/Vtu2MeshLoader.h"
-#include "mesh/Vtu2MeshZoneLoader.h"
+
+#include "mesh/tetr/MshMeshLoader.h"
+#include "mesh/tetr/Msh2MeshLoader.h"
+#include "mesh/tetr/GeoMeshLoader.h"
+#include "mesh/tetr/Geo2MeshLoader.h"
+#include "mesh/tetr/VtuMeshLoader.h"
+#include "mesh/tetr/Vtu2MeshLoader.h"
+#include "mesh/tetr/Vtu2MeshZoneLoader.h"
+#include "mesh/cube/BasicCubicMeshGenerator.h"
+#include "method/DummyMethod.h"
 #include "method/InterpolationFixedAxis.h"
 #include "calc/volume/SimpleVolumeCalculator.h"
 #include "calc/border/FreeBorderCalculator.h"
@@ -16,9 +19,10 @@
 #include "util/forms/StepPulseForm.h"
 #include "snapshot/VTKSnapshotWriter.h"
 #include "snapshot/VTK2SnapshotWriter.h"
-#include "BruteforceCollisionDetector.h"
+#include "snapshot/VTKCubicSnapshotWriter.h"
 #include "rheology/DummyRheologyCalculator.h"
 #include "rheology/StdRheologyCalculator.h"
+#include "BruteforceCollisionDetector.h"
 
 // initialiaze static fields
 int gcm::Engine::enginesNumber = 0;
@@ -58,11 +62,14 @@ gcm::Engine::Engine()
 	registerMeshLoader(new VtuMeshLoader());
 	registerMeshLoader(new Vtu2MeshLoader());
 	registerMeshLoader(new Vtu2MeshZoneLoader());
+	registerMeshLoader(new BasicCubicMeshGenerator());
 	LOG_DEBUG("Registering default methods");
+	registerNumericalMethod( new DummyMethod() );
 	registerNumericalMethod( new InterpolationFixedAxis() );
 	LOG_DEBUG("Registering default interpolators");
 	registerInterpolator( new TetrFirstOrderInterpolator() );
 	registerInterpolator( new TetrSecondOrderMinMaxInterpolator() );
+	registerInterpolator( new LineFirstOrderInterpolator() );
 	LOG_DEBUG("Registering default rheology calculators");
 	registerRheologyCalculator( new DummyRheologyCalculator() );
 	registerRheologyCalculator( new StdRheologyCalculator() );
@@ -87,9 +94,10 @@ gcm::Engine::Engine()
 	LOG_DEBUG("Creating data bus");
 	dataBus = new DataBus();
 	dataBus->setEngine(this);
-	LOG_DEBUG("Creating snapshot writers");
-	vtkSnapshotWriter = new VTKSnapshotWriter();
-	vtkDumpWriter = new VTK2SnapshotWriter();
+	LOG_DEBUG("Registering snapshot writers");
+	registerSnapshotWriter( new VTKSnapshotWriter() );
+	registerSnapshotWriter( new VTK2SnapshotWriter() );
+	registerSnapshotWriter( new VTKCubicSnapshotWriter() );
 	LOG_DEBUG("Creating collision detector");
 	colDet = new BruteforceCollisionDetector();
 	LOG_INFO("GCM engine initialized");
@@ -108,11 +116,18 @@ gcm::Engine::~Engine()
 	LOG_INFO("GCM engine destroyed");
 }
 
-void gcm::Engine::cleanUp()
-{
+void gcm::Engine::clear() {
 	// clear memory
 	for(auto& b: bodies)
 		delete b;
+	bodies.clear();
+	for (auto& ml: meshLoaders)
+		ml.second->cleanUp();
+}
+
+void gcm::Engine::cleanUp()
+{
+	clear();
 	for(auto& ml: meshLoaders)
 	{
 		(ml.second)->cleanUp();
@@ -121,8 +136,8 @@ void gcm::Engine::cleanUp()
 	// decrement engines counter
 	enginesNumber--;
 	delete dataBus;
-	delete vtkSnapshotWriter;
-	delete vtkDumpWriter;
+	//delete vtkSnapshotWriter;
+	//delete vtkDumpWriter;
 	delete colDet;
 	// shutdown MPI
 	if( !MPI::Is_finalized() )
@@ -352,6 +367,11 @@ ContactCalculator* gcm::Engine::getContactCalculator(string type)
 	return contactCalculators.find(type) != contactCalculators.end() ? contactCalculators[type] : NULL;
 }
 
+LineFirstOrderInterpolator* gcm::Engine::getFirstOrderLineInterpolator(string type)
+{
+	return interpolators.find(type) != interpolators.end() ? (LineFirstOrderInterpolator*) interpolators[type] : NULL;
+}
+
 TetrFirstOrderInterpolator* gcm::Engine::getFirstOrderInterpolator(string type)
 {
 	return interpolators.find(type) != interpolators.end() ? (TetrFirstOrderInterpolator*) interpolators[type] : NULL;
@@ -384,7 +404,7 @@ void gcm::Engine::addBody(Body* body)
 	bodies.push_back(body);
 }
 
-CalcNode* gcm::Engine::getVirtNode(int i)
+CalcNode* gcm::Engine::getVirtNode(unsigned int i)
 {
 	assert( i >=0 && i < virtNodes.size() );
 	return &virtNodes[i];
@@ -493,7 +513,7 @@ void gcm::Engine::doNextStepStages(const float time_step)
 		{
 			Mesh* mesh = bodies[i]->getMeshes();
 			LOG_DEBUG( "Doing calculations for mesh " << mesh->getId() );
-			mesh->do_next_part_step(time_step, j);
+			mesh->doNextPartStep(time_step, j);
 			LOG_DEBUG( "Mesh calculation done" );
 		}
 		LOG_DEBUG( "Stage done" );
@@ -515,9 +535,16 @@ void gcm::Engine::doNextStepAfterStages(const float time_step) {
 		LOG_DEBUG( "Processing crack state for mesh " << mesh->getId() );
 		mesh->processCrackState();
 		LOG_DEBUG( "Processing crack state done" );
-		//LOG_DEBUG( "Moving mesh " << mesh->getId() );
-		//mesh->move_coords(time_step);
-		//LOG_DEBUG( "Moving done" );
+		if( mesh->getMovable() )
+		{
+			LOG_DEBUG( "Moving mesh " << mesh->getId() );
+			mesh->moveCoords(time_step);
+			LOG_DEBUG( "Moving done" );
+		}
+		else
+		{
+			LOG_DEBUG( "Not moving mesh " << mesh->getId() );
+		}
 	}
 	currentTime += time_step;
 }
@@ -581,7 +608,7 @@ float gcm::Engine::calculateRecommendedContactTreshold(float tau)
 		for( int j = 0; j < getNumberOfBodies(); j++ )
 		{
 			TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
-			float h = mesh->get_avg_h();
+			float h = mesh->getAvgH();
 			if( h < threshold )
 				threshold = h;
 		}
@@ -609,11 +636,11 @@ void gcm::Engine::createSnapshot(int number)
 {
 	for( int j = 0; j < getNumberOfBodies(); j++ )
 	{
-		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
+		Mesh* mesh = getBody(j)->getMeshes();
 		if( mesh->getNumberOfLocalNodes() != 0 )
 		{
 			LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
-			vtkSnapshotWriter->dump(mesh, number);
+			mesh->snapshot(number);
 		}
 	}
 }
@@ -626,7 +653,7 @@ void gcm::Engine::createDump(int number)
 		if( mesh->getNodesNumber() != 0 )
 		{
 			LOG_INFO( "Creating dump for mesh '" << mesh->getId() << "'" );
-			vtkDumpWriter->dump(mesh, number);
+			mesh->dump(number);
 		}
 	}
 }
@@ -701,4 +728,12 @@ void gcm::Engine::setCollisionDetectorStatic(bool val)
 bool gcm::Engine::isCollisionDetectorStatic()
 {
 	return colDet->is_static();
+}
+
+float gcm::Engine::getGmshVerbosity() {
+	return gmshVerbosity;
+}
+
+void gcm::Engine::setGmshVerbosity(float verbosity) {
+	gmshVerbosity = verbosity;
 }

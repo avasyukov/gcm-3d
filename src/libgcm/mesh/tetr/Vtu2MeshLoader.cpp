@@ -1,4 +1,4 @@
-#include "Vtu2MeshLoader.h"
+#include "mesh/tetr/Vtu2MeshLoader.h"
 
 string gcm::Vtu2MeshLoader::getType(){
 	return "vtu2";

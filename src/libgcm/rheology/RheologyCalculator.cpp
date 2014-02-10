@@ -1,10 +1,5 @@
-#include "RheologyCalculator.h"
-#include "../node/CalcNode.h"
-
-gcm::RheologyCalculator::RheologyCalculator() {
-	
-}
+#include "rheology/RheologyCalculator.h"
 
 gcm::RheologyCalculator::~RheologyCalculator() {
-	
+
 }

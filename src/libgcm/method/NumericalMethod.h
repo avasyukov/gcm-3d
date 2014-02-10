@@ -9,8 +9,9 @@
 #define	GCM_NUMERICAL_METHOD_H
 
 #include <string>
-#include "../Interfaces.h"
-#include "../mesh/Mesh.h"
+
+#include "Interfaces.h"
+#include "mesh/Mesh.h"
 
 namespace gcm {
 	class CalcNode;
@@ -26,7 +27,7 @@ namespace gcm {
 		/*
 		 * Destructor
 		 */
-		~NumericalMethod();
+		virtual ~NumericalMethod() = 0;
 		/*
 		 * Returns number of stages (part steps) this particular method requires
 		 */

@@ -9,8 +9,9 @@
 #define GCM_BORDER_CALCULATOR_H_  1
 
 #include <string>
-#include "../../util/ElasticMatrix3D.h"
-#include "../../Logging.h"
+
+#include "util/ElasticMatrix3D.h"
+#include "Logging.h"
 
 using namespace std;
 
@@ -23,13 +24,9 @@ namespace gcm
 	class BorderCalculator {
 	public:
 		/*
-		 * Constructor
-		 */
-		BorderCalculator();
-		/*
 		 * Destructor
 		 */
-		~BorderCalculator();
+		virtual ~BorderCalculator() = 0;
 		/*
 		 * Calculate next state for the given node
 		 */
@@ -42,10 +39,13 @@ namespace gcm
 		/*
 		 * Intended for SPGCM. Sorry for that.
 		 */
-		virtual unsigned int getXmlValue() {};
-		virtual const char* getXmlName() {};
-		
-	private:
+// FIXME these functions are SPGCM-specific
+// The same behavior can be achieved by an approproate
+// typecast in spgcm code
+//		virtual unsigned int getXmlValue() = 0;
+//		virtual const char* getXmlName() = 0;
+//
+//	private:
 	};
 	
 }

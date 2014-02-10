@@ -1,7 +1,7 @@
 #ifndef GCM_TETR_SECOND_ORDER_H_
 #define GCM_TETR_SECOND_ORDER_H_
 
-#include "TetrFirstOrder.h"
+#include "elem/TetrFirstOrder.h"
 
 namespace gcm {
 	/*

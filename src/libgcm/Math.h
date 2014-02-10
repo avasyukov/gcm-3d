@@ -12,8 +12,9 @@
 #include <string>
 #include <string.h>
 #include <cmath>
-#include "Math.h"
 #include <limits>
+
+#include "Math.h"
 #include "Exception.h"
 #include "Logging.h"
 
@@ -43,6 +44,11 @@ inline float scalarProduct(float* a, float* b)
 inline float scalarProduct(float x1, float y1, float z1, float x2, float y2, float z2)
 {
 	return x1*x2 + y1*y2 + z1*z2;
+};
+
+inline float distance(float* a, float* b)
+{
+	return sqrt( (a[0] - b[0])*(a[0] - b[0]) + (a[1] - b[1])*(a[1] - b[1]) +(a[2] - b[2])*(a[2] - b[2]) );
 };
 
 // Just vector product of two vectors

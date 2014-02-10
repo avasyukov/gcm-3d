@@ -1,8 +1,4 @@
-#include "StepPulseForm.h"
-
-StepPulseForm::StepPulseForm(float _startTime, float _duration) : PulseForm(_startTime, _duration)
-{	
-};
+#include "util/forms/StepPulseForm.h"
 
 float StepPulseForm::calcMagnitudeNorm( float time, float coords[3], Area* area )
 {

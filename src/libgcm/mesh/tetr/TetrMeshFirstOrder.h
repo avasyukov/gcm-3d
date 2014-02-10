@@ -3,28 +3,30 @@
 
 #include <unordered_map>
 #include <algorithm>
+
 #include <gsl/gsl_linalg.h>
-#include "Mesh.h"
-#include "../elem/TetrFirstOrder.h"
-#include "../elem/TriangleFirstOrder.h"
-#include "../Logging.h"
-#include "../Exception.h"
-#include "../Math.h"
-#include "../util/AABB.h"
-#include "../method/NumericalMethod.h"
+
+#include "mesh/tetr/TetrMesh.h"
+#include "elem/TetrFirstOrder.h"
+#include "elem/TriangleFirstOrder.h"
+#include "util/AABB.h"
+#include "method/NumericalMethod.h"
+#include "Logging.h"
+#include "Exception.h"
+#include "Math.h"
 
 using namespace gcm;
+using namespace std;
 
-#define MapIter unordered_map<int, int>::const_iterator
-#define STORAGE_OVERCOMMIT_RATIO 1.0
-#define STORAGE_ONDEMAND_GROW_RATE 1.25
+typedef unordered_map<int, int>::const_iterator MapIter;
 
-namespace gcm {
+namespace gcm
+{
 	class CalcNode;
 	/*
 	 * Tetrahedral 1st order mesh.
 	 */
-	class TetrMeshFirstOrder: public Mesh {
+	class TetrMeshFirstOrder: public TetrMesh {
 		
 	friend class VTKSnapshotWriter;
 	friend class DataBus;
@@ -33,7 +35,6 @@ namespace gcm {
 		
 	protected:
 		unordered_map<int, int> tetrsMap;
-		unordered_map<int, int> nodesMap;
 		
 		// Cache for characteristics hits
 		bool charactCacheAvailable();
@@ -41,18 +42,6 @@ namespace gcm {
 		void updateCharactCache(CalcNode* node, float dx, float dy, float dz, int tetrNum);
 		int getCharactCacheIndex(CalcNode* node, float dx, float dy, float dz);
 		unordered_map<int, int> charactCache[12];
-		/*map<int, int> charactCacheXps;
-		map<int, int> charactCacheXpl;
-		map<int, int> charactCacheXms;
-		map<int, int> charactCacheXml;
-		map<int, int> charactCacheYps;
-		map<int, int> charactCacheYpl;
-		map<int, int> charactCacheYms;
-		map<int, int> charactCacheYml;
-		map<int, int> charactCacheZps;
-		map<int, int> charactCacheZpl;
-		map<int, int> charactCacheZms;
-		map<int, int> charactCacheZml;*/
 		unsigned long long cacheHits;
 		unsigned long long cacheMisses;
 		
@@ -62,14 +51,6 @@ namespace gcm {
 		vector<TetrFirstOrder> tetrs1;
 		vector<TriangleFirstOrder> border1;
 
-		int numericalMethodOrder;
-		/*
-		 * List of mesh nodes.
-		 */
-		vector<CalcNode> nodes;
-		vector<CalcNode> new_nodes;
-		int nodesNumber;
-		int nodesStorageSize;
 		int tetrsNumber;
 		int tetrsStorageSize;
 		int faceNumber;
@@ -81,9 +62,7 @@ namespace gcm {
 		void check_numbering();
 		void check_outer_normals();
 		void check_unused_nodes();
-		void create_outline();
 		void verifyTetrahedraVertices ();
-		void initNewNodes();
 		
 		bool isTriangleBorder(int v[4], bool* needSwap, bool debug);
 		bool isTriangleBorder(int v[4], bool* needSwap);
@@ -103,10 +82,9 @@ namespace gcm {
 		/*TetrFirstOrder*/ int find_border_cross(CalcNode* node, float dx, float dy, float dz, bool debug, float* cross);
 		/*TetrFirstOrder*/ int find_border_cross(CalcNode* node, float dx, float dy, float dz, bool debug, CalcNode* cross);
 		
-		void calc_min_h();
-		void calc_avg_h();
-		void calc_max_h();
-		void clearNodesState();
+		void calcMinH();
+		void calcAvgH();
+		void calcMaxH();
 		// It MUST take into account mesh topology.
 		// So, if the mesh will be second order, h = h / 2, etc
 		float mesh_min_h;
@@ -114,11 +92,6 @@ namespace gcm {
 		float mesh_max_h;
 
 		USE_LOGGER;
-		
-		AABB outline;
-		AABB expandedOutline;
-		AABB syncedArea;
-		AABB areaOfInterest;
 		
 		/*TetrFirstOrder*/ int expandingScanForPoint (CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
 		/*TetrFirstOrder*/ int expandingScanForOwnerTetr(CalcNode* node, float dx, float dy, float dz, bool debug);
@@ -135,94 +108,54 @@ namespace gcm {
 		 */
 		TetrMeshFirstOrder();
 		~TetrMeshFirstOrder();
-		void copyMesh(TetrMeshFirstOrder* src);
-		
-		/*
-		 * Returns number of nodes in mesh.
-		 */
-		int getNodesNumber();
+		//void copyMesh(TetrMeshFirstOrder* src);
 		
 		int getTetrsNumber();
-		
 		int getTriangleNumber();
 		
-		AABB getOutline();
-		AABB getExpandedOutline();
-		/*
-		 * Returns node by its index.
-		 */
-		CalcNode* getNode(int index);
-		CalcNode* getNewNode(int index);
-		
-		CalcNode* getNodeByLocalIndex(int index);
-		
-		int getNodeLocalIndex(int index);
-		
-		void addNode(CalcNode* node);
 		void addTetr(TetrFirstOrder* tetr);
 		/*
 		 * Returns tetr by its index.
 		 */
-		TetrFirstOrder* getTetr(int index);
+		TetrFirstOrder* getTetr(unsigned int index);
 		
-		TetrFirstOrder* getTetrByLocalIndex(int index);
+		TetrFirstOrder* getTetrByLocalIndex(unsigned int index);
 		
 		TriangleFirstOrder* getTriangle(int index);
 		// FIXME should two functions belowe be moved outside this class?
-		/*
-		 * Creates nodes.
-		 */
-		void createNodes(int number);
 		/*
 		 * Creates tetrahedrons.
 		 */
 		void createTetrs(int number);
 		
 		void createTriangles(int number);
-		/*
-		 * Return arrays containing mesh nodes and tetrahedrons. Use carefully.
-		 */
-		//CalcNode* getNodes();
 		
-		// TetrFirstOrder* getTetrs();
+		void preProcessGeometry();
 		
-		//TriangleFirstOrder* getBorder();
-		
-		void preProcess();
-		
-		float getMaxPossibleTimeStep();
-		float getMaxLambda();
 		float getRecommendedTimeStep();
 
 		// Finds minimum h over mesh
-		float get_min_h();
+		float getMinH();
 		
-		float get_max_h();
+		float getMaxH();
 		
-		float get_avg_h();
+		float getAvgH();
 		
-		void do_next_part_step(float tau, int stage);
-		void move_coords(float tau);
-		int proceed_rheology();
+		void doNextPartStep(float tau, int stage);
 		
-		/*TetrFirstOrder*/ int findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
-		void find_border_node_normal(int border_node_index, float* x, float* y, float* z, bool debug);
-		void printBorder();
-		void setInitialState(Area* area, float* values);
-		void setRheology(unsigned char matId);
-		void setRheology(unsigned char matId, Area* area);
+		int findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+		void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug);
 		void checkTopology(float tau);
 		void interpolate(CalcNode* node, TetrFirstOrder* tetr);
-		
-		void transfer(float x, float y, float z);
-		void setBodyNum(unsigned char id);
-		int getNumberOfLocalNodes();
-		void clearContactState();
-		void processStressState();
-		void processCrackState();
-		void processCrackResponse();
-		
-		void applyRheology(RheologyCalculator* rc);
+		int prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
+														float time_step, int stage,
+														float* dksi, bool* inner, CalcNode* previous_nodes,
+														float* outer_normal, int* ppoint_num);
+		int find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage,
+														float dksi[], bool inner[], CalcNode previous_nodes[],
+														float outer_normal[], int ppoint_num[]);
+
+		void interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes);
 	};
 }
 #endif

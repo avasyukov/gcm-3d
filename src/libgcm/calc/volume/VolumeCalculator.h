@@ -9,7 +9,8 @@
 #define GCM_VOLUME_CALCULATOR_H_  1
 
 #include <string>
-#include "../../util/ElasticMatrix3D.h"
+
+#include "util/ElasticMatrix3D.h"
 
 using namespace std;
 
@@ -22,13 +23,9 @@ namespace gcm
 	class VolumeCalculator {
 	public:
 		/*
-		 * Constructor
-		 */
-		VolumeCalculator();
-		/*
 		 * Destructor
 		 */
-		~VolumeCalculator();
+		virtual ~VolumeCalculator() = 0;
 		/*
 		 * Calculate next state for the given node
 		 */

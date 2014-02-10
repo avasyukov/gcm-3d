@@ -1,13 +1,13 @@
 #ifndef GCM_EXCEPTION_H_
 #define GCM_EXCEPTION_H_ 
 
+#include <string>
+#include <sstream>
+
 #include <execinfo.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <cxxabi.h>
-
-#include <string>
-#include <sstream>
 
 using namespace std;
 

@@ -2,14 +2,8 @@
 #define GCM_VTKSNAPSHOTWRITER_H_
 
 #include <string>
-#include "SnapshotWriter.h"
-#include "../Utils.h"
-#include "../node/CalcNode.h"
-#include "../elem/TetrFirstOrder.h"
-#include "../mesh/TetrMeshFirstOrder.h"
-#include "../mesh/TetrMeshSecondOrder.h"
-#include "../Logging.h"
 
+#include <vtkstd/string>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 #include <vtkUnstructuredGridWriter.h>
@@ -18,27 +12,29 @@
 #include <vtkIntArray.h>
 #include <vtkPointData.h>
 #include <vtkCellData.h>
-#include <vtkstd/string>
+
+#include "snapshot/SnapshotWriter.h"
+#include "mesh/tetr/TetrMeshFirstOrder.h"
+#include "mesh/tetr/TetrMeshSecondOrder.h"
+#include "node/CalcNode.h"
+#include "elem/TetrFirstOrder.h"
+#include "Logging.h"
+#include "Utils.h"
 
 namespace gcm {
 	class VTKSnapshotWriter : public SnapshotWriter {
 	private:
 		void dumpVTK(string filename, TetrMeshSecondOrder* mesh, int step);
-		string fname;
 		USE_LOGGER;
 	public:
 		VTKSnapshotWriter();
-		VTKSnapshotWriter(const char *snapName);
 		~VTKSnapshotWriter();
+		VTKSnapshotWriter(const char *snapName);
 		/*
 		 * Returns snapshot writer type
 		 */
-		string getFileName(int cpuNum, int step, string meshId);
-		void setFileName(string name);
 		string getType();
-		void dump(TetrMeshFirstOrder* mesh, int step);
-		void dump(TetrMeshSecondOrder* mesh, int step);
-		void init();
+		void dump(Mesh* mesh, int step);
 	};
 }
 

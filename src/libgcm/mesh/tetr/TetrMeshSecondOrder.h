@@ -1,9 +1,9 @@
 #ifndef GCM_TETR_MESH_SECOND_ORDER_H_
 #define GCM_TETR_MESH_SECOND_ORDER_H_
 
-#include "TetrMeshFirstOrder.h"
-#include "../elem/TetrSecondOrder.h"
-#include "../elem/TriangleSecondOrder.h"
+#include "mesh/tetr/TetrMeshFirstOrder.h"
+#include "elem/TetrSecondOrder.h"
+#include "elem/TriangleSecondOrder.h"
 
 using namespace std;
 using namespace gcm;
@@ -53,10 +53,10 @@ namespace gcm {
 		/*
 		 * Returns tetr by its index.
 		 */
-		TetrFirstOrder* getTetr(int index);
+		TetrFirstOrder* getTetr(unsigned int index);
 		TetrSecondOrder* getTetr2(int index);
 		
-		TetrFirstOrder* getTetrByLocalIndex(int index);
+		TetrFirstOrder* getTetrByLocalIndex(unsigned int index);
 		TetrSecondOrder* getTetr2ByLocalIndex(int index);
 		
 		void addTetr(TetrFirstOrder* tetr);
@@ -66,8 +66,10 @@ namespace gcm {
 		TriangleFirstOrder* getTriangle(int index);
 		TriangleSecondOrder* getTriangle2(int index);
 
-		void preProcess();
-		void move_coords(float tau);
+		void preProcessGeometry();
+		void moveCoords(float tau);
+
+		void interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes);
 	};
 }
 #endif

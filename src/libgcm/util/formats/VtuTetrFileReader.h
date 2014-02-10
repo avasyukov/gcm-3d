@@ -1,12 +1,11 @@
 #ifndef GCM_VTU_FILE_READER_H
 #define	GCM_VTU_FILE_READER_H
 
-#include "../../mesh/TetrMeshFirstOrder.h"
-#include "../../Logging.h"
 #include <string>
 #include <fstream>
 #include <limits>
 
+#include <vtkstd/string>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridReader.h>
 #include <vtkUnstructuredGridReader.h>
@@ -14,7 +13,9 @@
 #include <vtkDoubleArray.h>
 #include <vtkIntArray.h>
 #include <vtkPointData.h>
-#include <vtkstd/string>
+
+#include "mesh/tetr/TetrMeshFirstOrder.h"
+#include "Logging.h"
 
 using namespace std;
 

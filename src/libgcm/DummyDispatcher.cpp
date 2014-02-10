@@ -1,4 +1,5 @@
 #include "DummyDispatcher.h"
+
 #include "Body.h"
 
 gcm::DummyDispatcher::DummyDispatcher() {

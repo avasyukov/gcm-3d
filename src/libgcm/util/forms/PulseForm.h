@@ -1,8 +1,8 @@
 #ifndef _GCM_PULSE_FORM_H
 #define _GCM_PULSE_FORM_H 1
 
-#include "../../Exception.h"
-#include "../areas/Area.h"
+#include "util/areas/Area.h"
+#include "Exception.h"
 
 namespace gcm
 {
@@ -10,7 +10,7 @@ namespace gcm
 	{
 	public:
 		PulseForm(float _startTime, float _duration);
-		~PulseForm();
+		virtual ~PulseForm() = 0;
 		virtual float calcMagnitudeNorm( float time, float coords[3], Area* area ) = 0;
 		bool isActive(float time);
 	protected:

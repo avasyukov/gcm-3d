@@ -2,8 +2,9 @@
 #define	GCM_INTERPOLATOR_H
 
 #include <string>
-#include "../Math.h"
-#include "../Logging.h"
+
+#include "Math.h"
+#include "Logging.h"
 
 using namespace std;
 using namespace gcm;

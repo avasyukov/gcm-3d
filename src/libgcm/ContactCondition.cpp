@@ -1,4 +1,5 @@
 #include "ContactCondition.h"
+
 #include "node/CalcNode.h"
 
 gcm::ContactCondition::ContactCondition() {

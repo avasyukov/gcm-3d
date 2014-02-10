@@ -1,8 +1,11 @@
-#include "VTKSnapshotWriter.h"
+#include "snapshot/VTKSnapshotWriter.h"
 
 gcm::VTKSnapshotWriter::VTKSnapshotWriter() {
 	INIT_LOGGER("gcm.VTKSnapshotWriter");
 	fname = string ("snap_mesh_%m_cpu_%z_step_%n.vtu");
+}
+
+gcm::VTKSnapshotWriter::~VTKSnapshotWriter() {
 }
 
 gcm::VTKSnapshotWriter::VTKSnapshotWriter(const char* snapName) {
@@ -10,38 +13,14 @@ gcm::VTKSnapshotWriter::VTKSnapshotWriter(const char* snapName) {
 	fname = string (snapName);
 }
 
-gcm::VTKSnapshotWriter::~VTKSnapshotWriter() {
-	
-}
-
-void gcm::VTKSnapshotWriter::init() {
-	
-}
-
 string gcm::VTKSnapshotWriter::getType() {
 	return "VTKSnapshotWriter";
 }
 
-void gcm::VTKSnapshotWriter::dump(TetrMeshFirstOrder* mesh, int step)
+void gcm::VTKSnapshotWriter::dump(Mesh* mesh, int step)
 {
-	dump((TetrMeshSecondOrder*)mesh, step);
-}
-
-void gcm::VTKSnapshotWriter::dump(TetrMeshSecondOrder* mesh, int step)
-{
-	dumpVTK(getFileName(MPI::COMM_WORLD.Get_rank(), step, mesh->getId()), mesh, step);
-}
-
-string gcm::VTKSnapshotWriter::getFileName(int cpuNum, int step, string meshId) {
-	string filename = fname;
-	replaceAll (filename, "%z", t_to_string (cpuNum));
-	replaceAll (filename, "%n", t_to_string (step));
-	replaceAll (filename, "%m", meshId);
-	return filename;
-}
-
-void gcm::VTKSnapshotWriter::setFileName(string name) {
-	fname = name;
+	// TODO - check if the mesh is compatible
+	dumpVTK(getFileName(MPI::COMM_WORLD.Get_rank(), step, mesh->getId()), (TetrMeshSecondOrder*)mesh, step);
 }
 
 void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh, int step)

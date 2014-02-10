@@ -2,6 +2,8 @@
 
 #include <string.h>
 
+#include "Exception.h"
+
 xml::Doc::Doc(std::string fname) {
 	doc = xmlParseFile(fname.c_str());
 }
@@ -76,4 +78,21 @@ xml::NodeList xml::Node::xpath(std::string expr) {
 	xmlXPathFreeContext(ctx);
 
 	return nodes;
+}
+
+/*
+ * Returns value of named attribute.
+ */
+
+std::string xml::getAttributeByName(AttrList attrs, std::string name, std::string defaultValue) {
+	AttrList::iterator iter = attrs.find(name);
+	if (iter != attrs.end())
+		return iter->second;
+	if( defaultValue != "" )
+		return defaultValue;
+	THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list and default value is not provided");
+}
+
+std::string xml::getAttributeByName(AttrList attrs, std::string name) {
+	return getAttributeByName(attrs, name, "");
 }

@@ -1,7 +1,8 @@
 #include "BruteforceCollisionDetector.h"
-#include "Engine.h"
+
 #include "node/CalcNode.h"
-#include "mesh/TetrMeshSecondOrder.h"
+#include "mesh/tetr/TetrMeshSecondOrder.h"
+#include "Engine.h"
 
 gcm::BruteforceCollisionDetector::BruteforceCollisionDetector() {
 	INIT_LOGGER("gcm.BruteforceCollisionDetector");
@@ -54,17 +55,17 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 				// process collisions
 				CalcNode new_node;
 				float direction[3];
-				for(int k = 0; k < local_nodes.size(); k++)
+				for(unsigned int k = 0; k < local_nodes.size(); k++)
 				{
 					if( k % 1000 == 0 )
 						LOG_DEBUG("Nodes processed: " << k);
-					for(int l = 0; l < local_faces.size(); l++)
+					for(unsigned int l = 0; l < local_faces.size(); l++)
 					{
 						bool intersection_found = false;
 						// Check axis directions
 						for( int m = 0; m < 3; m++)
 						{
-							mesh1->find_border_node_normal(local_nodes[k].number, 
+							mesh1->findBorderNodeNormal(local_nodes[k].number, 
 									&direction[0], &direction[1], &direction[2], false);
 							
 							if( direction[m] > 0 )

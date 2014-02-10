@@ -1,9 +1,10 @@
 #ifndef GCM_DUMMY_RHEOLOGY_CALCULATOR_H_
 #define GCM_DUMMY_RHEOLOGY_CALCULATOR_H_
 
-#include "RheologyCalculator.h"
 #include <string>
-#include "../Logging.h"
+
+#include "rheology/RheologyCalculator.h"
+#include "Logging.h"
 
 using namespace std;
 
@@ -13,7 +14,6 @@ namespace gcm {
 	class DummyRheologyCalculator : public RheologyCalculator {
 	public:
 		DummyRheologyCalculator();
-		~DummyRheologyCalculator();
 		/*
 		 * Returns rheology calculator type
 		 */

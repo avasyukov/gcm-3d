@@ -1,19 +1,8 @@
-#ifndef GCM_GEO2_MESH_LOADER_H_
-#define GCM_GEO2_MESH_LOADER_H_
+#ifndef GCM_GEO_MESH_LOADER_H_
+#define GCM_GEO_MESH_LOADER_H_
 
 #include <map>
 #include <string>
-
-#include "MeshLoader.h"
-#include "TetrMeshSecondOrder.h"
-#include "../Exception.h"
-#include "../Utils.h"
-#include "../Logging.h"
-#include "../util/formats/MshTetrFileReader.h"
-
-#include "../DummyDispatcher.h"
-#include "../snapshot/VTK2SnapshotWriter.h"
-#include "../util/formats/Vtu2TetrFileReader.h"
 
 #include <gmsh/Gmsh.h>
 #include <gmsh/GModel.h>
@@ -23,27 +12,34 @@
 #include <gmsh/MTriangle.h>
 #include <gmsh/MTetrahedron.h>
 
+#include "mesh/MeshLoader.h"
+#include "mesh/tetr/TetrMeshFirstOrder.h"
+#include "util/formats/MshTetrFileReader.h"
+#include "Exception.h"
+#include "Utils.h"
+#include "Logging.h"
+
+
 using namespace gcm;
 using namespace std;
 
 namespace gcm {
-	class Geo2MeshLoader: public TemplatedMeshLoader<TetrMeshSecondOrder>
+	class GeoMeshLoader: public TemplatedMeshLoader<TetrMeshFirstOrder>
 	{
 	protected:
 		/*
 		 * Loads mesh from using passed configuration
 		 */
-		 void loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher);
+		 void loadMesh(Params params, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher);
 		 void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes);
 		 void createMshFile(Params params);
 		 USE_LOGGER;
 		 bool isMshFileCreated(Params params);
 		 string getMshFileName(string geoFile);
-		 string getVtkFileName(string geoFile);
 		 map<string,bool> createdFiles;
 	public:
-		Geo2MeshLoader();
-		~Geo2MeshLoader();
+		GeoMeshLoader();
+		~GeoMeshLoader();
 		/*
 		 * Returns mesh loader type
 		 */
@@ -52,4 +48,4 @@ namespace gcm {
 	};
 }
 
-#endif /* GCM_GEO2_MESH_LOADER_H_ */
+#endif /* GCM_GEO_MESH_LOADER_H_ */

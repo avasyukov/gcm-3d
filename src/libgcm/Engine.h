@@ -7,21 +7,23 @@
 #include <mpi.h>
 #include <limits>
 
-#include "Logging.h"
-#include "Body.h"
-#include "Interfaces.h"
-#include "mesh/MeshLoader.h"
-#include "snapshot/SnapshotWriter.h"
-#include "Utils.h"
-#include "method/NumericalMethod.h"
 #include "calc/volume/VolumeCalculator.h"
 #include "calc/border/BorderCalculator.h"
 #include "calc/contact/ContactCalculator.h"
+#include "util/forms/PulseForm.h"
+#include "util/areas/BoxArea.h"
+#include "mesh/MeshLoader.h"
+#include "snapshot/SnapshotWriter.h"
+#include "method/NumericalMethod.h"
+// FIXME - do we need it here?
+#include "interpolator/TetrInterpolator.h"
+#include "interpolator/TetrFirstOrderInterpolator.h"
+#include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
+#include "interpolator/LineFirstOrderInterpolator.h"
+//
 #include "rheology/RheologyCalculator.h"
 #include "rheology/DummyRheologyCalculator.h"
 #include "rheology/StdRheologyCalculator.h"
-#include "util/forms/PulseForm.h"
-#include "util/areas/BoxArea.h"
 #include "GCMDispatcher.h"
 #include "DummyDispatcher.h"
 #include "DataBus.h"
@@ -29,11 +31,10 @@
 #include "BorderCondition.h"
 #include "ContactCondition.h"
 #include "CollisionDetector.h"
-
-// FIXME - do we need it here?
-#include "interpolator/TetrInterpolator.h"
-#include "interpolator/TetrFirstOrderInterpolator.h"
-#include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
+#include "Logging.h"
+#include "Body.h"
+#include "Interfaces.h"
+#include "Utils.h"
 
 #define CONTACT_THRESHOLD_BY_AVG_H 0
 #define CONTACT_THRESHOLD_BY_MAX_LT 1
@@ -112,8 +113,8 @@ namespace gcm
 		CollisionDetector* colDet;
 		vector<CalcNode> virtNodes;
 		
-		VTKSnapshotWriter* vtkSnapshotWriter;
-		VTK2SnapshotWriter* vtkDumpWriter;
+		//VTKSnapshotWriter* vtkSnapshotWriter;
+		//VTK2SnapshotWriter* vtkDumpWriter;
 		
 		unsigned char contactThresholdType;
 		float contactThresholdFactor;
@@ -127,6 +128,9 @@ namespace gcm
 		AABB scene;
 		
 		string defaultRheoCalcType;
+
+		float gmshVerbosity = 5.0;
+
 		/*
 		 * Logger.
 		 */
@@ -156,6 +160,7 @@ namespace gcm
 		 */
 		static Engine& getInstance();
 		static void initInstance() { new Engine; }
+		void clear();
 		void cleanUp();
 		/*
 		 * Returns process rank.
@@ -234,6 +239,7 @@ namespace gcm
 		ContactCondition* getContactCondition(unsigned int num);
 		TetrFirstOrderInterpolator* getFirstOrderInterpolator(string type);
 		TetrSecondOrderMinMaxInterpolator* getSecondOrderInterpolator(string type);
+		LineFirstOrderInterpolator* getFirstOrderLineInterpolator(string type);
 		RheologyCalculator* getRheologyCalculator(string type);
 		GCMDispatcher* getDispatcher();
 		
@@ -276,7 +282,7 @@ namespace gcm
 		void transferScene(float x, float y, float z);
 		
 		DataBus* getDataBus();
-		CalcNode* getVirtNode(int i);
+		CalcNode* getVirtNode(unsigned int i);
 
 		FileLookupService& getFileLookupService();
 		void setContactThresholdType(unsigned char type);
@@ -285,6 +291,9 @@ namespace gcm
 		float getContactThresholdFactor();
 		void setCollisionDetectorStatic(bool val);
 		bool isCollisionDetectorStatic();
+
+		float getGmshVerbosity();
+		void setGmshVerbosity(float verbosity);
 	};
 }
 

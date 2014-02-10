@@ -1,8 +1,10 @@
 #ifndef GCM_INTERFACES_H
 #define GCM_INTERFACES_H
 
-#include <mpi.h>
 #include <string>
+
+#include <mpi.h>
+
 #include "Utils.h"
 
 namespace gcm {
@@ -16,6 +18,7 @@ namespace gcm {
 	class RheologyCalculator;
 	class TetrFirstOrderInterpolator;
 	class TetrSecondOrderMinMaxInterpolator;
+	class LineFirstOrderInterpolator;
 	class GCMDispatcher;
 	class Body;
 	class Mesh;
@@ -27,6 +30,7 @@ namespace gcm {
 	 */
 	class IEngine {
 		public:
+			virtual ~IEngine() = 0;
 			virtual NumericalMethod* getNumericalMethod(string type) = 0;
 			virtual VolumeCalculator* getVolumeCalculator(string type) = 0;
 			virtual BorderCalculator* getBorderCalculator(string type) = 0;
@@ -35,6 +39,7 @@ namespace gcm {
 			virtual ContactCondition* getContactCondition(unsigned int num) = 0;
 			virtual TetrFirstOrderInterpolator* getFirstOrderInterpolator(string type) = 0;
 			virtual TetrSecondOrderMinMaxInterpolator* getSecondOrderInterpolator(string type) = 0;
+			virtual LineFirstOrderInterpolator* getFirstOrderLineInterpolator(string type) = 0;
 			virtual RheologyCalculator* getRheologyCalculator(string type) = 0;
 			virtual GCMDispatcher* getDispatcher() = 0;
 			virtual void doNextStep() = 0;
@@ -48,11 +53,14 @@ namespace gcm {
 			virtual void setScene(AABB src) = 0;
 			virtual void transferScene(float x, float y, float z) = 0;
 			virtual FileLookupService& getFileLookupService() = 0;
-			virtual CalcNode* getVirtNode(int i) = 0;
+			virtual CalcNode* getVirtNode(unsigned int i) = 0;
+			virtual float getGmshVerbosity() = 0;
+			virtual void setGmshVerbosity(float verbosity) = 0;
 	};
 
 	class IBody {
 		public:
+			virtual ~IBody() = 0;
 			virtual string getId() = 0;
 			virtual Mesh* getMesh(string id) = 0;
 			virtual IEngine* getEngine() = 0;

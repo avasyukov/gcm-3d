@@ -10,8 +10,7 @@ namespace gcm {
 	
 	class RheologyCalculator {
 	public:
-		RheologyCalculator();
-		~RheologyCalculator();
+		virtual ~RheologyCalculator() = 0;
 		/*
 		 * Returns snapshot writer type
 		 */

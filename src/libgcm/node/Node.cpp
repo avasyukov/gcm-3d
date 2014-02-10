@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "node/Node.h"
 
 gcm::Node::Node() {
 	//std::cout << "Empty constructor called\n";

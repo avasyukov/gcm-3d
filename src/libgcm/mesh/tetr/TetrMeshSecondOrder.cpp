@@ -1,9 +1,11 @@
-#include "TetrMeshSecondOrder.h"
-#include "../node/CalcNode.h"
+#include "mesh/tetr/TetrMeshSecondOrder.h"
+
+#include "node/CalcNode.h"
 
 gcm::TetrMeshSecondOrder::TetrMeshSecondOrder() {
 	secondOrderNodesAreGenerated = false;
 	numericalMethodOrder = 2;
+	dumpWriterType = "VTK2SnapshotWriter";
 	INIT_LOGGER("gcm.TetrMeshSecondOrder");
 }
 
@@ -24,7 +26,7 @@ void gcm::TetrMeshSecondOrder::createTriangles(int number) {
 	faceStorageSize = number;
 }
 
-TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetr(int index) {
+TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetr(unsigned int index) {
 	assert( index >= 0 );
 	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
@@ -38,7 +40,7 @@ TetrSecondOrder* gcm::TetrMeshSecondOrder::getTetr2(int index) {
 	return ( itr != tetrsMap.end() ? &tetrs2[itr->second] : NULL );
 }
 
-TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetrByLocalIndex(int index) {
+TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetrByLocalIndex(unsigned int index) {
 	assert( index >= 0 );
 	return &tetrs2[index];
 }
@@ -137,15 +139,12 @@ void gcm::TetrMeshSecondOrder::copyMesh2(TetrMeshSecondOrder* src)
 	}
 }
 
-void gcm::TetrMeshSecondOrder::preProcess()
+void gcm::TetrMeshSecondOrder::preProcessGeometry()
 {
 	LOG_DEBUG("Preprocessing second order mesh started");
 	
-	initNewNodes();
-	create_outline();
-	calc_min_h();
-	calc_max_h();
-	calc_avg_h();
+	calcMaxH();
+	calcAvgH();
 	mesh_min_h *= 0.5;
 	mesh_max_h *= 0.5;
 	mesh_avg_h *= 0.5;
@@ -168,8 +167,6 @@ void gcm::TetrMeshSecondOrder::preProcess()
 	check_numbering();
 	check_outer_normals();
 	LOG_DEBUG("Preprocessing mesh done.");
-	
-	logMeshStats();
 }
 
 void gcm::TetrMeshSecondOrder::verifyTetrahedraVertices ()
@@ -442,10 +439,10 @@ void gcm::TetrMeshSecondOrder::build_surface_reverse_lookups()
 	}
 }
 
-void gcm::TetrMeshSecondOrder::move_coords(float tau)
+void gcm::TetrMeshSecondOrder::moveCoords(float tau)
 {
 	// Move first order nodes
-	gcm::TetrMeshFirstOrder::move_coords(tau);
+	gcm::TetrMeshFirstOrder::moveCoords(tau);
 	mesh_min_h *= 0.5;
 	
 	// Move second order nodes
@@ -652,4 +649,24 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 	LOG_DEBUG( "Total number of nodes: " << nodesNumber );
 
 	secondOrderNodesAreGenerated = true;
+}
+
+void gcm::TetrMeshSecondOrder::interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes)
+{
+	assert( tetrInd >= 0 );
+	IEngine* engine = getBody()->getEngine();
+
+	TetrSecondOrder* tmp_tetr = getTetr2( tetrInd );
+	engine->getSecondOrderInterpolator("TetrSecondOrderMinMaxInterpolator")->interpolate(
+			&previous_nodes[prevNodeInd],
+			(CalcNode*) getNode( tmp_tetr->verts[0] ),
+			(CalcNode*) getNode( tmp_tetr->verts[1] ),
+			(CalcNode*) getNode( tmp_tetr->verts[2] ),
+			(CalcNode*) getNode( tmp_tetr->verts[3] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[0] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[1] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[2] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[3] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[4] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[5] ) );
 }
