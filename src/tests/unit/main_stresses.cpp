@@ -1,4 +1,5 @@
 #include <time.h>
+
 #include <gtest/gtest.h>
 
 #include "node/CalcNode.h"
@@ -17,13 +18,13 @@ TEST(MainStresses, FuzzCalculate) {
 
 		float s[3];
 		node.clearState();
-		node.getMainStressComponents(s[1], s[2], s[3]);
+		node.getMainStressComponents(s[0], s[1], s[2]);
 
 		float err = 0.01 * node.getJ1();
 
 		EXPECT_NEAR(node.getJ1(), -3*node.getPressure(), err);
-		EXPECT_NEAR(node.getJ1(), s[1] + s[2] + s[3], err);
-		EXPECT_NEAR(node.getJ2(), s[1]*s[2] + s[1]*s[3] + s[2]*s[3], err);
-		EXPECT_NEAR(node.getJ3(), s[1]*s[2]*s[3], err);
+		EXPECT_NEAR(node.getJ1(), s[0] + s[1] + s[2], err);
+		EXPECT_NEAR(node.getJ2(), s[0]*s[1] + s[0]*s[2] + s[1]*s[2], err);
+		EXPECT_NEAR(node.getJ3(), s[0]*s[1]*s[2], err);
 	}
 }

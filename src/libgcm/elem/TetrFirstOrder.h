@@ -2,6 +2,7 @@
 #define GCM_TETR_H_
 
 #include <iostream>
+
 using namespace std;
 
 namespace gcm {

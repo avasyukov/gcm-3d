@@ -3,19 +3,22 @@
 
 #include <unordered_map>
 #include <algorithm>
+
 #include <gsl/gsl_linalg.h>
-#include "TetrMesh.h"
-#include "../../elem/TetrFirstOrder.h"
-#include "../../elem/TriangleFirstOrder.h"
-#include "../../Logging.h"
-#include "../../Exception.h"
-#include "../../Math.h"
-#include "../../util/AABB.h"
-#include "../../method/NumericalMethod.h"
+
+#include "mesh/tetr/TetrMesh.h"
+#include "elem/TetrFirstOrder.h"
+#include "elem/TriangleFirstOrder.h"
+#include "util/AABB.h"
+#include "method/NumericalMethod.h"
+#include "Logging.h"
+#include "Exception.h"
+#include "Math.h"
 
 using namespace gcm;
+using namespace std;
 
-#define MapIter unordered_map<int, int>::const_iterator
+typedef unordered_map<int, int>::const_iterator MapIter;
 
 namespace gcm
 {
@@ -114,9 +117,9 @@ namespace gcm
 		/*
 		 * Returns tetr by its index.
 		 */
-		TetrFirstOrder* getTetr(int index);
+		TetrFirstOrder* getTetr(unsigned int index);
 		
-		TetrFirstOrder* getTetrByLocalIndex(int index);
+		TetrFirstOrder* getTetrByLocalIndex(unsigned int index);
 		
 		TriangleFirstOrder* getTriangle(int index);
 		// FIXME should two functions belowe be moved outside this class?
@@ -144,6 +147,15 @@ namespace gcm
 		void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug);
 		void checkTopology(float tau);
 		void interpolate(CalcNode* node, TetrFirstOrder* tetr);
+		int prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
+														float time_step, int stage,
+														float* dksi, bool* inner, CalcNode* previous_nodes,
+														float* outer_normal, int* ppoint_num);
+		int find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage,
+														float dksi[], bool inner[], CalcNode previous_nodes[],
+														float outer_normal[], int ppoint_num[]);
+
+		void interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes);
 	};
 }
 #endif

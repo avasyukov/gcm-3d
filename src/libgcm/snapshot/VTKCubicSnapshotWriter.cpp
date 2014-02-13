@@ -1,4 +1,4 @@
-#include "VTKCubicSnapshotWriter.h"
+#include "snapshot/VTKCubicSnapshotWriter.h"
 
 gcm::VTKCubicSnapshotWriter::VTKCubicSnapshotWriter() {
 	INIT_LOGGER("gcm.VTKCubicSnapshotWriter");
@@ -8,10 +8,6 @@ gcm::VTKCubicSnapshotWriter::VTKCubicSnapshotWriter() {
 gcm::VTKCubicSnapshotWriter::VTKCubicSnapshotWriter(const char* snapName) {
 	INIT_LOGGER("gcm.VTKCubicSnapshotWriter");
 	fname = string (snapName);
-}
-
-gcm::VTKCubicSnapshotWriter::~VTKCubicSnapshotWriter() {
-	
 }
 
 string gcm::VTKCubicSnapshotWriter::getType() {

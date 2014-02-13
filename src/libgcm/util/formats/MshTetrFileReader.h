@@ -8,10 +8,11 @@
 #ifndef GCM_MSH_FILE_READER_H
 #define	GCM_MSH_FILE_READER_H
 
-#include "../../Logging.h"
 #include <string>
 #include <fstream>
 #include <limits>
+
+#include "Logging.h"
 
 using namespace std;
 

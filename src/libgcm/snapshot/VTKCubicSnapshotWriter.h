@@ -2,12 +2,14 @@
 #define GCM_VTKCUBICSNAPSHOTWRITER_H_
 
 #include <string>
-#include "SnapshotWriter.h"
-#include "../mesh/cube/BasicCubicMesh.h"
-#include "../Utils.h"
-#include "../node/CalcNode.h"
-#include "../Logging.h"
 
+#include "snapshot/SnapshotWriter.h"
+#include "mesh/cube/BasicCubicMesh.h"
+#include "node/CalcNode.h"
+#include "Logging.h"
+#include "Utils.h"
+
+#include <vtkstd/string>
 #include <vtkStructuredGrid.h>
 #include <vtkXMLStructuredGridWriter.h>
 #include <vtkSmartPointer.h>
@@ -16,7 +18,6 @@
 #include <vtkDoubleArray.h>
 #include <vtkIntArray.h>
 #include <vtkPointData.h>
-#include <vtkstd/string>
 
 namespace gcm {
 	class VTKCubicSnapshotWriter : public SnapshotWriter {
@@ -26,7 +27,6 @@ namespace gcm {
 	public:
 		VTKCubicSnapshotWriter();
 		VTKCubicSnapshotWriter(const char *snapName);
-		~VTKCubicSnapshotWriter();
 		/*
 		 * Returns snapshot writer type
 		 */

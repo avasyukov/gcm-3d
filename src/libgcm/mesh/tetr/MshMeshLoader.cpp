@@ -1,4 +1,4 @@
-#include "MshMeshLoader.h"
+#include "mesh/tetr/MshMeshLoader.h"
 
 string gcm::MshMeshLoader::getType(){
 	return "msh";

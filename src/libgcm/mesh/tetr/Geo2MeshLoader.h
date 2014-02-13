@@ -4,16 +4,17 @@
 #include <map>
 #include <string>
 
-#include "../MeshLoader.h"
-#include "TetrMeshSecondOrder.h"
-#include "../../Exception.h"
-#include "../../Utils.h"
-#include "../../Logging.h"
-#include "../../util/formats/MshTetrFileReader.h"
+#include "mesh/MeshLoader.h"
+#include "mesh/tetr/TetrMeshSecondOrder.h"
+#include "util/formats/MshTetrFileReader.h"
+#include "util/formats/Vtu2TetrFileReader.h"
+#include "snapshot/VTK2SnapshotWriter.h"
+#include "Exception.h"
+#include "Utils.h"
+#include "Logging.h"
+#include "DummyDispatcher.h"
 
-#include "../../DummyDispatcher.h"
-#include "../../snapshot/VTK2SnapshotWriter.h"
-#include "../../util/formats/Vtu2TetrFileReader.h"
+
 
 #include <gmsh/Gmsh.h>
 #include <gmsh/GModel.h>

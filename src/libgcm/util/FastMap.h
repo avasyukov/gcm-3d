@@ -1,6 +1,6 @@
+#include <sys/time.h>
 #include <cmath>
 #include <ctime>
-#include <sys/time.h>
 #include <stdlib.h>
 #include <vector>
 #include <stdexcept>

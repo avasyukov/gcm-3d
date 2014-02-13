@@ -1,7 +1,7 @@
 #ifndef GCM_DUMMY_METHOD_H
 #define	GCM_DUMMY_METHOD_H
 
-#include "NumericalMethod.h"
+#include "method/NumericalMethod.h"
 
 namespace gcm {
 	/*
@@ -13,10 +13,6 @@ namespace gcm {
 		 * Constructor
 		 */
 		DummyMethod();
-		/*
-		 * Destructor
-		 */
-		~DummyMethod();
 		/*
 		 * Returns number of stages (part steps) this particular method requires
 		 */

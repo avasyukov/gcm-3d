@@ -1,4 +1,4 @@
-#include "SphereArea.h"
+#include "util/areas/SphereArea.h"
 
 SphereArea::SphereArea( float _radius, float x, float y, float z )
 {
@@ -7,8 +7,6 @@ SphereArea::SphereArea( float _radius, float x, float y, float z )
 	center[1] = y;
 	center[2] = z;
 };
-
-SphereArea::~SphereArea() { };
 
 bool SphereArea::isInArea( Node* cur_node )
 {

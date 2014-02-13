@@ -1,13 +1,10 @@
-#include "DummyMethod.h"
-#include "../node/CalcNode.h"
+#include "method/DummyMethod.h"
+
+#include "node/CalcNode.h"
 
 gcm::DummyMethod::DummyMethod()
 {
 	INIT_LOGGER("gcm.method.DummyMethod");
-}
-
-gcm::DummyMethod::~DummyMethod()
-{
 }
 
 string gcm::DummyMethod::getType()

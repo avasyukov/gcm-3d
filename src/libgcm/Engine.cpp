@@ -1,4 +1,5 @@
 #include "Engine.h"
+
 #include "mesh/tetr/MshMeshLoader.h"
 #include "mesh/tetr/Msh2MeshLoader.h"
 #include "mesh/tetr/GeoMeshLoader.h"
@@ -9,7 +10,6 @@
 #include "mesh/cube/BasicCubicMeshGenerator.h"
 #include "method/DummyMethod.h"
 #include "method/InterpolationFixedAxis.h"
-#include "method/BasicRectMethod.h"
 #include "calc/volume/SimpleVolumeCalculator.h"
 #include "calc/border/FreeBorderCalculator.h"
 #include "calc/border/SmoothBorderCalculator.h"
@@ -20,9 +20,9 @@
 #include "snapshot/VTKSnapshotWriter.h"
 #include "snapshot/VTK2SnapshotWriter.h"
 #include "snapshot/VTKCubicSnapshotWriter.h"
-#include "BruteforceCollisionDetector.h"
 #include "rheology/DummyRheologyCalculator.h"
 #include "rheology/StdRheologyCalculator.h"
+#include "BruteforceCollisionDetector.h"
 
 // initialiaze static fields
 int gcm::Engine::enginesNumber = 0;
@@ -66,7 +66,6 @@ gcm::Engine::Engine()
 	LOG_DEBUG("Registering default methods");
 	registerNumericalMethod( new DummyMethod() );
 	registerNumericalMethod( new InterpolationFixedAxis() );
-	registerNumericalMethod( new BasicRectMethod() );
 	LOG_DEBUG("Registering default interpolators");
 	registerInterpolator( new TetrFirstOrderInterpolator() );
 	registerInterpolator( new TetrSecondOrderMinMaxInterpolator() );
@@ -117,11 +116,18 @@ gcm::Engine::~Engine()
 	LOG_INFO("GCM engine destroyed");
 }
 
-void gcm::Engine::cleanUp()
-{
+void gcm::Engine::clear() {
 	// clear memory
 	for(auto& b: bodies)
 		delete b;
+	bodies.clear();
+	for (auto& ml: meshLoaders)
+		ml.second->cleanUp();
+}
+
+void gcm::Engine::cleanUp()
+{
+	clear();
 	for(auto& ml: meshLoaders)
 	{
 		(ml.second)->cleanUp();
@@ -398,7 +404,7 @@ void gcm::Engine::addBody(Body* body)
 	bodies.push_back(body);
 }
 
-CalcNode* gcm::Engine::getVirtNode(int i)
+CalcNode* gcm::Engine::getVirtNode(unsigned int i)
 {
 	assert( i >=0 && i < virtNodes.size() );
 	return &virtNodes[i];
@@ -722,4 +728,12 @@ void gcm::Engine::setCollisionDetectorStatic(bool val)
 bool gcm::Engine::isCollisionDetectorStatic()
 {
 	return colDet->is_static();
+}
+
+float gcm::Engine::getGmshVerbosity() {
+	return gmshVerbosity;
+}
+
+void gcm::Engine::setGmshVerbosity(float verbosity) {
+	gmshVerbosity = verbosity;
 }

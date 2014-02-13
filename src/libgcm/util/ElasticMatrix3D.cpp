@@ -1,4 +1,4 @@
-#include "ElasticMatrix3D.h"
+#include "util/ElasticMatrix3D.h"
 
 gcm::ElasticMatrix3D::ElasticMatrix3D()
 {

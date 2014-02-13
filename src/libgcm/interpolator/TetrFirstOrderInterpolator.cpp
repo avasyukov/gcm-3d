@@ -4,9 +4,9 @@
  * 
  * Created on May 3, 2013, 12:13 AM
  */
+#include "interpolator/TetrFirstOrderInterpolator.h"
 
-#include "TetrFirstOrderInterpolator.h"
-#include "../node/CalcNode.h"
+#include "node/CalcNode.h"
 
 gcm::TetrFirstOrderInterpolator::TetrFirstOrderInterpolator() {
 	type = "TetrFirstOrderInterpolator";

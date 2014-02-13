@@ -1,4 +1,4 @@
-#include "matrixes.h"
+#include "util/matrixes.h"
 
 gcm::gcm_matrix::gcm_matrix() { };
 gcm::gcm_matrix::~gcm_matrix() { };

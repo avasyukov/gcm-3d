@@ -1,4 +1,4 @@
-#include "GeoMeshLoader.h"
+#include "mesh/tetr/GeoMeshLoader.h"
 
 string gcm::GeoMeshLoader::getType(){
 	return "geo";
@@ -51,6 +51,7 @@ void gcm::GeoMeshLoader::createMshFile(Params params)
 	LOG_DEBUG("loadGeoScriptFile (" << engine->getFileLookupService().lookupFile(params[PARAM_FILE])
 									<< "): will mesh with H = " << tetrSize);
 	GmshSetOption ("General", "Terminal", 1.0);
+	GmshSetOption ("General", "Verbosity", engine->getGmshVerbosity());
 	GmshSetOption ("Mesh", "CharacteristicLengthMin", tetrSize);
 	GmshSetOption ("Mesh", "CharacteristicLengthMax", tetrSize);
 	GmshSetOption ("Mesh", "Optimize", 1.0);

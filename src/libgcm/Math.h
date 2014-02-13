@@ -12,8 +12,9 @@
 #include <string>
 #include <string.h>
 #include <cmath>
-#include "Math.h"
 #include <limits>
+
+#include "Math.h"
 #include "Exception.h"
 #include "Logging.h"
 

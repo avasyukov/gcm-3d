@@ -1,5 +1,6 @@
-#include "ExternalForceCalculator.h"
-#include "../../node/CalcNode.h"
+#include "calc/border/ExternalForceCalculator.h"
+
+#include "node/CalcNode.h"
 
 ExternalForceCalculator::ExternalForceCalculator()
 {

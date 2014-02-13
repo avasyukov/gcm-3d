@@ -1,4 +1,4 @@
-#include "BoxArea.h"
+#include "util/areas/BoxArea.h"
 
 BoxArea::BoxArea( float _minX, float _maxX, float _minY, float _maxY, float _minZ, float _maxZ )
 {
@@ -10,7 +10,9 @@ BoxArea::BoxArea( float _minX, float _maxX, float _minY, float _maxY, float _min
 	maxZ = _maxZ;
 };
 
-BoxArea::~BoxArea() { };
+BoxArea::~BoxArea() {
+
+}
 
 bool BoxArea::isInArea( Node* cur_node )
 {

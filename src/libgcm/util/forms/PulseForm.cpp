@@ -1,6 +1,7 @@
-#include "PulseForm.h"
+#include "util/forms/PulseForm.h"
 
 #include <iostream>
+
 using namespace std;
 
 PulseForm::PulseForm(float _startTime, float _duration)
@@ -9,7 +10,9 @@ PulseForm::PulseForm(float _startTime, float _duration)
 	duration = _duration;
 };
 
-PulseForm::~PulseForm() { };
+PulseForm::~PulseForm() {
+
+}
 
 bool PulseForm::isActive(float time)
 {

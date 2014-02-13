@@ -1,8 +1,9 @@
 #ifndef _GCM_CONTACT_ADHESION_CALCULATOR_H
 #define _GCM_CONTACT_ADHESION_CALCULATOR_H  1
 
-#include "ContactCalculator.h"
 #include <gsl/gsl_linalg.h>
+
+#include "calc/contact/ContactCalculator.h"
 
 class AdhesionContactCalculator : public ContactCalculator
 {

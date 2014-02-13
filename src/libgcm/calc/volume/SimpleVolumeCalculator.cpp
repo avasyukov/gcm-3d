@@ -1,11 +1,10 @@
-#include "SimpleVolumeCalculator.h"
-#include "../../node/CalcNode.h"
+#include "calc/volume/SimpleVolumeCalculator.h"
+
+#include "node/CalcNode.h"
 
 SimpleVolumeCalculator::SimpleVolumeCalculator() {
 	INIT_LOGGER("gcm.SimpleVolumeCalculator");
 };
-
-SimpleVolumeCalculator::~SimpleVolumeCalculator() { };
 
 void SimpleVolumeCalculator::do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[])
 {

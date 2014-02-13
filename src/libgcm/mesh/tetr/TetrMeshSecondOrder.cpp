@@ -1,5 +1,6 @@
-#include "TetrMeshSecondOrder.h"
-#include "../../node/CalcNode.h"
+#include "mesh/tetr/TetrMeshSecondOrder.h"
+
+#include "node/CalcNode.h"
 
 gcm::TetrMeshSecondOrder::TetrMeshSecondOrder() {
 	secondOrderNodesAreGenerated = false;
@@ -25,7 +26,7 @@ void gcm::TetrMeshSecondOrder::createTriangles(int number) {
 	faceStorageSize = number;
 }
 
-TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetr(int index) {
+TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetr(unsigned int index) {
 	assert( index >= 0 );
 	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
@@ -39,7 +40,7 @@ TetrSecondOrder* gcm::TetrMeshSecondOrder::getTetr2(int index) {
 	return ( itr != tetrsMap.end() ? &tetrs2[itr->second] : NULL );
 }
 
-TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetrByLocalIndex(int index) {
+TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetrByLocalIndex(unsigned int index) {
 	assert( index >= 0 );
 	return &tetrs2[index];
 }
@@ -648,4 +649,24 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 	LOG_DEBUG( "Total number of nodes: " << nodesNumber );
 
 	secondOrderNodesAreGenerated = true;
+}
+
+void gcm::TetrMeshSecondOrder::interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes)
+{
+	assert( tetrInd >= 0 );
+	IEngine* engine = getBody()->getEngine();
+
+	TetrSecondOrder* tmp_tetr = getTetr2( tetrInd );
+	engine->getSecondOrderInterpolator("TetrSecondOrderMinMaxInterpolator")->interpolate(
+			&previous_nodes[prevNodeInd],
+			(CalcNode*) getNode( tmp_tetr->verts[0] ),
+			(CalcNode*) getNode( tmp_tetr->verts[1] ),
+			(CalcNode*) getNode( tmp_tetr->verts[2] ),
+			(CalcNode*) getNode( tmp_tetr->verts[3] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[0] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[1] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[2] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[3] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[4] ),
+			(CalcNode*) getNode( tmp_tetr->addVerts[5] ) );
 }

@@ -9,9 +9,10 @@
 #define	GCM_TETR_SECOND_ORDER_MINMAX_INTERPOLATOR_H
 
 #include <string>
-#include "../Math.h"
-#include "../Logging.h"
-#include "TetrInterpolator.h"
+
+#include "Math.h"
+#include "Logging.h"
+#include "interpolator/TetrInterpolator.h"
 
 using namespace std;
 using namespace gcm;

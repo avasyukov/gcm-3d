@@ -2,8 +2,9 @@
 #define _GCM_ELASTIC_MATRIX_3D_H  1
 
 #include <assert.h>
-#include "matrixes.h"
-#include "../Exception.h"
+
+#include "util/matrixes.h"
+#include "Exception.h"
 
 using namespace gcm;
 

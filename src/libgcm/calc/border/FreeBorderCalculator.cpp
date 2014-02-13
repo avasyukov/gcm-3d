@@ -1,5 +1,6 @@
-#include "FreeBorderCalculator.h"
-#include "../../node/CalcNode.h"
+#include "calc/border/FreeBorderCalculator.h"
+
+#include "node/CalcNode.h"
 
 FreeBorderCalculator::FreeBorderCalculator()
 {

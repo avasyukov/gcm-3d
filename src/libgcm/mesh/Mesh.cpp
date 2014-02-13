@@ -1,5 +1,6 @@
-#include "Mesh.h"
-#include "../node/CalcNode.h"
+#include "mesh/Mesh.h"
+
+#include "node/CalcNode.h"
 
 gcm::Mesh::Mesh()
 {
@@ -391,10 +392,11 @@ int gcm::Mesh::getNodesNumber()
 int gcm::Mesh::getNumberOfLocalNodes()
 {
 	int num = 0;
-	CalcNode* node;
+	// CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
+		// FIXME this code seems to be dead
+		// node = getNodeByLocalIndex(i);
 		if( getNode(i)->isLocal() )
 			num++;
 	}
@@ -423,7 +425,7 @@ CalcNode* gcm::Mesh::getNewNode(int index) {
 	return ( itr != nodesMap.end() ? &new_nodes[itr->second] : NULL );
 }
 
-CalcNode* gcm::Mesh::getNodeByLocalIndex(int index) {
+CalcNode* gcm::Mesh::getNodeByLocalIndex(unsigned int index) {
 	assert( index >= 0 && index < nodes.size() );
 	return &nodes[index];
 }

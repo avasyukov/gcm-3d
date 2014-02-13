@@ -1,4 +1,4 @@
-#include "Interpolator.h"
+#include "interpolator/Interpolator.h"
 
 gcm::Interpolator::Interpolator() {
 	type = "Interpolator";

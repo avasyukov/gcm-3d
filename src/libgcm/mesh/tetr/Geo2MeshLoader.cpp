@@ -1,4 +1,4 @@
-#include "Geo2MeshLoader.h"
+#include "mesh/tetr/Geo2MeshLoader.h"
 
 string gcm::Geo2MeshLoader::getType(){
 	return "geo2";
@@ -26,6 +26,7 @@ void gcm::Geo2MeshLoader::cleanUp() {
 		LOG_DEBUG("Deleting generated file: " << getVtkFileName(itr->first));
 		remove( getVtkFileName(itr->first).c_str() );
 	}
+	createdFiles.clear();
 }
 
 string gcm::Geo2MeshLoader::getMshFileName(string geoFile)
@@ -58,6 +59,7 @@ void gcm::Geo2MeshLoader::createMshFile(Params params)
 	float tetrSize = params.count ("tetrSize") > 0 ? atof (params.at ("tetrSize").c_str ()) : 1.0;
 	LOG_DEBUG("loadGeoScriptFile (" << engine->getFileLookupService().lookupFile(params[PARAM_FILE]) << "): will mesh with H = " << tetrSize);
 	GmshSetOption ("General", "Terminal", 1.0);
+	GmshSetOption ("General", "Verbosity", engine->getGmshVerbosity());
 	GmshSetOption ("Mesh", "CharacteristicLengthMin", tetrSize);
 	GmshSetOption ("Mesh", "CharacteristicLengthMax", tetrSize);
 	GmshSetOption ("Mesh", "Optimize", 1.0);

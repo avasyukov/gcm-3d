@@ -1,4 +1,4 @@
-#include "CylinderArea.h"
+#include "util/areas/CylinderArea.h"
 
 CylinderArea::CylinderArea( float _radius, float _bX, float _bY, float _bZ, float _eX, float _eY, float _eZ )
 {
@@ -11,8 +11,6 @@ CylinderArea::CylinderArea( float _radius, float _bX, float _bY, float _bZ, floa
 	end[1] = _eY;
 	end[2] = _eZ;
 };
-
-CylinderArea::~CylinderArea() { };
 
 bool CylinderArea::isInArea( Node* cur_node )
 {
