@@ -1,16 +1,6 @@
-#include <iostream>
-#include <string>
-#include <vector>
-#include <exception>
+#include "launcher/launcher.h"
 
-#include <getopt.h>
-
-#ifdef CONFIG_ENABLE_LOGGING
-#include <log4cxx/propertyconfigurator.h>
-#include <log4cxx/mdc.h>
-#endif
-
-#include <mpi.h>
+#include "xml.h"
 
 #include "util/forms/StepPulseForm.h"
 #include "mesh/Mesh.h"
@@ -19,34 +9,9 @@
 #include "Logging.h"
 #include "ContactCondition.h"
 
-#include "xml.h"
-
-#ifndef CONFIG_SHARE_GCM
-#define CONFIG_SHARE_GCM "/usr/share/gcm3d"
-#endif
-
-using namespace std;
-using namespace gcm;
 using namespace xml;
 
-/*
- * Returns value of named attribute.
- */
-
-string getAttributeByName(AttrList attrs, string name, string defaultValue) {
-	AttrList::iterator iter = attrs.find(name);
-	if (iter != attrs.end())
-		return iter->second;
-	if( defaultValue != "" )
-		return defaultValue;
-	THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list and default value is not provided");
-}
-
-string getAttributeByName(AttrList attrs, string name) {
-	return getAttributeByName(attrs, name, "");
-}
-
-void loadSceneFromFile(Engine& engine, string fileName)
+void launcher::loadSceneFromFile(Engine& engine, string fileName)
 {
 	USE_LOGGER;
 	INIT_LOGGER("gcm.launcher.TaskLoader");
@@ -68,7 +33,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		engine.setNumberOfSnaps(numberOfSnaps);
 		engine.setStepsPerSnap(stepsPerSnap);
 	}
-	
+
 	// reading system properties
 	NodeList defaultContactCalculatorList = rootNode.xpath("/task/system/defaultContactCalculator");
 	if( defaultContactCalculatorList.size() > 1 )
@@ -79,14 +44,14 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		string type = getAttributeByName(defaultContactCalculator.getAttributes(), "type");
 		if( type == "SlidingContactCalculator" )
 		{
-			engine.replaceDefaultContactCondition( new ContactCondition( 
-							NULL, new StepPulseForm(-1, -1), 
+			engine.replaceDefaultContactCondition( new ContactCondition(
+							NULL, new StepPulseForm(-1, -1),
 							engine.getContactCalculator("SlidingContactCalculator") ) );
 		}
 		else if( type == "AdhesionContactCalculator" )
 		{
-			engine.replaceDefaultContactCondition( new ContactCondition( 
-							NULL, new StepPulseForm(-1, -1), 
+			engine.replaceDefaultContactCondition( new ContactCondition(
+							NULL, new StepPulseForm(-1, -1),
 							engine.getContactCalculator("AdhesionContactCalculator") ) );
 		}
 		else if (type == "AdhesionContactDestroyCalculator")
@@ -104,7 +69,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		string type = getAttributeByName(defaultRheoCalculator.getAttributes(), "type");
 		engine.setDefaultRheologyCalculatorType(type);
 	}
-	
+
 	NodeList contactThresholdList = rootNode.xpath("/task/system/contactThreshold");
 	if( contactThresholdList.size() > 1 )
 		THROW_INVALID_INPUT("Config file can contain only one <contactThreshold/> element");
@@ -133,7 +98,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			THROW_INVALID_INPUT("Unknown units of measure for <contactThreshold/>");
 		}
 	}
-	
+
 	NodeList collisionDetectorList = rootNode.xpath("/task/system/collisionDetector");
 	if( collisionDetectorList.size() > 1 )
 		THROW_INVALID_INPUT("Config file can contain only one <collisionDetector/> element");
@@ -150,7 +115,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			engine.setCollisionDetectorStatic(false);
 		}
 	}
-	
+
 	// reading materials
 	NodeList matNodes = rootNode.xpath("/task/materials/material");
 	for(auto& matNode: matNodes)
@@ -172,12 +137,12 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		mat->setAdhesionThreshold(at);
 		engine.addMaterial(mat);
 	}
-	
+
 	AABB globalScene;
-	
+
 	// search for bodies
 	NodeList bodyNodes = rootNode.xpath("/task/bodies/body");
-	
+
 	// prepare basic bodies parameters
 	for(auto& bodyNode: bodyNodes)
 	{
@@ -194,7 +159,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		if (rheologyNodes.size()) {
 			// We can do smth here when we have more than one rheology calculators
 		}
-		
+
 		// preload meshes for dispatcher
 		NodeList meshNodes = bodyNode.getChildrenByName("mesh");
 		for(auto& meshNode: meshNodes)
@@ -202,18 +167,18 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			Params params = Params(meshNode.getAttributes());
 			if (!params.has("type"))
 				THROW_INVALID_INPUT("Mesh type is not specified.");
-			
+
 			MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
 			if (!meshLoader)
 				THROW_INVALID_INPUT("Mesh loader not found.");
-			
+
 			LOG_INFO("Preparing mesh for body '" << id << "'");
-			
+
 			AABB localScene;
 			int slicingDirection;
 			int numberOfNodes;
 			meshLoader->preLoadMesh(params, &localScene, slicingDirection, numberOfNodes);
-			
+
 			// transform meshes
 			NodeList transformNodes = bodyNode.getChildrenByName("transform");
 			for(auto& transformNode: transformNodes)
@@ -229,11 +194,11 @@ void loadSceneFromFile(Engine& engine, string fileName)
 				}
 			}
 			LOG_DEBUG("Mesh preloaded. Mesh size: " << localScene << " Number of nodes: " << numberOfNodes);
-			
+
 			engine.getDispatcher()->addBodyOutline(id, localScene);
 			engine.getDispatcher()->addBodySlicingDirection(id, slicingDirection);
 			engine.getDispatcher()->addBodyNodesNumber(id, numberOfNodes);
-			
+
 			if( isinf(globalScene.maxX) )
 			{
 				globalScene = localScene;
@@ -249,22 +214,22 @@ void loadSceneFromFile(Engine& engine, string fileName)
 				}
 			}
 		}
-		
+
 		// add body to scene
 		engine.addBody(body);
 	}
-	
+
 	engine.setScene(globalScene);
 	LOG_DEBUG("Total scene: " << engine.getScene());
-	
+
 	// run dispatcher
 	engine.getDispatcher()->prepare(engine.getNumberOfWorkers(), &globalScene);
 	engine.getDataBus()->syncOutlines();
 	for( int i = 0; i < engine.getNumberOfWorkers(); i++)
 	{
 		LOG_DEBUG("Area scheduled for worker " << i << ": " << *(engine.getDispatcher()->getOutline(i)));
-	}	
-	
+	}
+
 	// read meshes for all bodies
 	for(auto& bodyNode: bodyNodes)
 	{
@@ -272,7 +237,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 		LOG_DEBUG("Loading meshes for body '" << id << "'");
 		// get body instance
 		Body* body = engine.getBodyById(id);
-		
+
 		// FIXME - WA - we need this to determine isMine() correctly for moved points
 		float dX = 0;
 		float dY = 0;
@@ -289,25 +254,25 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			}
 		}
 		engine.getDispatcher()->setTransferVector(dX, dY, dZ, id);
-		
+
 		// load meshes
 		NodeList meshNodes = bodyNode.getChildrenByName("mesh");
 		for(auto& meshNode: meshNodes)
 		{
 			Params params = Params(meshNode.getAttributes());
 			MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
-			
+
 			LOG_INFO("Loading mesh for body '" << id << "'");
 			// use loader to load mesh
 			Mesh* mesh = meshLoader->load(body, params);
-			
+
 			// attach mesh to body
 			body->attachMesh(mesh);
 			mesh->setBodyNum( engine.getBodyNum(id) );
-			LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  meshLoader->getType() << "' created. " 
+			LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  meshLoader->getType() << "' created. "
 						<< "Number of nodes: " << mesh->getNodesNumber() << ".");
 		}
-		
+
 		// transform meshes
 		NodeList transformNodes = bodyNode.getChildrenByName("transform");
 		for(auto& transformNode: transformNodes)
@@ -322,11 +287,11 @@ void loadSceneFromFile(Engine& engine, string fileName)
 				body->getMeshes()->transfer(x, y, z);
 			}
 		}
-		
+
 		// FIXME - Part of the WA above
 		if( engine.getNumberOfWorkers() != 1 )
 			engine.getDispatcher()->setTransferVector(-dX, -dY, -dZ, id);
-		
+
 		// set material properties
 		NodeList matNodes = bodyNode.getChildrenByName("material");
 		if (matNodes.size() < 1)
@@ -337,7 +302,7 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			// FIXME this code seems to be dead
 			//Material* mat = engine.getMaterial(id);
 			Mesh* mesh = body->getMeshes();
-			
+
 			NodeList areaNodes = matNode.getChildrenByName("area");
 			if (areaNodes.size() == 0)
 			{
@@ -356,8 +321,8 @@ void loadSceneFromFile(Engine& engine, string fileName)
 					float maxY = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxY").c_str() );
 					float minZ = atof( getAttributeByName(areaNodes.front().getAttributes(), "minZ").c_str() );
 					float maxZ = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxZ").c_str() );
-					LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] " 
-										<< "[" << minY << ", " << maxY << "] " 
+					LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] "
+										<< "[" << minY << ", " << maxY << "] "
 										<< "[" << minZ << ", " << maxZ << "]");
 					matArea = new BoxArea(minX, maxX, minY, maxY, minZ, maxZ);
 				} else {
@@ -371,8 +336,8 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			}
 		}
 		LOG_DEBUG("Body '" << id << "' loaded");
-	}	
-	
+	}
+
 	// FIXME - rewrite this indian style code
 	NodeList initialStateNodes = rootNode.xpath("/task/initialState");
 	for(auto& initialStateNode: initialStateNodes)
@@ -400,8 +365,8 @@ void loadSceneFromFile(Engine& engine, string fileName)
 				float maxY = atof( getAttributeByName(areaNodes[node].getAttributes(), "maxY").c_str() );
 				float minZ = atof( getAttributeByName(areaNodes[node].getAttributes(), "minZ").c_str() );
 				float maxZ = atof( getAttributeByName(areaNodes[node].getAttributes(), "maxZ").c_str() );
-				LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] " 
-									<< "[" << minY << ", " << maxY << "] " 
+				LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] "
+									<< "[" << minY << ", " << maxY << "] "
 									<< "[" << minZ << ", " << maxZ << "]");
 				stateArea = new BoxArea(minX, maxX, minY, maxY, minZ, maxZ);
 			} else {
@@ -437,8 +402,8 @@ void loadSceneFromFile(Engine& engine, string fileName)
 			string szz = valuesNodes[node].getAttributes()["szz"];
 			if( !szz.empty() )
 				values[8] = atof( szz.c_str() );
-			LOG_DEBUG("Initial state values: " 
-							<< values[0] << " " << values[1] << " " << values[2] << " " 
+			LOG_DEBUG("Initial state values: "
+							<< values[0] << " " << values[1] << " " << values[2] << " "
 							<< values[3] << " " << values[4] << " " << values[5] << " "
 							<< values[6] << " " << values[7] << " " << values[8] );
 		for( int i = 0; i < engine.getNumberOfBodies(); i++ )
@@ -450,82 +415,3 @@ void loadSceneFromFile(Engine& engine, string fileName)
 	}
 	LOG_DEBUG("Scene loaded");
 }
-
-// This function print usage message
-void print_help(char* binaryName)
-{
-	cout << "\nUsage: " << binaryName << " --task file --data-dir dir\n" 
-		<< "\t--task - xml file with task description\n"
-		<< "\t--data-dir - directory with models specified in task\n";
-};
-
-int main(int argc, char **argv, char **envp)
-{
-	FileLookupService fls;
-	
-	// Parse command line options
-	int c;
-	static struct option long_options[] =
-	{
-		{"task"      , required_argument, 0, 't'},
-		{"data-dir"  , required_argument, 0, 'd'},
-		{"help"      , no_argument      , 0, 'h'},
-		{0           , 0                , 0, 0  }
-	};
-	int option_index = 0;
-	
-	string taskFile;
-	string dataDir;
-	
-	while ((c = getopt_long (argc, argv, "t:d:h:", long_options, &option_index)) != -1)
-	{
-		switch (c)
-		{
-			case 't':
-				taskFile = optarg;
-				break;
-			case 'd':
-				dataDir = optarg;
-				if(dataDir[dataDir.length()-1] == '/')
-					dataDir[dataDir.length()-1] = '\0';
-				break;
-			case 'h':
-				print_help(argv[0]);
-				return 0;
-			case '?':
-				print_help(argv[0]);
-			default:
-				return -1;
-		}
-	}
-
-	USE_AND_INIT_LOGGER("gcm");
-
-	try {
-		fls.addPath(CONFIG_SHARE_GCM);
-		fls.addPath("./src/launcher/");
-
-		#ifdef CONFIG_ENABLE_LOGGING
-		MPI::Init();
-		char pe[5];
-		sprintf(pe, "%d", MPI::COMM_WORLD.Get_rank());
-		log4cxx::MDC::put("PE", pe);
-		log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
-		#endif
-
-		if( taskFile.empty() )
-			THROW_INVALID_ARG("No task file provided");
-		if( dataDir.empty() )
-			dataDir = CONFIG_SHARE_GCM;
-		LOG_INFO("Starting with taskFile '" << taskFile << "' and dataDir '" << dataDir << "'");
-		
-		Engine& engine = Engine::getInstance();
-		engine.getFileLookupService().addPath(dataDir);
-		loadSceneFromFile(engine, taskFile);
-		engine.calculate();
-		engine.cleanUp();
-		
-	} catch (Exception &e) {
-		LOG_FATAL("Exception was thrown: " << e.getMessage() << "\n @" << e.getFile() << ":" << e.getLine() << "\nCall stack: \n"<< e.getCallStack());
-	}
-}	

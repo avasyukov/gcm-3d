@@ -10,10 +10,6 @@ gcm::VTKCubicSnapshotWriter::VTKCubicSnapshotWriter(const char* snapName) {
 	fname = string (snapName);
 }
 
-gcm::VTKCubicSnapshotWriter::~VTKCubicSnapshotWriter() {
-	
-}
-
 string gcm::VTKCubicSnapshotWriter::getType() {
 	return "VTKCubicSnapshotWriter";
 }

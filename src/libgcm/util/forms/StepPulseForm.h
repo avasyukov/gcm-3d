@@ -6,7 +6,7 @@
 class StepPulseForm : public PulseForm
 {
 public:
-	StepPulseForm(float _startTime, float _duration);
+	StepPulseForm(float _startTime, float _duration): PulseForm(_startTime, _duration) {}
 	float calcMagnitudeNorm( float time, float coords[3], Area* area );
 };
 

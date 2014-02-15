@@ -8,7 +8,6 @@ class SimpleVolumeCalculator : public VolumeCalculator
 {
 public:
 	SimpleVolumeCalculator();
-	~SimpleVolumeCalculator();
 	void doCalc(CalcNode& new_node, ElasticMatrix3D& matrix, 
 									vector<CalcNode>& previousNodes);
 	inline string getType() {

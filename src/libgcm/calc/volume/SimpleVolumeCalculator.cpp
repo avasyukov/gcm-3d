@@ -6,8 +6,6 @@ SimpleVolumeCalculator::SimpleVolumeCalculator() {
 	INIT_LOGGER("gcm.SimpleVolumeCalculator");
 };
 
-SimpleVolumeCalculator::~SimpleVolumeCalculator() { };
-
 void SimpleVolumeCalculator::doCalc(CalcNode& new_node, ElasticMatrix3D& matrix, 
 														vector<CalcNode>& previousNodes)
 {

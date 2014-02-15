@@ -17,7 +17,7 @@ namespace gcm
 	class InterpolationFixedAxis : public NumericalMethod {
 	public:
 		InterpolationFixedAxis();
-		~InterpolationFixedAxis();
+		virtual ~InterpolationFixedAxis();
 		int getNumberOfStages();
 		void doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh);
 		float getMaxLambda(CalcNode* node);

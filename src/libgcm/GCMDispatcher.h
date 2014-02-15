@@ -24,7 +24,7 @@ namespace gcm {
 		map<string,int> bodiesNodesNumbers;
 	public:
 		GCMDispatcher();
-		~GCMDispatcher();
+		virtual ~GCMDispatcher() = 0;
 		virtual void setEngine(IEngine* e) = 0;
 		virtual void prepare(int numberOfWorkers, AABB* scene) = 0;
 		virtual int getOwner(float x, float y, float z) = 0;

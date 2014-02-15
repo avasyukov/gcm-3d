@@ -14,7 +14,6 @@ namespace gcm {
 	class StdRheologyCalculator : public RheologyCalculator {
 	public:
 		StdRheologyCalculator();
-		~StdRheologyCalculator();
 		/*
 		 * Returns rheology calculator type
 		 */

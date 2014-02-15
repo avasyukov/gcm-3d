@@ -10,7 +10,9 @@ PulseForm::PulseForm(float _startTime, float _duration)
 	duration = _duration;
 };
 
-PulseForm::~PulseForm() { };
+PulseForm::~PulseForm() {
+
+}
 
 bool PulseForm::isActive(float time)
 {

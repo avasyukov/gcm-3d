@@ -5,13 +5,12 @@ gcm::VTKSnapshotWriter::VTKSnapshotWriter() {
 	fname = string ("snap_mesh_%m_cpu_%z_step_%n.vtu");
 }
 
+gcm::VTKSnapshotWriter::~VTKSnapshotWriter() {
+}
+
 gcm::VTKSnapshotWriter::VTKSnapshotWriter(const char* snapName) {
 	INIT_LOGGER("gcm.VTKSnapshotWriter");
 	fname = string (snapName);
-}
-
-gcm::VTKSnapshotWriter::~VTKSnapshotWriter() {
-	
 }
 
 string gcm::VTKSnapshotWriter::getType() {

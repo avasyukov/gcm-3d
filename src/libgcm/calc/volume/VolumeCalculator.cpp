@@ -8,8 +8,5 @@
 
 #include "node/CalcNode.h"
 
-gcm::VolumeCalculator::VolumeCalculator() {
-}
-
 gcm::VolumeCalculator::~VolumeCalculator() {
 }

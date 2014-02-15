@@ -6,8 +6,8 @@
 class BoxArea : public Area
 {
 public:
-	BoxArea( float _minX, float _maxX, float _minY, float _maxY, float _minZ, float _maxZ );
 	~BoxArea();
+	BoxArea( float _minX, float _maxX, float _minY, float _maxY, float _minZ, float _maxZ );
 	bool isInArea( Node* cur_node );
 private:
 	float minX, maxX;

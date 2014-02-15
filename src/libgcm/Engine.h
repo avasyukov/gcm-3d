@@ -128,6 +128,9 @@ namespace gcm
 		AABB scene;
 		
 		string defaultRheoCalcType;
+
+		float gmshVerbosity = 5.0;
+
 		/*
 		 * Logger.
 		 */
@@ -157,6 +160,7 @@ namespace gcm
 		 */
 		static Engine& getInstance();
 		static void initInstance() { new Engine; }
+		void clear();
 		void cleanUp();
 		/*
 		 * Returns process rank.
@@ -287,6 +291,9 @@ namespace gcm
 		float getContactThresholdFactor();
 		void setCollisionDetectorStatic(bool val);
 		bool isCollisionDetectorStatic();
+
+		float getGmshVerbosity();
+		void setGmshVerbosity(float verbosity);
 	};
 }
 
