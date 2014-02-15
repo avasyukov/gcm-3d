@@ -24,7 +24,7 @@ namespace gcm {
 		/*
 		 * Computes next state (after the next part step) for the given node
 		 */
-		void doNextPartStep(CalcNode* cur_node, CalcNode* new_node, float time_step, int stage, Mesh* mesh);
+		void doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh);
 		/*
 		 * Returns maximum lambda for the given node
 		 */

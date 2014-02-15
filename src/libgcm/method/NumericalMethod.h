@@ -35,7 +35,7 @@ namespace gcm {
 		/*
 		 * Computes next state (after the next part step) for the given node
 		 */
-		virtual void doNextPartStep(CalcNode* cur_node, CalcNode* new_node, float time_step, int stage, Mesh* mesh) = 0;
+		virtual void doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh) = 0;
 		/*
 		 * Returns maximum lambda for the given node
 		 * TODO@avasyukov: Should we replace it with getMaxTimeStep?

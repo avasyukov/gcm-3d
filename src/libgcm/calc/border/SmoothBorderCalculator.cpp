@@ -11,8 +11,12 @@ SmoothBorderCalculator::~SmoothBorderCalculator()
 {
 };
 
-void SmoothBorderCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
+void SmoothBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, ElasticMatrix3D& matrix, 
+							vector<CalcNode>& previousNodes, bool inner[], 
+							float outer_normal[], float scale)
 {
+	assert(previousNodes.size() == 9);
+	
 	LOG_TRACE("Starting calc with SmoothBorderCalculator");
 	
 	int inner_node_num = -1;
@@ -26,7 +30,7 @@ void SmoothBorderCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, Ela
 	assert( outer_count != 3 );
 	
 	for(int j = 0; j < 9; j++)
-		new_node->values[j] = values[inner_node_num][j];
+		new_node.values[j] = previousNodes[inner_node_num].values[j];
 
 	LOG_TRACE("Calc done");
 };

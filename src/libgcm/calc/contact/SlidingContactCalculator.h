@@ -4,6 +4,7 @@
 #include <gsl/gsl_linalg.h>
 
 #include "calc/contact/ContactCalculator.h"
+#include "calc/border/FreeBorderCalculator.h"
 #include "Math.h"
 
 
@@ -12,7 +13,10 @@ class SlidingContactCalculator : public ContactCalculator
 public:
 	SlidingContactCalculator();
 	~SlidingContactCalculator();
-	void do_calc(CalcNode* cur_node, CalcNode* new_node, CalcNode* virt_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[], float scale);
+	void doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node, 
+							ElasticMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[], 
+							ElasticMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[], 
+							float outer_normal[], float scale);
 	inline string getType() {
 		return "SlidingContactCalculator";
 	}
@@ -20,6 +24,7 @@ public:
 protected:
 
 private:
+	FreeBorderCalculator *fbc;
 	// Used for border calculation
 	gsl_matrix *U_gsl;
 	gsl_vector *om_gsl;

@@ -473,7 +473,7 @@ void gcm::Mesh::defaultNextPartStep(float tau, int stage)
 		int i = itr->first;
 		node = getNode(i);
 		if( node->isLocal() && node->isBorder() )
-				method->doNextPartStep( node, getNewNode(i), tau, stage, this );
+				method->doNextPartStep( *node, *getNewNode(i), tau, stage, this );
 	}
 
 	// Inner nodes
@@ -482,7 +482,7 @@ void gcm::Mesh::defaultNextPartStep(float tau, int stage)
 		int i = itr->first;
 		node = getNode(i);
 		if( node->isLocal() && node->isInner() )
-				method->doNextPartStep( node, getNewNode(i), tau, stage, this );
+				method->doNextPartStep( *node, *getNewNode(i), tau, stage, this );
 	}
 
 	// Copy values	

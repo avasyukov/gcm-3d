@@ -14,6 +14,7 @@
 #include "Logging.h"
 #include "Exception.h"
 #include "Math.h"
+#include "interpolator/TetrFirstOrderInterpolator.h"
 
 using namespace gcm;
 using namespace std;
@@ -32,6 +33,9 @@ namespace gcm
 	friend class DataBus;
 	friend class CollisionDetector;
 	friend class BruteforceCollisionDetector;
+	
+	private:
+		TetrFirstOrderInterpolator* interpolator;
 		
 	protected:
 		unordered_map<int, int> tetrsMap;
@@ -147,15 +151,9 @@ namespace gcm
 		void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug);
 		void checkTopology(float tau);
 		void interpolate(CalcNode* node, TetrFirstOrder* tetr);
-		int prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
-														float time_step, int stage,
-														float* dksi, bool* inner, CalcNode* previous_nodes,
-														float* outer_normal, int* ppoint_num);
-		int find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage,
-														float dksi[], bool inner[], CalcNode previous_nodes[],
-														float outer_normal[], int ppoint_num[]);
-
-		void interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes);
+		
+		void interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
+								CalcNode& targetNode, bool& isInnerPoint);
 	};
 }
 #endif

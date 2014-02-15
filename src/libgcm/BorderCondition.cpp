@@ -19,8 +19,10 @@ gcm::BorderCondition::~BorderCondition() {
 	
 }
 
-void gcm::BorderCondition::do_calc(float time, CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[])
+void gcm::BorderCondition::doCalc(float time, CalcNode& cur_node, CalcNode& new_node, ElasticMatrix3D& matrix, 
+							vector<CalcNode>& previousNodes, bool inner[], float outer_normal[])
 {
-	memcpy(new_node->coords, cur_node->coords, 3*sizeof(float) );
-	calc->do_calc(cur_node, new_node, matrix, values, inner, outer_normal, form->calcMagnitudeNorm(time, cur_node->coords, area) );
+	memcpy(new_node.coords, cur_node.coords, 3*sizeof(float) ); // TODO - why is it here?
+	calc->doCalc(cur_node, new_node, matrix, previousNodes, inner, outer_normal, 
+					form->calcMagnitudeNorm(time, cur_node.coords, area) );
 };

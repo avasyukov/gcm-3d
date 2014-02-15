@@ -9,7 +9,8 @@ class SimpleVolumeCalculator : public VolumeCalculator
 public:
 	SimpleVolumeCalculator();
 	~SimpleVolumeCalculator();
-	void do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[]);
+	void doCalc(CalcNode& new_node, ElasticMatrix3D& matrix, 
+									vector<CalcNode>& previousNodes);
 	inline string getType() {
 		return "SimpleVolumeCalculator";
 	}

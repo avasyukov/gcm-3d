@@ -131,6 +131,17 @@ namespace gcm {
 		 */
 		virtual void logMeshStats() = 0;
 		
+		/*
+		 * Interpolates node that is (dx; dy; dz) from 'origin'.
+		 * Returns interpolated results in 'targetNode'.
+		 * Sets 'isInnerPoint' flag. If !isInnerPoint, targetNode is undefined.
+		 */
+		virtual void interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
+								CalcNode& targetNode, bool& isInnerPoint) = 0;
+		
+		virtual void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug) = 0;
+		
+		
 		void snapshot(int number);
 		void dump(int number);
 		
@@ -209,15 +220,6 @@ namespace gcm {
 		float getMaxPossibleTimeStep();
 		
 		void defaultNextPartStep(float tau, int stage);
-
-		virtual int prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
-				float time_step, int stage,
-				float* dksi, bool* inner, CalcNode* previous_nodes,
-				float* outer_normal, int* ppoint_num) = 0;
-		virtual int find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage,
-														float dksi[], bool inner[], CalcNode previous_nodes[],
-														float outer_normal[], int ppoint_num[]) = 0;
-
 	};
 
 	/*

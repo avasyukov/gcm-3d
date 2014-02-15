@@ -5,6 +5,8 @@
 #include "elem/TetrSecondOrder.h"
 #include "elem/TriangleSecondOrder.h"
 
+#include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
+
 using namespace std;
 using namespace gcm;
 
@@ -30,6 +32,8 @@ namespace gcm {
 		bool secondOrderNodesAreGenerated;
 		int firstOrderNodesNumber;
 		int secondOrderNodesNumber;
+		
+		TetrSecondOrderMinMaxInterpolator* interpolator;
 		
 	protected:
 		int countSecondOrderNodes(TetrMeshFirstOrder* src);
@@ -69,7 +73,8 @@ namespace gcm {
 		void preProcessGeometry();
 		void moveCoords(float tau);
 
-		void interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes);
+		void interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
+								CalcNode& targetNode, bool& isInnerPoint);
 	};
 }
 #endif
