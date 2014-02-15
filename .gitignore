@@ -1,5 +1,6 @@
 nbproject/
 *.vtu
+*.vts
 *.msh
 *.cas
 *.pyc
