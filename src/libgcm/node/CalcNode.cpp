@@ -13,8 +13,6 @@ gcm::CalcNode::CalcNode()
 	borderCondId = 1;
 	contactCondId = 0;
 	addOwner( GCM );
-	elements = new vector<int>;
-	border_elements = new vector<int>;
 	crackDirection[0] = crackDirection[1] =	crackDirection[2] = 0.0;
 }
 
@@ -40,12 +38,6 @@ gcm::CalcNode::CalcNode(const CalcNode& src) {
 	errorFlags = src.errorFlags;
 	borderCondId = src.borderCondId;
 	contactCondId = src.contactCondId;
-	elements = new vector<int>;
-	border_elements = new vector<int>;
-	for( unsigned int i = 0; i < src.elements->size(); i++ )
-		elements->push_back( src.elements->at(i) );
-	for( unsigned int i = 0; i < src.border_elements->size(); i++ )
-		border_elements->push_back( src.border_elements->at(i) );
 	memcpy( crackDirection, src.crackDirection, 3*sizeof(float));
 }
 
@@ -64,22 +56,12 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
 	errorFlags = src.errorFlags;
 	borderCondId = src.borderCondId;
 	contactCondId = src.contactCondId;
-	elements->clear();
-	border_elements->clear();
-	for( unsigned int i = 0; i < src.elements->size(); i++ )
-		elements->push_back( src.elements->at(i) );
-	for( unsigned int i = 0; i < src.border_elements->size(); i++ )
-		border_elements->push_back( src.border_elements->at(i) );
 	memcpy( crackDirection, src.crackDirection, 3*sizeof(float));
 	return *this;
 }
 
 gcm::CalcNode::~CalcNode()
 {
-	elements->clear();
-	delete elements;
-	border_elements->clear();
-	delete border_elements;
 }
 
 void gcm::CalcNode::clearState()

@@ -156,13 +156,6 @@ void gcm::TetrMeshSecondOrder::preProcessGeometry()
 	verifyTetrahedraVertices();
 	build_volume_reverse_lookups();
 
-	/*LOG_DEBUG("Nodes map:");
-	for( int i = 0; i < nodesNumber; i++ )
-	{
-		LOG_DEBUG("Node " << i << ": index " << nodesMap[i]);
-		LOG_DEBUG("\t\tElements addr: " << getNode(i).elements );
-	}*/
-	
 	check_unused_nodes();	
 	build_first_order_border();
 	generateSecondOrderBorder();
@@ -203,8 +196,7 @@ void gcm::TetrMeshSecondOrder::build_volume_reverse_lookups()
 	//for(int i = 0; i < nodesNumber; i++) { 
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		CalcNode& node = getNode(i);
-		node.elements->clear();
+		getVolumeElementsForNode(i).clear();
 	}
 
 	// Go through all the tetrahedrons
@@ -218,7 +210,7 @@ void gcm::TetrMeshSecondOrder::build_volume_reverse_lookups()
 			int nodeInd = tetr.verts[j];
 			assert( getNode(nodeInd).isFirstOrder() );
 			// Push to data of nodes the number of this tetrahedron
-			getNode( nodeInd ).elements->push_back( tetr.number );
+			getVolumeElementsForNode(nodeInd).push_back( tetr.number );
 		}
 		for(int j = 0; j < 6; j++)
 		{
@@ -226,13 +218,13 @@ void gcm::TetrMeshSecondOrder::build_volume_reverse_lookups()
 			int nodeInd = tetr2.addVerts[j];
 			assert( getNode(nodeInd).isSecondOrder() );
 			// Push to data of nodes the number of this tetrahedron
-			getNode( nodeInd ).elements->push_back( tetr2.number );
+			getVolumeElementsForNode(nodeInd).push_back( tetr2.number );
 		}
 	}
 	
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		CalcNode& node = getNode(itr->first);
-		int num = node.elements->size();
+		int num = getVolumeElementsForNode(itr->first).size();
 		if( num <= 0 )
 			LOG_DEBUG("Node is not a part of volumes. Node: " << node);
 	}
@@ -258,12 +250,13 @@ void gcm::TetrMeshSecondOrder::build_first_order_border()
 		if( /*node.isLocal() &&*/ node.isFirstOrder() )
 		{
 			solid_angle = 0;
-			for(unsigned j = 0; j < node.elements->size(); j++)
+			vector<int>& elements = getVolumeElementsForNode(i);
+			for(unsigned j = 0; j < elements.size(); j++)
 			{
-				solid_angle_part = get_solid_angle(i, node.elements->at(j));
+				solid_angle_part = get_solid_angle(i, elements[j]);
 				if( solid_angle_part < 0 )
-					for(unsigned z = 0; z < node.elements->size(); z++)
-						LOG_DEBUG("ELement: " << node.elements->at(z));
+					for(unsigned z = 0; z < elements.size(); z++)
+						LOG_DEBUG("Element: " << elements[z]);
 				assert(solid_angle_part >= 0);
 				solid_angle += solid_angle_part;
 			}
@@ -297,6 +290,8 @@ void gcm::TetrMeshSecondOrder::build_first_order_border()
 	LOG_DEBUG("Found " << faceCount << " border triangles");
 	
 	createTriangles(faceCount);
+	
+	LOG_DEBUG("Triangles storage allocated");
 	
 	//for(int i = 0; i < tetrsNumber; i++) {
 	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
@@ -344,12 +339,13 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderBorder()
 			//	debug = true;
 			
 			ind = -1;
-			l = getNode(v1).elements->size();
+			vector<int>& elements = getVolumeElementsForNode(v1);
+			l = elements.size();
 			for( int k = 0; k < l; k++ )
 			{
 				v1pos = -1;
 				v2pos = -1;
-				curTInd = getNode(v1).elements->at(k);
+				curTInd = elements[k];
 				for(int z = 0; z < 4; z++)
 				{
 					if( getTetr(curTInd).verts[z] == v1 )
@@ -403,7 +399,7 @@ void gcm::TetrMeshSecondOrder::build_surface_reverse_lookups()
 	//for(int i = 0; i < nodesNumber; i++) { 
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		getNode(i).border_elements->clear();
+		getBorderElementsForNode(i).clear();
 	}
 
 	// Go through all the triangles and push to data of nodes the number of this triangle
@@ -413,19 +409,19 @@ void gcm::TetrMeshSecondOrder::build_surface_reverse_lookups()
 		{
 			int nodeInd = getTriangle(i).verts[j];
 			assert( getNode(nodeInd).isFirstOrder() );
-			getNode(nodeInd).border_elements->push_back(i);
+			getBorderElementsForNode(nodeInd).push_back(i);
 		}
 		for(int j = 0; j < 3; j++)
 		{
 			int nodeInd = getTriangle2(i).addVerts[j];
 			assert( getNode(nodeInd).isSecondOrder() );
-			getNode(nodeInd).border_elements->push_back(i);
+			getBorderElementsForNode(nodeInd).push_back(i);
 		}
 	}
 	
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		CalcNode& node = getNode(itr->first);
-		int num = node.border_elements->size();
+		int num = getBorderElementsForNode(itr->first).size();
 		if( node.isBorder() && num <= 0 )
 			LOG_DEBUG("Border node is not a part of faces. Node: " << node);
 	}

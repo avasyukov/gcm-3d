@@ -60,6 +60,11 @@ namespace gcm
 		int faceNumber;
 		int faceStorageSize;
 		
+		vector< vector<int> > volumeElements;
+		vector< vector<int> > borderElements;
+		vector<int>& getVolumeElementsForNode(int index);
+		vector<int>& getBorderElementsForNode(int index);
+		
 		void build_surface_reverse_lookups();
 		void build_volume_reverse_lookups();
 		void build_border();

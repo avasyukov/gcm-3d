@@ -138,8 +138,7 @@ void gcm::TetrMeshFirstOrder::build_volume_reverse_lookups()
 	//for(int i = 0; i < nodesNumber; i++) { 
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		CalcNode& node = getNode(i);
-		node.elements->clear();
+		getVolumeElementsForNode(i).clear();
 	}
 
 	// Go through all the tetrahedrons
@@ -153,7 +152,7 @@ void gcm::TetrMeshFirstOrder::build_volume_reverse_lookups()
 			CalcNode& node = getNode( tetr.verts[j] );
 			assert( node.isFirstOrder() );
 			// Push to data of nodes the number of this tetrahedron
-			node.elements->push_back( tetr.number );
+			getVolumeElementsForNode(i).push_back( tetr.number );
 		}
 	}
 }
@@ -204,9 +203,10 @@ void gcm::TetrMeshFirstOrder::build_border()
 		if( /*node.isLocal() &&*/ node.isFirstOrder() )
 		{
 			solid_angle = 0;
-			for(unsigned j = 0; j < node.elements->size(); j++)
+			vector<int>& elements = getVolumeElementsForNode(i);
+			for(unsigned j = 0; j < elements.size(); j++)
 			{
-				solid_angle_part = get_solid_angle(i, node.elements->at(j));
+				solid_angle_part = get_solid_angle(i, elements[j]);
 				assert(solid_angle_part >= 0);
 				solid_angle += solid_angle_part;
 			}
@@ -269,8 +269,7 @@ void gcm::TetrMeshFirstOrder::build_surface_reverse_lookups()
 	//for(int i = 0; i < nodesNumber; i++) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		CalcNode& node = getNode(i);
-		node.border_elements->clear();
+		getBorderElementsForNode(i).clear();
 	}
 
 	// Go through all the triangles and push to data of nodes the number of this triangle
@@ -278,7 +277,11 @@ void gcm::TetrMeshFirstOrder::build_surface_reverse_lookups()
 	{
 		TriangleFirstOrder& tri = getTriangle(i);
 		for(int j = 0; j < 3; j++)
-			getNode( tri.verts[j] ).border_elements->push_back(i);
+		{
+			CalcNode& node = getNode( tri.verts[j] );
+			assert( node.isFirstOrder() );
+			getBorderElementsForNode(i).push_back( i );
+		}
 	}
 }
 
@@ -293,7 +296,7 @@ void gcm::TetrMeshFirstOrder::check_unused_nodes()
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
 		CalcNode& node = getNode(i);
-		if( (node.elements)->size() == 0 )
+		if( getVolumeElementsForNode(i).size() == 0 )
 			node.setUsed(false);
 	}
 
@@ -434,11 +437,6 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 		return false;
 	
 	bool _debug = debug;
-	//if( ( v1 == 0 && v2 == 421 ) || ( v1 == 0 && v3 == 421 ) || ( v2 == 0 && v3 == 421 ) 
-	//		|| ( v2 == 0 && v1 == 421 ) || ( v3 == 0 && v1 == 421 ) || ( v3 == 0 && v2 == 421 ) )
-	//	_debug = true;
-	//if( v1 == 99 && v2 == 119 && v3 == 124 )
-	//	debug = true;
 	
 	float h = getMinH() * 0.25;
 	
@@ -484,8 +482,8 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 		for(int i = 0; i < 3; i++)
 			normal[i] = -normal[i];
 		// And swap verticles order to match new direction
-		v2 = getNode( v[2] );
-		v3 = getNode( v[1] );
+		//v2 = getNode( v[2] );
+		//v3 = getNode( v[1] );
 		*needSwap = true;
 	}
 	
@@ -588,9 +586,11 @@ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, floa
 		return -1;
 	}*/
 	
-	for(unsigned i = 0; i < (node.elements)->size(); i++)
+	vector<int>& elements = getVolumeElementsForNode(node.number);
+	
+	for(unsigned i = 0; i < elements.size(); i++)
 	{
-		TetrFirstOrder& tetr = getTetr((node.elements)->at(i));
+		TetrFirstOrder& tetr = getTetr(elements[i]);
 		if( pointInTetr(x, y, z, 
 				getNode( tetr.verts[0] ).coords, getNode( tetr.verts[1] ).coords,
 				getNode( tetr.verts[2] ).coords, getNode( tetr.verts[3] ).coords, 
@@ -661,8 +661,10 @@ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, floa
 	
 	float local_x, local_y, local_z;
 
-	for(unsigned i = 0; i < (node.elements)->size(); i++)
-		tetrsToCheck.push_back( (node.elements)->at(i) );
+	vector<int>& elements = getVolumeElementsForNode(node.number);
+	
+	for(unsigned i = 0; i < elements.size(); i++)
+		tetrsToCheck.push_back( elements[i] );
 
 	while(inside_R)
 	{
@@ -814,9 +816,10 @@ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, floa
 			for(int j = 0; j < 4; j++)
 			{
 				CalcNode& vertJ = getNode( checkedTetr.verts[j] );
-				for(unsigned k = 0; k < vertJ.elements->size(); k++)
+				vector<int>& elements = getVolumeElementsForNode(vertJ.number);
+				for(unsigned k = 0; k < elements.size(); k++)
 				{
-					nextTetrNum = vertJ.elements->at(k);
+					nextTetrNum = elements[k];
 					if( checkedWithNeigh.find(nextTetrNum) == checkedWithNeigh.end() )
 						tetrsToCheck.push_back(nextTetrNum);
 				}
@@ -848,7 +851,8 @@ void gcm::TetrMeshFirstOrder::findBorderNodeNormal(int border_node_index, float*
 
 	float cur_normal[3];
 
-	int count = node.border_elements->size();
+	vector<int>& borderElements = getBorderElementsForNode(node.number);
+	int count = borderElements.size();
 	int triNumber;
 	
 	float h = mesh_min_h * 0.5;
@@ -862,7 +866,7 @@ void gcm::TetrMeshFirstOrder::findBorderNodeNormal(int border_node_index, float*
 
 	for(int i = 0; i < count; i++)
 	{
-		triNumber = (int) node.border_elements->at(i);
+		triNumber = borderElements[i];
 		find_border_elem_normal( triNumber, &cur_normal[0], &cur_normal[1], &cur_normal[2] );
 		
 		final_normal[0] += cur_normal[0];
@@ -1413,4 +1417,24 @@ void gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& origin, float dx, float 
 	interpolator->interpolate( targetNode,
 			getNode( tmp_tetr.verts[0] ), getNode( tmp_tetr.verts[1] ), 
 			getNode( tmp_tetr.verts[2] ), getNode( tmp_tetr.verts[3] ) );
+}
+
+vector<int>& gcm::TetrMeshFirstOrder::getVolumeElementsForNode(int index)
+{
+	// Get local index
+	unsigned int localIndex = getNodeLocalIndex(index);
+	// Resize on demand
+	if( localIndex >= volumeElements.size() )
+		volumeElements.resize(localIndex + 1);
+	return volumeElements[localIndex];
+}
+
+vector<int>& gcm::TetrMeshFirstOrder::getBorderElementsForNode(int index)
+{
+	// Get local index
+	unsigned int localIndex = getNodeLocalIndex(index);
+	// Resize on demand
+	if( localIndex >= borderElements.size() )
+		borderElements.resize(localIndex + 1);
+	return borderElements[localIndex];
 }
