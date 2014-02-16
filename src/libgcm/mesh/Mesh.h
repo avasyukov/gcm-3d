@@ -152,11 +152,12 @@ namespace gcm {
 		int getNodesNumber();
 		int getNumberOfLocalNodes();
 		void createNodes(int number);
-		CalcNode* getNode(int index);
-		CalcNode* getNewNode(int index);
+		bool hasNode(int index);
+		CalcNode& getNode(int index);
+		CalcNode& getNewNode(int index);
 		int getNodeLocalIndex(int index);
-		CalcNode* getNodeByLocalIndex(unsigned int index);
-		void addNode(CalcNode* node);
+		CalcNode& getNodeByLocalIndex(unsigned int index);
+		void addNode(CalcNode& node);
 		
 		/*
 		 * Sets mesh id.

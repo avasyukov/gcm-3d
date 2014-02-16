@@ -24,7 +24,7 @@ namespace gcm {
 		/*
 		 * Returns maximum lambda for the given node
 		 */
-		float getMaxLambda(CalcNode* node);
+		float getMaxLambda(CalcNode& node);
 		
 		string getType();
 		

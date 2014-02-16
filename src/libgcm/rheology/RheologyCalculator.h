@@ -15,7 +15,7 @@ namespace gcm {
 		 * Returns snapshot writer type
 		 */
 		virtual string getType() = 0;
-		virtual void doCalc(CalcNode* src, CalcNode* dst) = 0;
+		virtual void doCalc(CalcNode& src, CalcNode& dst) = 0;
 	};
 }
 

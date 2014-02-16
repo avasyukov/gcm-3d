@@ -1,6 +1,6 @@
 #include "utils.h"
 
-#include "launcher/launcher.h"
+#include "../launcher/launcher.h"
 
 Engine& loadTaskScenario(std::string taskFile) {
 	Engine& engine = Engine::getInstance();

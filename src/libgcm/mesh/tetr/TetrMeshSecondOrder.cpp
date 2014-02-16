@@ -28,66 +28,68 @@ void gcm::TetrMeshSecondOrder::createTriangles(int number) {
 	faceStorageSize = number;
 }
 
-TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetr(unsigned int index) {
+TetrFirstOrder& gcm::TetrMeshSecondOrder::getTetr(unsigned int index) {
 	assert( index >= 0 );
 	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
-	return ( itr != tetrsMap.end() ? &tetrs2[itr->second] : NULL );
+	assert( itr != tetrsMap.end() );
+	return tetrs2[itr->second];
 }
 
-TetrSecondOrder* gcm::TetrMeshSecondOrder::getTetr2(int index) {
+TetrSecondOrder& gcm::TetrMeshSecondOrder::getTetr2(int index) {
 	assert( index >= 0 );
 	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
-	return ( itr != tetrsMap.end() ? &tetrs2[itr->second] : NULL );
+	assert( itr != tetrsMap.end() );
+	return tetrs2[itr->second];
 }
 
-TetrFirstOrder* gcm::TetrMeshSecondOrder::getTetrByLocalIndex(unsigned int index) {
+TetrFirstOrder& gcm::TetrMeshSecondOrder::getTetrByLocalIndex(unsigned int index) {
 	assert( index >= 0 );
-	return &tetrs2[index];
+	return tetrs2[index];
 }
 
-TetrSecondOrder* gcm::TetrMeshSecondOrder::getTetr2ByLocalIndex(int index) {
+TetrSecondOrder& gcm::TetrMeshSecondOrder::getTetr2ByLocalIndex(int index) {
 	assert( index >= 0 );
-	return &tetrs2[index];
+	return tetrs2[index];
 }
 
 void gcm::TetrMeshSecondOrder::rebuildMaps() {
 	nodesMap.clear();
 	for( int i = 0; i < nodesNumber; i++ )
-		nodesMap[getNodeByLocalIndex(i)->number] = i;
+		nodesMap[getNodeByLocalIndex(i).number] = i;
 	tetrsMap.clear();
 	for( int i = 0; i < tetrsNumber; i++ )
-		tetrsMap[getTetr2ByLocalIndex(i)->number] = i;
+		tetrsMap[getTetr2ByLocalIndex(i).number] = i;
 }
 
-void gcm::TetrMeshSecondOrder::addTetr(TetrFirstOrder* tetr) {
+void gcm::TetrMeshSecondOrder::addTetr(TetrFirstOrder& tetr) {
 	if( tetrsNumber == tetrsStorageSize )
 		createTetrs(tetrsStorageSize*STORAGE_ONDEMAND_GROW_RATE);
 	assert( tetrsNumber < tetrsStorageSize );
-	tetrs2[tetrsNumber].number = tetr->number;
-	memcpy(tetrs2[tetrsNumber].verts, tetr->verts, 4*sizeof(int));
-	tetrsMap[tetr->number] = tetrsNumber;
+	tetrs2[tetrsNumber].number = tetr.number;
+	memcpy(tetrs2[tetrsNumber].verts, tetr.verts, 4*sizeof(int));
+	tetrsMap[tetr.number] = tetrsNumber;
 	tetrsNumber++;
 }
 
-void gcm::TetrMeshSecondOrder::addTetr2(TetrSecondOrder* tetr) {
+void gcm::TetrMeshSecondOrder::addTetr2(TetrSecondOrder& tetr) {
 	if( tetrsNumber == tetrsStorageSize )
 		createTetrs(tetrsStorageSize*STORAGE_ONDEMAND_GROW_RATE);
 	assert( tetrsNumber < tetrsStorageSize );
-	tetrs2[tetrsNumber] = *tetr;
-	tetrsMap[tetr->number] = tetrsNumber;
+	tetrs2[tetrsNumber] = tetr;
+	tetrsMap[tetr.number] = tetrsNumber;
 	tetrsNumber++;
 }
 
-TriangleFirstOrder* gcm::TetrMeshSecondOrder::getTriangle(int index) {
+TriangleFirstOrder& gcm::TetrMeshSecondOrder::getTriangle(int index) {
 	assert( index >= 0 );
-	return &border2[index];
+	return border2[index];
 }
 
-TriangleSecondOrder* gcm::TetrMeshSecondOrder::getTriangle2(int index) {
+TriangleSecondOrder& gcm::TetrMeshSecondOrder::getTriangle2(int index) {
 	assert( index >= 0 );
-	return &border2[index];
+	return border2[index];
 }
 
 void gcm::TetrMeshSecondOrder::copyMesh(TetrMeshFirstOrder* src)
@@ -158,7 +160,7 @@ void gcm::TetrMeshSecondOrder::preProcessGeometry()
 	for( int i = 0; i < nodesNumber; i++ )
 	{
 		LOG_DEBUG("Node " << i << ": index " << nodesMap[i]);
-		LOG_DEBUG("\t\tElements addr: " << getNode(i)->elements );
+		LOG_DEBUG("\t\tElements addr: " << getNode(i).elements );
 	}*/
 	
 	check_unused_nodes();	
@@ -176,19 +178,19 @@ void gcm::TetrMeshSecondOrder::verifyTetrahedraVertices ()
 	LOG_DEBUG ("Verifying second order tetrahedra vertices");
 	for (int tetrInd = 0; tetrInd < tetrsNumber; tetrInd++)
 	{
-		TetrSecondOrder* tetr = getTetr2ByLocalIndex(tetrInd);
+		TetrSecondOrder& tetr = getTetr2ByLocalIndex(tetrInd);
 		for (int vertInd = 0; vertInd < 4; vertInd++)
 		{
-			int nodeNum = tetr->verts[vertInd];
+			int nodeNum = tetr.verts[vertInd];
 			assert( nodeNum >= 0 );
-			assert( getNode( nodeNum )->isFirstOrder() );
+			assert( getNode( nodeNum ).isFirstOrder() );
 		}
 
 		for (int addVertInd = 0; addVertInd < 6; addVertInd++)
 		{
-			int addNodeNum = tetr->addVerts[addVertInd];
+			int addNodeNum = tetr.addVerts[addVertInd];
 			assert( addNodeNum >= 0 );
-			assert( getNode( addNodeNum )->isSecondOrder() );
+			assert( getNode( addNodeNum ).isSecondOrder() );
 		}
 	}
 }
@@ -197,17 +199,12 @@ void gcm::TetrMeshSecondOrder::build_volume_reverse_lookups()
 {
 	LOG_DEBUG("Building volume reverse lookups for second order mesh");
 
-	CalcNode* node;
-	TetrFirstOrder* tetr;
-	TetrSecondOrder* tetr2;
 	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
 	//for(int i = 0; i < nodesNumber; i++) { 
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		node = getNode(i);
-		node->elements->clear();
-		//delete node->elements;
-		//node->elements = new vector<int>;
+		CalcNode& node = getNode(i);
+		node.elements->clear();
 	}
 
 	// Go through all the tetrahedrons
@@ -217,34 +214,28 @@ void gcm::TetrMeshSecondOrder::build_volume_reverse_lookups()
 		// For all verticles
 		for(int j = 0; j < 4; j++)
 		{
-			tetr = getTetr(i);
-			int nodeInd = tetr->verts[j];
-			assert( getNode(nodeInd)->isFirstOrder() );
+			TetrFirstOrder& tetr = getTetr(i);
+			int nodeInd = tetr.verts[j];
+			assert( getNode(nodeInd).isFirstOrder() );
 			// Push to data of nodes the number of this tetrahedron
-			getNode( nodeInd )->elements->push_back( tetr->number );
+			getNode( nodeInd ).elements->push_back( tetr.number );
 		}
 		for(int j = 0; j < 6; j++)
 		{
-			tetr2 = getTetr2(i);
-			int nodeInd = tetr2->addVerts[j];
-			assert( getNode(nodeInd)->isSecondOrder() );
+			TetrSecondOrder& tetr2 = getTetr2(i);
+			int nodeInd = tetr2.addVerts[j];
+			assert( getNode(nodeInd).isSecondOrder() );
 			// Push to data of nodes the number of this tetrahedron
-			getNode( nodeInd )->elements->push_back( tetr2->number );
+			getNode( nodeInd ).elements->push_back( tetr2.number );
 		}
 	}
 	
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
-		CalcNode* node = getNode(itr->first);
-		int num = node->elements->size();
+		CalcNode& node = getNode(itr->first);
+		int num = node.elements->size();
 		if( num <= 0 )
-			LOG_DEBUG("Node is not a part of volumes. Node: " << *node);
+			LOG_DEBUG("Node is not a part of volumes. Node: " << node);
 	}
-	/*for(int i = 0; i < nodesNumber; i++)
-	{
-		//LOG_DEBUG("VRL size for node " << getNode(i)->number << ": " << getNode(i)->elements->size());
-		if( getNode(i)->elements->size() > 25 )
-			LOG_DEBUG("Issue with node " << getNode(i)->number);
-	}*/
 }
 
 void gcm::TetrMeshSecondOrder::build_first_order_border()
@@ -259,26 +250,25 @@ void gcm::TetrMeshSecondOrder::build_first_order_border()
 	
 	// Check border using solid angle comparation with 4*PI
 
-	CalcNode* node;
 	//for( int i = 0; i < nodesNumber; i++ ) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		node = getNode(i);
-		node->setIsBorder(false);
-		if( /*node->isLocal() &&*/ node->isFirstOrder() )
+		CalcNode& node = getNode(i);
+		node.setIsBorder(false);
+		if( /*node.isLocal() &&*/ node.isFirstOrder() )
 		{
 			solid_angle = 0;
-			for(unsigned j = 0; j < node->elements->size(); j++)
+			for(unsigned j = 0; j < node.elements->size(); j++)
 			{
-				solid_angle_part = get_solid_angle(i, node->elements->at(j));
+				solid_angle_part = get_solid_angle(i, node.elements->at(j));
 				if( solid_angle_part < 0 )
-					for(unsigned z = 0; z < node->elements->size(); z++)
-						LOG_DEBUG("ELement: " << node->elements->at(z));
+					for(unsigned z = 0; z < node.elements->size(); z++)
+						LOG_DEBUG("ELement: " << node.elements->at(z));
 				assert(solid_angle_part >= 0);
 				solid_angle += solid_angle_part;
 			}
 			if( fabs(4 * M_PI - solid_angle) > M_PI * EQUALITY_TOLERANCE ) {
-				node->setIsBorder (true);
+				node.setIsBorder (true);
 				nodeCount++;
 			}
 		}
@@ -298,9 +288,9 @@ void gcm::TetrMeshSecondOrder::build_first_order_border()
 		int i = itr->first;
 		for( int j = 0; j < 4; j++ )
 		{
-			if( isTriangleBorder( getTetr(i)->verts ) )
+			if( isTriangleBorder( getTetr(i).verts ) )
 				faceCount++;
-			shiftArrayLeft( getTetr(i)->verts, 4 );
+			shiftArrayLeft( getTetr(i).verts, 4 );
 		}
 	}
 	
@@ -313,15 +303,17 @@ void gcm::TetrMeshSecondOrder::build_first_order_border()
 		int i = itr->first;
 		for( int j = 0; j < 4; j++ )
 		{
-			if( isTriangleBorder( getTetr(i)->verts ) )
+			if( isTriangleBorder( getTetr(i).verts ) )
 			{
-				*getTriangle(number) = createBorderTriangle( getTetr(i)->verts, number );
+				getTriangle(number) = createBorderTriangle( getTetr(i).verts, number );
 				number++;
 			}
-			shiftArrayLeft( getTetr(i)->verts, 4 );
+			shiftArrayLeft( getTetr(i).verts, 4 );
 		}
 	}
 	
+	//if( number != faceCount )
+	//	LOG_WARN("Number: " << number << " FaceCount: " << faceCount);
 	assert( number == faceCount );
 	LOG_DEBUG("Created " << faceNumber << " triangles");
 }
@@ -345,24 +337,24 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderBorder()
 	{
 		for( int j = 0; j < 3; j++ )
 		{
-			v1 = getTriangle(i)->verts[ combinations[j].first ];
-			v2 = getTriangle(i)->verts[ combinations[j].second ];
+			v1 = getTriangle(i).verts[ combinations[j].first ];
+			v2 = getTriangle(i).verts[ combinations[j].second ];
 			
 			//if( ( v1 == 0 && v2 == 420 ) || ( v1 == 420 && v2 == 0 ) )
 			//	debug = true;
 			
 			ind = -1;
-			l = getNode(v1)->elements->size();
+			l = getNode(v1).elements->size();
 			for( int k = 0; k < l; k++ )
 			{
 				v1pos = -1;
 				v2pos = -1;
-				curTInd = getNode(v1)->elements->at(k);
+				curTInd = getNode(v1).elements->at(k);
 				for(int z = 0; z < 4; z++)
 				{
-					if( getTetr(curTInd)->verts[z] == v1 )
+					if( getTetr(curTInd).verts[z] == v1 )
 						v1pos = z;
-					if( getTetr(curTInd)->verts[z] == v2 )
+					if( getTetr(curTInd).verts[z] == v2 )
 						v2pos = z;
 				}
 				if( v1pos >= 0 && v2pos >= 0 )
@@ -370,33 +362,33 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderBorder()
 					minI = (v1pos > v2pos ? v2pos : v1pos);
 					maxI = (v1pos > v2pos ? v1pos : v2pos);
 					if( minI == 0 && maxI == 1 )
-						ind = getTetr2(curTInd)->addVerts[0];
+						ind = getTetr2(curTInd).addVerts[0];
 					else if( minI == 0 && maxI == 2 )
-						ind = getTetr2(curTInd)->addVerts[1];
+						ind = getTetr2(curTInd).addVerts[1];
 					else if( minI == 0 && maxI == 3 )
-						ind = getTetr2(curTInd)->addVerts[2];
+						ind = getTetr2(curTInd).addVerts[2];
 					else if( minI == 1 && maxI == 2 )
-						ind = getTetr2(curTInd)->addVerts[3];
+						ind = getTetr2(curTInd).addVerts[3];
 					else if( minI == 1 && maxI == 3 )
-						ind = getTetr2(curTInd)->addVerts[4];
+						ind = getTetr2(curTInd).addVerts[4];
 					else if( minI == 2 && maxI == 3 )
-						ind = getTetr2(curTInd)->addVerts[5];
+						ind = getTetr2(curTInd).addVerts[5];
 					if( debug )
 					{
 						LOG_DEBUG("Tetr: " << curTInd << " Verts: " << v1 << " " << v2);
 						LOG_DEBUG("Found origin for test node");
 						LOG_DEBUG("Positions: " << v1pos << " " << v2pos);
 						LOG_DEBUG("Index: " << ind);
-						LOG_DEBUG("Node: " << *getNode(ind));
+						LOG_DEBUG("Node: " << getNode(ind));
 					}
 					break;
 				}
 			}
 			
 			assert( ind != -1 );
-			assert( getNode(ind)->isSecondOrder() );
-			getTriangle2(i)->addVerts[j] = ind;
-			getNode(ind)->setIsBorder(true);
+			assert( getNode(ind).isSecondOrder() );
+			getTriangle2(i).addVerts[j] = ind;
+			getNode(ind).setIsBorder(true);
 		}
 	}
 	
@@ -411,9 +403,7 @@ void gcm::TetrMeshSecondOrder::build_surface_reverse_lookups()
 	//for(int i = 0; i < nodesNumber; i++) { 
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		getNode(i)->border_elements->clear();
-		//delete getNode(i)->border_elements;
-		//getNode(i)->border_elements = new vector<int>; 
+		getNode(i).border_elements->clear();
 	}
 
 	// Go through all the triangles and push to data of nodes the number of this triangle
@@ -421,23 +411,23 @@ void gcm::TetrMeshSecondOrder::build_surface_reverse_lookups()
 	{
 		for(int j = 0; j < 3; j++)
 		{
-			int nodeInd = getTriangle(i)->verts[j];
-			assert( getNode(nodeInd)->isFirstOrder() );
-			getNode(nodeInd)->border_elements->push_back(i);
+			int nodeInd = getTriangle(i).verts[j];
+			assert( getNode(nodeInd).isFirstOrder() );
+			getNode(nodeInd).border_elements->push_back(i);
 		}
 		for(int j = 0; j < 3; j++)
 		{
-			int nodeInd = getTriangle2(i)->addVerts[j];
-			assert( getNode(nodeInd)->isSecondOrder() );
-			getNode(nodeInd)->border_elements->push_back(i);
+			int nodeInd = getTriangle2(i).addVerts[j];
+			assert( getNode(nodeInd).isSecondOrder() );
+			getNode(nodeInd).border_elements->push_back(i);
 		}
 	}
 	
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
-		CalcNode* node = getNode(itr->first);
-		int num = node->border_elements->size();
-		if( node->isBorder() && num <= 0 )
-			LOG_DEBUG("Border node is not a part of faces. Node: " << *node);
+		CalcNode& node = getNode(itr->first);
+		int num = node.border_elements->size();
+		if( node.isBorder() && num <= 0 )
+			LOG_DEBUG("Border node is not a part of faces. Node: " << node);
 	}
 }
 
@@ -462,9 +452,9 @@ void gcm::TetrMeshSecondOrder::moveCoords(float tau)
 		int i = itr->first;
 		for( int j = 0; j < 6; j++ )
 		{
-			ind = getTetr2(i)->addVerts[j];
-			v1 = getTetr(i)->verts[ combinations[j].first ];
-			v2 = getTetr(i)->verts[ combinations[j].second ];
+			ind = getTetr2(i).addVerts[j];
+			v1 = getTetr(i).verts[ combinations[j].first ];
+			v2 = getTetr(i).verts[ combinations[j].second ];
 			moveSecondOrderNode( ind, v1, v2 );
 		}
 	}
@@ -472,34 +462,34 @@ void gcm::TetrMeshSecondOrder::moveCoords(float tau)
 
 void gcm::TetrMeshSecondOrder::moveSecondOrderNode(int nodeIdx, int nodeIdx1, int nodeIdx2)
 {
-	CalcNode* node = getNode(nodeIdx);
-	CalcNode* newNode = getNewNode(nodeIdx);
-	CalcNode* node1 = getNode(nodeIdx1);
-	CalcNode* node2 = getNode(nodeIdx2);
+	CalcNode& node = getNode(nodeIdx);
+	CalcNode& newNode = getNewNode(nodeIdx);
+	CalcNode& node1 = getNode(nodeIdx1);
+	CalcNode& node2 = getNode(nodeIdx2);
 	
 	for( int i = 0; i < 3; i++ )
 	{
-		node->coords[i] = ( node1->coords[i] + node2->coords[i] ) * 0.5;
-		newNode->coords[i] = node->coords[i];
+		node.coords[i] = ( node1.coords[i] + node2.coords[i] ) * 0.5;
+		newNode.coords[i] = node.coords[i];
 	}
 }
 
-void gcm::TetrMeshSecondOrder::fillSecondOrderNode(CalcNode* newNode, int nodeIdx1, int nodeIdx2)
+void gcm::TetrMeshSecondOrder::fillSecondOrderNode(CalcNode& newNode, int nodeIdx1, int nodeIdx2)
 {
-	CalcNode* node1 = getNode(nodeIdx1);
-	CalcNode* node2 = getNode(nodeIdx2);
+	CalcNode& node1 = getNode(nodeIdx1);
+	CalcNode& node2 = getNode(nodeIdx2);
 	
 	for( int i = 0; i < 3; i++ )
-		newNode->coords[i] = ( node1->coords[i] + node2->coords[i] ) * 0.5;
+		newNode.coords[i] = ( node1.coords[i] + node2.coords[i] ) * 0.5;
 	
 	for(int i = 0; i < 9; i++)
-		newNode->values[i] = ( node1->values[i] + node2->values[i] ) * 0.5;
+		newNode.values[i] = ( node1.values[i] + node2.values[i] ) * 0.5;
 	
-	newNode->setRho( ( node1->getRho() + node2->getRho() ) * 0.5 );
-	newNode->setMaterialId( node1->getMaterialId() );
+	newNode.setRho( ( node1.getRho() + node2.getRho() ) * 0.5 );
+	newNode.setMaterialId( node1.getMaterialId() );
 	
-	newNode->setPlacement(Local);
-	newNode->setOrder( SecondOrder );
+	newNode.setPlacement(Local);
+	newNode.setOrder( SecondOrder );
 }
 
 int gcm::TetrMeshSecondOrder::countSecondOrderNodes(TetrMeshFirstOrder* src)
@@ -517,11 +507,11 @@ int gcm::TetrMeshSecondOrder::countSecondOrderNodes(TetrMeshFirstOrder* src)
 	combinations[4] = make_pair(1,3);
 	combinations[5] = make_pair(2,3);
 	
-	int minFirstOrderNum = src->getNodeByLocalIndex(0)->number;
-	int maxFirstOrderNum = src->getNodeByLocalIndex(0)->number;
+	int minFirstOrderNum = src->getNodeByLocalIndex(0).number;
+	int maxFirstOrderNum = src->getNodeByLocalIndex(0).number;
 	for( int i = 0; i < firstOrderNodesCount; i++ )
 	{
-		int num = src->getNodeByLocalIndex(i)->number;
+		int num = src->getNodeByLocalIndex(i).number;
 		if( num > maxFirstOrderNum )
 			maxFirstOrderNum = num;
 		if( num < minFirstOrderNum )
@@ -539,13 +529,13 @@ int gcm::TetrMeshSecondOrder::countSecondOrderNodes(TetrMeshFirstOrder* src)
 	int ind;
 	for( int i = 0; i < src->getTetrsNumber(); i++)
 	{
-		TetrFirstOrder* tetr = src->getTetrByLocalIndex(i);
+		TetrFirstOrder& tetr = src->getTetrByLocalIndex(i);
 		//if( body->getEngine()->getRank() == 1 )
-		//	LOG_DEBUG("Tetr " << i << " Num: " << tetr->number);
+		//	LOG_DEBUG("Tetr " << i << " Num: " << tetr.number);
 		for( int j = 0; j < 6; j++ )
 		{
-			v1 = tetr->verts[ combinations[j].first ];
-			v2 = tetr->verts[ combinations[j].second ];
+			v1 = tetr.verts[ combinations[j].first ];
+			v2 = tetr.verts[ combinations[j].second ];
 			//if( body->getEngine()->getRank() == 1 )
 			//	LOG_DEBUG("V1 = " << v1 << " V2 = " << v2);
 			ind = -1;
@@ -583,13 +573,13 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 	if( secondOrderNodesAreGenerated )
 		return;
 	
-	int minNodeNum = getNodeByLocalIndex(0)->number;
+	int minNodeNum = getNodeByLocalIndex(0).number;
 	
 	for( int i = 0; i < firstOrderNodesNumber; i++)
 	{
-		getNodeByLocalIndex(i)->setOrder( FirstOrder );
-		if( getNodeByLocalIndex(i)->number < minNodeNum )
-			minNodeNum = getNodeByLocalIndex(i)->number;
+		getNodeByLocalIndex(i).setOrder( FirstOrder );
+		if( getNodeByLocalIndex(i).number < minNodeNum )
+			minNodeNum = getNodeByLocalIndex(i).number;
 	}
 	
 	LOG_DEBUG( "Creating second order nodes" );
@@ -616,8 +606,8 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 		int i = itr->first;
 		for( int j = 0; j < 6; j++ )
 		{
-			v1 = getTetr(i)->verts[ combinations[j].first ];
-			v2 = getTetr(i)->verts[ combinations[j].second ];
+			v1 = getTetr(i).verts[ combinations[j].first ];
+			v2 = getTetr(i).verts[ combinations[j].second ];
 			ind = -1;
 
 			for( unsigned int z = 0; z < processed[v1]->size(); z++ )
@@ -627,9 +617,9 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 			if( ind == -1 )
 			{
 				ind = minNodeNum + firstOrderNodesNumber + secondOrderNodesCount;
-				fillSecondOrderNode( &node, v1, v2 );
+				fillSecondOrderNode( node, v1, v2 );
 				node.number = ind;
-				addNode( &node );
+				addNode( node );
 				IntPair in;
 				in.first = ind;
 				in.second = v2;
@@ -638,7 +628,7 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 				processed[v2]->push_back(in);
 				secondOrderNodesCount++;
 			}
-			getTetr2(i)->addVerts[j] = ind;
+			getTetr2(i).addVerts[j] = ind;
 		}
 	}
 
@@ -656,17 +646,17 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 void gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 												CalcNode& targetNode, bool& isInnerPoint)
 {
-	int tetrInd = findTargetPoint( &origin, dx, dy, dz, debug,
+	int tetrInd = findTargetPoint( origin, dx, dy, dz, debug,
 									targetNode.coords, &isInnerPoint );
 	
 	if( !isInnerPoint )
 		return;
 
-	TetrSecondOrder* tmp_tetr = getTetr2( tetrInd );
-	interpolator->interpolate( &targetNode,
-			getNode( tmp_tetr->verts[0] ), getNode( tmp_tetr->verts[1] ), 
-			getNode( tmp_tetr->verts[2] ), getNode( tmp_tetr->verts[3] ), 
-			getNode( tmp_tetr->addVerts[0] ), getNode( tmp_tetr->addVerts[1] ), 
-			getNode( tmp_tetr->addVerts[2] ), getNode( tmp_tetr->addVerts[3] ), 
-			getNode( tmp_tetr->addVerts[4] ), getNode( tmp_tetr->addVerts[5] ) );
+	TetrSecondOrder& tmp_tetr = getTetr2( tetrInd );
+	interpolator->interpolate( targetNode,
+			getNode( tmp_tetr.verts[0] ), getNode( tmp_tetr.verts[1] ), 
+			getNode( tmp_tetr.verts[2] ), getNode( tmp_tetr.verts[3] ), 
+			getNode( tmp_tetr.addVerts[0] ), getNode( tmp_tetr.addVerts[1] ), 
+			getNode( tmp_tetr.addVerts[2] ), getNode( tmp_tetr.addVerts[3] ), 
+			getNode( tmp_tetr.addVerts[4] ), getNode( tmp_tetr.addVerts[5] ) );
 }

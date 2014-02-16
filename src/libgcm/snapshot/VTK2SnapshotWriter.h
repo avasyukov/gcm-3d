@@ -25,7 +25,7 @@ namespace gcm {
 	class VTK2SnapshotWriter : public SnapshotWriter {
 	private:
 		void dumpVTK(string filename, TetrMeshSecondOrder* mesh, int step);
-		bool shouldSnapshot(CalcNode* node, TetrMeshSecondOrder* mesh);
+		bool shouldSnapshot(CalcNode& node, TetrMeshSecondOrder* mesh);
 
 		USE_LOGGER;
 	public:

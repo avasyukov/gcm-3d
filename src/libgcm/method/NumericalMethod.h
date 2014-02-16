@@ -40,7 +40,7 @@ namespace gcm {
 		 * Returns maximum lambda for the given node
 		 * TODO@avasyukov: Should we replace it with getMaxTimeStep?
 		 */
-		virtual float getMaxLambda(CalcNode* node) = 0; //(CalcNode* node, TetrMesh* mesh)
+		virtual float getMaxLambda(CalcNode& node) = 0; //(CalcNode& node, TetrMesh* mesh)
 		
 		virtual string getType() = 0;
 		

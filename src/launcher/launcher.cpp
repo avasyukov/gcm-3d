@@ -1,4 +1,4 @@
-#include "launcher/launcher.h"
+#include "launcher.h"
 
 #include "xml.h"
 

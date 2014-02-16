@@ -17,11 +17,10 @@ int gcm::DummyMethod::getNumberOfStages()
 	return 1;
 }
 
-float gcm::DummyMethod::getMaxLambda(CalcNode* node)
+float gcm::DummyMethod::getMaxLambda(CalcNode& node)
 {
-	assert( node != NULL );
-	assert ( node->rheologyIsValid() );
-	return sqrt( ( (node->getLambda()) + 2 * (node->getMu()) ) / (node->getRho()) );
+	assert ( node.rheologyIsValid() );
+	return sqrt( ( (node.getLambda()) + 2 * (node.getMu()) ) / (node.getRho()) );
 }
 
 void gcm::DummyMethod::doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh)

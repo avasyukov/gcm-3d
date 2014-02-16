@@ -29,17 +29,16 @@ gcm::BasicCubicMesh::~BasicCubicMesh()
 
 void gcm::BasicCubicMesh::preProcessGeometry()
 {
-	CalcNode* node;
 	LOG_DEBUG("Preprocessing mesh geometry started.");
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
+		CalcNode& node = getNodeByLocalIndex(i);
 		for( int i = 0; i < 3; i ++)
 		{
-			if( ( fabs(node->coords[i] - outline.min_coords[i]) < EQUALITY_TOLERANCE )
-				|| ( fabs(node->coords[i] - outline.max_coords[i]) < EQUALITY_TOLERANCE ) )
+			if( ( fabs(node.coords[i] - outline.min_coords[i]) < EQUALITY_TOLERANCE )
+				|| ( fabs(node.coords[i] - outline.max_coords[i]) < EQUALITY_TOLERANCE ) )
 			{
-				node->setIsBorder(true);
+				node.setIsBorder(true);
 			}
 		}
 	}
@@ -80,15 +79,14 @@ void gcm::BasicCubicMesh::calcMinH()
 	if( getNodesNumber() < 2)
 		return;
 	
-	CalcNode* base = getNodeByLocalIndex(0);
-	CalcNode* node;
+	CalcNode& base = getNodeByLocalIndex(0);
 	float h;
 	
 	// We suppose that mesh is uniform
 	for(int i = 1; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		h = distance(base->coords, node->coords);
+		CalcNode& node = getNodeByLocalIndex(i);
+		h = distance(base.coords, node.coords);
 		if( h < meshH )
 			meshH = h;
 	}
@@ -111,18 +109,18 @@ float gcm::BasicCubicMesh::getMinH()
 
 void gcm::BasicCubicMesh::findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug)
 {
-	CalcNode* node = getNode( border_node_index );
-	assert( node->isBorder() );
+	CalcNode& node = getNode( border_node_index );
+	assert( node.isBorder() );
 	float normal[3];
 	normal[0] = normal[1] = normal[2] = 0.0;
 	for( int i = 0; i < 3; i ++)
 	{
-		if( fabs(node->coords[i] - outline.min_coords[i]) < EQUALITY_TOLERANCE )
+		if( fabs(node.coords[i] - outline.min_coords[i]) < EQUALITY_TOLERANCE )
 		{
 			normal[i] = -1;
 			break;
 		}
-		if( fabs(node->coords[i] - outline.max_coords[i]) < EQUALITY_TOLERANCE )
+		if( fabs(node.coords[i] - outline.max_coords[i]) < EQUALITY_TOLERANCE )
 		{
 			normal[i] = 1;
 			break;
@@ -133,27 +131,27 @@ void gcm::BasicCubicMesh::findBorderNodeNormal(int border_node_index, float* x, 
 	*z = normal[2];
 };
 
-int gcm::BasicCubicMesh::findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+int gcm::BasicCubicMesh::findTargetPoint(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
 	int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
 	
 	assert( vectorSquareNorm(dx, dy, dz) <= getMinH() * getMinH() * (1 + EQUALITY_TOLERANCE) );
 	
-	coords[0] = node->coords[0] + dx;
-	coords[1] = node->coords[1] + dy;
-	coords[2] = node->coords[2] + dz;
+	coords[0] = node.coords[0] + dx;
+	coords[1] = node.coords[1] + dy;
+	coords[2] = node.coords[2] + dz;
 	
 	if( !outline.isInAABB(coords[0], coords[1], coords[2]) )
 	{
 		//LOG_INFO("OUT");
-		coords[0] = node->coords[0];
-		coords[1] = node->coords[1];
-		coords[2] = node->coords[2];
+		coords[0] = node.coords[0];
+		coords[1] = node.coords[1];
+		coords[2] = node.coords[2];
 		*innerPoint = false;
 		return -1;
 	}
 	
-	int neighNum = node->number;
+	int neighNum = node.number;
 	if ( dx > EQUALITY_TOLERANCE )
 		neighNum += meshSize*meshSize;
 	else if ( dx < -EQUALITY_TOLERANCE )
@@ -174,12 +172,12 @@ int gcm::BasicCubicMesh::findTargetPoint(CalcNode* node, float dx, float dy, flo
 void gcm::BasicCubicMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 								CalcNode& targetNode, bool& isInnerPoint)
 {
-	int neighInd = findTargetPoint( &origin, dx, dy, dz, debug,
+	int neighInd = findTargetPoint( origin, dx, dy, dz, debug,
 									targetNode.coords, &isInnerPoint );
 	
 	if( !isInnerPoint )
 		return;
 	
-	interpolator->interpolate( &targetNode,	&origin, getNode( neighInd ) );
+	interpolator->interpolate( targetNode, origin, getNode( neighInd ) );
 };
 

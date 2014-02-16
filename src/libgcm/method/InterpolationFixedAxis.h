@@ -20,7 +20,7 @@ namespace gcm
 		virtual ~InterpolationFixedAxis();
 		int getNumberOfStages();
 		void doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh);
-		float getMaxLambda(CalcNode* node);
+		float getMaxLambda(CalcNode& node);
 		string getType();
 	protected:
 		int prepare_node(CalcNode& cur_node, ElasticMatrix3D& elastic_matrix3d,

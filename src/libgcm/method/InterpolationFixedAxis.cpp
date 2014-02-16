@@ -22,10 +22,9 @@ int gcm::InterpolationFixedAxis::getNumberOfStages() {
 	return 3;
 }
 
-float gcm::InterpolationFixedAxis::getMaxLambda(CalcNode* node) {
-	assert( node != NULL );
-	assert ( node->rheologyIsValid() );
-	return sqrt( ( (node->getLambda()) + 2 * (node->getMu()) ) / (node->getRho()) );
+float gcm::InterpolationFixedAxis::getMaxLambda(CalcNode& node) {
+	assert ( node.rheologyIsValid() );
+	return sqrt( ( (node.getLambda()) + 2 * (node.getMu()) ) / (node.getRho()) );
 };
 
 void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& new_node,
@@ -112,21 +111,21 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 			// Contact
 			else
 			{
-				CalcNode* virt_node = engine->getVirtNode(cur_node.contactNodeNum);
+				CalcNode& virt_node = engine->getVirtNode(cur_node.contactNodeNum);
 
 
 				LOG_TRACE("We are going to calc contact. Target virt node: "
-						<< cur_node.contactNodeNum << " Target mesh: " << virt_node->contactNodeNum );
+						<< cur_node.contactNodeNum << " Target mesh: " << virt_node.contactNodeNum );
 
 				LOG_TRACE( "Mesh: " << mesh->getId()
-						<< " Virt mesh: " << engine->getBody(virt_node->contactNodeNum)->getMeshes()->getId()
-						<< "\nReal node: " << cur_node << "\nVirt node: " << *virt_node);
+						<< " Virt mesh: " << engine->getBody(virt_node.contactNodeNum)->getMeshes()->getId()
+						<< "\nReal node: " << cur_node << "\nVirt node: " << virt_node);
 
 				// Mark virt node as having contact state
 				// TODO FIXME - most probably CollisionDetector should do it
 				// But we should check it anycase
-				virt_node->setContactType( InContact );
-				//virt_node->contactNodeNum = cur_node.contactNodeNum;
+				virt_node.setContactType( InContact );
+				//virt_node.contactNodeNum = cur_node.contactNodeNum;
 
 				// Variables used in calculations internally
 
@@ -152,8 +151,8 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 				// Number of outer characteristics
 				LOG_TRACE("Start virt node calc");
 				// FIXME - WA
-				Mesh* virtMesh = (Mesh*) engine->getBody(virt_node->contactNodeNum)->getMeshes();
-				int virt_outer_count = prepare_node( *virt_node, virt_elastic_matrix3d,
+				Mesh* virtMesh = (Mesh*) engine->getBody(virt_node.contactNodeNum)->getMeshes();
+				int virt_outer_count = prepare_node( virt_node, virt_elastic_matrix3d,
 						time_step, stage, virtMesh, 
 						virt_dksi, virt_inner, virt_previous_nodes,
 						virt_outer_normal);
@@ -161,7 +160,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 				// TODO - merge this condition with the next ones
 				if( virt_outer_count != 3 ) {
 					LOG_DEBUG("There are " << virt_outer_count << " 'outer' characteristics for virt node.");
-					LOG_DEBUG("Origin node: " << *( engine->getBody(virt_node->contactNodeNum)->getMeshes()->getNode( virt_node->number ) ) );
+					LOG_DEBUG("Origin node: " << engine->getBody(virt_node.contactNodeNum)->getMeshes()->getNode( virt_node.number ) );
 					for(int z = 0; z < 9; z++)
 					{
 						LOG_DEBUG("Dksi[" << z << "]: " << virt_dksi[z]);
@@ -189,7 +188,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 						// Find directions to corresponding 'outer' point and to virt 'paired node'
 						for(int j = 0; j < 3; j++) {
 							v_x_outer[j] = previous_nodes[ppoint_num[i]].coords[j] - cur_node.coords[j];
-							v_x_virt[j] = virt_node->coords[j] - cur_node.coords[j];
+							v_x_virt[j] = virt_node.coords[j] - cur_node.coords[j];
 						}
 						// If directions are different - smth bad happens
 						if( (v_x_outer[0] * v_x_virt[0]
@@ -213,8 +212,8 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 					{
 						// Find directions to corresponding 'outer' point and to real 'paired node'
 						for(int j = 0; j < 3; j++) {
-							v_x_outer[j] = virt_previous_nodes[virt_ppoint_num[i]].coords[j] - virt_node->coords[j];
-							v_x_virt[j] = cur_node.coords[j] - virt_node->coords[j];
+							v_x_outer[j] = virt_previous_nodes[virt_ppoint_num[i]].coords[j] - virt_node.coords[j];
+							v_x_virt[j] = cur_node.coords[j] - virt_node.coords[j];
 						}
 						// If directions are different - smth bad happens
 						if( (v_x_outer[0] * v_x_virt[0]
@@ -224,7 +223,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 									<< "x: " << cur_node.coords[0]
 									<< " y: " << cur_node.coords[1]
 									<< " z: " < cur_node.coords[2];
-							log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node->mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi);
+							log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node.mesh, basis_num, virt_elastic_matrix3d, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi);
 							*logger << "'Outer' direction: " << v_x_outer[0] << " "
 								<< v_x_outer[1] << " "< v_x_outer[2];
 							*logger << "'Virt' direction: " << v_x_virt[0] << " "
@@ -236,7 +235,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 
 				LOG_TRACE("Using calculator: " << engine->getContactCondition(0)->calc->getType());
 				engine->getContactCondition(0)->doCalc(mesh->get_current_time(), cur_node,
-						new_node, *virt_node, elastic_matrix3d, previous_nodes, inner,
+						new_node, virt_node, elastic_matrix3d, previous_nodes, inner,
 						virt_elastic_matrix3d, virt_previous_nodes, virt_inner, outer_normal);
 			}
 		// It means smth went wrong. Just interpolate the values and report bad node.
@@ -315,10 +314,10 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 			// WA:
 			//     origin == cur_node for real nodes
 			//     origin != cure_node for virt nodes
-			CalcNode* origin = mesh->getNode(cur_node.number);
+			CalcNode& origin = mesh->getNode(cur_node.number);
 			for( int z = 0; z < 3; z++ )
 			{
-				dx[z] = cur_node.coords[z] - origin->coords[z];
+				dx[z] = cur_node.coords[z] - origin.coords[z];
 			}
 			dx[stage] += dksi[i];
 
@@ -334,7 +333,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 				LOG_TRACE( "Checking inner node" );
 				// ... Find owner tetrahedron ...
 				bool isInnerPoint;
-				mesh->interpolateNode(*origin, dx[0], dx[1], dx[2], false,
+				mesh->interpolateNode(origin, dx[0], dx[1], dx[2], false,
 									previous_nodes[i], isInnerPoint);
 				
 				if( !isInnerPoint )
@@ -343,7 +342,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 					LOG_TRACE("Node:\n" << cur_node);
 					LOG_TRACE("Move: " << dx[0] << " " << dx[1] << " " << dx[2]);
 					// Re-run search with debug on
-					mesh->interpolateNode(*origin, dx[0], dx[1], dx[2], true,
+					mesh->interpolateNode(origin, dx[0], dx[1], dx[2], true,
 									previous_nodes[i], isInnerPoint);
 				}
 
@@ -355,7 +354,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 				LOG_TRACE( "Checking border node" );
 				// ... Find owner tetrahedron ...
 				bool isInnerPoint;
-				mesh->interpolateNode(*origin, dx[0], dx[1], dx[2], false,
+				mesh->interpolateNode(origin, dx[0], dx[1], dx[2], false,
 									previous_nodes[i], isInnerPoint);
 
 				// If we found inner point, it means

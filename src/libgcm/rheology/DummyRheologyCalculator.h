@@ -20,7 +20,7 @@ namespace gcm {
 		inline string getType() {
 			return "DummyRheologyCalculator";
 		}
-		void doCalc(CalcNode* src, CalcNode* dst);
+		void doCalc(CalcNode& src, CalcNode& dst);
 	protected:
 		USE_LOGGER;
 	};

@@ -18,13 +18,15 @@ namespace gcm
 		virtual int getTetrsNumber() = 0;
 		virtual int getTriangleNumber() = 0;
 		
-		virtual void addTetr(TetrFirstOrder* tetr) = 0;
+		virtual void addTetr(TetrFirstOrder& tetr) = 0;
 		
-		virtual TetrFirstOrder* getTetr(unsigned int index) = 0;
+		virtual TetrFirstOrder& getTetr(unsigned int index) = 0;
 		
-		virtual TetrFirstOrder* getTetrByLocalIndex(unsigned int index) = 0;
+		virtual TetrFirstOrder& getTetrByLocalIndex(unsigned int index) = 0;
 		
-		virtual TriangleFirstOrder* getTriangle(int index) = 0;
+		virtual TriangleFirstOrder& getTriangle(int index) = 0;
+		
+		virtual bool hasTetr(unsigned int index) = 0;
 		
 		virtual void createTetrs(int number) = 0;
 		

@@ -282,7 +282,7 @@ namespace gcm
 		void transferScene(float x, float y, float z);
 		
 		DataBus* getDataBus();
-		CalcNode* getVirtNode(unsigned int i);
+		CalcNode& getVirtNode(unsigned int i);
 
 		FileLookupService& getFileLookupService();
 		void setContactThresholdType(unsigned char type);
