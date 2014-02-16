@@ -31,6 +31,8 @@ namespace gcm
 		void calcMinH();
 		void preProcessGeometry();
 		
+		int findNeighbourPoint(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+		
 		float meshH;
 		
 		USE_LOGGER;
@@ -45,8 +47,6 @@ namespace gcm
 		void checkTopology(float tau);
 		
 		void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug);
-		int findTargetPoint(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
-
 
 		void interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 								CalcNode& targetNode, bool& isInnerPoint);

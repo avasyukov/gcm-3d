@@ -642,7 +642,7 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
 void gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 												CalcNode& targetNode, bool& isInnerPoint)
 {
-	int tetrInd = findTargetPoint( origin, dx, dy, dz, debug,
+	int tetrInd = findOwnerTetr( origin, dx, dy, dz, debug,
 									targetNode.coords, &isInnerPoint );
 	
 	if( !isInnerPoint )

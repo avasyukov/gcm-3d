@@ -87,9 +87,6 @@ namespace gcm
 		float tetr_h(int i);
 		
 		void logMeshStats();
-	
-		/*TetrFirstOrder*/ int find_border_cross(CalcNode& node, float dx, float dy, float dz, bool debug, float* cross);
-		/*TetrFirstOrder*/ int find_border_cross(CalcNode& node, float dx, float dy, float dz, bool debug, CalcNode& cross);
 		
 		void calcMinH();
 		void calcAvgH();
@@ -102,10 +99,10 @@ namespace gcm
 
 		USE_LOGGER;
 		
-		/*TetrFirstOrder*/ int expandingScanForPoint (CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
-		/*TetrFirstOrder*/ int expandingScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug);
-		/*TetrFirstOrder*/ int fastScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug);
-		/*TetrFirstOrder*/ int find_owner_tetr(CalcNode& node, float dx, float dy, float dz, bool debug);
+		int expandingScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+		int fastScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug);
+		int findOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+		bool isInnerPoint(CalcNode& node, float dx, float dy, float dz, bool debug);
 		
 		gsl_matrix *T;
 		gsl_matrix *S;
@@ -154,7 +151,6 @@ namespace gcm
 		
 		void doNextPartStep(float tau, int stage);
 		
-		int findTargetPoint(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
 		void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug);
 		void checkTopology(float tau);
 		

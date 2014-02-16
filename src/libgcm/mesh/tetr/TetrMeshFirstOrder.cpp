@@ -357,7 +357,7 @@ void gcm::TetrMeshFirstOrder::check_outer_normals()
 			//dx[2] = step_h * normal[2];
 
 			// Check if we are inside of the body moving towards normal
-			//if( find_owner_tetr(&nodes[i], -dx[0], -dx[1], -dx[2]) == NULL ) {
+			//if( findOwnerTetr(&nodes[i], -dx[0], -dx[1], -dx[2]) == NULL ) {
 				// Smth bad happens
 //				*logger << "Can not find outer normal\n";
 //				*logger << nodes[i].coords[0] << " " << nodes[i].coords[1] << " " < nodes[i].coords[2];
@@ -510,7 +510,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	}
 	
 	// Check if we are outside of the body moving from triangle center along normal ...
-	if( /*find_owner_tetr*/fastScanForOwnerTetr(v1, dx[0], dx[1], dx[2], _debug) != -1 )
+	if( fastScanForOwnerTetr(v1, dx[0], dx[1], dx[2], _debug) != -1 )
 	{
 		if(_debug)
 			LOG_DEBUG("Result: not border");
@@ -523,7 +523,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	return true;
 };
 
-int gcm::TetrMeshFirstOrder::findTargetPoint(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+int gcm::TetrMeshFirstOrder::findOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
 	int tetr;
 	if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h * (1 + EQUALITY_TOLERANCE) )
@@ -538,22 +538,16 @@ int gcm::TetrMeshFirstOrder::findTargetPoint(CalcNode& node, float dx, float dy,
 	}
 	else
 	{
-		return expandingScanForPoint (node, dx, dy, dz, debug, coords, innerPoint);
+		return expandingScanForOwnerTetr(node, dx, dy, dz, debug, coords, innerPoint);
 	}
 }
 
-int gcm::TetrMeshFirstOrder::find_owner_tetr(CalcNode& node, float dx, float dy, float dz, bool debug)
+bool gcm::TetrMeshFirstOrder::isInnerPoint(CalcNode& node, float dx, float dy, float dz, bool debug)
 {
 	bool innerPoint;
-	int tetr;
 	float coords[3];
-	if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h * (1 + EQUALITY_TOLERANCE) )
-		return fastScanForOwnerTetr (node, dx, dy, dz, debug);
-	else
-	{
-		tetr = expandingScanForPoint (node, dx, dy, dz, debug, coords, &innerPoint);
-		return ( innerPoint ? tetr : /*NULL*/-1 );
-	}
+	findOwnerTetr(node, dx, dy, dz, debug, coords, &innerPoint);
+	return innerPoint;
 }
 
 int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug)
@@ -605,7 +599,7 @@ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, floa
 	return -1;
 }
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::expandingScanForPoint (CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::expandingScanForOwnerTetr (CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
 	if( debug )
 		LOG_TRACE("Expanding scan - debug ON");
@@ -895,15 +889,13 @@ void gcm::TetrMeshFirstOrder::findBorderNodeNormal(int border_node_index, float*
 	*y = final_normal[1];
 	*z = final_normal[2];
 	
-	if( find_owner_tetr(node, 
-			- h * final_normal[0], - h * final_normal[1], - h * final_normal[2], debug) == -1 )
+	if( ! isInnerPoint(node, - h * final_normal[0], - h * final_normal[1], - h * final_normal[2], debug))
 	{
 		if( !debug )
 		{
 			LOG_TRACE("Sharp border - can not create normal for node: " << node );
 			LOG_TRACE("Normal: " << final_normal[0] << " " << final_normal[1] << " " << final_normal[2]);
 			LOG_TRACE("Re-running search with debug on");
-			//find_owner_tetr(node, - h * final_normal[0], - h * final_normal[1], - h * final_normal[2], true);
 			findBorderNodeNormal(border_node_index, x, y, z, true);
 		}
 	}
@@ -1069,19 +1061,6 @@ float gcm::TetrMeshFirstOrder::tetr_h(int i)
 void gcm::TetrMeshFirstOrder::doNextPartStep(float tau, int stage)
 {
 	defaultNextPartStep(tau, stage);
-};
-
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::find_border_cross(CalcNode& node, float dx, float dy, float dz, bool debug, CalcNode& cross)
-{
-	return find_border_cross(node, dx, dy, dz, debug, cross.coords);
-};
-
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::find_border_cross(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords)
-{
-	bool innerPoint;
-	/*TetrFirstOrder*/ int tetr = expandingScanForPoint (node, dx, dy, dz, debug, coords, &innerPoint);
-	assert( !innerPoint );
-	return tetr;
 };
 
 void gcm::TetrMeshFirstOrder::logMeshStats()
@@ -1407,7 +1386,7 @@ bool gcm::TetrMeshFirstOrder::charactCacheAvailable()
 void gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 												CalcNode& targetNode, bool& isInnerPoint)
 {
-	int tetrInd = findTargetPoint( origin, dx, dy, dz, debug,
+	int tetrInd = findOwnerTetr( origin, dx, dy, dz, debug,
 									targetNode.coords, &isInnerPoint );
 	
 	if( !isInnerPoint )

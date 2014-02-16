@@ -131,7 +131,7 @@ void gcm::BasicCubicMesh::findBorderNodeNormal(int border_node_index, float* x, 
 	*z = normal[2];
 };
 
-int gcm::BasicCubicMesh::findTargetPoint(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+int gcm::BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
 	int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
 	
@@ -172,7 +172,7 @@ int gcm::BasicCubicMesh::findTargetPoint(CalcNode& node, float dx, float dy, flo
 void gcm::BasicCubicMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 								CalcNode& targetNode, bool& isInnerPoint)
 {
-	int neighInd = findTargetPoint( origin, dx, dy, dz, debug,
+	int neighInd = findNeighbourPoint( origin, dx, dy, dz, debug,
 									targetNode.coords, &isInnerPoint );
 	
 	if( !isInnerPoint )
