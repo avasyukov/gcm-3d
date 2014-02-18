@@ -10,7 +10,8 @@ def configure(conf):
     conf.check_linux()
 
     conf.env.INCLUDES_LIBGTEST = [
-        '/usr/include'
+        '/usr/include',
+        '/usr/include/gtest'
     ]
 
     conf.env.LIBPATH_LIBGTEST = [
@@ -19,7 +20,8 @@ def configure(conf):
     ]
 
     LIBS = [
-        ['gtest']
+        ['gtest'],
+        ['gtest_main']
     ]
 
     for libs in LIBS:
