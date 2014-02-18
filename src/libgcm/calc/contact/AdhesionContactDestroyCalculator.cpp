@@ -1,53 +1,49 @@
 #include "calc/contact/AdhesionContactDestroyCalculator.h"
 
-#include "calc/contact/AdhesionContactCalculator.h"
-#include "calc/contact/SlidingContactCalculator.h"
 #include "node/CalcNode.h"
 
-// FIXME this code seems to be dead
-//AdhesionContactDestroyCalculator::AdhesionContactDestroyCalculator()
-//{
-//	//U_gsl = gsl_matrix_alloc (18, 18);
-//	//om_gsl = gsl_vector_alloc (18);
-//	//x_gsl = gsl_vector_alloc (18);
-//	//p_gsl = gsl_permutation_alloc (18);
-//};
-// FIXME this code seems to be dead
-//AdhesionContactDestroyCalculator::~AdhesionContactDestroyCalculator()
-//{
-//	//gsl_matrix_free(U_gsl);
-//	//gsl_vector_free(om_gsl);
-//	//gsl_vector_free(x_gsl);
-//	//gsl_permutation_free(p_gsl);
-//};
+AdhesionContactDestroyCalculator::AdhesionContactDestroyCalculator()
+{
+	scc = new SlidingContactCalculator();
+	acc = new AdhesionContactCalculator();
+};
 
-void AdhesionContactDestroyCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, CalcNode* virt_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[], float scale)
+AdhesionContactDestroyCalculator::~AdhesionContactDestroyCalculator()
+{
+	delete scc;
+	delete acc;
+};
+
+void AdhesionContactDestroyCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node, 
+							ElasticMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[], 
+							ElasticMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[], 
+							float outer_normal[], float scale)
 {
 	//Update current node 'damage' status
-	if (!cur_node->getContactConditionId())
+	if (!cur_node.getContactConditionId())
 	{	
-		float force_cur[3] = {cur_node->values[3]*outer_normal[0]+cur_node->values[4]*outer_normal[1]+cur_node->values[5]*outer_normal[2],
-			      cur_node->values[4]*outer_normal[0]+cur_node->values[6]*outer_normal[1]+cur_node->values[7]*outer_normal[2],
-			      cur_node->values[5]*outer_normal[0]+cur_node->values[7]*outer_normal[1]+cur_node->values[8]*outer_normal[2]};
-		float force_cur_abs = scalarProduct(force_cur,outer_normal);
-		if (force_cur_abs > cur_node->getAdhesionThreshold())
+		float force_cur[3] = {
+			cur_node.values[3]*outer_normal[0] + cur_node.values[4]*outer_normal[1] + cur_node.values[5]*outer_normal[2],
+			cur_node.values[4]*outer_normal[0] + cur_node.values[6]*outer_normal[1] + cur_node.values[7]*outer_normal[2],
+			cur_node.values[5]*outer_normal[0] + cur_node.values[7]*outer_normal[1] + cur_node.values[8]*outer_normal[2]
+		};
+		
+		float force_cur_abs = scalarProduct(force_cur, outer_normal);
+		if (force_cur_abs > cur_node.getAdhesionThreshold())
 		{
-			cur_node->setContactConditionId(1);
-			//LOG_INFO("-----------contact break!!");
+			cur_node.setContactConditionId(1); // TODO - remove magic number
 		}
 	}
 
 	//Check if we must use Sliding, otherwise use adhesion
-	if (cur_node->getContactConditionId() || virt_node->getContactConditionId())
+	if (cur_node.getContactConditionId() || virt_node.getContactConditionId())
 	{
-		SlidingContactCalculator* scc = new SlidingContactCalculator();
-		scc->do_calc(cur_node,new_node,virt_node,matrix,values,inner,virt_matrix,virt_values,virt_inner,outer_normal,scale);
-		delete scc;
+		scc->doCalc(cur_node, new_node, virt_node, matrix, previousNodes, inner, 
+						virt_matrix, virtPreviousNodes, virt_inner, outer_normal, scale);
 	}
 	else
 	{
-		AdhesionContactCalculator* acc = new AdhesionContactCalculator();
-		acc->do_calc(cur_node,new_node,virt_node,matrix,values,inner,virt_matrix,virt_values,virt_inner,outer_normal,scale);
-		delete acc;
+		acc->doCalc(cur_node, new_node, virt_node, matrix, previousNodes, inner, 
+						virt_matrix, virtPreviousNodes, virt_inner, outer_normal, scale);
 	}
 };

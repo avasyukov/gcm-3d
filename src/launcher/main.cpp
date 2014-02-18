@@ -12,7 +12,7 @@
 
 #include <mpi.h>
 
-#include "launcher/launcher.h"
+#include "../launcher/launcher.h"
 
 #ifndef CONFIG_SHARE_GCM
 #define CONFIG_SHARE_GCM "/usr/share/gcm3d"

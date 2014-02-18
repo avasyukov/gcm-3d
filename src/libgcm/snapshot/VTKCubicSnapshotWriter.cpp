@@ -46,35 +46,34 @@ void gcm::VTKCubicSnapshotWriter::dumpVTK(string filename, BasicCubicMesh *mesh,
 	vtkIntArray    *mpiState = vtkIntArray::New();
 	vtkIntArray	   *nodeErrorFlags = vtkIntArray::New ();
 	
-	CalcNode* node;
 	float v[3];
 	float c[3];
 	
 	for(int i = 0; i < mesh->getNodesNumber(); i++)
 	{
-		node = mesh->getNodeByLocalIndex(i);
-		points->InsertNextPoint( node->coords[0], node->coords[1], node->coords[2] );
+		CalcNode& node = mesh->getNodeByLocalIndex(i);
+		points->InsertNextPoint( node.coords[0], node.coords[1], node.coords[2] );
 		
-		v[0] = node->values[0];	v[1] = node->values[1];	v[2] = node->values[2];
-		memcpy(c, node->getCrackDirection(), 3*sizeof(float));
+		v[0] = node.values[0];	v[1] = node.values[1];	v[2] = node.values[2];
+		memcpy(c, node.getCrackDirection(), 3*sizeof(float));
 		vel->InsertNextTuple(v);
 		crack->InsertNextTuple(c);
-		sxx->InsertNextValue( node->values[3] );
-		sxy->InsertNextValue( node->values[4] );
-		sxz->InsertNextValue( node->values[5] );
-		syy->InsertNextValue( node->values[6] );
-		syz->InsertNextValue( node->values[7] );
-		szz->InsertNextValue( node->values[8] );
-		compression->InsertNextValue( node->getCompression() );
-		tension->InsertNextValue( node->getTension() );
-		shear->InsertNextValue( node->getShear() );
-		deviator->InsertNextValue( node->getDeviator() );
-		matId->InsertNextValue( node->getMaterialId() );
-		rho->InsertNextValue( node->getRho() );
-		borderState->InsertNextValue( node->isBorder() ? ( node->isInContact() ? 2 : 1 ) : 0 );
-		contactState->InsertNextValue(node->getContactConditionId());
-		mpiState->InsertNextValue( node->isRemote() ? 1 : 0 );
-		nodeErrorFlags->InsertNextValue (node->getErrorFlags());
+		sxx->InsertNextValue( node.values[3] );
+		sxy->InsertNextValue( node.values[4] );
+		sxz->InsertNextValue( node.values[5] );
+		syy->InsertNextValue( node.values[6] );
+		syz->InsertNextValue( node.values[7] );
+		szz->InsertNextValue( node.values[8] );
+		compression->InsertNextValue( node.getCompression() );
+		tension->InsertNextValue( node.getTension() );
+		shear->InsertNextValue( node.getShear() );
+		deviator->InsertNextValue( node.getDeviator() );
+		matId->InsertNextValue( node.getMaterialId() );
+		rho->InsertNextValue( node.getRho() );
+		borderState->InsertNextValue( node.isBorder() ? ( node.isInContact() ? 2 : 1 ) : 0 );
+		contactState->InsertNextValue(node.getContactConditionId());
+		mpiState->InsertNextValue( node.isRemote() ? 1 : 0 );
+		nodeErrorFlags->InsertNextValue (node.getErrorFlags());
 	}
 	
 	// Specify the dimensions of the grid

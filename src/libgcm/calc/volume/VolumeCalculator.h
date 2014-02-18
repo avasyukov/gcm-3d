@@ -9,6 +9,7 @@
 #define GCM_VOLUME_CALCULATOR_H_  1
 
 #include <string>
+#include <vector>
 
 #include "util/ElasticMatrix3D.h"
 
@@ -29,7 +30,8 @@ namespace gcm
 		/*
 		 * Calculate next state for the given node
 		 */
-		virtual void do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[9]) = 0;
+		virtual void doCalc(CalcNode& new_node, ElasticMatrix3D& matrix, 
+												vector<CalcNode>& previousNodes) = 0;
 		/*
 		 * Returns type of the calculator
 		 */

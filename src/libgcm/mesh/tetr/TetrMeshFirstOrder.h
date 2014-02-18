@@ -14,6 +14,7 @@
 #include "Logging.h"
 #include "Exception.h"
 #include "Math.h"
+#include "interpolator/TetrFirstOrderInterpolator.h"
 
 using namespace gcm;
 using namespace std;
@@ -32,15 +33,18 @@ namespace gcm
 	friend class DataBus;
 	friend class CollisionDetector;
 	friend class BruteforceCollisionDetector;
+	
+	private:
+		TetrFirstOrderInterpolator* interpolator;
 		
 	protected:
 		unordered_map<int, int> tetrsMap;
 		
 		// Cache for characteristics hits
 		bool charactCacheAvailable();
-		bool checkCharactCache(CalcNode* node, float dx, float dy, float dz, int& tetrNum);
-		void updateCharactCache(CalcNode* node, float dx, float dy, float dz, int tetrNum);
-		int getCharactCacheIndex(CalcNode* node, float dx, float dy, float dz);
+		bool checkCharactCache(CalcNode& node, float dx, float dy, float dz, int& tetrNum);
+		void updateCharactCache(CalcNode& node, float dx, float dy, float dz, int tetrNum);
+		int getCharactCacheIndex(CalcNode& node, float dx, float dy, float dz);
 		unordered_map<int, int> charactCache[12];
 		unsigned long long cacheHits;
 		unsigned long long cacheMisses;
@@ -55,6 +59,11 @@ namespace gcm
 		int tetrsStorageSize;
 		int faceNumber;
 		int faceStorageSize;
+		
+		vector< vector<int> > volumeElements;
+		vector< vector<int> > borderElements;
+		vector<int>& getVolumeElementsForNode(int index);
+		vector<int>& getBorderElementsForNode(int index);
 		
 		void build_surface_reverse_lookups();
 		void build_volume_reverse_lookups();
@@ -78,9 +87,6 @@ namespace gcm
 		float tetr_h(int i);
 		
 		void logMeshStats();
-	
-		/*TetrFirstOrder*/ int find_border_cross(CalcNode* node, float dx, float dy, float dz, bool debug, float* cross);
-		/*TetrFirstOrder*/ int find_border_cross(CalcNode* node, float dx, float dy, float dz, bool debug, CalcNode* cross);
 		
 		void calcMinH();
 		void calcAvgH();
@@ -93,10 +99,10 @@ namespace gcm
 
 		USE_LOGGER;
 		
-		/*TetrFirstOrder*/ int expandingScanForPoint (CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
-		/*TetrFirstOrder*/ int expandingScanForOwnerTetr(CalcNode* node, float dx, float dy, float dz, bool debug);
-		/*TetrFirstOrder*/ int fastScanForOwnerTetr(CalcNode* node, float dx, float dy, float dz, bool debug);
-		/*TetrFirstOrder*/ int find_owner_tetr(CalcNode* node, float dx, float dy, float dz, bool debug);
+		int expandingScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+		int fastScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug);
+		int findOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+		bool isInnerPoint(CalcNode& node, float dx, float dy, float dz, bool debug);
 		
 		gsl_matrix *T;
 		gsl_matrix *S;
@@ -113,15 +119,17 @@ namespace gcm
 		int getTetrsNumber();
 		int getTriangleNumber();
 		
-		void addTetr(TetrFirstOrder* tetr);
+		void addTetr(TetrFirstOrder& tetr);
 		/*
 		 * Returns tetr by its index.
 		 */
-		TetrFirstOrder* getTetr(unsigned int index);
+		TetrFirstOrder& getTetr(unsigned int index);
 		
-		TetrFirstOrder* getTetrByLocalIndex(unsigned int index);
+		TetrFirstOrder& getTetrByLocalIndex(unsigned int index);
 		
-		TriangleFirstOrder* getTriangle(int index);
+		bool hasTetr(unsigned int index);
+		
+		TriangleFirstOrder& getTriangle(int index);
 		// FIXME should two functions belowe be moved outside this class?
 		/*
 		 * Creates tetrahedrons.
@@ -143,19 +151,11 @@ namespace gcm
 		
 		void doNextPartStep(float tau, int stage);
 		
-		int findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
 		void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug);
 		void checkTopology(float tau);
-		void interpolate(CalcNode* node, TetrFirstOrder* tetr);
-		int prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
-														float time_step, int stage,
-														float* dksi, bool* inner, CalcNode* previous_nodes,
-														float* outer_normal, int* ppoint_num);
-		int find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage,
-														float dksi[], bool inner[], CalcNode previous_nodes[],
-														float outer_normal[], int ppoint_num[]);
-
-		void interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes);
+		
+		void interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
+								CalcNode& targetNode, bool& isInnerPoint);
 	};
 }
 #endif

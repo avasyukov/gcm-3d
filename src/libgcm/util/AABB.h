@@ -29,6 +29,7 @@ namespace gcm {
 		AABB( float _minX, float _maxX, float _minY, float _maxY, float _minZ, float _maxZ );
 		bool isInAABB( float x, float y, float z );
 		bool isInAABB( Node* node );
+		bool isInAABB( Node& node );
 		bool includes( AABB* box );
 		//bool intersects( AABB box );
 		bool intersects( AABB* box );

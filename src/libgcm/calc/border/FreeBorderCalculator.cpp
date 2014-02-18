@@ -19,16 +19,13 @@ FreeBorderCalculator::~FreeBorderCalculator()
 	gsl_permutation_free(p_gsl);
 };
 
-void FreeBorderCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
+void FreeBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, ElasticMatrix3D& matrix, 
+							vector<CalcNode>& previousNodes, bool inner[], 
+							float outer_normal[], float scale)
 {
-	LOG_TRACE("Starting calc");
+	assert(previousNodes.size() == 9);
 	
-	int outer_count = 0;
-	for(int i = 0; i < 9; i++)
-		if( !inner[i] )
-			outer_count++;
-	
-	assert( outer_count == 3 );
+	int outer_count = 3;
 	
 	// Tmp value for GSL solver
 	int s;
@@ -45,12 +42,12 @@ void FreeBorderCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, Elast
 			omega[i] = 0;
 			for(int j = 0; j < 9; j++)
 			{
-				omega[i] += matrix->U(i,j) * values[i][j];
+				omega[i] += matrix.U(i,j) * previousNodes[i].values[j];
 			}
 			// Load appropriate values into GSL containers
 			gsl_vector_set(om_gsl, i, omega[i]);
 			for(int j = 0; j < 9; j++)
-				gsl_matrix_set(U_gsl, i, j, matrix->U(i,j));
+				gsl_matrix_set(U_gsl, i, j, matrix.U(i,j));
 		}
 		// If omega is 'outer' one
 		else
@@ -89,19 +86,6 @@ void FreeBorderCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, Elast
 	gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);
 
 	for(int j = 0; j < 9; j++)
-		new_node->values[j] = gsl_vector_get(x_gsl, j);
+		new_node.values[j] = gsl_vector_get(x_gsl, j);
 
-	/*
-	bool issue = false;
-	for( int j = 0; j < 3; j++ )
-		if( fabs(new_node->values[j]) > 300 )
-			issue = true;
-	for( int j = 3; j < 9; j++ )
-		if( fabs(new_node->values[j]) > 90000 )
-			issue = true;
-	if( issue )
-		LOG_TRACE("Issue detected.\nNode: " << *new_node <<"\nNormal: " << outer_normal[0] << " " << outer_normal[1] << " " << outer_normal[2]);
-	 */
-	
-	LOG_TRACE("Calc done");
 };

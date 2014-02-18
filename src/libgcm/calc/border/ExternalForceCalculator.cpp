@@ -28,9 +28,12 @@ void ExternalForceCalculator::set_parameters(float sn, float st, float xv, float
 	tangential_direction[2] = zv / dtmp;
 };
 
-void ExternalForceCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
+void ExternalForceCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, ElasticMatrix3D& matrix, 
+							vector<CalcNode>& previousNodes, bool inner[], 
+							float outer_normal[], float scale)
 {
-
+	assert(previousNodes.size() == 9);
+	
 	float local_n[3][3];
 	local_n[0][0] = outer_normal[0];
 	local_n[0][1] = outer_normal[1];
@@ -55,12 +58,12 @@ void ExternalForceCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, El
 			omega[i] = 0;
 			for(int j = 0; j < 9; j++)
 			{
-				omega[i] += matrix->U(i,j) * values[i][j];
+				omega[i] += matrix.U(i,j) * previousNodes[i].values[j];
 			}
 			// Load appropriate values into GSL containers
 			gsl_vector_set(om_gsl, i, omega[i]);
 			for(int j = 0; j < 9; j++)
-				gsl_matrix_set(U_gsl, i, j, matrix->U(i,j));
+				gsl_matrix_set(U_gsl, i, j, matrix.U(i,j));
 		}
 		// If omega is 'outer' one
 		else
@@ -118,6 +121,6 @@ void ExternalForceCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, El
 	gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);
 
 	for(int j = 0; j < 9; j++)
-		new_node->values[j] = gsl_vector_get(x_gsl, j);
+		new_node.values[j] = gsl_vector_get(x_gsl, j);
 
 };

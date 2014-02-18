@@ -6,8 +6,11 @@ SimpleVolumeCalculator::SimpleVolumeCalculator() {
 	INIT_LOGGER("gcm.SimpleVolumeCalculator");
 };
 
-void SimpleVolumeCalculator::do_calc(CalcNode* new_node, ElasticMatrix3D* matrix, float* values[])
+void SimpleVolumeCalculator::doCalc(CalcNode& new_node, ElasticMatrix3D& matrix, 
+														vector<CalcNode>& previousNodes)
 {
+	assert(previousNodes.size() == 9);
+	
 	LOG_TRACE("Start calc");
 	
 	// Here we will store (omega = Matrix_OMEGA * u)
@@ -21,16 +24,16 @@ void SimpleVolumeCalculator::do_calc(CalcNode* new_node, ElasticMatrix3D* matrix
 		omega[i] = 0;
 		for(int j = 0; j < 9; j++)
 		{
-			omega[i] += matrix->U(i,j) * values[i][j];
+			omega[i] += matrix.U(i,j) * previousNodes[i].values[j];
 		}
 	}
 	// Calculate new values
 	for(int i = 0; i < 9; i++)
 	{
-		new_node->values[i] = 0;
+		new_node.values[i] = 0;
 		for(int j = 0; j < 9; j++)
 		{
-			new_node->values[i] += matrix->U1(i,j) * omega[j];
+			new_node.values[i] += matrix.U1(i,j) * omega[j];
 		}
 	}
 	LOG_TRACE("Calc done");

@@ -120,8 +120,6 @@ namespace gcm {
 			}
 			void calcMainStressDirectionByComponent(float stress, float* vector);
 			
-			vector<int>* elements;
-			vector<int>* border_elements;
 			int contactNodeNum;
 			unsigned char contactDirection;
 			unsigned char bodyId;

@@ -26,9 +26,12 @@ void ExternalValuesCalculator::set_parameters(int vars[], float vals[])
 	}
 };
 
-void ExternalValuesCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale)
+void ExternalValuesCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, ElasticMatrix3D& matrix, 
+							vector<CalcNode>& previousNodes, bool inner[], 
+							float outer_normal[], float scale)
 {
-
+	assert(previousNodes.size() == 9);
+	
 	// Tmp value for GSL solver
 	int s;
 
@@ -46,12 +49,12 @@ void ExternalValuesCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, E
 			omega[i] = 0;
 			for(int j = 0; j < 9; j++)
 			{
-				omega[i] += matrix->U(i,j) * values[i][j];
+				omega[i] += matrix.U(i,j) * previousNodes[i].values[j];
 			}
 			// Load appropriate values into GSL containers
 			gsl_vector_set(om_gsl, i, omega[i]);
 			for(int j = 0; j < 9; j++)
-				gsl_matrix_set(U_gsl, i, j, matrix->U(i,j));
+				gsl_matrix_set(U_gsl, i, j, matrix.U(i,j));
 		}
 		// If omega is 'outer' one
 		else
@@ -87,6 +90,6 @@ void ExternalValuesCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, E
 	gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);
 
 	for(int j = 0; j < 9; j++)
-		new_node->values[j] = gsl_vector_get(x_gsl, j);
+		new_node.values[j] = gsl_vector_get(x_gsl, j);
 
 };

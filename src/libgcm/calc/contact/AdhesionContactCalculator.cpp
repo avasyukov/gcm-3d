@@ -18,8 +18,14 @@ AdhesionContactCalculator::~AdhesionContactCalculator()
 	gsl_permutation_free(p_gsl);
 };
 
-void AdhesionContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, CalcNode* virt_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[], float scale)
+void AdhesionContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node, 
+							ElasticMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[], 
+							ElasticMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[], 
+							float outer_normal[], float scale)
 {
+	assert(previousNodes.size() == 9);
+	assert(virtPreviousNodes.size() == 9);
+	
 	// Here we will store (omega = Matrix_OMEGA * u)
 	float omega[9];
 	float virt_omega[9];
@@ -36,14 +42,14 @@ void AdhesionContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, 
 			// omega on new time layer is equal to omega on previous time layer along characteristic
 			omega[i] = 0;
 			for( int j = 0; j < 9; j++ ) {
-				omega[i] += matrix->U(i,j) * values[i][j];
+				omega[i] += matrix.U(i,j) * previousNodes[i].values[j];
 			}
 
 			// then we must set the corresponding values of the 18x18 matrix
 			gsl_vector_set( om_gsl, 6 * curNN + posInEq18, omega[i] );
 
 			for( int j = 0; j < 9; j++ ) {
-				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, matrix->U( i, j ) );
+				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, matrix.U( i, j ) );
 			}
 			for( int j = 9; j < 18; j++ ) {
 				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, 0 );
@@ -63,7 +69,7 @@ void AdhesionContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, 
 			// omega on new time layer is equal to omega on previous time layer along characteristic
 			virt_omega[i] = 0;
 			for( int j = 0; j < 9; j++ ) {
-				virt_omega[i] += virt_matrix->U(i,j) * virt_values[i][j];
+				virt_omega[i] += virt_matrix.U(i,j) * virtPreviousNodes[i].values[j];
 			}
 
 			// then we must set the corresponding values of the 18x18 matrix
@@ -73,7 +79,7 @@ void AdhesionContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, 
 				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, 0 );
 			}
 			for( int j = 9; j < 18; j++ ) {
-				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, virt_matrix->U( i, j - 9 ) );
+				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, virt_matrix.U( i, j - 9 ) );
 			}
 			posInEq18++;
 		}
@@ -139,6 +145,6 @@ void AdhesionContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, 
 
 	// Just get first 9 values (real node) and dump the rest 9 (virt node)
 	for(int j = 0; j < 9; j++)
-		new_node->values[j] = gsl_vector_get(x_gsl, j);
+		new_node.values[j] = gsl_vector_get(x_gsl, j);
 
 };

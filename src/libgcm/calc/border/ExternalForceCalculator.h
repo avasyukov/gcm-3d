@@ -11,7 +11,9 @@ class ExternalForceCalculator : public BorderCalculator
 public:
 	ExternalForceCalculator();
 	~ExternalForceCalculator();
-	void do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale);
+	void doCalc(CalcNode& cur_node, CalcNode& new_node, ElasticMatrix3D& matrix, 
+							vector<CalcNode>& previousNodes, bool inner[], 
+							float outer_normal[], float scale) = 0;
 	inline string getType() {
 		return "ExternalForceCalculator";
 	}

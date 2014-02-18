@@ -19,7 +19,10 @@ namespace gcm {
 		Area* area;
 		PulseForm* form;
 		ContactCalculator* calc;
-		void do_calc(float time, CalcNode* cur_node, CalcNode* new_node, CalcNode* virt_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[]);
+		void doCalc(float time, CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node, 
+							ElasticMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[], 
+							ElasticMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[], 
+							float outer_normal[]);
 	};
 }
 
