@@ -32,6 +32,11 @@ bool gcm::AABB::isInAABB( Node* node )
 	return isInAABB(node->coords[0], node->coords[1], node->coords[2]);
 };
 
+bool gcm::AABB::isInAABB( Node& node )
+{
+	return isInAABB(node.coords[0], node.coords[1], node.coords[2]);
+};
+
 bool gcm::AABB::includes(AABB* box)
 {
 	return ( minX <= box->minX ) && ( minY <= box->minY ) && ( minZ <= box->minZ )

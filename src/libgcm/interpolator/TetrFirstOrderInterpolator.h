@@ -24,8 +24,8 @@ namespace gcm {
 	public:
 		TetrFirstOrderInterpolator();
 		~TetrFirstOrderInterpolator();
-		void interpolate( CalcNode* node, 
-				CalcNode* node0, CalcNode* node1, CalcNode* node2, CalcNode* node3 );
+		void interpolate( CalcNode& node, 
+				CalcNode& node0, CalcNode& node1, CalcNode& node2, CalcNode& node3 );
 	private:
 		USE_LOGGER;
 	};

@@ -10,7 +10,9 @@ class FreeBorderCalculator : public BorderCalculator
 public:
 	FreeBorderCalculator();
 	~FreeBorderCalculator();
-	void do_calc(CalcNode* cur_node, CalcNode* new_node, ElasticMatrix3D* matrix, float* values[], bool inner[], float outer_normal[], float scale);
+	void doCalc(CalcNode& cur_node, CalcNode& new_node, ElasticMatrix3D& matrix, 
+							vector<CalcNode>& previousNodes, bool inner[], 
+							float outer_normal[], float scale);
 	
 	inline string getType() {
 		return "FreeBorderCalculator";

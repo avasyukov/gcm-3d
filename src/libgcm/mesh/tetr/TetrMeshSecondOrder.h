@@ -5,6 +5,8 @@
 #include "elem/TetrSecondOrder.h"
 #include "elem/TriangleSecondOrder.h"
 
+#include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
+
 using namespace std;
 using namespace gcm;
 
@@ -31,10 +33,12 @@ namespace gcm {
 		int firstOrderNodesNumber;
 		int secondOrderNodesNumber;
 		
+		TetrSecondOrderMinMaxInterpolator* interpolator;
+		
 	protected:
 		int countSecondOrderNodes(TetrMeshFirstOrder* src);
 		void generateSecondOrderNodes();
-		void fillSecondOrderNode(CalcNode* newNode, int nodeIdx1, int nodeIdx2);
+		void fillSecondOrderNode(CalcNode& newNode, int nodeIdx1, int nodeIdx2);
 		
 		void verifyTetrahedraVertices();
 		void build_volume_reverse_lookups();
@@ -53,23 +57,24 @@ namespace gcm {
 		/*
 		 * Returns tetr by its index.
 		 */
-		TetrFirstOrder* getTetr(unsigned int index);
-		TetrSecondOrder* getTetr2(int index);
+		TetrFirstOrder& getTetr(unsigned int index);
+		TetrSecondOrder& getTetr2(int index);
 		
-		TetrFirstOrder* getTetrByLocalIndex(unsigned int index);
-		TetrSecondOrder* getTetr2ByLocalIndex(int index);
+		TetrFirstOrder& getTetrByLocalIndex(unsigned int index);
+		TetrSecondOrder& getTetr2ByLocalIndex(int index);
 		
-		void addTetr(TetrFirstOrder* tetr);
-		void addTetr2(TetrSecondOrder* tetr);
+		void addTetr(TetrFirstOrder& tetr);
+		void addTetr2(TetrSecondOrder& tetr);
 		void rebuildMaps();
 		
-		TriangleFirstOrder* getTriangle(int index);
-		TriangleSecondOrder* getTriangle2(int index);
+		TriangleFirstOrder& getTriangle(int index);
+		TriangleSecondOrder& getTriangle2(int index);
 
 		void preProcessGeometry();
 		void moveCoords(float tau);
 
-		void interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes);
+		void interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
+								CalcNode& targetNode, bool& isInnerPoint);
 	};
 }
 #endif

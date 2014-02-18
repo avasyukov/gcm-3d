@@ -19,19 +19,18 @@ namespace gcm
 		InterpolationFixedAxis();
 		virtual ~InterpolationFixedAxis();
 		int getNumberOfStages();
-		void doNextPartStep(CalcNode* cur_node, CalcNode* new_node, float time_step, int stage, Mesh* genericMesh);
-		float getMaxLambda(CalcNode* node);
+		void doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh);
+		float getMaxLambda(CalcNode& node);
 		string getType();
 	protected:
-		int prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
-												float time_step, int stage, TetrMeshFirstOrder* mesh,
-												float* dksi, bool* inner, CalcNode* previous_nodes,
-												float* outer_normal, int* ppoint_num);
-		int find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage, TetrMeshFirstOrder* mesh,
-												float dksi[], bool inner[], CalcNode previous_nodes[],
-												float outer_normal[], int ppoint_num[]);
-		void interpolateNode(TetrMeshFirstOrder* mesh, int tetrInd, int prevNodeInd, CalcNode* previous_nodes);
-
+		int prepare_node(CalcNode& cur_node, ElasticMatrix3D& elastic_matrix3d,
+				float time_step, int stage, Mesh* mesh,
+				float* dksi, bool* inner, vector<CalcNode>& previous_nodes,
+				float* outer_normal);
+		int find_nodes_on_previous_time_layer(CalcNode& cur_node, int stage, Mesh* mesh,
+				float dksi[], bool inner[], vector<CalcNode>& previous_nodes,
+				float outer_normal[]);
+		
 		USE_LOGGER;
 	};
 }

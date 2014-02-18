@@ -20,6 +20,7 @@ gcm::TetrMeshFirstOrder::TetrMeshFirstOrder()
 	LOG_DEBUG("Creating mesh");
 	cacheHits = 0;
 	cacheMisses = 0;
+	interpolator = new TetrFirstOrderInterpolator();
 }
 
 gcm::TetrMeshFirstOrder::~TetrMeshFirstOrder()
@@ -34,6 +35,7 @@ gcm::TetrMeshFirstOrder::~TetrMeshFirstOrder()
 	new_nodes.clear();
 	tetrs1.clear();
 	border1.clear();
+	delete interpolator;
 	LOG_DEBUG("Mesh destroyed");
 }
 
@@ -47,19 +49,26 @@ int gcm::TetrMeshFirstOrder::getTriangleNumber()
 	return faceNumber;
 }
 
-TetrFirstOrder* gcm::TetrMeshFirstOrder::getTetr(unsigned int index) {
+TetrFirstOrder& gcm::TetrMeshFirstOrder::getTetr(unsigned int index) {
 	unordered_map<int, int>::const_iterator itr;
 	itr = tetrsMap.find(index);
-	return ( itr != tetrsMap.end() ? &tetrs1[itr->second] : NULL );
+	assert( itr != tetrsMap.end() );
+	return tetrs1[itr->second];
 }
 
-TetrFirstOrder* gcm::TetrMeshFirstOrder::getTetrByLocalIndex(unsigned int index) {
-	return &tetrs1[index];
+bool gcm::TetrMeshFirstOrder::hasTetr(unsigned int index) {
+	unordered_map<int, int>::const_iterator itr;
+	itr = tetrsMap.find(index);
+	return itr != tetrsMap.end();
 }
 
-TriangleFirstOrder* gcm::TetrMeshFirstOrder::getTriangle(int index) {
+TetrFirstOrder& gcm::TetrMeshFirstOrder::getTetrByLocalIndex(unsigned int index) {
+	return tetrs1[index];
+}
+
+TriangleFirstOrder& gcm::TetrMeshFirstOrder::getTriangle(int index) {
 	assert( index >= 0 );
-	return &border1[index];
+	return border1[index];
 }
 
 void gcm::TetrMeshFirstOrder::createTetrs(int number) {
@@ -76,12 +85,12 @@ void gcm::TetrMeshFirstOrder::createTriangles(int number) {
 	faceStorageSize = number;
 }
 
-void gcm::TetrMeshFirstOrder::addTetr(TetrFirstOrder* tetr) {
+void gcm::TetrMeshFirstOrder::addTetr(TetrFirstOrder& tetr) {
 	if( tetrsNumber == tetrsStorageSize )
 		createTetrs(tetrsStorageSize*STORAGE_ONDEMAND_GROW_RATE);
 	assert( tetrsNumber < tetrsStorageSize );
-	tetrs1[tetrsNumber] = *tetr;
-	tetrsMap[tetr->number] = tetrsNumber;
+	tetrs1[tetrsNumber] = tetr;
+	tetrsMap[tetr.number] = tetrsNumber;
 	tetrsNumber++;
 }
 
@@ -125,30 +134,25 @@ void gcm::TetrMeshFirstOrder::build_volume_reverse_lookups()
 {
 	LOG_DEBUG("Building volume reverse lookups");
 
-	CalcNode* node;
-	TetrFirstOrder* tetr;
 	// Init vectors for "reverse lookups" of tetrahedrons current node is a member of.
 	//for(int i = 0; i < nodesNumber; i++) { 
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		node = getNode(i);
-		node->elements->clear();
-		//delete node->elements;
-		//node->elements = new vector<int>; 
+		getVolumeElementsForNode(i).clear();
 	}
 
 	// Go through all the tetrahedrons
 	//for(int i = 0; i < tetrsNumber; i++) {
 	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
 		int i = itr->first;
-		tetr = getTetr(i);
+		TetrFirstOrder& tetr = getTetr(i);
 		// For all verticles
 		for(int j = 0; j < 4; j++)
 		{
-			node = getNode( tetr->verts[j] );
-			assert( node->isFirstOrder() );
+			CalcNode& node = getNode( tetr.verts[j] );
+			assert( node.isFirstOrder() );
 			// Push to data of nodes the number of this tetrahedron
-			node->elements->push_back( tetr->number );
+			getVolumeElementsForNode(i).push_back( tetr.number );
 		}
 	}
 }
@@ -162,18 +166,18 @@ void gcm::TetrMeshFirstOrder::check_numbering()
 	//for(int i = 0; i < nodesNumber; i++)
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		if(getNode(i)->number != i)
+		if(getNode(i).number != i)
 			THROW_BAD_MESH("Invalid node numbering");
 	}
 	//for(int i = 0; i < tetrsNumber; i++) {
 	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
 		int i = itr->first;
-		if(getTetr(i)->number != i)
+		if(getTetr(i).number != i)
 			THROW_BAD_MESH("Invalid tetrahedron numbering");
 	}
 	for(int i = 0; i < faceNumber; i++)
 	{
-		if(getTriangle(i)->number != i)
+		if(getTriangle(i).number != i)
 			THROW_BAD_MESH("Invalid triangle numbering");
 	}
 }
@@ -188,28 +192,26 @@ void gcm::TetrMeshFirstOrder::build_border()
 	LOG_DEBUG("Looking for border nodes using angles");
 	int nodeCount = 0;
 	
-	CalcNode* node;
-	TetrFirstOrder* tetr;
-	
 	// Check border using solid angle comparation with 4*PI
 
 	//for( int i = 0; i < nodesNumber; i++ ) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		node = getNode(i);
-		node->setIsBorder(false);
+		CalcNode& node = getNode(i);
+		node.setIsBorder(false);
 		// We consider remote nodes to be 'border' of current local ones
-		if( /*node->isLocal() &&*/ node->isFirstOrder() )
+		if( /*node.isLocal() &&*/ node.isFirstOrder() )
 		{
 			solid_angle = 0;
-			for(unsigned j = 0; j < node->elements->size(); j++)
+			vector<int>& elements = getVolumeElementsForNode(i);
+			for(unsigned j = 0; j < elements.size(); j++)
 			{
-				solid_angle_part = get_solid_angle(i, node->elements->at(j));
+				solid_angle_part = get_solid_angle(i, elements[j]);
 				assert(solid_angle_part >= 0);
 				solid_angle += solid_angle_part;
 			}
 			if( fabs(4 * M_PI - solid_angle) > M_PI * EQUALITY_TOLERANCE ) {
-				node->setIsBorder (true);
+				node.setIsBorder (true);
 				nodeCount++;
 			}
 		}
@@ -227,12 +229,12 @@ void gcm::TetrMeshFirstOrder::build_border()
 	//for(int i = 0; i < tetrsNumber; i++) {
 	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
 		int i = itr->first;
-		tetr = getTetr(i);
+		TetrFirstOrder& tetr = getTetr(i);
 		for( int j = 0; j < 4; j++ )
 		{
-			if( isTriangleBorder( tetr->verts ) )
+			if( isTriangleBorder( tetr.verts ) )
 				faceCount++;
-			shiftArrayLeft( tetr->verts, 4 );
+			shiftArrayLeft( tetr.verts, 4 );
 		}
 	}
 	
@@ -243,15 +245,15 @@ void gcm::TetrMeshFirstOrder::build_border()
 	//for(int i = 0; i < tetrsNumber; i++) {
 	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
 		int i = itr->first;
-		tetr = getTetr(i);
+		TetrFirstOrder& tetr = getTetr(i);
 		for( int j = 0; j < 4; j++ )
 		{
-			if( isTriangleBorder( tetr->verts ) )
+			if( isTriangleBorder( tetr.verts ) )
 			{
-				*getTriangle(number) = createBorderTriangle( tetr->verts, number );
+				getTriangle(number) = createBorderTriangle( tetr.verts, number );
 				number++;
 			}
-			shiftArrayLeft( tetr->verts, 4 );
+			shiftArrayLeft( tetr.verts, 4 );
 		}
 	}
 	
@@ -263,24 +265,23 @@ void gcm::TetrMeshFirstOrder::build_surface_reverse_lookups()
 {
 	LOG_DEBUG("Building surface reverse lookups");
 
-	CalcNode* node;
-	TriangleFirstOrder* tri;
 	// Init vectors for "reverse lookups" of border triangles current node is a member of.
 	//for(int i = 0; i < nodesNumber; i++) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		node = getNode(i);
-		node->border_elements->clear();
-		//delete node->border_elements;
-		//node->border_elements = new vector<int>; 
+		getBorderElementsForNode(i).clear();
 	}
 
 	// Go through all the triangles and push to data of nodes the number of this triangle
 	for(int i = 0; i < faceNumber; i++)
 	{
-		tri = getTriangle(i);
+		TriangleFirstOrder& tri = getTriangle(i);
 		for(int j = 0; j < 3; j++)
-			getNode( tri->verts[j] )->border_elements->push_back(i);
+		{
+			CalcNode& node = getNode( tri.verts[j] );
+			assert( node.isFirstOrder() );
+			getBorderElementsForNode(i).push_back( i );
+		}
 	}
 }
 
@@ -288,44 +289,42 @@ void gcm::TetrMeshFirstOrder::check_unused_nodes()
 {
 	LOG_DEBUG("Looking for unused nodes");
 
-	CalcNode* node;
 	// Check all the nodes and find 'unused'
 
 	// Case 1 - node has no connections at all
 	//for(int i = 0; i < nodesNumber; i++) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		node = getNode(i);
-		if( (node->elements)->size() == 0 )
-			node->setUsed(false);
+		CalcNode& node = getNode(i);
+		if( getVolumeElementsForNode(i).size() == 0 )
+			node.setUsed(false);
 	}
 
-	// TetrFirstOrder* tetr;
 	// Case 2 - remote ones that have connections only with remote ones
 	//for(int i = 0; i < nodesNumber; i++) {
 	/*for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		node = getNode(i);
+		CalcNode& node = getNode(i);
 		// If node is remote
-		if( node->isRemote() )
+		if( node.isRemote() )
 		{
 			int count = 0;
 			// Check tetrahedrons it is a member of
-			for(unsigned j = 0; j < node->elements->size(); j++)
+			for(unsigned j = 0; j < node.elements->size(); j++)
 			{
-				tetr = getTetr( node->elements->at(j) );
+				TetrFirstOrder& tetr = getTetr( node.elements->at(j) );
 				// Check verticles
 				for(int k = 0; k < 4; k++)
 				{
 					// If it is local - count++
-					if( getNode( tetr->verts[k] )->isLocal() )
+					if( getNode( tetr.verts[k] ).isLocal() )
 						count++;
 				}
 			}
 			// If remote node is NOT connected with at least one local - it is unused one
 			if(count == 0)
 			{
-				node->setUsed(false);
+				node.setUsed(false);
 			}
 		}
 	}*/
@@ -340,8 +339,6 @@ void gcm::TetrMeshFirstOrder::check_outer_normals()
 	// Displacement
 	//float dx[3];
 	
-	CalcNode* node;
-	
 	// Guaranteed allowed step
 	//float step_h = getMinH() * 0.5;
 
@@ -349,8 +346,8 @@ void gcm::TetrMeshFirstOrder::check_outer_normals()
 	//for(int i = 0; i < nodesNumber; i++) {
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		node = getNode(i);
-		if(node->isBorder() && node->isUsed()) {
+		CalcNode& node = getNode(i);
+		if(node.isBorder() && node.isUsed()) {
 
 			findBorderNodeNormal(i, &normal[0], &normal[1], &normal[2], false);
 
@@ -360,7 +357,7 @@ void gcm::TetrMeshFirstOrder::check_outer_normals()
 			//dx[2] = step_h * normal[2];
 
 			// Check if we are inside of the body moving towards normal
-			//if( find_owner_tetr(&nodes[i], -dx[0], -dx[1], -dx[2]) == NULL ) {
+			//if( findOwnerTetr(&nodes[i], -dx[0], -dx[1], -dx[2]) == NULL ) {
 				// Smth bad happens
 //				*logger << "Can not find outer normal\n";
 //				*logger << nodes[i].coords[0] << " " << nodes[i].coords[1] << " " < nodes[i].coords[2];
@@ -378,14 +375,13 @@ void gcm::TetrMeshFirstOrder::check_outer_normals()
 
 void gcm::TetrMeshFirstOrder::verifyTetrahedraVertices ()
 {
-	TetrFirstOrder* tetr;
 	LOG_DEBUG ("Verifying tetrahedra vertices");
 	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
 		int tetrInd = itr->first;
-		tetr = getTetr(tetrInd);
+		TetrFirstOrder& tetr = getTetr(tetrInd);
 		for (int vertInd = 0; vertInd < 4; vertInd++)
 		{
-			assert( getNode( tetr->verts[vertInd] )->isFirstOrder() );
+			assert( getNode( tetr.verts[vertInd] ).isFirstOrder() );
 		}
 	}
 }
@@ -432,20 +428,15 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap)
 bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool debug)
 {
 	*needSwap = false;
-	CalcNode* v1 = getNode( v[0] );
-	CalcNode* v2 = getNode( v[1] );
-	CalcNode* v3 = getNode( v[2] );
-	CalcNode* tetr_vert = getNode( v[3] );
+	CalcNode& v1 = getNode( v[0] );
+	CalcNode& v2 = getNode( v[1] );
+	CalcNode& v3 = getNode( v[2] );
+	CalcNode& tetr_vert = getNode( v[3] );
 
-	if( !v1->isBorder() || !v2->isBorder() || !v3->isBorder() )
+	if( !v1.isBorder() || !v2.isBorder() || !v3.isBorder() )
 		return false;
 	
 	bool _debug = debug;
-	//if( ( v1 == 0 && v2 == 421 ) || ( v1 == 0 && v3 == 421 ) || ( v2 == 0 && v3 == 421 ) 
-	//		|| ( v2 == 0 && v1 == 421 ) || ( v3 == 0 && v1 == 421 ) || ( v3 == 0 && v2 == 421 ) )
-	//	_debug = true;
-	//if( v1 == 99 && v2 == 119 && v3 == 124 )
-	//	debug = true;
 	
 	float h = getMinH() * 0.25;
 	
@@ -459,24 +450,24 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	float plane_move[3];
 	// float plane_move_mod;
 
-	findTriangleFaceNormal(v1->coords, v2->coords, v3->coords, 
+	findTriangleFaceNormal(v1.coords, v2.coords, v3.coords, 
 							&normal[0], &normal[1], &normal[2]);
 
 	// Triangle center
 	for(int i = 0; i < 3; i++)
-		center[i] = (v1->coords[i] + v2->coords[i] + v3->coords[i]) / 3;
+		center[i] = (v1.coords[i] + v2.coords[i] + v3.coords[i]) / 3;
 
 	// Direction from triangle center to the verticle of tetrahedron
 	for(int i = 0; i < 3; i++)
-		innerDirection[i] = tetr_vert->coords[i] - center[i];
+		innerDirection[i] = tetr_vert.coords[i] - center[i];
 	
 	if( _debug )
 	{
 		LOG_DEBUG("Debug issue with isTriangleBorder()");
-		LOG_DEBUG("Node #1: " << *v1);
-		LOG_DEBUG("Node #2: " << *v2);
-		LOG_DEBUG("Node #3: " << *v3);
-		LOG_DEBUG("Add node: " << *tetr_vert);
+		LOG_DEBUG("Node #1: " << v1);
+		LOG_DEBUG("Node #2: " << v2);
+		LOG_DEBUG("Node #3: " << v3);
+		LOG_DEBUG("Add node: " << tetr_vert);
 		LOG_DEBUG("Normal: " << normal[0] << " " << normal[1] << " " << normal[2]);
 		LOG_DEBUG("Center: " << center[0] << " " << center[1] << " " << center[2]);
 		LOG_DEBUG("Inner direction: " << innerDirection[0] << " " << innerDirection[1] << " " << innerDirection[2]);
@@ -491,8 +482,8 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 		for(int i = 0; i < 3; i++)
 			normal[i] = -normal[i];
 		// And swap verticles order to match new direction
-		v2 = getNode( v[2] );
-		v3 = getNode( v[1] );
+		//v2 = getNode( v[2] );
+		//v3 = getNode( v[1] );
 		*needSwap = true;
 	}
 	
@@ -507,19 +498,19 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 
 	// Move from v1 to triangle center
 	for(int i = 0; i < 3; i++)
-		plane_move[i] = center[i] - v1->coords[i];
+		plane_move[i] = center[i] - v1.coords[i];
 
 	for(int i = 0; i < 3; i++)
 		dx[i] += plane_move[i];
 
 	if( _debug )
 	{
-		LOG_DEBUG("Base node: " << *v1);
+		LOG_DEBUG("Base node: " << v1);
 		LOG_DEBUG("Move: " << dx[0] << " " << dx[1] << " " << dx[2]);
 	}
 	
 	// Check if we are outside of the body moving from triangle center along normal ...
-	if( /*find_owner_tetr*/fastScanForOwnerTetr(v1, dx[0], dx[1], dx[2], _debug) != -1 )
+	if( fastScanForOwnerTetr(v1, dx[0], dx[1], dx[2], _debug) != -1 )
 	{
 		if(_debug)
 			LOG_DEBUG("Result: not border");
@@ -532,42 +523,34 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	return true;
 };
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::findTargetPoint(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+int gcm::TetrMeshFirstOrder::findOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
-	//TetrFirstOrder* tetr;
 	int tetr;
 	if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h * (1 + EQUALITY_TOLERANCE) )
 	{
 		tetr = fastScanForOwnerTetr (node, dx, dy, dz, debug);
 		// TODO - what happens if (tetr == -1)? What coords should we return this case?
-		coords[0] = node->coords[0] + dx;
-		coords[1] = node->coords[1] + dy;
-		coords[2] = node->coords[2] + dz;
+		coords[0] = node.coords[0] + dx;
+		coords[1] = node.coords[1] + dy;
+		coords[2] = node.coords[2] + dz;
 		*innerPoint = (tetr != -1);
 		return tetr;
 	}
 	else
 	{
-		return expandingScanForPoint (node, dx, dy, dz, debug, coords, innerPoint);
+		return expandingScanForOwnerTetr(node, dx, dy, dz, debug, coords, innerPoint);
 	}
 }
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::find_owner_tetr(CalcNode* node, float dx, float dy, float dz, bool debug)
+bool gcm::TetrMeshFirstOrder::isInnerPoint(CalcNode& node, float dx, float dy, float dz, bool debug)
 {
 	bool innerPoint;
-	//TetrFirstOrder* tetr;
-	int tetr;
 	float coords[3];
-	if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h * (1 + EQUALITY_TOLERANCE) )
-		return fastScanForOwnerTetr (node, dx, dy, dz, debug);
-	else
-	{
-		tetr = expandingScanForPoint (node, dx, dy, dz, debug, coords, &innerPoint);
-		return ( innerPoint ? tetr : /*NULL*/-1 );
-	}
+	findOwnerTetr(node, dx, dy, dz, debug, coords, &innerPoint);
+	return innerPoint;
 }
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode* node, float dx, float dy, float dz, bool debug)
+int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug)
 {
 	if( debug )
 		LOG_TRACE("Fast scan - debug ON (however, consider !inAABB condition)");
@@ -584,10 +567,9 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 		cacheMisses++;
 	}
 	
-	TetrFirstOrder* tetr;
-	float x = node->coords[0] + dx;
-	float y = node->coords[1] + dy;
-	float z = node->coords[2] + dz;
+	float x = node.coords[0] + dx;
+	float y = node.coords[1] + dy;
+	float z = node.coords[2] + dz;
 	
 	// Disable it since it causes issues with parallel computation
 	// - it becomes not clear how we should use here outline, expandedOutline, 'zone of interest'
@@ -598,33 +580,33 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 		return -1;
 	}*/
 	
-	for(unsigned i = 0; i < (node->elements)->size(); i++)
+	vector<int>& elements = getVolumeElementsForNode(node.number);
+	
+	for(unsigned i = 0; i < elements.size(); i++)
 	{
-		tetr = getTetr((node->elements)->at(i));
+		TetrFirstOrder& tetr = getTetr(elements[i]);
 		if( pointInTetr(x, y, z, 
-				getNode( tetr->verts[0] )->coords, getNode( tetr->verts[1] )->coords,
-				getNode( tetr->verts[2] )->coords, getNode( tetr->verts[3] )->coords, 
+				getNode( tetr.verts[0] ).coords, getNode( tetr.verts[1] ).coords,
+				getNode( tetr.verts[2] ).coords, getNode( tetr.verts[3] ).coords, 
 				debug) )
 		{
-			//return tetr;
-			updateCharactCache(node, dx, dy, dz, tetr->number);
-			return tetr->number;
+			updateCharactCache(node, dx, dy, dz, tetr.number);
+			return tetr.number;
 		}
 	}
 
-	//return NULL;
 	updateCharactCache(node, dx, dy, dz, -1);
 	return -1;
 }
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::expandingScanForPoint (CalcNode* node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::expandingScanForOwnerTetr (CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
 	if( debug )
 		LOG_TRACE("Expanding scan - debug ON");
 
-	float x = node->coords[0] + dx;
-	float y = node->coords[1] + dy;
-	float z = node->coords[2] + dz;
+	float x = node.coords[0] + dx;
+	float y = node.coords[1] + dy;
+	float z = node.coords[2] + dz;
 	
 	int res;
 	if( charactCacheAvailable() )
@@ -672,10 +654,11 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 	bool triangleIntersectionFound;
 	
 	float local_x, local_y, local_z;
-	TetrFirstOrder* curTetr;
 
-	for(unsigned i = 0; i < (node->elements)->size(); i++)
-		tetrsToCheck.push_back( (node->elements)->at(i) );
+	vector<int>& elements = getVolumeElementsForNode(node.number);
+	
+	for(unsigned i = 0; i < elements.size(); i++)
+		tetrsToCheck.push_back( elements[i] );
 
 	while(inside_R)
 	{
@@ -689,15 +672,15 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 		// Check current tetrs
 		for(unsigned i = 0; i < tetrsToCheck.size(); i++)
 		{
-			curTetr = getTetr(tetrsToCheck[i]);
-			assert( curTetr->number == tetrsToCheck[i] );
+			TetrFirstOrder& curTetr = getTetr(tetrsToCheck[i]);
+			assert( curTetr.number == tetrsToCheck[i] );
 
 			// Check inside points of current tetr
 			if( pointInTetr(x, y, z, 
-					getNode( curTetr->verts[0] )->coords, 
-					getNode( curTetr->verts[1] )->coords, 
-					getNode( curTetr->verts[2] )->coords, 
-					getNode( curTetr->verts[3] )->coords, 
+					getNode( curTetr.verts[0] ).coords, 
+					getNode( curTetr.verts[1] ).coords, 
+					getNode( curTetr.verts[2] ).coords, 
+					getNode( curTetr.verts[3] ).coords, 
 					debug) )
 			{
 				// Tell that point found is inner and set coords
@@ -705,12 +688,12 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 				*innerPoint = true;
 				if( debug )
 				{
-					LOG_TRACE("Point is inner for tetr " << curTetr->number);
+					LOG_TRACE("Point is inner for tetr " << curTetr.number);
 					LOG_TRACE("Expanding scan done");
 				}
 				//return curTetr;
-				updateCharactCache(node, dx, dy, dz, curTetr->number);
-				return curTetr->number;
+				updateCharactCache(node, dx, dy, dz, curTetr.number);
+				return curTetr.number;
 			}
 			
 			// Check faces of current tetr
@@ -719,31 +702,31 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 				int i1 = (0+j) % 4;
 				int i2 = (1+j) % 4;
 				int i3 = (2+j) % 4;
-				/*if( curTetr->verts[i1] == node->number 
-						|| curTetr->verts[i2] == node->number 
-						|| curTetr->verts[i3] == node->number )
+				/*if( curTetr.verts[i1] == node.number 
+						|| curTetr.verts[i2] == node.number 
+						|| curTetr.verts[i3] == node.number )
 					continue;*/
 				
-				CalcNode* n1 = getNode( curTetr->verts[i1] );
-				CalcNode* n2 = getNode( curTetr->verts[i2] );
-				CalcNode* n3 = getNode( curTetr->verts[i3] );
+				CalcNode& n1 = getNode( curTetr.verts[i1] );
+				CalcNode& n2 = getNode( curTetr.verts[i2] );
+				CalcNode& n3 = getNode( curTetr.verts[i3] );
 
-				if( pointInTriangle( node->coords[0], node->coords[1], node->coords[2],
-										n1->coords, n2->coords, n3->coords, false ) 
+				if( pointInTriangle( node.coords[0], node.coords[1], node.coords[2],
+										n1.coords, n2.coords, n3.coords, false ) 
 				)
 					continue;
 				
 				bool intersectionCheckRequired = (
-					( n1->isBorder() && n2->isBorder() && n3->isBorder() )
+					( n1.isBorder() && n2.isBorder() && n3.isBorder() )
 					|| !triangleIntersectionFound
 				);
 				
 				if( intersectionCheckRequired 
-						&& vectorIntersectsTriangle( n1->coords, n2->coords, n3->coords, 
-													node->coords, direction, dist, coords, debug) 
+						&& vectorIntersectsTriangle( n1.coords, n2.coords, n3.coords, 
+													node.coords, direction, dist, coords, debug) 
 				)
 				{
-					if ( n1->isBorder() && n2->isBorder() && n3->isBorder() )
+					if ( n1.isBorder() && n2.isBorder() && n3.isBorder() )
 					{
 						// Tell that point found is border, 
 						// coords are already set by vectorIntersectsTriangle()
@@ -755,7 +738,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 						}
 						//return curTetr;
 						updateCharactCache(node, dx, dy, dz, -1);
-						return curTetr->number;
+						return curTetr.number;
 					}
 					else
 					{
@@ -773,17 +756,17 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 				// For all verticles of current tetr
 				for(int j = 0; j < 4; j++)
 				{
-					CalcNode* vertJ = getNode( curTetr->verts[j] );
+					CalcNode& vertJ = getNode( curTetr.verts[j] );
 					// Skip base node. Otherwise we'll get false positive insideR for the 1st and 2nd layers
-					if( vertJ->number == node->number )
+					if( vertJ.number == node.number )
 						continue;
 
-					local_x = vertJ->coords[0];
-					local_y = vertJ->coords[1];
-					local_z = vertJ->coords[2];
+					local_x = vertJ.coords[0];
+					local_y = vertJ.coords[1];
+					local_z = vertJ.coords[2];
 					// If its distance smaller than R
-					if( vectorSquareNorm( node->coords[0] - local_x,
-							node->coords[1] - local_y, node->coords[2] - local_z) < R2 )
+					if( vectorSquareNorm( node.coords[0] - local_x,
+							node.coords[1] - local_y, node.coords[2] - local_z) < R2 )
 					{
 							last_inside_R = true;
 					}
@@ -796,7 +779,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 		}
 
 		// If current layer is not in sphere - there is no need to create next layer - just return NULL
-		if( !inside_R || ( node->isBorder() && !triangleIntersectionFound ) )
+		if( !inside_R || ( node.isBorder() && !triangleIntersectionFound ) )
 		{
 			*innerPoint = false;
 			if( debug )
@@ -812,7 +795,6 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 		// If not found in current tetrs - create new list for checking
 		int checkedTetrNum;
 		bool isCompletelyChecked;
-		TetrFirstOrder* checkedTetr;
 		int nextTetrNum;
 
 		tetrsToCheck.clear();
@@ -824,13 +806,14 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 			if( isCompletelyChecked )
 				continue;
 			
-			checkedTetr = getTetr(checkedTetrNum);
+			TetrFirstOrder& checkedTetr = getTetr(checkedTetrNum);
 			for(int j = 0; j < 4; j++)
 			{
-				CalcNode* vertJ = getNode( checkedTetr->verts[j] );
-				for(unsigned k = 0; k < vertJ->elements->size(); k++)
+				CalcNode& vertJ = getNode( checkedTetr.verts[j] );
+				vector<int>& elements = getVolumeElementsForNode(vertJ.number);
+				for(unsigned k = 0; k < elements.size(); k++)
 				{
-					nextTetrNum = vertJ->elements->at(k);
+					nextTetrNum = elements[k];
 					if( checkedWithNeigh.find(nextTetrNum) == checkedWithNeigh.end() )
 						tetrsToCheck.push_back(nextTetrNum);
 				}
@@ -852,8 +835,8 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
 
 void gcm::TetrMeshFirstOrder::findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug)
 {
-	CalcNode* node = getNode( border_node_index );
-	assert( node->isBorder() );
+	CalcNode& node = getNode( border_node_index );
+	assert( node.isBorder() );
 	
 	float final_normal[3];
 	final_normal[0] = 0;
@@ -862,7 +845,8 @@ void gcm::TetrMeshFirstOrder::findBorderNodeNormal(int border_node_index, float*
 
 	float cur_normal[3];
 
-	int count = node->border_elements->size();
+	vector<int>& borderElements = getBorderElementsForNode(node.number);
+	int count = borderElements.size();
 	int triNumber;
 	
 	float h = mesh_min_h * 0.5;
@@ -870,13 +854,13 @@ void gcm::TetrMeshFirstOrder::findBorderNodeNormal(int border_node_index, float*
 	if( count <= 0 )
 	{
 		LOG_WARN("Border node does not belong to any face");
-		LOG_WARN("Can not find normal for the node " << *node);
-		node->setNormalError();
+		LOG_WARN("Can not find normal for the node " << node);
+		node.setNormalError();
 	}
 
 	for(int i = 0; i < count; i++)
 	{
-		triNumber = (int) node->border_elements->at(i);
+		triNumber = borderElements[i];
 		find_border_elem_normal( triNumber, &cur_normal[0], &cur_normal[1], &cur_normal[2] );
 		
 		final_normal[0] += cur_normal[0];
@@ -885,9 +869,9 @@ void gcm::TetrMeshFirstOrder::findBorderNodeNormal(int border_node_index, float*
 		if( debug )
 		{
 			LOG_TRACE("Element " << triNumber);
-			LOG_TRACE("Vert #1: " << *(Node*)getNode( getTriangle(triNumber)->verts[0] ));
-			LOG_TRACE("Vert #2: " << *(Node*)getNode( getTriangle(triNumber)->verts[1] ));
-			LOG_TRACE("Vert #3: " << *(Node*)getNode( getTriangle(triNumber)->verts[2] ));
+			LOG_TRACE("Vert #1: " << getNode( getTriangle(triNumber).verts[0] ));
+			LOG_TRACE("Vert #2: " << getNode( getTriangle(triNumber).verts[1] ));
+			LOG_TRACE("Vert #3: " << getNode( getTriangle(triNumber).verts[2] ));
 			LOG_TRACE("Normal: " << cur_normal[0] << " " << cur_normal[1] << " " << cur_normal[2]);
 		}
 	}
@@ -905,15 +889,13 @@ void gcm::TetrMeshFirstOrder::findBorderNodeNormal(int border_node_index, float*
 	*y = final_normal[1];
 	*z = final_normal[2];
 	
-	if( find_owner_tetr(node, 
-			- h * final_normal[0], - h * final_normal[1], - h * final_normal[2], debug) == -1 )
+	if( ! isInnerPoint(node, - h * final_normal[0], - h * final_normal[1], - h * final_normal[2], debug))
 	{
 		if( !debug )
 		{
-			LOG_TRACE("Sharp border - can not create normal for node: " << *node );
+			LOG_TRACE("Sharp border - can not create normal for node: " << node );
 			LOG_TRACE("Normal: " << final_normal[0] << " " << final_normal[1] << " " << final_normal[2]);
 			LOG_TRACE("Re-running search with debug on");
-			//find_owner_tetr(node, - h * final_normal[0], - h * final_normal[1], - h * final_normal[2], true);
 			findBorderNodeNormal(border_node_index, x, y, z, true);
 		}
 	}
@@ -921,20 +903,20 @@ void gcm::TetrMeshFirstOrder::findBorderNodeNormal(int border_node_index, float*
 
 float gcm::TetrMeshFirstOrder::get_solid_angle(int node_index, int tetr_index)
 {
-	TetrFirstOrder* tetr = getTetr(tetr_index);
-	CalcNode* node = getNode(node_index);
+	TetrFirstOrder& tetr = getTetr(tetr_index);
+	CalcNode& node = getNode(node_index);
 	// Node should belong to Tetr
-	assert( ( tetr->verts[0] == node_index ) 
-			|| ( tetr->verts[1] == node_index ) 
-			|| ( tetr->verts[2] == node_index ) 
-			|| ( tetr->verts[3] == node_index ) );
+	assert( ( tetr.verts[0] == node_index ) 
+			|| ( tetr.verts[1] == node_index ) 
+			|| ( tetr.verts[2] == node_index ) 
+			|| ( tetr.verts[3] == node_index ) );
 	/*{
-		LOG_WARN("TEST: " << node_index << " " << tetr->verts[0] << " " << tetr->verts[1] << " " << tetr->verts[2] << " " << tetr->verts[3]);
-		LOG_WARN("TEST: " << *node);
-		LOG_WARN("TEST: " << *getNode( tetr->verts[0] ));
-		LOG_WARN("TEST: " << *getNode( tetr->verts[1] ));
-		LOG_WARN("TEST: " << *getNode( tetr->verts[2] ));
-		LOG_WARN("TEST: " << *getNode( tetr->verts[3] ));
+		LOG_WARN("TEST: " << node_index << " " << tetr.verts[0] << " " << tetr.verts[1] << " " << tetr.verts[2] << " " << tetr.verts[3]);
+		LOG_WARN("TEST: " << node);
+		LOG_WARN("TEST: " << getNode( tetr.verts[0] ));
+		LOG_WARN("TEST: " << getNode( tetr.verts[1] ));
+		LOG_WARN("TEST: " << getNode( tetr.verts[2] ));
+		LOG_WARN("TEST: " << getNode( tetr.verts[3] ));
 		return -1;
 	}*/
 	
@@ -942,38 +924,38 @@ float gcm::TetrMeshFirstOrder::get_solid_angle(int node_index, int tetr_index)
 	int count = 0;
 	
 	for(int i = 0; i < 4; i++)
-		if(tetr->verts[i] != node_index) {
-			verts[count] = tetr->verts[i];
+		if(tetr.verts[i] != node_index) {
+			verts[count] = tetr.verts[i];
 			count++;
 		}
 	
 	// We are to find 3 other verticles to form the face we are looking at
 	assert( count == 3 );
 	
-	CalcNode* v0 = getNode( verts[0] );
-	CalcNode* v1 = getNode( verts[1] );
-	CalcNode* v2 = getNode( verts[2] );
+	CalcNode& v0 = getNode( verts[0] );
+	CalcNode& v1 = getNode( verts[1] );
+	CalcNode& v2 = getNode( verts[2] );
 	
 	return solidAngle(
-			v0->coords[0] - node->coords[0],
-			v0->coords[1] - node->coords[1],
-			v0->coords[2] - node->coords[2],
-			v1->coords[0] - node->coords[0], 
-			v1->coords[1] - node->coords[1],
-			v1->coords[2] - node->coords[2],
-			v2->coords[0] - node->coords[0], 
-			v2->coords[1] - node->coords[1],
-			v2->coords[2] - node->coords[2]
+			v0.coords[0] - node.coords[0],
+			v0.coords[1] - node.coords[1],
+			v0.coords[2] - node.coords[2],
+			v1.coords[0] - node.coords[0], 
+			v1.coords[1] - node.coords[1],
+			v1.coords[2] - node.coords[2],
+			v2.coords[0] - node.coords[0], 
+			v2.coords[1] - node.coords[1],
+			v2.coords[2] - node.coords[2]
 	);
 };
 
 void gcm::TetrMeshFirstOrder::find_border_elem_normal(int border_element_index, 
 														float* x, float* y, float* z)
 {
-	TriangleFirstOrder* tri = getTriangle(border_element_index);
-	findTriangleFaceNormal( getNode( tri->verts[0] )->coords, 
-							getNode( tri->verts[1] )->coords, 
-							getNode( tri->verts[2] )->coords, 
+	TriangleFirstOrder& tri = getTriangle(border_element_index);
+	findTriangleFaceNormal( getNode( tri.verts[0] ).coords, 
+							getNode( tri.verts[1] ).coords, 
+							getNode( tri.verts[2] ).coords, 
 							x, y, z );
 };
 
@@ -990,12 +972,11 @@ void gcm::TetrMeshFirstOrder::calcMinH()
 	//for(int i = 0; i < tetrsNumber; i++) {
 	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
 		int i = itr->first;
-		TetrFirstOrder* tetr;
-		tetr = getTetr(i);
-		if ( ( !getNode( tetr->verts[0] )->isUsed() )
-			|| ( !getNode( tetr->verts[1] )->isUsed() )
-			|| ( !getNode( tetr->verts[2] )->isUsed() )
-			|| ( !getNode( tetr->verts[3] )->isUsed() ) )
+		TetrFirstOrder& tetr = getTetr(i);
+		if ( ( !getNode( tetr.verts[0] ).isUsed() )
+			|| ( !getNode( tetr.verts[1] ).isUsed() )
+			|| ( !getNode( tetr.verts[2] ).isUsed() )
+			|| ( !getNode( tetr.verts[3] ).isUsed() ) )
 			continue;
 		
 		// Get current h
@@ -1026,12 +1007,11 @@ void gcm::TetrMeshFirstOrder::calcMaxH()
 	//for(int i = 0; i < tetrsNumber; i++) {
 	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
 		int i = itr->first;
-		TetrFirstOrder* tetr;
-		tetr = getTetr(i);
-		if ( ( !getNode( tetr->verts[0] )->isUsed() )
-			|| ( !getNode( tetr->verts[1] )->isUsed() )
-			|| ( !getNode( tetr->verts[2] )->isUsed() )
-			|| ( !getNode( tetr->verts[3] )->isUsed() ) )
+		TetrFirstOrder& tetr = getTetr(i);
+		if ( ( !getNode( tetr.verts[0] ).isUsed() )
+			|| ( !getNode( tetr.verts[1] ).isUsed() )
+			|| ( !getNode( tetr.verts[2] ).isUsed() )
+			|| ( !getNode( tetr.verts[3] ).isUsed() ) )
 			continue;
 		
 		// Get current h
@@ -1055,12 +1035,11 @@ void gcm::TetrMeshFirstOrder::calcAvgH()
 	//for(int i = 0; i < tetrsNumber; i++) {
 	for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
 		int i = itr->first;
-		TetrFirstOrder* tetr;
-		tetr = getTetr(i);
-		if ( ( !getNode( tetr->verts[0] )->isUsed() )
-			|| ( !getNode( tetr->verts[1] )->isUsed() )
-			|| ( !getNode( tetr->verts[2] )->isUsed() )
-			|| ( !getNode( tetr->verts[3] )->isUsed() ) )
+		TetrFirstOrder& tetr = getTetr(i);
+		if ( ( !getNode( tetr.verts[0] ).isUsed() )
+			|| ( !getNode( tetr.verts[1] ).isUsed() )
+			|| ( !getNode( tetr.verts[2] ).isUsed() )
+			|| ( !getNode( tetr.verts[3] ).isUsed() ) )
 			continue;
 		
 		// Get current h
@@ -1074,34 +1053,14 @@ void gcm::TetrMeshFirstOrder::calcAvgH()
 
 float gcm::TetrMeshFirstOrder::tetr_h(int i)
 {
-	TetrFirstOrder* tetr = getTetr(i);
-	if( tetr == NULL )
-		LOG_WARN("AAA: " << body->getEngine()->getRank() << " " << i);
-	assert( tetr != NULL );
-	assert( getNode(tetr->verts[0]) != NULL );
-	assert( getNode(tetr->verts[1]) != NULL );
-	assert( getNode(tetr->verts[2]) != NULL );
-	assert( getNode(tetr->verts[3]) != NULL );
-	return tetrHeight( getNode(tetr->verts[0])->coords, getNode(tetr->verts[1])->coords,
-						getNode(tetr->verts[2])->coords, getNode(tetr->verts[3])->coords );
+	TetrFirstOrder& tetr = getTetr(i);
+	return tetrHeight( getNode(tetr.verts[0]).coords, getNode(tetr.verts[1]).coords,
+						getNode(tetr.verts[2]).coords, getNode(tetr.verts[3]).coords );
 };
 
 void gcm::TetrMeshFirstOrder::doNextPartStep(float tau, int stage)
 {
 	defaultNextPartStep(tau, stage);
-};
-
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::find_border_cross(CalcNode* node, float dx, float dy, float dz, bool debug, CalcNode* cross)
-{
-	return find_border_cross(node, dx, dy, dz, debug, cross->coords);
-};
-
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::find_border_cross(CalcNode* node, float dx, float dy, float dz, bool debug, float* coords)
-{
-	bool innerPoint;
-	/*TetrFirstOrder*/ int tetr = expandingScanForPoint (node, dx, dy, dz, debug, coords, &innerPoint);
-	assert( !innerPoint );
-	return tetr;
 };
 
 void gcm::TetrMeshFirstOrder::logMeshStats()
@@ -1164,12 +1123,11 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
 	memcpy( syncedArea.min_coords, expandedOutline.min_coords, 3 * sizeof(float) );
 	memcpy( syncedArea.max_coords, expandedOutline.max_coords, 3 * sizeof(float) );
 	
-	CalcNode* node;
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr )
 	{
 		int i = itr->first;
-		node = getNode(i);
-		if( !node->isBorder() )
+		CalcNode& node = getNode(i);
+		if( !node.isBorder() )
 			continue;
 		
 		for( int j = 0; j < 3; j++ )
@@ -1178,28 +1136,28 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
 			int coord1 = (1 + j) % 3;
 			int coord2 = (2 + j) % 3;
 			
-			if( ( node->coords[coord1] < outline.max_coords[coord1] )
-					&& ( node->coords[coord1] > outline.min_coords[coord1] )
-					&& ( node->coords[coord2] < outline.max_coords[coord2] )
-					&& ( node->coords[coord2] > outline.min_coords[coord2] )
-					&& ( node->coords[targetCoord] > outline.max_coords[targetCoord] )
-					&& ( node->coords[targetCoord] < syncedArea.max_coords[targetCoord] )
+			if( ( node.coords[coord1] < outline.max_coords[coord1] )
+					&& ( node.coords[coord1] > outline.min_coords[coord1] )
+					&& ( node.coords[coord2] < outline.max_coords[coord2] )
+					&& ( node.coords[coord2] > outline.min_coords[coord2] )
+					&& ( node.coords[targetCoord] > outline.max_coords[targetCoord] )
+					&& ( node.coords[targetCoord] < syncedArea.max_coords[targetCoord] )
 				)
 			{
 				LOG_DEBUG("First pass: synced area is adjusted by node: "<< *node);
-				syncedArea.max_coords[targetCoord] = node->coords[targetCoord];
+				syncedArea.max_coords[targetCoord] = node.coords[targetCoord];
 			}
 			
-			if( ( node->coords[coord1] < outline.max_coords[coord1] )
-					&& ( node->coords[coord1] > outline.min_coords[coord1] )
-					&& ( node->coords[coord2] < outline.max_coords[coord2] )
-					&& ( node->coords[coord2] > outline.min_coords[coord2] )
-					&& ( node->coords[targetCoord] < outline.min_coords[targetCoord] )
-					&& ( node->coords[targetCoord] > syncedArea.min_coords[targetCoord] )
+			if( ( node.coords[coord1] < outline.max_coords[coord1] )
+					&& ( node.coords[coord1] > outline.min_coords[coord1] )
+					&& ( node.coords[coord2] < outline.max_coords[coord2] )
+					&& ( node.coords[coord2] > outline.min_coords[coord2] )
+					&& ( node.coords[targetCoord] < outline.min_coords[targetCoord] )
+					&& ( node.coords[targetCoord] > syncedArea.min_coords[targetCoord] )
 				)
 			{
 				LOG_DEBUG("First pass: synced area is adjusted by node: "<< *node);
-				syncedArea.min_coords[targetCoord] = node->coords[targetCoord];
+				syncedArea.min_coords[targetCoord] = node.coords[targetCoord];
 			}
 		}
 	}
@@ -1209,8 +1167,8 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr )
 	{
 		int i = itr->first;
-		node = getNode(i);
-		if( !node->isBorder() )
+		CalcNode& node = getNode(i);
+		if( !node.isBorder() )
 			continue;
 		
 		if( syncedArea.isInAABB(node) )
@@ -1221,21 +1179,21 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
 			float distMax = numeric_limits<float>::infinity();
 			for( int j = 0; j < 3; j++ )
 			{
-				if( fabs(node->coords[j] - syncedArea.min_coords[j]) < distMin )
+				if( fabs(node.coords[j] - syncedArea.min_coords[j]) < distMin )
 				{
-					distMin = fabs(node->coords[j] - syncedArea.min_coords[j]);
+					distMin = fabs(node.coords[j] - syncedArea.min_coords[j]);
 					indMin = j;
 				}
-				if( fabs(node->coords[j] - syncedArea.max_coords[j]) < distMax )
+				if( fabs(node.coords[j] - syncedArea.max_coords[j]) < distMax )
 				{
-					distMax = fabs(node->coords[j] - syncedArea.max_coords[j]);
+					distMax = fabs(node.coords[j] - syncedArea.max_coords[j]);
 					indMax = j;
 				}
 			}
 			if( distMin < distMax )
-				syncedArea.min_coords[indMin] = node->coords[indMin];
+				syncedArea.min_coords[indMin] = node.coords[indMin];
 			else
-				syncedArea.max_coords[indMax] = node->coords[indMax];
+				syncedArea.max_coords[indMax] = node.coords[indMax];
 		}
 	}
 	
@@ -1322,17 +1280,6 @@ float gcm::TetrMeshFirstOrder::getRecommendedTimeStep()
 	return getAvgH() / getMaxLambda();
 };
 
-void gcm::TetrMeshFirstOrder::interpolate(CalcNode* node, TetrFirstOrder* tetr) {
-	body->getEngine()->getFirstOrderInterpolator("TetrFirstOrderInterpolator")->
-	interpolate(
-				node,
-				getNode( tetr->verts[0] ),
-				getNode( tetr->verts[1] ),
-				getNode( tetr->verts[2] ),
-				getNode( tetr->verts[3] ) 
-	);
-}
-
 float gcm::TetrMeshFirstOrder::getMinH()
 {
 	if( isinf( mesh_min_h ) )
@@ -1354,35 +1301,35 @@ float gcm::TetrMeshFirstOrder::getAvgH()
 	return mesh_avg_h;
 }
 
-bool gcm::TetrMeshFirstOrder::checkCharactCache(CalcNode* node, float dx, float dy, float dz, int& tetrNum)
+bool gcm::TetrMeshFirstOrder::checkCharactCache(CalcNode& node, float dx, float dy, float dz, int& tetrNum)
 {
 	int cacheIndex = getCharactCacheIndex(node, dx, dy, dz);
 	unordered_map<int, int>::const_iterator itr;
-	itr = charactCache[cacheIndex].find(node->number);
+	itr = charactCache[cacheIndex].find(node.number);
 	if( itr == charactCache[cacheIndex].end() )
 		return false;
 	tetrNum = itr->second;
 	if( tetrNum == -1 )
 		return false;
-	TetrFirstOrder* curTetr = getTetr(tetrNum);
+	TetrFirstOrder& curTetr = getTetr(tetrNum);
 	return pointInTetr(
-					node->coords[0] + dx, node->coords[1] + dy, node->coords[2] + dz, 
-					getNode( curTetr->verts[0] )->coords, 
-					getNode( curTetr->verts[1] )->coords, 
-					getNode( curTetr->verts[2] )->coords, 
-					getNode( curTetr->verts[3] )->coords, 
+					node.coords[0] + dx, node.coords[1] + dy, node.coords[2] + dz, 
+					getNode( curTetr.verts[0] ).coords, 
+					getNode( curTetr.verts[1] ).coords, 
+					getNode( curTetr.verts[2] ).coords, 
+					getNode( curTetr.verts[3] ).coords, 
 				false);
 }
 
-void gcm::TetrMeshFirstOrder::updateCharactCache(CalcNode* node, float dx, float dy, float dz, int tetrNum)
+void gcm::TetrMeshFirstOrder::updateCharactCache(CalcNode& node, float dx, float dy, float dz, int tetrNum)
 {
 	if( !charactCacheAvailable() )
 		return;
 	int cacheIndex = getCharactCacheIndex(node, dx, dy, dz);
-	charactCache[cacheIndex][node->number] = tetrNum;
+	charactCache[cacheIndex][node.number] = tetrNum;
 }
 
-int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode* node, float dx, float dy, float dz)
+int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, float dy, float dz)
 {
 	float fdx = fabs(dx);
 	float fdy = fabs(dy);
@@ -1415,7 +1362,7 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode* node, float dx, floa
 	
 	float l2 = dx*dx + dy*dy + dz*dz;
 	float tau = gcm::Engine::getInstance().getTimeStep();
-	float c2sqr = node->getC2sqr();
+	float c2sqr = node.getC2sqr();
 	
 	short scale = -1;
 	if( fabs(l2 - tau*tau*c2sqr) < l2 * EQUALITY_TOLERANCE )
@@ -1432,180 +1379,41 @@ bool gcm::TetrMeshFirstOrder::charactCacheAvailable()
 {
 	return ( nodesNumber > 0 
 			&& gcm::Engine::getInstance().getTimeStep() > 0 
-			&& getNodeByLocalIndex(0)->getMaterialId() >= 0
-			&& getNodeByLocalIndex(0)->getMaterialId() < gcm::Engine::getInstance().getNumberOfMaterials() );
+			&& getNodeByLocalIndex(0).getMaterialId() >= 0
+			&& getNodeByLocalIndex(0).getMaterialId() < gcm::Engine::getInstance().getNumberOfMaterials() );
 }
 
-
-int gcm::TetrMeshFirstOrder::prepare_node(CalcNode* cur_node, ElasticMatrix3D* elastic_matrix3d,
-												float time_step, int stage,
-												float* dksi, bool* inner, CalcNode* previous_nodes,
-												float* outer_normal, int* ppoint_num)
+void gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
+												CalcNode& targetNode, bool& isInnerPoint)
 {
-	assert( stage >= 0 && stage <= 2 );
+	int tetrInd = findOwnerTetr( origin, dx, dy, dz, debug,
+									targetNode.coords, &isInnerPoint );
+	
+	if( !isInnerPoint )
+		return;
 
-	if( cur_node->isBorder() )
-		findBorderNodeNormal(cur_node->number, &outer_normal[0], &outer_normal[1], &outer_normal[2], false);
-
-	LOG_TRACE("Preparing elastic matrix");
-	//  Prepare matrixes  A, Lambda, Omega, Omega^(-1)
-	elastic_matrix3d->prepare_matrix( cur_node->getLambda(), cur_node->getMu(), cur_node->getRho(), stage );
-	LOG_TRACE("Preparing elastic matrix done");
-
-	LOG_TRACE("Elastic matrix eigen values:\n" << elastic_matrix3d->L);
-
-	for(int i = 0; i < 9; i++)
-		dksi[i] = - elastic_matrix3d->L(i,i) * time_step;
-
-	return find_nodes_on_previous_time_layer(cur_node, stage, dksi, inner, previous_nodes, outer_normal, ppoint_num);
+	TetrFirstOrder& tmp_tetr = getTetr( tetrInd );
+	interpolator->interpolate( targetNode,
+			getNode( tmp_tetr.verts[0] ), getNode( tmp_tetr.verts[1] ), 
+			getNode( tmp_tetr.verts[2] ), getNode( tmp_tetr.verts[3] ) );
 }
 
-
-int gcm::TetrMeshFirstOrder::find_nodes_on_previous_time_layer(CalcNode* cur_node, int stage,
-												float dksi[], bool inner[], CalcNode previous_nodes[],
-												float outer_normal[], int ppoint_num[])
+vector<int>& gcm::TetrMeshFirstOrder::getVolumeElementsForNode(int index)
 {
-	LOG_TRACE("Start looking for nodes on previous time layer");
-
-	int count = 0;
-
-	// For all omegas
-	for(int i = 0; i < 9; i++)
-	{
-		LOG_TRACE( "Looking for characteristic " << i << " Count = " << count );
-		// Check prevoius omegas ...
-		bool already_found = false;
-		for(int j = 0; j < i; j++)
-		{
-			// ... And try to find if we have already worked with the required point
-			// on previous time layer (or at least with the point that is close enough)
-			if( fabs(dksi[i] - dksi[j]) <= EQUALITY_TOLERANCE * 0.5 * fabs(dksi[i] + dksi[j]) )
-			{
-				// If we have already worked with this point - just remember the number
-				already_found = true;
-				ppoint_num[i] = ppoint_num[j];
-				inner[i] = inner[j];
-				LOG_TRACE( "Found old value " << dksi[i] << " - done" );
-			}
-		}
-
-		// If we do not have necessary point in place - ...
-		if( !already_found )
-		{
-			LOG_TRACE( "New value " << dksi[i] << " - preparing vectors" );
-			// ... Put new number ...
-			ppoint_num[i] = count;
-			previous_nodes[count] = *cur_node;
-
-			// ... Find vectors ...
-			float dx[3];
-			// WA:
-			//     origin == cur_node for real nodes
-			//     origin != cure_node for virt nodes
-			CalcNode* origin = getNode(cur_node->number);
-			for( int z = 0; z < 3; z++ )
-			{
-				dx[z] = cur_node->coords[z] - origin->coords[z];
-			}
-			dx[stage] += dksi[i];
-
-			// For dksi = 0 we can skip check and just copy everything
-			if( dksi[i] == 0 )
-			{
-				// no interpolation required - everything is already in place
-				inner[i] = true;
-				LOG_TRACE( "dksi is zero - done" );
-			}
-			else if( cur_node->isInner() )
-			{
-				LOG_TRACE( "Checking inner node" );
-				// ... Find owner tetrahedron ...
-				bool isInnerPoint;
-				int tetrInd = findTargetPoint( origin, dx[0], dx[1], dx[2], false,
-									previous_nodes[count].coords, &isInnerPoint );
-				if( !isInnerPoint )
-				{
-					LOG_TRACE("Inner node: we need new method here!");
-					LOG_TRACE("Node:\n" << *cur_node);
-					LOG_TRACE("Move: " << dx[0] << " " << dx[1] << " " << dx[2]);
-					// Re-run search with debug on
-					tetrInd = findTargetPoint( origin, dx[0], dx[1], dx[2], true,
-									previous_nodes[count].coords, &isInnerPoint );
-				}
-
-				interpolateNode(tetrInd, count, previous_nodes);
-
-				inner[i] = true;
-				LOG_TRACE( "Checking inner node done" );
-			}
-			else if( cur_node->isBorder() )
-			{
-				LOG_TRACE( "Checking border node" );
-				// ... Find owner tetrahedron ...
-				bool isInnerPoint;
-				int tetrInd = findTargetPoint( origin, dx[0], dx[1], dx[2], true,
-									previous_nodes[count].coords, &isInnerPoint );
-
-				TetrFirstOrder* tmp_tetr = ( tetrInd != -1 ? getTetr(tetrInd) : NULL );
-
-				// If we found inner point, it means
-				// this direction is inner and everything works as for usual inner point
-				if( isInnerPoint ) {
-					interpolateNode(tetrInd, count, previous_nodes);
-					inner[i] = true;
-				// If we did not find inner point - two cases are possible
-				} else {
-					// We found border cross somehow
-					// It can happen if we work with really thin structures and big time step
-					// We can work as usual in this case
-					if( tmp_tetr != NULL ) {
-						LOG_TRACE("Border node: we need new method here!");
-						interpolateNode(tetrInd, count, previous_nodes);
-						inner[i] = true;
-					// Or we did not find any point at all - it means this characteristic is outer
-					} else {
-						inner[i] = false;
-					}
-				}
-				LOG_TRACE( "Checking border node done" );
-			}
-			else
-			{
-				THROW_BAD_MESH("Unsupported case for characteristic location");
-			}
-
-			count++;
-		}
-		LOG_TRACE( "Looking for characteristic " << i << " done" );
-	}
-
-	assert( count == 5 || count == 3 );
-
-	int outer_count = 0;
-	for(int i = 0; i < 9; i++)
-		if(!inner[i])
-			outer_count++;
-
-	// assert( outer_count == 0 || outer_count == 3 );
-
-	LOG_TRACE("Looking for nodes on previous time layer done. Outer count = " << outer_count);
-	for(int i = 0; i < 9; i++)
-		LOG_TRACE("Characteristic " << i << " goes into point with index " << ppoint_num[i]);
-
-	return outer_count;
+	// Get local index
+	unsigned int localIndex = getNodeLocalIndex(index);
+	// Resize on demand
+	if( localIndex >= volumeElements.size() )
+		volumeElements.resize(localIndex + 1);
+	return volumeElements[localIndex];
 }
 
-void gcm::TetrMeshFirstOrder::interpolateNode(int tetrInd, int prevNodeInd, CalcNode* previous_nodes)
+vector<int>& gcm::TetrMeshFirstOrder::getBorderElementsForNode(int index)
 {
-	assert( tetrInd >= 0 );
-	IEngine* engine = getBody()->getEngine();
-
-		TetrFirstOrder* tmp_tetr = getTetr( tetrInd );
-
-		engine->getFirstOrderInterpolator("TetrFirstOrderInterpolator")->interpolate(
-				&previous_nodes[prevNodeInd],
-				(CalcNode*) getNode( tmp_tetr->verts[0] ),
-				(CalcNode*) getNode( tmp_tetr->verts[1] ),
-				(CalcNode*) getNode( tmp_tetr->verts[2] ),
-				(CalcNode*) getNode( tmp_tetr->verts[3] ) );
+	// Get local index
+	unsigned int localIndex = getNodeLocalIndex(index);
+	// Resize on demand
+	if( localIndex >= borderElements.size() )
+		borderElements.resize(localIndex + 1);
+	return borderElements[localIndex];
 }

@@ -59,11 +59,10 @@ void gcm::Mesh::setBody(IBody* body)
 
 void gcm::Mesh::setBodyNum(unsigned char id)
 {
-	CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		node->bodyId = id;
+		CalcNode& node = getNodeByLocalIndex(i);
+		node.bodyId = id;
 	}
 }
 
@@ -106,18 +105,16 @@ AABB gcm::Mesh::getExpandedOutline()
 
 void gcm::Mesh::initNewNodes()
 {
-	CalcNode* node;
-	CalcNode* newNode;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		newNode = getNewNode( node->number );
-		memcpy( newNode->coords, node->coords, 3*sizeof(float) );
-		memcpy( newNode->values, node->values, GCM_VALUES_SIZE*sizeof(float) );
-		newNode->setRho( node->getRho() );
-		newNode->setMaterialId( node->getMaterialId() );
-		newNode->setContactConditionId(node->getContactConditionId());
-		newNode->createCrack(node->getCrackDirection());
+		CalcNode& node = getNodeByLocalIndex(i);
+		CalcNode& newNode = getNewNode( node.number );
+		memcpy( newNode.coords, node.coords, 3*sizeof(float) );
+		memcpy( newNode.values, node.values, GCM_VALUES_SIZE*sizeof(float) );
+		newNode.setRho( node.getRho() );
+		newNode.setMaterialId( node.getMaterialId() );
+		newNode.setContactConditionId(node.getContactConditionId());
+		newNode.createCrack(node.getCrackDirection());
 	}
 }
 
@@ -139,8 +136,6 @@ void gcm::Mesh::createOutline()
 	{
 		LOG_DEBUG("Creating outline");
 
-		CalcNode* node;
-		
 		// Create outline
 		for(int j = 0; j < 3; j++)
 		{
@@ -152,21 +147,21 @@ void gcm::Mesh::createOutline()
 
 		for(int i = 0; i < getNodesNumber(); i++)
 		{
-			node = getNodeByLocalIndex(i);
-			if( node->isLocal() )
+			CalcNode& node = getNodeByLocalIndex(i);
+			if( node.isLocal() )
 			{
 				for(int j = 0; j < 3; j++) {
-					if(node->coords[j] > outline.max_coords[j])
-						outline.max_coords[j] = node->coords[j];
-					if(node->coords[j] < outline.min_coords[j])
-						outline.min_coords[j] = node->coords[j];
+					if(node.coords[j] > outline.max_coords[j])
+						outline.max_coords[j] = node.coords[j];
+					if(node.coords[j] < outline.min_coords[j])
+						outline.min_coords[j] = node.coords[j];
 				}
 			}
 			for(int j = 0; j < 3; j++) {
-				if(node->coords[j] > expandedOutline.max_coords[j])
-					expandedOutline.max_coords[j] = node->coords[j];
-				if(node->coords[j] < expandedOutline.min_coords[j])
-					expandedOutline.min_coords[j] = node->coords[j];
+				if(node.coords[j] > expandedOutline.max_coords[j])
+					expandedOutline.max_coords[j] = node.coords[j];
+				if(node.coords[j] < expandedOutline.min_coords[j])
+					expandedOutline.min_coords[j] = node.coords[j];
 			}
 		}
 	} else
@@ -177,48 +172,44 @@ void gcm::Mesh::createOutline()
 
 void gcm::Mesh::setInitialState(Area* area, float* values)
 {
-	CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
+		CalcNode& node = getNodeByLocalIndex(i);
 		if( area->isInArea( node ) )
 			for( int k = 0; k < 9; k++ )
-				node->values[k] = values[k];
+				node.values[k] = values[k];
 	}
 }
 
 void gcm::Mesh::setRheology(unsigned char matId) {
-	CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		node->setMaterialId( matId );
-		node->initRheology();
+		CalcNode& node = getNodeByLocalIndex(i);
+		node.setMaterialId( matId );
+		node.initRheology();
 	}
 }
 
 void gcm::Mesh::setRheology(unsigned char matId, Area* area) {
-	CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
+		CalcNode& node = getNodeByLocalIndex(i);
 		if( area->isInArea(node) )
 		{
-			node->setMaterialId( matId );
-			node->initRheology();
+			node.setMaterialId( matId );
+			node.initRheology();
 		}
 	}
 }
 
 void gcm::Mesh::transfer(float x, float y, float z)
 {
-	CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		node->coords[0] += x;
-		node->coords[1] += y;
-		node->coords[2] += z;
+		CalcNode& node = getNodeByLocalIndex(i);
+		node.coords[0] += x;
+		node.coords[1] += y;
+		node.coords[2] += z;
 	}
 	if( !isinf(outline.minX) )
 	{
@@ -243,52 +234,48 @@ void gcm::Mesh::transfer(float x, float y, float z)
 
 void gcm::Mesh::applyRheology(RheologyCalculator* rc)
 {
-	CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		if( node->isLocal() )
+		CalcNode& node = getNodeByLocalIndex(i);
+		if( node.isLocal() )
 			rc->doCalc(node, node);
 	}
 }
 
 void gcm::Mesh::clearNodesState()
 {
-	CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		if( node->isLocal() )
-			node->clearState();
+		CalcNode& node = getNodeByLocalIndex(i);
+		if( node.isLocal() )
+			node.clearState();
 	}
 };
 
 void gcm::Mesh::clearContactState()
 {
-	CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		if( node->isLocal() )
-			node->setContactType(Free);
+		CalcNode& node = getNodeByLocalIndex(i);
+		if( node.isLocal() )
+			node.setContactType(Free);
 	}
 }
 
 void gcm::Mesh::processCrackState()
 {
-	CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		if( node->isLocal() )
+		CalcNode& node = getNodeByLocalIndex(i);
+		if( node.isLocal() )
 		{
 			float m_s[3];
-			node->getMainStressComponents(m_s[0], m_s[1], m_s[2]);
+			node.getMainStressComponents(m_s[0], m_s[1], m_s[2]);
 			int i_ms=0; if (m_s[1]>m_s[i_ms]) i_ms=1; if (m_s[2]>m_s[i_ms]) i_ms = 2;
-			if (m_s[i_ms] > node->getCrackThreshold())
+			if (m_s[i_ms] > node.getCrackThreshold())
 			{
-				node->createCrack(i_ms);
-				LOG_TRACE("New crack detected at node " << *node);
+				node.createCrack(i_ms);
+				LOG_TRACE("New crack detected at node " << node);
 			}
 		}
 	}
@@ -296,17 +283,16 @@ void gcm::Mesh::processCrackState()
 
 void gcm::Mesh::processCrackResponse()
 {
-	CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		if( node->isLocal() )
+		CalcNode& node = getNodeByLocalIndex(i);
+		if( node.isLocal() )
 		{
-			float *m_s = node->getCrackDirection();
+			float *m_s = node.getCrackDirection();
 			if (scalarProduct(m_s,m_s)>0.5)
 			{
-				node->cleanStressByDirection(m_s);
-				LOG_TRACE("Existing crack found at node " << *node);
+				node.cleanStressByDirection(m_s);
+				LOG_TRACE("Existing crack found at node " << node);
 			}
 		}
 	}
@@ -314,36 +300,33 @@ void gcm::Mesh::processCrackResponse()
 
 void gcm::Mesh::processStressState()
 {
-	CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		if( node->isLocal() )
-			node->calcMainStressComponents();
+		CalcNode& node = getNodeByLocalIndex(i);
+		if( node.isLocal() )
+			node.calcMainStressComponents();
 	}
 }
 
 void gcm::Mesh::moveCoords(float tau)
 {
 	LOG_DEBUG("Moving mesh coords");
-	CalcNode* node;
-	CalcNode* newNode;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
-		if( node->isLocal() && node->isFirstOrder() )
+		CalcNode& node = getNodeByLocalIndex(i);
+		if( node.isLocal() && node.isFirstOrder() )
 		{
-			newNode = getNewNode( node->number );
+			CalcNode& newNode = getNewNode( node.number );
 			for(int j = 0; j < 3; j++)
 			{
 				// Move node
-				node->coords[j] += node->values[j]*tau;
-				newNode->coords[j] = node->coords[j];
+				node.coords[j] += node.values[j]*tau;
+				newNode.coords[j] = node.coords[j];
 				// Move mesh outline if necessary
-				if(node->coords[j] > outline.max_coords[j])
-					outline.max_coords[j] = node->coords[j];
-				if(node->coords[j] < outline.min_coords[j])
-					outline.min_coords[j] = node->coords[j];
+				if(node.coords[j] > outline.max_coords[j])
+					outline.max_coords[j] = node.coords[j];
+				if(node.coords[j] < outline.min_coords[j])
+					outline.min_coords[j] = node.coords[j];
 			}
 		}
 	}
@@ -354,11 +337,10 @@ float gcm::Mesh::getMaxLambda()
 {
 	NumericalMethod *method = body->getEngine()->getNumericalMethod(numericalMethodType);
 	assert(method != NULL);
-	CalcNode* node;
 	float maxLambda = 0;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
+		CalcNode& node = getNodeByLocalIndex(i);
 		float lambda = method->getMaxLambda( node );
 		if( lambda > maxLambda )
 			maxLambda = lambda;
@@ -369,11 +351,10 @@ float gcm::Mesh::getMaxLambda()
 float gcm::Mesh::getMaxPossibleTimeStep()
 {
 	NumericalMethod *method = body->getEngine()->getNumericalMethod(numericalMethodType);
-	CalcNode* node;
 	float maxLambda = 0;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
-		node = getNodeByLocalIndex(i);
+		CalcNode& node = getNodeByLocalIndex(i);
 		float lambda = method->getMaxLambda( node );
 		if( lambda > maxLambda )
 			maxLambda = lambda;
@@ -392,12 +373,11 @@ int gcm::Mesh::getNodesNumber()
 int gcm::Mesh::getNumberOfLocalNodes()
 {
 	int num = 0;
-	// CalcNode* node;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
 		// FIXME this code seems to be dead
 		// node = getNodeByLocalIndex(i);
-		if( getNode(i)->isLocal() )
+		if( getNode(i).isLocal() )
 			num++;
 	}
 	return num;
@@ -410,24 +390,34 @@ void gcm::Mesh::createNodes(int number) {
 	nodesStorageSize = number*STORAGE_OVERCOMMIT_RATIO;
 }
 
-CalcNode* gcm::Mesh::getNode(int index)
+bool gcm::Mesh::hasNode(int index)
 {
 	assert( index >= 0 );
 	unordered_map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
-	return ( itr != nodesMap.end() ? &nodes[itr->second] : NULL );
+	return itr != nodesMap.end();
 }
 
-CalcNode* gcm::Mesh::getNewNode(int index) {
+CalcNode& gcm::Mesh::getNode(int index)
+{
 	assert( index >= 0 );
 	unordered_map<int, int>::const_iterator itr;
 	itr = nodesMap.find(index);
-	return ( itr != nodesMap.end() ? &new_nodes[itr->second] : NULL );
+	assert( itr != nodesMap.end() );
+	return nodes[itr->second];
 }
 
-CalcNode* gcm::Mesh::getNodeByLocalIndex(unsigned int index) {
+CalcNode& gcm::Mesh::getNewNode(int index) {
+	assert( index >= 0 );
+	unordered_map<int, int>::const_iterator itr;
+	itr = nodesMap.find(index);
+	assert( itr != nodesMap.end() );
+	return new_nodes[itr->second];
+}
+
+CalcNode& gcm::Mesh::getNodeByLocalIndex(unsigned int index) {
 	assert( index >= 0 && index < nodes.size() );
-	return &nodes[index];
+	return nodes[index];
 }
 
 int gcm::Mesh::getNodeLocalIndex(int index) {
@@ -437,12 +427,12 @@ int gcm::Mesh::getNodeLocalIndex(int index) {
 	return ( itr != nodesMap.end() ? itr->second : -1 );
 }
 
-void gcm::Mesh::addNode(CalcNode* node) {
+void gcm::Mesh::addNode(CalcNode& node) {
 	if( nodesNumber == nodesStorageSize )
 		createNodes((nodesStorageSize+1)*STORAGE_ONDEMAND_GROW_RATE);
 	assert( nodesNumber < nodesStorageSize );
-	nodes[nodesNumber] = *node;
-	nodesMap[node->number] = nodesNumber;
+	nodes[nodesNumber] = node;
+	nodesMap[node.number] = nodesNumber;
 	nodesNumber++;
 }
 
@@ -456,7 +446,6 @@ void gcm::Mesh::defaultNextPartStep(float tau, int stage)
 		clearNodesState();
 	}
 	
-	CalcNode* node;
 	NumericalMethod *method = body->getEngine()->getNumericalMethod(numericalMethodType);
 	method->setSpaceOrder(numericalMethodOrder);
 
@@ -471,8 +460,8 @@ void gcm::Mesh::defaultNextPartStep(float tau, int stage)
 	LOG_DEBUG("Processing border nodes");
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		node = getNode(i);
-		if( node->isLocal() && node->isBorder() )
+		CalcNode& node = getNode(i);
+		if( node.isLocal() && node.isBorder() )
 				method->doNextPartStep( node, getNewNode(i), tau, stage, this );
 	}
 
@@ -480,8 +469,8 @@ void gcm::Mesh::defaultNextPartStep(float tau, int stage)
 	LOG_DEBUG("Processing inner nodes");
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		node = getNode(i);
-		if( node->isLocal() && node->isInner() )
+		CalcNode& node = getNode(i);
+		if( node.isLocal() && node.isInner() )
 				method->doNextPartStep( node, getNewNode(i), tau, stage, this );
 	}
 
@@ -489,8 +478,8 @@ void gcm::Mesh::defaultNextPartStep(float tau, int stage)
 	LOG_DEBUG("Copying values");
 	for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
 		int i = itr->first;
-		node = getNode(i);
-		if( node->isLocal() )
-			memcpy( node->values, getNewNode(i)->values, GCM_VALUES_SIZE * sizeof(float) );
+		CalcNode& node = getNode(i);
+		if( node.isLocal() )
+			memcpy( node.values, getNewNode(i).values, GCM_VALUES_SIZE * sizeof(float) );
 	}
 }

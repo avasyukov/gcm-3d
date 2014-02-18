@@ -10,17 +10,15 @@ gcm::LineFirstOrderInterpolator::LineFirstOrderInterpolator() {
 gcm::LineFirstOrderInterpolator::~LineFirstOrderInterpolator() {
 }
 
-void gcm::LineFirstOrderInterpolator::interpolate(CalcNode* node, CalcNode* node0, CalcNode* node1)
+void gcm::LineFirstOrderInterpolator::interpolate(CalcNode& node, CalcNode& node0, CalcNode& node1)
 {
 	LOG_TRACE("Start interpolation");
-	assert( node != NULL );
-	assert( node0 != NULL && node1 != NULL );
 	
-	float lenTotal = distance( node0->coords, node1->coords	);
+	float lenTotal = distance( node0.coords, node1.coords	);
 
-	float factor0 = distance( node->coords, node1->coords ) / lenTotal;
+	float factor0 = distance( node.coords, node1.coords ) / lenTotal;
 
-	float factor1 = distance( node->coords, node0->coords ) / lenTotal;
+	float factor1 = distance( node.coords, node0.coords ) / lenTotal;
 
 	// If we see potential instability
 	if(factor0 + factor1 > 1.0)
@@ -35,9 +33,9 @@ void gcm::LineFirstOrderInterpolator::interpolate(CalcNode* node, CalcNode* node
 		// Throw exception
 		else
 		{
-			LOG_ERROR("Requested node: " << *node);
-			LOG_ERROR("Node #1: " << *node0);
-			LOG_ERROR("Node #2: " << *node1);
+			LOG_ERROR("Requested node: " << node);
+			LOG_ERROR("Node #1: " << node0);
+			LOG_ERROR("Node #2: " << node1);
 			LOG_ERROR("Factor: " << factor0 + factor1);
 			THROW_BAD_MESH("Sum of factors is greater than 1.0");
 		}
@@ -45,11 +43,11 @@ void gcm::LineFirstOrderInterpolator::interpolate(CalcNode* node, CalcNode* node
 
 	for (int i = 0; i < 9; i++)
 	{
-		node->values[i] = (node0->values[i]*factor0 + node1->values[i]*factor1);
+		node.values[i] = (node0.values[i]*factor0 + node1.values[i]*factor1);
 	}
 
-	node->setMaterialId( node0->getMaterialId() );
-	node->setRho( node0->getRho()*factor0 + node1->getRho()*factor1 );
+	node.setMaterialId( node0.getMaterialId() );
+	node.setRho( node0.getRho()*factor0 + node1.getRho()*factor1 );
 	
 	LOG_TRACE("Interpolation done");
 }

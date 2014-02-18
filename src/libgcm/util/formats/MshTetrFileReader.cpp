@@ -252,7 +252,7 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 	mesh->createNodes( nodes->size() );
 	for(unsigned int i = 0; i < nodes->size(); i++)
 	{
-		mesh->addNode( nodes->at(i) );
+		mesh->addNode( *nodes->at(i) );
 	}
 	nodes->clear();
 	delete nodes;
@@ -296,10 +296,10 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 
 			vert[0]--; vert[1]--; vert[2]--; vert[3]--;
 
-			if( mesh->getNode(vert[0]) != NULL 
-					|| mesh->getNode(vert[1]) != NULL 
-					|| mesh->getNode(vert[2]) != NULL 
-					|| mesh->getNode(vert[3]) != NULL )
+			if( mesh->hasNode(vert[0])
+					|| mesh->hasNode(vert[1])
+					|| mesh->hasNode(vert[2])
+					|| mesh->hasNode(vert[3]) )
 				tetrs->push_back( new TetrFirstOrder( number, vert ) );
 		}
 	}
@@ -312,9 +312,9 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 	for(unsigned int i = 0; i < tetrs->size(); i++)
 	{
 		TetrFirstOrder* tetr = tetrs->at(i);
-		mesh->addTetr( tetr );
+		mesh->addTetr( *tetr );
 		for(int j = 0; j < 4; j++)
-			if( mesh->getNode( tetr->verts[j] ) == NULL )
+			if( ! mesh->hasNode( tetr->verts[j] ) )
 				remoteNodes[tetr->verts[j]] = i;
 	}
 	tetrs->clear();
@@ -363,7 +363,7 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 		if( remoteNodes.find( tmpNode.number ) != remoteNodes.end() )
 		{
 			tmpNode.setPlacement(Remote);
-			mesh->addNode(&tmpNode);
+			mesh->addNode(tmpNode);
 			remoteNodesCount++;
 		}
 	}

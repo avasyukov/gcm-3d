@@ -10,7 +10,10 @@ class AdhesionContactCalculator : public ContactCalculator
 public:
 	AdhesionContactCalculator();
 	~AdhesionContactCalculator();
-	void do_calc(CalcNode* cur_node, CalcNode* new_node, CalcNode* virt_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[], float scale);
+	void doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node, 
+							ElasticMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[], 
+							ElasticMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[], 
+							float outer_normal[], float scale);
 	inline string getType() {
 		return "AdhesionContactCalculator";
 	}

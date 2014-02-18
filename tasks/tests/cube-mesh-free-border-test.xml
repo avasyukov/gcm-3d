@@ -2,8 +2,9 @@
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />
-			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.4" />
+			<mesh id="main" type="cube" h="0.2" num="50" />
 			<material id="testMaterial" />
+			<transform type="translate" moveX="-5" moveY="-5" moveZ="-5" />
 		</body>
 	</bodies>
 	<materials>

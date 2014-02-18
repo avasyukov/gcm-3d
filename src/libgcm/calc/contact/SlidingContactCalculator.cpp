@@ -1,10 +1,10 @@
 #include "calc/contact/SlidingContactCalculator.h"
 
-#include "calc/border/FreeBorderCalculator.h"
 #include "node/CalcNode.h"
 
 SlidingContactCalculator::SlidingContactCalculator()
 {
+	fbc = new FreeBorderCalculator();
 	U_gsl = gsl_matrix_alloc (18, 18);
 	om_gsl = gsl_vector_alloc (18);
 	x_gsl = gsl_vector_alloc (18);
@@ -13,14 +13,21 @@ SlidingContactCalculator::SlidingContactCalculator()
 
 SlidingContactCalculator::~SlidingContactCalculator()
 {
+	delete fbc;
 	gsl_matrix_free(U_gsl);
 	gsl_vector_free(om_gsl);
 	gsl_vector_free(x_gsl);
 	gsl_permutation_free(p_gsl);
 };
 
-void SlidingContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, CalcNode* virt_node, ElasticMatrix3D* matrix, float* values[], bool inner[], ElasticMatrix3D* virt_matrix, float* virt_values[], bool virt_inner[], float outer_normal[], float scale)
+void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node, 
+							ElasticMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[], 
+							ElasticMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[], 
+							float outer_normal[], float scale)
 {
+	assert(previousNodes.size() == 9);
+	assert(virtPreviousNodes.size() == 9);
+	
 	float local_n[3][3];
 	local_n[0][0] = outer_normal[0];
 	local_n[0][1] = outer_normal[1];
@@ -29,16 +36,23 @@ void SlidingContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, C
 	createLocalBasis(local_n[0], local_n[1], local_n[2]);
 
 	//---------------------------------------Check if nodes fall apart
-	float vel_rel[3] = {cur_node->values[0]+virt_node->values[0],
-		   	    cur_node->values[1]+virt_node->values[1],
-			    cur_node->values[2]+virt_node->values[2]};
-	float force_cur[3] = {cur_node->values[3]*outer_normal[0]+cur_node->values[4]*outer_normal[1]+cur_node->values[5]*outer_normal[2],
-			  cur_node->values[4]*outer_normal[0]+cur_node->values[6]*outer_normal[1]+cur_node->values[7]*outer_normal[2],
-			  cur_node->values[5]*outer_normal[0]+cur_node->values[7]*outer_normal[1]+cur_node->values[8]*outer_normal[2]};
+	// TODO - may be '-'?
+	float vel_rel[3] = {
+		cur_node.values[0] + virt_node.values[0],
+		cur_node.values[1] + virt_node.values[1],
+		cur_node.values[2] + virt_node.values[2]
+	};
 	
-	float vel_abs =  -scalarProduct(vel_rel,outer_normal);
+	float force_cur[3] = {
+		cur_node.values[3]*outer_normal[0] + cur_node.values[4]*outer_normal[1] + cur_node.values[5]*outer_normal[2],
+		cur_node.values[4]*outer_normal[0] + cur_node.values[6]*outer_normal[1] + cur_node.values[7]*outer_normal[2],
+		cur_node.values[5]*outer_normal[0] + cur_node.values[7]*outer_normal[1] + cur_node.values[8]*outer_normal[2]
+	};
+	
+	float vel_abs = -scalarProduct(vel_rel, outer_normal);
 	float force_cur_abs = scalarProduct(force_cur,outer_normal);
 	
+	// TODO - remove magic number
 	float eps = 0.0005;
 	bool free_border = false;
 
@@ -50,9 +64,7 @@ void SlidingContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, C
 
 	if (free_border) 		
 	{
-		FreeBorderCalculator *fbc = new FreeBorderCalculator();
-		fbc->do_calc(cur_node, new_node, matrix, values, inner, outer_normal, scale);
-		delete fbc;
+		fbc->doCalc(cur_node, new_node, matrix, previousNodes, inner, outer_normal, scale);
 		return;
 	}
 	//--------------------------------------------------------------------
@@ -74,14 +86,14 @@ void SlidingContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, C
 			// omega on new time layer is equal to omega on previous time layer along characteristic
 			omega[i] = 0;
 			for( int j = 0; j < 9; j++ ) {
-				omega[i] += matrix->U(i,j) * values[i][j];
+				omega[i] += matrix.U(i,j) * previousNodes[i].values[j];
 			}
 
 			// then we must set the corresponding values of the 18x18 matrix
 			gsl_vector_set( om_gsl, 6 * curNN + posInEq18, omega[i] );
 
 			for( int j = 0; j < 9; j++ ) {
-				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, matrix->U( i, j ) );
+				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, matrix.U( i, j ) );
 			}
 			for( int j = 9; j < 18; j++ ) {
 				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, 0 );
@@ -101,7 +113,7 @@ void SlidingContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, C
 			// omega on new time layer is equal to omega on previous time layer along characteristic
 			virt_omega[i] = 0;
 			for( int j = 0; j < 9; j++ ) {
-				virt_omega[i] += virt_matrix->U(i,j) * virt_values[i][j];
+				virt_omega[i] += virt_matrix.U(i,j) * virtPreviousNodes[i].values[j];
 			}
 
 			// then we must set the corresponding values of the 18x18 matrix
@@ -111,7 +123,7 @@ void SlidingContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, C
 				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, 0 );
 			}
 			for( int j = 9; j < 18; j++ ) {
-				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, virt_matrix->U( i, j - 9 ) );
+				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, virt_matrix.U( i, j - 9 ) );
 			}
 			posInEq18++;
 		}
@@ -197,6 +209,6 @@ void SlidingContactCalculator::do_calc(CalcNode* cur_node, CalcNode* new_node, C
 
 	// Just get first 9 values (real node) and dump the rest 9 (virt node)
 	for(int j = 0; j < 9; j++)
-		new_node->values[j] = gsl_vector_get(x_gsl, j);
+		new_node.values[j] = gsl_vector_get(x_gsl, j);
 
 };

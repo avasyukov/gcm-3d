@@ -30,9 +30,6 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	vtkXMLUnstructuredGridWriter *xgw = vtkXMLUnstructuredGridWriter::New();
 	vtkUnstructuredGrid *g = vtkUnstructuredGrid::New();
 
-	CalcNode* node;
-	TetrSecondOrder* tetr;
-
 	vtkPoints *pts = vtkPoints::New();
 
 	vtkDoubleArray *vel = vtkDoubleArray::New();
@@ -63,33 +60,33 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	
 	for(int i = 0; i < mesh->getNodesNumber(); i++)
 	{
-		node = mesh->getNodeByLocalIndex(i);
+		CalcNode& node = mesh->getNodeByLocalIndex(i);
 		
-		if( node->isFirstOrder() )
+		if( node.isFirstOrder() )
 		{
-			snapNodeMap[ node->number ] = snapNodeCount;
+			snapNodeMap[ node.number ] = snapNodeCount;
 			snapNodeCount++;
-			pts->InsertNextPoint( node->coords[0], node->coords[1], node->coords[2] );
-			v[0] = node->values[0];	v[1] = node->values[1];	v[2] = node->values[2];
-			memcpy(c, node->getCrackDirection(), 3*sizeof(float));
+			pts->InsertNextPoint( node.coords[0], node.coords[1], node.coords[2] );
+			v[0] = node.values[0];	v[1] = node.values[1];	v[2] = node.values[2];
+			memcpy(c, node.getCrackDirection(), 3*sizeof(float));
 			vel->InsertNextTuple(v);
 			crack->InsertNextTuple(c);
-			sxx->InsertNextValue( node->values[3] );
-			sxy->InsertNextValue( node->values[4] );
-			sxz->InsertNextValue( node->values[5] );
-			syy->InsertNextValue( node->values[6] );
-			syz->InsertNextValue( node->values[7] );
-			szz->InsertNextValue( node->values[8] );
-			compression->InsertNextValue( node->getCompression() );
-			tension->InsertNextValue( node->getTension() );
-			shear->InsertNextValue( node->getShear() );
-			deviator->InsertNextValue( node->getDeviator() );
-			matId->InsertNextValue( node->getMaterialId() );
-			rho->InsertNextValue( node->getRho() );
-			borderState->InsertNextValue( node->isBorder() ? ( node->isInContact() ? 2 : 1 ) : 0 );
-			contactState->InsertNextValue(node->getContactConditionId());
-			mpiState->InsertNextValue( node->isRemote() ? 1 : 0 );
-			nodeErrorFlags->InsertNextValue (node->getErrorFlags());
+			sxx->InsertNextValue( node.values[3] );
+			sxy->InsertNextValue( node.values[4] );
+			sxz->InsertNextValue( node.values[5] );
+			syy->InsertNextValue( node.values[6] );
+			syz->InsertNextValue( node.values[7] );
+			szz->InsertNextValue( node.values[8] );
+			compression->InsertNextValue( node.getCompression() );
+			tension->InsertNextValue( node.getTension() );
+			shear->InsertNextValue( node.getShear() );
+			deviator->InsertNextValue( node.getDeviator() );
+			matId->InsertNextValue( node.getMaterialId() );
+			rho->InsertNextValue( node.getRho() );
+			borderState->InsertNextValue( node.isBorder() ? ( node.isInContact() ? 2 : 1 ) : 0 );
+			contactState->InsertNextValue(node.getContactConditionId());
+			mpiState->InsertNextValue( node.isRemote() ? 1 : 0 );
+			nodeErrorFlags->InsertNextValue (node.getErrorFlags());
 		}
 	}
 	g->SetPoints(pts);
@@ -97,10 +94,10 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 	vtkTetra *tetra=vtkTetra::New();
 	for(int i = 0; i < mesh->getTetrsNumber(); i++)
 	{
-		tetr = mesh->getTetr2ByLocalIndex(i);
+			TetrSecondOrder& tetr = mesh->getTetr2ByLocalIndex(i);
 		for( int z = 0; z < 4; z++)
 		{
-			int snapIndex = snapNodeMap[ tetr->verts[z] ];
+			int snapIndex = snapNodeMap[ tetr.verts[z] ];
 			tetra->GetPointIds()->SetId( z, snapIndex );
 		}
 		g->InsertNextCell(tetra->GetCellType(),tetra->GetPointIds());

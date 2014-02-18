@@ -48,13 +48,13 @@ void gcm::CollisionDetector::find_nodes_in_intersection(TetrMeshSecondOrder* mes
 {
 	for(int i = 0; i < mesh->getNodesNumber(); i++)
 	{
-		CalcNode* node = mesh->getNodeByLocalIndex(i);
+		CalcNode& node = mesh->getNodeByLocalIndex(i);
 		// FIXME
 		// only local nodes?
-		if ( (node->isLocal ()) && (node->isBorder ()) )
+		if ( (node.isLocal ()) && (node.isBorder ()) )
 		{
 			if(intersection.isInAABB(node))
-				result.push_back(*node);
+				result.push_back(node);
 		}
 	}
 }
@@ -63,10 +63,10 @@ void gcm::CollisionDetector::find_nodes_in_intersection(TetrMeshSecondOrder* mes
 {
 	for(int i = 0; i < mesh->getNodesNumber(); i++)
 	{
-		CalcNode* node = mesh->getNodeByLocalIndex(i);
+		CalcNode& node = mesh->getNodeByLocalIndex(i);
 		// FIXME
 		// only local nodes?
-		if ( (node->isLocal ()) && (node->isBorder ()) )
+		if ( (node.isLocal ()) && (node.isBorder ()) )
 		{
 			if(intersection.isInAABB(node))
 				result.push_back(i);
@@ -79,12 +79,12 @@ void gcm::CollisionDetector::find_faces_in_intersection(TetrMeshSecondOrder* mes
 	for (int i = 0; i < mesh->faceNumber; i++)
 	{
 		int verts = 0;
-		TriangleFirstOrder* tri = mesh->getTriangle(i);
+		TriangleFirstOrder& tri = mesh->getTriangle(i);
 		for (int j = 0; j < 3; j++)
-			if( ! intersection.isInAABB( mesh->getNode( tri->verts[j] ) ) )
+			if( ! intersection.isInAABB( mesh->getNode( tri.verts[j] ) ) )
 				verts++;
 		if (verts != 3)
-			result.push_back(*tri);
+			result.push_back(tri);
 	}
 }
 
@@ -93,9 +93,9 @@ void gcm::CollisionDetector::find_faces_in_intersection(TetrMeshSecondOrder* mes
 	for (int i = 0; i < mesh->faceNumber; i++)
 	{
 		int verts = 0;
-		TriangleFirstOrder* tri = mesh->getTriangle(i);
+		TriangleFirstOrder& tri = mesh->getTriangle(i);
 		for (int j = 0; j < 3; j++)
-			if( ! intersection.isInAABB( mesh->getNode( tri->verts[j] ) ) )
+			if( ! intersection.isInAABB( mesh->getNode( tri.verts[j] ) ) )
 				verts++;
 		if (verts != 3)
 			result.push_back(i);

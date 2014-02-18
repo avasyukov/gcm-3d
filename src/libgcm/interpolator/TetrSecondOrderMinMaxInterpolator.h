@@ -24,10 +24,10 @@ namespace gcm {
 	public:
 		TetrSecondOrderMinMaxInterpolator();
 		~TetrSecondOrderMinMaxInterpolator();
-		void interpolate( CalcNode* node, 
-				CalcNode* node0, CalcNode* node1, CalcNode* node2, CalcNode* node3,
-				CalcNode* addNode0, CalcNode* addNode1, CalcNode* addNode2, 
-				CalcNode* addNode3, CalcNode* addNode4, CalcNode* addNode5 );
+		void interpolate( CalcNode& node, 
+				CalcNode& node0, CalcNode& node1, CalcNode& node2, CalcNode& node3,
+				CalcNode& addNode0, CalcNode& addNode1, CalcNode& addNode2, 
+				CalcNode& addNode3, CalcNode& addNode4, CalcNode& addNode5 );
 	private:
 		CalcNode* baseNodes[4];
 		CalcNode* addNodes[6];

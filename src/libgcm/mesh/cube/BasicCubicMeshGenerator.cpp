@@ -50,7 +50,7 @@ void gcm::BasicCubicMeshGenerator::loadMesh(Params params, BasicCubicMesh* mesh,
 				node->coords[1] = y;
 				node->coords[2] = z;
 				node->setPlacement(Local);
-				mesh->addNode( node );
+				mesh->addNode( *node );
 			}
 	mesh->preProcess();
 }

@@ -140,7 +140,7 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 	mesh->createNodes( nodes->size() );
 	for(unsigned int i = 0; i < nodes->size(); i++)
 	{
-		mesh->addNode( nodes->at(i) );
+		mesh->addNode( *nodes->at(i) );
 	}
 	for(unsigned int i = 0; i < nodes->size(); i++)
 	{
@@ -171,10 +171,10 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 		vert[2] = vt->GetPointId(2);
 		vert[3] = vt->GetPointId(3);*/
 		
-		if( mesh->getNode(new_tetr.verts[0]) != NULL 
-					|| mesh->getNode(new_tetr.verts[1]) != NULL 
-					|| mesh->getNode(new_tetr.verts[2]) != NULL 
-					|| mesh->getNode(new_tetr.verts[3]) != NULL )
+		if( mesh->hasNode(new_tetr.verts[0]) 
+					|| mesh->hasNode(new_tetr.verts[1]) 
+					|| mesh->hasNode(new_tetr.verts[2]) 
+					|| mesh->hasNode(new_tetr.verts[3]) )
 				tetrs->push_back( new TetrSecondOrder( new_tetr.number, new_tetr.verts, new_tetr.addVerts ) );
 	}
 		
@@ -186,12 +186,12 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 	for(unsigned int i = 0; i < tetrs->size(); i++)
 	{
 		TetrSecondOrder* tetr = tetrs->at(i);
-		mesh->addTetr2( tetr );
+		mesh->addTetr2( *tetr );
 		for(int j = 0; j < 4; j++)
-			if( mesh->getNode( tetr->verts[j] ) == NULL )
+			if( ! mesh->hasNode( tetr->verts[j] ) )
 				remoteNodes[tetr->verts[j]] = i;
 		for(int j = 0; j < 6; j++)
-			if( mesh->getNode( tetr->addVerts[j] ) == NULL )
+			if( ! mesh->hasNode( tetr->addVerts[j] ) )
 				remoteNodes[tetr->addVerts[j]] = i;
 	}
 	for(unsigned int i = 0; i < tetrs->size(); i++)
@@ -233,7 +233,7 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 			tmpNode.setPrivateFlags( privateFlags->GetValue(i) );			
 			tmpNode.setBorderConditionId( nodeBorderCalcId->GetValue(i) );
 			tmpNode.setPlacement(Remote);
-			mesh->addNode(&tmpNode);
+			mesh->addNode(tmpNode);
 			remoteNodesCount++;
 		}
 	}
@@ -250,17 +250,17 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 	
 	for( int i = 0; i < mesh->getTetrsNumber(); i++ )
 	{
-		TetrSecondOrder* tetr = mesh->getTetr2ByLocalIndex(i);
+		TetrSecondOrder& tetr = mesh->getTetr2ByLocalIndex(i);
 		for (int j = 0; j < 4; j++)
-			if ( mesh->getNode(tetr->verts[j]) == NULL )
+			if ( ! mesh->hasNode(tetr.verts[j]) )
 			{
-				LOG_ERROR("Can not find node " << tetr->verts[j] << " required by local tetr " << i);
+				LOG_ERROR("Can not find node " << tetr.verts[j] << " required by local tetr " << i);
 				THROW_BAD_MESH("Missed node");
 			}
 		for (int j = 0; j < 6; j++)
-			if ( mesh->getNode(tetr->addVerts[j]) == NULL )
+			if ( ! mesh->hasNode(tetr.addVerts[j]) )
 			{
-				LOG_ERROR("Can not find node " << tetr->addVerts[j] << " required by local tetr " << i);
+				LOG_ERROR("Can not find node " << tetr.addVerts[j] << " required by local tetr " << i);
 				THROW_BAD_MESH("Missed node");
 			}
 	}

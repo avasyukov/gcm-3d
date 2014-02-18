@@ -53,7 +53,6 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 				LOG_DEBUG("Virt nodes size before processing: " << virt_nodes.size());
 
 				// process collisions
-				CalcNode new_node;
 				float direction[3];
 				for(unsigned int k = 0; k < local_nodes.size(); k++)
 				{
@@ -77,13 +76,13 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 									direction[z] = 0;
 
 							// FIXME - ugly WA
-							new_node = *( mesh2->getNode( local_faces[l].verts[0] ) );
+							CalcNode& new_node = mesh2->getNode( local_faces[l].verts[0] );
 							new_node.contactNodeNum = j;
 
 							if( vectorIntersectsTriangle( 
-									mesh2->getNode( local_faces[l].verts[0] )->coords,
-									mesh2->getNode( local_faces[l].verts[1] )->coords,
-									mesh2->getNode( local_faces[l].verts[2] )->coords,
+									(mesh2->getNode( local_faces[l].verts[0] )).coords,
+									(mesh2->getNode( local_faces[l].verts[1] )).coords,
+									(mesh2->getNode( local_faces[l].verts[2] )).coords,
 									local_nodes[k].coords,
 									direction, get_threshold(), new_node.coords, false ) )
 							{
@@ -93,21 +92,21 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 								//vel[2] = local_getNode[k].values[2] - mesh2->getNode[ local_faces[l].vert[0] ].values[2];
 								//if( vel[0] * direction[0] + vel[1] * direction[1] + vel[2] * direction[2] > 0 )
 								{
-									mesh1->getNode( local_nodes[k].number )->setContactType (InContact);
-									mesh1->getNode( local_nodes[k].number )->contactNodeNum = virt_nodes.size();
-									mesh1->getNode( local_nodes[k].number )->contactDirection = m;
+									(mesh1->getNode( local_nodes[k].number )).setContactType (InContact);
+									(mesh1->getNode( local_nodes[k].number )).contactNodeNum = virt_nodes.size();
+									(mesh1->getNode( local_nodes[k].number )).contactDirection = m;
 
 									interpolateTriangle(
-										mesh2->getNode( local_faces[l].verts[0] )->coords,
-										mesh2->getNode( local_faces[l].verts[1] )->coords,
-										mesh2->getNode( local_faces[l].verts[2] )->coords,
+										(mesh2->getNode( local_faces[l].verts[0] )).coords,
+										(mesh2->getNode( local_faces[l].verts[1] )).coords,
+										(mesh2->getNode( local_faces[l].verts[2] )).coords,
 										new_node.coords,
-										mesh2->getNode( local_faces[l].verts[0] )->values,
-										mesh2->getNode( local_faces[l].verts[1] )->values,
-										mesh2->getNode( local_faces[l].verts[2] )->values,
+										(mesh2->getNode( local_faces[l].verts[0] )).values,
+										(mesh2->getNode( local_faces[l].verts[1] )).values,
+										(mesh2->getNode( local_faces[l].verts[2] )).values,
 										new_node.values, 9);
-									new_node.setRho( mesh2->getNode( local_faces[l].verts[0] )->getRho() );
-									new_node.setMaterialId( mesh2->getNode( local_faces[l].verts[0] )->getMaterialId() );
+									new_node.setRho( (mesh2->getNode( local_faces[l].verts[0] )).getRho() );
+									new_node.setMaterialId( (mesh2->getNode( local_faces[l].verts[0] )).getMaterialId() );
 
 									virt_nodes.push_back(new_node);
 

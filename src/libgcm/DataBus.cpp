@@ -408,20 +408,19 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
 	
 	BARRIER("gcm::DataBus::createDynamicTypes#0");
 	
-	CalcNode* node;
 	// find all remote nodes
 	for (int j = 0; j < mesh->getNodesNumber(); j++)
 	{
-		node = &(mesh->nodes[j]);
-		if ( node->isRemote() )
+		CalcNode& node = mesh->getNodeByLocalIndex(j);
+		if ( node.isRemote() )
 		{
 			//LOG_DEBUG("N: " << j);
 			//LOG_DEBUG("R1: " << j << " " << mesh->getBody()->getId());
-			int owner = dispatcher->getOwner(node->coords/*, mesh->getBody()->getId()*/);
+			int owner = dispatcher->getOwner(node.coords/*, mesh->getBody()->getId()*/);
 			//LOG_DEBUG("R2: " << owner);
 			assert( owner != rank );
-			local_numbers[rank][owner].push_back( mesh->nodesMap[node->number] );
-			remote_numbers[rank][owner].push_back(node->number);
+			local_numbers[rank][owner].push_back( mesh->nodesMap[node.number] );
+			remote_numbers[rank][owner].push_back(node.number);
 		}
 	}
 
@@ -676,45 +675,45 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 		{
 			for( int j = 0; j < myMesh->nodesNumber; j++ )
 			{
-				CalcNode* node = &(myMesh->nodes[j]);
+				CalcNode& node = myMesh->getNodeByLocalIndex(j);
 				if( reqZones[i][rank].isInAABB( node ) )
 				{
 					numberOfNodes[rank][i]++;
-					sendNodesMap[i][ node->number ] = j;
+					sendNodesMap[i][ node.number ] = j;
 				}
 			}
 			for( int j = 0; j < myMesh->tetrsNumber; j++ )
 			{
-				TetrSecondOrder* tetr = myMesh->getTetr2ByLocalIndex(j);
-				if( sendNodesMap[i].find(tetr->verts[0]) != sendNodesMap[i].end() 
-					|| sendNodesMap[i].find(tetr->verts[1]) != sendNodesMap[i].end() 
-					|| sendNodesMap[i].find(tetr->verts[2]) != sendNodesMap[i].end() 
-					|| sendNodesMap[i].find(tetr->verts[3]) != sendNodesMap[i].end() 
-						|| sendNodesMap[i].find(tetr->addVerts[0]) != sendNodesMap[i].end() 
-						|| sendNodesMap[i].find(tetr->addVerts[1]) != sendNodesMap[i].end() 
-						|| sendNodesMap[i].find(tetr->addVerts[2]) != sendNodesMap[i].end() 
-						|| sendNodesMap[i].find(tetr->addVerts[3]) != sendNodesMap[i].end() 
-						|| sendNodesMap[i].find(tetr->addVerts[4]) != sendNodesMap[i].end() 
-						|| sendNodesMap[i].find(tetr->addVerts[5]) != sendNodesMap[i].end() )
+				TetrSecondOrder& tetr = myMesh->getTetr2ByLocalIndex(j);
+				if( sendNodesMap[i].find(tetr.verts[0]) != sendNodesMap[i].end() 
+					|| sendNodesMap[i].find(tetr.verts[1]) != sendNodesMap[i].end() 
+					|| sendNodesMap[i].find(tetr.verts[2]) != sendNodesMap[i].end() 
+					|| sendNodesMap[i].find(tetr.verts[3]) != sendNodesMap[i].end() 
+						|| sendNodesMap[i].find(tetr.addVerts[0]) != sendNodesMap[i].end() 
+						|| sendNodesMap[i].find(tetr.addVerts[1]) != sendNodesMap[i].end() 
+						|| sendNodesMap[i].find(tetr.addVerts[2]) != sendNodesMap[i].end() 
+						|| sendNodesMap[i].find(tetr.addVerts[3]) != sendNodesMap[i].end() 
+						|| sendNodesMap[i].find(tetr.addVerts[4]) != sendNodesMap[i].end() 
+						|| sendNodesMap[i].find(tetr.addVerts[5]) != sendNodesMap[i].end() )
 				{
 					numberOfTetrs[rank][i]++;
-					sendTetrsMap[i][ tetr->number ] = j;
+					sendTetrsMap[i][ tetr.number ] = j;
 					for( int k = 0; k < 4; k++ )
 					{
-						if( sendNodesMap[i].find(tetr->verts[k]) == sendNodesMap[i].end() 
-								&& addNodesMap[i].find(tetr->verts[k]) == addNodesMap[i].end() )
+						if( sendNodesMap[i].find(tetr.verts[k]) == sendNodesMap[i].end() 
+								&& addNodesMap[i].find(tetr.verts[k]) == addNodesMap[i].end() )
 						{
 							numberOfNodes[rank][i]++;
-							addNodesMap[i][ tetr->verts[k] ] = myMesh->getNodeLocalIndex(tetr->verts[k]);
+							addNodesMap[i][ tetr.verts[k] ] = myMesh->getNodeLocalIndex(tetr.verts[k]);
 						}
 					}
 					for( int k = 0; k < 6; k++ )
 					{
-						if( sendNodesMap[i].find(tetr->addVerts[k]) == sendNodesMap[i].end() 
-								&& addNodesMap[i].find(tetr->addVerts[k]) == addNodesMap[i].end() )
+						if( sendNodesMap[i].find(tetr.addVerts[k]) == sendNodesMap[i].end() 
+								&& addNodesMap[i].find(tetr.addVerts[k]) == addNodesMap[i].end() )
 						{
 							numberOfNodes[rank][i]++;
-							addNodesMap[i][ tetr->addVerts[k] ] = myMesh->getNodeLocalIndex(tetr->addVerts[k]);
+							addNodesMap[i][ tetr.addVerts[k] ] = myMesh->getNodeLocalIndex(tetr.addVerts[k]);
 						}
 					}
 				}
@@ -871,10 +870,10 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 					targetMesh->createNodes( numberOfNodes[i][rank] );
 					LOG_DEBUG("Nodes storage created for body " << (int)bodyNum << ". Size: " << numberOfNodes[i][rank]);
 				}
-				if( targetMesh->getNode(num) == NULL )
+				if( ! targetMesh->hasNode(num) )
 				{
 					recNodes[i][j].setPlacement(Remote);
-					targetMesh->addNode(&recNodes[i][j]);
+					targetMesh->addNode(recNodes[i][j]);
 				}
 			}
 			LOG_DEBUG("Processing tetrs");
@@ -886,9 +885,9 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 			for( int j = 0; j < numberOfTetrs[i][rank]; j++ )
 			{
 				int num = recTetrs[i][j].number;
-				if( targetMesh->getTetr(num) == NULL )
+				if( ! targetMesh->hasTetr(num) )
 				{
-					targetMesh->addTetr2(&recTetrs[i][j]);
+					targetMesh->addTetr2(recTetrs[i][j]);
 				}
 			}
 		}
