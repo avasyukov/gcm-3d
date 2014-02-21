@@ -7,36 +7,36 @@ gcm::AnisotropicMatrix3DAnalytical::AnisotropicMatrix3DAnalytical()
 
 gcm::AnisotropicMatrix3DAnalytical::~AnisotropicMatrix3DAnalytical() { };
 
-void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const AnisotropicNumbers &C, float ro, int stage)
+void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const AnisotropicNumbers &C, float rho, int stage)
 {
-	assert ( ro > 0 );
+	assert ( rho > 0 );
 	for (int i = 0; i < 21; i++) {
 		// TODO	- Are there any other limits on anisotropic coefficients?
 		assert (C.c[i] >= 0) ; 
 	}
 
 	if (stage == 0) {
-		CreateAx(C, ro);
+		CreateAx(C, rho);
 	} else if (stage == 1) { 
-		CreateAy(C, ro); 
+		CreateAy(C, rho); 
 	} else if (stage == 2) { 
-		CreateAz(C, ro); 
+		CreateAz(C, rho); 
 	} else {
 		THROW_BAD_CONFIG("Wrong stage number");
 	}
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const AnisotropicNumbers &C, float ro, 
+void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const AnisotropicNumbers &C, float rho, 
 											float qjx, float qjy, float qjz)
 {
-	assert ( ro > 0 );
+	assert ( rho > 0 );
 	for (int i = 0; i < 21; i++) {
 		// TODO	- Are there any other limits on anisotropic coefficients?
 		assert (C.c[i] >= 0) ; 
 	}
 	assert( fabs( vectorNorm(qjx, qjy, qjz) - 1 ) < EQUALITY_TOLERANCE );
 
-	CreateGeneralizedMatrix(C, ro, qjx, qjy, qjz);
+	CreateGeneralizedMatrix(C, rho, qjx, qjy, qjz);
 };
 
 void gcm::AnisotropicMatrix3DAnalytical::self_check()
@@ -64,12 +64,12 @@ void gcm::AnisotropicMatrix3DAnalytical::zero_all()
 	U1.clear();
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::CreateAx(const AnisotropicNumbers &C, float ro)
+void gcm::AnisotropicMatrix3DAnalytical::CreateAx(const AnisotropicNumbers &C, float rho)
 {
 	zero_all();
 
 	// Setting values of A
-	A(0,3) = A(1,9) = A(2,8) = -1/ro;
+	A(0,3) = A(1,9) = A(2,8) = -1/rho;
 	for (int i = 0; i < 6; i++)
 		A(i+3,0) = -C.c[i];
 	A(3,1) = -C.c16;
@@ -86,7 +86,7 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAx(const AnisotropicNumbers &C, f
 	A(8,2) = -C.c56;
 	
 	// Search eigenvalues and filling the diagonal matrix
-	ThirdDegreePolynomial tdp (ro, C, 0);
+	ThirdDegreePolynomial tdp (rho, C, 0);
 	float roots[3];
 	tdp.getRoots(roots);
 	L(0,0) = sqrt(roots[0]);
@@ -100,42 +100,50 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAx(const AnisotropicNumbers &C, f
 	// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
 	float eigenVec[9];
 	for (int i = 0; i < 6; i++) {
-		findEigenVec(eigenVec, L(i,i), ro, C, 0);
+		findEigenVec(eigenVec, L(i,i), rho, C, 0);
 		U1.setColumn(eigenVec, i);
  	}
 	U1(4,6) = U1(5,7) = U1(6,8) = 1;
 
 	// Search U = U1^(-1)
-	
+	gsl_matrix* Z1 = gsl_matrix_alloc (GCM_MATRIX_SIZE, GCM_MATRIX_SIZE);
+	for (int i = 0; i < GCM_MATRIX_SIZE; i++)
+		for (int j = 0; j < GCM_MATRIX_SIZE; j++)
+			gsl_matrix_set(Z1, i, j, U1(i,j));
+	gsl_matrix* Z = gsl_matrix_alloc (GCM_MATRIX_SIZE, GCM_MATRIX_SIZE);
+    gsl_permutation* perm = gsl_permutation_alloc (GCM_MATRIX_SIZE);  
+	int j;
+	gsl_linalg_LU_decomp (Z1, perm, &j);
+	gsl_linalg_LU_invert (Z1, perm, Z);
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::CreateAy(const AnisotropicNumbers &C, float ro)
+void gcm::AnisotropicMatrix3DAnalytical::CreateAy(const AnisotropicNumbers &C, float rho)
 {
 	
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::CreateAz(const AnisotropicNumbers &C, float ro)
+void gcm::AnisotropicMatrix3DAnalytical::CreateAz(const AnisotropicNumbers &C, float rho)
 {
 	
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::CreateGeneralizedMatrix(const AnisotropicNumbers &C, float ro, 
+void gcm::AnisotropicMatrix3DAnalytical::CreateGeneralizedMatrix(const AnisotropicNumbers &C, float rho, 
 													float qjx, float qjy, float qjz)
 {/*
 
 	zero_all();
 
 	A(0,0) = 0;					A(0,1) = 0;					A(0,2) = 0;
-	A(0,3) = -qjx/ro;			A(0,4) = -qjy/ro;			A(0,5) = -qjz/ro;
+	A(0,3) = -qjx/rho;			A(0,4) = -qjy/rho;			A(0,5) = -qjz/rho;
 	A(0,6) = 0;					A(0,7) = 0;					A(0,8) = 0;
 
 	A(1,0) = 0;					A(1,1) = 0;					A(1,2) = 0;
-	A(1,3) = 0;					A(1,4) = -qjx/ro;			A(1,5) = 0;
-	A(1,6) = -qjy/ro;			A(1,7) = -qjz/ro;			A(1,8) = 0;
+	A(1,3) = 0;					A(1,4) = -qjx/rho;			A(1,5) = 0;
+	A(1,6) = -qjy/rho;			A(1,7) = -qjz/rho;			A(1,8) = 0;
 
 	A(2,0) = 0;					A(2,1) = 0;					A(2,2) = 0;
-	A(2,3) = 0;					A(2,4) = 0;					A(2,5) = -qjx/ro;
-	A(2,6) = 0;					A(2,7) = -qjy/ro;			A(2,8) = -qjz/ro;
+	A(2,3) = 0;					A(2,4) = 0;					A(2,5) = -qjx/rho;
+	A(2,6) = 0;					A(2,7) = -qjy/rho;			A(2,8) = -qjz/rho;
 
 	A(3,0) = -(la+2*mu)*qjx;	A(3,1) = -la*qjy;			A(3,2) = -la*qjz;
 	A(3,3) = 0;					A(3,4) = 0;					A(3,5) = 0;
@@ -170,9 +178,9 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateGeneralizedMatrix(const Anisotrop
 
 	createLocalBasis( n[0], n[1], n[2] );
 	
-	float c1 = sqrt((la+2*mu)/ro);
-	float c2 = sqrt(mu/ro);
-	float c3 = sqrt(la*la/(ro*(la+2*mu)));
+	float c1 = sqrt((la+2*mu)/rho);
+	float c2 = sqrt(mu/rho);
+	float c3 = sqrt(la*la/(rho*(la+2*mu)));
 
 	L(0,0) = c1 * l;
 	L(1,1) = -c1 * l;
@@ -204,37 +212,37 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateGeneralizedMatrix(const Anisotrop
 	U1(1,0) = n[0][1];
 	U1(2,0) = n[0][2];
 	for(int i = 0; i < 6; i++)
-		U1(3+i,0) = -ro*((c1-c3)*N00[i] + c3*I[i]);
+		U1(3+i,0) = -rho*((c1-c3)*N00[i] + c3*I[i]);
 
 	U1(0,1) = n[0][0];
 	U1(1,1) = n[0][1];
 	U1(2,1) = n[0][2];
 	for(int i = 0; i < 6; i++)
-		U1(3+i,1) = ro*((c1-c3)*N00[i] + c3*I[i]);
+		U1(3+i,1) = rho*((c1-c3)*N00[i] + c3*I[i]);
 
 	U1(0,2) = n[1][0];
 	U1(1,2) = n[1][1];
 	U1(2,2) = n[1][2];
 	for(int i = 0; i < 6; i++)
-		U1(3+i,2) = -2*ro*c2*N01[i];
+		U1(3+i,2) = -2*rho*c2*N01[i];
 
 	U1(0,3) = n[1][0];
 	U1(1,3) = n[1][1];
 	U1(2,3) = n[1][2];
 	for(int i = 0; i < 6; i++)
-		U1(3+i,3) = 2*ro*c2*N01[i];
+		U1(3+i,3) = 2*rho*c2*N01[i];
 
 	U1(0,4) = n[2][0];
 	U1(1,4) = n[2][1];
 	U1(2,4) = n[2][2];
 	for(int i = 0; i < 6; i++)
-		U1(3+i,4) = -2*ro*c2*N02[i];
+		U1(3+i,4) = -2*rho*c2*N02[i];
 
 	U1(0,5) = n[2][0];
 	U1(1,5) = n[2][1];
 	U1(2,5) = n[2][2];
 	for(int i = 0; i < 6; i++)
-		U1(3+i,5) = 2*ro*c2*N02[i];
+		U1(3+i,5) = 2*rho*c2*N02[i];
 
 	U1(0,6) = 0;
 	U1(1,6) = 0;
@@ -261,62 +269,62 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateGeneralizedMatrix(const Anisotrop
 	U(0, 0) = n[0][0];
 	U(0, 1) = n[0][1];
 	U(0, 2) = n[0][2];
-	U(0, 3) = -N00[0]/(c1*ro);
-	U(0, 4) = -2*N00[1]/(c1*ro);
-	U(0, 5) = -2*N00[2]/(c1*ro);
-	U(0, 6) = -N00[3]/(c1*ro);
-	U(0, 7) = -2*N00[4]/(c1*ro);
-	U(0, 8) = -N00[5]/(c1*ro);
+	U(0, 3) = -N00[0]/(c1*rho);
+	U(0, 4) = -2*N00[1]/(c1*rho);
+	U(0, 5) = -2*N00[2]/(c1*rho);
+	U(0, 6) = -N00[3]/(c1*rho);
+	U(0, 7) = -2*N00[4]/(c1*rho);
+	U(0, 8) = -N00[5]/(c1*rho);
 
 	U(1, 0) = n[0][0];
 	U(1, 1) = n[0][1];
 	U(1, 2) = n[0][2];
-	U(1, 3) = N00[0]/(c1*ro);
-	U(1, 4) = 2*N00[1]/(c1*ro);
-	U(1, 5) = 2*N00[2]/(c1*ro);
-	U(1, 6) = N00[3]/(c1*ro);
-	U(1, 7) = 2*N00[4]/(c1*ro);
-	U(1, 8) = N00[5]/(c1*ro);
+	U(1, 3) = N00[0]/(c1*rho);
+	U(1, 4) = 2*N00[1]/(c1*rho);
+	U(1, 5) = 2*N00[2]/(c1*rho);
+	U(1, 6) = N00[3]/(c1*rho);
+	U(1, 7) = 2*N00[4]/(c1*rho);
+	U(1, 8) = N00[5]/(c1*rho);
 
 	U(2, 0) = n[1][0];
 	U(2, 1) = n[1][1];
 	U(2, 2) = n[1][2];
-	U(2, 3) = -N01[0]/(c2*ro);
-	U(2, 4) = -2*N01[1]/(c2*ro);
-	U(2, 5) = -2*N01[2]/(c2*ro);
-	U(2, 6) = -N01[3]/(c2*ro);
-	U(2, 7) = -2*N01[4]/(c2*ro);
-	U(2, 8) = -N01[5]/(c2*ro);
+	U(2, 3) = -N01[0]/(c2*rho);
+	U(2, 4) = -2*N01[1]/(c2*rho);
+	U(2, 5) = -2*N01[2]/(c2*rho);
+	U(2, 6) = -N01[3]/(c2*rho);
+	U(2, 7) = -2*N01[4]/(c2*rho);
+	U(2, 8) = -N01[5]/(c2*rho);
 
 	U(3, 0) = n[1][0];
 	U(3, 1) = n[1][1];
 	U(3, 2) = n[1][2];
-	U(3, 3) = N01[0]/(c2*ro);
-	U(3, 4) = 2*N01[1]/(c2*ro);
-	U(3, 5) = 2*N01[2]/(c2*ro);
-	U(3, 6) = N01[3]/(c2*ro);
-	U(3, 7) = 2*N01[4]/(c2*ro);
-	U(3, 8) = N01[5]/(c2*ro);
+	U(3, 3) = N01[0]/(c2*rho);
+	U(3, 4) = 2*N01[1]/(c2*rho);
+	U(3, 5) = 2*N01[2]/(c2*rho);
+	U(3, 6) = N01[3]/(c2*rho);
+	U(3, 7) = 2*N01[4]/(c2*rho);
+	U(3, 8) = N01[5]/(c2*rho);
 
 	U(4, 0) = n[2][0];
 	U(4, 1) = n[2][1];
 	U(4, 2) = n[2][2];
-	U(4, 3) = -N02[0]/(c2*ro);
-	U(4, 4) = -2*N02[1]/(c2*ro);
-	U(4, 5) = -2*N02[2]/(c2*ro);
-	U(4, 6) = -N02[3]/(c2*ro);
-	U(4, 7) = -2*N02[4]/(c2*ro);
-	U(4, 8) = -N02[5]/(c2*ro);
+	U(4, 3) = -N02[0]/(c2*rho);
+	U(4, 4) = -2*N02[1]/(c2*rho);
+	U(4, 5) = -2*N02[2]/(c2*rho);
+	U(4, 6) = -N02[3]/(c2*rho);
+	U(4, 7) = -2*N02[4]/(c2*rho);
+	U(4, 8) = -N02[5]/(c2*rho);
 
 	U(5, 0) = n[2][0];
 	U(5, 1) = n[2][1];
 	U(5, 2) = n[2][2];
-	U(5, 3) = N02[0]/(c2*ro);
-	U(5, 4) = 2*N02[1]/(c2*ro);
-	U(5, 5) = 2*N02[2]/(c2*ro);
-	U(5, 6) = N02[3]/(c2*ro);
-	U(5, 7) = 2*N02[4]/(c2*ro);
-	U(5, 8) = N02[5]/(c2*ro);
+	U(5, 3) = N02[0]/(c2*rho);
+	U(5, 4) = 2*N02[1]/(c2*rho);
+	U(5, 5) = 2*N02[2]/(c2*rho);
+	U(5, 6) = N02[3]/(c2*rho);
+	U(5, 7) = 2*N02[4]/(c2*rho);
+	U(5, 8) = N02[5]/(c2*rho);
 
 	U(6, 0) = 0;
 	U(6, 1) = 0;

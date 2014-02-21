@@ -7,6 +7,9 @@
 #include "util/ThirdDegreePolynomial.h"
 #include "Exception.h"
 
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_linalg.h>
+
 using namespace gcm;
 
 namespace gcm {
@@ -33,8 +36,8 @@ namespace gcm {
 	public:
 		AnisotropicMatrix3DAnalytical();
 		~AnisotropicMatrix3DAnalytical();
-		void prepare_matrix(const AnisotropicNumbers &C, float ro, int stage);
-		void prepare_matrix(const AnisotropicNumbers &C, float ro, float qjx, float qjy, float qjz);
+		void prepare_matrix(const AnisotropicNumbers &C, float rho, int stage);
+		void prepare_matrix(const AnisotropicNumbers &C, float rho, float qjx, float qjy, float qjz);
 		float max_lambda();
 
 		void self_check();
@@ -45,10 +48,10 @@ namespace gcm {
 		gcm_matrix U1;
 
 	private:
-		void CreateAx(const AnisotropicNumbers &C, float ro);
-		void CreateAy(const AnisotropicNumbers &C, float ro);
-		void CreateAz(const AnisotropicNumbers &C, float ro);
-		void CreateGeneralizedMatrix(const AnisotropicNumbers &C, float ro, 
+		void CreateAx(const AnisotropicNumbers &C, float rho);
+		void CreateAy(const AnisotropicNumbers &C, float rho);
+		void CreateAz(const AnisotropicNumbers &C, float rho);
+		void CreateGeneralizedMatrix(const AnisotropicNumbers &C, float rho, 
 											float qjx, float qjy, float qjz);
 		void createMatrixN(int i, int j, float *res);
 		void zero_all();
