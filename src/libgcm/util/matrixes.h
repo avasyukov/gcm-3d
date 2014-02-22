@@ -10,6 +10,24 @@
 #define GCM_MATRIX_SIZE 9
 
 namespace gcm {
+
+	typedef struct
+	{
+		union 
+		{
+			float c[21];
+			struct
+			{
+				float c11, c12, c13, c14, c15, c16;
+				float      c22, c23, c24, c25, c26;
+				float 		    c33, c34, c35, c36;
+				float 				 c44, c45, c46;
+				float 					  c55, c56;
+				float 						   c66;
+			};
+		};
+	} AnisotropicNumbers;
+
 	class gcm_matrix
 	{
 	public:
@@ -26,6 +44,7 @@ namespace gcm {
 		float max_abs_value() const;
 		void clear();
 		void createE();
+		void setColumn(float *Clmn, int num);
 
 		float p[GCM_MATRIX_SIZE][GCM_MATRIX_SIZE];	 // Data
 	private:

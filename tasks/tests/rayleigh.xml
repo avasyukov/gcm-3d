@@ -10,7 +10,7 @@
 		<material id="testMaterial" la="70000" mu="10000" rho="1" />
 	</materials>
 	<initialState>
-		<area type="box" minX="-0.5" maxX="0" minY="-10" maxY="10" minZ="-1" maxZ="0.1"/>
+		<area type="box" minX="-0.5" maxX="0" minY="-10" maxY="10" minZ="-1" maxZ="0.05"/>
 		<values vz="300" szz="90000" />
 	</initialState>
 </task>

@@ -15,7 +15,7 @@ using namespace std;
 
 namespace gcm {
 	/*
-	 * Base class for al mesh loaders.
+	 * Base class for all mesh loaders.
 	 */
 	class MeshLoader {
 	protected:
