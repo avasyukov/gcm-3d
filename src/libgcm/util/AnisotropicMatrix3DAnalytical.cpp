@@ -484,5 +484,6 @@ void gcm::AnisotropicMatrix3DAnalytical::findEigenVec(float *eigenVec,
 			eigenVec[4] = -(C.c25*eigenVec[0] + C.c24*eigenVec[1] + C.c23*eigenVec[2])/l;
 			eigenVec[8] = -(C.c56*eigenVec[0] + C.c46*eigenVec[1] + C.c36*eigenVec[2])/l;
 		}
+	}
 };
 
