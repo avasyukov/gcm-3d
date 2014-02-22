@@ -17,7 +17,7 @@ def configure(conf):
     conf.env.LIBPATH_LIBGMSH = [
         '/usr/lib',
         '/usr/lib64',
-		'/usr/local/lib'
+        '/usr/local/lib'
     ]
 
     LIBS = [

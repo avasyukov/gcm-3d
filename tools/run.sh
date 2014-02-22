@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OPTIND=1
-cpus=1 #`cat /proc/cpuinfo | grep processor | tail -n 1 | sed -e 's/.*: //'`
+cpus=`cat /proc/cpuinfo | grep processor | tail -n 1 | sed -e 's/.*: //'`
 task=""
 
 while getopts "n:t:" opt; do
