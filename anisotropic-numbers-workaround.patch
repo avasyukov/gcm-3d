@@ -1,0 +1,68 @@
+diff --git a/src/libgcm/util/AnisotropicMatrix3DAnalytical.cpp b/src/libgcm/util/AnisotropicMatrix3DAnalytical.cpp
+index d3c5fa4..b3fd7eb 100644
+--- a/src/libgcm/util/AnisotropicMatrix3DAnalytical.cpp
++++ b/src/libgcm/util/AnisotropicMatrix3DAnalytical.cpp
+@@ -484,5 +484,6 @@ void gcm::AnisotropicMatrix3DAnalytical::findEigenVec(float *eigenVec,
+ 			eigenVec[4] = -(C.c25*eigenVec[0] + C.c24*eigenVec[1] + C.c23*eigenVec[2])/l;
+ 			eigenVec[8] = -(C.c56*eigenVec[0] + C.c46*eigenVec[1] + C.c36*eigenVec[2])/l;
+ 		}
++	}
+ };
+ 
+diff --git a/src/libgcm/util/AnisotropicMatrix3DAnalytical.h b/src/libgcm/util/AnisotropicMatrix3DAnalytical.h
+index 56cfa80..7ef5b96 100644
+--- a/src/libgcm/util/AnisotropicMatrix3DAnalytical.h
++++ b/src/libgcm/util/AnisotropicMatrix3DAnalytical.h
+@@ -14,23 +14,6 @@ using namespace gcm;
+ 
+ namespace gcm {
+ 	
+-	typedef struct
+-	{
+-		union 
+-		{
+-			float c[21];
+-			struct
+-			{
+-				float c11, c12, c13, c14, c15, c16;
+-				float      c22, c23, c24, c25, c26;
+-				float 		    c33, c34, c35, c36;
+-				float 				 c44, c45, c46;
+-				float 					  c55, c56;
+-				float 						   c66;
+-			};
+-		};
+-	} AnisotropicNumbers;
+-	
+ 	class AnisotropicMatrix3DAnalytical
+ 	{
+ 	public:
+diff --git a/src/libgcm/util/matrixes.h b/src/libgcm/util/matrixes.h
+index 3fa71b0..2859abb 100644
+--- a/src/libgcm/util/matrixes.h
++++ b/src/libgcm/util/matrixes.h
+@@ -10,6 +10,24 @@
+ #define GCM_MATRIX_SIZE 9
+ 
+ namespace gcm {
++
++	typedef struct
++	{
++		union 
++		{
++			float c[21];
++			struct
++			{
++				float c11, c12, c13, c14, c15, c16;
++				float      c22, c23, c24, c25, c26;
++				float 		    c33, c34, c35, c36;
++				float 				 c44, c45, c46;
++				float 					  c55, c56;
++				float 						   c66;
++			};
++		};
++	} AnisotropicNumbers;
++
+ 	class gcm_matrix
+ 	{
+ 	public:
