@@ -26,6 +26,7 @@ namespace gcm {
 		float max_abs_value() const;
 		void clear();
 		void createE();
+		void setColumn(float *Clmn, int num);
 
 		float p[GCM_MATRIX_SIZE][GCM_MATRIX_SIZE];	 // Data
 	private:
