@@ -93,6 +93,8 @@ void gcm::Mesh::dump(int number)
 	sw->dump(this, number);
 }
 
+// FIXME
+// should it be const reference instead of copy?
 AABB gcm::Mesh::getOutline()
 {
 	return outline;
@@ -429,6 +431,8 @@ int gcm::Mesh::getNodeLocalIndex(int index) {
 
 void gcm::Mesh::addNode(CalcNode& node) {
 	if( nodesNumber == nodesStorageSize )
+		// FIXME what is this?
+		// why not to use a propper allocator for container?
 		createNodes((nodesStorageSize+1)*STORAGE_ONDEMAND_GROW_RATE);
 	assert( nodesNumber < nodesStorageSize );
 	nodes[nodesNumber] = node;

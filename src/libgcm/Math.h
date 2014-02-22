@@ -576,4 +576,9 @@ inline void shiftArrayLeft( int* arr, int n )
 	arr[n-1] = a0;
 };
 
+template <typename T>
+int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
 #endif	/* GCM_MATH_H */

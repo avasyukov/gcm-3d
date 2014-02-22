@@ -8,6 +8,7 @@
 #include "mesh/tetr/Vtu2MeshLoader.h"
 #include "mesh/tetr/Vtu2MeshZoneLoader.h"
 #include "mesh/cube/BasicCubicMeshGenerator.h"
+#include "mesh/markers/MarkeredBoxMeshGenerator.h"
 #include "method/DummyMethod.h"
 #include "method/InterpolationFixedAxis.h"
 #include "calc/volume/SimpleVolumeCalculator.h"
@@ -20,6 +21,7 @@
 #include "snapshot/VTKSnapshotWriter.h"
 #include "snapshot/VTK2SnapshotWriter.h"
 #include "snapshot/VTKCubicSnapshotWriter.h"
+#include "snapshot/VTKMarkeredMeshSnapshotWriter.h"
 #include "rheology/DummyRheologyCalculator.h"
 #include "rheology/StdRheologyCalculator.h"
 #include "BruteforceCollisionDetector.h"
@@ -63,6 +65,7 @@ gcm::Engine::Engine()
 	registerMeshLoader(new Vtu2MeshLoader());
 	registerMeshLoader(new Vtu2MeshZoneLoader());
 	registerMeshLoader(new BasicCubicMeshGenerator());
+	registerMeshLoader(new MarkeredBoxMeshGenerator());
 	LOG_DEBUG("Registering default methods");
 	registerNumericalMethod( new DummyMethod() );
 	registerNumericalMethod( new InterpolationFixedAxis() );
@@ -98,6 +101,7 @@ gcm::Engine::Engine()
 	registerSnapshotWriter( new VTKSnapshotWriter() );
 	registerSnapshotWriter( new VTK2SnapshotWriter() );
 	registerSnapshotWriter( new VTKCubicSnapshotWriter() );
+	registerSnapshotWriter( new VTKMarkeredMeshSnapshotWriter() );
 	LOG_DEBUG("Creating collision detector");
 	colDet = new BruteforceCollisionDetector();
 	LOG_INFO("GCM engine initialized");
