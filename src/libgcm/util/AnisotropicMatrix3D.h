@@ -41,7 +41,9 @@ namespace gcm {
 		~AnisotropicMatrix3D();
 		void prepare_matrix(const AnisotropicNumbers &numbers, float rho, int stage);
 		float max_lambda();
-		void DecompositeIt(gsl_matrix* a, gsl_matrix_complex* u1, gsl_matrix_complex* l, gsl_matrix_complex* u) ;
+		void DecompositeIt(gsl_matrix* a, gsl_matrix* u, gsl_matrix* l, gsl_matrix* u1);
+		void RealChecker(gsl_vector_complex* a, gsl_matrix* l);
+		void RealChecker(gsl_matrix_complex* a, gsl_matrix* u);
 		
 		gcm_matrix A;
 		gcm_matrix L;
