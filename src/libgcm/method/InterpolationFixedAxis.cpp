@@ -270,7 +270,7 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix
 	LOG_TRACE("Elastic matrix eigen values:\n" << elastic_matrix3d.getL());
 
 	for(int i = 0; i < 9; i++)
-		dksi[i] = - elastic_matrix3d.getL()(i,i) * time_step;
+		dksi[i] = - elastic_matrix3d.getL(i,i) * time_step;
 
 	return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal);
 }

@@ -41,6 +41,8 @@ namespace gcm {
 		gcm_matrix operator-(const gcm_matrix &A) const;
 		gcm_matrix operator*(const gcm_matrix &A) const;
 
+		float get(unsigned int i, unsigned int j) const;
+
 		float max_abs_value() const;
 		void clear();
 		void createE();

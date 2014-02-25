@@ -97,3 +97,8 @@ void gcm::gcm_matrix::setColumn(float *Clmn, int num)
 	for (int i = 0; i < GCM_MATRIX_SIZE; i++)
 		p[i][num] = Clmn[i];
 }
+
+float gcm::gcm_matrix::get(unsigned int i, unsigned int j) const
+{
+	return p[i][j];
+}

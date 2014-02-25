@@ -47,22 +47,37 @@ namespace gcm
 		 * @brief Returns max matrix eigenvalue.
 		 * @return max eigenvalue.
 		 */
-		gcm_real getMaxEigenvalue();
+		gcm_real getMaxEigenvalue() const;
 		/**
 		 * @brief Returns L matrix (contains eigenvalues).
 		 * @return L matrix.
 		 */
 		gcm_matrix& getL();
 		/**
+		 * @brief Returns L matrix component.
+		 * @return L matrix component.
+		 */
+		gcm_real getL(unsigned int i, unsigned int j) const;
+		/**
 		 * @brief Returns U matrix (contains eigenvectors).
 		 * @return U matrix.
 		 */
 		gcm_matrix& getU();
 		/**
+		 * @brief Returns U matrix component.
+		 * @return U matrix component.
+		 */
+		gcm_real getU(unsigned int i, unsigned int j) const;
+		/**
 		 * @brief Returns U1 matrix (inverse U1).
 		 * @return U1 matrix.
 		 */
 		gcm_matrix& getU1();
+		/**
+		 * @brief Returns U1 matrix component.
+		 * @return U1 matrix component.
+		 */
+		gcm_real getU1(unsigned int i, unsigned int j) const;
 	};
 }
 
