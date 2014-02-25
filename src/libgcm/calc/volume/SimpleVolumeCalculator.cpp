@@ -33,8 +33,7 @@ void SimpleVolumeCalculator::doCalc(CalcNode& new_node, RheologyMatrix3D& matrix
 		new_node.values[i] = 0;
 		for(int j = 0; j < 9; j++)
 		{
-			new_node.values[i] += matrix.getU()(i,j) * omega[j];
-		}
+			new_node.values[i] += matrix.getU1()(i,j) * omega[j]; }
 	}
 	LOG_TRACE("Calc done");
 };
