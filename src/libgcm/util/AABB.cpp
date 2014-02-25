@@ -18,6 +18,7 @@ gcm::AABB::AABB(float _minX, float _maxX, float _minY, float _maxY, float _minZ,
 
 bool gcm::AABB::isInAABB( float x, float y, float z )
 {
+	// FIXME do we really have to check our state all the time?
 	assert( minX != maxX && minY != maxY && minZ != maxZ );
 	return ( x < maxX + EQUALITY_TOLERANCE 
 				&& x > minX - EQUALITY_TOLERANCE 

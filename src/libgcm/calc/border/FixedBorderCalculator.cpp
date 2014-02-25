@@ -18,7 +18,7 @@ FixedBorderCalculator::~FixedBorderCalculator()
 	gsl_permutation_free(p_gsl);
 };
 
-void FixedBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, ElasticMatrix3D& matrix, 
+void FixedBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrix3D& matrix, 
 							vector<CalcNode>& previousNodes, bool inner[], 
 							float outer_normal[], float scale)
 {
@@ -41,12 +41,12 @@ void FixedBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Elast
 			omega[i] = 0;
 			for(int j = 0; j < 9; j++)
 			{
-				omega[i] += matrix.U(i,j) * previousNodes[i].values[j];
+				omega[i] += matrix.getU()(i,j) * previousNodes[i].values[j];
 			}
 			// Load appropriate values into GSL containers
 			gsl_vector_set(om_gsl, i, omega[i]);
 			for(int j = 0; j < 9; j++)
-				gsl_matrix_set(U_gsl, i, j, matrix.U(i,j));
+				gsl_matrix_set(U_gsl, i, j, matrix.getU()(i,j));
 		}
 		// If omega is 'outer' one
 		else

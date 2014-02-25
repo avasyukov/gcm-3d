@@ -1,8 +1,8 @@
-<task numberOfSnaps="50" stepsPerSnap="1">
+<task numberOfSnaps="10" stepsPerSnap="1">
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />
-			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.25" />
+			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.4" />
 			<material id="testMaterial" />
 		</body>
 	</bodies>

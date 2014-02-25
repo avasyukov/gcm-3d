@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "util/ElasticMatrix3D.h"
+#include "util/RheologyMatrix3D.h"
 
 using namespace std;
 
@@ -31,8 +31,8 @@ namespace gcm
 		 * Calculate next state for the given node
 		 */
 		virtual void doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node, 
-							ElasticMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[], 
-							ElasticMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[], 
+							RheologyMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[], 
+							RheologyMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[], 
 							float outer_normal[], float scale) = 0;
 		/*
 		 * Returns type of the calculator

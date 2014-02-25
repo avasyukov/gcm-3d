@@ -1,6 +1,6 @@
 #ifndef _GCM_ANISOTROPIC_MATRIX_3D_H
 #define _GCM_ANISOTROPIC_MATRIX_3D_H  1
-
+/*
 #include <assert.h>
 
 #include "util/matrixes.h"
@@ -16,23 +16,6 @@
 using namespace gcm;
 
 namespace gcm {
-	
-	typedef struct
-	{
-		union 
-		{
-			float c[21];
-			struct
-			{
-				float c11, c12, c13, c14, c15, c16;
-				float      c22, c23, c24, c25, c26;
-				float 		    c33, c34, c35, c36;
-				float 				 c44, c45, c46;
-				float 					  c55, c56;
-				float 						   c66;
-			};
-		};
-	} AnisotropicNumbers;
 	
 	class AnisotropicMatrix3D
 	{
@@ -61,5 +44,5 @@ namespace gcm {
 		void setZero(gsl_matrix* a);
 	};
 }
-
+*/
 #endif

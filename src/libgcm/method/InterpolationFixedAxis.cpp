@@ -38,6 +38,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 	LOG_TRACE("Node: " << cur_node);
 
 	// Used for real node
+	// FIXME get rid of harcoded type
 	ElasticMatrix3D elastic_matrix3d;
 
 	// Variables used in calculations internally
@@ -130,6 +131,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 				// Variables used in calculations internally
 
 				// Used for interpolated virtual node in case of contact algorithm
+				// FIXME get rid of hardcoded type
 				ElasticMatrix3D virt_elastic_matrix3d;
 
 				// Delta x on previous time layer for all the omegas
@@ -250,7 +252,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 	}
 }
 
-int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, ElasticMatrix3D& elastic_matrix3d,
+int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix3D& elastic_matrix3d,
 												float time_step, int stage, Mesh* mesh,
 												float* dksi, bool* inner, vector<CalcNode>& previous_nodes,
 												float* outer_normal)
@@ -262,13 +264,13 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, ElasticMatrix3
 
 	LOG_TRACE("Preparing elastic matrix");
 	//  Prepare matrixes  A, Lambda, Omega, Omega^(-1)
-	elastic_matrix3d.prepare_matrix( cur_node.getLambda(), cur_node.getMu(), cur_node.getRho(), stage );
+	elastic_matrix3d.prepareMatrix({ cur_node.getLambda(), cur_node.getMu(), cur_node.getRho() }, stage );
 	LOG_TRACE("Preparing elastic matrix done");
 
-	LOG_TRACE("Elastic matrix eigen values:\n" << elastic_matrix3d.L);
+	LOG_TRACE("Elastic matrix eigen values:\n" << elastic_matrix3d.getL());
 
 	for(int i = 0; i < 9; i++)
-		dksi[i] = - elastic_matrix3d.L(i,i) * time_step;
+		dksi[i] = - elastic_matrix3d.getL()(i,i) * time_step;
 
 	return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal);
 }

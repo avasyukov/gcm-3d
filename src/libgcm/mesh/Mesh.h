@@ -5,7 +5,7 @@
 #include <string>
 
 #include "util/AABB.h"
-#include "util/ElasticMatrix3D.h"
+#include "util/RheologyMatrix3D.h"
 #include "util/areas/Area.h"
 #include "Interfaces.h"
 #include "node/Node.h"
@@ -197,8 +197,7 @@ namespace gcm {
 		void update_current_time(float time_step);
 		float get_current_time();
 		
-		// TODO - should we make them virtual to allow 'ad-hoc' computation and so on?
-		void createOutline();
+		virtual void createOutline();
 		AABB getOutline();
 		AABB getExpandedOutline();
 		

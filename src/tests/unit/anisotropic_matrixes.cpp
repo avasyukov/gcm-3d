@@ -6,6 +6,7 @@
 
 #define ITERATIONS 1000
 
+/*
 TEST(AnisotropicMatrix3D, FuzzyMultiplication) {
 	srand(time(NULL));
 
@@ -43,3 +44,4 @@ TEST(AnisotropicMatrix3D, FuzzyMultiplication) {
 	gsl_matrix_free (u);
 	gsl_matrix_free (tmp);
 }
+*/

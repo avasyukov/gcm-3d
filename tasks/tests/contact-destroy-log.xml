@@ -1,0 +1,163 @@
+<task numberOfSnaps="30" stepsPerSnap="10">
+	<system>
+		<defaultContactCalculator type="AdhesionContactDestroyCalculator" />
+	</system>
+	<bodies>
+		<body id="log_x_00">
+			<rheology type="elastic" />
+			<mesh id="log_x_00" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+			<material id="testMaterial" />
+			<transform type="translate" moveX="0" moveY="12.10" moveZ="0" />
+		</body>
+                <body id="log_x_01">
+                        <rheology type="elastic" />
+                        <mesh id="log_x_01" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="6.05" moveZ="0" />
+                </body>
+                <body id="log_x_02">
+                        <rheology type="elastic" />
+                        <mesh id="log_x_02" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="0" moveZ="0" />
+                </body>
+                <body id="log_x_03">
+                        <rheology type="elastic" />
+                        <mesh id="log_x_03" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="-6.05" moveZ="0" />
+                </body>
+                <body id="log_x_04">
+                        <rheology type="elastic" />
+                        <mesh id="log_x_04" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="-12.10" moveZ="0" />
+                </body>
+                <body id="log_x_05">
+                        <rheology type="elastic" />
+                        <mesh id="log_x_05" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="-18.15" moveZ="0" />
+                </body>
+
+                <body id="log_y_00">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_00" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="12.10" moveY="0" moveZ="-6.05" />
+                </body>
+                <body id="log_y_01">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_01" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="6.05" moveY="0" moveZ="-6.05" />
+                </body>
+                <body id="log_y_02">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_02" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="0" moveZ="-6.05" />
+                </body>
+                <body id="log_y_03">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_03" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="-6.05" moveY="0" moveZ="-6.05" />
+                </body>
+                <body id="log_y_04">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_04" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="-12.10" moveY="0" moveZ="-6.05" />
+                </body>
+                <body id="log_y_05">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_05" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="-18.15" moveY="0" moveZ="-6.05" />
+                </body>
+
+                <body id="log_x_00">
+                        <rheology type="elastic" />
+                        <mesh id="log_x_00" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="12.10" moveZ="-12.10" />
+                </body>
+                <body id="log_x_01">
+                        <rheology type="elastic" />
+                        <mesh id="log_x_01" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="6.05" moveZ="-12.10" />
+                </body>
+                <body id="log_x_02">
+                        <rheology type="elastic" />
+                        <mesh id="log_x_02" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="0" moveZ="-12.10" />
+                </body>
+                <body id="log_x_03">
+                        <rheology type="elastic" />
+                        <mesh id="log_x_03" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="-6.05" moveZ="-12.10" />
+                </body>
+                <body id="log_x_04">
+                        <rheology type="elastic" />
+                        <mesh id="log_x_04" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="-12.10" moveZ="-12.10" />
+                </body>
+                <body id="log_x_05">
+                        <rheology type="elastic" />
+                        <mesh id="log_x_05" type="geo2" file="models/logX.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="-18.15" moveZ="-12.10" />
+                </body>
+
+                <body id="log_y_00">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_00" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="12.10" moveY="0" moveZ="-18.15" />
+                </body>
+                <body id="log_y_01">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_01" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="6.05" moveY="0" moveZ="-18.15" />
+                </body>
+                <body id="log_y_02">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_02" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="0" moveZ="-18.15" />
+                </body>
+                <body id="log_y_03">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_03" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="-6.05" moveY="0" moveZ="-18.15" />
+                </body>
+                <body id="log_y_04">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_04" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="-12.10" moveY="0" moveZ="-18.15" />
+                </body>
+                <body id="log_y_05">
+                        <rheology type="elastic" />
+                        <mesh id="log_y_05" type="geo2" file="models/logY.geo" tetrSize="0.8" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="-18.15" moveY="0" moveZ="-18.15" />
+                </body>
+	</bodies>
+	<materials>
+		<material id="testMaterial" la="7000000000" mu="1000000000" rho="7800000" crackThreshold="1000000" adhesionThreshold="20000" />
+	</materials>
+	<initialState>
+		<area type="box" minX="-1" maxX="1" minY="-1" maxY="1" minZ="5.9" maxZ="10"/>
+		<values vz="-0.015" sxx="-3.5" syy="-3.5" szz="-4.5" />
+		<!--<area type="box" minX="4" maxX="6" minY="-1" maxY="1" minZ="5.9" maxZ="10"/>
+                <values vz="-0.015" sxx="-3.5" syy="-3.5" szz="-4.5" /> -->
+	</initialState>
+</task>

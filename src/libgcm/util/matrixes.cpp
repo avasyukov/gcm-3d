@@ -3,7 +3,7 @@
 gcm::gcm_matrix::gcm_matrix() { };
 gcm::gcm_matrix::~gcm_matrix() { };
 
-inline gcm::gcm_matrix& gcm::gcm_matrix::operator=(const gcm_matrix &A)
+gcm::gcm_matrix& gcm::gcm_matrix::operator=(const gcm_matrix &A)
 {
 	for(int i = 0; i < GCM_MATRIX_SIZE; i++)
 		for(int j = 0; j < GCM_MATRIX_SIZE; j++)
@@ -11,7 +11,7 @@ inline gcm::gcm_matrix& gcm::gcm_matrix::operator=(const gcm_matrix &A)
 	return *this;
 };
 
-float &gcm::gcm_matrix::operator()(int i, int j)
+float& gcm::gcm_matrix::operator()(int i, int j)
 {
 	return p[i][j];
 };
@@ -90,4 +90,10 @@ float gcm::gcm_matrix::max_abs_value() const
 void gcm::gcm_matrix::clear()
 {
 	memset(p, 0, 81*sizeof(float));
+};
+
+void gcm::gcm_matrix::setColumn(float *Clmn, int num)
+{
+	for (int i = 0; i < GCM_MATRIX_SIZE; i++)
+		p[i][num] = Clmn[i];
 }

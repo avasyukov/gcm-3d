@@ -4,37 +4,26 @@
 #include <assert.h>
 
 #include "util/matrixes.h"
+#include "util/RheologyMatrix3D.h"
 #include "Exception.h"
 
 using namespace gcm;
 
 namespace gcm {
-	class ElasticMatrix3D
+	/**
+	 * @brief Elastic rheology matrix implementation.
+	 * @details Creates corresponding rheology matrices for case 
+	 *          of elastic  material. Params in this case contain
+	 *          lambda, mu and rho.
+	 */
+	class ElasticMatrix3D: public RheologyMatrix3D
 	{
-	public:
-		ElasticMatrix3D();
-		~ElasticMatrix3D();
-		void prepare_matrix(float la, float mu, float ro, int stage);
-		void prepare_matrix(float la, float mu, float ro, float qjx, float qjy, float qjz);
-		float max_lambda();
-
-		void self_check();
-
-		gcm_matrix A;
-		gcm_matrix L;
-		gcm_matrix U;
-		gcm_matrix U1;
-
-	private:
-		void CreateAx(float la, float mu, float ro);
-		void CreateAy(float la, float mu, float ro);
-		void CreateAz(float la, float mu, float ro);
-		void CreateGeneralizedMatrix(float la, float mu, float ro, float qjx, float qjy, float qjz);
-		void createMatrixN(int i, int j, float *res);
-		void zero_all();
-
-		// TODO it is worth turning them into local vars
-		float n[3][3];
+	protected:
+		void clear();
+		void getRheologyParameters(initializer_list<gcm_real> params, gcm_real& lambda, gcm_real& mu, gcm_real& rho);
+		virtual void createAx(initializer_list<gcm_real> params) override;
+		virtual void createAy(initializer_list<gcm_real> params) override;
+		virtual void createAz(initializer_list<gcm_real> params) override;
 	};
 }
 

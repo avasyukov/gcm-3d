@@ -1,0 +1,45 @@
+<task numberOfSnaps="30" stepsPerSnap="10">
+	<system>
+		<defaultContactCalculator type="AdhesionContactDestroyCalculator" />
+	</system>
+	<bodies>
+		<body id="plate_up">
+			<rheology type="elastic" />
+			<mesh id="plate_up" type="geo2" file="models/cover-small.geo" tetrSize="0.95" />
+			<material id="testMaterial" />
+		</body>
+                <body id="plate_down_0">
+                        <rheology type="elastic" />
+                        <mesh id="plate_down_0" type="geo2" file="models/cover-small.geo" tetrSize="0.95" />
+                        <material id="testMaterial" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-6.05" />
+                </body>
+                <body id="plate_down_1">
+                        <rheology type="elastic" />
+                        <mesh id="plate_down_1" type="geo2" file="models/cover-small.geo" tetrSize="0.95" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="0" moveZ="-12.10" />
+                </body>
+                <body id="sph">
+                        <rheology type="elastic" />
+                        <mesh id="sph" type="geo2" file="models/sphere.geo" tetrSize="0.5" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="0" moveZ="7.05" />
+                </body>
+                <!--<body id="plate_down_3">
+                        <rheology type="elastic" />
+                        <mesh id="plate_down_3" type="geo2" file="models/cover-small.geo" tetrSize="0.5" />
+                        <material id="testMaterial" />
+                        <transform type="translate" moveX="0" moveY="0" moveZ="-24.20" />
+                </body>-->
+        </bodies>
+	<materials>
+		<material id="testMaterial" la="7000000000" mu="1000000000" rho="7800000" crackThreshold="1000000" adhesionThreshold="20000" />
+	</materials>
+	<initialState>
+		<area type="box" minX="-6" maxX="4" minY="-5" maxY="5" minZ="6.02" maxZ="10"/>
+		<values vz="-0.180"/>
+		<!--<area type="box" minX="4" maxX="6" minY="-1" maxY="1" minZ="5.9" maxZ="10"/>
+                <values vz="-0.180" sxx="-42" syy="-42" szz="-54" />-->
+	</initialState>
+</task>

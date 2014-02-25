@@ -84,21 +84,31 @@ namespace gcm {
 				float values[GCM_VALUES_SIZE];
 				struct
 				{
-					/*
-					* Velocity vector components.
-					*/
-					float vx;
-					float vy;
-					float vz;
-					/*
-					 * Stress tensor components.
-					*/
-					float sxx;
-					float sxy;
-					float sxz;
-					float syy;
-					float syz;
-					float szz;
+					union {
+						/*
+						* Velocity vector components.
+						*/
+						float velocity[3];						
+						struct {
+							float vx;
+							float vy;
+							float vz;
+						};
+					};
+					union {
+						/*
+						 * Stress tensor components.
+						*/
+						float stress[6];
+						struct {
+							float sxx;
+							float sxy;
+							float sxz;
+							float syy;
+							float syz;
+							float szz;
+						};
+					};
 				};
 			};
 			

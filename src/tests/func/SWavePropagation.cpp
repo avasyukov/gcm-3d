@@ -14,6 +14,18 @@
 #define LEFT_MARK_START 1.0
 #define RIGHT_MARK_START 3.0
 
+// Number of time steps
+#define STEPS 2
+
+// Number of points per 'in-memmory line snapshot'
+#define N 20
+
+// Thresholds
+#define ALLOWED_VALUE_DEVIATION_PERCENT 0.1
+#define ALLOWED_NUMBER_OF_BAD_NODES 4 // 2 fronts x 2 nodes per front
+
+//USE_AND_INIT_LOGGER("gcm.tests.SWavePropagation");
+
 /*
  * Sets analytical values for CalcNode object provided
  * Node should have coordinates (0; 0; z), where -5 < z < 5
@@ -40,24 +52,101 @@ void setSWaveAnalytics(CalcNode& node, float t, float la, float mu, float rho)
 	}
 }
 
-TEST(Waves, SWavePropogation)
+TEST(Waves, SWavePropagation)
 {
 	float time = 0.0;
-	float dt = 1e-5;
-	CalcNode node;
+	CalcNode node, cnode;
 
 	Engine& engine = loadTaskScenario("tasks/tests/s-wave-test.xml");
+	
+	float dt = engine.calculateRecommendedTimeStep();
 	engine.setTimeStep(dt);
-
+	
 	Material* mat = engine.getMaterial("testMaterial");
+	auto mesh = dynamic_cast<TetrMeshFirstOrder*>(engine.getBodyById("cube")->getMesh("main"));
 
-	for (int t = 0; t < 10; t++, time += dt) {
-		engine.doNextStep();
-		for( int i = 0; i < 20; i++ )
+	TetrFirstOrder* tetrs[N];
+	float z[N];
+
+	for (int i = 0; i < N; i++)
+	{
+		z[i] = -5.0 + 10.0*i/(N-1);
+		tetrs[i] = findTetr(mesh, 0.0, 0.0, z[i]);
+		ASSERT_TRUE(tetrs[i]);
+	}
+	
+	cnode.x = node.x = 0.0;
+	cnode.y = node.y = 0.0;
+	
+	float velocityNorm = - numeric_limits<float>::infinity();
+	float pressureNorm = - numeric_limits<float>::infinity();
+	for (int i = 0; i < N; i++)
+	{
+		node.z = z[i];
+		setSWaveAnalytics(node, 0.0, mat->getLambda(), mat->getMu(), mat->getRho());
+		// Check velocity
+		for(int v = 0; v < 3; v++ )
 		{
-			node.z = -5 + i * 0.5;
-			setSWaveAnalytics(node, time, 	mat->getLambda(), mat->getMu(), mat->getRho());
-			ASSERT_EQ(node.sxx, node.sxx);
+			if( fabs(node.values[v]) > velocityNorm )
+				velocityNorm = fabs(node.values[v]);
 		}
+		// Check pressure
+		for(int v = 3; v < GCM_MATRIX_SIZE; v++ )
+		{
+			if( fabs(node.values[v]) > pressureNorm )
+				pressureNorm = fabs(node.values[v]);
+		}
+	}
+	
+	for (int t = 0; t < STEPS; t++, time += dt)
+	{
+		int badNodes = 0;
+		engine.doNextStep();
+		for (int i = 0; i < N; i++)
+		{
+			cnode.z = node.z = z[i];
+
+			setSWaveAnalytics(node, time, mat->getLambda(), mat->getMu(), mat->getRho());
+
+			bool isInnerPoint;
+			CalcNode& baseNode = mesh->getNode(tetrs[i]->verts[0]);
+			mesh->interpolateNode(
+					baseNode, 
+					cnode.x - baseNode.x, 
+					cnode.y - baseNode.y, 
+					cnode.z - baseNode.z, 
+					false, 
+					cnode, 
+					isInnerPoint
+			);
+			ASSERT_TRUE( isInnerPoint );
+			
+			// Check velocity
+			for(int v = 0; v < 3; v++ )
+			{
+				float delta = fabs(node.values[v] - cnode.values[v]);
+				if( delta > velocityNorm * ALLOWED_VALUE_DEVIATION_PERCENT )
+				{
+					badNodes++;
+					LOG_INFO("Bad nodes: " << node << "\n" << "VS" << cnode);
+					LOG_INFO("Compare values[" << v << "], delta " << delta << ", norm " << velocityNorm );
+					break;
+				}
+			}
+			// Check pressure
+			for(int v = 3; v < GCM_MATRIX_SIZE; v++ )
+			{
+				float delta = fabs(node.values[v] - cnode.values[v]);
+				if( delta > pressureNorm * ALLOWED_VALUE_DEVIATION_PERCENT )
+				{
+					badNodes++;
+					LOG_INFO("Bad nodes: " << node << "\n" << "VS" << cnode);
+					LOG_INFO("Compare values[" << v << "], delta " << delta << ", norm " << pressureNorm );
+					break;
+				}
+			}
+		}
+		
+		ASSERT_LE(badNodes, ALLOWED_NUMBER_OF_BAD_NODES);
 	}
 }

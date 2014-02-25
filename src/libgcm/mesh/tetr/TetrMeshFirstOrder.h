@@ -113,7 +113,7 @@ namespace gcm
 		 * Constructor and destructor.
 		 */
 		TetrMeshFirstOrder();
-		~TetrMeshFirstOrder();
+		virtual ~TetrMeshFirstOrder();
 		//void copyMesh(TetrMeshFirstOrder* src);
 		
 		int getTetrsNumber();
