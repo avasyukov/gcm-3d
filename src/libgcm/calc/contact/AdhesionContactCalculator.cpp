@@ -42,14 +42,14 @@ void AdhesionContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, C
 			// omega on new time layer is equal to omega on previous time layer along characteristic
 			omega[i] = 0;
 			for( int j = 0; j < 9; j++ ) {
-				omega[i] += matrix.getU()(i,j) * previousNodes[i].values[j];
+				omega[i] += matrix.getU(i,j) * previousNodes[i].values[j];
 			}
 
 			// then we must set the corresponding values of the 18x18 matrix
 			gsl_vector_set( om_gsl, 6 * curNN + posInEq18, omega[i] );
 
 			for( int j = 0; j < 9; j++ ) {
-				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, matrix.getU()( i, j ) );
+				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, matrix.getU( i, j ) );
 			}
 			for( int j = 9; j < 18; j++ ) {
 				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, 0 );
@@ -69,7 +69,7 @@ void AdhesionContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, C
 			// omega on new time layer is equal to omega on previous time layer along characteristic
 			virt_omega[i] = 0;
 			for( int j = 0; j < 9; j++ ) {
-				virt_omega[i] += virt_matrix.getU()(i,j) * virtPreviousNodes[i].values[j];
+				virt_omega[i] += virt_matrix.getU(i,j) * virtPreviousNodes[i].values[j];
 			}
 
 			// then we must set the corresponding values of the 18x18 matrix
@@ -79,7 +79,7 @@ void AdhesionContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, C
 				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, 0 );
 			}
 			for( int j = 9; j < 18; j++ ) {
-				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, virt_matrix.getU()( i, j - 9 ) );
+				gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, virt_matrix.getU( i, j - 9 ) );
 			}
 			posInEq18++;
 		}
