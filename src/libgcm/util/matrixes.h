@@ -36,7 +36,7 @@ namespace gcm {
 		gcm_matrix &operator=(const gcm_matrix &A);
 		bool operator==(const gcm_matrix &A) const;
 		bool operator!=(const gcm_matrix &A) const;
-		float &operator()(int i, int j);
+		float& operator()(int i, int j);
 		gcm_matrix operator+(const gcm_matrix &A) const;
 		gcm_matrix operator-(const gcm_matrix &A) const;
 		gcm_matrix operator*(const gcm_matrix &A) const;

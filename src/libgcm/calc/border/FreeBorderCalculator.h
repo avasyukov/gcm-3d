@@ -10,7 +10,7 @@ class FreeBorderCalculator : public BorderCalculator
 public:
 	FreeBorderCalculator();
 	~FreeBorderCalculator();
-	void doCalc(CalcNode& cur_node, CalcNode& new_node, ElasticMatrix3D& matrix, 
+	void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrix3D& matrix, 
 							vector<CalcNode>& previousNodes, bool inner[], 
 							float outer_normal[], float scale);
 	

@@ -1,6 +1,6 @@
 #ifndef _GCM_ANISOTROPIC_MATRIX_3D_H
 #define _GCM_ANISOTROPIC_MATRIX_3D_H  1
-
+/*
 #include <assert.h>
 
 #include "util/matrixes.h"
@@ -42,5 +42,5 @@ namespace gcm {
 		void setZero(gsl_matrix* a);
 	};
 }
-
+*/
 #endif

@@ -11,8 +11,8 @@ public:
 	AdhesionContactCalculator();
 	~AdhesionContactCalculator();
 	void doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node, 
-							ElasticMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[], 
-							ElasticMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[], 
+							RheologyMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[], 
+							RheologyMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[], 
 							float outer_normal[], float scale);
 	inline string getType() {
 		return "AdhesionContactCalculator";

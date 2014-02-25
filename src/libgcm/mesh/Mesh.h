@@ -5,7 +5,7 @@
 #include <string>
 
 #include "util/AABB.h"
-#include "util/ElasticMatrix3D.h"
+#include "util/RheologyMatrix3D.h"
 #include "util/areas/Area.h"
 #include "Interfaces.h"
 #include "node/Node.h"

@@ -23,7 +23,7 @@ namespace gcm
 		float getMaxLambda(CalcNode& node);
 		string getType();
 	protected:
-		int prepare_node(CalcNode& cur_node, ElasticMatrix3D& elastic_matrix3d,
+		int prepare_node(CalcNode& cur_node, RheologyMatrix3D& elastic_matrix3d,
 				float time_step, int stage, Mesh* mesh,
 				float* dksi, bool* inner, vector<CalcNode>& previous_nodes,
 				float* outer_normal);

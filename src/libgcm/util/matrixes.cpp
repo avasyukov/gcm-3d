@@ -11,7 +11,7 @@ inline gcm::gcm_matrix& gcm::gcm_matrix::operator=(const gcm_matrix &A)
 	return *this;
 };
 
-float &gcm::gcm_matrix::operator()(int i, int j)
+float& gcm::gcm_matrix::operator()(int i, int j)
 {
 	return p[i][j];
 };

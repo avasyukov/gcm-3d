@@ -1,5 +1,5 @@
 #include "util/AnisotropicMatrix3D.h"
-
+/*
 gcm::AnisotropicMatrix3D::AnisotropicMatrix3D()
 {
 	zero_all();
@@ -152,3 +152,4 @@ void gcm::AnisotropicMatrix3D::CreateAz(const AnisotropicNumbers &numbers, float
 
 
 
+*/

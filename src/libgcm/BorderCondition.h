@@ -20,7 +20,7 @@ namespace gcm {
 		Area* area;
 		PulseForm* form;
 		BorderCalculator* calc;
-		void doCalc(float time, CalcNode& cur_node, CalcNode& new_node, ElasticMatrix3D& matrix, 
+		void doCalc(float time, CalcNode& cur_node, CalcNode& new_node, RheologyMatrix3D& matrix, 
 							vector<CalcNode>& previousNodes, bool inner[], float outer_normal[]);
 	};
 }
