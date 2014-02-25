@@ -31,10 +31,6 @@ namespace gcm
 		virtual void createAz(initializer_list<gcm_real> params) = 0;
 	public:
 		/**
-		 * @brief Default constructor
-		 */
-		//RheologyMatrix3D();
-		/**
 		 * @brief Destructor
 		 */
 		virtual ~RheologyMatrix3D() = 0;

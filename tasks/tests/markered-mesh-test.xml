@@ -1,8 +1,8 @@
-<task numberOfSnaps="100" stepsPerSnap="1">
+<task numberOfSnaps="25" stepsPerSnap="1">
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />
-			<mesh id="main" type="markered-box" meshEdge="20" cubeEdge="10" pointNum="100" />
+			<mesh id="main" type="markered-box" meshEdge="20" cubeEdge="10" pointNum="50" />
 			<material id="testMaterial" />
 		</body>
 	</bodies>
@@ -10,7 +10,7 @@
 		<material id="testMaterial" la="70000" mu="10000" rho="1" />
 	</materials>
 	<initialState>
-		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-3" maxZ="-1"/>
 		<values vz="300" sxx="70000" syy="70000" szz="90000" />
 	</initialState>
 </task>
