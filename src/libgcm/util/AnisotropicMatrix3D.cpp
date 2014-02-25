@@ -16,7 +16,7 @@ void gcm::AnisotropicMatrix3D::getRheologyParameters(initializer_list<gcm_real> 
 	
 	auto p = params.begin();
 	while (p != params.end()-1)
-		numbers.c[i++] = *p;
+		numbers.c[i++] = *(p++);
 		
 	rho = *p;
 };
