@@ -127,6 +127,14 @@ void gcm::Engine::clear() {
 	bodies.clear();
 	for (auto& ml: meshLoaders)
 		ml.second->cleanUp();
+	// clear state
+	currentTime = 0;
+	currentTimeStep = 0;
+	fixedTimeStep = -1;
+	numberOfSnaps = 0;
+	stepsPerSnap = 1;
+	contactThresholdType = CONTACT_THRESHOLD_BY_AVG_H;
+	contactThresholdFactor = 1.0;
 }
 
 void gcm::Engine::cleanUp()
