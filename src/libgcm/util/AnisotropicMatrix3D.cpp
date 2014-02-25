@@ -74,10 +74,7 @@ void gcm::AnisotropicMatrix3D::RealChecker(gsl_matrix_complex* a, gsl_matrix* u)
 	for(i = 0; i < 9; i++)
 		for(j = 0; j < 9; j++) {
 			z = gsl_matrix_complex_get( a, i, j );
-			if( fabs( GSL_IMAG( z ) ) > 1e-8 )  {//THROW_INVALID_INPUT("Vector is complex!");
-				cout << j <<"th eigenvector is complex" << endl;
-				exit(-1);
-			}
+			if( fabs( GSL_IMAG( z ) ) > 1e-8 ) THROW_INVALID_INPUT("Vector is complex!");
 			gsl_matrix_set(u, i, j, GSL_REAL(z));
 		}
 
@@ -89,10 +86,7 @@ void gcm::AnisotropicMatrix3D::RealChecker(gsl_vector_complex* a, gsl_matrix* l)
 	
 	for(i = 0; i < 9; i++) {
 		z = gsl_vector_complex_get(a, i);
-		if( fabs( GSL_IMAG( z ) ) > 1e-8 ) {//THROW_INVALID_INPUT("Value is complex!");
-			cout << i <<"th eigenvalue is complex" << endl;
-			exit(-1);
-		}
+		if( fabs( GSL_IMAG( z ) ) > 1e-8 ) THROW_INVALID_INPUT("Value is complex!");
 		gsl_matrix_set(l, i, i, GSL_REAL(z));
 	}
 };
@@ -134,24 +128,30 @@ void gcm::AnisotropicMatrix3D::CreateAx(const AnisotropicNumbers &numbers, float
 	gsl_matrix* a = gsl_matrix_alloc (9, 9);
 	setZero(a);
 		
-	gsl_matrix_set (a, 0, 4, -1/rho);
+	gsl_matrix_set (a, 0, 3, -1/rho);
 	gsl_matrix_set (a, 1, 8, -1/rho);
 	gsl_matrix_set (a, 2, 7, -1/rho);
+	
 	gsl_matrix_set (a, 3, 0, -numbers.c[0]);
 	gsl_matrix_set (a, 3, 1, -numbers.c[5]);
 	gsl_matrix_set (a, 3, 2, -numbers.c[4]);
+	
 	gsl_matrix_set (a, 4, 0, -numbers.c[1]);
 	gsl_matrix_set (a, 4, 1, -numbers.c[10]);
 	gsl_matrix_set (a, 4, 2, -numbers.c[9]);
+	
 	gsl_matrix_set (a, 5, 0, -numbers.c[2]);
 	gsl_matrix_set (a, 5, 1, -numbers.c[14]);
 	gsl_matrix_set (a, 5, 2, -numbers.c[13]);
+	
 	gsl_matrix_set (a, 6, 0, -numbers.c[3]);
 	gsl_matrix_set (a, 6, 1, -numbers.c[17]);
 	gsl_matrix_set (a, 6, 2, -numbers.c[16]);
+	
 	gsl_matrix_set (a, 7, 0, -numbers.c[4]);
 	gsl_matrix_set (a, 7, 1, -numbers.c[19]);
 	gsl_matrix_set (a, 7, 2, -numbers.c[18]);
+	
 	gsl_matrix_set (a, 8, 0, -numbers.c[5]);
 	gsl_matrix_set (a, 8, 1, -numbers.c[20]);
 	gsl_matrix_set (a, 8, 2, -numbers.c[19]);
@@ -160,7 +160,7 @@ void gcm::AnisotropicMatrix3D::CreateAx(const AnisotropicNumbers &numbers, float
 	gsl_matrix* l = gsl_matrix_alloc (9, 9);
 	gsl_matrix* u = gsl_matrix_alloc (9, 9);
 	
-	DecompositeIt(a, u, l, u1);
+	DecompositeIt(a, u1, l, u);
 	
 	GslToGcm(a, A);
 	GslToGcm(u, U);
@@ -182,21 +182,27 @@ void gcm::AnisotropicMatrix3D::CreateAy(const AnisotropicNumbers &numbers, float
 	gsl_matrix_set (a, 0, 8, -1/rho);
 	gsl_matrix_set (a, 1, 4, -1/rho);
 	gsl_matrix_set (a, 2, 6, -1/rho);
+	
 	gsl_matrix_set (a, 3, 0, -numbers.c[5]);
 	gsl_matrix_set (a, 3, 1, -numbers.c[1]);
 	gsl_matrix_set (a, 3, 2, -numbers.c[3]);
+	
 	gsl_matrix_set (a, 4, 0, -numbers.c[10]);
 	gsl_matrix_set (a, 4, 1, -numbers.c[6]);
 	gsl_matrix_set (a, 4, 2, -numbers.c[8]);
+	
 	gsl_matrix_set (a, 5, 0, -numbers.c[14]);
 	gsl_matrix_set (a, 5, 1, -numbers.c[7]);
 	gsl_matrix_set (a, 5, 2, -numbers.c[12]);
+	
 	gsl_matrix_set (a, 6, 0, -numbers.c[17]);
 	gsl_matrix_set (a, 6, 1, -numbers.c[8]);
 	gsl_matrix_set (a, 6, 2, -numbers.c[15]);
+	
 	gsl_matrix_set (a, 7, 0, -numbers.c[19]);
 	gsl_matrix_set (a, 7, 1, -numbers.c[9]);
 	gsl_matrix_set (a, 7, 2, -numbers.c[16]);
+
 	gsl_matrix_set (a, 8, 0, -numbers.c[20]);
 	gsl_matrix_set (a, 8, 1, -numbers.c[10]);
 	gsl_matrix_set (a, 8, 2, -numbers.c[17]);
@@ -205,7 +211,7 @@ void gcm::AnisotropicMatrix3D::CreateAy(const AnisotropicNumbers &numbers, float
 	gsl_matrix* l = gsl_matrix_alloc (9, 9);
 	gsl_matrix* u = gsl_matrix_alloc (9, 9);
 	
-	DecompositeIt(a, u, l, u1);
+	DecompositeIt(a, u1, l, u);
 	
 	GslToGcm(a, A);
 	GslToGcm(u, U);
@@ -227,21 +233,27 @@ void gcm::AnisotropicMatrix3D::CreateAz(const AnisotropicNumbers &numbers, float
 	gsl_matrix_set (a, 0, 7, -1/rho);
 	gsl_matrix_set (a, 1, 6, -1/rho);
 	gsl_matrix_set (a, 2, 5, -1/rho);
+	
 	gsl_matrix_set (a, 3, 0, -numbers.c[4]);
 	gsl_matrix_set (a, 3, 1, -numbers.c[3]);
 	gsl_matrix_set (a, 3, 2, -numbers.c[2]);
+	
 	gsl_matrix_set (a, 4, 0, -numbers.c[9]);
 	gsl_matrix_set (a, 4, 1, -numbers.c[8]);
 	gsl_matrix_set (a, 4, 2, -numbers.c[7]);
+	
 	gsl_matrix_set (a, 5, 0, -numbers.c[13]);
 	gsl_matrix_set (a, 5, 1, -numbers.c[12]);
 	gsl_matrix_set (a, 5, 2, -numbers.c[11]);
+	
 	gsl_matrix_set (a, 6, 0, -numbers.c[16]);
 	gsl_matrix_set (a, 6, 1, -numbers.c[15]);
 	gsl_matrix_set (a, 6, 2, -numbers.c[12]);
+	
 	gsl_matrix_set (a, 7, 0, -numbers.c[18]);
 	gsl_matrix_set (a, 7, 1, -numbers.c[16]);
 	gsl_matrix_set (a, 7, 2, -numbers.c[13]);
+	
 	gsl_matrix_set (a, 8, 0, -numbers.c[19]);
 	gsl_matrix_set (a, 8, 1, -numbers.c[17]);
 	gsl_matrix_set (a, 8, 2, -numbers.c[14]);
@@ -250,7 +262,7 @@ void gcm::AnisotropicMatrix3D::CreateAz(const AnisotropicNumbers &numbers, float
 	gsl_matrix* l = gsl_matrix_alloc (9, 9);
 	gsl_matrix* u = gsl_matrix_alloc (9, 9);
 	
-	DecompositeIt(a, u, l, u1);
+	DecompositeIt(a, u1, l, u);
 	
 	GslToGcm(a, A);
 	GslToGcm(u, U);
@@ -262,6 +274,3 @@ void gcm::AnisotropicMatrix3D::CreateAz(const AnisotropicNumbers &numbers, float
 	gsl_matrix_free(l);	
 	gsl_matrix_free(u1);
 };
-
-
-
