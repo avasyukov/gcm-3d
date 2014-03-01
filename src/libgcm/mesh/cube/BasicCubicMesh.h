@@ -48,7 +48,7 @@ namespace gcm
 		
 		void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug);
 
-		void interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
+		bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 								CalcNode& targetNode, bool& isInnerPoint);
 	};
 }

@@ -167,9 +167,6 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 					{
 						LOG_DEBUG("Dksi[" << z << "]: " << virt_dksi[z]);
 						LOG_DEBUG("Inner[" << z << "]: " << virt_inner[z]);
-					}
-					for(int z = 0; z < 5; z++)
-					{
 						LOG_DEBUG("PrNodes[" << z << "]: " << virt_previous_nodes[z]);
 					}
 					THROW_BAD_METHOD("Illegal number of outer characteristics");
@@ -299,7 +296,6 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 				already_found = true;
 				previous_nodes[i] = previous_nodes[j];
 				inner[i] = inner[j];
-				LOG_TRACE("Bla");
 			}
 		}
 
@@ -309,7 +305,6 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 			LOG_TRACE( "New value " << dksi[i] << " - preparing vectors" );
 			// ... Put new number ...
 			previous_nodes[i] = cur_node;
-			LOG_TRACE("Bla");
 
 			// ... Find vectors ...
 			float dx[3];
@@ -356,7 +351,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 				LOG_TRACE( "Checking border node" );
 				// ... Find owner tetrahedron ...
 				bool isInnerPoint;
-				mesh->interpolateNode(origin, dx[0], dx[1], dx[2], false,
+				bool interpolated = mesh->interpolateNode(origin, dx[0], dx[1], dx[2], false,
 									previous_nodes[i], isInnerPoint);
 
 				// If we found inner point, it means
@@ -369,13 +364,13 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 					// We found border cross somehow
 					// It can happen if we work with really thin structures and big time step
 					// We can work as usual in this case
-					//if( tmp_tetr != NULL ) {
-					//	LOG_TRACE("Border node: we need new method here!");
-					//	inner[i] = true;
+					if( interpolated ) {
+						LOG_TRACE("Border node: we need new method here!");
+						inner[i] = true;
 					// Or we did not find any point at all - it means this characteristic is outer
-					//} else {
-					//	inner[i] = false;
-					//}
+					} else {
+						inner[i] = false;
+					}
 				}
 				LOG_TRACE( "Checking border node done" );
 			}

@@ -73,7 +73,7 @@ namespace gcm {
 		void preProcessGeometry();
 		void moveCoords(float tau);
 
-		void interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
+		bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 								CalcNode& targetNode, bool& isInnerPoint);
 	};
 }

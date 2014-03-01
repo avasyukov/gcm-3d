@@ -366,7 +366,7 @@ void gcm::MarkeredMesh::findBorderNodeNormal(int border_node_index, float* x,
 				}
 }
 
-void gcm::MarkeredMesh::interpolateNode(CalcNode& origin, float dx, float dy,
+bool gcm::MarkeredMesh::interpolateNode(CalcNode& origin, float dx, float dy,
 		float dz, bool debug, CalcNode& targetNode, bool& isInnerPoint) {
 	assert(((dx == 0.0) && (dy == 0.0)) || ((dy == 0.0) && (dz == 0.0)) || ((dx == 0.0) && (dz == 0.0)));
 
@@ -417,11 +417,13 @@ void gcm::MarkeredMesh::interpolateNode(CalcNode& origin, float dx, float dy,
 		targetNode.coords[1] = origin.coords[1]+dy;
 		targetNode.coords[2] = origin.coords[2]+dz;
 		interpolator->interpolate(targetNode, origin, getNodeByLocalIndex(getPointNumber(i1, i2, i3)));
+		return true;
 
 	} else {
 		targetNode.coords[0] = origin.coords[0];
 		targetNode.coords[1] = origin.coords[1];
 		targetNode.coords[2] = origin.coords[2];
+		return false;
 	}
 
 

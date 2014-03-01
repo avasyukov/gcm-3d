@@ -1383,19 +1383,20 @@ bool gcm::TetrMeshFirstOrder::charactCacheAvailable()
 			&& getNodeByLocalIndex(0).getMaterialId() < gcm::Engine::getInstance().getNumberOfMaterials() );
 }
 
-void gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
+bool gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 												CalcNode& targetNode, bool& isInnerPoint)
 {
 	int tetrInd = findOwnerTetr( origin, dx, dy, dz, debug,
 									targetNode.coords, &isInnerPoint );
 	
-	if( !isInnerPoint )
-		return;
+	if( tetrInd == -1 )
+		return false;
 
 	TetrFirstOrder& tmp_tetr = getTetr( tetrInd );
 	interpolator->interpolate( targetNode,
 			getNode( tmp_tetr.verts[0] ), getNode( tmp_tetr.verts[1] ), 
 			getNode( tmp_tetr.verts[2] ), getNode( tmp_tetr.verts[3] ) );
+	return true;
 }
 
 vector<int>& gcm::TetrMeshFirstOrder::getVolumeElementsForNode(int index)

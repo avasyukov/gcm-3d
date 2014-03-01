@@ -169,15 +169,16 @@ int gcm::BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, 
 	return neighNum;
 };
 
-void gcm::BasicCubicMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
+bool gcm::BasicCubicMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 								CalcNode& targetNode, bool& isInnerPoint)
 {
 	int neighInd = findNeighbourPoint( origin, dx, dy, dz, debug,
 									targetNode.coords, &isInnerPoint );
 	
-	if( !isInnerPoint )
-		return;
+	if( neighInd == -1 )
+		return false;
 	
 	interpolator->interpolate( targetNode, origin, getNode( neighInd ) );
+	return true;
 };
 
