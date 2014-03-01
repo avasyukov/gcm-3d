@@ -68,9 +68,9 @@ namespace gcm {
 			LOG_DEBUG("setTransferVector called. Bodies: " << bodyId << " " << myBodyId << " Vector: " << x << " " << y << " " << z << "\n");
 			if( (bodyId != myBodyId ) && (myBodyId != "__any") )
 				return;
-			dX += x;
-			dY += y;
-			dZ += z;
+			dX = x;
+			dY = y;
+			dZ = z;
 		}
 	};
 }
