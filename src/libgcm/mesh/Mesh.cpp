@@ -379,7 +379,7 @@ int gcm::Mesh::getNumberOfLocalNodes()
 	{
 		// FIXME this code seems to be dead
 		// node = getNodeByLocalIndex(i);
-		if( getNode(i).isLocal() )
+		if( getNodeByLocalIndex(i).isLocal() )
 			num++;
 	}
 	return num;
