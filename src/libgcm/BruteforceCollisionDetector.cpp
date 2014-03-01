@@ -76,7 +76,8 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 									direction[z] = 0;
 
 							// FIXME - ugly WA
-							CalcNode& new_node = mesh2->getNode( local_faces[l].verts[0] );
+							CalcNode new_node;
+							new_node = mesh2->getNode( local_faces[l].verts[0] );
 							new_node.contactNodeNum = j;
 
 							if( vectorIntersectsTriangle( 
