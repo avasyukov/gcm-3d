@@ -9,6 +9,9 @@ GCMLIB_SO   =  $(BUILD)/$(GCMLIB).so
 GCMLIB_SO_1 =  $(GCMLIB_SO).$(VER_MAJOR)
 GCMLIB_SO_2 =  $(GCMLIB_SO_1).$(VER_MINOR)
 
+DOXY        =  doxygen
+DOXYFILE    =  tools/Doxyfile
+
 GCM3D_UNIT_TESTS   = $(BUILD)/gcm3d_unit_tests
 GCM3D_FUNC_TESTS   = $(BUILD)/gcm3d_func_tests
 GCM3D_VIEW_NORMALS = $(BUILD)/gcm3d_view_normals
@@ -111,4 +114,7 @@ $(GCM3D_VIEW_NORMALS): tools/markers-normals/main.cpp
 	 $^               \
 	 -o $@
 
-.PHONY: default clean all
+doxy: $(DOXYFILE)
+	$(DOXY) $^
+
+.PHONY: default clean all doxy
