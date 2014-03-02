@@ -7,9 +7,6 @@
 #include "util/ThirdDegreePolynomial.h"
 #include "Exception.h"
 
-#include <gsl/gsl_math.h>
-#include <gsl/gsl_linalg.h>
-
 using namespace gcm;
 
 namespace gcm {

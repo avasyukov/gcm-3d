@@ -70,20 +70,13 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAx(const AnisotropicNumbers &C, f
 
 	// Setting values of A
 	A(0,3) = A(1,9) = A(2,8) = -1/rho;
-	for (int i = 0; i < 6; i++)
-		A(i+3,0) = -C.c[i];
-	A(3,1) = -C.c16;
-	A(4,1) = -C.c26;
-	A(5,1) = -C.c36;
-	A(6,1) = -C.c46;
-	A(7,1) = -C.c56;
-	A(8,1) = -C.c66;
-	A(3,2) = -C.c15;
-	A(4,2) = -C.c25;
-	A(5,2) = -C.c35;
-	A(6,2) = -C.c45;
-	A(7,2) = -C.c55;
-	A(8,2) = -C.c56;
+	
+	A(3,0) = -C.c11;	A(3,1) = -C.c16;	A(3,2) = -C.c15;
+	A(4,0) = -C.c12;	A(4,1) = -C.c26;	A(4,2) = -C.c25;
+	A(5,0) = -C.c13;	A(5,1) = -C.c36;	A(5,2) = -C.c35;
+	A(6,0) = -C.c14;	A(6,1) = -C.c46;	A(6,2) = -C.c45;
+	A(7,0) = -C.c15;	A(7,1) = -C.c56;	A(7,2) = -C.c55;
+	A(8,0) = -C.c16;	A(8,1) = -C.c66;	A(8,2) = -C.c56;
 	
 	// Search eigenvalues and filling the diagonal matrix
 	ThirdDegreePolynomial tdp (rho, C, 0);
@@ -106,25 +99,95 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAx(const AnisotropicNumbers &C, f
 	U1(4,6) = U1(5,7) = U1(6,8) = 1;
 
 	// Search U = U1^(-1)
-	gsl_matrix* Z1 = gsl_matrix_alloc (GCM_MATRIX_SIZE, GCM_MATRIX_SIZE);
-	for (int i = 0; i < GCM_MATRIX_SIZE; i++)
-		for (int j = 0; j < GCM_MATRIX_SIZE; j++)
-			gsl_matrix_set(Z1, i, j, U1(i,j));
-	gsl_matrix* Z = gsl_matrix_alloc (GCM_MATRIX_SIZE, GCM_MATRIX_SIZE);
-    gsl_permutation* perm = gsl_permutation_alloc (GCM_MATRIX_SIZE);  
-	int j;
-	gsl_linalg_LU_decomp (Z1, perm, &j);
-	gsl_linalg_LU_invert (Z1, perm, Z);
+//	U = U1;
+	for (int i = 0; i < GCM_MATRIX_SIZE; i++) 
+		for (int j = 0; j < GCM_MATRIX_SIZE; j++) 
+			U(i,j) = U1(i,j);
+	U.inv();
 };
 
 void gcm::AnisotropicMatrix3DAnalytical::CreateAy(const AnisotropicNumbers &C, float rho)
 {
+	zero_all();
+
+	// Setting values of A
+	A(0,8) = A(1,4) = A(2,6) = -1/rho;
 	
+	A(3,0) = -C.c16;	A(3,1) = -C.c12;	A(3,2) = -C.c14;
+	A(4,0) = -C.c26;	A(4,1) = -C.c22;	A(4,2) = -C.c24;
+	A(5,0) = -C.c36;	A(5,1) = -C.c23;	A(5,2) = -C.c34;
+	A(6,0) = -C.c46;	A(6,1) = -C.c24;	A(6,2) = -C.c44;
+	A(7,0) = -C.c56;	A(7,1) = -C.c25;	A(7,2) = -C.c45;
+	A(8,0) = -C.c66;	A(8,1) = -C.c26;	A(8,2) = -C.c46;
+	
+	// Search eigenvalues and filling the diagonal matrix
+	ThirdDegreePolynomial tdp (rho, C, 1);
+	float roots[3];
+	tdp.getRoots(roots);
+	L(0,0) = sqrt(roots[0]);
+	L(1,1) = -L(0,0);
+	L(2,2) = sqrt(roots[1]);
+	L(3,3) = -L(2,2);
+	L(4,4) = sqrt(roots[2]);
+	L(5,5) = -L(4,4);
+	
+	// Search eigenvectors and filling the transition matrix
+	// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
+	float eigenVec[9];
+	for (int i = 0; i < 6; i++) {
+		findEigenVec(eigenVec, L(i,i), rho, C, 0);
+		U1.setColumn(eigenVec, i);
+ 	}
+	U1(3,6) = U1(5,7) = U1(7,8) = 1;
+
+	// Search U = U1^(-1)
+//	U = U1;
+	for (int i = 0; i < GCM_MATRIX_SIZE; i++) 
+		for (int j = 0; j < GCM_MATRIX_SIZE; j++) 
+			U(i,j) = U1(i,j);
+	U.inv();
 };
 
 void gcm::AnisotropicMatrix3DAnalytical::CreateAz(const AnisotropicNumbers &C, float rho)
 {
+	zero_all();
+
+	// Setting values of A
+	A(0,7) = A(1,6) = A(2,5) = -1/rho;
 	
+	A(3,0) = -C.c15;	A(3,1) = -C.c14;	A(3,2) = -C.c13;
+	A(4,0) = -C.c25;	A(4,1) = -C.c24;	A(4,2) = -C.c23;
+	A(5,0) = -C.c35;	A(5,1) = -C.c34;	A(5,2) = -C.c33;
+	A(6,0) = -C.c45;	A(6,1) = -C.c44;	A(6,2) = -C.c34;
+	A(7,0) = -C.c55;	A(7,1) = -C.c45;	A(7,2) = -C.c35;
+	A(8,0) = -C.c56;	A(8,1) = -C.c46;	A(8,2) = -C.c36;
+	
+	// Search eigenvalues and filling the diagonal matrix
+	ThirdDegreePolynomial tdp (rho, C, 2);
+	float roots[3];
+	tdp.getRoots(roots);
+	L(0,0) = sqrt(roots[0]);
+	L(1,1) = -L(0,0);
+	L(2,2) = sqrt(roots[1]);
+	L(3,3) = -L(2,2);
+	L(4,4) = sqrt(roots[2]);
+	L(5,5) = -L(4,4);
+	
+	// Search eigenvectors and filling the transition matrix
+	// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
+	float eigenVec[9];
+	for (int i = 0; i < 6; i++) {
+		findEigenVec(eigenVec, L(i,i), rho, C, 0);
+		U1.setColumn(eigenVec, i);
+ 	}
+	U1(3,6) = U1(4,7) = U1(9,8) = 1;
+	
+	// Search U = U1^(-1)
+//	U = U1;
+	for (int i = 0; i < GCM_MATRIX_SIZE; i++) 
+		for (int j = 0; j < GCM_MATRIX_SIZE; j++) 
+			U(i,j) = U1(i,j);
+	U.inv();
 };
 
 void gcm::AnisotropicMatrix3DAnalytical::CreateGeneralizedMatrix(const AnisotropicNumbers &C, float rho, 

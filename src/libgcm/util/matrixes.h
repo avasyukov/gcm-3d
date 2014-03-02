@@ -5,7 +5,12 @@
 #include <math.h>
 #include <string.h>
 
+#include <assert.h>
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_linalg.h>
+
 #include "Math.h"
+#include "Exception.h"
 
 #define GCM_MATRIX_SIZE 9
 
@@ -33,7 +38,7 @@ namespace gcm {
 	public:
 		gcm_matrix();
 		~gcm_matrix();
-		gcm_matrix &operator=(const gcm_matrix &A);
+		gcm_matrix& operator=(const gcm_matrix &A);
 		bool operator==(const gcm_matrix &A) const;
 		bool operator!=(const gcm_matrix &A) const;
 		float& operator()(int i, int j);
@@ -47,6 +52,7 @@ namespace gcm {
 		void clear();
 		void createE();
 		void setColumn(float *Clmn, int num);
+		void inv();
 
 		float p[GCM_MATRIX_SIZE][GCM_MATRIX_SIZE];	 // Data
 	private:
