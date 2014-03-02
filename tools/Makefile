@@ -19,7 +19,6 @@ GCM3D              = $(BUILD)/gcm3d
 
 CCFLAGS     += -Wall $(shell pkg-config --cflags $(LIBS))
 CCFLAGS     += -I$(shell find /usr/include -maxdepth 1 -name vtk* | head -n1)
-CCFLAGS     += -I/usr/include/irrlicht
 CCFLAGS     += -Wno-deprecated
 CCFLAGS     += -I./src/libgcm
 CCFLAGS     += -I./src/
@@ -47,7 +46,7 @@ LAUNCHER_OBJS    =   $(patsubst %.cpp, $(BUILD)/%.o, $(LAUNCHER_SOURCES))
 UNIT_OBJS        =   $(patsubst %.cpp, $(BUILD)/%.o, $(UNIT_SOURCES))
 FUNC_OBJS        =   $(patsubst %.cpp, $(BUILD)/%.o, $(FUNC_SOURCES))
 
-default: all
+default: $(GCM3D)
 
 clean:
 	rm -rf $(BUILD)
@@ -57,19 +56,25 @@ $(BUILD)/%.o: %.cpp
 	$(CC) -c $(CCFLAGS) -fpic -o $@ $<
 
 $(GCMLIB_SO_2): $(LIB_OBJS)
-	$(CC) $(LDFLAGS)  -shared -Wl,-soname,$(GCMLIB_SO) -o $@ $(LIB_OBJS) -lc \
-	 -lgsl            \
-	 -lvtkCommon      \
-	 -lvtkFiltering   \
-	 -lvtkIO          \
-	 -lvtkFiltering   \
-	 -lvtkCommon      \
-	 -lvtkDICOMParser \
-	 -lvtkNetCDF_cxx  \
-	 -lvtkNetCDF      \
-	 -lvtkmetaio      \
-	 -lvtksqlite      \
-	 -lvtksys         
+	$(CC)                    \
+	 -shared                 \
+	-Wl,-soname,$(GCMLIB_SO) \
+	 $(LIB_OBJS)             \
+	 $(LDFLAGS)              \
+	 -lc                     \
+	 -lgsl                   \
+	 -lvtkCommon             \
+	 -lvtkFiltering          \
+	 -lvtkIO                 \
+	 -lvtkFiltering          \
+	 -lvtkCommon             \
+	 -lvtkDICOMParser        \
+	 -lvtkNetCDF_cxx         \
+	 -lvtkNetCDF             \
+	 -lvtkmetaio             \
+	 -lvtksqlite             \
+	 -lvtksys                \
+	 -o $@
 
 $(GCMLIB_SO_1): $(GCMLIB_SO_2)
 	ln -fsr $(GCMLIB_SO_2) $(GCMLIB_SO_1)
@@ -77,44 +82,49 @@ $(GCMLIB_SO_1): $(GCMLIB_SO_2)
 $(GCMLIB_SO): $(GCMLIB_SO_1)
 	ln -fsr $(GCMLIB_SO_1) $(GCMLIB_SO)
 
-all: $(GCM3D) $(GCM3D_UNIT_TESTS) $(GCM3D_FUNC_TESTS) $(GCM3D_VIEW_NORMALS)
+all: gcm3d tests utils
+	
+tests: $(GCM3D_UNIT_TESTS) $(GCM3D_FUNC_TESTS)
+
+utils: $(GCM3D_VIEW_NORMALS) 
 
 $(GCM3D): $(GCMLIB_SO) $(LAUNCHER_OBJS)
-	$(CC)             \
-	 $(CCFLAGS)       \
-	 $(LDFLAGS)       \
-	 -lgcm            \
-	 $(LAUNCHER_OBJS) \
+	$(CC)                    \
+	 $(CCFLAGS)              \
+	 $(LDFLAGS)              \
+	 -lgcm                   \
+	 $(LAUNCHER_OBJS)        \
 	 -o $@
 
 $(GCM3D_UNIT_TESTS): $(GCMLIB_SO) $(UNIT_OBJS)
-	$(CC)             \
-	 $(CCFLAGS)       \
-	 $(LDFLAGS)       \
-	 -lgcm            \
-	 -lgtest          \
-	 $(UNIT_OBJS)     \
+	$(CC)                    \
+	 $(CCFLAGS)              \
+	 $(LDFLAGS)              \
+	 -lgcm                   \
+	 -lgtest                 \
+	 $(UNIT_OBJS)            \
 	 -o $@
 
 $(GCM3D_FUNC_TESTS): $(GCMLIB_SO) $(FUNC_OBJS)
-	$(CC)             \
-	 $(CCFLAGS)       \
-	 $(LDFLAGS)       \
-	 -lgcm            \
-	 -lgtest          \
-	 $(FUNC_OBJS)     \
+	$(CC)                    \
+	 $(CCFLAGS)              \
+	 $(LDFLAGS)              \
+	 -lgcm                   \
+	 -lgtest                 \
+	 $(FUNC_OBJS)            \
 	 -o $@
 
 $(GCM3D_VIEW_NORMALS): tools/markers-normals/main.cpp
-	$(CC)             \
-	 $(CCFLAGS)       \
-	 $(LDFLAGS)       \
-	 -lIrrlicht       \
-	 -lgcm            \
-	 $^               \
+	$(CC)                    \
+	 $(CCFLAGS)              \
+	-I/usr/include/irrlicht  \
+	 $(LDFLAGS)              \
+	 -lIrrlicht              \
+	 -lgcm                   \
+	 $^                      \
 	 -o $@
 
 doxy: $(DOXYFILE)
 	$(DOXY) $^
 
-.PHONY: default clean all doxy
+.PHONY: default clean all doxy tests gcm3d utils
