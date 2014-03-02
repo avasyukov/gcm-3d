@@ -1,9 +1,10 @@
 #ifndef _GCM_ANISOTROPIC_MATRIX_3D_H
 #define _GCM_ANISOTROPIC_MATRIX_3D_H  1
-/*
+
 #include <assert.h>
 
 #include "util/matrixes.h"
+#include "util/RheologyMatrix3D.h"
 #include "Exception.h"
 
 #include <gsl/gsl_eigen.h>
@@ -16,31 +17,29 @@
 using namespace gcm;
 
 namespace gcm {
-	
-	class AnisotropicMatrix3D
+	/**
+	 * @brief Anisotropic rheology matrix implementation.
+	 * @details Creates corresponding rheology matrices for case 
+	 *          of anisotropic material. Params in this case contain
+	 *          special structure 'AnisotropicNumbers' (at matrixes.h).
+	 */
+	class AnisotropicMatrix3D: public RheologyMatrix3D
 	{
-	public:
-		AnisotropicMatrix3D();
-		~AnisotropicMatrix3D();
-		void prepare_matrix(const AnisotropicNumbers &numbers, float rho, int stage);
-		float max_lambda();
-		void DecompositeIt(gsl_matrix* a, gsl_matrix_complex* u1, gsl_matrix_complex* l, gsl_matrix_complex* u) ;
+	protected:
+		void clear();
+		void getRheologyParameters(initializer_list<gcm_real> params, AnisotropicNumbers& numbers, gcm_real& rho);
+		void decompositeIt(gsl_matrix* a, gsl_matrix* u, gsl_matrix* l, gsl_matrix* u1);
+		virtual void createAx(initializer_list<gcm_real> params) override;
+		virtual void createAy(initializer_list<gcm_real> params) override;
+		virtual void createAz(initializer_list<gcm_real> params) override;
 		
-		gcm_matrix A;
-		gcm_matrix L;
-		gcm_matrix U;
-		gcm_matrix U1;
-
 	private:
-		void CreateAx(const AnisotropicNumbers &numbers, float rho);
-		void CreateAy(const AnisotropicNumbers &numbers, float rho);
-		void CreateAz(const AnisotropicNumbers &numbers, float rho);
-		void zero_all();
-		void GcmToGsl(const gcm_matrix &a, gsl_matrix* b);
-		void GslToGcm(gsl_matrix* a, gcm_matrix& b);
-		void setZero(gcm_matrix& a);
-		void setZero(gsl_matrix* a);
+		void gcmTogsl(const gcm_matrix &a, gsl_matrix* b);
+		void gslTogcm(gsl_matrix* a, gcm_matrix& b);
+		void clear(gsl_matrix* a);
+		void realChecker(gsl_vector_complex* a, gsl_matrix* l);
+		void realChecker(gsl_matrix_complex* a, gsl_matrix* u);
 	};
 }
-*/
+
 #endif
