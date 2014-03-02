@@ -37,7 +37,7 @@ namespace gcm {
 		unsigned int points_num[3];
 		unsigned int cells_num[3];
 		vector<bool> cellsInnerFlags;
-		vector<Node> markers;
+		vector<CalcNode> markers;
 		float h[3];
 		void logMeshStats();
 		void calcMinH();
@@ -81,7 +81,7 @@ namespace gcm {
 		void getCellIndexes(unsigned int num, unsigned int &i1, unsigned int &i2, unsigned int &i3);
 		void getPointIndexes(unsigned int num, unsigned int &i1, unsigned int &i2, unsigned int &i3);
 
-		const vector<Node>& getMarkers();
+		const vector<CalcNode>& getMarkers();
 
 		const AABB& getMeshOutline();
 

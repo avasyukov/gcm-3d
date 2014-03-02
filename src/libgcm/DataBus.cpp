@@ -66,19 +66,19 @@ void gcm::DataBus::syncNodes(int bodyNum, float tau)
 {
 	if( numberOfWorkers == 1 )
 		return;
-	
+
 	LOG_DEBUG("Working with body " << bodyNum);
 	LOG_DEBUG("Creating dynamic types");
 	createDynamicTypes(bodyNum);
 	LOG_DEBUG("Creating dynamic types done");
-	
+
 	vector<MPI::Request> reqs;
 	BARRIER("gcm::DataBus::syncNodes#1");
 	LOG_DEBUG("Starting nodes sync");
-	
+
 	Body* body = engine->getBody(bodyNum);//ById( engine->getDispatcher()->getMyBodyId() );
 	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
-	
+
 	for (int i = 0; i < numberOfWorkers; i++)
 		for (int j = 0; j < numberOfWorkers; j++)
 			if (local_numbers[i][j].size() && i != rank)
@@ -94,7 +94,7 @@ void gcm::DataBus::syncNodes(int bodyNum, float tau)
 					)
 				);
 			}
-	
+
 	for (int i = 0; i < numberOfWorkers; i++)
 		for (int j = 0; j < numberOfWorkers; j++)
 			if (local_numbers[i][j].size() && i == rank)
@@ -113,16 +113,16 @@ void gcm::DataBus::syncNodes(int bodyNum, float tau)
 
 	MPI::Request::Waitall(reqs.size(), &reqs[0]);
 	BARRIER("gcm::DataBus::syncNodes#2");
-	
+
 	LOG_DEBUG("Nodes sync done");
-	
+
 	/*for(int i = 0; i < engine->getNumberOfBodies(); i++)
 	{
 		Body* body = engine->getBody(i);
 		TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
 		LOG_DEBUG( "Syncing remote data for mesh " << i );
 		float reqH = tau * mesh->getMaxLambda();
-		
+
 		LOG_DEBUG( "Mesh sync done" );
 	}*/
 }
@@ -164,71 +164,71 @@ void gcm::DataBus::createStaticTypes()
 		outl_displacements,
 		outl_types
 	);
-	
+
 	MPI::Datatype mesh_outl_types[] = {
 		MPI::LB,
 		MPI::FLOAT,
 		MPI::FLOAT,
 		MPI::UB
 	};
-	
+
 	int mesh_outl_lengths[] = {
 		1,
 		3,
 		3,
-		1				
+		1
 	};
-	
+
 	MPI::Aint mesh_outl_displacements[] = {
 		MPI::Get_address(&meshes[0]),
 		MPI::Get_address(&meshes[0].outline.min_coords[0]),
 		MPI::Get_address(&meshes[0].outline.max_coords[0]),
 		MPI::Get_address(&meshes[1])
 	};
-	
+
 	for (int i = 3; i >=0; i--)
 		mesh_outl_displacements[i] -= mesh_outl_displacements[0];
-	
+
 	MPI_MESH_OUTLINE = MPI::Datatype::Create_struct(
 		4,
 		mesh_outl_lengths,
 		mesh_outl_displacements,
 		mesh_outl_types
 	);
-	
-	MPI::Datatype face_types[] = 
+
+	MPI::Datatype face_types[] =
 	{
 		MPI::LB,
 		MPI::INT,
 		MPI::INT,
 		MPI::UB
 	};
-	
+
 	int face_lens[] = {
 		1,
 		1,
 		3,
 		1
 	};
-	
+
 	MPI::Aint face_displ[] = {
 		MPI::Get_address(&faces[0]),
 		MPI::Get_address(&faces[0].number),
 		MPI::Get_address(&faces[0].verts[0]),
 		MPI::Get_address(&faces[1])
 	};
-	
+
 	for (int i = 3; i >= 0; i--)
 		face_displ[i] -= face_displ[0];
-	
+
 	MPI_FACE_NUMBERED = MPI::Datatype::Create_struct(
 		4,
 		face_lens,
 		face_displ,
 		face_types
 	);
-	
-	MPI::Datatype tetr_types[] = 
+
+	MPI::Datatype tetr_types[] =
 	{
 		MPI::LB,
 		MPI::INT,
@@ -236,7 +236,7 @@ void gcm::DataBus::createStaticTypes()
 		MPI::INT,
 		MPI::UB
 	};
-	
+
 	int tetr_lens[] = {
 		1,
 		1,
@@ -244,7 +244,7 @@ void gcm::DataBus::createStaticTypes()
 		6,
 		1
 	};
-	
+
 	MPI::Aint tetr_displ[] = {
 		MPI::Get_address(&tetrs[0]),
 		MPI::Get_address(&tetrs[0].number),
@@ -252,17 +252,17 @@ void gcm::DataBus::createStaticTypes()
 		MPI::Get_address(&tetrs[0].addVerts[0]),
 		MPI::Get_address(&tetrs[1])
 	};
-	
+
 	for (int i = 4; i >= 0; i--)
 		tetr_displ[i] -= tetr_displ[0];
-	
+
 	MPI_TETR_NUMBERED = MPI::Datatype::Create_struct(
 		5,
 		tetr_lens,
 		tetr_displ,
 		tetr_types
 	);
-	
+
 	CalcNode elnodes[2];
 	MPI::Datatype elnode_types[] = {
 		MPI::LB,
@@ -275,7 +275,7 @@ void gcm::DataBus::createStaticTypes()
 		MPI::UNSIGNED_CHAR,
 		MPI::UB
 	};
-	
+
 	int elnode_lens[] = {
 		1,
 		9,
@@ -287,7 +287,7 @@ void gcm::DataBus::createStaticTypes()
 		1,
 		1
 	};
-	
+
 	MPI::Aint elnode_displs[] = {
 		MPI::Get_address(&elnodes[0]),
 		MPI::Get_address(&elnodes[0].values[0]),
@@ -296,12 +296,12 @@ void gcm::DataBus::createStaticTypes()
 		MPI::Get_address(&elnodes[0].bodyId),
 		MPI::Get_address(&elnodes[0].materialId),
 		MPI::Get_address(&elnodes[0].publicFlags),
-		MPI::Get_address(&elnodes[0].borderCondId),
+		MPI::Get_address(&elnodes[0].borderConditionId),
 		MPI::Get_address(&elnodes[1])
 	};
 	for (int i = 8; i >= 0; i--)
 		elnode_displs[i] -= elnode_displs[0];
-	
+
 	MPI_ELNODE = MPI::Datatype::Create_struct(
 		9,
 		elnode_lens,
@@ -309,7 +309,7 @@ void gcm::DataBus::createStaticTypes()
 		elnode_types
 	);
 	MPI_ELNODE.Commit();
-	
+
 	MPI::Datatype elnoden_types[] = {
 		MPI::LB,
 		MPI::INT,
@@ -322,7 +322,7 @@ void gcm::DataBus::createStaticTypes()
 		MPI::UNSIGNED_CHAR,
 		MPI::UB
 	};
-	
+
 	int elnoden_lens[] = {
 		1,
 		1,
@@ -335,7 +335,7 @@ void gcm::DataBus::createStaticTypes()
 		1,
 		1
 	};
-	
+
 	MPI::Aint elnoden_displs[] = {
 		MPI::Get_address(&elnodes[0]),
 		MPI::Get_address(&elnodes[0].number),
@@ -345,19 +345,19 @@ void gcm::DataBus::createStaticTypes()
 		MPI::Get_address(&elnodes[0].bodyId),
 		MPI::Get_address(&elnodes[0].materialId),
 		MPI::Get_address(&elnodes[0].publicFlags),
-		MPI::Get_address(&elnodes[0].borderCondId),
+		MPI::Get_address(&elnodes[0].borderConditionId),
 		MPI::Get_address(&elnodes[1])
 	};
 	for (int i = 9; i >= 0; i--)
 		elnoden_displs[i] -= elnoden_displs[0];
-	
+
 	MPI_ELNODE_NUMBERED = MPI::Datatype::Create_struct(
 		10,
 		elnoden_lens,
 		elnoden_displs,
 		elnoden_types
 	);
-	
+
 	MPI_ELNODE_NUMBERED.Commit();
 	MPI_FACE_NUMBERED.Commit();
 	MPI_TETR_NUMBERED.Commit();
@@ -371,7 +371,7 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
 	GCMDispatcher* dispatcher = engine->getDispatcher();
 	Body* body = engine->getBody(bodyNum);//ById( engine->getDispatcher()->getMyBodyId() );
 	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
-	
+
 	// TODO add more cleanup code here to prevent memory leaks
 	if (MPI_NODE_TYPES != NULL) {
 		LOG_TRACE("Cleaning old types");
@@ -396,18 +396,18 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
 
 	// FIXME - it's overhead
 	local_numbers = new vector<int>*[numberOfWorkers];
-	vector<int> **remote_numbers = new vector<int>*[numberOfWorkers];	
-	MPI_NODE_TYPES = new MPI::Datatype*[numberOfWorkers];	
-	
+	vector<int> **remote_numbers = new vector<int>*[numberOfWorkers];
+	MPI_NODE_TYPES = new MPI::Datatype*[numberOfWorkers];
+
 	for (int i = 0; i < numberOfWorkers; i++)
 	{
 		local_numbers[i] = new vector<int>[numberOfWorkers];
 		remote_numbers[i] = new vector<int>[numberOfWorkers];
 		MPI_NODE_TYPES[i] = new MPI::Datatype[numberOfWorkers];
-	}		
-	
+	}
+
 	BARRIER("gcm::DataBus::createDynamicTypes#0");
-	
+
 	// find all remote nodes
 	for (int j = 0; j < mesh->getNodesNumber(); j++)
 	{
@@ -425,7 +425,7 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
 	}
 
 	BARRIER("gcm::DataBus::createDynamicTypes#1");
-	
+
 	LOG_DEBUG("Requests prepared:");
 	for (int i = 0; i < numberOfWorkers; i++)
 		for (int j = 0; j < numberOfWorkers; j++)
@@ -441,11 +441,11 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
 	vector<int> lengths;
 	for (unsigned int i = 0; i < max_len; i++)
 		lengths.push_back(1);
-	
+
 	int info[3];
-	
+
 	vector<MPI::Request> reqs;
-	
+
 	for (int i = 0; i < numberOfWorkers; i++)
 		for (int j = 0; j < numberOfWorkers; j++)
 			if (local_numbers[i][j].size() > 0)
@@ -480,9 +480,9 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
 			}
 
 	BARRIER("gcm::DataBus::createDynamicTypes#2");
-	
-	MPI::Status status;	
-	
+
+	MPI::Status status;
+
 	while (MPI::COMM_WORLD.Iprobe(MPI::ANY_SOURCE, TAG_SYNC_NODE_TYPES_I, status))
 	{
 		MPI::COMM_WORLD.Recv(
@@ -515,7 +515,7 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
 
 	MPI::Request::Waitall(reqs.size(), &reqs[0]);
 	BARRIER("gcm::DataBus::createDynamicTypes#3");
-	
+
 	for (int i = 0 ; i < numberOfWorkers; i++)
 		delete[] remote_numbers[i];
 	delete[] remote_numbers;
@@ -533,7 +533,7 @@ void gcm::DataBus::syncOutlines()
 	LOG_DEBUG("Syncing outlines");
 	MPI::COMM_WORLD.Allgather(
 		MPI_IN_PLACE,
-		1, MPI_OUTLINE, 
+		1, MPI_OUTLINE,
 		outlines,
 		1, MPI_OUTLINE
 	);
@@ -544,25 +544,25 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
 {
 	if( numberOfWorkers == 1 )
 		return;
-	
+
 	bool transferRequired = false;
-	
+
 	AABB **reqZones = new AABB*[numberOfWorkers];
 	AABB *reqZones_data = new AABB[numberOfWorkers*numberOfWorkers];
 	for ( int i = 0; i < numberOfWorkers; ++i ) {
 		reqZones[i] = reqZones_data + (i*numberOfWorkers);
 	}
 	GCMDispatcher* dispatcher = engine->getDispatcher();
-	
+
 	// FIXME@avasyukov - workaround for SphProxyDispatcher
-	// But we still need this 
+	// But we still need this
 	if( dispatcher->getOutline(0) == NULL ) {
 		THROW_BAD_METHOD("We can't do this because it will cause all MPI routines to freeze");
 		return;
 	}
 
 	BARRIER("gcm::DataBus::syncMissedNodes#1");
-	
+
 	//Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
 	//TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
 	TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*) _mesh;
@@ -583,18 +583,18 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
 			}
 		}
 	}
-	
+
 	BARRIER("gcm::DataBus::syncMissedNodes#2");
 
 	MPI::COMM_WORLD.Allgather(
 		MPI_IN_PLACE,
-		numberOfWorkers, MPI_OUTLINE, 
+		numberOfWorkers, MPI_OUTLINE,
 		reqZones_data,
 		numberOfWorkers, MPI_OUTLINE
 	);
 
 	BARRIER("gcm::DataBus::syncMissedNodes#3");
-	
+
 	vector<AABB> *_reqZones = new vector<AABB>[numberOfWorkers];
 	for (int i = 0 ; i < numberOfWorkers; i++)
 		for (int j = 0 ; j < numberOfWorkers; j++)
@@ -605,7 +605,7 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
 				transferRequired = true;
 			}
 		}
-	
+
 	if(transferRequired)
 	{
 		transferNodes(mesh, _reqZones);
@@ -627,11 +627,11 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
 			(mesh->syncedArea).max_coords[z] = (mesh->areaOfInterest).max_coords[z] + EQUALITY_TOLERANCE;
 		}
 	}
-	
+
 	for (int i = 0 ; i < numberOfWorkers; i++)
 		_reqZones[i].clear();
 	delete[] _reqZones;
-	
+
 	delete[] reqZones_data;
 	delete[] reqZones;
 }
@@ -643,7 +643,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 	for ( int i = 0; i < numberOfWorkers; ++i ) {
 		reqZones[i] = reqZones_data + (i*numberOfWorkers);
 	}
-	
+
 	for (int i = 0 ; i < numberOfWorkers; i++)
 		for (int j = 0 ; j < numberOfWorkers; j++)
 			if( !isinf(_reqZones[i][j].minX) )
@@ -651,10 +651,10 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 				reqZones[i][j] = _reqZones[i].at(j);
 				LOG_DEBUG("CPU " << i << " asks from CPU " << j << " area: " << reqZones[i][j]);
 			}
-	
+
 	Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
 	TetrMeshSecondOrder* myMesh = (TetrMeshSecondOrder*)body->getMeshes();
-	
+
 	int numberOfNodes[numberOfWorkers][numberOfWorkers];
 	int numberOfTetrs[numberOfWorkers][numberOfWorkers];
 	for (int i = 0 ; i < numberOfWorkers; i++)
@@ -663,12 +663,12 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 			numberOfNodes[i][j] = 0;
 			numberOfTetrs[i][j] = 0;
 		}
-	
+
 	// Looking how many nodes and tetrs we are going to send
 	map<int,int>* sendNodesMap = new map<int,int>[numberOfWorkers];
 	map<int,int>* addNodesMap = new map<int,int>[numberOfWorkers];
 	map<int,int>* sendTetrsMap = new map<int,int>[numberOfWorkers];
-	
+
 	for (int i = 0 ; i < numberOfWorkers; i++)
 	{
 		if( !isinf(reqZones[i][rank].minX) )
@@ -685,22 +685,22 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 			for( int j = 0; j < myMesh->tetrsNumber; j++ )
 			{
 				TetrSecondOrder& tetr = myMesh->getTetr2ByLocalIndex(j);
-				if( sendNodesMap[i].find(tetr.verts[0]) != sendNodesMap[i].end() 
-					|| sendNodesMap[i].find(tetr.verts[1]) != sendNodesMap[i].end() 
-					|| sendNodesMap[i].find(tetr.verts[2]) != sendNodesMap[i].end() 
-					|| sendNodesMap[i].find(tetr.verts[3]) != sendNodesMap[i].end() 
-						|| sendNodesMap[i].find(tetr.addVerts[0]) != sendNodesMap[i].end() 
-						|| sendNodesMap[i].find(tetr.addVerts[1]) != sendNodesMap[i].end() 
-						|| sendNodesMap[i].find(tetr.addVerts[2]) != sendNodesMap[i].end() 
-						|| sendNodesMap[i].find(tetr.addVerts[3]) != sendNodesMap[i].end() 
-						|| sendNodesMap[i].find(tetr.addVerts[4]) != sendNodesMap[i].end() 
+				if( sendNodesMap[i].find(tetr.verts[0]) != sendNodesMap[i].end()
+					|| sendNodesMap[i].find(tetr.verts[1]) != sendNodesMap[i].end()
+					|| sendNodesMap[i].find(tetr.verts[2]) != sendNodesMap[i].end()
+					|| sendNodesMap[i].find(tetr.verts[3]) != sendNodesMap[i].end()
+						|| sendNodesMap[i].find(tetr.addVerts[0]) != sendNodesMap[i].end()
+						|| sendNodesMap[i].find(tetr.addVerts[1]) != sendNodesMap[i].end()
+						|| sendNodesMap[i].find(tetr.addVerts[2]) != sendNodesMap[i].end()
+						|| sendNodesMap[i].find(tetr.addVerts[3]) != sendNodesMap[i].end()
+						|| sendNodesMap[i].find(tetr.addVerts[4]) != sendNodesMap[i].end()
 						|| sendNodesMap[i].find(tetr.addVerts[5]) != sendNodesMap[i].end() )
 				{
 					numberOfTetrs[rank][i]++;
 					sendTetrsMap[i][ tetr.number ] = j;
 					for( int k = 0; k < 4; k++ )
 					{
-						if( sendNodesMap[i].find(tetr.verts[k]) == sendNodesMap[i].end() 
+						if( sendNodesMap[i].find(tetr.verts[k]) == sendNodesMap[i].end()
 								&& addNodesMap[i].find(tetr.verts[k]) == addNodesMap[i].end() )
 						{
 							numberOfNodes[rank][i]++;
@@ -709,7 +709,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 					}
 					for( int k = 0; k < 6; k++ )
 					{
-						if( sendNodesMap[i].find(tetr.addVerts[k]) == sendNodesMap[i].end() 
+						if( sendNodesMap[i].find(tetr.addVerts[k]) == sendNodesMap[i].end()
 								&& addNodesMap[i].find(tetr.addVerts[k]) == addNodesMap[i].end() )
 						{
 							numberOfNodes[rank][i]++;
@@ -720,11 +720,11 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 			}
 		}
 	}
-	
+
 	BARRIER("gcm::DataBus::transferNodes#1");
 	MPI::COMM_WORLD.Allgather(
 		MPI_IN_PLACE,
-		numberOfWorkers, MPI_INT, 
+		numberOfWorkers, MPI_INT,
 		numberOfNodes,
 		numberOfWorkers, MPI_INT
 	);
@@ -733,7 +733,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 
 	MPI::COMM_WORLD.Allgather(
 		MPI_IN_PLACE,
-		numberOfWorkers, MPI_INT, 
+		numberOfWorkers, MPI_INT,
 		numberOfTetrs,
 		numberOfWorkers, MPI_INT
 	);
@@ -744,15 +744,15 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 		for (int j = 0 ; j < numberOfWorkers; j++)
 			if( numberOfNodes[i][j] != 0 )
 			{
-				LOG_DEBUG("CPU " << i << " is going to send to CPU " << j << " " 
+				LOG_DEBUG("CPU " << i << " is going to send to CPU " << j << " "
 						<< numberOfNodes[i][j] << " nodes and " << numberOfTetrs[i][j] << " tetrs");
 //				if( rank == j && mesh->getNodesNumber() == 0 )
 //					mesh->createNodes(numberOfNodes[i][j]);
 //				if( rank == j && mesh->getTetrsNumber() == 0 )
 //					mesh->createTetrs(numberOfTetrs[i][j]);
 			}
-	
-	
+
+
 	vector<MPI::Request> reqs;
 	CalcNode** recNodes = new CalcNode*[numberOfWorkers];
 	TetrSecondOrder** recTetrs = new TetrSecondOrder*[numberOfWorkers];
@@ -787,7 +787,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 			recTetrs[i] = NULL;
 		}
 	}
-	
+
 	int max_len = 0;
 	for (int i = 0; i< numberOfWorkers; i++)
 	{
@@ -799,7 +799,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 	int *lens = new int[max_len];
 	for (int i = 0; i < max_len; i++)
 		lens[i] = 1;
-	
+
 	MPI::Datatype *n = new MPI::Datatype[numberOfWorkers];
 	MPI::Datatype *t = new MPI::Datatype[numberOfWorkers];
 	vector<int> displ;
@@ -817,15 +817,15 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 
 			n[i] = MPI_ELNODE_NUMBERED.Create_indexed(numberOfNodes[rank][i], lens, &displ[0]);
 			n[i].Commit();
-			
+
 			displ.clear();
 			for( itr = sendTetrsMap[i].begin(); itr != sendTetrsMap[i].end(); ++itr )
 				displ.push_back(itr->second);
 			sort( displ.begin(), displ.end() );
-			
+
 			t[i] = MPI_TETR_NUMBERED.Create_indexed(numberOfTetrs[rank][i], lens, &displ[0]);
 			t[i].Commit();
-			
+
 			reqs.push_back(
 				MPI::COMM_WORLD.Isend(
 					&(myMesh->nodes[0]),
@@ -846,7 +846,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 			);
 		}
 	}
-	
+
 	// FIXME - we suppose here that one process will send nodes for one mesh only (!)
 	TetrMeshSecondOrder* targetMesh = NULL;
 	MPI::Request::Waitall(reqs.size(), &reqs[0]);
@@ -857,7 +857,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 		if( i != rank && numberOfNodes[i][rank] > 0 )
 		{
 			LOG_DEBUG("Processing nodes");
-			LOG_DEBUG("Worker " << rank << " data from " << i << ". " 
+			LOG_DEBUG("Worker " << rank << " data from " << i << ". "
 						<< "Nodes size " << numberOfNodes[i][rank] << " "
 						<< "Tetrs size " << numberOfTetrs[i][rank]);
 			for( int j = 0; j < numberOfNodes[i][rank]; j++ )
@@ -872,7 +872,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
 				}
 				if( ! targetMesh->hasNode(num) )
 				{
-					recNodes[i][j].setPlacement(Remote);
+					recNodes[i][j].setPlacement(false);
 					targetMesh->addNode(recNodes[i][j]);
 				}
 			}

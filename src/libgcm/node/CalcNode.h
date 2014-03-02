@@ -2,478 +2,556 @@
 #define CALC_NODE_H_
 
 #include <vector>
-#include <assert.h>
+#include <cassert>
 #include <iostream>
-#include <string.h>
+#include <string>
 
 #include "node/Node.h"
+#include "util/Types.h"
 #include "Engine.h"
 
 #define GCM_VALUES_SIZE 9
-
-#define PLACEMENT_TYPE_MASK 2
-enum PlacementType
-{
-	Local = 2,
-	Remote = 0
-};
-
-#define IS_USED_MASK 4
-
-#define IS_BORDER_MASK 8
-
-#define CONTACT_TYPE_MASK 1
-enum ContactType
-{
-	Free = 0,
-	InContact = 1
-};
-
-#define ENGINE_OWNERSHIP_MASK 48
-enum EngineOwner
-{
-	NONE = 0,
-	GCM = 16,
-	SPH = 32
-};
-
-#define NODE_ORDER_MASK 64
-enum NodeOrder
-{
-	FirstOrder = 0,
-	SecondOrder = 64
-};
-
-#define MAIN_STRESS_STATUS_MASK 128
-
-// Error flags
-#define X_NEIGH_ERROR_MASK 1
-#define Y_NEIGH_ERROR_MASK 2
-#define Z_NEIGH_ERROR_MASK 4
-#define OUTER_NORMAL_ERROR_MASK 8
-
 using namespace std;
 using namespace gcm;
 
 namespace gcm {
-	/*
-	 * Base class for all nodes used in calculations
-	 */
-	class CalcNode: public Node {
-		
-		friend class DataBus;
-		friend class VtuTetrFileReader;
-		friend class Vtu2TetrFileReader;
-		
-		public:
-			
-			CalcNode();
-			CalcNode(int _num);
-			CalcNode(int _num, float _x, float _y, float _z);
-			CalcNode(const CalcNode& src);
-			~CalcNode();
-			
-			CalcNode &operator=(const CalcNode &src);
-			
-			void clearState();
-			void clearErrorFlags();
-			void clearMainStresses();
-			
-			union
-			{
-				float values[GCM_VALUES_SIZE];
-				struct
-				{
-					union {
-						/*
-						* Velocity vector components.
-						*/
-						float velocity[3];						
-						struct {
-							float vx;
-							float vy;
-							float vz;
-						};
-					};
-					union {
-						/*
-						 * Stress tensor components.
-						*/
-						float stress[6];
-						struct {
-							float sxx;
-							float sxy;
-							float sxz;
-							float syy;
-							float syz;
-							float szz;
-						};
-					};
-				};
-			};
-			
-			float getCompression();
-			float getTension();
-			float getShear();
-			float getDeviator();
-			float getPressure();
-			// Tensor invariants
-			float getJ1();
-			float getJ2();
-			float getJ3();
-			// Main stress componenets
-			void getMainStressComponents(float& s1, float& s2, float& s3);
-			void calcMainStressComponents();
 
-			inline bool rheologyIsValid() {
-				return ( materialId >= 0 && rho > 0 );
-			}
-			void calcMainStressDirectionByComponent(float stress, float* vector);
-			
-			int contactNodeNum;
-			unsigned char contactDirection;
-			unsigned char bodyId;
-			
-			bool inline isInContact ()
-			{
-				return InContact == (publicFlags & CONTACT_TYPE_MASK);
-			}
+    /**
+     * Calculation node implementaion. Contains all necessary information
+     * about node used in computations.
+     */
+    class CalcNode : public Node {
+        friend class DataBus;
+        friend class VtuTetrFileReader;
+        friend class Vtu2TetrFileReader;
+        friend class VTKSnapshotWriter;
+        friend class VTK2SnapshotWriter;
+        friend class VTKCubicSnapshotWriter;
+        friend class VTKMarkeredMeshSnapshotWriter;
+        friend class Mesh;
 
-			void inline setContactType (ContactType type)
-			{
-				publicFlags &= (~CONTACT_TYPE_MASK);
-				publicFlags |= (CONTACT_TYPE_MASK & type);
+    protected:
+        //  public flags container type
 
-				assert (InContact == type ? isInContact () : !isInContact ());
-			}
+        typedef union {
+            uchar flags;
 
-			/**
-			 *
-			 * @return <code>true</code> if this Node is used and its placement is Local
-			 */
-			bool inline isLocal ()
-			{
-				return isUsed () && Local == (privateFlags & PLACEMENT_TYPE_MASK);
-			}
+            struct {
+                uchar contact : 1;
+                uchar order : 1;
+                uchar flag1 : 1;
+                uchar flag2 : 1;
+                uchar flag3 : 1;
+                uchar flag4 : 1;
+                uchar flag5 : 1;
+                uchar flag6 : 1;
+            };
+        } PublicFlags;
 
-			/**
-			 *
-			 * @return <code>true</code> if this Node is used and its placement is Remote
-			 */
-			bool inline isRemote ()
-			{
-				return isUsed () && Remote == (privateFlags & PLACEMENT_TYPE_MASK);
-			}
+        // private flags container
 
-			/**
-			 * Set node placement to specified value and also marks node as used
-			 * @param placement new node placement
-			 */
-			void inline setPlacement (PlacementType placement)
-			{
-				setUsed (true);
+        typedef union {
+            uchar flags;
 
-				privateFlags &= (~PLACEMENT_TYPE_MASK);
-				privateFlags |= (PLACEMENT_TYPE_MASK & placement);
+            struct {
+                uchar local : 1;
+                uchar used : 1;
+                uchar border : 1;
+                mutable uchar mainStressCalculated : 1;
+            };
+        } PrivateFlags;
 
-				assert (Local == placement ? isLocal () : isRemote ());
-			}
+        // error flags container type
 
-			bool inline isUsed ()
-			{
-				return 0 != (publicFlags & IS_USED_MASK);
-			}
+        typedef union {
+            uchar flags;
 
-			void inline setUsed (bool used)
-			{
-				if (used) publicFlags |= IS_USED_MASK;
-				else publicFlags &= (~IS_USED_MASK);
+            struct {
+                uchar xNeigh : 1;
+                uchar yNeigh : 1;
+                uchar zNeigh : 1;
+                uchar outerNormal : 1;
+            };
+        } ErrorFlags;
 
-				assert (used ? isUsed () : !isUsed ());
-			}
+        // Node public flags. These flags are to synchrinized using MPI.
+        PublicFlags publicFlags;
+        // Node private flags. Intended to be for internal use only.
+        PrivateFlags privateFlags;
+        // Node flags to indicate different issues with this node during calculations
+        ErrorFlags errorFlags;
 
-			bool inline isFirstOrder ()
-			{
-				return 0 == (publicFlags & NODE_ORDER_MASK);
-			}
+        // border and contac conditions
+        // FIXME should these fields be protected?
+        uchar borderConditionId;
+        uchar contactConditionId;
+        // main stress components
+        mutable gcm_real mainStresses[3];
 
-			bool inline isSecondOrder ()
-			{
-				return 0 != (publicFlags & NODE_ORDER_MASK);
-			}
+        // current material density
+        gcm_real rho;
+        // node material id
+        uchar materialId;
 
-			void inline setOrder (NodeOrder order)
-			{
-				publicFlags &= (~NODE_ORDER_MASK);
-				publicFlags |= (NODE_ORDER_MASK & order);
+        // crack direction
+        // TODO  document it
+        gcm_real crackDirection[3];
 
-				assert (FirstOrder == order ? isFirstOrder () : isSecondOrder ());
-			}
+        // calculates main stress components
+        void calcMainStressComponents() const;
 
-			void inline setIsBorder (bool border)
-			{
-				if (border) privateFlags |= IS_BORDER_MASK;
-				else privateFlags &= (~IS_BORDER_MASK);
+        // returns private flags
+        uchar getPrivateFlags() const;
+        // sets private flags
+        void setPrivateFlags(uchar flags);
+        // returns public flags
+        uchar getPublicFlags() const;
+        // sets public flags
+        void setPublicFlags(uchar flags);
+        // returns error flags
+        uchar getErrorFlags() const;
+        // sets error flags
+        void setErrorFlags(uchar flags);
+    public:
+        /**
+         * Number of pair node in contact. FIXME
+         */
+        int contactNodeNum;
+        /**
+         * Contact direction. FIXME
+         */
+        uchar contactDirection;
+        /**
+         * Identifier of the body this node belongs to.
+         */
+        uchar bodyId;
 
-				assert (border ? isBorder () : !isBorder ());
-			}
+        union {
+            gcm_real values[GCM_VALUES_SIZE];
 
-			bool inline isBorder ()
-			{
-				return 0 != (privateFlags & IS_BORDER_MASK);
-			}
-			
-			void inline setMainStressCalculated (bool isCalculated)
-			{
-				if (isCalculated) privateFlags |= MAIN_STRESS_STATUS_MASK;
-				else privateFlags &= (~MAIN_STRESS_STATUS_MASK);
+            struct {
 
-				assert (isCalculated ? isMainStressCalculated () : !isMainStressCalculated ());
-			}
-			
-			bool inline isMainStressCalculated ()
-			{
-				return 0 != (privateFlags & MAIN_STRESS_STATUS_MASK);
-			}
-			
-			bool inline isInner ()
-			{
-				return !isBorder ();
-			}
+                union {
+                    gcm_real velocity[3];
 
-			bool inline isOwnedBy (EngineOwner owner)
-			{
-				assert (0 != (publicFlags & ENGINE_OWNERSHIP_MASK));//Node should be owned at least by someone
-				return 0 != (publicFlags & ENGINE_OWNERSHIP_MASK & owner);
-			}
+                    struct {
+                        /**
+                         * Velocity vector x component.
+                         */
+                        gcm_real vx;
+                        /**
+                         * Velocity vector y component.
+                         */
+                        gcm_real vy;
+                        /**
+                         * Velocity vector z component.
+                         */
+                        gcm_real vz;
+                    };
+                };
 
-			void inline addOwner (EngineOwner owner)
-			{
-				publicFlags |= (ENGINE_OWNERSHIP_MASK & owner);
-			}
-			
-			void inline setXNeighError ()
-			{
-				errorFlags |= X_NEIGH_ERROR_MASK;
-			}
-			
-			void inline setYNeighError ()
-			{
-				errorFlags |= Y_NEIGH_ERROR_MASK;
-			}
-			
-			void inline setZNeighError ()
-			{
-				errorFlags |= Z_NEIGH_ERROR_MASK;
-			}
-		
-			void inline setNormalError ()
-			{
-				errorFlags |= OUTER_NORMAL_ERROR_MASK;
-			}
-	
-			void inline setNeighError (unsigned int axisNum)
-			{
-				assert ( axisNum < 3 );
-				if( axisNum == 0 )
-					setXNeighError();
-				else if( axisNum == 1 )
-					setYNeighError();
-				else if( axisNum == 2 )
-					setZNeighError();
-			}
+                union {
+                    gcm_real stress[6];
 
-			/**
-			* This method is only to be used to dump mesh state into a file or any other output stream
-			* @return
-			*/
-		   unsigned int inline getPublicFlags ()
-		   {
-			   return publicFlags;
-		   }
+                    struct {
+                        /**
+                         * Stress tensor xx component.
+                         */
+                        gcm_real sxx;
+                        /**
+                         * Stress tensor xy component.
+                         */
+                        gcm_real sxy;
+                        /**
+                         * Stress tensor xz component.
+                         */
+                        gcm_real sxz;
+                        /**
+                         * Stress tensor yy component.
+                         */
+                        gcm_real syy;
+                        /**
+                         * Stress tensor yz component.
+                         */
+                        gcm_real syz;
+                        /**
+                         * Stress tensor zz component.
+                         */
+                        gcm_real szz;
+                    };
+                };
+            };
+        };
+        /**
+         * Default constructor. Constructs node with default parameters.
+         */
+        CalcNode();
+        /**
+         * Constructor. Creates node with specified number assigned.
+         *
+         * @param num Number of the node
+         */
+        CalcNode(int num);
+        /**
+         * Constructor. Creates node with specified number assigned and set
+         * coordinates.
+         *
+         * @param num Number of the node
+         * @param x X coordinate of the node
+         * @param y Y coordinate of the node
+         * @param z Z coordinate of the node
+         */
+        CalcNode(int num, gcm_real x, gcm_real y, gcm_real z);
+        /**
+         * Constructor. Constructs copy of the passed object.
+         *
+         * @param src Calc node to make copy of.
+         */
+        CalcNode(const CalcNode& src);
+        /**
+         * Destructor.
+         */
+        ~CalcNode();
 
-		   void inline setBorderConditionId (unsigned char newBorderCondId)
-		   {
-			   borderCondId = newBorderCondId;
-		   }
-		   
-		   unsigned char inline getBorderConditionId ()
-		   {
-			   return borderCondId;
-		   }
-			
-		   void inline setContactConditionId(unsigned char newContactConditionId)
-		   {
-			   contactCondId = newContactConditionId;
-		   }
+        /**
+         * Assignment operator. Allows creation of calc node copy using
+         * assignment statement.
+         *
+         * @param src Calc node to be copied.
+         */
+        CalcNode &operator=(const CalcNode &src);
 
-		   unsigned char inline getContactConditionId ()
-		   {
-		  	   return contactCondId;
-		   }
-		   
-		   void inline setMaterialId (unsigned char id)
-		   {
-			   materialId = id;
-		   }
-		   
-		   void inline initRheology()
-		   {
-			   if( rho == 0 )
-			   {
-				   rho = Engine::getInstance().getMaterial(materialId)->getRho();
-			   }
-		   }
-		   
-		   unsigned char inline getMaterialId ()
-		   {
-			   return materialId;
-		   }
-		   
-		   void inline setRho (float _rho)
-		   {
-			   rho = _rho;
-		   }
-		   
-		   float inline getRho () const
-		   {
-			   return rho;
-		   }
-		   
-		   float inline getRho0 () const
-		   {
-			   return Engine::getInstance().getMaterial(materialId)->getRho();
-		   }
-		   
-		   float inline getLambda()
-		   {
-			   return Engine::getInstance().getMaterial(materialId)->getLambda();
-		   }
-		   
-		   float inline getMu()
-		   {
-			   return Engine::getInstance().getMaterial(materialId)->getMu();
-		   }
-		
-		   float inline getCrackThreshold()
-                   {
-                           return Engine::getInstance().getMaterial(materialId)->getCrackThreshold();
-                   }
+        /**
+         * Clears flags state. Drops main stresses and error flags.
+         */
+        void clearState();
+        /**
+         * Clears error flags.
+         */
+        void clearErrorFlags();
+        /**
+         * Clears main stresses flag.
+         */
+        void clearMainStresses();
 
-		   float inline getAdhesionThreshold()
-                   {
-                           return Engine::getInstance().getMaterial(materialId)->getAdhesionThreshold();
-                   }
-		   
-		   float inline getC1()
-		   {
-			   return sqrt( (getLambda() + 2 * getMu()) / getRho() );
-		   }
-		   
-		   float inline getC2()
-		   {
-			   return sqrt( getMu() / getRho() );
-		   }
-		   
-		   float inline getC1sqr()
-		   {
-			   return (getLambda() + 2 * getMu()) / getRho();
-		   }
-		   
-		   float inline getC2sqr()
-		   {
-			   return getMu() / getRho();
-		   }
-		   
-   		   /**
-			* This method is only to be used to dump mesh state into a file or any other output stream
-			* @return
-			*/
-		   unsigned int inline getPrivateFlags ()
-		   {
-			   return privateFlags;
-		   }
-		   
-		   unsigned int inline getErrorFlags ()
-		   {
-			   return errorFlags;
-		   }
-		   
-		   float* getCrackDirection () 
-		   {
-			   return crackDirection;
-		   }
-		
-		   void createCrack(int direction);
-		   void createCrack(float* vector);
-	           void cleanStressByDirection(float* dir);
-	protected:
+        /**
+         * Returns compression.
+         * 
+         * @return Compression value.
+         */
+        gcm_real getCompression() const;
+        /**
+         * Returns compression.
+         * 
+         * @return Compression value.
+         */
+        gcm_real getTension() const;
+        /**
+         * Returns shear.
+         * 
+         * @return Shear value.
+         */
+        gcm_real getShear() const;
+        /**
+         * Returns deviator.
+         * 
+         * @return Deviator value.
+         */
+        gcm_real getDeviator() const;
+        /**
+         * Returns pressure.
+         * 
+         * @return Pressure value.
+         */
+        gcm_real getPressure() const;
 
-		   /**
-			* This method is only supposed to be used to read mesh state from a file or any other input stream
-			* @param flags
-			*/
-		   void inline setPublicFlags (unsigned int flags)
-		   {
-			   publicFlags = flags;
-		   }
+        /**
+         * Returns tensor J1 invariant. TODO document
+         * 
+         * @return J1 value.
+         */
+        gcm_real getJ1() const;
+        /**
+         * Returns tensor J2 invariant. TODO document
+         * 
+         * @return J2 value.
+         */
+        gcm_real getJ2() const;
+        /**
+         * Returns tensor J3 invariant. TODO document
+         * 
+         * @return J3 value.
+         */
+        gcm_real getJ3() const;
+        /**
+         * Returns main stress components. TODO document
+         * 
+         * @param s1 Variable to put first main stress component in.
+         * @param s2 Variable to put second main stress component in.
+         * @param s3 Variable to put third main stress component in.
+         */
+        void getMainStressComponents(gcm_real& s1, gcm_real& s2, gcm_real& s3) const;
+        /**
+         * TODO document.
+         *
+         * @param stress TODO document
+         * @param vector TODO document
+         */
+        void calcMainStressDirectionByComponent(gcm_real stress, vector3& vector) const;
 
-		   /**
-			* This method is only supposed to be used to read mesh state from a file or any other input stream
-			* @param flags
-			*/
-		   void inline setPrivateFlags (unsigned int flags)
-		   {
-			   privateFlags = flags;
-		   }
+        /**
+         * Checks if rheology is valid. TODO document
+         * 
+         * @return True in case rheology is valid and false otherwise.
+         */
+        bool rheologyIsValid() const;
 
-		   /**
-			* Node flags transmitted and synchronized over MPI.
-			*/
-		   unsigned int publicFlags;
-		   /**
-			* Node flags specific for current processor, neither transmitted nor synchronized over MPI.
-			*/
-		   unsigned int privateFlags;
-		   /*
-			* Flags to indicate different issues with this node during calculations
-			*/
-		   unsigned int errorFlags;
-		   /**
-			* Border condition that is used for this node. Condition should be registered in Engine.
-			*/
-		   unsigned char borderCondId;
-		   unsigned char contactCondId;
-			
-		   
-		   /*
-		    * Rheology parameters.
-		    */
-		   float rho;
-		   unsigned char materialId;
-		   /*
-			* Main stress components
-			*/
-		   float mainStresses[3];
-		public:    float crackDirection[3];
-	};
+        /**
+         * Indicates whether node is in contact or not.
+         *
+         * @return True in case of contact and false otherwise.
+         */
+        bool isInContact() const;
+        /**
+         * Sets new contact state of the node
+         *
+         * @param value Contact state.
+         */
+        void setInContact(bool value);
+
+        /**
+         * Indicates whether node is local or not.
+         * 
+         * @return True in case of local node and false otherwise.
+         */
+        bool isLocal() const;
+        /**
+         * Indicates whether node is remote or not.
+         * 
+         * @return True in case of remote node and false otherwise.
+         */
+        bool isRemote() const;
+        /**
+         * Sets node placement to specified value and also marks node as used
+         * 
+         * @param Flag that indicates whether node is local or not
+         */
+        void setPlacement(bool local);
+
+        /**
+         * Indicates whether node is used or not.
+         * 
+         * @return True in case of used node and false otherwise.
+         */
+        bool isUsed() const;
+        /**
+         * Sets node used flag.
+         *
+         * @param value Used flag value
+         */
+        void setUsed(bool value);
+
+        /**
+         * Indicates whether node is first order or not.
+         * 
+         * @return True in case of first order node and false otherwise.
+         */
+        bool isFirstOrder() const;
+        /**
+         * Indicates whether node is second order or not.
+         * 
+         * @return True in case of second order node and false otherwise.
+         */
+        bool isSecondOrder() const;
+        /**
+         * Sets node order flag.
+         * 
+         * @param order Node order
+         */
+        void setOrder(uchar order);
+
+        /**
+         * Returns whether node is border or not.
+         * 
+         * @return True in case of border node and false otherwise.
+         */
+        bool isBorder() const;
+        /**
+         * Returns whether node is inner or not.
+         * 
+         * @return True in case of inner node and false otherwise.
+         */
+        bool isInner() const;
+        /**
+         * Sets node border flag.
+         * 
+         * @param value  Border flag value.
+         */
+        void setIsBorder(bool value);
+
+        /**
+         * Sets node xneigh error flag. TODO document
+         */
+        void setXNeighError();
+        /**
+         * Sets node yneigh error flag. TODO document
+         */
+        void setYNeighError();
+        /**
+         * Sets node zneigh error flag. TODO document
+         */
+        void setZNeighError();
+        /**
+         * Sets node outer normal error flag. TODO document
+         */
+        void setNormalError();
+        /**
+         * Sets node neigh error flag depending on specified axis. TODO document
+         * 
+         * @param axisName Number of axis to set error flag for.
+         */
+        void setNeighError(unsigned int axisNum);
+
+        /**
+         * Sets border condition id. TODO document
+         *
+         * @param  newBorderConditionId Id of the new border condition.
+         */
+        void setBorderConditionId(uchar newBorderConditionId);
+        /**
+         * Returns id of the node border condition. TODO document
+         * 
+         * @return Id of the border condition.
+         */
+        uchar getBorderConditionId() const;
+
+        /**
+         * Sets contact condition id. TODO document
+         *
+         * @param  newContactConditionId Id of the new contact condition.
+         */
+        void setContactConditionId(uchar newContactConditionId);
+        /**
+         * Returns id of the node contact condition. TODO document
+         * 
+         * @return Id of the contact condition.
+         */
+        uchar getContactConditionId() const;
+        /**
+         * Sets node material id. 
+         *
+         * @param id Material id
+         * @param update Update node material properties (currently rho only).
+         */
+        void setMaterialId(uchar id);
+        /**
+         * Returns node material id. Sets material id and updates values for
+         * node material-related fields (e.g. rho)
+         * 
+         * @return Material id.
+         */
+        uchar getMaterialId() const;
+
+        /**
+         * Sets density value for node.
+         *
+         * @param rho Density value
+         */
+        void setRho(gcm_real rho);
+        /**
+         * Returns density value for node.
+         * @return Density value.
+         */
+        gcm_real getRho() const;
+        /**
+         * Returns density value for the material. Returns node-independent
+         * density value (material-specific).
+         * 
+         * @return Density value.
+         */
+        gcm_real getRho0() const;
+        
+        /**
+         * Returns lambda (Lame parameter).
+         * 
+         * @return Lambda value
+         */
+        gcm_real getLambda() const;
+        /**
+         * Returns mu (Lame parameter).
+         * 
+         * @return Mu value
+         */
+        gcm_real getMu() const;
+        
+        /**
+         * Returns c1 value. TODO document
+         * 
+         * @return TODO document
+         */
+        gcm_real getC1() const;
+        /**
+         * Returns c2 value. TODO document
+         * 
+         * @return TODO document
+         */
+        gcm_real getC2() const;
+        /**
+         * Returns c1^2 value. TODO document
+         * 
+         * @return TODO document
+         */
+        gcm_real getC1sqr() const;
+        /**
+         * Returns c2^2 value. TODO document
+         * 
+         * @return TODO document
+         */
+        gcm_real getC2sqr() const;
+
+        /**
+         * Returns crack direction. TODO document
+         * 
+         * @return Crack direction.
+         */
+        const vector3& getCrackDirection() const;
+        /**
+         * Creates crack in specified direction. TODO document
+         *
+         * @param direction Crack direction.
+         */
+        void createCrack(int direction);
+        /**
+         * Creates crack in specified direction. TODO document
+         *
+         * @param direction Crack direction.
+         */
+        void createCrack(const vector3& crack);
+        /**
+         * TODO document
+         *
+         * @param TODO document
+         */
+        void cleanStressByDirection(const vector3& direction);
+    };
 }
 
 namespace std {
-	inline std::ostream& operator<< (std::ostream &os, const gcm::CalcNode &node) {
-		os << "\n\tCalcNode number: " << node.number << "\n";
-		os << "\tCoords:";
-		for( int i = 0; i < 3; i++ )
-			os << " " << node.coords[i];
-		os << "\n\tVelocity:";
-		for( int i = 0; i < 3; i++ )
-			os << " " << node.values[i];
-		os << "\n\tStress:";
-		for( int i = 3; i < GCM_VALUES_SIZE; i++ )
-			os << " " << node.values[i];
-		os << "\n\tRho: " << node.getRho();
-		return os;
-	}
+
+    inline std::ostream& operator<<(std::ostream &os, const gcm::CalcNode &node) {
+        os << "\n\tCalcNode number: " << node.number << "\n";
+        os << "\tCoords:";
+        for (int i = 0; i < 3; i++)
+            os << " " << node.coords[i];
+        os << "\n\tVelocity:";
+        for (int i = 0; i < 3; i++)
+            os << " " << node.values[i];
+        os << "\n\tStress:";
+        for (int i = 3; i < GCM_VALUES_SIZE; i++)
+            os << " " << node.values[i];
+        os << "\n\tRho: " << node.getRho();
+        return os;
+    }
 }
 
 #endif

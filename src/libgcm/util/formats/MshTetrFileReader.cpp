@@ -12,7 +12,7 @@ gcm::MshTetrFileReader::MshTetrFileReader()
 
 gcm::MshTetrFileReader::~MshTetrFileReader()
 {
-	
+
 }
 
 void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes)
@@ -23,12 +23,12 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 	scene->maxX = - numeric_limits<float>::infinity();
 	scene->maxY = - numeric_limits<float>::infinity();
 	scene->maxZ = - numeric_limits<float>::infinity();
-	
+
 	string str;
 	int tmp_int;
 	float tmp_float;
 	int number_of_nodes;
-	
+
 	ifstream infile;
 	infile.open(file.c_str(), ifstream::in);
 	if(!infile.is_open())
@@ -58,19 +58,19 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 	for(int i = 0; i < number_of_nodes; i++)
 	{
 		infile >> tmp_int;
-		
+
 		infile >> tmp_float;
 		if( tmp_float < scene->minX )
 			scene->minX = tmp_float;
 		if( tmp_float > scene->maxX )
 			scene->maxX = tmp_float;
-		
+
 		infile >> tmp_float;
 		if( tmp_float < scene->minY )
 			scene->minY = tmp_float;
 		if( tmp_float > scene->maxY )
 			scene->maxY = tmp_float;
-		
+
 		infile >> tmp_float;
 		if( tmp_float < scene->minZ )
 			scene->minZ = tmp_float;
@@ -84,9 +84,9 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 		THROW_INVALID_INPUT("Wrong file format");
 
 	LOG_DEBUG("Nodes Ok");
-	
+
 	infile.close();
-	
+
 	// FIXME - rewrite it
 	LOG_DEBUG("Determine slicing direction");
 	infile.open(file.c_str(), ifstream::in);
@@ -113,7 +113,7 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 		minSlice = sliceY;
 	if( minSlice > sliceZ )
 		minSlice = sliceZ;
-	
+
 	for(int i = 0; i < number_of_nodes; i++)
 	{
 		infile >> tmp_int;
@@ -127,7 +127,7 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 		distrY[yZoneNum]++;
 		distrZ[zZoneNum]++;
 	}
-	
+
 	int minDistrX = distrX[0];
 	int maxDistrX = distrX[0];
 	int minDistrY = distrY[0];
@@ -140,12 +140,12 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 			maxDistrX = distrX[i];
 		if( distrX[i] < minDistrX )
 			minDistrX = distrX[i];
-		
+
 		if( distrY[i] > maxDistrY )
 			maxDistrY = distrY[i];
 		if( distrY[i] < minDistrY )
 			minDistrY = distrY[i];
-		
+
 		if( distrZ[i] > maxDistrZ )
 			maxDistrZ = distrZ[i];
 		if( distrZ[i] < minDistrZ )
@@ -154,9 +154,9 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 	float qualityX = (float)minDistrX / (float)maxDistrX;
 	float qualityY = (float)minDistrY / (float)maxDistrY;
 	float qualityZ = (float)minDistrZ / (float)maxDistrZ;
-	
+
 	LOG_DEBUG("File successfylly pre-read.");
-	
+
 	float qx = qualityX * sliceX / minSlice;
 	float qy = qualityY * sliceY / minSlice;
 	float qz = qualityZ * sliceZ / minSlice;
@@ -172,11 +172,11 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 			dir = 1;
 		else
 			dir = 2;
-	
+
 	LOG_DEBUG("qualityX: " << qualityX << " qualityY: " << qualityY << " qualityZ: " << qualityZ);
 	LOG_DEBUG("sliceX: " << sliceX / minSlice << " sliceY: " << sliceY / minSlice << " sliceZ: " << sliceZ / minSlice );
 	LOG_DEBUG("slice direction: " << dir);
-	
+
 	sliceDirection = dir;
 	numberOfNodes = number_of_nodes;
 }
@@ -192,7 +192,7 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 	float tmp_float;
 	int number_of_nodes;
 	int number_of_elements;
-	
+
 	ifstream infile;
 	infile.open(file.c_str(), ifstream::in);
 	if(!infile.is_open())
@@ -220,7 +220,7 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 	infile >> number_of_nodes;
 	LOG_DEBUG("File contains " << number_of_nodes << " nodes");
 	vector<CalcNode*>* nodes = new vector<CalcNode*>;
-	
+
 	for(int i = 0; i < number_of_nodes; i++)
 	{
 		infile >> tmp_int;
@@ -235,7 +235,7 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 				node->coords[0] = coords[0];
 				node->coords[1] = coords[1];
 				node->coords[2] = coords[2];
-				node->setPlacement(Local);
+				node->setPlacement(true);
 				nodes->push_back( node );
 			}
 		}
@@ -244,11 +244,11 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 			THROW_INVALID_INPUT("Wrong file format");
 		}
 	}
-	
+
 	LOG_DEBUG("Finished reading nodes");
 	LOG_DEBUG("There are " << nodes->size() << " local nodes");
 
-	
+
 	mesh->createNodes( nodes->size() );
 	for(unsigned int i = 0; i < nodes->size(); i++)
 	{
@@ -256,7 +256,7 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 	}
 	nodes->clear();
 	delete nodes;
-	
+
 	infile >> str;
 	if(strcmp(str.c_str(),"$EndNodes") != 0)
 		THROW_INVALID_INPUT("Wrong file format");
@@ -269,9 +269,9 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 
 	infile >> number_of_elements;
 	LOG_DEBUG("File contains " << number_of_elements << " elements");
-	
+
 	vector<TetrFirstOrder*>* tetrs = new vector<TetrFirstOrder*>;
-	
+
 	for(int i = 0; i < number_of_elements; i++)
 	{
 		int number;
@@ -284,10 +284,10 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 			//number = tetrs->size();
 			int vert[4];
 			if( fileVer == 22 ) {
-				infile >> tmp_int >> tmp_int >> tmp_int 
+				infile >> tmp_int >> tmp_int >> tmp_int
 					>> vert[0] >> vert[1] >> vert[2] >> vert[3];
 			} else {
-				infile >> tmp_int >> tmp_int >> tmp_int >> tmp_int 
+				infile >> tmp_int >> tmp_int >> tmp_int >> tmp_int
 					>> vert[0] >> vert[1] >> vert[2] >> vert[3];
 			}
 
@@ -303,10 +303,10 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 				tetrs->push_back( new TetrFirstOrder( number, vert ) );
 		}
 	}
-	
+
 	LOG_DEBUG("File contains " << tetrsCount << " tetrs");
 	LOG_DEBUG("There are " << tetrs->size() << " local tetrs");
-	
+
 	map<int,int> remoteNodes;
 	mesh->createTetrs( tetrs->size() );
 	for(unsigned int i = 0; i < tetrs->size(); i++)
@@ -319,7 +319,7 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 	}
 	tetrs->clear();
 	delete tetrs;
-	
+
 	LOG_DEBUG("Finished reading elements");
 
 	LOG_DEBUG("Elements Ok");
@@ -327,13 +327,13 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 	infile >> str;
 	if(strcmp(str.c_str(),"$EndElements") != 0)
 		THROW_INVALID_INPUT("Wrong file format");
-	
+
 	infile.close();
-	
+
 	LOG_DEBUG("Reading required remote nodes");
 	LOG_DEBUG("We expect " << remoteNodes.size() << " nodes" );
 	int remoteNodesCount = 0;
-	
+
 	infile.open(file.c_str(), ifstream::in);
 	if(!infile.is_open())
 		THROW_INVALID_INPUT( "Can not open msh file" );
@@ -362,19 +362,19 @@ void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCM
 		tmpNode.number--;
 		if( remoteNodes.find( tmpNode.number ) != remoteNodes.end() )
 		{
-			tmpNode.setPlacement(Remote);
+			tmpNode.setPlacement(false);
 			mesh->addNode(tmpNode);
 			remoteNodesCount++;
 		}
 	}
-	
+
 	infile.close();
-	
+
 	LOG_DEBUG("Read " << remoteNodesCount << " remote nodes");
-	
+
 	LOG_DEBUG("Finished reading nodes");
 
 	LOG_DEBUG("File successfylly read.");
-	
+
 	LOG_DEBUG("There are " << mesh->getNodesNumber() << " nodes is the mesh");
 }

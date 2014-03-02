@@ -35,10 +35,10 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 			TetrMeshSecondOrder* mesh2 = (TetrMeshSecondOrder*)e.getBody(j)->getMeshes();
 			AABB outl1 = mesh1->getExpandedOutline();
 			AABB outl2 = mesh2->getExpandedOutline();
-			
-			LOG_DEBUG("Local mesh #" << mesh1->getId() << " with outline " << outl1 
+
+			LOG_DEBUG("Local mesh #" << mesh1->getId() << " with outline " << outl1
 						<< " and local mesh #" << mesh2->getId() << " with outline " << outl2);
-			
+
 			if ( ( i != j ) && ( find_intersection(outl1, outl2, intersection) ) )
 			{
 				LOG_DEBUG( "Collision detected between local mesh zone #" << mesh1->getId()
@@ -64,9 +64,9 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 						// Check axis directions
 						for( int m = 0; m < 3; m++)
 						{
-							mesh1->findBorderNodeNormal(local_nodes[k].number, 
+							mesh1->findBorderNodeNormal(local_nodes[k].number,
 									&direction[0], &direction[1], &direction[2], false);
-							
+
 							if( direction[m] > 0 )
 								direction[m] = 1;
 							else
@@ -79,7 +79,7 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 							CalcNode& new_node = mesh2->getNode( local_faces[l].verts[0] );
 							new_node.contactNodeNum = j;
 
-							if( vectorIntersectsTriangle( 
+							if( vectorIntersectsTriangle(
 									(mesh2->getNode( local_faces[l].verts[0] )).coords,
 									(mesh2->getNode( local_faces[l].verts[1] )).coords,
 									(mesh2->getNode( local_faces[l].verts[2] )).coords,
@@ -92,7 +92,7 @@ void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_no
 								//vel[2] = local_getNode[k].values[2] - mesh2->getNode[ local_faces[l].vert[0] ].values[2];
 								//if( vel[0] * direction[0] + vel[1] * direction[1] + vel[2] * direction[2] > 0 )
 								{
-									(mesh1->getNode( local_nodes[k].number )).setContactType (InContact);
+									(mesh1->getNode( local_nodes[k].number )).setInContact(true);
 									(mesh1->getNode( local_nodes[k].number )).contactNodeNum = virt_nodes.size();
 									(mesh1->getNode( local_nodes[k].number )).contactDirection = m;
 

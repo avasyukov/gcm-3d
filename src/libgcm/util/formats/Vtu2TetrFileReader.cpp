@@ -11,7 +11,7 @@ gcm::Vtu2TetrFileReader::Vtu2TetrFileReader()
 
 gcm::Vtu2TetrFileReader::~Vtu2TetrFileReader()
 {
-	
+
 }
 
 void gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes)
@@ -32,7 +32,7 @@ void gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene, int& sliceDi
 	g = xgr->GetOutput();
 	LOG_DEBUG("Number of points: " << g->GetNumberOfPoints());
 	LOG_DEBUG("Number of cells: " << g->GetNumberOfCells());
-	
+
 	for( int i = 0; i < g->GetNumberOfPoints(); i++ )
 	{
 		double* dp = g->GetPoint(i);
@@ -41,18 +41,18 @@ void gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene, int& sliceDi
 			scene->minX = dp[0];
 		if( dp[0] > scene->maxX )
 			scene->maxX = dp[0];
-		
+
 		if( dp[1] < scene->minY )
 			scene->minY = dp[1];
 		if( dp[1] > scene->maxY )
 			scene->maxY = dp[1];
-		
+
 		if( dp[2] < scene->minZ )
 			scene->minZ = dp[2];
 		if( dp[2] > scene->maxZ )
 			scene->maxZ = dp[2];
 	}
-	
+
 	//xgr->Delete();
 	//g->Delete();
 	LOG_DEBUG("File successfylly pre-read.");
@@ -86,7 +86,7 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 	}
 	LOG_DEBUG("Number of points: " << g->GetNumberOfPoints());
 	LOG_DEBUG("Number of cells: " << g->GetNumberOfCells());
-	
+
 	double v[3];
 	vtkDoubleArray *vel = (vtkDoubleArray*) g->GetPointData()->GetArray("velocity");
 	vel->SetNumberOfComponents(3);
@@ -102,7 +102,7 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 	vtkIntArray *publicFlags = (vtkIntArray*) g->GetPointData ()->GetArray("publicFlags");
 	vtkIntArray *privateFlags = (vtkIntArray*) g->GetPointData ()->GetArray("privateFlags");
 	vtkIntArray *nodeBorderCalcId = (vtkIntArray*) g->GetPointData ()->GetArray("borderCalcId");
-	
+
 	vector<CalcNode*>* nodes = new vector<CalcNode*>;
 	for( int i = 0; i < g->GetNumberOfPoints(); i++ )
 	{
@@ -130,13 +130,13 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 			node->setPrivateFlags( privateFlags->GetValue(i) );
 			node->setBorderConditionId( nodeBorderCalcId->GetValue(i) );
 			if( !ignoreDispatcher )
-				node->setPlacement(Local);
+				node->setPlacement(true);
 			nodes->push_back( node );
 		}
 	}
 	LOG_DEBUG("Finished reading nodes");
 	LOG_DEBUG("There are " << nodes->size() << " local nodes");
-	
+
 	mesh->createNodes( nodes->size() );
 	for(unsigned int i = 0; i < nodes->size(); i++)
 	{
@@ -148,39 +148,39 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 	}
 	nodes->clear();
 	delete nodes;
-	
+
 	vtkIntArray* tetr2ndOrderNodes = (vtkIntArray*) g->GetCellData ()->GetArray ("tetr2ndOrderNodes");
 	assert (tetr2ndOrderNodes->GetNumberOfComponents () == 6);
 	vtkIntArray* tetr1stOrderNodes = (vtkIntArray*) g->GetCellData ()->GetArray ("tetr1stOrderNodes");
 	vtkIntArray* tetrNumber = (vtkIntArray*) g->GetCellData ()->GetArray ("tetrNumber");
 	assert (tetr1stOrderNodes->GetNumberOfComponents () == 4);
 	vector<TetrSecondOrder*>* tetrs = new vector<TetrSecondOrder*>;
-	
+
 	TetrSecondOrder new_tetr;
 	for( int i = 0; i < g->GetNumberOfCells(); i++ )
 	{
 		new_tetr.number = tetrNumber->GetValue(i);
 		tetr1stOrderNodes->GetTupleValue (i, new_tetr.verts);
 		tetr2ndOrderNodes->GetTupleValue (i, new_tetr.addVerts);
-		
+
 		/*vtkTetra *vt = (vtkTetra*) g->GetCell(i);
-		
+
 		int vert[4];
 		vert[0] = vt->GetPointId(0);
 		vert[1] = vt->GetPointId(1);
 		vert[2] = vt->GetPointId(2);
 		vert[3] = vt->GetPointId(3);*/
-		
-		if( mesh->hasNode(new_tetr.verts[0]) 
-					|| mesh->hasNode(new_tetr.verts[1]) 
-					|| mesh->hasNode(new_tetr.verts[2]) 
+
+		if( mesh->hasNode(new_tetr.verts[0])
+					|| mesh->hasNode(new_tetr.verts[1])
+					|| mesh->hasNode(new_tetr.verts[2])
 					|| mesh->hasNode(new_tetr.verts[3]) )
 				tetrs->push_back( new TetrSecondOrder( new_tetr.number, new_tetr.verts, new_tetr.addVerts ) );
 	}
-		
+
 	LOG_DEBUG("File contains " << g->GetNumberOfCells() << " tetrs");
 	LOG_DEBUG("There are " << tetrs->size() << " local tetrs");
-	
+
 	map<int,int> remoteNodes;
 	mesh->createTetrs( tetrs->size() );
 	for(unsigned int i = 0; i < tetrs->size(); i++)
@@ -200,9 +200,9 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 	}
 	tetrs->clear();
 	delete tetrs;
-	
+
 	LOG_DEBUG("Finished reading elements");
-	
+
 	LOG_DEBUG("Reading required remote nodes");
 	LOG_DEBUG("We expect " << remoteNodes.size() << " nodes" );
 	int remoteNodesCount = 0;
@@ -230,24 +230,24 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 			tmpNode.setMaterialId( matId->GetValue(i) );
 			tmpNode.setRho( rho->GetValue(i) );
 			tmpNode.setPublicFlags( publicFlags->GetValue(i) );
-			tmpNode.setPrivateFlags( privateFlags->GetValue(i) );			
+			tmpNode.setPrivateFlags( privateFlags->GetValue(i) );
 			tmpNode.setBorderConditionId( nodeBorderCalcId->GetValue(i) );
-			tmpNode.setPlacement(Remote);
+			tmpNode.setPlacement(false);
 			mesh->addNode(tmpNode);
 			remoteNodesCount++;
 		}
 	}
-	
+
 	LOG_DEBUG("Read " << remoteNodesCount << " remote nodes");
-	
+
 	LOG_DEBUG("Finished reading nodes");
 
 	LOG_DEBUG("File successfylly read.");
-	
+
 	LOG_DEBUG("There are " << mesh->getNodesNumber() << " nodes is the mesh");
-	
+
 	LOG_DEBUG("Checking tetrs and nodes");
-	
+
 	for( int i = 0; i < mesh->getTetrsNumber(); i++ )
 	{
 		TetrSecondOrder& tetr = mesh->getTetr2ByLocalIndex(i);
@@ -264,7 +264,7 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
 				THROW_BAD_MESH("Missed node");
 			}
 	}
-	
+
 	//xgr->Delete();
 	//g->Delete();
 }

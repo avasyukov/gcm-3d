@@ -111,10 +111,10 @@ void gcm::Mesh::initNewNodes()
 	{
 		CalcNode& node = getNodeByLocalIndex(i);
 		CalcNode& newNode = getNewNode( node.number );
-		memcpy( newNode.coords, node.coords, 3*sizeof(float) );
-		memcpy( newNode.values, node.values, GCM_VALUES_SIZE*sizeof(float) );
-		newNode.setRho( node.getRho() );
-		newNode.setMaterialId( node.getMaterialId() );
+		copy(node.coords, node.coords + 3, newNode.coords);
+                copy(node.values, node.values + GCM_VALUES_SIZE, newNode.values);
+		newNode.setRho(node.getRho());
+		newNode.setMaterialId(node.getMaterialId());
 		newNode.setContactConditionId(node.getContactConditionId());
 		newNode.createCrack(node.getCrackDirection());
 	}
@@ -188,7 +188,6 @@ void gcm::Mesh::setRheology(unsigned char matId) {
 	{
 		CalcNode& node = getNodeByLocalIndex(i);
 		node.setMaterialId( matId );
-		node.initRheology();
 	}
 }
 
@@ -199,7 +198,6 @@ void gcm::Mesh::setRheology(unsigned char matId, Area* area) {
 		if( area->isInArea(node) )
 		{
 			node.setMaterialId( matId );
-			node.initRheology();
 		}
 	}
 }
@@ -260,7 +258,7 @@ void gcm::Mesh::clearContactState()
 	{
 		CalcNode& node = getNodeByLocalIndex(i);
 		if( node.isLocal() )
-			node.setContactType(Free);
+                        node.setInContact(false);
 	}
 }
 
@@ -274,11 +272,12 @@ void gcm::Mesh::processCrackState()
 			float m_s[3];
 			node.getMainStressComponents(m_s[0], m_s[1], m_s[2]);
 			int i_ms=0; if (m_s[1]>m_s[i_ms]) i_ms=1; if (m_s[2]>m_s[i_ms]) i_ms = 2;
-			if (m_s[i_ms] > node.getCrackThreshold())
-			{
-				node.createCrack(i_ms);
-				LOG_TRACE("New crack detected at node " << node);
-			}
+                        // FIXME_ASAP revert
+			//if (m_s[i_ms] > node.getCrackThreshold())
+//			{
+//				node.createCrack(i_ms);
+//				LOG_TRACE("New crack detected at node " << node);
+//			}
 		}
 	}
 }
@@ -290,8 +289,9 @@ void gcm::Mesh::processCrackResponse()
 		CalcNode& node = getNodeByLocalIndex(i);
 		if( node.isLocal() )
 		{
-			float *m_s = node.getCrackDirection();
-			if (scalarProduct(m_s,m_s)>0.5)
+			const vector3& m_s = node.getCrackDirection();
+			// FIXME WA
+			if (scalarProduct(m_s[0], m_s[1], m_s[2], m_s[0], m_s[1], m_s[2])>0.5)
 			{
 				node.cleanStressByDirection(m_s);
 				LOG_TRACE("Existing crack found at node " << node);
@@ -302,6 +302,8 @@ void gcm::Mesh::processCrackResponse()
 
 void gcm::Mesh::processStressState()
 {
+	// FIXME  remove these obsolete code since there is no necessary to recalculate
+	// stresses components because now corresponding getter has lazy init stuff
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
 		CalcNode& node = getNodeByLocalIndex(i);

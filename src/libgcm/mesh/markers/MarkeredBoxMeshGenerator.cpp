@@ -37,7 +37,7 @@ void gcm::MarkeredBoxMeshGenerator::loadMesh(Params params, MarkeredMesh* mesh,
 				node.y = -mesh_edge/2 + j*h;
 				node.z = -mesh_edge/2 + k*h;
 				node.number = n;
-				node.setPlacement(Local);
+				node.setPlacement(true);
 				mesh->addNode(node);
 			}
 

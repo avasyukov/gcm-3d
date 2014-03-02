@@ -61,7 +61,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 
 	// Number of outer characteristics
 	int outer_count = prepare_node(cur_node, elastic_matrix3d,
-						time_step, stage, mesh, 
+						time_step, stage, mesh,
 						dksi, inner, previous_nodes,
 						outer_normal);
 
@@ -125,7 +125,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 				// Mark virt node as having contact state
 				// TODO FIXME - most probably CollisionDetector should do it
 				// But we should check it anycase
-				virt_node.setContactType( InContact );
+				virt_node.setInContact(true);
 				//virt_node.contactNodeNum = cur_node.contactNodeNum;
 
 				// Variables used in calculations internally
@@ -155,10 +155,10 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 				// FIXME - WA
 				Mesh* virtMesh = (Mesh*) engine->getBody(virt_node.contactNodeNum)->getMeshes();
 				int virt_outer_count = prepare_node( virt_node, virt_elastic_matrix3d,
-						time_step, stage, virtMesh, 
+						time_step, stage, virtMesh,
 						virt_dksi, virt_inner, virt_previous_nodes,
 						virt_outer_normal);
-				
+
 				// TODO - merge this condition with the next ones
 				if( virt_outer_count != 3 ) {
 					LOG_DEBUG("There are " << virt_outer_count << " 'outer' characteristics for virt node.");
@@ -337,7 +337,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 				bool isInnerPoint;
 				mesh->interpolateNode(origin, dx[0], dx[1], dx[2], false,
 									previous_nodes[i], isInnerPoint);
-				
+
 				if( !isInnerPoint )
 				{
 					LOG_TRACE("Inner node: we need new method here!");

@@ -7,46 +7,64 @@
 using namespace std;
 
 namespace gcm {
-	/*
-	 * Base node class to inherit from.
-	 */
-	class Node {
-		public:
-			Node();
-			Node(int _num);
-			Node(int _num, float _x, float _y, float _z);
-			~Node();
-			/*
-			 * Node number
-			 */
-			int number;
-			/*
-			 * Node characteristics.
-			 */
-			union
-			{
-				float coords[3];
-				struct
-				{
-					/*
-					 * Coordinates.
-					 */
-					float x;
-					float y;
-					float z;
-				};
-			};
-	};
-}
 
-namespace std {
-	inline std::ostream& operator<< (std::ostream &os, const gcm::Node &node) {
-		os << "\n\tNode number: " << node.number << "\n";
-		os << "\tCoords:";
-		for( int i = 0; i < 3; i++ )
-			os << " " << node.coords[i];
-		return os;
-	}
+    /**
+     * Base class that contains node data. All other node implementations 
+     * should derive from this one. Contains basic node information such
+     * as number and coordinates.
+     * 
+     */
+    class Node {
+    public:
+        /**
+         * Number of the node.
+         */
+        int number;
+
+        union {
+            float coords[3];
+
+            struct {
+                /**
+                 * Position vector x component.
+                 */
+                float x;
+                /**
+                 * Position vector y component.
+                 */
+                float y;
+                /**
+                 * Position vector z component.
+                 */
+                float z;
+            };
+        };
+        /**
+         * Default node constructor. Creates new node with all members
+         * set to default values;
+         */
+        Node();
+        /**
+         * Constructor. Creates node with specified number assigned.
+         *
+         * @param num Number of the node
+         */
+        Node(int num);
+        /**
+         * Constructor. Creates node with specified number assigned
+         * and set coordinates.
+         *
+         * @param num Number of the node
+         * @param x X coordinate of the node
+         * @param y Y coordinate of the node
+         * @param z Z coordinate of the node
+         */
+        Node(int num, float x, float y, float z);
+        /**
+         * Destructor
+         */
+        virtual ~Node() = 0;
+    };
 }
 
 #endif

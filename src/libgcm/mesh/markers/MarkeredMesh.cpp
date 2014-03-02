@@ -132,7 +132,7 @@ int gcm::MarkeredMesh::generateMarkers() {
 			AABB aabb;
 			getCellAABB(i, aabb);
 
-			Node node;
+			CalcNode node;
 			node.x = (aabb.minX + aabb.maxX) / 2;
 			node.y = (aabb.minY + aabb.maxY) / 2;
 			node.z = (aabb.minZ + aabb.maxZ) / 2;
@@ -250,7 +250,7 @@ unsigned int gcm::MarkeredMesh::getCellNeighbours(unsigned int n, NeighbourCells
 	return ci;
 }
 
-const vector<Node>& gcm::MarkeredMesh::getMarkers() {
+const vector<CalcNode>& gcm::MarkeredMesh::getMarkers() {
 	return markers;
 }
 
