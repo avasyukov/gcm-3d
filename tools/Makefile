@@ -29,6 +29,7 @@ CCFLAGS     += -O3 -funroll-loops
 #CCFLAGS     += -O0 -g
 
 LDFLAGS     += $(shell pkg-config --libs $(LIBS))
+LDFLAGS     += $(shell find /usr/lib -maxdepth 1 -iname libgmsh.so -printf %f | sed 's/lib\(.*\).so/-l\1/g' )
 LDFLAGS     += -L/usr/lib64/vtk-5.10
 LDFLAGS     += -L$(BUILD)
 LDFLAGS     += -Wl,-rpath=$(BUILD)
@@ -68,8 +69,7 @@ $(GCMLIB_SO_2): $(LIB_OBJS)
 	 -lvtkNetCDF      \
 	 -lvtkmetaio      \
 	 -lvtksqlite      \
-	 -lvtksys         \
-	 -lgmsh           
+	 -lvtksys         
 
 $(GCMLIB_SO_1): $(GCMLIB_SO_2)
 	ln -fsr $(GCMLIB_SO_2) $(GCMLIB_SO_1)
