@@ -325,14 +325,20 @@ void gcm::Mesh::moveCoords(float tau)
 				node.coords[j] += node.values[j]*tau;
 				newNode.coords[j] = node.coords[j];
 				// Move mesh outline if necessary
+				// TODO - this does not 'clean' outline areas where there is no nodes anymore
 				if(node.coords[j] > outline.max_coords[j])
 					outline.max_coords[j] = node.coords[j];
 				if(node.coords[j] < outline.min_coords[j])
 					outline.min_coords[j] = node.coords[j];
+				if(node.coords[j] > expandedOutline.max_coords[j])
+					expandedOutline.max_coords[j] = node.coords[j];
+				if(node.coords[j] < expandedOutline.min_coords[j])
+					expandedOutline.min_coords[j] = node.coords[j];
 			}
 		}
 	}
 	calcMinH();
+	LOG_DEBUG("New outline: " << outline);
 };
 
 float gcm::Mesh::getMaxLambda()
@@ -453,7 +459,8 @@ void gcm::Mesh::defaultNextPartStep(float tau, int stage)
 	NumericalMethod *method = body->getEngine()->getNumericalMethod(numericalMethodType);
 	method->setSpaceOrder(numericalMethodOrder);
 
-	if( ! syncedArea.includes( &areaOfInterest ) )
+	if( body->getEngine()->getNumberOfWorkers() != 1
+			&& ! syncedArea.includes( &areaOfInterest ) )
 	{
 		LOG_ERROR("Area of interest: " << areaOfInterest);
 		LOG_ERROR("Synced area: " << syncedArea);
