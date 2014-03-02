@@ -318,6 +318,32 @@ void gcm::CalcNode::setNeighError(unsigned int axisNum)
     }
 }
 
+bool gcm::CalcNode::getCustomFlag(uchar flag) const
+{
+    switch (flag) {
+    case FLAG_1: return publicFlags.flag1;
+    case FLAG_2: return publicFlags.flag2;
+    case FLAG_3: return publicFlags.flag3;
+    case FLAG_4: return publicFlags.flag4;
+    case FLAG_5: return publicFlags.flag5;
+    case FLAG_6: return publicFlags.flag6;
+    default: THROW_INVALID_ARG("Invalid flag specified");
+    }
+}
+
+void gcm::CalcNode::setCustomFlag(uchar flag, bool value)
+{
+    switch (flag) {
+    case FLAG_1: publicFlags.flag1 = value;
+    case FLAG_2: publicFlags.flag2 = value;
+    case FLAG_3: publicFlags.flag3 = value;
+    case FLAG_4: publicFlags.flag4 = value;
+    case FLAG_5: publicFlags.flag5 = value;
+    case FLAG_6: publicFlags.flag6 = value;
+    default: THROW_INVALID_ARG("Invalid flag specified");
+    }
+}
+
 void gcm::CalcNode::setBorderConditionId(uchar newBorderCondId)
 {
     borderConditionId = newBorderCondId;

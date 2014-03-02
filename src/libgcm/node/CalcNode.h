@@ -411,6 +411,21 @@ namespace gcm {
          * @param axisName Number of axis to set error flag for.
          */
         void setNeighError(unsigned int axisNum);
+        
+        /**
+         * Returns value of specified custom flag.
+         *
+         * @param flag Flag to get value of.
+         * @return Flag state.
+         */
+        bool getCustomFlag(uchar flag) const;
+        /**
+         * Sets value of custom flag.
+         *
+         * @param flag Flag to set value of.
+         * @param value New flag value
+         */
+        void setCustomFlag(uchar flag, bool value);
 
         /**
          * Sets border condition id. TODO document
@@ -533,6 +548,31 @@ namespace gcm {
          * @param TODO document
          */
         void cleanStressByDirection(const vector3& direction);
+
+        /**
+         * Constant to access custom flag1 using getCustomFlag / setCustomFlag.
+         */
+        static const int FLAG_1 = 1;
+        /**
+         * Constant to access custom flag2 using getCustomFlag / setCustomFlag.
+         */
+        static const int FLAG_2 = 2;
+        /**
+         * Constant to access custom flag3 using getCustomFlag / setCustomFlag.
+         */
+        static const int FLAG_3 = 3;
+        /**
+         * Constant to access custom flag4 using getCustomFlag / setCustomFlag.
+         */
+        static const int FLAG_4 = 4;
+        /**
+         * Constant to access custom flag5 using getCustomFlag / setCustomFlag.
+         */
+        static const int FLAG_5 = 5;
+        /**
+         * Constant to access custom flag6 using getCustomFlag / setCustomFlag.
+         */
+        static const int FLAG_6 = 6;
     };
 }
 
