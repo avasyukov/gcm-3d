@@ -39,7 +39,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 
 	// Used for real node
 	// FIXME get rid of harcoded type
-	AnisotropicMatrix3D anisotropic_matrix3d;
+	ElasticMatrix3D elastic_matrix3d;
 
 	// Variables used in calculations internally
 
@@ -60,7 +60,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 	float outer_normal[3];
 
 	// Number of outer characteristics
-	int outer_count = prepare_node(cur_node, anisotropic_matrix3d,
+	int outer_count = prepare_node(cur_node, elastic_matrix3d,
 						time_step, stage, mesh, 
 						dksi, inner, previous_nodes,
 						outer_normal);
@@ -77,7 +77,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 		if( outer_count == 0 )
 			// FIXME - hardcoded name
 			engine->getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
-									new_node, anisotropic_matrix3d, previous_nodes);
+									new_node, elastic_matrix3d, previous_nodes);
 		else
 			THROW_BAD_MESH("Outer characteristic for internal node detected");
 		LOG_TRACE("Done inner node calc");
@@ -95,7 +95,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 		{
 			// FIXME - hardcoded name
 			engine->getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
-									new_node, anisotropic_matrix3d, previous_nodes);
+									new_node, elastic_matrix3d, previous_nodes);
 		}
 		// If there are 3 'outer' omegas - we should use border or contact algorithm
 		else if ( outer_count == 3 )
@@ -107,7 +107,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 				int borderCondId = cur_node.getBorderConditionId();
 				LOG_TRACE("Using calculator: " << engine->getBorderCondition(borderCondId)->calc->getType());
 				engine->getBorderCondition(borderCondId)->doCalc(mesh->get_current_time(), cur_node,
-					new_node, anisotropic_matrix3d, previous_nodes, inner, outer_normal);
+					new_node, elastic_matrix3d, previous_nodes, inner, outer_normal);
 			}
 			// Contact
 			else
@@ -132,7 +132,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 
 				// Used for interpolated virtual node in case of contact algorithm
 				// FIXME get rid of hardcoded type
-				AnisotropicMatrix3D virt_anisotropic_matrix3d;
+				ElasticMatrix3D virt_elastic_matrix3d;
 
 				// Delta x on previous time layer for all the omegas
 				// 	omega_new_time_layer(ksi) = omega_old_time_layer(ksi+dksi)
@@ -154,7 +154,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 				LOG_TRACE("Start virt node calc");
 				// FIXME - WA
 				Mesh* virtMesh = (Mesh*) engine->getBody(virt_node.contactNodeNum)->getMeshes();
-				int virt_outer_count = prepare_node( virt_node, virt_anisotropic_matrix3d,
+				int virt_outer_count = prepare_node( virt_node, virt_elastic_matrix3d,
 						time_step, stage, virtMesh, 
 						virt_dksi, virt_inner, virt_previous_nodes,
 						virt_outer_normal);
@@ -234,22 +234,22 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 
 				LOG_TRACE("Using calculator: " << engine->getContactCondition(0)->calc->getType());
 				engine->getContactCondition(0)->doCalc(mesh->get_current_time(), cur_node,
-						new_node, virt_node, anisotropic_matrix3d, previous_nodes, inner,
-						virt_anisotropic_matrix3d, virt_previous_nodes, virt_inner, outer_normal);
+						new_node, virt_node, elastic_matrix3d, previous_nodes, inner,
+						virt_elastic_matrix3d, virt_previous_nodes, virt_inner, outer_normal);
 			}
 		// It means smth went wrong. Just interpolate the values and report bad node.
 		} else {
 			// FIXME - implement border and contact completely
 			LOG_TRACE("Using calculator: " << engine->getBorderCondition(0)->calc->getType());
 			engine->getBorderCondition(0)->doCalc(mesh->get_current_time(), cur_node,
-					new_node, anisotropic_matrix3d, previous_nodes, inner, outer_normal);
+					new_node, elastic_matrix3d, previous_nodes, inner, outer_normal);
 			cur_node.setNeighError(stage);
 		}
 		LOG_TRACE("Done border node calc");
 	}
 }
 
-int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix3D& anisotropic_matrix3d,
+int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix3D& elastic_matrix3d,
 												float time_step, int stage, Mesh* mesh,
 												float* dksi, bool* inner, vector<CalcNode>& previous_nodes,
 												float* outer_normal)
@@ -261,16 +261,13 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix
 
 	LOG_TRACE("Preparing elastic matrix");
 	//  Prepare matrixes  A, Lambda, Omega, Omega^(-1)
-	
-	
-	
-	anisotropic_matrix3d.prepareMatrix({ 9.0e+4, 7.0e+4, 7.0e+4, 0.0, 0.0, 0.0, 9.0e+4, 7.0e+4, 0.0, 0.0, 0.0, 9.0e+4, 0.0, 0.0, 0.0, 5.0e+3, 0.0, 0.0, 5.0e+3, 0.0, 5.0e+3, 1.0 }, stage );
+	elastic_matrix3d.prepareMatrix({ 9.0e+4, 7.0e+4, 7.0e+4, 0.0, 0.0, 0.0, 9.0e+4, 7.0e+4, 0.0, 0.0, 0.0, 9.0e+4, 0.0, 0.0, 0.0, 5.0e+3, 0.0, 0.0, 5.0e+3, 0.0, 5.0e+3, 1.0 }, stage );
 	LOG_TRACE("Preparing elastic matrix done");
 
-	LOG_TRACE("Elastic matrix eigen values:\n" << anisotropic_matrix3d.getL());
+	LOG_TRACE("Elastic matrix eigen values:\n" << elastic_matrix3d.getL());
 
 	for(int i = 0; i < 9; i++)
-		dksi[i] = - anisotropic_matrix3d.getL(i,i) * time_step;
+		dksi[i] = - elastic_matrix3d.getL()(i,i) * time_step;
 
 	return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal);
 }
