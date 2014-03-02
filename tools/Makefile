@@ -18,7 +18,7 @@ GCM3D_VIEW_NORMALS = $(BUILD)/gcm3d_view_normals
 GCM3D              = $(BUILD)/gcm3d
 
 CCFLAGS     += -Wall $(shell pkg-config --cflags $(LIBS))
-CCFLAGS     += -I/usr/include/vtk-5.10
+CCFLAGS     += -I$(shell find /usr/include -maxdepth 1 -name vtk* | head -n1)
 CCFLAGS     += -I/usr/include/irrlicht
 CCFLAGS     += -Wno-deprecated
 CCFLAGS     += -I./src/libgcm
@@ -30,7 +30,7 @@ CCFLAGS     += -O3 -funroll-loops
 
 LDFLAGS     += $(shell pkg-config --libs $(LIBS))
 LDFLAGS     += $(shell find /usr/lib -maxdepth 1 -iname libgmsh.so -printf %f | sed 's/lib\(.*\).so/-l\1/g' )
-LDFLAGS     += -L/usr/lib64/vtk-5.10
+LDFLAGS     += -L$(shell find /usr/lib -maxdepth 1 -name vtk* | head -n1)
 LDFLAGS     += -L$(BUILD)
 LDFLAGS     += -Wl,-rpath=$(BUILD)
 
