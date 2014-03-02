@@ -23,6 +23,16 @@ gcm_real gcm::RheologyMatrix3D::getMaxEigenvalue() const
 	return res;
 }
 
+gcm_matrix& gcm::RheologyMatrix3D::getA()
+{
+	return A;
+}
+
+gcm_real gcm::RheologyMatrix3D::getA(unsigned int i, unsigned int j) const
+{
+	return A.get(i, j);
+}
+
 gcm_matrix& gcm::RheologyMatrix3D::getL()
 {
 	return L;
