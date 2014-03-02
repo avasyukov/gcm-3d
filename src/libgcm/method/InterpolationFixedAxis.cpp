@@ -267,7 +267,7 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix
 	
 	
 	
-	anisotropic_matrix3d.prepareMatrix({ 1.06e+6, 1.8e+5, 1.5e+4, 0.0, 0.0, 0.0, 1.06e+6, 1.5e+4, 0.0, 0.0, 0.0, 3.7e+4, 0.0, 0.0, 0.0, 2.0e+2, 0.0, 0.0, 2.0e+2, 0.0, 4.4e+5, 2.1 }, stage );
+	anisotropic_matrix3d.prepareMatrix({ 9.0e+4, 7.0e+4, 7.0e+4, 0.0, 0.0, 0.0, 9.0e+4, 7.0e+4, 0.0, 0.0, 0.0, 9.0e+4, 0.0, 0.0, 0.0, 5.0e+3, 0.0, 0.0, 5.0e+3, 0.0, 5.0e+3, 1.0 }, stage );
 	LOG_TRACE("Preparing elastic matrix done");
 
 	LOG_TRACE("Elastic matrix eigen values:\n" << anisotropic_matrix3d.getL());

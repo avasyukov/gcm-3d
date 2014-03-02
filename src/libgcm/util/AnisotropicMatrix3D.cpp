@@ -112,32 +112,32 @@ void gcm::AnisotropicMatrix3D::createAx(initializer_list<gcm_real> params)
 	clear(a);
 		
 	gsl_matrix_set (a, 0, 3, -1/rho);
-	gsl_matrix_set (a, 1, 8, -1/rho);
-	gsl_matrix_set (a, 2, 7, -1/rho);
+	gsl_matrix_set (a, 1, 4, -1/rho);
+	gsl_matrix_set (a, 2, 5, -1/rho);
 	
 	gsl_matrix_set (a, 3, 0, -numbers.c[0]);
 	gsl_matrix_set (a, 3, 1, -numbers.c[5]);
 	gsl_matrix_set (a, 3, 2, -numbers.c[4]);
 	
-	gsl_matrix_set (a, 4, 0, -numbers.c[1]);
-	gsl_matrix_set (a, 4, 1, -numbers.c[10]);
-	gsl_matrix_set (a, 4, 2, -numbers.c[9]);
+	gsl_matrix_set (a, 4, 0, -numbers.c[5]);
+	gsl_matrix_set (a, 4, 1, -numbers.c[20]);
+	gsl_matrix_set (a, 4, 2, -numbers.c[19]);
 	
-	gsl_matrix_set (a, 5, 0, -numbers.c[2]);
-	gsl_matrix_set (a, 5, 1, -numbers.c[14]);
-	gsl_matrix_set (a, 5, 2, -numbers.c[13]);
+	gsl_matrix_set (a, 5, 0, -numbers.c[4]);
+	gsl_matrix_set (a, 5, 1, -numbers.c[19]);
+	gsl_matrix_set (a, 5, 2, -numbers.c[18]);
 	
-	gsl_matrix_set (a, 6, 0, -numbers.c[3]);
-	gsl_matrix_set (a, 6, 1, -numbers.c[17]);
-	gsl_matrix_set (a, 6, 2, -numbers.c[16]);
+	gsl_matrix_set (a, 6, 0, -numbers.c[1]);
+	gsl_matrix_set (a, 6, 1, -numbers.c[10]);
+	gsl_matrix_set (a, 6, 2, -numbers.c[9]);
 	
-	gsl_matrix_set (a, 7, 0, -numbers.c[4]);
-	gsl_matrix_set (a, 7, 1, -numbers.c[19]);
-	gsl_matrix_set (a, 7, 2, -numbers.c[18]);
+	gsl_matrix_set (a, 7, 0, -numbers.c[3]);
+	gsl_matrix_set (a, 7, 1, -numbers.c[17]);
+	gsl_matrix_set (a, 7, 2, -numbers.c[16]);
 	
-	gsl_matrix_set (a, 8, 0, -numbers.c[5]);
-	gsl_matrix_set (a, 8, 1, -numbers.c[20]);
-	gsl_matrix_set (a, 8, 2, -numbers.c[19]);
+	gsl_matrix_set (a, 8, 0, -numbers.c[2]);
+	gsl_matrix_set (a, 8, 1, -numbers.c[14]);
+	gsl_matrix_set (a, 8, 2, -numbers.c[13]);
 	
 	gsl_matrix* u1 = gsl_matrix_alloc (9, 9);
 	gsl_matrix* l = gsl_matrix_alloc (9, 9);
@@ -167,33 +167,33 @@ void gcm::AnisotropicMatrix3D::createAy(initializer_list<gcm_real> params)
 	gsl_matrix* a = gsl_matrix_alloc (9, 9);
 	clear(a);
 		
-	gsl_matrix_set (a, 0, 8, -1/rho);
-	gsl_matrix_set (a, 1, 4, -1/rho);
-	gsl_matrix_set (a, 2, 6, -1/rho);
+	gsl_matrix_set (a, 0, 4, -1/rho);
+	gsl_matrix_set (a, 1, 6, -1/rho);
+	gsl_matrix_set (a, 2, 7, -1/rho);
 	
 	gsl_matrix_set (a, 3, 0, -numbers.c[5]);
 	gsl_matrix_set (a, 3, 1, -numbers.c[1]);
 	gsl_matrix_set (a, 3, 2, -numbers.c[3]);
 	
-	gsl_matrix_set (a, 4, 0, -numbers.c[10]);
-	gsl_matrix_set (a, 4, 1, -numbers.c[6]);
-	gsl_matrix_set (a, 4, 2, -numbers.c[8]);
+	gsl_matrix_set (a, 4, 0, -numbers.c[20]);
+	gsl_matrix_set (a, 4, 1, -numbers.c[10]);
+	gsl_matrix_set (a, 4, 2, -numbers.c[17]);
 	
-	gsl_matrix_set (a, 5, 0, -numbers.c[14]);
-	gsl_matrix_set (a, 5, 1, -numbers.c[7]);
-	gsl_matrix_set (a, 5, 2, -numbers.c[12]);
+	gsl_matrix_set (a, 5, 0, -numbers.c[19]);
+	gsl_matrix_set (a, 5, 1, -numbers.c[9]);
+	gsl_matrix_set (a, 5, 2, -numbers.c[16]);
 	
-	gsl_matrix_set (a, 6, 0, -numbers.c[17]);
-	gsl_matrix_set (a, 6, 1, -numbers.c[8]);
-	gsl_matrix_set (a, 6, 2, -numbers.c[15]);
+	gsl_matrix_set (a, 6, 0, -numbers.c[10]);
+	gsl_matrix_set (a, 6, 1, -numbers.c[6]);
+	gsl_matrix_set (a, 6, 2, -numbers.c[8]);
 	
-	gsl_matrix_set (a, 7, 0, -numbers.c[19]);
-	gsl_matrix_set (a, 7, 1, -numbers.c[9]);
-	gsl_matrix_set (a, 7, 2, -numbers.c[16]);
+	gsl_matrix_set (a, 7, 0, -numbers.c[17]);
+	gsl_matrix_set (a, 7, 1, -numbers.c[8]);
+	gsl_matrix_set (a, 7, 2, -numbers.c[15]);
 
-	gsl_matrix_set (a, 8, 0, -numbers.c[20]);
-	gsl_matrix_set (a, 8, 1, -numbers.c[10]);
-	gsl_matrix_set (a, 8, 2, -numbers.c[17]);
+	gsl_matrix_set (a, 8, 0, -numbers.c[14]);
+	gsl_matrix_set (a, 8, 1, -numbers.c[7]);
+	gsl_matrix_set (a, 8, 2, -numbers.c[12]);
 	
 	gsl_matrix* u1 = gsl_matrix_alloc (9, 9);
 	gsl_matrix* l = gsl_matrix_alloc (9, 9);
@@ -223,33 +223,33 @@ void gcm::AnisotropicMatrix3D::createAz(initializer_list<gcm_real> params)
 	gsl_matrix* a = gsl_matrix_alloc (9, 9);
 	clear(a);
 		
-	gsl_matrix_set (a, 0, 7, -1/rho);
-	gsl_matrix_set (a, 1, 6, -1/rho);
-	gsl_matrix_set (a, 2, 5, -1/rho);
+	gsl_matrix_set (a, 0, 5, -1/rho);
+	gsl_matrix_set (a, 1, 7, -1/rho);
+	gsl_matrix_set (a, 2, 8, -1/rho);
 	
 	gsl_matrix_set (a, 3, 0, -numbers.c[4]);
 	gsl_matrix_set (a, 3, 1, -numbers.c[3]);
 	gsl_matrix_set (a, 3, 2, -numbers.c[2]);
 	
-	gsl_matrix_set (a, 4, 0, -numbers.c[9]);
-	gsl_matrix_set (a, 4, 1, -numbers.c[8]);
-	gsl_matrix_set (a, 4, 2, -numbers.c[7]);
+	gsl_matrix_set (a, 4, 0, -numbers.c[19]);
+	gsl_matrix_set (a, 4, 1, -numbers.c[17]);
+	gsl_matrix_set (a, 4, 2, -numbers.c[14]);
 	
-	gsl_matrix_set (a, 5, 0, -numbers.c[13]);
-	gsl_matrix_set (a, 5, 1, -numbers.c[12]);
-	gsl_matrix_set (a, 5, 2, -numbers.c[11]);
+	gsl_matrix_set (a, 5, 0, -numbers.c[18]);
+	gsl_matrix_set (a, 5, 1, -numbers.c[16]);
+	gsl_matrix_set (a, 5, 2, -numbers.c[13]);
 	
-	gsl_matrix_set (a, 6, 0, -numbers.c[16]);
-	gsl_matrix_set (a, 6, 1, -numbers.c[15]);
-	gsl_matrix_set (a, 6, 2, -numbers.c[12]);
+	gsl_matrix_set (a, 6, 0, -numbers.c[9]);
+	gsl_matrix_set (a, 6, 1, -numbers.c[8]);
+	gsl_matrix_set (a, 6, 2, -numbers.c[7]);
 	
-	gsl_matrix_set (a, 7, 0, -numbers.c[18]);
-	gsl_matrix_set (a, 7, 1, -numbers.c[16]);
-	gsl_matrix_set (a, 7, 2, -numbers.c[13]);
+	gsl_matrix_set (a, 7, 0, -numbers.c[16]);
+	gsl_matrix_set (a, 7, 1, -numbers.c[15]);
+	gsl_matrix_set (a, 7, 2, -numbers.c[12]);
 	
-	gsl_matrix_set (a, 8, 0, -numbers.c[19]);
-	gsl_matrix_set (a, 8, 1, -numbers.c[17]);
-	gsl_matrix_set (a, 8, 2, -numbers.c[14]);
+	gsl_matrix_set (a, 8, 0, -numbers.c[13]);
+	gsl_matrix_set (a, 8, 1, -numbers.c[12]);
+	gsl_matrix_set (a, 8, 2, -numbers.c[11]);
 	
 	gsl_matrix* u1 = gsl_matrix_alloc (9, 9);
 	gsl_matrix* l = gsl_matrix_alloc (9, 9);
