@@ -1,12 +1,28 @@
 #include <time.h>
 
 #include "util/AnisotropicMatrix3D.h"
+#include "util/ElasticMatrix3D.h"
 
 #include <gtest/gtest.h>
 
 #define ITERATIONS 1000
 
 using namespace gcm;
+
+class AnisotropicMatrixIsotropicWrapper: public AnisotropicMatrix3D {
+public:
+	void prepareIsotropic(gcm_real la, gcm_real mu, gcm_real rho, short int stage)
+	{
+		prepareMatrix( { 
+				la+2*mu, la,      la,      0.0,    0.0,    0.0, 
+					 la+2*mu, la,      0.0,    0.0,    0.0, 
+						  la+2*mu, 0.0,    0.0,    0.0, 
+							   mu,     0.0,    0.0, 
+								   mu,     0.0, 
+									   mu, 
+				rho }, stage);
+	}
+};
 
 class AnisotropicMatrix3DWrapper: public AnisotropicMatrix3D {
 public:
@@ -51,4 +67,25 @@ TEST(AnisotropicMatrix3D, FuzzyMultiplication) {
 	gsl_matrix_free (l);
 	gsl_matrix_free (u);
 	gsl_matrix_free (tmp);
+};
+
+TEST(AnisotropicMatrix3D, IsotropicTransition) {
+	srand(time(NULL));
+
+	AnisotropicMatrixIsotropicWrapper anisotropicMatrix;
+	ElasticMatrix3D isotropicMatrix;
+
+	gcm_real la = 1.0e+9 * (double)rand() / RAND_MAX;
+	gcm_real mu = 1.0e+8 * (double)rand() / RAND_MAX;
+	gcm_real rho = 1.0e+4 * (double)rand() / RAND_MAX;
+
+	for(int i = 0; i < 3; i++)
+	{
+		isotropicMatrix.prepareMatrix({ la, mu, rho }, i);
+		anisotropicMatrix.prepareIsotropic(la, mu, rho, i);
+		
+		for(int j = 0; j < 9; j++)
+			for(int k = 0; k < 9; k++)
+				ASSERT_NEAR(anisotropicMatrix.getA(j, k), isotropicMatrix.getA(j, k), 1e-6);
+	}
 };
