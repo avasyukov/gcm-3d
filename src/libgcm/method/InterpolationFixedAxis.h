@@ -5,6 +5,7 @@
 #include "mesh/tetr/TetrMeshSecondOrder.h"
 #include "method/NumericalMethod.h"
 #include "mesh/Mesh.h"
+#include "util/AnisotropicMatrix3D.h"
 #include "util/ElasticMatrix3D.h"
 #include "node/CalcNode.h"
 #include "Logging.h"

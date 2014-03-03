@@ -290,7 +290,7 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
 
 		// FIXME - Part of the WA above
 		if( engine.getNumberOfWorkers() != 1 )
-			engine.getDispatcher()->setTransferVector(-dX, -dY, -dZ, id);
+			engine.getDispatcher()->setTransferVector(/*-dX, -dY, -dZ,*/0, 0, 0, id);
 
 		// set material properties
 		NodeList matNodes = bodyNode.getChildrenByName("material");

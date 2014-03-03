@@ -133,10 +133,12 @@ namespace gcm {
 		
 		/*
 		 * Interpolates node that is (dx; dy; dz) from 'origin'.
+		 * Return value - is the node was interpolated (as internal volume node or border cross).
 		 * Returns interpolated results in 'targetNode'.
-		 * Sets 'isInnerPoint' flag. If !isInnerPoint, targetNode is undefined.
+		 * Sets 'isInnerPoint' flag.
+		 * If returns 'false', targetNode is undefined.
 		 */
-		virtual void interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
+		virtual bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 								CalcNode& targetNode, bool& isInnerPoint) = 0;
 		
 		virtual void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug) = 0;

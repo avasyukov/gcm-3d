@@ -621,14 +621,14 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
     secondOrderNodesAreGenerated = true;
 }
 
-void gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
+bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
                                                CalcNode& targetNode, bool& isInnerPoint)
 {
     int tetrInd = findOwnerTetr(origin, dx, dy, dz, debug,
                                 targetNode.coords, &isInnerPoint);
 
-    if (!isInnerPoint)
-        return;
+    if (tetrInd == -1)
+        return false;
 
     TetrSecondOrder& tmp_tetr = getTetr2(tetrInd);
     interpolator->interpolate(targetNode,
@@ -637,4 +637,5 @@ void gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& origin, float dx, float
                               getNode(tmp_tetr.addVerts[0]), getNode(tmp_tetr.addVerts[1]),
                               getNode(tmp_tetr.addVerts[2]), getNode(tmp_tetr.addVerts[3]),
                               getNode(tmp_tetr.addVerts[4]), getNode(tmp_tetr.addVerts[5]));
+    return true;
 }

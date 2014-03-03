@@ -39,7 +39,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 
 	// Used for real node
 	// FIXME get rid of harcoded type
-	ElasticMatrix3D elastic_matrix3d;
+	AnisotropicMatrix3D elastic_matrix3d;
 
 	// Variables used in calculations internally
 
@@ -132,7 +132,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 
 				// Used for interpolated virtual node in case of contact algorithm
 				// FIXME get rid of hardcoded type
-				ElasticMatrix3D virt_elastic_matrix3d;
+				AnisotropicMatrix3D virt_elastic_matrix3d;
 
 				// Delta x on previous time layer for all the omegas
 				// 	omega_new_time_layer(ksi) = omega_old_time_layer(ksi+dksi)
@@ -167,9 +167,6 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 					{
 						LOG_DEBUG("Dksi[" << z << "]: " << virt_dksi[z]);
 						LOG_DEBUG("Inner[" << z << "]: " << virt_inner[z]);
-					}
-					for(int z = 0; z < 5; z++)
-					{
 						LOG_DEBUG("PrNodes[" << z << "]: " << virt_previous_nodes[z]);
 					}
 					THROW_BAD_METHOD("Illegal number of outer characteristics");
@@ -264,7 +261,20 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix
 
 	LOG_TRACE("Preparing elastic matrix");
 	//  Prepare matrixes  A, Lambda, Omega, Omega^(-1)
-	elastic_matrix3d.prepareMatrix({ cur_node.getLambda(), cur_node.getMu(), cur_node.getRho() }, stage );
+	
+	gcm_real la = cur_node.getLambda();
+	gcm_real mu = cur_node.getMu();
+	gcm_real rho = cur_node.getRho();
+	elastic_matrix3d.prepareMatrix({ 
+				la+2*mu, la,      la,      0.0,    0.0,    0.0, 
+					 la+2*mu, la,      0.0,    0.0,    0.0, 
+						  la+2*mu, 0.0,    0.0,    0.0, 
+							   mu,     0.0,    0.0, 
+								   mu,     0.0, 
+									   mu, 
+				rho }, stage);
+	//elastic_matrix3d.prepareMatrix({ 1.06e+6, 1.8e+5, 1.5e+4, 0.0, 0.0, 0.0, 1.06e+6, 1.5e+4, 0.0, 0.0, 0.0, 3.7e+4, 0.0, 0.0, 0.0, 2.0e+2, 0.0, 0.0, 2.0e+2, 0.0, 4.4e+5, 2.1 }, stage );
+	//elastic_matrix3d.prepareMatrix({ cur_node.getLambda(), cur_node.getMu(), cur_node.getRho() }, stage );
 	LOG_TRACE("Preparing elastic matrix done");
 
 	LOG_TRACE("Elastic matrix eigen values:\n" << elastic_matrix3d.getL());
@@ -299,7 +309,6 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 				already_found = true;
 				previous_nodes[i] = previous_nodes[j];
 				inner[i] = inner[j];
-				LOG_TRACE("Bla");
 			}
 		}
 
@@ -309,7 +318,6 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 			LOG_TRACE( "New value " << dksi[i] << " - preparing vectors" );
 			// ... Put new number ...
 			previous_nodes[i] = cur_node;
-			LOG_TRACE("Bla");
 
 			// ... Find vectors ...
 			float dx[3];
@@ -356,7 +364,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 				LOG_TRACE( "Checking border node" );
 				// ... Find owner tetrahedron ...
 				bool isInnerPoint;
-				mesh->interpolateNode(origin, dx[0], dx[1], dx[2], false,
+				bool interpolated = mesh->interpolateNode(origin, dx[0], dx[1], dx[2], false,
 									previous_nodes[i], isInnerPoint);
 
 				// If we found inner point, it means
@@ -369,13 +377,13 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
 					// We found border cross somehow
 					// It can happen if we work with really thin structures and big time step
 					// We can work as usual in this case
-					//if( tmp_tetr != NULL ) {
-					//	LOG_TRACE("Border node: we need new method here!");
-					//	inner[i] = true;
+					if( interpolated ) {
+						LOG_TRACE("Border node: we need new method here!");
+						inner[i] = true;
 					// Or we did not find any point at all - it means this characteristic is outer
-					//} else {
-					//	inner[i] = false;
-					//}
+					} else {
+						inner[i] = false;
+					}
 				}
 				LOG_TRACE( "Checking border node done" );
 			}

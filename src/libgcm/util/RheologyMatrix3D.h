@@ -49,6 +49,16 @@ namespace gcm
 		 */
 		gcm_real getMaxEigenvalue() const;
 		/**
+		 * @brief Returns rheology matrix A.
+		 * @return A matrix.
+		 */
+		gcm_matrix& getA();
+		/**
+		 * @brief Returns rheology matrix A component.
+		 * @return A matrix component.
+		 */
+		gcm_real getA(unsigned int i, unsigned int j) const;
+		/**
 		 * @brief Returns L matrix (contains eigenvalues).
 		 * @return L matrix.
 		 */
