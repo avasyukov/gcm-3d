@@ -573,16 +573,6 @@ namespace gcm {
          * Constant to access custom flag6 using getCustomFlag / setCustomFlag.
          */
         static const int FLAG_6 = 6;
-        
-        
-        // FIXME this is a WA to make contacts work again
-        gcm_real getAdhesionThreshold() {
-            return Engine::getInstance().getMaterial(materialId)->getAdhesionThreshold();
-        }
-        
-        gcm_real getCrackThreshold() {
-            return Engine::getInstance().getMaterial(materialId)->getCrackThreshold();
-        }
     };
 }
 

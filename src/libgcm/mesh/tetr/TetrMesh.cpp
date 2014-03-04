@@ -2,7 +2,7 @@
 
 gcm::TetrMesh::TetrMesh()
 {
-	movable = false;
+	movable = true;
 }
 
 gcm::TetrMesh::~TetrMesh()
