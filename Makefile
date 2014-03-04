@@ -1,7 +1,7 @@
 # Makefile wrapper for waf
 
 all:
-	./waf
+	./waf install
 
 configure:
 	./waf configure --prefix=. --cxxflags=-O3 --without-headers --without-resources	

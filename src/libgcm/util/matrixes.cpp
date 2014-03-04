@@ -1,6 +1,8 @@
 #include "util/matrixes.h"
 
-gcm::gcm_matrix::gcm_matrix() { };
+gcm::gcm_matrix::gcm_matrix() {
+	INIT_LOGGER("gcm.matrixes");
+};
 gcm::gcm_matrix::~gcm_matrix() { };
 
 gcm::gcm_matrix& gcm::gcm_matrix::operator=(const gcm_matrix &A)
@@ -96,12 +98,12 @@ void gcm::gcm_matrix::setColumn(float *Clmn, int num)
 {
 	for (int i = 0; i < GCM_MATRIX_SIZE; i++)
 		p[i][num] = Clmn[i];
-}
+};
 
 float gcm::gcm_matrix::get(unsigned int i, unsigned int j) const
 {
 	return p[i][j];
-}
+};
 
 void gcm::gcm_matrix::inv()
 {
@@ -119,12 +121,28 @@ void gcm::gcm_matrix::inv()
 			gsl_matrix_set(Z1, i, j, p[i][j]);
 	
 	int status = gsl_linalg_LU_decomp (Z1, perm, &k);
-	if (status)
+	if (status) {
+		LOG_DEBUG("gsl_linalg_LU_decomp failed");
 		THROW_INVALID_ARG("gsl_linalg_LU_decomp failed");
+	}
 	status = gsl_linalg_LU_invert (Z1, perm, Z);
-	if (status)
+	if (status) {
+		LOG_DEBUG("gsl_linalg_LU_invert failed");
 		THROW_INVALID_ARG("gsl_linalg_LU_invert failed");
+	}
 	for (int i = 0; i < GCM_MATRIX_SIZE; i++)
 		for (int j = 0; j < GCM_MATRIX_SIZE; j++)
 			p[i][j] = gsl_matrix_get(Z, i, j);
-}
+};
+
+void gcm::gcm_matrix::print()
+{
+	cout << endl;
+	for (int i = 0; i < GCM_MATRIX_SIZE; i++) {
+		for (int j = 0; j < GCM_MATRIX_SIZE; j++)
+			cout << p[i][j] << "\t";
+		cout << endl;
+	}
+	cout << endl;
+};
+
