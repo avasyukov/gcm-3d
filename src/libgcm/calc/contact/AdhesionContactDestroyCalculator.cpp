@@ -29,12 +29,10 @@ void AdhesionContactDestroyCalculator::doCalc(CalcNode& cur_node, CalcNode& new_
 		};
 
 		float force_cur_abs = scalarProduct(force_cur, outer_normal);
-		// FIXME_ASAP return back adhesion threshold
-		/*
 		if (force_cur_abs > cur_node.getAdhesionThreshold())
 		{
 			cur_node.setContactConditionId(1); // TODO - remove magic number
-		}*/
+		}
 	}
 
 	//Check if we must use Sliding, otherwise use adhesion
