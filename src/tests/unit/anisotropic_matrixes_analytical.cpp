@@ -25,8 +25,8 @@ TEST(AnisotropicMatrix3DAnalytical, FuzzyMultiplication)
 	for (int i = 0; i < 6; i++)
 		for (int j = 0; j < 6; j++) {
 			matC[i][j] = 0;
-//			for (int k = 0; k < 6; k++)
-//				matC[i][j] += L[k][i] * L[k][j];
+			for (int k = 0; k < 6; k++)
+				matC[i][j] += L[k][i] * L[k][j];
 		}	
 	
 	gcm::AnisotropicNumbers C;
@@ -54,16 +54,21 @@ TEST(AnisotropicMatrix3DAnalytical, FuzzyMultiplication)
 
 	float rho = 1.0 * rand()/RAND_MAX * (tmpmax - tmpmin) + tmpmin;
 	
-	
-	C.c11 = 1.06e+6;
-	C.c12 = 1.8e+5;
-	C.c13 = 1.5e+4;
-	C.c66 = 4.4e+5;
-	C.c55 = 2.0e+2;
-	rho = 2.0;	
+//	// hexagonal symmetry from Azerbaijan
+//	// TODO - what is the system of units?
+//	C.c11 = 1.06e+6; // ,MPa
+//	C.c12 = 1.8e+5;
+//	C.c13 = 1.5e+4;
+//	C.c44 = 2.0e+2;
+//	C.c33 = 3.7e+4;
+//	C.c22 = C.c11;
+//	C.c23 = C.c13;
+//	C.c55 = C.c44;
+//	C.c66 = (C.c11 - C.c12) / 2;
+//	rho = 2.0;	// ,10^3 kg/m^3
 	
 	gcm::AnisotropicMatrix3DAnalytical m;
-	for (int stg = 0; stg < 3; stg=stg+1) {
+	for (int stg = 0; stg < 3; stg++) {
 		m.prepare_matrix(C, rho, stg);
 		m.self_check();
 	}

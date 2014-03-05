@@ -11,7 +11,7 @@ void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const AnisotropicNumbers
 {
 	assert ( rho > 0 );
 	for (int i = 0; i < 21; i++) {
-		// TODO	- Are there any other limits on anisotropic coefficients?
+		// TODO	- C is positive definite
 		assert (C.c[i] >= 0) ; 
 	}
 
@@ -30,11 +30,13 @@ void gcm::AnisotropicMatrix3DAnalytical::self_check()
 {
 	gcm_matrix E;
 	E.createE();
-	gcm_matrix B;
+	
+	A.print();
+	(U1 * L * U - A).print();
 	
 	if( (U1 * L * U != A) || (A * U1 != U1 * L) || (U * A != L * U) || (U1 * U !=  E) ) {
 		cout << "Self check failed\n";
-		THROW_BAD_CONFIG("Self check failed");
+		//THROW_BAD_CONFIG("Self check failed");
 	}
 	else cout << "Checked!\n";
 };
@@ -70,31 +72,52 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAx(const AnisotropicNumbers &C, f
 	A(7,0) = -C.c15;	A(7,1) = -C.c56;	A(7,2) = -C.c55;
 	A(8,0) = -C.c16;	A(8,1) = -C.c66;	A(8,2) = -C.c56;
 	
-	// Search eigenvalues and filling the diagonal matrix
 	ThirdDegreePolynomial tdp (rho, C, 0);
 	float roots[3];
 	tdp.getRoots(roots);
-	L(0,0) = sqrt(roots[0]);
-	L(1,1) = -L(0,0);
-	L(2,2) = sqrt(roots[1]);
-	L(3,3) = -L(2,2);
-	L(4,4) = sqrt(roots[2]);
-	L(5,5) = -L(4,4);
+	
+	if ( ! tdp.isMultiple ) {
+		// Search eigenvalues and filling the diagonal matrix
+		L(0,0) = sqrt(roots[0]);
+		L(1,1) = -L(0,0);
+		L(2,2) = sqrt(roots[1]);
+		L(3,3) = -L(2,2);
+		L(4,4) = sqrt(roots[2]);
+		L(5,5) = -L(4,4);
 
-	// Search eigenvectors and filling the transition matrix
-	// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
-	float eigenVec[9];
-	for (int i = 0; i < 6; i++) {
-		findEigenVec(eigenVec, L(i,i), rho, C, 0);
-		U1.setColumn(eigenVec, i);
- 	}
+		// Search eigenvectors and filling the transition matrix
+		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
+		float eigenVec[9];
+		for (int i = 0; i < 6; i++) {
+			findEigenVec(eigenVec, L(i,i), rho, C, 0);
+			U1.setColumn(eigenVec, i);
+		}
+	} else {
+		// Search eigenvalues and filling the diagonal matrix
+		// We hope L is diagonizable
+		L(0, 0) = sqrt(roots[0]);
+		L(1, 1) = -L(0, 0);
+		L(2, 2) = L(3, 3) = sqrt(roots[1]);
+		L(4, 4) = L(5, 5) = - sqrt(roots[1]);
+		// Search eigenvectors and filling the transition matrix
+		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
+		float eigenVec1[9];
+		float eigenVec2[9];
+		for (int i = 0; i < 2; i++) {
+			findEigenVec(eigenVec1, L(i, i), rho, C, 0);
+			U1.setColumn(eigenVec1, i);
+		}
+		for (int i = 2; i < 5; i+=2) {
+			findEigenVec(eigenVec1, eigenVec2, L(i, i), rho, C, 0);
+			U1.setColumn(eigenVec1, i);
+			U1.setColumn(eigenVec2, i+1);
+		}
+	}
+	
 	U1(4,6) = U1(5,7) = U1(6,8) = 1;
 
 	// Search U = U1^(-1)
-//	U = U1;
-	for (int i = 0; i < GCM_MATRIX_SIZE; i++) 
-		for (int j = 0; j < GCM_MATRIX_SIZE; j++) 
-			U(i,j) = U1(i,j);
+	U = U1;
 	U.inv();
 };
 
@@ -112,18 +135,18 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAy(const AnisotropicNumbers &C, f
 	A(7,0) = -C.c56;	A(7,1) = -C.c25;	A(7,2) = -C.c45;
 	A(8,0) = -C.c66;	A(8,1) = -C.c26;	A(8,2) = -C.c46;
 	
-	// Search eigenvalues and filling the diagonal matrix
 	ThirdDegreePolynomial tdp (rho, C, 1);
 	float roots[3];
 	tdp.getRoots(roots);
+	
 	if ( ! tdp.isMultiple ) {
+		// Search eigenvalues and filling the diagonal matrix
 		L(0,0) = sqrt(roots[0]);
 		L(1,1) = -L(0,0);
 		L(2,2) = sqrt(roots[1]);
 		L(3,3) = -L(2,2);
 		L(4,4) = sqrt(roots[2]);
 		L(5,5) = -L(4,4);
-
 		// Search eigenvectors and filling the transition matrix
 		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
 		float eigenVec[9];
@@ -131,14 +154,13 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAy(const AnisotropicNumbers &C, f
 			findEigenVec (eigenVec, L(i,i), rho, C, 1);
 			U1.setColumn(eigenVec, i);
 		}
-		U1(3,6) = U1(5,7) = U1(7,8) = 1;
 	} else {
+		// Search eigenvalues and filling the diagonal matrix
 		// We hope L is diagonizable
 		L(0, 0) = sqrt(roots[0]);
 		L(1, 1) = -L(0, 0);
 		L(2, 2) = L(3, 3) = sqrt(roots[1]);
 		L(4, 4) = L(5, 5) = - sqrt(roots[1]);
-
 		// Search eigenvectors and filling the transition matrix
 		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
 		float eigenVec1[9];
@@ -147,20 +169,17 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAy(const AnisotropicNumbers &C, f
 			findEigenVec(eigenVec1, L(i, i), rho, C, 1);
 			U1.setColumn(eigenVec1, i);
 		}
-		for (int i = 2; i < 5; i=i+2) {
+		for (int i = 2; i < 5; i+=2) {
 			findEigenVec(eigenVec1, eigenVec2, L(i, i), rho, C, 1);
 			U1.setColumn(eigenVec1, i);
 			U1.setColumn(eigenVec2, i+1);
 		}
-		
-		U1(3, 6) = U1(5, 7) = U1(7, 8) = 1;
 	}
 	
+	U1(3, 6) = U1(5, 7) = U1(7, 8) = 1;
+	
 	// Search U = U1^(-1)
-//	U = U1;
-	for (int i = 0; i < GCM_MATRIX_SIZE; i++) 
-		for (int j = 0; j < GCM_MATRIX_SIZE; j++) 
-			U(i,j) = U1(i,j);
+	U = U1;
 	U.inv();
 };
 
@@ -178,31 +197,52 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAz(const AnisotropicNumbers &C, f
 	A(7,0) = -C.c55;	A(7,1) = -C.c45;	A(7,2) = -C.c35;
 	A(8,0) = -C.c56;	A(8,1) = -C.c46;	A(8,2) = -C.c36;
 	
-	// Search eigenvalues and filling the diagonal matrix
 	ThirdDegreePolynomial tdp (rho, C, 2);
 	float roots[3];
 	tdp.getRoots(roots);
-	L(0,0) = sqrt(roots[0]);
-	L(1,1) = -L(0,0);
-	L(2,2) = sqrt(roots[1]);
-	L(3,3) = -L(2,2);
-	L(4,4) = sqrt(roots[2]);
-	L(5,5) = -L(4,4);
 	
-	// Search eigenvectors and filling the transition matrix
-	// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
-	float eigenVec[9];
-	for (int i = 0; i < 6; i++) {
-		findEigenVec(eigenVec, L(i,i), rho, C, 2);
-		U1.setColumn(eigenVec, i);
- 	}
+	if ( ! tdp.isMultiple ) {
+		// Search eigenvalues and filling the diagonal matrix
+		L(0,0) = sqrt(roots[0]);
+		L(1,1) = -L(0,0);
+		L(2,2) = sqrt(roots[1]);
+		L(3,3) = -L(2,2);
+		L(4,4) = sqrt(roots[2]);
+		L(5,5) = -L(4,4);
+	
+		// Search eigenvectors and filling the transition matrix
+		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
+		float eigenVec[9];
+		for (int i = 0; i < 6; i++) {
+			findEigenVec(eigenVec, L(i,i), rho, C, 2);
+			U1.setColumn(eigenVec, i);
+		}
+	} else {
+		// Search eigenvalues and filling the diagonal matrix
+		// We hope L is diagonizable
+		L(0, 0) = sqrt(roots[0]);
+		L(1, 1) = -L(0, 0);
+		L(2, 2) = L(3, 3) = sqrt(roots[1]);
+		L(4, 4) = L(5, 5) = - sqrt(roots[1]);
+		// Search eigenvectors and filling the transition matrix
+		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
+		float eigenVec1[9];
+		float eigenVec2[9];
+		for (int i = 0; i < 2; i++) {
+			findEigenVec(eigenVec1, L(i, i), rho, C, 2);
+			U1.setColumn(eigenVec1, i);
+		}
+		for (int i = 2; i < 5; i+=2) {
+			findEigenVec(eigenVec1, eigenVec2, L(i, i), rho, C, 2);
+			U1.setColumn(eigenVec1, i);
+			U1.setColumn(eigenVec2, i+1);
+		}
+	}
+	
 	U1(3,6) = U1(4,7) = U1(8,8) = 1;
 	
 	// Search U = U1^(-1)
-//	U = U1;
-	for (int i = 0; i < GCM_MATRIX_SIZE; i++) 
-		for (int j = 0; j < GCM_MATRIX_SIZE; j++) 
-			U(i,j) = U1(i,j);
+	U = U1;
 	U.inv();
 };
 

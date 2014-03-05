@@ -8,11 +8,11 @@ namespace gcm {
 	{
 		/*
 		 * P(x) = x^3 + a*x^2 + b*x + c
-		 * All the roots are different 
-		 * or two ones are equal
-		 * " >= 0 " for all the roots
+		 * All the roots are real, different 
+		 * (or two ones are equal),
+		 * " > 0 " for all the roots
 		 */
-		float a, b, c;
+		double a, b, c;
 		float roots[3];
 		void findRoots();
 	public:

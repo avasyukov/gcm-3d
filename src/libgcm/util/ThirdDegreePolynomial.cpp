@@ -22,9 +22,8 @@ gcm::ThirdDegreePolynomial::ThirdDegreePolynomial(float rho,
 		c = 1.0/rho/rho/rho * ( C.c33*C.c45*C.c45 + C.c44*C.c35*C.c35 +
 				C.c55*C.c34*C.c34 - C.c33*C.c55*C.c44 - 2*C.c35*C.c34*C.c45 ) ;
 	} else {
-		THROW_BAD_CONFIG("Wrong stage number (from ThirdDegreePolynomial)");
+		THROW_BAD_CONFIG("Wrong stage number");
 	}
-	
 	findRoots();
 };
 
@@ -33,7 +32,6 @@ void gcm::ThirdDegreePolynomial::findRoots()
 	isMultiple = false;
 	double Q = (a*a - 3*b)/9;
 	double R = (2*a*a*a - 9*a*b + 27*c)/54;
-	cout << "a = " << a << " b = " << b << " c = " << c << endl;
 	if ( abs (R / sqrt(Q*Q*Q)) > 1 - EQUALITY_TOLERANCE ) {
 		// Two roots are equal
 		isMultiple = true;
