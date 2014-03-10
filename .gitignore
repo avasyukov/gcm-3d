@@ -16,3 +16,4 @@ include/
 share/
 *.log
 toplev*
+\!testsRun/*

@@ -7,37 +7,21 @@
 #include "node/CalcNode.h"
 
 /*
- * Major test parameters
- */
-
-// Number of time steps
-#define STEPS 10
-
-// Number of points per 'in-memmory line snapshot'
-#define POINTS 20
-
-// Thresholds
-#define ALLOWED_VALUE_DEVIATION_PERCENT 0.1
-#define ALLOWED_NUMBER_OF_BAD_NODES 4 // 2 fronts x 2 nodes per front
-
-/*
  * Analytics for the test described in tasks/tests/s-wave-test.xml
- */
-
-// Initial state
-#define LEFT_MARK_START 1.0
-#define RIGHT_MARK_START 3.0
-
-/*
  * Sets analytical values for CalcNode object provided
  * Node should have coordinates (0; 0; z), where -5 < z < 5
  */
 void setSWaveAnalytics(CalcNode& node, float t, Engine& engine)
 {
+	// Parameters from task file
+	float LEFT_MARK_START = 1.0;
+	float RIGHT_MARK_START = 3.0;
+	float WAVE_AMPLITUDE_SCALE = 0.1;
+	
 	Material* mat = engine.getMaterial("testMaterial");
-	float la = mat->getLambda();
 	float mu = mat->getMu();
 	float rho = mat->getRho();
+	
 	if( node.z < -5 || node.z > 5 )
 		THROW_INVALID_INPUT("Z is out of acceptable range");
 	if( t < 0 || t > 0.02 )
@@ -53,13 +37,26 @@ void setSWaveAnalytics(CalcNode& node, float t, Engine& engine)
 	
 	if( node.z >= leftMark && node.z <= rightMark )
 	{
-		node.vx = sWaveVelocity;
-		node.sxz = mu;
+		node.vx = sWaveVelocity * WAVE_AMPLITUDE_SCALE;
+		node.sxz = mu * WAVE_AMPLITUDE_SCALE;
 	}
 }
 
 TEST(Waves, SWavePropagation)
 {
+	// Major test parameters
+	
+	// Number of time steps
+	int STEPS = 10;
+	
+	// Number of points per 'in-memmory line snapshot'
+	int POINTS = 50;
+	
+	// Thresholds
+	float ALLOWED_VALUE_DEVIATION_PERCENT = 0.1;
+	int ALLOWED_NUMBER_OF_BAD_NODES = 8; // 2 fronts x 2 nodes per front x 2 without any reason
+	
 	runTaskAsTest("tasks/tests/s-wave-test.xml", setSWaveAnalytics, STEPS, POINTS, 
-			ALLOWED_VALUE_DEVIATION_PERCENT, ALLOWED_NUMBER_OF_BAD_NODES);
+			ALLOWED_VALUE_DEVIATION_PERCENT, ALLOWED_NUMBER_OF_BAD_NODES, 
+			{"vx", "sxz"} );
 }
