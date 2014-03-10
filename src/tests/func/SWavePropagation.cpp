@@ -9,7 +9,8 @@
 /*
  * Analytics for the test described in tasks/tests/s-wave-test.xml
  * Sets analytical values for CalcNode object provided
- * Node should have coordinates (0; 0; z), where -5 < z < 5
+ * It does not take into account waves from border, so it works only for wave axis and not too long
+ * For high accuracy node should have coordinates (0; 0; z), where -5 < z < 5
  */
 void setSWaveAnalytics(CalcNode& node, float t, Engine& engine)
 {
@@ -31,7 +32,6 @@ void setSWaveAnalytics(CalcNode& node, float t, Engine& engine)
 	float leftMark = LEFT_MARK_START - t * sWaveVelocity;
 	float rightMark = RIGHT_MARK_START - t * sWaveVelocity;
 	
-	node.x = node.y = 0;
 	node.vx = node.vy = node.vz = 0;
 	node.sxx = node.sxy = node.sxz = node.syy = node.syz = node.szz = 0;
 	
@@ -49,14 +49,19 @@ TEST(Waves, SWavePropagation)
 	// Number of time steps
 	int STEPS = 10;
 	
-	// Number of points per 'in-memmory line snapshot'
-	int POINTS = 50;
+	// Check values and draw graphs along this line
+	SnapshotLine line;
+	line.startPoint = {0.0, 0.0, -5.0};
+	line.endPoint = {0.0, 0.0, 5.0};
+	line.numberOfPoints = 50;
+	
+	std::initializer_list<std::string> valuesToDraw = {"vx", "sxz"};
 	
 	// Thresholds
 	float ALLOWED_VALUE_DEVIATION_PERCENT = 0.1;
 	int ALLOWED_NUMBER_OF_BAD_NODES = 8; // 2 fronts x 2 nodes per front x 2 without any reason
 	
-	runTaskAsTest("tasks/tests/s-wave-test.xml", setSWaveAnalytics, STEPS, POINTS, 
-			ALLOWED_VALUE_DEVIATION_PERCENT, ALLOWED_NUMBER_OF_BAD_NODES, 
-			{"vx", "sxz"} );
+	runTaskAsTest("tasks/tests/s-wave-test.xml", setSWaveAnalytics, 
+			STEPS, line, valuesToDraw, 
+			ALLOWED_VALUE_DEVIATION_PERCENT, ALLOWED_NUMBER_OF_BAD_NODES );
 }
