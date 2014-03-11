@@ -639,3 +639,26 @@ bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& origin, float dx, float
                               getNode(tmp_tetr.addVerts[4]), getNode(tmp_tetr.addVerts[5]));
     return true;
 }
+
+// TODO: rewrite it
+bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& node)
+{
+	for (int i = 0; i < getTetrsNumber(); i++)
+	{
+		TetrSecondOrder& t = getTetr2ByLocalIndex(i);
+		if ( pointInTetr(node.x, node.y, node.z, 
+				getNode(t.verts[0]).coords, getNode(t.verts[1]).coords, 
+				getNode(t.verts[2]).coords, getNode(t.verts[3]).coords, false) )
+		{
+			interpolator->interpolate( node,
+					getNode(t.verts[0]), getNode(t.verts[1]),
+					getNode(t.verts[2]), getNode(t.verts[3]),
+					getNode(t.addVerts[0]), getNode(t.addVerts[1]),
+					getNode(t.addVerts[2]), getNode(t.addVerts[3]),
+					getNode(t.addVerts[4]), getNode(t.addVerts[5]));
+			return true;
+		}
+	}
+
+	return false;
+}

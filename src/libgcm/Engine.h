@@ -129,7 +129,7 @@ namespace gcm
 		
 		string defaultRheoCalcType;
 
-		float gmshVerbosity = 5.0;
+		float gmshVerbosity;
 
 		/*
 		 * Logger.
@@ -294,6 +294,8 @@ namespace gcm
 
 		float getGmshVerbosity();
 		void setGmshVerbosity(float verbosity);
+		
+		bool interpolateNode(CalcNode& node);
 	};
 }
 

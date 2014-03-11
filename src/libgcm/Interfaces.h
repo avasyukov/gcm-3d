@@ -56,6 +56,7 @@ namespace gcm {
 			virtual CalcNode& getVirtNode(unsigned int i) = 0;
 			virtual float getGmshVerbosity() = 0;
 			virtual void setGmshVerbosity(float verbosity) = 0;
+			virtual bool interpolateNode(CalcNode& node) = 0;
 	};
 
 	class IBody {

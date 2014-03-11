@@ -67,6 +67,7 @@ void gcm::Geo2MeshLoader::createMshFile(Params params)
 	GModel gmshModel;
 	gmshModel.setFactory ("Gmsh");
 	gmshModel.readGEO (engine->getFileLookupService().lookupFile(params[PARAM_FILE]));
+	LOG_INFO("Creating mesh using gmsh library");
 	gmshModel.mesh (3);
 	gmshModel.writeMSH (getMshFileName(params[PARAM_FILE]));
 	//mshFileCreated = true;

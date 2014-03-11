@@ -1,4 +1,4 @@
-<task numberOfSnaps="10" stepsPerSnap="1">
+<task numberOfSnaps="20" stepsPerSnap="1">
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />
@@ -16,6 +16,6 @@
 	</materials>
 	<initialState>
 		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
-		<values vz="300" sxx="70000" syy="70000" szz="90000" />
+		<values vz="30" sxx="7000" syy="7000" szz="9000" />
 	</initialState>
 </task>

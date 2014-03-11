@@ -112,6 +112,8 @@ gcm::Engine::Engine()
 	stepsPerSnap = 1;
 	contactThresholdType = CONTACT_THRESHOLD_BY_AVG_H;
 	contactThresholdFactor = 1.0;
+	
+	gmshVerbosity = 0.0;
 }
 
 gcm::Engine::~Engine()
@@ -749,4 +751,15 @@ float gcm::Engine::getGmshVerbosity() {
 
 void gcm::Engine::setGmshVerbosity(float verbosity) {
 	gmshVerbosity = verbosity;
+}
+
+bool gcm::Engine::interpolateNode(CalcNode& node)
+{
+	for( unsigned int i = 0; i < bodies.size(); i++ )
+	{
+		Mesh* mesh = bodies[i]->getMeshes();
+		if( mesh->interpolateNode(node) )
+			return true;
+	}
+	return false;
 }

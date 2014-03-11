@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <initializer_list>
 #include <gtest/gtest.h>
+
 
 #include "utils.h"
 
@@ -9,30 +11,22 @@
 
 /*
  * Analytics for the test described in tasks/tests/s-wave-test.xml
- */
-
-// Initial state
-#define LEFT_MARK_START 1.0
-#define RIGHT_MARK_START 3.0
-
-// Number of time steps
-#define STEPS 2
-
-// Number of points per 'in-memmory line snapshot'
-#define N 20
-
-// Thresholds
-#define ALLOWED_VALUE_DEVIATION_PERCENT 0.1
-#define ALLOWED_NUMBER_OF_BAD_NODES 4 // 2 fronts x 2 nodes per front
-
-//USE_AND_INIT_LOGGER("gcm.tests.SWavePropagation");
-
-/*
  * Sets analytical values for CalcNode object provided
- * Node should have coordinates (0; 0; z), where -5 < z < 5
+ * It does not take into account waves from border, so it works only for wave axis and not too long
+ * For high accuracy node should have coordinates (0; 0; z), where -5 < z < 5
  */
-void setSWaveAnalytics(CalcNode& node, float t, float la, float mu, float rho)
+void setSWaveAnalytics(CalcNode& node, float t, Engine& engine)
 {
+	// Parameters from task file
+	float LEFT_MARK_START = 1.0;
+	float RIGHT_MARK_START = 3.0;
+	float WAVE_AMPLITUDE_SCALE = 0.1;
+	
+	IsotropicElasticMaterial* mat = dynamic_cast<IsotropicElasticMaterial*>(engine.getMaterial("testMaterial"));
+        ASSERT_TRUE(mat);
+	float mu = mat->getMu();
+	float rho = mat->getRho();
+	
 	if( node.z < -5 || node.z > 5 )
 		THROW_INVALID_INPUT("Z is out of acceptable range");
 	if( t < 0 || t > 0.02 )
@@ -42,114 +36,36 @@ void setSWaveAnalytics(CalcNode& node, float t, float la, float mu, float rho)
 	float leftMark = LEFT_MARK_START - t * sWaveVelocity;
 	float rightMark = RIGHT_MARK_START - t * sWaveVelocity;
 	
-	node.x = node.y = 0;
 	node.vx = node.vy = node.vz = 0;
 	node.sxx = node.sxy = node.sxz = node.syy = node.syz = node.szz = 0;
 	
 	if( node.z >= leftMark && node.z <= rightMark )
 	{
-		node.vx = sWaveVelocity;
-		node.sxz = mu;
+		node.vx = sWaveVelocity * WAVE_AMPLITUDE_SCALE;
+		node.sxz = mu * WAVE_AMPLITUDE_SCALE;
 	}
 }
 
 TEST(Waves, SWavePropagation)
 {
-	float time = 0.0;
-	CalcNode node, cnode;
-
-	Engine& engine = loadTaskScenario("tasks/tests/s-wave-test.xml");
+	// Major test parameters
 	
-	float dt = engine.calculateRecommendedTimeStep();
-	engine.setTimeStep(dt);
+	// Number of time steps
+	int STEPS = 10;
 	
-	IsotropicElasticMaterial* mat = dynamic_cast<IsotropicElasticMaterial*>(engine.getMaterial("testMaterial"));
-        ASSERT_TRUE(mat);
-	auto mesh = dynamic_cast<TetrMeshFirstOrder*>(engine.getBodyById("cube")->getMesh("main"));
-        ASSERT_TRUE(mesh);
-
-	TetrFirstOrder* tetrs[N];
-	float z[N];
-
-	for (int i = 0; i < N; i++)
-	{
-		z[i] = -5.0 + 10.0*i/(N-1);
-		tetrs[i] = findTetr(mesh, 0.0, 0.0, z[i]);
-		ASSERT_TRUE(tetrs[i]);
-	}
+	// Check values and draw graphs along this line
+	SnapshotLine line;
+	line.startPoint = {0.0, 0.0, -5.0};
+	line.endPoint = {0.0, 0.0, 5.0};
+	line.numberOfPoints = 50;
 	
-	cnode.x = node.x = 0.0;
-	cnode.y = node.y = 0.0;
+	std::initializer_list<std::string> valuesToDraw = {"vx", "sxz"};
 	
-	float velocityNorm = - numeric_limits<float>::infinity();
-	float pressureNorm = - numeric_limits<float>::infinity();
-	for (int i = 0; i < N; i++)
-	{
-		node.z = z[i];
-		setSWaveAnalytics(node, 0.0, mat->getLambda(), mat->getMu(), mat->getRho());
-		// Check velocity
-		for(int v = 0; v < 3; v++ )
-		{
-			if( fabs(node.values[v]) > velocityNorm )
-				velocityNorm = fabs(node.values[v]);
-		}
-		// Check pressure
-		for(int v = 3; v < GCM_MATRIX_SIZE; v++ )
-		{
-			if( fabs(node.values[v]) > pressureNorm )
-				pressureNorm = fabs(node.values[v]);
-		}
-	}
+	// Thresholds
+	float ALLOWED_VALUE_DEVIATION_PERCENT = 0.1;
+	int ALLOWED_NUMBER_OF_BAD_NODES = 8; // 2 fronts x 2 nodes per front x 2 without any reason
 	
-	for (int t = 0; t < STEPS; t++, time += dt)
-	{
-		int badNodes = 0;
-		engine.doNextStep();
-		for (int i = 0; i < N; i++)
-		{
-			cnode.z = node.z = z[i];
-
-			setSWaveAnalytics(node, time, mat->getLambda(), mat->getMu(), mat->getRho());
-
-			bool isInnerPoint;
-			CalcNode& baseNode = mesh->getNode(tetrs[i]->verts[0]);
-			mesh->interpolateNode(
-					baseNode, 
-					cnode.x - baseNode.x, 
-					cnode.y - baseNode.y, 
-					cnode.z - baseNode.z, 
-					false, 
-					cnode, 
-					isInnerPoint
-			);
-			ASSERT_TRUE( isInnerPoint );
-			
-			// Check velocity
-			for(int v = 0; v < 3; v++ )
-			{
-				float delta = fabs(node.values[v] - cnode.values[v]);
-				if( delta > velocityNorm * ALLOWED_VALUE_DEVIATION_PERCENT )
-				{
-					badNodes++;
-					LOG_INFO("Bad nodes: " << node << "\n" << "VS" << cnode);
-					LOG_INFO("Compare values[" << v << "], delta " << delta << ", norm " << velocityNorm );
-					break;
-				}
-			}
-			// Check pressure
-			for(int v = 3; v < GCM_MATRIX_SIZE; v++ )
-			{
-				float delta = fabs(node.values[v] - cnode.values[v]);
-				if( delta > pressureNorm * ALLOWED_VALUE_DEVIATION_PERCENT )
-				{
-					badNodes++;
-					LOG_INFO("Bad nodes: " << node << "\n" << "VS" << cnode);
-					LOG_INFO("Compare values[" << v << "], delta " << delta << ", norm " << pressureNorm );
-					break;
-				}
-			}
-		}
-		
-		ASSERT_LE(badNodes, ALLOWED_NUMBER_OF_BAD_NODES);
-	}
+	runTaskAsTest("tasks/tests/s-wave-test.xml", setSWaveAnalytics, 
+			STEPS, line, valuesToDraw, 
+			ALLOWED_VALUE_DEVIATION_PERCENT, ALLOWED_NUMBER_OF_BAD_NODES );
 }

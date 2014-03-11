@@ -182,3 +182,8 @@ bool gcm::BasicCubicMesh::interpolateNode(CalcNode& origin, float dx, float dy, 
 	return true;
 };
 
+bool gcm::BasicCubicMesh::interpolateNode(CalcNode& node)
+{
+	// Not implemented
+	return false;
+};
