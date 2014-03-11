@@ -749,3 +749,14 @@ float gcm::Engine::getGmshVerbosity() {
 void gcm::Engine::setGmshVerbosity(float verbosity) {
 	gmshVerbosity = verbosity;
 }
+
+bool gcm::Engine::interpolateNode(CalcNode& node)
+{
+	for( unsigned int i = 0; i < bodies.size(); i++ )
+	{
+		Mesh* mesh = bodies[i]->getMeshes();
+		if( mesh->interpolateNode(node) )
+			return true;
+	}
+	return false;
+}

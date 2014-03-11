@@ -50,6 +50,8 @@ namespace gcm
 
 		bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 								CalcNode& targetNode, bool& isInnerPoint);
+		
+		bool interpolateNode(CalcNode& node);
 	};
 }
 #endif

@@ -149,7 +149,6 @@ void drawValues(std::initializer_list<std::string> valuesToDraw, int stepNum, st
 	fclose(gnuplot);
 }
 
-// TODO: use mesh-independent API for arbitrary point interpolation (instead of hardcoded mesh type, body name, mesh name)
 // TODO: change norm (current norm depends on number of points too heavily)
 void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, Engine&), 
 					int stepsNum, SnapshotLine line, std::initializer_list<std::string> valuesToDraw, 
@@ -189,15 +188,6 @@ void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, 
 		for (int k = 0; k < 3; k++)
 			snapNodes[i].coords[k] = line.startPoint[k] + dx[k] * i / (line.numberOfPoints - 1);
 	
-	// TODO: it should be removed, we need mesh-independent solution
-	auto mesh = dynamic_cast<TetrMeshFirstOrder*>(engine.getBodyById("cube")->getMesh("main"));
-	TetrFirstOrder* tetrs[line.numberOfPoints];
-	for (int i = 0; i < line.numberOfPoints; i++)
-	{
-		tetrs[i] = findTetr(mesh, snapNodes[i].coords[0], snapNodes[i].coords[1], snapNodes[i].coords[2] );
-		ASSERT_TRUE(tetrs[i]);
-	}
-	
 	// Calc velocity and pressure norm based on initial state
 	float velocityNorm = - numeric_limits<float>::infinity();
 	float pressureNorm = - numeric_limits<float>::infinity();
@@ -235,18 +225,8 @@ void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, 
 			setAnalytical(node, time, engine);
 			
 			// 'snapNode[i]' contains numerical solution
-			bool isInnerPoint;
-			CalcNode& baseNode = mesh->getNode(tetrs[i]->verts[0]);
-			mesh->interpolateNode(
-					baseNode, 
-					snapNodes[i].x - baseNode.x, 
-					snapNodes[i].y - baseNode.y, 
-					snapNodes[i].z - baseNode.z, 
-					false, 
-					snapNodes[i], 
-					isInnerPoint
-			);
-			ASSERT_TRUE( isInnerPoint );
+			bool interpolated = engine.interpolateNode(snapNodes[i]);
+			ASSERT_TRUE(interpolated);
 			
 			// Dump data to file
 			dumpPoint(node, snapNodes[i], line, t);

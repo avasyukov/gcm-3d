@@ -141,6 +141,13 @@ namespace gcm {
 		virtual bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, 
 								CalcNode& targetNode, bool& isInnerPoint) = 0;
 		
+		/*
+		 * Interpolates given point, returns values in the node itself.
+		 * Returns 'true' if interpolated successfully 
+		 * and 'false' if the node can not be interpolated with this mesh.
+		 */
+		virtual bool interpolateNode(CalcNode& node) = 0;
+		
 		virtual void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug) = 0;
 		
 		

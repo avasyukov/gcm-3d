@@ -1399,6 +1399,26 @@ bool gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& origin, float dx, float 
 	return true;
 }
 
+// TODO: rewrite it
+bool gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& node)
+{
+	for (int i = 0; i < getTetrsNumber(); i++)
+	{
+		TetrFirstOrder& t = getTetrByLocalIndex(i);
+		if ( pointInTetr(node.x, node.y, node.z, 
+				getNode(t.verts[0]).coords, getNode(t.verts[1]).coords, 
+				getNode(t.verts[2]).coords, getNode(t.verts[3]).coords, false) )
+		{
+			interpolator->interpolate( node,
+					getNode( t.verts[0] ), getNode( t.verts[1] ), 
+					getNode( t.verts[2] ), getNode( t.verts[3] ) );
+			return true;
+		}
+	}
+
+	return false;
+}
+
 vector<int>& gcm::TetrMeshFirstOrder::getVolumeElementsForNode(int index)
 {
 	// Get local index

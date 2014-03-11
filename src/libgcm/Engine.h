@@ -294,6 +294,8 @@ namespace gcm
 
 		float getGmshVerbosity();
 		void setGmshVerbosity(float verbosity);
+		
+		bool interpolateNode(CalcNode& node);
 	};
 }
 
