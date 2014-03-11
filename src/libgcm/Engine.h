@@ -129,7 +129,7 @@ namespace gcm
 		
 		string defaultRheoCalcType;
 
-		float gmshVerbosity = 5.0;
+		float gmshVerbosity;
 
 		/*
 		 * Logger.

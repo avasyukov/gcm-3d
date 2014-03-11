@@ -112,6 +112,8 @@ gcm::Engine::Engine()
 	stepsPerSnap = 1;
 	contactThresholdType = CONTACT_THRESHOLD_BY_AVG_H;
 	contactThresholdFactor = 1.0;
+	
+	gmshVerbosity = 0.0;
 }
 
 gcm::Engine::~Engine()
