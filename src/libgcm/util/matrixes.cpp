@@ -37,7 +37,7 @@ bool gcm::gcm_matrix::operator==(const gcm_matrix &A) const
 
 	for (int i = 0; i < GCM_MATRIX_SIZE; ++i)
 		for (int j = 0; j < GCM_MATRIX_SIZE; ++j)
-			if(fabs(p[i][j] - A.p[i][j]) > EQUALITY_TOLERANCE * max)
+			if(fabs(p[i][j] - A.p[i][j]) > EQUALITY_TOLERANCE * 100 * max)
 				return false;
 	return true;
 };
@@ -78,6 +78,19 @@ gcm::gcm_matrix gcm::gcm_matrix::operator-(const gcm_matrix &A) const
                         res_matrix.p[r][c] = this->p[r][c] - A.p[r][c];
         return res_matrix;
 };
+
+gcm::gcm_matrix gcm::gcm_matrix::operator/(const gcm_matrix &A) const
+{
+	gcm_matrix res_matrix;
+        for (int r = 0; r < GCM_MATRIX_SIZE; r++)
+                for (int c = 0; c < GCM_MATRIX_SIZE; c++) {
+                        res_matrix.p[r][c] = this->p[r][c] / A.p[r][c];
+						if ( ! A.p[r][c] && ! this->p[r][c] )
+							res_matrix.p[r][c] = 0;
+				}
+        return res_matrix;
+}
+
 
 float gcm::gcm_matrix::max_abs_value() const
 {

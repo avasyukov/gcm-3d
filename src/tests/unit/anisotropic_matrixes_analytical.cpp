@@ -10,7 +10,8 @@
 
 TEST(AnisotropicMatrix3DAnalytical, FuzzyMultiplication) 
 {
-	srand(time(NULL));
+srand(time(NULL));
+for (int count = 0; count < ITERATIONS; count++) {
 	float L[6][6];
 	for (int i = 0; i < 6; i++) {
 		for (int j = 0; j < i; j++)
@@ -54,6 +55,7 @@ TEST(AnisotropicMatrix3DAnalytical, FuzzyMultiplication)
 
 	float rho = 1.0 * rand()/RAND_MAX * (tmpmax - tmpmin) + tmpmin;
 	
+	
 //	// hexagonal symmetry from Azerbaijan
 //	// TODO - what is the system of units?
 //	C.c11 = 1.06e+6; // ,MPa
@@ -70,6 +72,8 @@ TEST(AnisotropicMatrix3DAnalytical, FuzzyMultiplication)
 	gcm::AnisotropicMatrix3DAnalytical m;
 	for (int stg = 0; stg < 3; stg++) {
 		m.prepare_matrix(C, rho, stg);
+		cout << stg << endl;
 		m.self_check();
 	}
+}
 }

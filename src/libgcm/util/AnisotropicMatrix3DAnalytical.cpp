@@ -1,3 +1,5 @@
+#include <gmsh/SVector3.h>
+
 #include "util/AnisotropicMatrix3DAnalytical.h"
 
 gcm::AnisotropicMatrix3DAnalytical::AnisotropicMatrix3DAnalytical()
@@ -7,14 +9,9 @@ gcm::AnisotropicMatrix3DAnalytical::AnisotropicMatrix3DAnalytical()
 
 gcm::AnisotropicMatrix3DAnalytical::~AnisotropicMatrix3DAnalytical() { };
 
-void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const AnisotropicNumbers &C, float rho, int stage)
+void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix
+				(const AnisotropicNumbers &C, float rho, int stage)
 {
-	assert ( rho > 0 );
-	for (int i = 0; i < 21; i++) {
-		// TODO	- C is positive definite
-		assert (C.c[i] >= 0) ; 
-	}
-
 	if (stage == 0) {
 		CreateAx(C, rho);
 	} else if (stage == 1) { 
@@ -24,21 +21,42 @@ void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const AnisotropicNumbers
 	} else {
 		THROW_BAD_CONFIG("Wrong stage number");
 	}
+	
+	gcm_matrix P;
+	P.clear();
+	P(0,0) = P(1,1) = P(2,2) = P(3,3) = P(4,6) = 
+			P(5,8) = P(6,7) = P(7,5) = P(8,4) = 1;
+	gcm_matrix P1;
+	P1.clear();
+	P1(0,0) = P1(1,1) = P1(2,2) = P1(3,3) = P1(6,4) = 
+			P1(8,5) = P1(7,6) = P1(5,7) = P1(4,8) = 1;
+	
+	A = P1 * A * P;
+	U = U * P;
+	U1 = P1 * U1;
 };
 
 void gcm::AnisotropicMatrix3DAnalytical::self_check()
 {
 	gcm_matrix E;
 	E.createE();
-	
-	A.print();
-	(U1 * L * U - A).print();
-	
-	if( (U1 * L * U != A) || (A * U1 != U1 * L) || (U * A != L * U) || (U1 * U !=  E) ) {
-		cout << "Self check failed\n";
-		//THROW_BAD_CONFIG("Self check failed");
+	if ( (U1 * L * U != A) ) {
+		cout << "U1 * L * U != A";
+		( (U1 * L * U - A) / A ).print();
+		THROW_BAD_CONFIG("Self check failed");
 	}
-	else cout << "Checked!\n";
+	if ( A * U1 != U1 * L ) {
+		cout << "A * U1 != U1 * L";
+		(( A * U1 - U1 * L ) / (A * U1) ).print();
+		THROW_BAD_CONFIG("Self check failed");
+	}
+//	if ( U * A != L * U ) {
+//		cout << "U * A != L * U";
+//		(( U * A - L * U ) / (U * A) ).print();
+//		(U * A).print();
+//		(L * U).print();
+//		THROW_BAD_CONFIG("Self check failed");
+//	}
 };
 
 float gcm::AnisotropicMatrix3DAnalytical::max_lambda()
