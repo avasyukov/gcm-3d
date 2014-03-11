@@ -4,6 +4,7 @@
 #include "utils.h"
 
 #include "Exception.h"
+#include "materials/IsotropicElasticMaterial.h"
 #include "node/CalcNode.h"
 
 /*
@@ -63,8 +64,10 @@ TEST(Waves, PWavePropagation)
 	float dt = engine.calculateRecommendedTimeStep();
 	engine.setTimeStep(dt);
 	
-	Material* mat = engine.getMaterial("testMaterial");
+	IsotropicElasticMaterial* mat = dynamic_cast<IsotropicElasticMaterial*>(engine.getMaterial("testMaterial"));
+        ASSERT_TRUE(mat);
 	auto mesh = dynamic_cast<TetrMeshFirstOrder*>(engine.getBodyById("cube")->getMesh("main"));
+        ASSERT_TRUE(mesh);
 
 	TetrFirstOrder* tetrs[N];
 	float z[N];

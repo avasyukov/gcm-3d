@@ -1,6 +1,9 @@
 #include "mesh/tetr/TetrMeshFirstOrder.h"
 
+#include <unordered_map>
+
 #include "node/CalcNode.h"
+#include "materials/IsotropicElasticMaterial.h"
 
 gcm::TetrMeshFirstOrder::TetrMeshFirstOrder()
 {
@@ -1105,7 +1108,7 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
 		return;
 	}
 
-	float maxLambda = getMaxLambda();
+	float maxLambda = getMaxEigenvalue();
 	for( int i = 0; i < 3; i++ )
 	{
 		areaOfInterest.min_coords[i] = outline.min_coords[i] - 2 * maxLambda * tau;
@@ -1277,7 +1280,7 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
 
 float gcm::TetrMeshFirstOrder::getRecommendedTimeStep()
 {
-	return getAvgH() / getMaxLambda();
+	return getAvgH() / getMaxEigenvalue();
 };
 
 float gcm::TetrMeshFirstOrder::getMinH()
@@ -1362,7 +1365,12 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, floa
 	
 	float l2 = dx*dx + dy*dy + dz*dz;
 	float tau = gcm::Engine::getInstance().getTimeStep();
-	float c2sqr = node.getC2sqr();
+        
+        
+        // FIXME get rid of hardcoded material type
+        IsotropicElasticMaterial* mat = dynamic_cast<IsotropicElasticMaterial*>(node.getMaterial());
+        assert(mat);
+	float c2sqr = mat->getMu() / mat->getRho();
 	
 	short scale = -1;
 	if( fabs(l2 - tau*tau*c2sqr) < l2 * EQUALITY_TOLERANCE )

@@ -4,16 +4,6 @@ gcm::RheologyMatrix3D::~RheologyMatrix3D()
 {
 }
 
-void gcm::RheologyMatrix3D::prepareMatrix(initializer_list<gcm_real> params, unsigned int stage)
-{
-	switch (stage) {
-		case 0: createAx(params); break;
-		case 1: createAy(params); break;
-		case 2: createAz(params); break;
-		default: THROW_BAD_CONFIG("Wrong stage number");
-	}		
-}
-
 gcm_real gcm::RheologyMatrix3D::getMaxEigenvalue() const
 {
 	float res = 0;

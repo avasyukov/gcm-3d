@@ -3,7 +3,7 @@
 
 #include "mesh/markers/MarkeredMesh.h"
 #include "mesh/markers/MarkeredBoxMeshGenerator.h"
-#include "Material.h"
+#include "materials/IsotropicElasticMaterial.h"
 #include "Utils.h"
 
 using namespace std;
@@ -29,7 +29,7 @@ protected:
 
     static void SetUpTestCase()
     {
-        Material mat("default");
+        IsotropicElasticMaterial mat("default", 0, 0, 0, 0);
         Engine::getInstance().addMaterial(&mat);
     }
 

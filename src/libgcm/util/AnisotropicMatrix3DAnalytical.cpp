@@ -7,12 +7,12 @@ gcm::AnisotropicMatrix3DAnalytical::AnisotropicMatrix3DAnalytical()
 
 gcm::AnisotropicMatrix3DAnalytical::~AnisotropicMatrix3DAnalytical() { };
 
-void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const AnisotropicNumbers &C, float rho, int stage)
+void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho, int stage)
 {
 	assert ( rho > 0 );
 	for (int i = 0; i < 21; i++) {
 		// TODO	- Are there any other limits on anisotropic coefficients?
-		assert (C.c[i] >= 0) ; 
+		assert (C.values[i] >= 0) ; 
 	}
 
 	if (stage == 0) {
@@ -26,13 +26,13 @@ void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const AnisotropicNumbers
 	}
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const AnisotropicNumbers &C, float rho, 
+void gcm::AnisotropicMatrix3DAnalytical::prepare_matrix(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho, 
 											float qjx, float qjy, float qjz)
 {
 	assert ( rho > 0 );
 	for (int i = 0; i < 21; i++) {
 		// TODO	- Are there any other limits on anisotropic coefficients?
-		assert (C.c[i] >= 0) ; 
+		assert (C.values[i] >= 0) ; 
 	}
 	assert( fabs( vectorNorm(qjx, qjy, qjz) - 1 ) < EQUALITY_TOLERANCE );
 
@@ -64,7 +64,7 @@ void gcm::AnisotropicMatrix3DAnalytical::zero_all()
 	U1.clear();
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::CreateAx(const AnisotropicNumbers &C, float rho)
+void gcm::AnisotropicMatrix3DAnalytical::CreateAx(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho)
 {
 	zero_all();
 
@@ -106,7 +106,7 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAx(const AnisotropicNumbers &C, f
 	U.inv();
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::CreateAy(const AnisotropicNumbers &C, float rho)
+void gcm::AnisotropicMatrix3DAnalytical::CreateAy(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho)
 {
 	zero_all();
 
@@ -148,7 +148,7 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAy(const AnisotropicNumbers &C, f
 	U.inv();
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::CreateAz(const AnisotropicNumbers &C, float rho)
+void gcm::AnisotropicMatrix3DAnalytical::CreateAz(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho)
 {
 	zero_all();
 
@@ -190,7 +190,7 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAz(const AnisotropicNumbers &C, f
 	U.inv();
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::CreateGeneralizedMatrix(const AnisotropicNumbers &C, float rho, 
+void gcm::AnisotropicMatrix3DAnalytical::CreateGeneralizedMatrix(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho, 
 													float qjx, float qjy, float qjz)
 {/*
 
@@ -477,7 +477,7 @@ void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(float **M, float *x
 };
 
 void gcm::AnisotropicMatrix3DAnalytical::findEigenVec(float *eigenVec,
-					float l, float rho, const AnisotropicNumbers &C, int stage)
+					float l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage)
 {
 	// Analitycal search eigenvectors
 	// M * x = 0, x = (x1, x2, x3)

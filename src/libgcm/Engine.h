@@ -21,13 +21,13 @@
 #include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
 #include "interpolator/LineFirstOrderInterpolator.h"
 //
+#include "materials/Material.h"
 #include "rheology/RheologyCalculator.h"
 #include "rheology/DummyRheologyCalculator.h"
 #include "rheology/StdRheologyCalculator.h"
 #include "GCMDispatcher.h"
 #include "DummyDispatcher.h"
 #include "DataBus.h"
-#include "Material.h"
 #include "BorderCondition.h"
 #include "ContactCondition.h"
 #include "CollisionDetector.h"
@@ -249,8 +249,8 @@ namespace gcm
 		Body* getBodyById(string id);
 		int getBodyNum(string id);
 		
-		unsigned char getMaterialIndex(string id);
-		Material* getMaterial(string id);
+		unsigned char getMaterialIndex(string name);
+		Material* getMaterial(string name);
 		Material* getMaterial(unsigned char index);
 		
 		Body* getBody(unsigned int num);

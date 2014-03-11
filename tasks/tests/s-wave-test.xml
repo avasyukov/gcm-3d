@@ -7,7 +7,12 @@
 		</body>
 	</bodies>
 	<materials>
-		<material id="testMaterial" la="70000" mu="10000" rho="1" />
+            <material name="testMaterial" type="IEM">
+                <la>70000</la>
+                <mu>10000</mu> 
+                <rho>1</rho>
+                <crackThreshold>1</crackThreshold>
+            </material>
 	</materials>
 	<initialState>
 		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>

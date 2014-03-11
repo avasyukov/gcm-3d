@@ -20,7 +20,7 @@ namespace gcm {
      * Calculation node implementaion. Contains all necessary information
      * about node used in computations.
      */
-    class CalcNode : public Node {
+    class CalcNode : public ICalcNode {
         friend class DataBus;
         friend class VtuTetrFileReader;
         friend class Vtu2TetrFileReader;
@@ -126,62 +126,6 @@ namespace gcm {
          */
         uchar bodyId;
 
-        union {
-            gcm_real values[GCM_VALUES_SIZE];
-
-            struct {
-
-                union {
-                    gcm_real velocity[3];
-
-                    struct {
-                        /**
-                         * Velocity vector x component.
-                         */
-                        gcm_real vx;
-                        /**
-                         * Velocity vector y component.
-                         */
-                        gcm_real vy;
-                        /**
-                         * Velocity vector z component.
-                         */
-                        gcm_real vz;
-                    };
-                };
-
-                union {
-                    gcm_real stress[6];
-
-                    struct {
-                        /**
-                         * Stress tensor xx component.
-                         */
-                        gcm_real sxx;
-                        /**
-                         * Stress tensor xy component.
-                         */
-                        gcm_real sxy;
-                        /**
-                         * Stress tensor xz component.
-                         */
-                        gcm_real sxz;
-                        /**
-                         * Stress tensor yy component.
-                         */
-                        gcm_real syy;
-                        /**
-                         * Stress tensor yz component.
-                         */
-                        gcm_real syz;
-                        /**
-                         * Stress tensor zz component.
-                         */
-                        gcm_real szz;
-                    };
-                };
-            };
-        };
         /**
          * Default constructor. Constructs node with default parameters.
          */
@@ -453,19 +397,32 @@ namespace gcm {
          */
         uchar getContactConditionId() const;
         /**
-         * Sets node material id. 
+         * Sets node material id.  Sets material id and updates values for
+         * node material-related fields (e.g. rho)
          *
          * @param id Material id
-         * @param update Update node material properties (currently rho only).
          */
         void setMaterialId(uchar id);
         /**
-         * Returns node material id. Sets material id and updates values for
-         * node material-related fields (e.g. rho)
+         * Returns node material id.
          * 
          * @return Material id.
          */
         uchar getMaterialId() const;
+        /**
+         * Returns node material.
+         * 
+         * @return Material.
+         */
+        Material* getMaterial() const override;
+        
+        /**
+         * Returns rheology matrix for node. It's wrapper for corresponding
+         * material APIs.
+         * 
+         * @return Rheology matrix.
+         */
+        RheologyMatrix3D& getRheologyMatrix() const;
 
         /**
          * Sets density value for node.
@@ -477,7 +434,7 @@ namespace gcm {
          * Returns density value for node.
          * @return Density value.
          */
-        gcm_real getRho() const;
+        gcm_real getRho() const override;
         /**
          * Returns density value for the material. Returns node-independent
          * density value (material-specific).
@@ -486,44 +443,6 @@ namespace gcm {
          */
         gcm_real getRho0() const;
         
-        /**
-         * Returns lambda (Lame parameter).
-         * 
-         * @return Lambda value
-         */
-        gcm_real getLambda() const;
-        /**
-         * Returns mu (Lame parameter).
-         * 
-         * @return Mu value
-         */
-        gcm_real getMu() const;
-        
-        /**
-         * Returns c1 value. TODO document
-         * 
-         * @return TODO document
-         */
-        gcm_real getC1() const;
-        /**
-         * Returns c2 value. TODO document
-         * 
-         * @return TODO document
-         */
-        gcm_real getC2() const;
-        /**
-         * Returns c1^2 value. TODO document
-         * 
-         * @return TODO document
-         */
-        gcm_real getC1sqr() const;
-        /**
-         * Returns c2^2 value. TODO document
-         * 
-         * @return TODO document
-         */
-        gcm_real getC2sqr() const;
-
         /**
          * Returns crack direction. TODO document
          * 

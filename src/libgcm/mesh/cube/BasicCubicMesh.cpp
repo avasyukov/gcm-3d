@@ -71,7 +71,7 @@ void gcm::BasicCubicMesh::checkTopology(float tau)
 
 float gcm::BasicCubicMesh::getRecommendedTimeStep()
 {
-	return getMinH() / getMaxLambda();
+	return getMinH() / getMaxEigenvalue();
 };
 
 void gcm::BasicCubicMesh::calcMinH()

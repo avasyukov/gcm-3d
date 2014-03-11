@@ -272,12 +272,11 @@ void gcm::Mesh::processCrackState()
 			float m_s[3];
 			node.getMainStressComponents(m_s[0], m_s[1], m_s[2]);
 			int i_ms=0; if (m_s[1]>m_s[i_ms]) i_ms=1; if (m_s[2]>m_s[i_ms]) i_ms = 2;
-                        // FIXME_ASAP revert
-			//if (m_s[i_ms] > node.getCrackThreshold())
-//			{
-//				node.createCrack(i_ms);
-//				LOG_TRACE("New crack detected at node " << node);
-//			}
+			if (m_s[i_ms] > node.getMaterial()->getCrackThreshold())
+			{
+				node.createCrack(i_ms);
+				LOG_TRACE("New crack detected at node " << node);
+			}
 		}
 	}
 }
@@ -343,7 +342,7 @@ void gcm::Mesh::moveCoords(float tau)
 	LOG_DEBUG("New outline: " << outline);
 };
 
-float gcm::Mesh::getMaxLambda()
+float gcm::Mesh::getMaxEigenvalue()
 {
 	NumericalMethod *method = body->getEngine()->getNumericalMethod(numericalMethodType);
 	assert(method != NULL);
@@ -351,24 +350,21 @@ float gcm::Mesh::getMaxLambda()
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
 		CalcNode& node = getNodeByLocalIndex(i);
-		float lambda = method->getMaxLambda( node );
-		if( lambda > maxLambda )
-			maxLambda = lambda;
+		RheologyMatrix3D& m =  node.getRheologyMatrix();
+                m.createAx(node);
+                auto l1 = m.getMaxEigenvalue();
+                m.createAy(node);
+                auto l2 = m.getMaxEigenvalue();
+                m.createAz(node);
+                auto l3 = m.getMaxEigenvalue();
+		maxLambda = max({maxLambda, l1, l2, l3});
 	}
 	return maxLambda;
 }
 
 float gcm::Mesh::getMaxPossibleTimeStep()
 {
-	NumericalMethod *method = body->getEngine()->getNumericalMethod(numericalMethodType);
-	float maxLambda = 0;
-	for(int i = 0; i < getNodesNumber(); i++)
-	{
-		CalcNode& node = getNodeByLocalIndex(i);
-		float lambda = method->getMaxLambda( node );
-		if( lambda > maxLambda )
-			maxLambda = lambda;
-	}
+	auto maxLambda = getMaxEigenvalue();
 	LOG_DEBUG( "Min H over mesh is " << getMinH() );
 	LOG_DEBUG( "Max lambda over mesh is " << maxLambda );
 	LOG_DEBUG( "Courant time step is " << getMinH() / maxLambda );

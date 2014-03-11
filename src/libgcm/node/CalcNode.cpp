@@ -8,7 +8,7 @@ gcm::CalcNode::CalcNode(int num) : CalcNode(num, 0.0, 0.0, 0.0)
 {
 }
 
-gcm::CalcNode::CalcNode(int num, gcm_real x, gcm_real y, gcm_real z) : Node(num, x, y, z)
+gcm::CalcNode::CalcNode(int num, gcm_real x, gcm_real y, gcm_real z) : ICalcNode(num, x, y, z)
 {
     bodyId = -1;
     memset(values, 0, GCM_VALUES_SIZE * sizeof (gcm_real));
@@ -23,7 +23,7 @@ gcm::CalcNode::CalcNode(int num, gcm_real x, gcm_real y, gcm_real z) : Node(num,
     crackDirection[0] = crackDirection[1] = crackDirection[2] = 0.0;
 }
 
-gcm::CalcNode::CalcNode(const CalcNode& src)
+gcm::CalcNode::CalcNode(const CalcNode& src): ICalcNode(src)
 {
     *this = src;
 }
@@ -376,6 +376,16 @@ uchar gcm::CalcNode::getMaterialId() const
     return materialId;
 }
 
+RheologyMatrix3D& gcm::CalcNode::getRheologyMatrix() const
+{
+    return getMaterial()->getRheologyMatrix();
+}
+
+Material* gcm::CalcNode::getMaterial() const
+{
+    return Engine::getInstance().getMaterial(materialId);
+}
+
 void gcm::CalcNode::setRho(gcm_real rho)
 {
     this->rho = rho;
@@ -389,36 +399,6 @@ gcm_real gcm::CalcNode::getRho() const
 gcm_real gcm::CalcNode::getRho0() const
 {
     return Engine::getInstance().getMaterial(materialId)->getRho();
-}
-
-gcm_real gcm::CalcNode::getLambda() const
-{
-    return Engine::getInstance().getMaterial(materialId)->getLambda();
-}
-
-gcm_real gcm::CalcNode::getMu() const
-{
-    return Engine::getInstance().getMaterial(materialId)->getMu();
-}
-
-gcm_real gcm::CalcNode::getC1() const
-{
-    return sqrt(getC1sqr());
-}
-
-gcm_real gcm::CalcNode::getC2() const
-{
-    return sqrt(getC2sqr());
-}
-
-gcm_real gcm::CalcNode::getC1sqr() const
-{
-    return (getLambda() + 2 * getMu()) / getRho();
-}
-
-gcm_real gcm::CalcNode::getC2sqr() const
-{
-    return getMu() / getRho();
 }
 
 const vector3& gcm::CalcNode::getCrackDirection() const

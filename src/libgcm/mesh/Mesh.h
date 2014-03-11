@@ -218,7 +218,7 @@ namespace gcm {
 		void processCrackResponse();
 		void moveCoords(float tau);
 		
-		float getMaxLambda();
+		float getMaxEigenvalue();
 		float getMaxPossibleTimeStep();
 		
 		void defaultNextPartStep(float tau, int stage);

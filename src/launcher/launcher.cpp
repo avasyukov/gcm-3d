@@ -1,6 +1,9 @@
 #include "launcher.h"
 
-#include "xml.h"
+#include "util/xml.h"
+
+#include "loaders/material/AnisotropicElasticMaterialLoader.h"
+#include "loaders/material/IsotropicElasticMaterialLoader.h"
 
 #include "util/forms/StepPulseForm.h"
 #include "mesh/Mesh.h"
@@ -20,7 +23,7 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
 	string fname = fls.lookupFile(fileName);
 	LOG_DEBUG("Loading scene from file " << fname);
 	// parse file
-	Doc doc = Doc(fname);
+	Doc doc = Doc::fromFile(fname);
 	xml::Node rootNode = doc.getRootElement();
 	// read task parameters
 	NodeList taskNodes = rootNode.xpath("/task");
@@ -120,22 +123,13 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
 	NodeList matNodes = rootNode.xpath("/task/materials/material");
 	for(auto& matNode: matNodes)
 	{
-		string id = getAttributeByName(matNode.getAttributes(), "id");
-		float la = atof( getAttributeByName(matNode.getAttributes(), "la").c_str() );
-		float mu = atof( getAttributeByName(matNode.getAttributes(), "mu").c_str() );
-		float rho = atof( getAttributeByName(matNode.getAttributes(), "rho").c_str() );
-		// Use INF as default value for backward compatibility
-		float ct =  atof( getAttributeByName(matNode.getAttributes(), "crackThreshold", "INF").c_str() );
-		float at =  atof( getAttributeByName(matNode.getAttributes(), "adhesionThreshold", "INF").c_str() );
-		if( la <= 0 || mu <= 0 || rho <= 0 )
-			LOG_ERROR("Incorrect rheology in task file for material: " << id);
-		LOG_DEBUG("Loaded material " << id << " with properties: (" << la << "; " << mu << "; " << rho << ")");
-		Material* mat = new Material(id);
-		mat->setRho(rho);
-		mat->setLame(la, mu);
-		mat->setCrackThreshold(ct);
-		mat->setAdhesionThreshold(at);
-		engine.addMaterial(mat);
+		string type = getAttributeByName(matNode.getAttributes(), "type");
+                if (type == AnisotropicElasticMaterialLoader::TYPE)
+                    engine.addMaterial(AnisotropicElasticMaterialLoader::getInstance().load(matNode));
+                else if (type == IsotropicElasticMaterialLoader::TYPE)
+                    engine.addMaterial(IsotropicElasticMaterialLoader::getInstance().load(matNode));
+                else
+                    THROW_UNSUPPORTED("Unsupported rheology type found: " + type);
 	}
 
 	AABB globalScene;

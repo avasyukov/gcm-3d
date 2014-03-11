@@ -20,6 +20,7 @@ GCM3D              = $(BUILD)/gcm3d
 CCFLAGS     += -Wall $(shell pkg-config --cflags $(LIBS))
 CCFLAGS     += -I$(shell find /usr/include -maxdepth 1 -name vtk* | head -n1)
 CCFLAGS     += -Wno-deprecated
+CCFLAGS     += -I./src/launcher
 CCFLAGS     += -I./src/libgcm
 CCFLAGS     += -I./src/
 CCFLAGS     += -std=c++11
@@ -27,24 +28,27 @@ CCFLAGS     += -DCONFIG_ENABLE_LOGGING
 CCFLAGS     += -O3 -funroll-loops
 #CCFLAGS     += -O0 -g
 
+LIBDIRS      = $(shell uname -m | grep -q x86_64 && echo /usr/lib /usr/lib64 || echo /usr/lib)
 LDFLAGS     += $(shell pkg-config --libs $(LIBS))
-LDFLAGS     += $(shell find /usr/lib -maxdepth 1 -iname libgmsh.so -printf %f | sed 's/lib\(.*\).so/-l\1/g' )
-LDFLAGS     += -L$(shell find /usr/lib -maxdepth 1 -name vtk* | head -n1)
+LDFLAGS     += -l$(shell find $(LIBDIRS) -maxdepth 1 -iname libgmsh.so -printf %f -quit | sed 's/lib\(.*\).so/\1/g' )
+LDFLAGS     += -L$(shell find $(LIBDIRS) -maxdepth 1 -name vtk* -print -quit)
 LDFLAGS     += -L$(BUILD)
 LDFLAGS     += -Wl,-rpath=$(BUILD)
 
-LIB_SOURCES      =   $(shell find src/libgcm -iname *.cpp)
-LAUNCHER_SOURCES =   $(shell find src/launcher -iname *.cpp)
-UNIT_SOURCES     =   $(shell find src/tests/unit -iname *.cpp)
+LIB_SOURCES       =  $(shell find src/libgcm -iname *.cpp)
+LAUNCHER_SOURCES  =  $(shell find src/launcher -iname *.cpp) 
 
-FUNC_SOURCES     =   $(shell find src/tests/func -iname *.cpp)
-FUNC_SOURCES     +=  src/launcher/launcher.cpp
-FUNC_SOURCES     +=  src/launcher/xml.cpp
+UNIT_SOURCES      =  $(shell find src/tests/unit -iname *.cpp)
+UNIT_SOURCES      += $(shell find src/launcher/loaders -iname *.cpp)
+UNIT_SOURCES      += src/launcher/util/xml.cpp
 
-LIB_OBJS         =   $(patsubst %.cpp, $(BUILD)/%.o, $(LIB_SOURCES))
-LAUNCHER_OBJS    =   $(patsubst %.cpp, $(BUILD)/%.o, $(LAUNCHER_SOURCES))
-UNIT_OBJS        =   $(patsubst %.cpp, $(BUILD)/%.o, $(UNIT_SOURCES))
-FUNC_OBJS        =   $(patsubst %.cpp, $(BUILD)/%.o, $(FUNC_SOURCES))
+FUNC_SOURCES      =  $(shell find src/tests/func -iname *.cpp)
+FUNC_SOURCES      += $(shell find src/launcher -iname *.cpp ! -name main.cpp)
+
+LIB_OBJS              =   $(patsubst %.cpp, $(BUILD)/%.o, $(LIB_SOURCES))
+LAUNCHER_OBJS         =   $(patsubst %.cpp, $(BUILD)/%.o, $(LAUNCHER_SOURCES))
+UNIT_OBJS             =   $(patsubst %.cpp, $(BUILD)/%.o, $(UNIT_SOURCES))
+FUNC_OBJS             =   $(patsubst %.cpp, $(BUILD)/%.o, $(FUNC_SOURCES))
 
 default: $(GCM3D)
 
@@ -82,7 +86,7 @@ $(GCMLIB_SO_1): $(GCMLIB_SO_2)
 $(GCMLIB_SO): $(GCMLIB_SO_1)
 	ln -fsr $(GCMLIB_SO_1) $(GCMLIB_SO)
 
-all: gcm3d tests utils
+all: $(GCM3D) tests utils
 	
 tests: $(GCM3D_UNIT_TESTS) $(GCM3D_FUNC_TESTS)
 
@@ -114,7 +118,7 @@ $(GCM3D_FUNC_TESTS): $(GCMLIB_SO) $(FUNC_OBJS)
 	 $(FUNC_OBJS)            \
 	 -o $@
 
-$(GCM3D_VIEW_NORMALS): tools/markers-normals/main.cpp
+$(GCM3D_VIEW_NORMALS): tools/markers-normals/main.cpp $(GCMLIB_SO)
 	$(CC)                    \
 	 $(CCFLAGS)              \
 	-I/usr/include/irrlicht  \

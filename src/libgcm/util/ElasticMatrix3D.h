@@ -8,23 +8,37 @@
 #include "Exception.h"
 
 using namespace gcm;
+using namespace std;
 
-namespace gcm {
-	/**
-	 * @brief Elastic rheology matrix implementation.
-	 * @details Creates corresponding rheology matrices for case 
-	 *          of elastic  material. Params in this case contain
-	 *          lambda, mu and rho.
-	 */
-	class ElasticMatrix3D: public RheologyMatrix3D
-	{
-	protected:
-		void clear();
-		void getRheologyParameters(initializer_list<gcm_real> params, gcm_real& lambda, gcm_real& mu, gcm_real& rho);
-		virtual void createAx(initializer_list<gcm_real> params) override;
-		virtual void createAy(initializer_list<gcm_real> params) override;
-		virtual void createAz(initializer_list<gcm_real> params) override;
-	};
+namespace gcm
+{
+
+    /**
+     * @brief Elastic rheology matrix implementation.
+     * @details Creates corresponding rheology matrices for case 
+     *          of elastic  material. Params in this case contain
+     *          lambda, mu and rho.
+     */
+    class ElasticMatrix3D : public RheologyMatrix3D
+    {
+    protected:
+        void clear();
+    public:
+        void createAx(const ICalcNode& node) override;
+        void createAy(const ICalcNode& node) override;
+        void createAz(const ICalcNode& node) override;
+//        /**
+//         * Prepares matrices using specified values. Creates 
+//         * rheology matrices (\f$A_x\f$, \f$A_y\f$, \f$A_z\f$) depending
+//         * on stage.
+//         *  
+//         * @param lambda Lame \f$\lambda\f$ parameter
+//         * @param mu Lame \f$\mu\f$ parameter
+//         * @param rho Material density
+//         * @param stage Calculation stage
+//         */
+//        void prepare(gcm_real lamba, gcm_real mu, gcm_real rho, uint stage);
+    };
 }
 
 #endif

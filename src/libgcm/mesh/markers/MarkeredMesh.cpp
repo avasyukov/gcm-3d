@@ -5,7 +5,7 @@
 #include "Math.h"
 
 float gcm::MarkeredMesh::getRecommendedTimeStep() {
-	return getMinH()/getMaxLambda();
+	return getMinH()/getMaxEigenvalue();
 }
 
 

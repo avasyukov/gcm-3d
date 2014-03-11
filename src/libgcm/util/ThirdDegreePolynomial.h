@@ -2,6 +2,7 @@
 #define	THIRDDEGREEPOLYNOMIAL_H 1
 
 #include "util/AnisotropicMatrix3DAnalytical.h"
+#include "materials/IAnisotropicElasticMaterial.h"
 
 namespace gcm {
 	class ThirdDegreePolynomial
@@ -14,7 +15,7 @@ namespace gcm {
 		float roots[3];
 		void findRoots();
 	public:
-		ThirdDegreePolynomial(float rho, const AnisotropicNumbers &C, int stage);
+		ThirdDegreePolynomial(float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage);
 		~ThirdDegreePolynomial();
 		void getRoots(float *place);
 	};

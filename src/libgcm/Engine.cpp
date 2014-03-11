@@ -253,7 +253,7 @@ unsigned char gcm::Engine::addMaterial(Material* material)
 		THROW_INVALID_ARG("Material parameter cannot be NULL");
 	materials.push_back(material);
 	unsigned char index = materials.size() - 1;
-	LOG_DEBUG("Added new material. Id: " << material->getId() << " Index: " << (int)index);
+	LOG_DEBUG("Added new material. Name: " << material->getName() << " Index: " << (int)index);
 	return index;
 }
 
@@ -293,18 +293,18 @@ void gcm::Engine::replaceDefaultContactCondition(ContactCondition *contactCondit
 	LOG_DEBUG("Default contact condition set");
 }
 
-unsigned char gcm::Engine::getMaterialIndex(string id)
+unsigned char gcm::Engine::getMaterialIndex(string name)
 {
 	for (unsigned char i = 0; i < materials.size(); i++)
-		if (materials[i]->getId() == id)
+		if (materials[i]->getName() == name)
 			return i;
 	THROW_INVALID_ARG("Material was not found");
 }
 
-Material* gcm::Engine::getMaterial(string id)
+Material* gcm::Engine::getMaterial(string name)
 {
 	for (unsigned char i = 0; i < materials.size(); i++)
-		if (materials[i]->getId() == id)
+		if (materials[i]->getName() == name)
 			return materials[i];
 	THROW_INVALID_ARG("Material was not found");
 }
@@ -628,13 +628,14 @@ float gcm::Engine::calculateRecommendedContactTreshold(float tau)
 	// Threshold depends on max lambda * tau
 	else if( contactThresholdType == CONTACT_THRESHOLD_BY_MAX_LT )
 	{
-		for( int j = 0; j < getNumberOfMaterials(); j++ )
-		{
-			Material* mat = getMaterial(j);
-			float lt = tau * sqrt( ( mat->getLambda() + 2 * mat->getMu() ) / mat->getRho() );
-			if( lt < threshold )
-				threshold = lt;
-		}
+            THROW_UNSUPPORTED("Dynamic contact threshold computation not supported yet");
+//		for( int j = 0; j < getNumberOfMaterials(); j++ )
+//		{
+//			Material* mat = getMaterial(j);
+//			float lt = tau * sqrt( ( mat->getLambda() + 2 * mat->getMu() ) / mat->getRho() );
+//			if( lt < threshold )
+//				threshold = lt;
+//		}
 	}
 	// Absolute threshold value
 	else if( contactThresholdType == CONTACT_THRESHOLD_FIXED )

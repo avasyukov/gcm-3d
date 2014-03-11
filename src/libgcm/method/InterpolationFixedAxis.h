@@ -7,6 +7,7 @@
 #include "mesh/Mesh.h"
 #include "util/AnisotropicMatrix3D.h"
 #include "util/ElasticMatrix3D.h"
+#include "util/Types.h"
 #include "node/CalcNode.h"
 #include "Logging.h"
 #include "Exception.h"
@@ -21,10 +22,9 @@ namespace gcm
 		virtual ~InterpolationFixedAxis();
 		int getNumberOfStages();
 		void doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh);
-		float getMaxLambda(CalcNode& node);
 		string getType();
 	protected:
-		int prepare_node(CalcNode& cur_node, RheologyMatrix3D& elastic_matrix3d,
+		int prepare_node(CalcNode& cur_node, RheologyMatrix3D& rheologyMatrix,
 				float time_step, int stage, Mesh* mesh,
 				float* dksi, bool* inner, vector<CalcNode>& previous_nodes,
 				float* outer_normal);

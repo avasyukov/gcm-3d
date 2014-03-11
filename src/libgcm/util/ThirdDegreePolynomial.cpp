@@ -1,7 +1,7 @@
 #include "util/ThirdDegreePolynomial.h"
 
 gcm::ThirdDegreePolynomial::ThirdDegreePolynomial(float rho, 
-								const AnisotropicNumbers &C, int stage)
+								const IAnisotropicElasticMaterial::RheologyParameters &C, int stage)
 {
 	if (stage == 0) {
 		a = -1/rho * ( C.c11 + C.c55 + C.c66 ) ;
