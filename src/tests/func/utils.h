@@ -2,6 +2,7 @@
 #define UTILS_H_
 
 #include <string>
+#include <vector>
 
 #include "mesh/tetr/TetrMesh.h"
 #include "elem/TetrFirstOrder.h"
@@ -28,16 +29,14 @@ std::string getDataFileName(int stepNum);
 
 Engine& loadTaskScenario(std::string taskFile);
 
-TetrFirstOrder* findTetr(TetrMesh* m, float x, float y, float z);
-
 void dumpPoint(CalcNode& analytical, CalcNode& numerical, SnapshotLine line, int stepNum);
 
-bool shouldDraw(std::string value, std::initializer_list<std::string> valuesToDraw);
+bool shouldDraw(std::string value, std::vector<std::string> valuesToDraw);
 
-void drawValues(std::initializer_list<std::string> valuesToDraw, int stepNum, std::vector<ValueLimit> *valueLimits);
+void drawValues(std::vector<std::string> valuesToDraw, int stepNum, std::vector<ValueLimit> *valueLimits);
 
 void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, Engine&), 
-						int stepsNum, SnapshotLine line, std::initializer_list<std::string> valuesToDraw, 
+						int stepsNum, SnapshotLine line, std::vector<std::string> valuesToDraw, 
 						float ALLOWED_VALUE_DEVIATION_PERCENT, int ALLOWED_NUMBER_OF_BAD_NODES );
 
 #endif /* UTILS_H_ */

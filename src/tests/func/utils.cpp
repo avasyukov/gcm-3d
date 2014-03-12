@@ -7,7 +7,9 @@
 // TODO: may be just use boost for (a) mkdir, (b) rm -r, (c) case insensitive string match
 
 #include <iostream>
+#include <vector>
 #include <fstream>
+#include <string>
 #include <stdlib.h>
 // TODO: it's Linux only
 #include <sys/stat.h>
@@ -59,17 +61,6 @@ Engine& loadTaskScenario(std::string taskFile) {
 	return engine;
 }
 
-// TODO: remove it
-TetrFirstOrder* findTetr(TetrMesh* m, float x, float y, float z) {
-	for (int i = 0; i < m->getTetrsNumber(); i++) {
-		TetrFirstOrder& t = m->getTetrByLocalIndex(i);
-		if (pointInTetr(x, y, z, m->getNode(t.verts[0]).coords, m->getNode(t.verts[1]).coords, m->getNode(t.verts[2]).coords, m->getNode(t.verts[3]).coords, false))
-			return &t;
-	}
-
-	return nullptr;
-}
-
 void dumpPoint(CalcNode& analytical, CalcNode& numerical, SnapshotLine line, int stepNum)
 {
 	ofstream datafile;
@@ -90,16 +81,12 @@ void dumpPoint(CalcNode& analytical, CalcNode& numerical, SnapshotLine line, int
 	datafile.close();
 }
 
-bool shouldDraw(std::string value, std::initializer_list<std::string> valuesToDraw)
+bool shouldDraw(std::string value, std::vector<std::string> valuesToDraw)
 {
-	auto d = valuesToDraw.begin();
-	while (d != valuesToDraw.end())
-		if( value == *(d++))
-			return true;
-	return false;
+    return std::find(valuesToDraw.begin(), valuesToDraw.end(), value) != valuesToDraw.end();
 }
 
-void drawValues(std::initializer_list<std::string> valuesToDraw, int stepNum, std::vector<ValueLimit> *valueLimits)
+void drawValues(std::vector<std::string> valuesToDraw, int stepNum, std::vector<ValueLimit> *valueLimits)
 {
 	FILE* gnuplot = popen("gnuplot", "w");
 	if ( gnuplot == 0 )
@@ -108,7 +95,7 @@ void drawValues(std::initializer_list<std::string> valuesToDraw, int stepNum, st
 		return;
     }
 	
-	vector<std::string> values = {"vx", "vy", "vz", "sxx", "sxy", "sxz", "syy", "syz", "szz"};
+	vector<std::string> values {"vx", "vy", "vz", "sxx", "sxy", "sxz", "syy", "syz", "szz"};
 	for(unsigned int i = 0; i < values.size(); i++)
 	{
 		if( ! shouldDraw(values[i], valuesToDraw) )
@@ -151,13 +138,13 @@ void drawValues(std::initializer_list<std::string> valuesToDraw, int stepNum, st
 
 // TODO: change norm (current norm depends on number of points too heavily)
 void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, Engine&), 
-					int stepsNum, SnapshotLine line, std::initializer_list<std::string> valuesToDraw, 
+					int stepsNum, SnapshotLine line, std::vector<std::string> valuesToDraw, 
 					float ALLOWED_VALUE_DEVIATION_PERCENT, int ALLOWED_NUMBER_OF_BAD_NODES )
 {
 	// Create dir for test data
 	// TODO: rethink this ugly solution
 	std::string resDirName = getTestDataDirName();
-	system(("rm -r " + resDirName).c_str());
+	system(("rm -rf " + resDirName).c_str());
 	mkpath( resDirName );
 	
 	float time = 0.0;
