@@ -1,4 +1,5 @@
-BUILD=build
+BUILD       = build
+DEPS_DIR    = $(BUILD)/deps
 
 CC          =  mpic++ 
 LIBS        =  libxml-2.0 liblog4cxx gsl
@@ -23,6 +24,7 @@ CCFLAGS     += -Wno-deprecated
 CCFLAGS     += -I./src/launcher
 CCFLAGS     += -I./src/libgcm
 CCFLAGS     += -I./src/
+CCFLAGS     += -I/usr/include/irrlicht
 CCFLAGS     += -std=c++11
 CCFLAGS     += -DCONFIG_ENABLE_LOGGING
 CCFLAGS     += -O3 -funroll-loops
@@ -45,24 +47,40 @@ UNIT_SOURCES      += src/launcher/util/xml.cpp
 FUNC_SOURCES      =  $(shell find src/tests/func -iname *.cpp)
 FUNC_SOURCES      += $(shell find src/launcher -iname *.cpp ! -name main.cpp)
 
+VIEW_NORMALS_SOURCES = tools/markers-normals/main.cpp
+
 LIB_OBJS              =   $(patsubst %.cpp, $(BUILD)/%.o, $(LIB_SOURCES))
 LAUNCHER_OBJS         =   $(patsubst %.cpp, $(BUILD)/%.o, $(LAUNCHER_SOURCES))
 UNIT_OBJS             =   $(patsubst %.cpp, $(BUILD)/%.o, $(UNIT_SOURCES))
 FUNC_OBJS             =   $(patsubst %.cpp, $(BUILD)/%.o, $(FUNC_SOURCES))
+VIEW_NORMALS_OBJS     =   $(patsubst %.cpp, $(BUILD)/%.o, $(VIEW_NORMALS_SOURCES))
+
+DEPS =  $(LIB_SOURCES)
+DEPS += $(LAUNCHER_SOURCES)
+DEPS += $(FUNC_SOURCES)
+DEPS += $(UNIT_SOURCES)
+DEPS :=  $(DEPS:%.cpp=$(DEPS_DIR)/%.P)
+
 
 default: $(GCM3D)
 
 clean:
-	rm -rf $(BUILD)
+	@- rm -rf $(BUILD)
+
+$(DEPS_DIR)/%.P: %.cpp
+	$(shell mkdir -p $$(dirname $@))	
+	$(CC) -c $(CCFLAGS) -MM -MT $(BUILD)/$*.o -MF $@ $<	
+
 
 $(BUILD)/%.o: %.cpp
 	$(shell mkdir -p $$(dirname $@))
 	$(CC) -c $(CCFLAGS) -fpic -o $@ $<
 
+
 $(GCMLIB_SO_2): $(LIB_OBJS)
 	$(CC)                    \
 	 -shared                 \
-	-Wl,-soname,$(GCMLIB_SO) \
+	 -Wl,-soname,$(GCMLIB_SO)\
 	 $(LIB_OBJS)             \
 	 $(LDFLAGS)              \
 	 -lc                     \
@@ -118,17 +136,20 @@ $(GCM3D_FUNC_TESTS): $(GCMLIB_SO) $(FUNC_OBJS)
 	 $(FUNC_OBJS)            \
 	 -o $@
 
-$(GCM3D_VIEW_NORMALS): tools/markers-normals/main.cpp $(GCMLIB_SO)
+$(GCM3D_VIEW_NORMALS): $(VIEW_NORMALS_OBJS) $(GCMLIB_SO)
 	$(CC)                    \
 	 $(CCFLAGS)              \
-	-I/usr/include/irrlicht  \
 	 $(LDFLAGS)              \
 	 -lIrrlicht              \
 	 -lgcm                   \
-	 $^                      \
+	 $(VIEW_NORMALS_OBJS)    \
 	 -o $@
 
 doxy: $(DOXYFILE)
 	$(DOXY) $^
 
 .PHONY: default clean all doxy tests gcm3d utils
+	
+ifneq "$(MAKECMDGOALS)" "clean"
+-include $(DEPS)
+endif
