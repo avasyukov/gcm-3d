@@ -1,5 +1,3 @@
-#include <gmsh/SVector3.h>
-
 #include "util/AnisotropicMatrix3DAnalytical.h"
 
 gcm::AnisotropicMatrix3DAnalytical::AnisotropicMatrix3DAnalytical()
@@ -267,11 +265,6 @@ void gcm::AnisotropicMatrix3DAnalytical::CreateAz(const AnisotropicNumbers &C, f
 void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(float **M, float *x)
 {
 	// Range ( M ) = 2, one of x[i] is random
-	
-//	for(int i = 0 ; i < 3 ;i++) {
-//		for(int j = 0 ;j < 3 ;j++)
-//			cout << M[i][j] << "\t";
-//		cout << endl;}
 
 	int I = 0, J = 1, P = 0, Q = 1;
 	float det = 0;

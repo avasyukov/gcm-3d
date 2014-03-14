@@ -3,7 +3,7 @@
 
 #include "util/AnisotropicMatrix3DAnalytical.h"
 
-#define ITERATIONS 100
+#define ITERATIONS 1000
 #define tmpmin 1
 #define tmpmax 100
 
@@ -72,7 +72,6 @@ for (int count = 0; count < ITERATIONS; count++) {
 	gcm::AnisotropicMatrix3DAnalytical m;
 	for (int stg = 0; stg < 3; stg++) {
 		m.prepare_matrix(C, rho, stg);
-		cout << stg << endl;
 		m.self_check();
 	}
 }
