@@ -367,8 +367,7 @@ uchar gcm::CalcNode::getContactConditionId() const
 void gcm::CalcNode::setMaterialId(uchar id)
 {
     materialId = id;
-    if (rho == 0)
-        rho = Engine::getInstance().getMaterial(id)->getRho();
+    rho = Engine::getInstance().getMaterial(id)->getRho();
 }
 
 uchar gcm::CalcNode::getMaterialId() const
