@@ -125,6 +125,7 @@ void gcm::Engine::clear() {
 	for(auto& b: bodies)
 		delete b;
 	bodies.clear();
+	materials.clear();
 	for (auto& ml: meshLoaders)
 		ml.second->cleanUp();
 	// clear state
