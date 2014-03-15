@@ -198,6 +198,8 @@ void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, 
 		}
 	}
 	
+	int badTimeSteps = 0;
+	
 	// Do time steps
 	for (int t = 0; t <= stepsNum; t++, time += dt)
 	{
@@ -245,7 +247,8 @@ void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, 
 		//Draw values here and now to have graphs if test fails
 		drawValues(valuesToDraw, t, NULL);
 		
-		ASSERT_LE(badNodes, ALLOWED_NUMBER_OF_BAD_NODES);
+		if( badNodes > ALLOWED_NUMBER_OF_BAD_NODES)
+			badTimeSteps++;
 		
 		// Calc next state
 		engine.doNextStep();
@@ -255,4 +258,6 @@ void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, 
 	// We pass actual valueLimits to get the same yrange for all graphs
 	for (int t = 0; t <= stepsNum; t++)
 		drawValues(valuesToDraw, t, &valueLimits);
+	
+	ASSERT_EQ(badTimeSteps, 0);
 }
