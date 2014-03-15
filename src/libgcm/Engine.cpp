@@ -23,7 +23,6 @@
 #include "snapshot/VTKCubicSnapshotWriter.h"
 #include "snapshot/VTKMarkeredMeshSnapshotWriter.h"
 #include "rheology/DummyRheologyCalculator.h"
-#include "rheology/StdRheologyCalculator.h"
 #include "BruteforceCollisionDetector.h"
 
 // initialiaze static fields
@@ -75,7 +74,6 @@ gcm::Engine::Engine()
 	registerInterpolator( new LineFirstOrderInterpolator() );
 	LOG_DEBUG("Registering default rheology calculators");
 	registerRheologyCalculator( new DummyRheologyCalculator() );
-	registerRheologyCalculator( new StdRheologyCalculator() );
 	defaultRheoCalcType = "DummyRheologyCalculator";
 	LOG_DEBUG("Registering default calculators");
 	registerVolumeCalculator( new SimpleVolumeCalculator() );

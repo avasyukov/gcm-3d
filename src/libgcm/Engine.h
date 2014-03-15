@@ -24,7 +24,6 @@
 #include "materials/Material.h"
 #include "rheology/RheologyCalculator.h"
 #include "rheology/DummyRheologyCalculator.h"
-#include "rheology/StdRheologyCalculator.h"
 #include "GCMDispatcher.h"
 #include "DummyDispatcher.h"
 #include "DataBus.h"
