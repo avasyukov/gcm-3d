@@ -14,24 +14,6 @@
 
 using namespace gcm;
 
-class AnisotropicMatrixIsotropicWrapper : public AnisotropicMatrix3D
-{
-public:
-
-    void prepareIsotropic(gcm_real la, gcm_real mu, gcm_real rho, short int stage)
-    {
-        IAnisotropicElasticMaterial::RheologyParameters params;
-        params.c11 = params.c22 = params.c33 = la + 2 * mu;
-        params.c44 = params.c55 = params.c66 = mu;
-        params.c12 = params.c13 = params.c23 = la;
-        params.c14 = params.c15 = params.c16 = 0.0;
-        params.c24 = params.c25 = params.c26 = 0.0;
-        params.c34 = params.c35 = params.c36 = 0.0;
-        params.c45 = params.c46 = params.c56 = 0.0;
-
-    }
-};
-
 class AnisotropicMatrix3DWrapper : public AnisotropicMatrix3D
 {
 public:
@@ -67,11 +49,11 @@ TEST(AnisotropicMatrix3D, FuzzyMultiplication)
 
         gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, u1, l, 0.0, tmp);
         gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, tmp, u, 0.0, u1);
-
+        
         for (int j = 0; j < 9; j++)
             for (int k = 0; k < 9; k++)
                 ASSERT_NEAR(gsl_matrix_get(a, j, k), gsl_matrix_get(u1, j, k), 1e-6);
-    }
+            }
 
     gsl_matrix_free(a);
     gsl_matrix_free(u1);
@@ -84,12 +66,10 @@ TEST(AnisotropicMatrix3D, IsotropicTransition)
 {
     srand(time(NULL));
 
-    AnisotropicMatrixIsotropicWrapper anisotropicMatrix;
-    ElasticMatrix3D isotropicMatrix;
-
     gcm_real la = 1.0e+9 * (double) rand() / RAND_MAX;
     gcm_real mu = 1.0e+8 * (double) rand() / RAND_MAX;
     gcm_real rho = 1.0e+4 * (double) rand() / RAND_MAX;
+    gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
 
     CalcNode isotropicNode;
     CalcNode anisotropicNode;
@@ -103,12 +83,15 @@ TEST(AnisotropicMatrix3D, IsotropicTransition)
     params.c34 = params.c35 = params.c36 = 0.0;
     params.c45 = params.c46 = params.c56 = 0.0;
     
-    IsotropicElasticMaterial m1("AnisotropicMatrix3D_IsotropicTransition_IsotropicElasticMaterial", rho, 1.0, la, mu);
-    AnisotropicElasticMaterial m2("AnisotropicMatrix3D_IsotropicTransition_AnisotropicElasticMaterial", rho, 1.0, params);
+    IsotropicElasticMaterial m1("AnisotropicMatrix3D_IsotropicTransition_IEM", rho, crackThreshold, la, mu);
+    AnisotropicElasticMaterial m2("AnisotropicMatrix3D_IsotropicTransition_AEM", rho, crackThreshold, params);
     
     isotropicNode.setMaterialId(Engine::getInstance().addMaterial(&m1));
     anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&m2));
 
+    RheologyMatrix3D& anisotropicMatrix = anisotropicNode.getRheologyMatrix();
+    RheologyMatrix3D& isotropicMatrix = isotropicNode.getRheologyMatrix();
+    
     for (int i = 0; i < 3; i++) {
         switch (i) {
         case 0: isotropicMatrix.createAx(isotropicNode);
@@ -124,6 +107,6 @@ TEST(AnisotropicMatrix3D, IsotropicTransition)
 
         for (int j = 0; j < 9; j++)
             for (int k = 0; k < 9; k++)
-                ASSERT_NEAR(anisotropicMatrix.getA(j, k), isotropicMatrix.getA(j, k), 1e-6);
+                ASSERT_NEAR(anisotropicMatrix.getA(j, k), isotropicMatrix.getA(j, k), EQUALITY_TOLERANCE);
     }
 };
