@@ -16,6 +16,6 @@
 	</materials>
 	<initialState>
 		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
-		<values vz="30" sxx="7000" syy="7000" szz="9000" />
+		<values vz="3" sxx="700" syy="700" szz="900" />
 	</initialState>
 </task>

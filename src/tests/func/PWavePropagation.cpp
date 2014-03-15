@@ -18,7 +18,7 @@ void setPWaveAnalytics(CalcNode& node, float t, Engine& engine)
     // Parameters from task file
     float LEFT_MARK_START = 1.0;
     float RIGHT_MARK_START = 3.0;
-    float WAVE_AMPLITUDE_SCALE = 0.1;
+    float WAVE_AMPLITUDE_SCALE = 0.01;
 
     IsotropicElasticMaterial* mat = dynamic_cast<IsotropicElasticMaterial*> (engine.getMaterial("testMaterial"));
     ASSERT_TRUE(mat);
