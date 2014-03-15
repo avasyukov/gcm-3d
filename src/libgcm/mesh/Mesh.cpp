@@ -344,8 +344,6 @@ void gcm::Mesh::moveCoords(float tau)
 
 float gcm::Mesh::getMaxEigenvalue()
 {
-	NumericalMethod *method = body->getEngine()->getNumericalMethod(numericalMethodType);
-	assert(method != NULL);
 	float maxLambda = 0;
 	for(int i = 0; i < getNodesNumber(); i++)
 	{
