@@ -247,6 +247,7 @@ void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, 
 		//Draw values here and now to have graphs if test fails
 		drawValues(valuesToDraw, t, NULL);
 		
+                LOG_INFO("Step " << t << ". Analyze complete. Bad nodes number: " << badNodes);
 		if( badNodes > ALLOWED_NUMBER_OF_BAD_NODES)
 			badTimeSteps++;
 		
