@@ -8,8 +8,23 @@ gcm_real gcm::RheologyMatrix3D::getMaxEigenvalue() const
 {
 	float res = 0;
 	for (unsigned i = 0; i < GCM_MATRIX_SIZE; ++i)
-		if(getL(i,i) > res)
-			res = getL(i,i);
+	{
+		gcm_real la = getL(i,i);
+		if(la > res)
+			res = la;
+	}
+	return res;
+}
+
+gcm_real gcm::RheologyMatrix3D::getMinEigenvalue() const
+{
+	float res = numeric_limits<gcm_real>::infinity();
+	for (unsigned i = 0; i < GCM_MATRIX_SIZE; ++i)
+	{
+		gcm_real la = getL(i,i);
+		if(la > 0 && la < res)
+			res = la;
+	}
 	return res;
 }
 

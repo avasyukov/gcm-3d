@@ -39,6 +39,11 @@ namespace gcm
          */
         gcm_real getMaxEigenvalue() const;
         /**
+         * Returns min matrix eigenvalue.
+         * @return min eigenvalue.
+         */
+        gcm_real getMinEigenvalue() const;
+        /**
          * Returns rheology matrix A.
          * @return A matrix.
          */

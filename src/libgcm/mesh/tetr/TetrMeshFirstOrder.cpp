@@ -1337,6 +1337,8 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, floa
 	float fdx = fabs(dx);
 	float fdy = fabs(dy);
 	float fdz = fabs(dz);
+	// FIXME ASAP: calling m.createAi() on each cache index access is horrible for performance
+	RheologyMatrix3D& m = node.getRheologyMatrix();
 	
 	short sign = -1;
 	short direction = -1;
@@ -1344,43 +1346,47 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, floa
 		if( fdx > fdz )
 		{
 			direction = 1;
+			m.createAx(node);
 			sign = (dx > 0 ? 2 : 1);
 		}
 		else
 		{
 			direction = 3;
+			m.createAz(node);
 			sign = (dz > 0 ? 2 : 1);
 		}
 	else
 		if( fdy > fdz )
 		{
 			direction = 2;
+			m.createAy(node);
 			sign = (dy > 0 ? 2 : 1);
 		}
 		else
 		{
 			direction = 3;
+			m.createAz(node);
 			sign = (dz > 0 ? 2 : 1);
 		}
 	
 	float l2 = dx*dx + dy*dy + dz*dz;
 	float tau = gcm::Engine::getInstance().getTimeStep();
+	
         
-        
-        // FIXME get rid of hardcoded material type
-        IsotropicElasticMaterial* mat = dynamic_cast<IsotropicElasticMaterial*>(node.getMaterial());
-        assert(mat);
-	float c2sqr = mat->getMu() / mat->getRho();
+	float maxV = m.getMaxEigenvalue();
+	float minV = m.getMinEigenvalue();
 	
 	short scale = -1;
-	if( fabs(l2 - tau*tau*c2sqr) < l2 * EQUALITY_TOLERANCE )
+	if( fabs(l2 - tau*tau*maxV*maxV) < l2 * EQUALITY_TOLERANCE )
+		scale = 3;
+	else if( fabs(l2 - tau*tau*minV*minV) < l2 * EQUALITY_TOLERANCE )
 		scale = 1;
 	else
 		scale = 2;
 	
-	assert( direction > 0 && direction < 4 && (scale == 1 || scale == 2) && (sign == 1 || sign == 2) );
+	assert( direction > 0 && direction < 4 && scale > 0 && scale < 4 && (sign == 1 || sign == 2) );
 	
-	return (direction - 1)*4 + (sign-1)*2 + (scale-1);
+	return (direction - 1)*6 + (sign-1)*3 + (scale-1);
 }
 
 bool gcm::TetrMeshFirstOrder::charactCacheAvailable()
