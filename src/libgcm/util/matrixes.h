@@ -6,11 +6,15 @@
 #include <string.h>
 
 #include <assert.h>
+
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_linalg.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_vector.h>
 
 #include "Math.h"
 #include "Exception.h"
+#include "Logging.h"
 
 #define GCM_MATRIX_SIZE 9
 

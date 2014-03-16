@@ -4,44 +4,36 @@
 #include <assert.h>
 
 #include "materials/IAnisotropicElasticMaterial.h"
+#include "util/RheologyMatrix3D.h"
 #include "util/matrixes.h"
 #include "util/ThirdDegreePolynomial.h"
 #include "Exception.h"
+#include <iomanip>
 
 using namespace gcm;
 
 namespace gcm {
-	
-	class AnisotropicMatrix3DAnalytical
+
+    /**
+     * Anisotropic rheology matrix implementation. 
+	 * Creates corresponding rheology matrices for case of anisotropic material. 
+	 * Implements 'semi-analytical' solution. 
+     */
+	class AnisotropicMatrix3DAnalytical : public RheologyMatrix3D
 	{
 	public:
-		AnisotropicMatrix3DAnalytical();
-		~AnisotropicMatrix3DAnalytical();
-		void prepare_matrix(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho, int stage);
-		void prepare_matrix(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho, float qjx, float qjy, float qjz);
-		float max_lambda();
-
-		void self_check();
-
-		gcm_matrix A;
-		gcm_matrix L;
-		gcm_matrix U;
-		gcm_matrix U1;
-
+		void createAx(const ICalcNode& node) override;
+		void createAy(const ICalcNode& node) override;
+		void createAz(const ICalcNode& node) override;
 	private:
-		void CreateAx(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho);
-		void CreateAy(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho);
-		void CreateAz(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho);
-		void CreateGeneralizedMatrix(const IAnisotropicElasticMaterial::RheologyParameters &C, float rho, 
-											float qjx, float qjy, float qjz);
-		void createMatrixN(int i, int j, float *res);
-		void zero_all();
+		void clear();
+		void fixValuesOrder();
 		void findNonZeroSolution(float **M, float *x);
+		void findNonZeroSolution(float **M, float *x, float *y);
 		void findEigenVec(float *eigenVec,
 					float l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage);
-
-		// TODO it is worth turning them into local vars
-		float n[3][3];
+		void findEigenVec(float *eigenVec1, float *eigenVec2,
+					float l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage);
 	};
 }
 

@@ -1,112 +1,243 @@
 #include <time.h>
-
+#include <gtest/gtest.h>
 
 #include "materials/IAnisotropicElasticMaterial.h"
 #include "materials/AnisotropicElasticMaterial.h"
 #include "materials/IsotropicElasticMaterial.h"
+#include "util/AnisotropicMatrix3DAnalytical.h"
 #include "util/AnisotropicMatrix3D.h"
 #include "util/ElasticMatrix3D.h"
-#include "Engine.h"
-
-#include <gtest/gtest.h>
 
 #define ITERATIONS 1000
 
-using namespace gcm;
+// Use these limits if anisotropic rheology parameters tensor should be 
+// isotropic one plus smaller random values
+#define LAMBDA_LIMIT 0.0
+#define MU_LIMIT 0.0
+// Random part of anisotropic rheology parameters tensor
+#define RANDOM_LIMIT 1.0e+6
 
-class AnisotropicMatrix3DWrapper : public AnisotropicMatrix3D
+#define RHO_LIMIT 1.0e+4
+
+// Limits for isotropic transition test
+#define ISOTROPIC_LAMBDA_LIMIT 1.0e+9
+#define ISOTROPIC_MU_LIMIT 1.0e+8
+#define ISOTROPIC_RHO_LIMIT 1.0e+4
+
+AnisotropicElasticMaterial generateRandomMaterial(string name)
 {
-public:
-
-    void decomposite(gsl_matrix* a, gsl_matrix* u, gsl_matrix* l, gsl_matrix* u1)
-    {
-        decompositeIt(a, u, l, u1);
+    gcm_real la = LAMBDA_LIMIT * (double) rand() / RAND_MAX;
+    gcm_real mu = MU_LIMIT * (double) rand() / RAND_MAX;
+    
+    float L[6][6];
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < i; j++)
+            L[i][j] = 0;
+            
+        L[i][i] = RANDOM_LIMIT * (double) rand() / RAND_MAX;
+        for (int j = i+1; j < 6; j++)
+            L[i][j] = RANDOM_LIMIT * (double) rand() / RAND_MAX;
     }
-};
-
-TEST(AnisotropicMatrix3D, FuzzyMultiplication)
-{
-    srand(time(NULL));
-
-    AnisotropicMatrix3DWrapper m;
-
-    gsl_matrix* a = gsl_matrix_alloc(9, 9);
-    gsl_matrix* u1 = gsl_matrix_alloc(9, 9);
-    gsl_matrix* l = gsl_matrix_alloc(9, 9);
-    gsl_matrix* u = gsl_matrix_alloc(9, 9);
-    gsl_matrix* tmp = gsl_matrix_alloc(9, 9);
-    double x;
-    int i;
-
-    for (i = 0; i < ITERATIONS; i++) {
-        for (int j = 0; j < 9; j++)
-            for (int k = 0; k <= j; k++) {
-                x = pow(10, k)*(double) rand() / RAND_MAX;
-                gsl_matrix_set(a, j, k, x);
-                gsl_matrix_set(a, k, j, x);
-            }
-        m.decomposite(a, u1, l, u);
-
-        gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, u1, l, 0.0, tmp);
-        gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, tmp, u, 0.0, u1);
-        
-        for (int j = 0; j < 9; j++)
-            for (int k = 0; k < 9; k++)
-                ASSERT_NEAR(gsl_matrix_get(a, j, k), gsl_matrix_get(u1, j, k), 1e-6);
-            }
-
-    gsl_matrix_free(a);
-    gsl_matrix_free(u1);
-    gsl_matrix_free(l);
-    gsl_matrix_free(u);
-    gsl_matrix_free(tmp);
-};
-
-TEST(AnisotropicMatrix3D, IsotropicTransition)
-{
-    srand(time(NULL));
-
-    gcm_real la = 1.0e+9 * (double) rand() / RAND_MAX;
-    gcm_real mu = 1.0e+8 * (double) rand() / RAND_MAX;
-    gcm_real rho = 1.0e+4 * (double) rand() / RAND_MAX;
-    gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
-
-    CalcNode isotropicNode;
-    CalcNode anisotropicNode;
-
-    IAnisotropicElasticMaterial::RheologyParameters params;
-    params.c11 = params.c22 = params.c33 = la + 2 * mu;
-    params.c44 = params.c55 = params.c66 = mu;
-    params.c12 = params.c13 = params.c23 = la;
-    params.c14 = params.c15 = params.c16 = 0.0;
-    params.c24 = params.c25 = params.c26 = 0.0;
-    params.c34 = params.c35 = params.c36 = 0.0;
-    params.c45 = params.c46 = params.c56 = 0.0;
     
-    IsotropicElasticMaterial m1("AnisotropicMatrix3D_IsotropicTransition_IEM", rho, crackThreshold, la, mu);
-    AnisotropicElasticMaterial m2("AnisotropicMatrix3D_IsotropicTransition_AEM", rho, crackThreshold, params);
-    
-    isotropicNode.setMaterialId(Engine::getInstance().addMaterial(&m1));
-    anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&m2));
-
-    RheologyMatrix3D& anisotropicMatrix = anisotropicNode.getRheologyMatrix();
-    RheologyMatrix3D& isotropicMatrix = isotropicNode.getRheologyMatrix();
-    
-    for (int i = 0; i < 3; i++) {
-        switch (i) {
-        case 0: isotropicMatrix.createAx(isotropicNode);
-            anisotropicMatrix.createAx(anisotropicNode);
-            break;
-        case 1: isotropicMatrix.createAy(isotropicNode);
-            anisotropicMatrix.createAy(anisotropicNode);
-            break;
-        case 2: isotropicMatrix.createAz(isotropicNode);
-            anisotropicMatrix.createAz(anisotropicNode);
-            break;
+    float matC[6][6];
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            matC[i][j] = 0;
+            for (int k = 0; k < 6; k++)
+                matC[i][j] += L[k][i] * L[k][j];
         }
-
-        for (int j = 0; j < 9; j++)
-            for (int k = 0; k < 9; k++)
-                ASSERT_NEAR(anisotropicMatrix.getA(j, k), isotropicMatrix.getA(j, k), EQUALITY_TOLERANCE);
     }
+    
+    IAnisotropicElasticMaterial::RheologyParameters C;
+    C.c11 = la + 2 * mu + matC[0][0];
+    C.c12 = la + matC[0][1];
+    C.c13 = la + matC[0][2];
+    C.c14 = matC[0][3];
+    C.c15 = matC[0][4];
+    C.c16 = matC[0][5];
+    C.c22 = la + 2 * mu + matC[1][1];
+    C.c23 = la + matC[1][2];
+    C.c24 = matC[1][3];
+    C.c25 = matC[1][4];
+    C.c26 = matC[1][5];
+    C.c33 = la + 2 * mu + matC[2][2];
+    C.c34 = matC[2][3];
+    C.c35 = matC[2][4];
+    C.c36 = matC[2][5];
+    C.c44 = mu + matC[3][3];
+    C.c45 = matC[3][4];
+    C.c46 = matC[3][5];
+    C.c55 = mu + matC[4][4];
+    C.c56 = matC[4][5];
+    C.c66 = mu + matC[5][5];
+    
+    float rho = RHO_LIMIT * (double) rand() / RAND_MAX;
+    gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+    
+    AnisotropicElasticMaterial mat(name, rho, crackThreshold, C);
+    return mat;
+};
+
+AnisotropicElasticMaterial generateOrthotropicMaterial(string name)
+{
+    gcm_real la = ISOTROPIC_LAMBDA_LIMIT * (double) rand() / RAND_MAX;
+    gcm_real mu = ISOTROPIC_MU_LIMIT * (double) rand() / RAND_MAX;
+    float pxxNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
+    float pyyNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
+    float pzzNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
+    float pxyNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
+    float pxzNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
+    float pyzNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
+    float sxyNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
+    float sxzNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
+    float syzNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
+
+    IAnisotropicElasticMaterial::RheologyParameters C;
+    C.c11 = (la + 2 * mu) * pxxNorm;
+    C.c12 = la * pxyNorm;
+    C.c13 = la * pxzNorm;
+    C.c14 = 0;
+    C.c15 = 0;
+    C.c16 = 0;
+    C.c22 = (la + 2 * mu) * pyyNorm;
+    C.c23 = la * pyzNorm;
+    C.c24 = 0;
+    C.c25 = 0;
+    C.c26 = 0;
+    C.c33 = (la + 2 * mu) * pzzNorm;
+    C.c34 = 0;
+    C.c35 = 0;
+    C.c36 = 0;
+    C.c44 = mu * sxyNorm;
+    C.c45 = 0;
+    C.c46 = 0;
+    C.c55 = mu * sxzNorm;
+    C.c56 = 0;
+    C.c66 = mu * syzNorm;
+    
+    float rho = RHO_LIMIT * (double) rand() / RAND_MAX;
+    gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+    
+    AnisotropicElasticMaterial mat(name, rho, crackThreshold, C);
+    return mat;
+};
+
+void testDecomposition(RheologyMatrix3D& matrix, AnisotropicElasticMaterial(*generateMaterial)(string))
+{
+    CalcNode anisotropicNode;
+    
+    for (int count = 0; count < ITERATIONS; count++) {
+        
+        string testMaterialName = "AnisotropicMatrix3D_FuzzyMultiplication_" + count;
+        AnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
+        anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
+        
+        for (int i = 0; i < 3; i++) {
+            switch (i) {
+            case 0: matrix.createAx(anisotropicNode);
+                break;
+            case 1: matrix.createAy(anisotropicNode);
+                break;
+            case 2: matrix.createAz(anisotropicNode);
+                break;
+            }
+            
+            // Test decomposition
+            ASSERT_TRUE( matrix.getU1() * matrix.getL() * matrix.getU() == matrix.getA() );
+            // Test eigen values and eigen rows
+            ASSERT_TRUE( matrix.getU1() * matrix.getL() == matrix.getA() * matrix.getU1() );
+        }
+        Engine::getInstance().clear();
+    }
+};
+
+void testIsotropicTransition(RheologyMatrix3D& anisotropicMatrix)
+{
+    for (int count = 0; count < ITERATIONS; count++) {
+        gcm_real la = ISOTROPIC_LAMBDA_LIMIT * (double) rand() / RAND_MAX;
+        gcm_real mu = ISOTROPIC_MU_LIMIT * (double) rand() / RAND_MAX;
+        gcm_real rho = ISOTROPIC_RHO_LIMIT * (double) rand() / RAND_MAX;
+        gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+
+        CalcNode isotropicNode;
+        CalcNode anisotropicNode;
+
+        IAnisotropicElasticMaterial::RheologyParameters params;
+        params.c11 = params.c22 = params.c33 = la + 2 * mu;
+        params.c44 = params.c55 = params.c66 = mu;
+        params.c12 = params.c13 = params.c23 = la;
+        params.c14 = params.c15 = params.c16 = 0.0;
+        params.c24 = params.c25 = params.c26 = 0.0;
+        params.c34 = params.c35 = params.c36 = 0.0;
+        params.c45 = params.c46 = params.c56 = 0.0;
+
+        IsotropicElasticMaterial m1("AnisotropicMatrix3D_IsotropicTransition_IEM", rho, crackThreshold, la, mu);
+        AnisotropicElasticMaterial m2("AnisotropicMatrix3D_IsotropicTransition_AEM", rho, crackThreshold, params);
+
+        isotropicNode.setMaterialId(Engine::getInstance().addMaterial(&m1));
+        anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&m2));
+
+        RheologyMatrix3D& isotropicMatrix = isotropicNode.getRheologyMatrix();
+
+        for (int i = 0; i < 3; i++) {
+            switch (i) {
+            case 0: isotropicMatrix.createAx(isotropicNode);
+                anisotropicMatrix.createAx(anisotropicNode);
+                break;
+            case 1: isotropicMatrix.createAy(isotropicNode);
+                anisotropicMatrix.createAy(anisotropicNode);
+                break;
+            case 2: isotropicMatrix.createAz(isotropicNode);
+                anisotropicMatrix.createAz(anisotropicNode);
+                break;
+            }
+
+            for (int j = 0; j < 9; j++)
+                for (int k = 0; k < 9; k++)
+                    ASSERT_NEAR(anisotropicMatrix.getA(j, k), isotropicMatrix.getA(j, k), EQUALITY_TOLERANCE);
+        }
+        Engine::getInstance().clear();
+    }
+};
+
+TEST(AnisotropicMatrix3D, AnalyticalFuzzRandom) 
+{
+    srand(time(NULL));
+    AnisotropicMatrix3DAnalytical analyticalMatrix;
+    testDecomposition(analyticalMatrix, generateRandomMaterial);
+};
+
+TEST(AnisotropicMatrix3D, NumericalFuzzRandom) 
+{
+    srand(time(NULL));
+    AnisotropicMatrix3D numericalMatrix;
+    testDecomposition(numericalMatrix, generateRandomMaterial);
+};
+
+TEST(AnisotropicMatrix3D, AnalyticalFuzzOrthotropic) 
+{
+    srand(time(NULL));
+    AnisotropicMatrix3DAnalytical analyticalMatrix;
+    testDecomposition(analyticalMatrix, generateOrthotropicMaterial);
+};
+
+TEST(AnisotropicMatrix3D, NumericalFuzzOrthotropic) 
+{
+    srand(time(NULL));
+    AnisotropicMatrix3D numericalMatrix;
+    testDecomposition(numericalMatrix, generateOrthotropicMaterial);
+};
+
+TEST(AnisotropicMatrix3D, AnalyticalIsotropicTransition)
+{
+    srand(time(NULL));
+    AnisotropicMatrix3DAnalytical analyticalMatrix;
+    testIsotropicTransition(analyticalMatrix);
+};
+
+TEST(AnisotropicMatrix3D, NumericalIsotropicTransition) 
+{
+    srand(time(NULL));
+    AnisotropicMatrix3D numericalMatrix;
+    testIsotropicTransition(numericalMatrix);
 };
