@@ -41,7 +41,7 @@ gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::loa
         THROW_INVALID_INPUT("Seems xml snippet does not contain valid rheology parameters.");
 
     for (k = 0; k < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; k++)
-        if (params.values[k] <= 0.0)
+        if (params.values[k] < 0.0)
             THROW_INVALID_INPUT("Seems xml snippet does not contain valid rheology parameters.");
 
     return new AnisotropicElasticMaterial(name, rho, crackThreshold, params);
