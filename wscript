@@ -161,7 +161,7 @@ def build(bld):
         bld(
             features='cxx cxxprogram',
             source=bld.path.ant_glob('src/launcher/**/*.cpp'),
-            includes='src/libgcm',
+            includes=['src/libgcm', 'src/launcher'],
             use=['gcm'] + libs,
             target='gcm3d'
         )
@@ -169,19 +169,23 @@ def build(bld):
     if not bld.env.without_tests:
         bld(
             features='cxx cxxprogram',
-            source=bld.path.ant_glob('src/tests/unit/**/*.cpp'),
-            includes='src/libgcm',
+            source=bld.path.ant_glob('src/tests/unit/**/*.cpp') + 
+                bld.path.ant_glob('src/launcher/loaders/**/*.cpp') + [
+                bld.path.find_node('src/launcher/util/xml.cpp')
+            ],
+            includes=['src/libgcm', 'src/launcher'],
             use=['gcm'] + libs,
             target='gcm3d_unit_tests',
             install_path=None
         )
         bld(
             features='cxx cxxprogram',
-            source=bld.path.ant_glob('src/tests/func/**/*.cpp')+[
+            source=bld.path.ant_glob('src/tests/func/**/*.cpp') + 
+                bld.path.ant_glob('src/launcher/loaders/**/*.cpp') + [
                 bld.path.find_node('src/launcher/launcher.cpp'),
-                bld.path.find_node('src/launcher/xml.cpp')
+                bld.path.find_node('src/launcher/util/xml.cpp')
             ],
-            includes='src/libgcm',
+            includes=['src/libgcm', 'src/launcher'],
             use=['gcm'] + libs,
             target='gcm3d_func_tests',
             install_path=None
