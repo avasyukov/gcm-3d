@@ -123,13 +123,13 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
 	NodeList matNodes = rootNode.xpath("/task/materials/material");
 	for(auto& matNode: matNodes)
 	{
-		string type = getAttributeByName(matNode.getAttributes(), "type");
-                if (type == AnisotropicElasticMaterialLoader::TYPE)
+		string rheology = getAttributeByName(matNode.getAttributes(), "rheology");
+                if (rheology == AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE)
                     engine.addMaterial(AnisotropicElasticMaterialLoader::getInstance().load(matNode));
-                else if (type == IsotropicElasticMaterialLoader::TYPE)
+                else if (rheology == IsotropicElasticMaterialLoader::RHEOLOGY_TYPE)
                     engine.addMaterial(IsotropicElasticMaterialLoader::getInstance().load(matNode));
                 else
-                    THROW_UNSUPPORTED("Unsupported rheology type found: " + type);
+                    THROW_UNSUPPORTED("Unsupported rheology found: " + rheology);
 	}
 
 	AABB globalScene;

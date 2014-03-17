@@ -1,13 +1,10 @@
 #include "util/AnisotropicMatrix3D.h"
 #include "materials/AnisotropicElasticMaterial.h"
 
-void gcm::AnisotropicMatrix3D::clear()
+gcm::AnisotropicMatrix3D::AnisotropicMatrix3D(): ImmutableRheologyMatrix3D()
 {
-    A.clear();
-    L.clear();
-    U.clear();
-    U1.clear();
-};
+
+}
 
 void gcm::AnisotropicMatrix3D::gslTogcm(gsl_matrix* a, gcm_matrix& b)
 {
@@ -109,22 +106,25 @@ void gcm::AnisotropicMatrix3D::decompositeIt(gsl_matrix* a, gsl_vector_complex* 
     gsl_eigen_nonsymmv_sort(eval, evec, GSL_EIGEN_SORT_ABS_DESC); 
 };
 
-void gcm::AnisotropicMatrix3D::createAx(const ICalcNode& node)
+void gcm::AnisotropicMatrix3D::initializeAx(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
-    clear();
+    A.clear();
+    L.clear();
+    U.clear();
+    U1.clear();
 
 
     gsl_matrix* a = gsl_matrix_alloc(9, 9);
     clear(a);
 
 #ifdef NDEBUG
-    AnisotropicElasticMaterial* mat = static_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+    const auto mat = static_cast<const AnisotropicElasticMaterial*> (material);
 #else
-    AnisotropicElasticMaterial* mat = dynamic_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+    const auto mat = dynamic_cast<const AnisotropicElasticMaterial*> (material);
     assert(mat);
 #endif
 
-    auto rho = node.getRho();
+    auto rho = mat->getRho();
     auto params = mat->getParameters();
 
 
@@ -189,23 +189,26 @@ void gcm::AnisotropicMatrix3D::createAx(const ICalcNode& node)
     gsl_matrix_free(u1);
 };
 
-void gcm::AnisotropicMatrix3D::createAy(const ICalcNode& node)
+void gcm::AnisotropicMatrix3D::initializeAy(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
-    clear();
+    A.clear();
+    L.clear();
+    U.clear();
+    U1.clear();
 
     gsl_matrix* a = gsl_matrix_alloc(9, 9);
     clear(a);
 
 #ifdef NDEBUG
-    AnisotropicElasticMaterial* mat = static_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+    const auto mat = static_cast<const AnisotropicElasticMaterial*> (material);
 #else
-    AnisotropicElasticMaterial* mat = dynamic_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+    const auto mat = dynamic_cast<const AnisotropicElasticMaterial*> (material);
     assert(mat);
 #endif
 
-    auto rho = node.getRho();
-    auto params = mat->getParameters();    
-    
+    auto rho = mat->getRho();
+    auto params = mat->getParameters();
+
     gsl_matrix_set(a, 0, 4, -1 / rho);
     gsl_matrix_set(a, 1, 6, -1 / rho);
     gsl_matrix_set(a, 2, 7, -1 / rho);
@@ -266,22 +269,25 @@ void gcm::AnisotropicMatrix3D::createAy(const ICalcNode& node)
     gsl_matrix_free(u1);
 };
 
-void gcm::AnisotropicMatrix3D::createAz(const ICalcNode& node)
+void gcm::AnisotropicMatrix3D::initializeAz(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
-    clear();
+    A.clear();
+    L.clear();
+    U.clear();
+    U1.clear();
 
     gsl_matrix* a = gsl_matrix_alloc(9, 9);
     clear(a);
-    
+
 #ifdef NDEBUG
-    AnisotropicElasticMaterial* mat = static_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+    const auto mat = static_cast<const AnisotropicElasticMaterial*> (material);
 #else
-    AnisotropicElasticMaterial* mat = dynamic_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+    const auto mat = dynamic_cast<const AnisotropicElasticMaterial*> (material);
     assert(mat);
 #endif
 
-    auto rho = node.getRho();
-    auto params = mat->getParameters();    
+    auto rho = mat->getRho();
+    auto params = mat->getParameters();
 
     gsl_matrix_set(a, 0, 5, -1 / rho);
     gsl_matrix_set(a, 1, 7, -1 / rho);

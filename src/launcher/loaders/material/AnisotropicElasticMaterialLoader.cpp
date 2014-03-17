@@ -9,15 +9,15 @@
 #include "materials/IAnisotropicElasticMaterial.h"
 #include "util/helpers.h"
 
-const string launcher::AnisotropicElasticMaterialLoader::TYPE = "AEM";
+const string launcher::AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE = "AnisotropicElastic";
 
 gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::load(xml::Node desc)
 {
     AttrList attrs = desc.getAttributes();
 
     string name = getAttributeByName(attrs, "name");
-    string type = getAttributeByName(attrs, "type");
-    assert(type == TYPE);
+    string rheology = getAttributeByName(attrs, "rheology");
+    assert(rheology == RHEOLOGY_TYPE);
 
     int _errno = errno;
     errno = 0;

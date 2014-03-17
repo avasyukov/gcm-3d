@@ -11,7 +11,7 @@
 #include <gsl/gsl_complex_math.h>
 
 #include "util/matrixes.h"
-#include "util/RheologyMatrix3D.h"
+#include "util/ImmutableRheologyMatrix3D.h"
 #include "materials/IAnisotropicElasticMaterial.h"
 #include "Exception.h"
 
@@ -25,11 +25,15 @@ namespace gcm
      * rheology matrices for case of anisotropic material. Params in this case
      * contain special structure 'AnisotropicNumbers' (at matrixes.h).
      */
-    class AnisotropicMatrix3D : public RheologyMatrix3D
+     // FIXME
+     // This class should be declared as final to allow compiler make different virtual calls optimizations
+    class AnisotropicMatrix3D /*final*/: public  ImmutableRheologyMatrix3D
     {
     protected:
-        void clear();
         void decompositeIt(gsl_matrix* a, gsl_vector_complex* eval, gsl_matrix_complex* evec);
+        void initializeAx(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1) override;
+        void initializeAy(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1) override;
+        void initializeAz(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1) override;
     private:
         void gcmTogsl(const gcm_matrix &a, gsl_matrix* b);
         void gslTogcm(gsl_matrix* a, gcm_matrix& b);
@@ -37,9 +41,7 @@ namespace gcm
         void realChecker(gsl_vector_complex* a, gsl_matrix* l);
         void realChecker(gsl_matrix_complex* a, gsl_matrix* u, int stage);
     public:
-        void createAx(const ICalcNode& node) override;
-        void createAy(const ICalcNode& node) override;
-        void createAz(const ICalcNode& node) override;
+        AnisotropicMatrix3D();
     };
 }
 
