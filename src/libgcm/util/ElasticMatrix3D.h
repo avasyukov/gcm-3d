@@ -4,7 +4,7 @@
 #include <assert.h>
 
 #include "util/matrixes.h"
-#include "util/RheologyMatrix3D.h"
+#include "util/ImmutableRheologyMatrix3D.h"
 #include "Exception.h"
 
 using namespace gcm;
@@ -19,14 +19,17 @@ namespace gcm
      *          of elastic  material. Params in this case contain
      *          lambda, mu and rho.
      */
-    class ElasticMatrix3D : public RheologyMatrix3D
+    class ElasticMatrix3D final : public ImmutableRheologyMatrix3D
     {
     protected:
-        void clear();
-    public:
-        void createAx(const ICalcNode& node) override;
-        void createAy(const ICalcNode& node) override;
-        void createAz(const ICalcNode& node) override;
+        // void clear();
+        void initializeAx(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1) override;
+        void initializeAy(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1) override;
+        void initializeAz(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1) override;
+    // public:
+    //     void createAx(const ICalcNode& node) override;
+    //     void createAy(const ICalcNode& node) override;
+    //     void createAz(const ICalcNode& node) override;
 //        /**
 //         * Prepares matrices using specified values. Creates 
 //         * rheology matrices (\f$A_x\f$, \f$A_y\f$, \f$A_z\f$) depending
