@@ -132,6 +132,7 @@ void testDecomposition(RheologyMatrix3D& matrix, AnisotropicElasticMaterial(*gen
         AnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
         anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
         
+        matrix.refresh();
         for (int i = 0; i < 3; i++) {
             switch (i) {
             case 0: matrix.createAx(anisotropicNode);
@@ -179,6 +180,7 @@ void testIsotropicTransition(RheologyMatrix3D& anisotropicMatrix)
 
         RheologyMatrix3D& isotropicMatrix = isotropicNode.getRheologyMatrix();
 
+        anisotropicMatrix.refresh();
         for (int i = 0; i < 3; i++) {
             switch (i) {
             case 0: isotropicMatrix.createAx(isotropicNode);

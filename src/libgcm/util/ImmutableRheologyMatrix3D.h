@@ -58,6 +58,7 @@ namespace gcm {
         void createAx(const ICalcNode& node) override;
         void createAy(const ICalcNode& node) override;
         void createAz(const ICalcNode& node) override;
+        void refresh() override;
     };
 }
 

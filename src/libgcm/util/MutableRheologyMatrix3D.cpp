@@ -47,3 +47,8 @@ const gcm_matrix& gcm::MutableRheologyMatrix3D::getU1() const
 {
     return U1;
 }
+
+void gcm::MutableRheologyMatrix3D::refresh() 
+{
+    
+}

@@ -84,6 +84,7 @@ namespace gcm
         virtual void createAx(const ICalcNode& node) = 0;
         virtual void createAy(const ICalcNode& node) = 0;
         virtual void createAz(const ICalcNode& node) = 0;
+        virtual void refresh() = 0;
     };
 }
 

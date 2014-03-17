@@ -77,3 +77,8 @@ void gcm::ImmutableRheologyMatrix3D::createAz(const ICalcNode& node)
         matrixCreated[currentMatrix] = true;
     }
 }
+
+void gcm::ImmutableRheologyMatrix3D::refresh() 
+{
+    matrixCreated[0] = matrixCreated[1] = matrixCreated[2] = false;
+}
