@@ -243,3 +243,82 @@ TEST(AnisotropicMatrix3D, NumericalIsotropicTransition)
     AnisotropicMatrix3D numericalMatrix;
     testIsotropicTransition(numericalMatrix);
 };
+
+TEST(AnisotropicMatrix3D, AnalyticalEqNumerical) 
+{
+    AnisotropicMatrix3DAnalytical analyticalMatrix;
+    AnisotropicMatrix3D numericalMatrix;
+    CalcNode anisotropicNode;
+    
+    string testMaterialName = "AnisotropicMatrix3D_AnalyticalEqNumerical";
+    AnisotropicElasticMaterial mat = generateRandomMaterial(testMaterialName);
+    anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
+    
+    analyticalMatrix.createAx(anisotropicNode);
+    numericalMatrix.createAx(anisotropicNode);
+    ASSERT_TRUE( analyticalMatrix.getA() == numericalMatrix.getA() );
+    
+    analyticalMatrix.createAy(anisotropicNode);
+    numericalMatrix.createAy(anisotropicNode);
+    ASSERT_TRUE( analyticalMatrix.getA() == numericalMatrix.getA() );
+    
+    analyticalMatrix.createAz(anisotropicNode);
+    numericalMatrix.createAz(anisotropicNode);
+    ASSERT_TRUE( analyticalMatrix.getA() == numericalMatrix.getA() );
+};
+
+TEST(AnisotropicMatrix3D, AnalyticalVsNumericalPerf) 
+{
+    float MINIMAL_EXPECTED_SPEEDUP = 2.0;
+    
+    struct timespec start;
+    struct timespec end;
+    long analyticalTime;
+    long numericalTime;
+    
+    AnisotropicMatrix3DAnalytical analyticalMatrix;
+    AnisotropicMatrix3D numericalMatrix;
+    CalcNode anisotropicNode;
+    
+    string testMaterialName = "AnisotropicMatrix3D_Perf";
+    AnisotropicElasticMaterial mat = generateRandomMaterial(testMaterialName);
+    anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
+    
+    clock_gettime(CLOCK_REALTIME, &start);
+    for (int count = 0; count < ITERATIONS; count++) {
+        
+            analyticalMatrix.refresh();
+            for (int i = 0; i < 3; i++) {
+                switch (i) {
+                case 0: analyticalMatrix.createAx(anisotropicNode);
+                    break;
+                case 1: analyticalMatrix.createAy(anisotropicNode);
+                    break;
+                case 2: analyticalMatrix.createAz(anisotropicNode);
+                    break;
+                }
+            }
+    }
+    clock_gettime(CLOCK_REALTIME, &end);
+    analyticalTime = (end.tv_sec - start.tv_sec) * 1.0e3 + (end.tv_nsec - start.tv_nsec) / 1.0e6;
+    
+    clock_gettime(CLOCK_REALTIME, &start);
+    for (int count = 0; count < ITERATIONS; count++) {
+        
+            numericalMatrix.refresh();
+            for (int i = 0; i < 3; i++) {
+                switch (i) {
+                case 0: numericalMatrix.createAx(anisotropicNode);
+                    break;
+                case 1: numericalMatrix.createAy(anisotropicNode);
+                    break;
+                case 2: numericalMatrix.createAz(anisotropicNode);
+                    break;
+                }
+            }
+    }
+    clock_gettime(CLOCK_REALTIME, &end);
+    numericalTime = (end.tv_sec - start.tv_sec) * 1.0e3 + (end.tv_nsec - start.tv_nsec) / 1.0e6;
+    
+    ASSERT_TRUE( (float)numericalTime / (float)analyticalTime > MINIMAL_EXPECTED_SPEEDUP );
+};
