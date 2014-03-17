@@ -187,6 +187,9 @@ void gcm::AnisotropicMatrix3D::initializeAx(const Material* material, gcm_matrix
     gsl_matrix_free(u);
     gsl_matrix_free(l);
     gsl_matrix_free(u1);
+    gsl_vector_complex_free(eval);
+    gsl_matrix_complex_free(evec);
+    gsl_permutation_free(perm);
 };
 
 void gcm::AnisotropicMatrix3D::initializeAy(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
@@ -267,6 +270,9 @@ void gcm::AnisotropicMatrix3D::initializeAy(const Material* material, gcm_matrix
     gsl_matrix_free(u);
     gsl_matrix_free(l);
     gsl_matrix_free(u1);
+    gsl_vector_complex_free(eval);
+    gsl_matrix_complex_free(evec);
+    gsl_permutation_free(perm);
 };
 
 void gcm::AnisotropicMatrix3D::initializeAz(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
@@ -347,5 +353,8 @@ void gcm::AnisotropicMatrix3D::initializeAz(const Material* material, gcm_matrix
     gsl_matrix_free(u);
     gsl_matrix_free(l);
     gsl_matrix_free(u1);
+    gsl_vector_complex_free(eval);
+    gsl_matrix_complex_free(evec);
+    gsl_permutation_free(perm);
 };
 
