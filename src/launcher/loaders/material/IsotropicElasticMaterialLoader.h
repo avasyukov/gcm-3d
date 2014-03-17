@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   IsotropicElasticMaterialLoader.h
  * Author: Alexey Ermakov
  *
@@ -25,7 +25,7 @@ namespace launcher
         // FIXME possible memory leak here.
         IsotropicElasticMaterial* load(xml::Node desc);
 
-        const static string TYPE;
+        const static string RHEOLOGY_TYPE;
 
     };
 };
