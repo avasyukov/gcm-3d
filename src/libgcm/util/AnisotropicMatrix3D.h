@@ -29,13 +29,13 @@ namespace gcm
     {
     protected:
         void clear();
-        void decompositeIt(gsl_matrix* a, gsl_matrix* u, gsl_matrix* l, gsl_matrix* u1);
+        void decompositeIt(gsl_matrix* a, gsl_vector_complex* eval, gsl_matrix_complex* evec);
     private:
         void gcmTogsl(const gcm_matrix &a, gsl_matrix* b);
         void gslTogcm(gsl_matrix* a, gcm_matrix& b);
         void clear(gsl_matrix* a);
         void realChecker(gsl_vector_complex* a, gsl_matrix* l);
-        void realChecker(gsl_matrix_complex* a, gsl_matrix* u);
+        void realChecker(gsl_matrix_complex* a, gsl_matrix* u, int stage);
     public:
         void createAx(const ICalcNode& node) override;
         void createAy(const ICalcNode& node) override;

@@ -15,9 +15,9 @@
 #define LAMBDA_LIMIT 0.0
 #define MU_LIMIT 0.0
 // Random part of anisotropic rheology parameters tensor
-#define RANDOM_LIMIT 1.0e+6
+#define RANDOM_LIMIT 1.0e+3
 
-#define RHO_LIMIT 1.0e+4
+#define RHO_LIMIT 10.0
 
 // Limits for isotropic transition test
 #define ISOTROPIC_LAMBDA_LIMIT 1.0e+9
