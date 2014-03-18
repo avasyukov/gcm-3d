@@ -7,6 +7,7 @@
 #include "util/AnisotropicMatrix3DAnalytical.h"
 #include "util/AnisotropicMatrix3D.h"
 #include "util/ElasticMatrix3D.h"
+#include "Math.h"
 
 #define ITERATIONS 1000
 
@@ -147,6 +148,93 @@ void testDecomposition(RheologyMatrix3D& matrix, AnisotropicElasticMaterial(*gen
             ASSERT_TRUE( matrix.getU1() * matrix.getL() * matrix.getU() == matrix.getA() );
             // Test eigen values and eigen rows
             ASSERT_TRUE( matrix.getU1() * matrix.getL() == matrix.getA() * matrix.getU1() );
+        }
+        Engine::getInstance().clear();
+    }
+};
+
+// To build difference between U1 in alalytical and numerical matrixes
+void build_U1_Difference(RheologyMatrix3D& analyticalMatrix, RheologyMatrix3D& numericalMatrix) {
+	gcm_matrix diff;
+	diff.clear();
+	
+	int j_an, j_num, k, k_max;
+	float eigenvA, max, ratio;
+	
+	// Through all eigenvalues
+	for(j_an = 0; j_an < 6; j_an++) {
+		eigenvA = analyticalMatrix.getL(j_an, j_an);
+		
+		// Finding the same eigenvalue in numericalMatrix
+		j_num = 0;
+		while(fabs(eigenvA - numericalMatrix.getL(j_num, j_num)) > fmax(fabs(eigenvA), fabs(numericalMatrix.getL(j_num, j_num)))*EQUALITY_TOLERANCE) { j_num++; }
+		
+		// Finding the maximum component
+		max = 0.0;
+		k_max = 0;
+		for(k = 0; k < 9; k++)
+			if(max < fabs(analyticalMatrix.getU1(k, j_an))) {
+				max = fabs(analyticalMatrix.getU1(k, j_an));
+				k_max = k;
+			}
+		ratio = analyticalMatrix.getU1(k_max, j_an)/numericalMatrix.getU1(k_max, j_num);
+		// Build the difference between the same eigenvectors
+		for(k = 0; k < 9; k++)
+			diff(k, j_an) = fabs(analyticalMatrix.getU1(k, j_an) - ratio*numericalMatrix.getU1(k, j_num));
+	}
+	
+	cout << '\n' << analyticalMatrix.getU1() << '\n';	
+	cout << '\n' << diff << '\n';	
+	
+};
+
+void testDecomposition(RheologyMatrix3D& analyticalMatrix, RheologyMatrix3D& numericalMatrix, AnisotropicElasticMaterial(*generateMaterial)(string))
+{
+    CalcNode anisotropicNode;
+    
+    for (int count = 0; count < ITERATIONS; count++) {
+        
+        string testMaterialName = "AnisotropicMatrix3D_Comparing_" + count;
+        AnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
+        anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
+        
+        for (int i = 0; i < 3; i++) {
+            switch (i) {
+            case 0: analyticalMatrix.createAx(anisotropicNode);
+					numericalMatrix.createAx(anisotropicNode);
+                break;
+            case 1: analyticalMatrix.createAy(anisotropicNode);
+					numericalMatrix.createAy(anisotropicNode);
+                break;
+            case 2: analyticalMatrix.createAz(anisotropicNode);
+					numericalMatrix.createAz(anisotropicNode);
+                break;
+            }
+            
+            int j_an, j_num, k;
+            float eigenvA, ratio;
+            
+            // Through all eigenvalues
+            for(j_an = 0; j_an < 6; j_an++) {
+				eigenvA = analyticalMatrix.getL(j_an, j_an);
+
+				// Finding the same eigenvalue in numericalMatrix
+				j_num = 0;
+				while(fabs(eigenvA - numericalMatrix.getL(j_num, j_num)) > fmax(fabs(eigenvA), fabs(numericalMatrix.getL(j_num, j_num)))*10.0*EQUALITY_TOLERANCE) { j_num++; }
+
+				// Finding the first exapmle ratio of components
+				k = -1;
+				do {
+					k++;
+					ratio = analyticalMatrix.getU1(k, j_an)/numericalMatrix.getU1(k, j_num);
+				} while(fabs(numericalMatrix.getU1(k, j_num)) < 1.0e-8);
+				
+				// Comparing this ratio with another ratios
+				for(k = 0; k < 9; k++) {
+					if(fabs(analyticalMatrix.getU1(k, j_an)) < 1.0e-8) ASSERT_NEAR(numericalMatrix.getU1(k, j_num), 0.0, 1.0e-8);
+					else ASSERT_NEAR(ratio, analyticalMatrix.getU1(k, j_an)/numericalMatrix.getU1(k, j_num), fmax(fabs(ratio), fabs(analyticalMatrix.getU1(k, j_an)/numericalMatrix.getU1(k, j_num)))*10.0*EQUALITY_TOLERANCE);
+				}
+			}
         }
         Engine::getInstance().clear();
     }
@@ -322,3 +410,12 @@ TEST(AnisotropicMatrix3D, AnalyticalVsNumericalPerf)
     
     ASSERT_TRUE( (float)numericalTime / (float)analyticalTime > MINIMAL_EXPECTED_SPEEDUP );
 };
+
+/*TEST(AnisotropicMatrix3D, AnalyticalVSNumericalRandom)
+{
+	srand(time(NULL));
+	AnisotropicMatrix3DAnalytical analyticalMatrix;
+	AnisotropicMatrix3D numericalMatrix;
+	testDecomposition(analyticalMatrix, numericalMatrix, generateRandomMaterial);
+};
+*/
