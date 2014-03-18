@@ -171,7 +171,7 @@ void testDecomposition(AnisotropicElasticMaterial(*generateMaterial)(string))
             case 2: matrix.createAz(anisotropicNode);
                 break;
             }
-            
+
             // Test decomposition
             ASSERT_TRUE( matrix.getU1() * matrix.getL() * matrix.getU() == matrix.getA() );
             // Test eigen values and eigen rows
