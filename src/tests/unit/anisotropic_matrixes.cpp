@@ -8,6 +8,7 @@
 #include "util/AnisotropicMatrix3D.h"
 #include "util/ElasticMatrix3D.h"
 #include "Math.h"
+#include "Exception.h"
 
 #define ITERATIONS 1000
 
@@ -220,7 +221,10 @@ void testDecomposition(RheologyMatrix3D& analyticalMatrix, RheologyMatrix3D& num
 
 				// Finding the same eigenvalue in numericalMatrix
 				j_num = 0;
-				while(fabs(eigenvA - numericalMatrix.getL(j_num, j_num)) > fmax(fabs(eigenvA), fabs(numericalMatrix.getL(j_num, j_num)))*10.0*EQUALITY_TOLERANCE) { j_num++; }
+				while(fabs(eigenvA - numericalMatrix.getL(j_num, j_num)) > fmax(fabs(eigenvA), fabs(numericalMatrix.getL(j_num, j_num)))*10.0*EQUALITY_TOLERANCE) { 
+					j_num++;
+					if(j_num > 8) THROW_INVALID_ARG("So low error in eigenvalues is unreachable!"); 
+				}
 
 				// Finding the first exapmle ratio of components
 				k = -1;
@@ -330,6 +334,14 @@ TEST(AnisotropicMatrix3D, NumericalIsotropicTransition)
     srand(time(NULL));
     AnisotropicMatrix3D numericalMatrix;
     testIsotropicTransition(numericalMatrix);
+};
+
+TEST(AnisotropicMatrix3D, AnalyticalVSNumericalRandom) 
+{
+    srand(time(NULL));
+    AnisotropicMatrix3DAnalytical analyticalMatrix;
+    AnisotropicMatrix3D numericalMatrix;
+    testDecomposition(analyticalMatrix, numericalMatrix, generateRandomMaterial);
 };
 
 TEST(AnisotropicMatrix3D, AnalyticalEqNumerical) 
