@@ -36,6 +36,7 @@ LDFLAGS     += -l$(shell find $(LIBDIRS) -maxdepth 1 -iname libgmsh.so -printf %
 LDFLAGS     += -L$(shell find $(LIBDIRS) -maxdepth 1 -name vtk* -print -quit)
 LDFLAGS     += -L$(BUILD)
 LDFLAGS     += -Wl,-rpath=$(BUILD)
+LDFLAGS     += -lrt
 
 LIB_SOURCES       =  $(shell find src/libgcm -iname *.cpp)
 LAUNCHER_SOURCES  =  $(shell find src/launcher -iname *.cpp) 
