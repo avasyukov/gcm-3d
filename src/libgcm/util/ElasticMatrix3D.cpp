@@ -2,29 +2,24 @@
 #include "materials/IsotropicElasticMaterial.h"
 #include "node/CalcNode.h"
 
-void gcm::ElasticMatrix3D::clear()
+void gcm::ElasticMatrix3D::initializeAx(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
     A.clear();
     L.clear();
     U.clear();
     U1.clear();
-};
 
-void gcm::ElasticMatrix3D::createAx(const ICalcNode& node)
-{
-    clear();
-    
 #ifdef NDEBUG
-    IsotropicElasticMaterial* mat = static_cast<IsotropicElasticMaterial*>(node.getMaterial());
+    const auto mat = static_cast<const IsotropicElasticMaterial*>(material);
 #else
-    IsotropicElasticMaterial* mat = dynamic_cast<IsotropicElasticMaterial*>(node.getMaterial());
+    const auto mat = dynamic_cast<const IsotropicElasticMaterial*>(material);
     assert(mat);
 #endif
-    
-    auto rho = node.getRho();
+
+    auto rho = mat->getRho();
     auto mu = mat->getMu();
     auto la = mat->getLambda();
-    
+
     A(0, 3) = -1 / rho;
     A(1, 4) = -1 / rho;
     A(2, 5) = -1 / rho;
@@ -80,21 +75,24 @@ void gcm::ElasticMatrix3D::createAx(const ICalcNode& node)
     U1(8, 8) = 1;
 };
 
-void gcm::ElasticMatrix3D::createAy(const ICalcNode& node)
+void gcm::ElasticMatrix3D::initializeAy(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
-    clear();
+    A.clear();
+    L.clear();
+    U.clear();
+    U1.clear();
 
 #ifdef NDEBUG
-    IsotropicElasticMaterial* mat = reinterpret_cast<IsotropicElasticMaterial*>(node.getMaterial());
+    const auto mat = reinterpret_cast<const IsotropicElasticMaterial*>(material);
 #else
-    IsotropicElasticMaterial* mat = dynamic_cast<IsotropicElasticMaterial*>(node.getMaterial());
+    const auto mat = dynamic_cast<const IsotropicElasticMaterial*>(material);
     assert(mat);
 #endif
-    
-    auto rho = node.getRho();
+
+    auto rho = mat->getRho();
     auto mu = mat->getMu();
-    auto la = mat->getLambda();    
-    
+    auto la = mat->getLambda();
+
     A(0, 4) = -1 / rho;
     A(1, 6) = -1 / rho;
     A(2, 7) = -1 / rho;
@@ -150,20 +148,23 @@ void gcm::ElasticMatrix3D::createAy(const ICalcNode& node)
     U1(8, 8) = 1;
 };
 
-void gcm::ElasticMatrix3D::createAz(const ICalcNode& node)
+void gcm::ElasticMatrix3D::initializeAz(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
-    clear();
-    
+    A.clear();
+    L.clear();
+    U.clear();
+    U1.clear();
+
 #ifdef NDEBUG
-    IsotropicElasticMaterial* mat = reinterpret_cast<IsotropicElasticMaterial*>(node.getMaterial());
+    const auto mat = reinterpret_cast<const IsotropicElasticMaterial*>(material);
 #else
-    IsotropicElasticMaterial* mat = dynamic_cast<IsotropicElasticMaterial*>(node.getMaterial());
+    const auto mat = dynamic_cast<const IsotropicElasticMaterial*>(material);
     assert(mat);
 #endif
-    
-    auto rho = node.getRho();
+
+    auto rho = mat->getRho();
     auto mu = mat->getMu();
-    auto la = mat->getLambda();    
+    auto la = mat->getLambda();
 
     A(0, 5) = -1 / rho;
     A(1, 7) = -1 / rho;

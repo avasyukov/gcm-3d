@@ -4,68 +4,24 @@ gcm::RheologyMatrix3D::~RheologyMatrix3D()
 {
 }
 
-gcm_real gcm::RheologyMatrix3D::getMaxEigenvalue() const
-{
-	float res = 0;
-	for (unsigned i = 0; i < GCM_MATRIX_SIZE; ++i)
-	{
-		gcm_real la = getL(i,i);
-		if(la > res)
-			res = la;
-	}
-	return res;
-}
-
-gcm_real gcm::RheologyMatrix3D::getMinEigenvalue() const
-{
-	float res = numeric_limits<gcm_real>::infinity();
-	for (unsigned i = 0; i < GCM_MATRIX_SIZE; ++i)
-	{
-		gcm_real la = getL(i,i);
-		if(la > 0 && la < res)
-			res = la;
-	}
-	return res;
-}
-
-gcm_matrix& gcm::RheologyMatrix3D::getA()
-{
-	return A;
-}
-
 gcm_real gcm::RheologyMatrix3D::getA(unsigned int i, unsigned int j) const
 {
-	return A.get(i, j);
-}
-
-gcm_matrix& gcm::RheologyMatrix3D::getL()
-{
-	return L;
+	return getA().get(i, j);
 }
 
 gcm_real gcm::RheologyMatrix3D::getL(unsigned int i, unsigned int j) const
 {
-	return L.get(i, j);
-}
-
-gcm_matrix& gcm::RheologyMatrix3D::getU()
-{
-	return U;
+	return getL().get(i, j);
 }
 
 gcm_real gcm::RheologyMatrix3D::getU(unsigned int i, unsigned int j) const
 {
-	return U.get(i, j);
-}
-
-gcm_matrix& gcm::RheologyMatrix3D::getU1()
-{
-	return U1;
+	return getU().get(i, j);
 }
 
 gcm_real gcm::RheologyMatrix3D::getU1(unsigned int i, unsigned int j) const
 {
-	return U1.get(i, j);
+	return getU1().get(i, j);
 }
 /*
 void gcm::RheologyMatrix3D::CreateGeneralizedMatrix(float la, float mu, float ro, 

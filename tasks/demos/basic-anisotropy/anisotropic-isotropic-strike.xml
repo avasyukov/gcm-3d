@@ -7,7 +7,7 @@
 		</body>
 	</bodies>
 	<materials>
-		<material name="testMaterial" type="AEM">
+		<material name="testMaterial" rheology="AnisotropicElastic">
 			<c11>90000</c11>
 			<c12>70000</c12>
 			<c13>70000</c13>

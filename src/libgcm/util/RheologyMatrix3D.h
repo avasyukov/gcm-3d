@@ -15,7 +15,7 @@ namespace gcm
 {
 
     /**
-     * Base class to inherit rheology matrices implementations from.Holds
+     * Base class to inherit rheology matrices implementations from. Holds
      * rheology matrix A and provides a way to compute «decomposition» of
      * original matrix to 3 matrices \f$U\f$, \f$\Lambda\f$, \f$U^{-1}\f$
      * that  \f$U^{-2} * \Lambda * U == A\f$.
@@ -23,11 +23,6 @@ namespace gcm
 
     class RheologyMatrix3D
     {
-    protected:
-        gcm_matrix A;
-        gcm_matrix L;
-        gcm_matrix U;
-        gcm_matrix U1;
     public:
         /**
          * Destructor
@@ -37,17 +32,17 @@ namespace gcm
          * Returns max matrix eigenvalue.
          * @return max eigenvalue.
          */
-        gcm_real getMaxEigenvalue() const;
+        virtual gcm_real getMaxEigenvalue() const = 0;
         /**
          * Returns min matrix eigenvalue.
          * @return min eigenvalue.
          */
-        gcm_real getMinEigenvalue() const;
+        virtual gcm_real getMinEigenvalue() const = 0;
         /**
          * Returns rheology matrix A.
          * @return A matrix.
          */
-        gcm_matrix& getA();
+        virtual const gcm_matrix& getA() const = 0;
         /**
          * Returns rheology matrix A component.
          * @return A matrix component.
@@ -57,7 +52,7 @@ namespace gcm
          * Returns \f$\Lambda\f$ matrix (contains eigenvalues).
          * @return \f$\Lambda\f$ matrix.
          */
-        gcm_matrix& getL();
+        virtual const gcm_matrix& getL() const = 0;
         /**
          * Returns \f$\Lambda\f$ matrix component.
          * @return \f$\Lambda\f$ matrix component.
@@ -67,7 +62,7 @@ namespace gcm
          * Returns U matrix (contains eigenvectors).
          * @return U matrix.
          */
-        gcm_matrix& getU();
+        virtual const gcm_matrix& getU() const = 0;
         /**
          * Returns U matrix component.
          * @return U matrix component.
@@ -77,7 +72,7 @@ namespace gcm
          * Returns \f$U^{-1}\f$ matrix (inverse U).
          * @return \f$U^{-1}\f$ matrix.
          */
-        gcm_matrix& getU1();
+        virtual const gcm_matrix& getU1() const = 0;
         /**
          * Returns \f$U^{-1}\f$ matrix component.
          * @return \f$U^{-1}\f$ matrix component.
@@ -89,6 +84,7 @@ namespace gcm
         virtual void createAx(const ICalcNode& node) = 0;
         virtual void createAy(const ICalcNode& node) = 0;
         virtual void createAz(const ICalcNode& node) = 0;
+        virtual void refresh() = 0;
     };
 }
 
