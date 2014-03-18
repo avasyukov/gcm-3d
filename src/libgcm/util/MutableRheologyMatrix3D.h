@@ -47,8 +47,6 @@ namespace gcm {
          * @return \f$U^{-1}\f$ matrix.
          */
         const gcm_matrix& getU1() const override;
-        
-        void refresh() override;
     };
 }
 

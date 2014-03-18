@@ -41,6 +41,6 @@ def configure(conf):
     conf.env.INCLUDES.append(conf.path.find_dir('src/libgcm').abspath())
     conf.env.INCLUDES.append(conf.path.find_dir('src').abspath())
     conf.env.CXXFLAGS += conf.options.cxxflags
-    conf.env.LINKFLAGS += ['-lpthread']
+    conf.env.LINKFLAGS += ['-lpthread', '-lrt']
     for x in conf.options.libpath:
         conf.env.LINKFLAGS += ['-Wl,-rpath,' + x]
