@@ -14,12 +14,12 @@ namespace gcm {
 		 * " > 0 " for all the roots
 		 */
 		double a, b, c;
-		float roots[3];
+		double roots[3];
 		void findRoots();
 	public:
 		ThirdDegreePolynomial(float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage);
 		~ThirdDegreePolynomial();
-		void getRoots(float *place);
+		void getRoots(double *place);
 		bool isMultiple;
 	};
 }

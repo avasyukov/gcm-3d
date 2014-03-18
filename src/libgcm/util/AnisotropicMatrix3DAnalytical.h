@@ -29,12 +29,12 @@ namespace gcm {
 		
 		void clear();
 		void fixValuesOrder();
-		void findNonZeroSolution(float **M, float *x);
-		void findNonZeroSolution(float **M, float *x, float *y);
+		void findNonZeroSolution(double **M, float *x);
+		void findNonZeroSolution(double **M, float *x, float *y);
 		void findEigenVec(float *eigenVec,
-					float l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage);
+					double l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage);
 		void findEigenVec(float *eigenVec1, float *eigenVec2,
-					float l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage);
+					double l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage);
 	};
 }
 
