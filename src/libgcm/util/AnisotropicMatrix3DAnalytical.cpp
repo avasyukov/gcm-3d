@@ -53,7 +53,7 @@ void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
 	double roots[3];
 	tdp.getRoots(roots);
 	
-	if ( ! tdp.isMultiple ) {
+	if ( ! tdp.isMultiple() ) {
 		// Search eigenvalues and filling the diagonal matrix
 		L(0,0) = sqrt(roots[0]);
 		L(1,1) = -L(0,0);
@@ -128,7 +128,7 @@ void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
 	double roots[3];
 	tdp.getRoots(roots);
 	
-	if ( ! tdp.isMultiple ) {
+	if ( ! tdp.isMultiple() ) {
 		// Search eigenvalues and filling the diagonal matrix
 		L(0,0) = sqrt(roots[0]);
 		L(1,1) = -L(0,0);
@@ -202,7 +202,7 @@ void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
 	double roots[3];
 	tdp.getRoots(roots);
 	
-	if ( ! tdp.isMultiple ) {
+	if ( ! tdp.isMultiple() ) {
 		// Search eigenvalues and filling the diagonal matrix
 		L(0,0) = sqrt(roots[0]);
 		L(1,1) = -L(0,0);

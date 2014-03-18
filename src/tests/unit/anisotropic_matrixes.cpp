@@ -129,7 +129,6 @@ void testDecomposition(RheologyMatrix3D& matrix, AnisotropicElasticMaterial(*gen
     CalcNode anisotropicNode;
     
     for (int count = 0; count < ITERATIONS; count++) {
-        
         string testMaterialName = "AnisotropicMatrix3D_FuzzyMultiplication_" + count;
         AnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
         anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
@@ -144,7 +143,7 @@ void testDecomposition(RheologyMatrix3D& matrix, AnisotropicElasticMaterial(*gen
             case 2: matrix.createAz(anisotropicNode);
                 break;
             }
-            
+
             // Test decomposition
             ASSERT_TRUE( matrix.getU1() * matrix.getL() * matrix.getU() == matrix.getA() );
             // Test eigen values and eigen rows
