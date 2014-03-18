@@ -8,6 +8,7 @@
 #include "util/AnisotropicMatrix3D.h"
 #include "util/ElasticMatrix3D.h"
 #include "Math.h"
+#include "Exception.h"
 
 #define ITERATIONS 1000
 
@@ -357,7 +358,13 @@ TEST(AnisotropicMatrix3D, NumericalIsotropicTransition)
     testIsotropicTransition<AnisotropicElasticMaterial>();
 };
 
-TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
+TEST(AnisotropicMatrix3D, AnalyticalVSNumericalRandom) 
+{
+    srand(time(NULL));
+    compareDecomposition<AnisotropicMatrix3DAnalytical, AnisotropicMatrix3D>(generateRandomMaterial);
+};
+
+TEST(AnisotropicMatrix3D, AnalyticalEqNumerical) 
 {
     srand(time(NULL));
     for (int count = 0; count < ITERATIONS; count++) {
@@ -421,10 +428,4 @@ TEST(AnisotropicMatrix3D, AnalyticalVsNumericalPerf)
     numericalTime = (end.tv_sec - start.tv_sec) * 1.0e3 + (end.tv_nsec - start.tv_nsec) / 1.0e6;
 
     ASSERT_GE(numericalTime,  analyticalTime*MINIMAL_EXPECTED_SPEEDUP);
-};
-
-TEST(AnisotropicMatrix3D, AnalyticalVSNumericalRandom)
-{
-	srand(time(NULL));
-	compareDecomposition<AnisotropicMatrix3DAnalytical, AnisotropicMatrix3D>(generateRandomMaterial);
 };
