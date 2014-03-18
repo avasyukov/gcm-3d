@@ -5,13 +5,13 @@ void gcm::AnisotropicMatrix3DAnalytical::fixValuesOrder()
 {
 	gcm_matrix P;
 	P.clear();
-	P(0,0) = P(1,1) = P(2,2) = P(3,3) = P(4,6) = 
+	P(0,0) = P(1,1) = P(2,2) = P(3,3) = P(4,6) =
 			P(5,8) = P(6,7) = P(7,5) = P(8,4) = 1;
 	gcm_matrix P1;
 	P1.clear();
-	P1(0,0) = P1(1,1) = P1(2,2) = P1(3,3) = P1(6,4) = 
+	P1(0,0) = P1(1,1) = P1(2,2) = P1(3,3) = P1(6,4) =
 			P1(8,5) = P1(7,6) = P1(5,7) = P1(4,8) = 1;
-	
+
 	A = P1 * A * P;
 	U = U * P;
 	U1 = P1 * U1;
@@ -30,9 +30,9 @@ void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
 	clear();
 
 #ifdef NDEBUG
-	AnisotropicElasticMaterial* mat = static_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+	auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 #else
-	AnisotropicElasticMaterial* mat = dynamic_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+	auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 	assert(mat);
 #endif
 
@@ -41,18 +41,18 @@ void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
 
 	// Setting values of A
 	A(0,3) = A(1,8) = A(2,7) = -1.0/rho;
-	
+
 	A(3,0) = -C.c11;	A(3,1) = -C.c16;	A(3,2) = -C.c15;
 	A(4,0) = -C.c12;	A(4,1) = -C.c26;	A(4,2) = -C.c25;
 	A(5,0) = -C.c13;	A(5,1) = -C.c36;	A(5,2) = -C.c35;
 	A(6,0) = -C.c14;	A(6,1) = -C.c46;	A(6,2) = -C.c45;
 	A(7,0) = -C.c15;	A(7,1) = -C.c56;	A(7,2) = -C.c55;
 	A(8,0) = -C.c16;	A(8,1) = -C.c66;	A(8,2) = -C.c56;
-	
+
 	ThirdDegreePolynomial tdp (rho, C, 0);
 	double roots[3];
 	tdp.getRoots(roots);
-	
+
 	if ( ! tdp.isMultiple ) {
 		// Search eigenvalues and filling the diagonal matrix
 		L(0,0) = sqrt(roots[0]);
@@ -90,13 +90,13 @@ void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
 			U1.setColumn(eigenVec2, i+1);
 		}
 	}
-	
+
 	U1(4,6) = U1(5,7) = U1(6,8) = 1;
 
 	// Search U = U1^(-1)
 	U = U1;
 	U.inv();
-	
+
 	fixValuesOrder();
 };
 
@@ -105,9 +105,9 @@ void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
 	clear();
 
 #ifdef NDEBUG
-	AnisotropicElasticMaterial* mat = static_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+	auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 #else
-	AnisotropicElasticMaterial* mat = dynamic_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+	auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 	assert(mat);
 #endif
 
@@ -116,18 +116,18 @@ void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
 
 	// Setting values of A
 	A(0,8) = A(1,4) = A(2,6) = -1.0/rho;
-	
+
 	A(3,0) = -C.c16;	A(3,1) = -C.c12;	A(3,2) = -C.c14;
 	A(4,0) = -C.c26;	A(4,1) = -C.c22;	A(4,2) = -C.c24;
 	A(5,0) = -C.c36;	A(5,1) = -C.c23;	A(5,2) = -C.c34;
 	A(6,0) = -C.c46;	A(6,1) = -C.c24;	A(6,2) = -C.c44;
 	A(7,0) = -C.c56;	A(7,1) = -C.c25;	A(7,2) = -C.c45;
 	A(8,0) = -C.c66;	A(8,1) = -C.c26;	A(8,2) = -C.c46;
-	
+
 	ThirdDegreePolynomial tdp (rho, C, 1);
 	double roots[3];
 	tdp.getRoots(roots);
-	
+
 	if ( ! tdp.isMultiple ) {
 		// Search eigenvalues and filling the diagonal matrix
 		L(0,0) = sqrt(roots[0]);
@@ -164,13 +164,13 @@ void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
 			U1.setColumn(eigenVec2, i+1);
 		}
 	}
-	
+
 	U1(3, 6) = U1(5, 7) = U1(7, 8) = 1;
-	
+
 	// Search U = U1^(-1)
 	U = U1;
 	U.inv();
-	
+
 	fixValuesOrder();
 };
 
@@ -179,9 +179,9 @@ void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
 	clear();
 
 #ifdef NDEBUG
-	AnisotropicElasticMaterial* mat = static_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+	auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 #else
-	AnisotropicElasticMaterial* mat = dynamic_cast<AnisotropicElasticMaterial*> (node.getMaterial());
+	auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 	assert(mat);
 #endif
 
@@ -190,18 +190,18 @@ void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
 
 	// Setting values of A
 	A(0,7) = A(1,6) = A(2,5) = -1.0/rho;
-	
+
 	A(3,0) = -C.c15;	A(3,1) = -C.c14;	A(3,2) = -C.c13;
 	A(4,0) = -C.c25;	A(4,1) = -C.c24;	A(4,2) = -C.c23;
 	A(5,0) = -C.c35;	A(5,1) = -C.c34;	A(5,2) = -C.c33;
 	A(6,0) = -C.c45;	A(6,1) = -C.c44;	A(6,2) = -C.c34;
 	A(7,0) = -C.c55;	A(7,1) = -C.c45;	A(7,2) = -C.c35;
 	A(8,0) = -C.c56;	A(8,1) = -C.c46;	A(8,2) = -C.c36;
-	
+
 	ThirdDegreePolynomial tdp (rho, C, 2);
 	double roots[3];
 	tdp.getRoots(roots);
-	
+
 	if ( ! tdp.isMultiple ) {
 		// Search eigenvalues and filling the diagonal matrix
 		L(0,0) = sqrt(roots[0]);
@@ -210,7 +210,7 @@ void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
 		L(3,3) = -L(2,2);
 		L(4,4) = sqrt(roots[2]);
 		L(5,5) = -L(4,4);
-	
+
 		// Search eigenvectors and filling the transition matrix
 		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
 		float eigenVec[9];
@@ -239,13 +239,13 @@ void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
 			U1.setColumn(eigenVec2, i+1);
 		}
 	}
-	
+
 	U1(3,6) = U1(4,7) = U1(8,8) = 1;
-	
+
 	// Search U = U1^(-1)
 	U = U1;
 	U.inv();
-	
+
 	fixValuesOrder();
 };
 
@@ -263,12 +263,12 @@ void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, float *
 					det = M[p][i]*M[q][j] - M[q][i]*M[p][j];
 					I = i; J = j; P = p; Q = q;
 				}
-	
+
 	// unity = no I and no J
 	int unity = ! I;
-	unity += (unity == J) ? 1 : 0;	
-	
-	x[unity] = 1;		
+	unity += (unity == J) ? 1 : 0;
+
+	x[unity] = 1;
 	x[I] = (-M[P][unity]*M[Q][J] + M[Q][unity]*M[P][J]) / det;
 	x[J] = (-M[P][I]*M[Q][unity] + M[Q][I]*M[P][unity]) / det;
 };
@@ -315,7 +315,7 @@ void gcm::AnisotropicMatrix3DAnalytical::findEigenVec(float *eigenVec,
 			break;
 		}
 		default:
-			THROW_INVALID_ARG("Wrong stage number (from findEigenVec)");	
+			THROW_INVALID_ARG("Wrong stage number (from findEigenVec)");
 	}
 
 	findNonZeroSolution(M, eigenVec);
@@ -357,7 +357,7 @@ void gcm::AnisotropicMatrix3DAnalytical::findEigenVec(float *eigenVec,
 void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, float *x, float *y)
 {
 	// Range ( M ) = 1, two of x[i] are random
-	
+
 	int I = 0, J = 0, p, q;
 	double det = 0;
 	for (int i = 0; i < 3; i++)
@@ -370,7 +370,7 @@ void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, float *
 	if (J == 0) { p = 1; q = 2; }
 	else if (J == 1) { p = 0; q = 2; }
 	else { p = 0; q = 1; }
-	
+
 	x[p] = y[q] = 1;
 	x[q] = y[p] = 0;
 	x[J] = -M[I][p] / det;
@@ -420,7 +420,7 @@ void gcm::AnisotropicMatrix3DAnalytical::findEigenVec (float *eigenVec1,
 			break;
 		}
 		default:
-			THROW_INVALID_ARG("Wrong stage number (from findEigenVec)");	
+			THROW_INVALID_ARG("Wrong stage number (from findEigenVec)");
 	}
 
 	findNonZeroSolution(M, eigenVec1, eigenVec2);
