@@ -32,7 +32,7 @@ void gcm::ThirdDegreePolynomial::findRoots()
 	isMultiple = false;
 	double Q = (a*a - 3*b)/9;
 	double R = (2*a*a*a - 9*a*b + 27*c)/54;
-	if ( abs (R / sqrt(Q*Q*Q)) > 1 - EQUALITY_TOLERANCE ) {
+	if ( abs (R / sqrt(Q*Q*Q)) > 1 - 1e-3*EQUALITY_TOLERANCE ) {
 		// Two roots are equal
 		isMultiple = true;
 		if (R > 0) {
@@ -48,24 +48,12 @@ void gcm::ThirdDegreePolynomial::findRoots()
 		roots[0] = -2 * sqrt(Q) * cos (phi) - a/3;
 		roots[1] = -2 * sqrt(Q) * cos (phi + 2 * M_PI / 3) - a/3;
 		roots[2] = -2 * sqrt(Q) * cos (phi - 2 * M_PI / 3) - a/3;
-		// Checking roots
-		for (int i = 0; i < 3; i++) {
-			double xR = roots[i] * (1 + 1e+3 * EQUALITY_TOLERANCE);
-			double xL = roots[i] * (1 - 1e+3 * EQUALITY_TOLERANCE);
-			if( ((xR * xR * xR + a * xR * xR + b * xR + c) * 
-					(xL * xL * xL + a * xL * xL + b * xL + c) > 0)
-				|| (roots[i] < 0) )
-			{
-				THROW_INVALID_INPUT("Bad roots!");
-			}
-		}
 	}
-
 };
 
 gcm::ThirdDegreePolynomial::~ThirdDegreePolynomial() {};
 		
-void gcm::ThirdDegreePolynomial::getRoots(float *place)
+void gcm::ThirdDegreePolynomial::getRoots(double *place)
 {
 	for (int i = 0; i < 3; i++){
 		place[i] = roots[i];
