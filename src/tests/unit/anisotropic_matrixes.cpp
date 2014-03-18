@@ -128,7 +128,7 @@ void testDecomposition(RheologyMatrix3D& matrix, AnisotropicElasticMaterial(*gen
 
     for (int count = 0; count < ITERATIONS; count++) {
 
-        string testMaterialName = "AnisotropicMatrix3D_FuzzyMultiplication_" + count;
+        string testMaterialName = "AnisotropicMatrix3D_FuzzyMultiplication_" + to_string(count);
         AnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
         anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
 
