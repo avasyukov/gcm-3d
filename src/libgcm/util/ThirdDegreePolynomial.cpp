@@ -29,12 +29,12 @@ gcm::ThirdDegreePolynomial::ThirdDegreePolynomial(float rho,
 
 void gcm::ThirdDegreePolynomial::findRoots()
 {
-	isMultiple = false;
-	double Q = (a*a - 3*b)/9;
-	double R = (2*a*a*a - 9*a*b + 27*c)/54;
-	if ( abs (R / sqrt(Q*Q*Q)) > 1 - 1e-3*EQUALITY_TOLERANCE ) {
+	isMltpl = false;
+	long double Q = (a*a - 3*b)/9;
+	long double R = (2*a*a*a - 9*a*b + 27*c)/54;
+	if ( abs (R / sqrt(Q*Q*Q)) > 1 - 1e-10*EQUALITY_TOLERANCE ) {
 		// Two roots are equal
-		isMultiple = true;
+		isMltpl = true;
 		if (R > 0) {
 			roots[0] = - sqrt(Q) - a/3;
 			roots[1] = roots[2] = 2 * sqrt(Q) - a/3;
@@ -43,11 +43,25 @@ void gcm::ThirdDegreePolynomial::findRoots()
 			roots[1] = roots[2] = - sqrt(Q) - a/3;
 		}
 	} else {
-		// All the roots are different 
-		double phi = acos (R / sqrt(Q*Q*Q)) / 3;
+		// All the roots seem to be different 
+		double phi = acos (R / sqrt(Q * Q * Q)) / 3;
 		roots[0] = -2 * sqrt(Q) * cos (phi) - a/3;
-		roots[1] = -2 * sqrt(Q) * cos (phi + 2 * M_PI / 3) - a/3;
-		roots[2] = -2 * sqrt(Q) * cos (phi - 2 * M_PI / 3) - a/3;
+		roots[1] = -2 * sqrt(Q) * cos (phi + 2 * M_PI / 3) - a / 3;
+		roots[2] = -2 * sqrt(Q) * cos (phi - 2 * M_PI / 3) - a / 3;
+		// Or two ones are still equal?
+		for (int i = 0; i < 2; i++)
+			for (int j = i+1; j < 3; j++)
+				if ( abs (roots[i] - roots[j]) / max (roots[i], roots[j]) < 1e-2 ) {
+					// k  =  no i  and  no j
+					int k = !i;
+					k += (k == j) ? 1 : 0;
+					if ( abs(roots[i] - roots[k]) / max(roots[i], roots[k]) < 1e-2 )
+						THROW_INVALID_INPUT("All the roots are equal");
+					isMltpl = true;
+					double tmp = (roots[i] + roots[j]) / 2;
+					roots[0] = roots[k];
+					roots[1] = roots[2] = tmp;
+				}
 	}
 };
 
@@ -60,3 +74,7 @@ void gcm::ThirdDegreePolynomial::getRoots(double *place)
 	}
 };
 
+bool gcm::ThirdDegreePolynomial::isMultiple() 
+{
+	return isMltpl;
+};
