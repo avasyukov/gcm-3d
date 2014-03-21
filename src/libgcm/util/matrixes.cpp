@@ -33,19 +33,42 @@ bool gcm::gcm_matrix::operator==(const gcm_matrix &A) const
 	float max1 = max_abs_value();
 	float max2 = A.max_abs_value();
 
-	float max = (max1 > max2) ? max1 : max2;
+	float max = fmax (max1, max2);
 
 	for (int i = 0; i < GCM_MATRIX_SIZE; ++i)
 		for (int j = 0; j < GCM_MATRIX_SIZE; ++j)
 		{
 			float val1 = fabs(p[i][j]);
 			float val2 = fabs(A.p[i][j]);
-			float norm = (val1 > val2) ? val1 : val2;
+			float norm = fmax (val1, val2);
 			// If the element is 'visible' for the matrix in general ...
 			if( ( norm / max > 0.001 ) 
 				// ... check for the difference to be less then 1%
 				&& ( fabs(p[i][j] - A.p[i][j]) > 0.01 * norm) )
 			{
+				return false;
+			}
+		}
+	return true;
+};
+
+bool gcm::gcm_matrix::operator|=(const gcm_matrix &A) const {
+	float max1 = max_abs_value();
+	float max2 = A.max_abs_value();
+
+	float max = fmax (max1, max2);
+
+	for (int i = 0; i < GCM_MATRIX_SIZE; ++i)
+		for (int j = 0; j < GCM_MATRIX_SIZE; ++j) {
+			float val1 = fabs(p[i][j]);
+			float val2 = fabs(A.p[i][j]);
+			float norm = fmax (val1, val2);
+			// If the element is not 0 ...
+			if ( !( (p[i][j] == 0) || (A.p[i][j] == 0) )
+					// ... check for the difference to be less then 1%
+					&& (fabs(p[i][j] - A.p[i][j]) > 0.01 * norm)) {
+				cout << (*this - A)/A << "i, j = " << i << ", " << j << 
+						"\t err = " << fabs(p[i][j] - A.p[i][j])/norm << endl;
 				return false;
 			}
 		}
@@ -68,6 +91,16 @@ gcm::gcm_matrix gcm::gcm_matrix::operator*(const gcm_matrix &A) const
 			}
 		}
 	}
+	return res_matrix;
+};
+
+gcm::gcm_matrix gcm::gcm_matrix::operator/(const gcm_matrix &A) const {
+	gcm::gcm_matrix res_matrix;
+	for (int r = 0; r < GCM_MATRIX_SIZE; r++) {
+		for (int c = 0; c < GCM_MATRIX_SIZE; c++) {
+				res_matrix.p[r][c] = this->p[r][c] / A.p[r][c];
+			}
+		}
 	return res_matrix;
 };
 
@@ -104,7 +137,7 @@ void gcm::gcm_matrix::clear()
 	memset(p, 0, 81*sizeof(float));
 };
 
-void gcm::gcm_matrix::setColumn(float *Clmn, int num)
+void gcm::gcm_matrix::setColumn(double *Clmn, int num)
 {
 	for (int i = 0; i < GCM_MATRIX_SIZE; i++)
 		p[i][num] = Clmn[i];

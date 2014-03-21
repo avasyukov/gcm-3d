@@ -3,6 +3,7 @@
 
 void gcm::AnisotropicMatrix3DAnalytical::fixValuesOrder()
 {
+	// TODO - swap the components not by matrix multyplication
 	gcm_matrix P;
 	P.clear();
 	P(0,0) = P(1,1) = P(2,2) = P(3,3) = P(4,6) =
@@ -52,6 +53,7 @@ void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
 	ThirdDegreePolynomial tdp (rho, C, 0);
 	double roots[3];
 	tdp.getRoots(roots);
+	MatrixInverter matInv;
 	
 	if ( ! tdp.isMultiple() ) {
 		// Search eigenvalues and filling the diagonal matrix
@@ -64,10 +66,11 @@ void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
 
 		// Search eigenvectors and filling the transition matrix
 		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
-		float eigenVec[9];
+		double eigenVec[9];
 		for (int i = 0; i < 6; i++) {
 			findEigenVec(eigenVec, sqrt(roots[i/2]) * ( (i%2) ? -1 : 1 ), rho, C, 0);
 			U1.setColumn(eigenVec, i);
+			matInv.setColumn(eigenVec, i);
 		}
 	} else {
 		// Search eigenvalues and filling the diagonal matrix
@@ -78,25 +81,28 @@ void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
 		L(4, 4) = L(5, 5) = - sqrt(roots[1]);
 		// Search eigenvectors and filling the transition matrix
 		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
-		float eigenVec1[9];
-		float eigenVec2[9];
+		double eigenVec1[9];
+		double eigenVec2[9];
 		for (int i = 0; i < 2; i++) {
 			findEigenVec(eigenVec1, sqrt(roots[0]) * ( (i%2) ? -1 : 1 ), rho, C, 0);
 			U1.setColumn(eigenVec1, i);
+			matInv.setColumn(eigenVec1, i);
 		}
 		for (int i = 2; i < 5; i+=2) {
 			findEigenVec(eigenVec1, eigenVec2, sqrt(roots[1]) * ( ((i/2)%2) ? 1 : -1 ), rho, C, 0);
 			U1.setColumn(eigenVec1, i);
+			matInv.setColumn(eigenVec1, i);
 			U1.setColumn(eigenVec2, i+1);
+			matInv.setColumn(eigenVec2, i+1);
 		}
 	}
 
 	U1(4,6) = U1(5,7) = U1(6,8) = 1;
+	matInv.setUnity(4,6, 5,7, 6,8);
 
 	// Search U = U1^(-1)
-	U = U1;
-	U.inv();
-
+	matInv.inv(U);
+	
 	fixValuesOrder();
 };
 
@@ -127,6 +133,7 @@ void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
 	ThirdDegreePolynomial tdp (rho, C, 1);
 	double roots[3];
 	tdp.getRoots(roots);
+	MatrixInverter matInv;
 	
 	if ( ! tdp.isMultiple() ) {
 		// Search eigenvalues and filling the diagonal matrix
@@ -138,10 +145,11 @@ void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
 		L(5,5) = -L(4,4);
 		// Search eigenvectors and filling the transition matrix
 		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
-		float eigenVec[9];
+		double eigenVec[9];
 		for (int i = 0; i < 6; i++) {
 			findEigenVec (eigenVec, sqrt(roots[i/2]) * ( (i%2) ? -1 : 1 ), rho, C, 1);
 			U1.setColumn(eigenVec, i);
+			matInv.setColumn(eigenVec, i);
 		}
 	} else {
 		// Search eigenvalues and filling the diagonal matrix
@@ -152,24 +160,27 @@ void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
 		L(4, 4) = L(5, 5) = - sqrt(roots[1]);
 		// Search eigenvectors and filling the transition matrix
 		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
-		float eigenVec1[9];
-		float eigenVec2[9];
+		double eigenVec1[9];
+		double eigenVec2[9];
 		for (int i = 0; i < 2; i++) {
 			findEigenVec(eigenVec1, sqrt(roots[0]) * ( (i%2) ? -1 : 1 ), rho, C, 1);
 			U1.setColumn(eigenVec1, i);
+			matInv.setColumn(eigenVec1, i);
 		}
 		for (int i = 2; i < 5; i+=2) {
 			findEigenVec(eigenVec1, eigenVec2, sqrt(roots[1]) * ( ((i/2)%2) ? 1 : -1 ), rho, C, 1);
 			U1.setColumn(eigenVec1, i);
+			matInv.setColumn(eigenVec1, i);
 			U1.setColumn(eigenVec2, i+1);
+			matInv.setColumn(eigenVec2, i+1);
 		}
 	}
 
 	U1(3, 6) = U1(5, 7) = U1(7, 8) = 1;
+	matInv.setUnity(3,6, 5,7, 7,8);
 
 	// Search U = U1^(-1)
-	U = U1;
-	U.inv();
+	matInv.inv(U);
 
 	fixValuesOrder();
 };
@@ -201,6 +212,7 @@ void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
 	ThirdDegreePolynomial tdp (rho, C, 2);
 	double roots[3];
 	tdp.getRoots(roots);
+	MatrixInverter matInv;
 	
 	if ( ! tdp.isMultiple() ) {
 		// Search eigenvalues and filling the diagonal matrix
@@ -213,10 +225,11 @@ void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
 
 		// Search eigenvectors and filling the transition matrix
 		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
-		float eigenVec[9];
+		double eigenVec[9];
 		for (int i = 0; i < 6; i++) {
 			findEigenVec(eigenVec, sqrt(roots[i/2]) * ( (i%2) ? -1 : 1 ), rho, C, 2);
 			U1.setColumn(eigenVec, i);
+			matInv.setColumn(eigenVec, i);
 		}
 	} else {
 		// Search eigenvalues and filling the diagonal matrix
@@ -227,29 +240,32 @@ void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
 		L(4, 4) = L(5, 5) = - sqrt(roots[1]);
 		// Search eigenvectors and filling the transition matrix
 		// (  A = U1 * L * U  and so eigenvectors are columns of the U1  )
-		float eigenVec1[9];
-		float eigenVec2[9];
+		double eigenVec1[9];
+		double eigenVec2[9];
 		for (int i = 0; i < 2; i++) {
 			findEigenVec(eigenVec1, sqrt(roots[0]) * ( (i%2) ? -1 : 1 ), rho, C, 2);
 			U1.setColumn(eigenVec1, i);
+			matInv.setColumn(eigenVec1, i);
 		}
 		for (int i = 2; i < 5; i+=2) {
 			findEigenVec(eigenVec1, eigenVec2, sqrt(roots[1]) * ( ((i/2)%2) ? 1 : -1 ), rho, C, 2);
 			U1.setColumn(eigenVec1, i);
+			matInv.setColumn(eigenVec1, i);
 			U1.setColumn(eigenVec2, i+1);
+			matInv.setColumn(eigenVec2, i+1);
 		}
 	}
 
 	U1(3,6) = U1(4,7) = U1(8,8) = 1;
+	matInv.setUnity(3,6, 4,7, 8,8);
 
 	// Search U = U1^(-1)
-	U = U1;
-	U.inv();
+	matInv.inv(U);
 
 	fixValuesOrder();
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, float *x)
+void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, double *x)
 {
 	// Range ( M ) = 2, one of x[i] is random
 
@@ -273,7 +289,7 @@ void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, float *
 	x[J] = (-M[P][I]*M[Q][unity] + M[Q][I]*M[P][unity]) / det;
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::findEigenVec(float *eigenVec,
+void gcm::AnisotropicMatrix3DAnalytical::findEigenVec(double *eigenVec,
 					double l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage)
 {
 	// Analitycal search eigenvectors
@@ -354,7 +370,7 @@ void gcm::AnisotropicMatrix3DAnalytical::findEigenVec(float *eigenVec,
 	}
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, float *x, float *y)
+void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, double *x, double *y)
 {
 	// Range ( M ) = 1, two of x[i] are random
 
@@ -378,8 +394,8 @@ void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, float *
 };
 
 
-void gcm::AnisotropicMatrix3DAnalytical::findEigenVec (float *eigenVec1,
-		float *eigenVec2, double l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage)
+void gcm::AnisotropicMatrix3DAnalytical::findEigenVec (double *eigenVec1,
+		double *eigenVec2, double l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage)
 {
 	// Analitycal search eigenvectors
 	// M * x = 0, x = (x1, x2, x3)

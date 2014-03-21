@@ -6,6 +6,7 @@
 #include "materials/IAnisotropicElasticMaterial.h"
 #include "util/MutableRheologyMatrix3D.h"
 #include "util/matrixes.h"
+#include "util/MatrixInverter.h"
 #include "util/ThirdDegreePolynomial.h"
 #include "Exception.h"
 #include <iomanip>
@@ -29,11 +30,11 @@ namespace gcm {
 		
 		void clear();
 		void fixValuesOrder();
-		void findNonZeroSolution(double **M, float *x);
-		void findNonZeroSolution(double **M, float *x, float *y);
-		void findEigenVec(float *eigenVec,
+		void findNonZeroSolution(double **M, double *x);
+		void findNonZeroSolution(double **M, double *x, double *y);
+		void findEigenVec(double *eigenVec,
 					double l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage);
-		void findEigenVec(float *eigenVec1, float *eigenVec2,
+		void findEigenVec(double *eigenVec1, double *eigenVec2,
 					double l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage);
 	};
 }
