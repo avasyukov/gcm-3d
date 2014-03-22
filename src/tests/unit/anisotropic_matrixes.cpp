@@ -225,7 +225,7 @@ void compareDecomposition(AnisotropicElasticMaterial(*generateMaterial)(string))
         AnisotropicMatrixImplementation1 matrix1;
         AnisotropicMatrixImplementation2 matrix2;
         
-        string testMaterialName = "AnisotropicMatrix3D_Comparing_" + count;
+        string testMaterialName = "AnisotropicMatrix3D_Comparing_" + to_string(count);
         AnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
         anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
         
