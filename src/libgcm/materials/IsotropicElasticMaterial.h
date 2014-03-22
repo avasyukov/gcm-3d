@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   ElasticMaterial.h
  * Author: Alexey Ermakov
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef ELASTICMATERIAL_H
-#define	ELASTICMATERIAL_H
+#define    ELASTICMATERIAL_H
 
 #include "materials/Material.h"
 #include "util/ElasticMatrix3D.h"
@@ -35,7 +35,7 @@ namespace gcm
     public:
         /**
          * Constructor. Constructs material using specified parameters.
-         * 
+         *
          * @param name Material name
          * @param rho Material density
          * @param crackThreshold Material crack threshold
@@ -55,33 +55,33 @@ namespace gcm
          * @return \f$\mu\f$ value
          */
         gcm_real getMu() const;
-        
+
 //        /**
 //         * Recomputes \f$A_x\f$ matrix with respect to node state.
-//         * 
+//         *
 //         * @param node Mesh node
 //         */
 //        void prepareRheologyMatrixX(const CalcNode& node) override;
 //        /**
 //         * Recomputes \f$A_y\f$ matrix with respect to node state.
-//         * 
+//         *
 //         * @param node Mesh node
 //         */
 //        void prepareRheologyMatrixY(const CalcNode& node) override;
 //        /**
 //         * Recomputes \f$A_z\f$ matrix with respect to node state.
-//         * 
+//         *
 //         * @param node Mesh node
 //         */
 //        void prepareRheologyMatrixZ(const CalcNode& node) override;
         /**
          * Returns previously computed rheology matrix.
-         * 
+         *
          * @return Rheology matrix
          */
         ElasticMatrix3D& getRheologyMatrix();
     };
 }
 
-#endif	/* ELASTICMATERIAL_H */
+#endif    /* ELASTICMATERIAL_H */
 

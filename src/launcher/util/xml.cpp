@@ -6,7 +6,7 @@
 
 xml::Doc::Doc(xmlDocPtr doc): doc(doc)
 {
-    
+
 }
 
 xml::Doc xml::Doc::fromFile(std::string fname)

@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   NumericalMethod.h
  * Author: anganar
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef GCM_NUMERICAL_METHOD_H
-#define	GCM_NUMERICAL_METHOD_H
+#define    GCM_NUMERICAL_METHOD_H
 
 #include <string>
 
@@ -14,45 +14,45 @@
 #include "mesh/Mesh.h"
 
 namespace gcm {
-	class CalcNode;
-	/*
-	 * Numerical method
-	 */
-	class NumericalMethod {
-	public:
-		/*
-		 * Constructor
-		 */
-		NumericalMethod();
-		/*
-		 * Destructor
-		 */
-		virtual ~NumericalMethod() = 0;
-		/*
-		 * Returns number of stages (part steps) this particular method requires
-		 */
-		virtual int getNumberOfStages() = 0;
-		/*
-		 * Computes next state (after the next part step) for the given node
-		 */
-		virtual void doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh) = 0;
-		/*
-		 * Returns maximum lambda for the given node
-		 * TODO@avasyukov: Should we replace it with getMaxTimeStep?
-		 */
-//		virtual gcm_real getMaxEigenvalue(CalcNode& node) const = 0; //(CalcNode& node, TetrMesh* mesh)
-		
-		virtual string getType() = 0;
-		
-		void setSpaceOrder(int order);
-		void setTimeOrder(int order);
-		int getSpaceOrder();
-		int getTimeOrder();
-		
-	protected:
-		int spaceOrder;
-		int timeOrder;
-	};
+    class CalcNode;
+    /*
+     * Numerical method
+     */
+    class NumericalMethod {
+    public:
+        /*
+         * Constructor
+         */
+        NumericalMethod();
+        /*
+         * Destructor
+         */
+        virtual ~NumericalMethod() = 0;
+        /*
+         * Returns number of stages (part steps) this particular method requires
+         */
+        virtual int getNumberOfStages() = 0;
+        /*
+         * Computes next state (after the next part step) for the given node
+         */
+        virtual void doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh) = 0;
+        /*
+         * Returns maximum lambda for the given node
+         * TODO@avasyukov: Should we replace it with getMaxTimeStep?
+         */
+//        virtual gcm_real getMaxEigenvalue(CalcNode& node) const = 0; //(CalcNode& node, TetrMesh* mesh)
+
+        virtual string getType() = 0;
+
+        void setSpaceOrder(int order);
+        void setTimeOrder(int order);
+        int getSpaceOrder();
+        int getTimeOrder();
+
+    protected:
+        int spaceOrder;
+        int timeOrder;
+    };
 }
 
-#endif	/* GCM_NUMERICAL_METHOD_H */
+#endif    /* GCM_NUMERICAL_METHOD_H */

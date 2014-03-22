@@ -6,7 +6,7 @@
  */
 
 #ifndef ANISOTROPICELASTICMATERIALLOADER_H
-#define	ANISOTROPICELASTICMATERIALLOADER_H
+#define    ANISOTROPICELASTICMATERIALLOADER_H
 
 #include "materials/AnisotropicElasticMaterial.h"
 #include "util/Singleton.h"
@@ -27,5 +27,5 @@ namespace launcher {
     };
 };
 
-#endif	/* ANISOTROPICELASTICMATERIALLOADER_H */
+#endif    /* ANISOTROPICELASTICMATERIALLOADER_H */
 

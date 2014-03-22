@@ -9,21 +9,21 @@
 using namespace std;
 
 namespace gcm {
-	class CalcNode;
-	
-	class DummyRheologyCalculator : public RheologyCalculator {
-	public:
-		DummyRheologyCalculator();
-		/*
-		 * Returns rheology calculator type
-		 */
-		inline string getType() {
-			return "DummyRheologyCalculator";
-		}
-		void doCalc(CalcNode& src, CalcNode& dst);
-	protected:
-		USE_LOGGER;
-	};
+    class CalcNode;
+
+    class DummyRheologyCalculator : public RheologyCalculator {
+    public:
+        DummyRheologyCalculator();
+        /*
+         * Returns rheology calculator type
+         */
+        inline string getType() {
+            return "DummyRheologyCalculator";
+        }
+        void doCalc(CalcNode& src, CalcNode& dst);
+    protected:
+        USE_LOGGER;
+    };
 }
 
 

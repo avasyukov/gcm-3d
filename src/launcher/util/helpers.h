@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   helpers.h
  * Author: Alexey Ermakov
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef HELPERS_H
-#define	HELPERS_H
+#define    HELPERS_H
 
 #include <cstdlib>
 
@@ -21,5 +21,5 @@ inline gcm_real s2r(std::string s)
 #endif
 }
 
-#endif	/* HELPERS_H */
+#endif    /* HELPERS_H */
 

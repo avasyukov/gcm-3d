@@ -37,7 +37,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
     // Variables used in calculations internally
 
     // Delta x on previous time layer for all the omegas
-    // 	omega_new_time_layer(ksi) = omega_old_time_layer(ksi+dksi)
+    //     omega_new_time_layer(ksi) = omega_old_time_layer(ksi+dksi)
     float dksi[9];
 
     // If the corresponding point on previous time layer is inner or not
@@ -100,130 +100,130 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
                 // Contact
             else {
                 THROW_UNSUPPORTED("Contact conditions are not supported yet");
-                //				CalcNode& virt_node = engine->getVirtNode(cur_node.contactNodeNum);
+                //                CalcNode& virt_node = engine->getVirtNode(cur_node.contactNodeNum);
                 //
                 //
-                //				LOG_TRACE("We are going to calc contact. Target virt node: "
-                //						<< cur_node.contactNodeNum << " Target mesh: " << virt_node.contactNodeNum );
+                //                LOG_TRACE("We are going to calc contact. Target virt node: "
+                //                        << cur_node.contactNodeNum << " Target mesh: " << virt_node.contactNodeNum );
                 //
-                //				LOG_TRACE( "Mesh: " << mesh->getId()
-                //						<< " Virt mesh: " << engine->getBody(virt_node.contactNodeNum)->getMeshes()->getId()
-                //						<< "\nReal node: " << cur_node << "\nVirt node: " << virt_node);
+                //                LOG_TRACE( "Mesh: " << mesh->getId()
+                //                        << " Virt mesh: " << engine->getBody(virt_node.contactNodeNum)->getMeshes()->getId()
+                //                        << "\nReal node: " << cur_node << "\nVirt node: " << virt_node);
                 //
-                //				// Mark virt node as having contact state
-                //				// TODO FIXME - most probably CollisionDetector should do it
-                //				// But we should check it anycase
-                //				virt_node.setInContact(true);
-                //				//virt_node.contactNodeNum = cur_node.contactNodeNum;
+                //                // Mark virt node as having contact state
+                //                // TODO FIXME - most probably CollisionDetector should do it
+                //                // But we should check it anycase
+                //                virt_node.setInContact(true);
+                //                //virt_node.contactNodeNum = cur_node.contactNodeNum;
                 //
-                //				// Variables used in calculations internally
+                //                // Variables used in calculations internally
                 //
-                //				// Used for interpolated virtual node in case of contact algorithm
-                //				// FIXME get rid of hardcoded type
-                //				AnisotropicMatrix3D virt_rheologyMatrix;
+                //                // Used for interpolated virtual node in case of contact algorithm
+                //                // FIXME get rid of hardcoded type
+                //                AnisotropicMatrix3D virt_rheologyMatrix;
                 //
-                //				// Delta x on previous time layer for all the omegas
-                //				// 	omega_new_time_layer(ksi) = omega_old_time_layer(ksi+dksi)
-                //				float virt_dksi[9];
+                //                // Delta x on previous time layer for all the omegas
+                //                //     omega_new_time_layer(ksi) = omega_old_time_layer(ksi+dksi)
+                //                float virt_dksi[9];
                 //
-                //				// If the corresponding point on previous time layer is inner or not
-                //				bool virt_inner[9];
+                //                // If the corresponding point on previous time layer is inner or not
+                //                bool virt_inner[9];
                 //
-                //				// We will store interpolated nodes on previous time layer here
-                //				// We know that we need five nodes for each direction (corresponding to Lambdas -C1, -C2, 0, C2, C1)
-                //				// TODO  - We can  deal with (lambda == 0) separately
-                //				vector<CalcNode> virt_previous_nodes;
-                //				virt_previous_nodes.resize(9);
+                //                // We will store interpolated nodes on previous time layer here
+                //                // We know that we need five nodes for each direction (corresponding to Lambdas -C1, -C2, 0, C2, C1)
+                //                // TODO  - We can  deal with (lambda == 0) separately
+                //                vector<CalcNode> virt_previous_nodes;
+                //                virt_previous_nodes.resize(9);
                 //
-                //				// Outer normal at current point
-                //				float virt_outer_normal[3];
+                //                // Outer normal at current point
+                //                float virt_outer_normal[3];
                 //
-                //				// Number of outer characteristics
-                //				LOG_TRACE("Start virt node calc");
-                //				// FIXME - WA
-                //				Mesh* virtMesh = (Mesh*) engine->getBody(virt_node.contactNodeNum)->getMeshes();
-                //				int virt_outer_count = prepare_node( virt_node, virt_rheologyMatrix,
-                //						time_step, stage, virtMesh,
-                //						virt_dksi, virt_inner, virt_previous_nodes,
-                //						virt_outer_normal);
+                //                // Number of outer characteristics
+                //                LOG_TRACE("Start virt node calc");
+                //                // FIXME - WA
+                //                Mesh* virtMesh = (Mesh*) engine->getBody(virt_node.contactNodeNum)->getMeshes();
+                //                int virt_outer_count = prepare_node( virt_node, virt_rheologyMatrix,
+                //                        time_step, stage, virtMesh,
+                //                        virt_dksi, virt_inner, virt_previous_nodes,
+                //                        virt_outer_normal);
                 //
-                //				// TODO - merge this condition with the next ones
-                //				if( virt_outer_count != 3 ) {
-                //					LOG_DEBUG("There are " << virt_outer_count << " 'outer' characteristics for virt node.");
-                //					LOG_DEBUG("Origin node: " << engine->getBody(virt_node.contactNodeNum)->getMeshes()->getNode( virt_node.number ) );
-                //					for(int z = 0; z < 9; z++)
-                //					{
-                //						LOG_DEBUG("Dksi[" << z << "]: " << virt_dksi[z]);
-                //						LOG_DEBUG("Inner[" << z << "]: " << virt_inner[z]);
-                //						LOG_DEBUG("PrNodes[" << z << "]: " << virt_previous_nodes[z]);
-                //					}
-                //					THROW_BAD_METHOD("Illegal number of outer characteristics");
-                //				}
+                //                // TODO - merge this condition with the next ones
+                //                if( virt_outer_count != 3 ) {
+                //                    LOG_DEBUG("There are " << virt_outer_count << " 'outer' characteristics for virt node.");
+                //                    LOG_DEBUG("Origin node: " << engine->getBody(virt_node.contactNodeNum)->getMeshes()->getNode( virt_node.number ) );
+                //                    for(int z = 0; z < 9; z++)
+                //                    {
+                //                        LOG_DEBUG("Dksi[" << z << "]: " << virt_dksi[z]);
+                //                        LOG_DEBUG("Inner[" << z << "]: " << virt_inner[z]);
+                //                        LOG_DEBUG("PrNodes[" << z << "]: " << virt_previous_nodes[z]);
+                //                    }
+                //                    THROW_BAD_METHOD("Illegal number of outer characteristics");
+                //                }
                 //
-                //				// Check that 'paired node' is in the direction of 'outer' characteristics
-                //				// If it is not the case - we have strange situation when
-                //				// we replace 'outer' points data with data of 'paired node' from different axis direction.
+                //                // Check that 'paired node' is in the direction of 'outer' characteristics
+                //                // If it is not the case - we have strange situation when
+                //                // we replace 'outer' points data with data of 'paired node' from different axis direction.
                 //
-                //				// For all characteristics of real node and virt node
-                //				/*for(int i = 0; i < 9; i++)
-                //				{
-                //					float v_x_outer[3];
-                //					float v_x_virt[3];
-                //					// Real node - if characteristic is 'outer'*/
-                //	/*				if(!inner[i])
-                //					{
-                //						// Find directions to corresponding 'outer' point and to virt 'paired node'
-                //						for(int j = 0; j < 3; j++) {
-                //							v_x_outer[j] = previous_nodes[ppoint_num[i]].coords[j] - cur_node.coords[j];
-                //							v_x_virt[j] = virt_node.coords[j] - cur_node.coords[j];
-                //						}
-                //						// If directions are different - smth bad happens
-                //						if( (v_x_outer[0] * v_x_virt[0]
-                //							 + v_x_outer[1] * v_x_virt[1] + v_x_outer[2] * v_x_virt[2]) < 0 )
-                //						{
-                //							*logger << "MESH " << mesh->zone_num << "REAL NODE " << cur_node.local_num << ": "
-                //									<< "x: " << cur_node.coords[0]
-                //									<< " y: " << cur_node.coords[1]
-                //									<< " z: " < cur_node.coords[2];
-                //							log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, rheologyMatrix, time_step, previous_nodes, ppoint_num, inner, dksi);
-                //							*logger << "'Outer' direction: " << v_x_outer[0] << " "
-                //								<< v_x_outer[1] << " " < v_x_outer[2];
-                //							*logger << "'Virt' direction: " << v_x_virt[0] << " "
-                //								<< v_x_virt[1] << " " < v_x_virt[2];
-                //							throw GCMException( GCMException::METHOD_EXCEPTION, "Bad contact from real node point of view: 'outer' and 'virt' directions are different");
-                //						}
-                //					}*/
-                //	// We switch it off because it conflicts sometimes with 'safe_direction'
-                //	/*				// Virt node - if characteristic is 'outer'
-                //					if(!virt_inner[i])
-                //					{
-                //						// Find directions to corresponding 'outer' point and to real 'paired node'
-                //						for(int j = 0; j < 3; j++) {
-                //							v_x_outer[j] = virt_previous_nodes[virt_ppoint_num[i]].coords[j] - virt_node.coords[j];
-                //							v_x_virt[j] = cur_node.coords[j] - virt_node.coords[j];
-                //						}
-                //						// If directions are different - smth bad happens
-                //						if( (v_x_outer[0] * v_x_virt[0]
-                //							+ v_x_outer[1] * v_x_virt[1] + v_x_outer[2] * v_x_virt[2]) < 0 )
-                //						{
-                //							*logger << "MESH " << mesh->zone_num << "REAL NODE " << cur_node.local_num << ": "
-                //									<< "x: " << cur_node.coords[0]
-                //									<< " y: " << cur_node.coords[1]
-                //									<< " z: " < cur_node.coords[2];
-                //							log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node.mesh, basis_num, virt_rheologyMatrix, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi);
-                //							*logger << "'Outer' direction: " << v_x_outer[0] << " "
-                //								<< v_x_outer[1] << " "< v_x_outer[2];
-                //							*logger << "'Virt' direction: " << v_x_virt[0] << " "
-                //								<< v_x_virt[1] << " " < v_x_virt[2];
-                //							throw GCMException( GCMException::METHOD_EXCEPTION, "Bad contact from virt node point of view: 'outer' and 'virt' directions are different");
-                //						}
-                //					}*/
-                ////				}
+                //                // For all characteristics of real node and virt node
+                //                /*for(int i = 0; i < 9; i++)
+                //                {
+                //                    float v_x_outer[3];
+                //                    float v_x_virt[3];
+                //                    // Real node - if characteristic is 'outer'*/
+                //    /*                if(!inner[i])
+                //                    {
+                //                        // Find directions to corresponding 'outer' point and to virt 'paired node'
+                //                        for(int j = 0; j < 3; j++) {
+                //                            v_x_outer[j] = previous_nodes[ppoint_num[i]].coords[j] - cur_node.coords[j];
+                //                            v_x_virt[j] = virt_node.coords[j] - cur_node.coords[j];
+                //                        }
+                //                        // If directions are different - smth bad happens
+                //                        if( (v_x_outer[0] * v_x_virt[0]
+                //                             + v_x_outer[1] * v_x_virt[1] + v_x_outer[2] * v_x_virt[2]) < 0 )
+                //                        {
+                //                            *logger << "MESH " << mesh->zone_num << "REAL NODE " << cur_node.local_num << ": "
+                //                                    << "x: " << cur_node.coords[0]
+                //                                    << " y: " << cur_node.coords[1]
+                //                                    << " z: " < cur_node.coords[2];
+                //                            log_node_diagnostics(cur_node, stage, outer_normal, mesh, basis_num, rheologyMatrix, time_step, previous_nodes, ppoint_num, inner, dksi);
+                //                            *logger << "'Outer' direction: " << v_x_outer[0] << " "
+                //                                << v_x_outer[1] << " " < v_x_outer[2];
+                //                            *logger << "'Virt' direction: " << v_x_virt[0] << " "
+                //                                << v_x_virt[1] << " " < v_x_virt[2];
+                //                            throw GCMException( GCMException::METHOD_EXCEPTION, "Bad contact from real node point of view: 'outer' and 'virt' directions are different");
+                //                        }
+                //                    }*/
+                //    // We switch it off because it conflicts sometimes with 'safe_direction'
+                //    /*                // Virt node - if characteristic is 'outer'
+                //                    if(!virt_inner[i])
+                //                    {
+                //                        // Find directions to corresponding 'outer' point and to real 'paired node'
+                //                        for(int j = 0; j < 3; j++) {
+                //                            v_x_outer[j] = virt_previous_nodes[virt_ppoint_num[i]].coords[j] - virt_node.coords[j];
+                //                            v_x_virt[j] = cur_node.coords[j] - virt_node.coords[j];
+                //                        }
+                //                        // If directions are different - smth bad happens
+                //                        if( (v_x_outer[0] * v_x_virt[0]
+                //                            + v_x_outer[1] * v_x_virt[1] + v_x_outer[2] * v_x_virt[2]) < 0 )
+                //                        {
+                //                            *logger << "MESH " << mesh->zone_num << "REAL NODE " << cur_node.local_num << ": "
+                //                                    << "x: " << cur_node.coords[0]
+                //                                    << " y: " << cur_node.coords[1]
+                //                                    << " z: " < cur_node.coords[2];
+                //                            log_node_diagnostics(virt_node, stage, virt_outer_normal, virt_node.mesh, basis_num, virt_rheologyMatrix, time_step, virt_previous_nodes, virt_ppoint_num, virt_inner, virt_dksi);
+                //                            *logger << "'Outer' direction: " << v_x_outer[0] << " "
+                //                                << v_x_outer[1] << " "< v_x_outer[2];
+                //                            *logger << "'Virt' direction: " << v_x_virt[0] << " "
+                //                                << v_x_virt[1] << " " < v_x_virt[2];
+                //                            throw GCMException( GCMException::METHOD_EXCEPTION, "Bad contact from virt node point of view: 'outer' and 'virt' directions are different");
+                //                        }
+                //                    }*/
+                ////                }
                 //
-                //				LOG_TRACE("Using calculator: " << engine->getContactCondition(0)->calc->getType());
-                //				engine->getContactCondition(0)->doCalc(mesh->get_current_time(), cur_node,
-                //						new_node, virt_node, rheologyMatrix, previous_nodes, inner,
-                //						virt_rheologyMatrix, virt_previous_nodes, virt_inner, outer_normal);
+                //                LOG_TRACE("Using calculator: " << engine->getContactCondition(0)->calc->getType());
+                //                engine->getContactCondition(0)->doCalc(mesh->get_current_time(), cur_node,
+                //                        new_node, virt_node, rheologyMatrix, previous_nodes, inner,
+                //                        virt_rheologyMatrix, virt_previous_nodes, virt_inner, outer_normal);
             }
             // It means smth went wrong. Just interpolate the values and report bad node.
         }

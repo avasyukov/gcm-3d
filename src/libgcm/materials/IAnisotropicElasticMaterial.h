@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   IAnisotropicElasticMaterial.h
  * Author: Alexey Ermakov
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef IANISOTROPICELASTICMATERIAL_H
-#define	IANISOTROPICELASTICMATERIAL_H
+#define    IANISOTROPICELASTICMATERIAL_H
 
 #define ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM 21
 
@@ -55,18 +55,18 @@ namespace gcm
                     float c55;
                     union { float c56; float c65; };
                     float c66;
-                    
+
                 };
             };
-        } RheologyParameters;        
+        } RheologyParameters;
         /**
          * Returns material parameters.
-         * 
+         *
          * @return Material rheology parameters.
          */
         virtual const RheologyParameters& getParameters() const = 0;
     };
 }
 
-#endif	/* IANISOTROPICELASTICMATERIAL_H */
+#endif    /* IANISOTROPICELASTICMATERIAL_H */
 

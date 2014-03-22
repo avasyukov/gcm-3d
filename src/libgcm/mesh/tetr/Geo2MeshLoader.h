@@ -28,29 +28,29 @@ using namespace gcm;
 using namespace std;
 
 namespace gcm {
-	class Geo2MeshLoader: public TemplatedMeshLoader<TetrMeshSecondOrder>
-	{
-	protected:
-		/*
-		 * Loads mesh from using passed configuration
-		 */
-		 void loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher);
-		 void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes);
-		 void createMshFile(Params params);
-		 USE_LOGGER;
-		 bool isMshFileCreated(Params params);
-		 string getMshFileName(string geoFile);
-		 string getVtkFileName(string geoFile);
-		 map<string,bool> createdFiles;
-	public:
-		Geo2MeshLoader();
-		~Geo2MeshLoader();
-		/*
-		 * Returns mesh loader type
-		 */
-		string getType();
-		void cleanUp();
-	};
+    class Geo2MeshLoader: public TemplatedMeshLoader<TetrMeshSecondOrder>
+    {
+    protected:
+        /*
+         * Loads mesh from using passed configuration
+         */
+         void loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher);
+         void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes);
+         void createMshFile(Params params);
+         USE_LOGGER;
+         bool isMshFileCreated(Params params);
+         string getMshFileName(string geoFile);
+         string getVtkFileName(string geoFile);
+         map<string,bool> createdFiles;
+    public:
+        Geo2MeshLoader();
+        ~Geo2MeshLoader();
+        /*
+         * Returns mesh loader type
+         */
+        string getType();
+        void cleanUp();
+    };
 }
 
 #endif /* GCM_GEO2_MESH_LOADER_H_ */

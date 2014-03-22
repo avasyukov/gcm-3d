@@ -6,7 +6,7 @@
 #include "Engine.h"
 
 namespace launcher {
-	void loadSceneFromFile(Engine& engine, std::string fileName);
+    void loadSceneFromFile(Engine& engine, std::string fileName);
 }
 
 

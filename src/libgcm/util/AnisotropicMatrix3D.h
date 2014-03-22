@@ -4,7 +4,7 @@
 #include <assert.h>
 
 #include <gsl/gsl_eigen.h>
-#include <gsl/gsl_linalg.h> 
+#include <gsl/gsl_linalg.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_complex.h>

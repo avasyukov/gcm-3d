@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   TetrFirstOrderInterpolator.h
  * Author: anganar
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef GCM_TETR_FIRST_ORDER_INTERPOLATOR_H
-#define	GCM_TETR_FIRST_ORDER_INTERPOLATOR_H
+#define    GCM_TETR_FIRST_ORDER_INTERPOLATOR_H
 
 #include <string>
 
@@ -18,18 +18,18 @@ using namespace std;
 using namespace gcm;
 
 namespace gcm {
-	class CalcNode;
+    class CalcNode;
 
-	class TetrFirstOrderInterpolator : public TetrInterpolator {
-	public:
-		TetrFirstOrderInterpolator();
-		~TetrFirstOrderInterpolator();
-		void interpolate( CalcNode& node, 
-				CalcNode& node0, CalcNode& node1, CalcNode& node2, CalcNode& node3 );
-	private:
-		USE_LOGGER;
-	};
+    class TetrFirstOrderInterpolator : public TetrInterpolator {
+    public:
+        TetrFirstOrderInterpolator();
+        ~TetrFirstOrderInterpolator();
+        void interpolate( CalcNode& node,
+                CalcNode& node0, CalcNode& node1, CalcNode& node2, CalcNode& node3 );
+    private:
+        USE_LOGGER;
+    };
 }
 
-#endif	/* GCM_TETR_FIRST_ORDER_INTERPOLATOR_H */
+#endif    /* GCM_TETR_FIRST_ORDER_INTERPOLATOR_H */
 

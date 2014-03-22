@@ -13,43 +13,43 @@
 
 namespace xml {
 
-	class Node;
+    class Node;
 
-	typedef std::vector<Node> NodeList;
-	typedef std::map<std::string, std::string> AttrList;
+    typedef std::vector<Node> NodeList;
+    typedef std::map<std::string, std::string> AttrList;
 
-	class Node {
-	private:
-		xmlNodePtr node;
+    class Node {
+    private:
+        xmlNodePtr node;
                 USE_LOGGER;
-	public:
-		Node(xmlNodePtr node);
+    public:
+        Node(xmlNodePtr node);
 
-		std::string getTagName();
-		NodeList getChildNodes();
-		NodeList getChildrenByName(std::string name);
+        std::string getTagName();
+        NodeList getChildNodes();
+        NodeList getChildrenByName(std::string name);
                 Node getChildByName(std::string name);
-		AttrList getAttributes();
-		NodeList xpath(std::string expr);
-                
+        AttrList getAttributes();
+        NodeList xpath(std::string expr);
+
                 std::string getTextContent();
 
-	};
+    };
 
-	class Doc {
-	private:
-		xmlDocPtr doc;
-                
-	public:
+    class Doc {
+    private:
+        xmlDocPtr doc;
+
+    public:
                 Doc(xmlDocPtr doc);
-		static Doc fromFile(std::string fname);
+        static Doc fromFile(std::string fname);
                 static Doc fromString(std:: string str);
-		~Doc();
+        ~Doc();
 
-		Node getRootElement();
-	};
-	std::string getAttributeByName(AttrList attrs, std::string name, std::string defaultValue);
-	std::string getAttributeByName(AttrList attrs, std::string name);
+        Node getRootElement();
+    };
+    std::string getAttributeByName(AttrList attrs, std::string name, std::string defaultValue);
+    std::string getAttributeByName(AttrList attrs, std::string name);
 };
 
 #endif

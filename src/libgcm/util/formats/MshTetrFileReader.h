@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   MshFileReader.h
  * Author: anganar
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef GCM_MSH_FILE_READER_H
-#define	GCM_MSH_FILE_READER_H
+#define    GCM_MSH_FILE_READER_H
 
 #include <string>
 #include <fstream>
@@ -17,20 +17,20 @@
 using namespace std;
 
 namespace gcm {
-	class TetrMeshFirstOrder;
-	class GCMDispatcher;
-	class AABB;
-	
-	class MshTetrFileReader
-	{
-	protected:
-		 USE_LOGGER;
-	public:
-		MshTetrFileReader();
-		~MshTetrFileReader();
-		void readFile( string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher);
-		void preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes);
-	};
+    class TetrMeshFirstOrder;
+    class GCMDispatcher;
+    class AABB;
+
+    class MshTetrFileReader
+    {
+    protected:
+         USE_LOGGER;
+    public:
+        MshTetrFileReader();
+        ~MshTetrFileReader();
+        void readFile( string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher);
+        void preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes);
+    };
 }
 
 #endif

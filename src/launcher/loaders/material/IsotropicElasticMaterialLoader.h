@@ -6,7 +6,7 @@
  */
 
 #ifndef ISOTROPICELASTICMATERIALLOADER_H
-#define	ISOTROPICELASTICMATERIALLOADER_H
+#define    ISOTROPICELASTICMATERIALLOADER_H
 
 #include "materials/IsotropicElasticMaterial.h"
 #include "util/Singleton.h"
@@ -30,5 +30,5 @@ namespace launcher
     };
 };
 
-#endif	/* ISOTROPICELASTICMATERIALLOADER_H */
+#endif    /* ISOTROPICELASTICMATERIALLOADER_H */
 

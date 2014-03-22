@@ -11,7 +11,7 @@ using namespace gcm;
 
 namespace gcm
 {
-    
+
     class Material;
 
     class ICalcNode : public Node
@@ -90,10 +90,10 @@ namespace gcm
         virtual gcm_real getRho() const = 0;
         /**
          * Returns node material.
-         * 
+         *
          * @return Material.
          */
-        virtual Material* getMaterial() const = 0;        
+        virtual Material* getMaterial() const = 0;
     };
 }
 

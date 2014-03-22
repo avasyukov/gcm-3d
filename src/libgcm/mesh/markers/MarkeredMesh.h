@@ -10,92 +10,92 @@
 using namespace std;
 
 namespace gcm {
-	typedef unsigned int NeighbourCells[26];
-	typedef unsigned int CommonPoints[4];
-	typedef unsigned int CellPoints[8];
+    typedef unsigned int NeighbourCells[26];
+    typedef unsigned int CommonPoints[4];
+    typedef unsigned int CellPoints[8];
 
-	typedef struct {
-		union {
-			unsigned int cells[8];
-			struct {
-				unsigned int c000;
-				unsigned int c010;
-				unsigned int c100;
-				unsigned int c110;
-				unsigned int c001;
-				unsigned int c011;
-				unsigned int c101;
-				unsigned int c111;
-			};
-		};
-	} PointCells;
+    typedef struct {
+        union {
+            unsigned int cells[8];
+            struct {
+                unsigned int c000;
+                unsigned int c010;
+                unsigned int c100;
+                unsigned int c110;
+                unsigned int c001;
+                unsigned int c011;
+                unsigned int c101;
+                unsigned int c111;
+            };
+        };
+    } PointCells;
 
-	class MarkeredMesh: public Mesh {
-	protected:
-		AABB meshOutline;
-		LineFirstOrderInterpolator* interpolator;
-		unsigned int points_num[3];
-		unsigned int cells_num[3];
-		vector<bool> cellsInnerFlags;
-		vector<CalcNode> markers;
-		float h[3];
-		void logMeshStats();
-		void calcMinH();
-		void preProcessGeometry();
+    class MarkeredMesh: public Mesh {
+    protected:
+        AABB meshOutline;
+        LineFirstOrderInterpolator* interpolator;
+        unsigned int points_num[3];
+        unsigned int cells_num[3];
+        vector<bool> cellsInnerFlags;
+        vector<CalcNode> markers;
+        float h[3];
+        void logMeshStats();
+        void calcMinH();
+        void preProcessGeometry();
 
-		USE_LOGGER;
-	public:
-		MarkeredMesh();
-		float getRecommendedTimeStep();
-		float getMinH();
-		void doNextPartStep(float tau, int stage);
-		void checkTopology(float tau);
+        USE_LOGGER;
+    public:
+        MarkeredMesh();
+        float getRecommendedTimeStep();
+        float getMinH();
+        void doNextPartStep(float tau, int stage);
+        void checkTopology(float tau);
 
-		void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug);
-		bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
-								CalcNode& targetNode, bool& isInnerPoint);
-		bool interpolateNode(CalcNode& node);
+        void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug);
+        bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
+                                CalcNode& targetNode, bool& isInnerPoint);
+        bool interpolateNode(CalcNode& node);
 
 
-		void setNumberOfCells(unsigned int num1, unsigned int num2, unsigned int num3);
-		void getNumberOfCells(int &num1, int &num2, int &num3);
-		void getNumberOfPoints(int &num1, int &num2, int &num3);
-		unsigned int getTotalNumberOfCells();
+        void setNumberOfCells(unsigned int num1, unsigned int num2, unsigned int num3);
+        void getNumberOfCells(int &num1, int &num2, int &num3);
+        void getNumberOfPoints(int &num1, int &num2, int &num3);
+        unsigned int getTotalNumberOfCells();
 
-		void getCellAABB(unsigned int num, AABB& aabb);
-		int getPointNumber(unsigned int i, unsigned int j, unsigned int k);
-		int getCellNumber(unsigned int i, unsigned int j, unsigned int k);
+        void getCellAABB(unsigned int num, AABB& aabb);
+        int getPointNumber(unsigned int i, unsigned int j, unsigned int k);
+        int getCellNumber(unsigned int i, unsigned int j, unsigned int k);
 
-		void setCellInnerFlag(unsigned int num, bool flag);
-		bool getCellInnerFlag(unsigned int num);
+        void setCellInnerFlag(unsigned int num, bool flag);
+        bool getCellInnerFlag(unsigned int num);
 
-		int generateMarkers();
+        int generateMarkers();
 
-		void reconstructInnerFlags();
+        void reconstructInnerFlags();
 
-		long getCellForPoint(float x, float y, float z);
+        long getCellForPoint(float x, float y, float z);
 
-		void createOutline();
+        void createOutline();
 
-		unsigned int getCellNeighbours(unsigned int n, NeighbourCells &cells);
+        unsigned int getCellNeighbours(unsigned int n, NeighbourCells &cells);
 
-		void getCellIndexes(unsigned int num, unsigned int &i1, unsigned int &i2, unsigned int &i3);
-		void getPointIndexes(unsigned int num, unsigned int &i1, unsigned int &i2, unsigned int &i3);
+        void getCellIndexes(unsigned int num, unsigned int &i1, unsigned int &i2, unsigned int &i3);
+        void getPointIndexes(unsigned int num, unsigned int &i1, unsigned int &i2, unsigned int &i3);
 
-		const vector<CalcNode>& getMarkers();
+        const vector<CalcNode>& getMarkers();
 
-		const AABB& getMeshOutline();
+        const AABB& getMeshOutline();
 
-		void reconstructBorder();
+        void reconstructBorder();
 
-		unsigned int getCellsCommonPoints(unsigned int c1, unsigned int c2, CommonPoints &pts);
+        unsigned int getCellsCommonPoints(unsigned int c1, unsigned int c2, CommonPoints &pts);
 
-		void getCellPoints(unsigned int n, CellPoints &pts);
+        void getCellPoints(unsigned int n, CellPoints &pts);
 
-		void markUnusedNodes();
+        void markUnusedNodes();
 
-		void moveMarkers(float dt);
-	};
+        void moveMarkers(float dt);
+    };
 }
 
 

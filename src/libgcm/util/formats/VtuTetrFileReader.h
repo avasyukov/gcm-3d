@@ -1,5 +1,5 @@
 #ifndef GCM_VTU_FILE_READER_H
-#define	GCM_VTU_FILE_READER_H
+#define    GCM_VTU_FILE_READER_H
 
 #include <string>
 #include <fstream>
@@ -20,19 +20,19 @@
 using namespace std;
 
 namespace gcm {
-	class GCMDispatcher;
-	class AABB;
-	
-	class VtuTetrFileReader
-	{
-	protected:
-		 USE_LOGGER;
-	public:
-		VtuTetrFileReader();
-		~VtuTetrFileReader();
-		void readFile( string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank);
-		void preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes);
-	};
+    class GCMDispatcher;
+    class AABB;
+
+    class VtuTetrFileReader
+    {
+    protected:
+         USE_LOGGER;
+    public:
+        VtuTetrFileReader();
+        ~VtuTetrFileReader();
+        void readFile( string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank);
+        void preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes);
+    };
 }
 
 #endif
