@@ -5,9 +5,11 @@
 #include <cerrno>
 #include <utility>
 #include <sstream>
+#include <boost/lexical_cast.hpp>
 
 #include "materials/IAnisotropicElasticMaterial.h"
-#include "util/helpers.h"
+
+using boost::lexical_cast;
 
 const string launcher::AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE = "AnisotropicElastic";
 
@@ -19,25 +21,20 @@ gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::loa
     string rheology = getAttributeByName(attrs, "rheology");
     assert(rheology == RHEOLOGY_TYPE);
 
-    int _errno = errno;
-    errno = 0;
-
     IAnisotropicElasticMaterial::RheologyParameters params;
 
-    gcm_real rho = s2r(desc.getChildByName("rho").getTextContent());
-    gcm_real crackThreshold = s2r(desc.getChildByName("crackThreshold").getTextContent());
+    gcm_real rho = lexical_cast<gcm_real>(desc.getChildByName("rho").getTextContent());
+    gcm_real crackThreshold = lexical_cast<gcm_real>(desc.getChildByName("crackThreshold").getTextContent());
 
     int k = 0;
     for (int i = 1; i <= 6; i++)
         for (int j = i; j <= 6; j++) {
             stringstream cxx;
             cxx << "c" << i << j;
-            params.values[k++] = s2r(desc.getChildByName(cxx.str()).getTextContent());
+            params.values[k++] = lexical_cast<gcm_real>(desc.getChildByName(cxx.str()).getTextContent());
         }
 
-    swap(errno, _errno);
-
-    if (rho <= 0.0 || _errno)
+    if (rho <= 0.0)
         THROW_INVALID_INPUT("Seems xml snippet does not contain valid rheology parameters.");
 
     for (k = 0; k < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; k++)

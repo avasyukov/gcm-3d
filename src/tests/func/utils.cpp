@@ -4,52 +4,22 @@
 #include "node/CalcNode.h"
 #include "Math.h"
 
-// TODO: may be just use boost for (a) mkdir, (b) rm -r, (c) case insensitive string match
-
 #include <iostream>
 #include <vector>
 #include <fstream>
 #include <string>
 #include <stdlib.h>
-// TODO: it's Linux only
-#include <sys/stat.h>
 
-// TODO: it's Linux only
-int mkpath(std::string s)
-{
-    mode_t mode = 0755;
-    size_t pre=0,pos;
-    std::string dir;
-    int mdret;
-
-    if(s[s.size()-1]!='/')
-    {
-        // force trailing / so we can handle everything in loop
-        s+='/';
-    }
-
-    while((pos=s.find_first_of('/',pre))!=std::string::npos)
-    {
-        dir=s.substr(0,pos++);
-        pre=pos;
-        if(dir.size()==0) continue; // if leading / first time is 0 length
-        if((mdret=mkdir(dir.c_str(),mode)) && errno!=EEXIST)
-        {
-            return mdret;
-        }
-    }
-    return 0;
-}
-
-std::string getTestDataDirName()
+bfs::path getTestDataDirName()
 {
     const ::testing::TestInfo* const testInfo = ::testing::UnitTest::GetInstance()->current_test_info();
-    return "!testsRun/" + std::string(testInfo->test_case_name()) + "/" + std::string(testInfo->name());
+    bfs::path path(".");
+    return path / "!testsRun" / std::string(testInfo->test_case_name()) / std::string(testInfo->name());
 }
 
-std::string getDataFileName(int stepNum)
+bfs::path getDataFileName(int stepNum)
 {
-    return getTestDataDirName() + "/step" + std::to_string(stepNum) + ".data";
+    return getTestDataDirName() / ("step" + std::to_string(stepNum) + ".data");
 }
 
 Engine& loadTaskScenario(std::string taskFile) {
@@ -64,7 +34,7 @@ Engine& loadTaskScenario(std::string taskFile) {
 void dumpPoint(CalcNode& analytical, CalcNode& numerical, SnapshotLine line, int stepNum)
 {
     ofstream datafile;
-    datafile.open( getDataFileName(stepNum), ios::app );
+    datafile.open(getDataFileName(stepNum).string(), ios::app);
 
     float dist = vectorNorm(
         analytical.coords[0] - line.startPoint[0],
@@ -102,12 +72,12 @@ void drawValues(std::vector<std::string> valuesToDraw, int stepNum, std::vector<
             continue;
 
         int dataColumnIndex = (i+1)*2;
-        std::string dataFileName = getDataFileName(stepNum);
-        std::string pngFileName = getTestDataDirName() + "/" + values[i] + "." + std::to_string(stepNum) + ".png";
+        bfs::path dataFileName = getDataFileName(stepNum);
+        bfs::path pngFileName = getTestDataDirName() / (values[i] + "." + std::to_string(stepNum) + ".png");
 
         // Set term and target png file
         std::string cmd = std::string("set term pngcairo; ")
-                            + "set output " + '"' + pngFileName + '"' + "; ";
+                            + "set output " + '"' + pngFileName.string() + '"' + "; ";
         // Set yrange if exists
         if( valueLimits != NULL )
         {
@@ -121,10 +91,10 @@ void drawValues(std::vector<std::string> valuesToDraw, int stepNum, std::vector<
             cmd = cmd + "set yrange [" + std::to_string(imin) + ":" + std::to_string(imax) + "]; ";
         }
         // Plot command itself
-        cmd = cmd + "plot \"" + dataFileName + '"'
+        cmd = cmd + "plot \"" + dataFileName.string() + '"'
                             + " using 1:" + std::to_string(dataColumnIndex) + " with lines "
                             + "title " + '"' + values[i] + " analytical" + '"' + ", "
-                            + '"' + dataFileName + '"'
+                            + '"' + dataFileName.string() + '"'
                             + " using 1:" + std::to_string(dataColumnIndex+1) + " with lines "
                             + "title " + '"' + values[i] + " numerical" + '"';
 
@@ -143,9 +113,9 @@ void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, 
 {
     // Create dir for test data
     // TODO: rethink this ugly solution
-    std::string resDirName = getTestDataDirName();
-    system(("rm -rf " + resDirName).c_str());
-    mkpath( resDirName );
+    bfs::path resDirName = getTestDataDirName();
+    bfs::remove_all(resDirName);
+    bfs::create_directories(resDirName);
 
     float time = 0.0;
     CalcNode node;

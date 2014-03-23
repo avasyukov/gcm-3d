@@ -1,5 +1,7 @@
 #include "launcher.h"
 
+#include <boost/lexical_cast.hpp>
+
 #include "util/xml.h"
 
 #include "loaders/material/AnisotropicElasticMaterialLoader.h"
@@ -13,6 +15,7 @@
 #include "ContactCondition.h"
 
 using namespace xml;
+using boost::lexical_cast;
 
 void launcher::loadSceneFromFile(Engine& engine, string fileName)
 {
@@ -31,8 +34,8 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
         THROW_INVALID_INPUT("Config file should contain one <task/> element");
     for(auto& taskNode: taskNodes)
     {
-        int numberOfSnaps = atoi( getAttributeByName(taskNode.getAttributes(), "numberOfSnaps").c_str() );
-        int stepsPerSnap = atoi( getAttributeByName(taskNode.getAttributes(), "stepsPerSnap").c_str() );
+        int numberOfSnaps = lexical_cast<int>( getAttributeByName(taskNode.getAttributes(), "numberOfSnaps").c_str() );
+        int stepsPerSnap = lexical_cast<int>( getAttributeByName(taskNode.getAttributes(), "stepsPerSnap").c_str() );
         engine.setNumberOfSnaps(numberOfSnaps);
         engine.setStepsPerSnap(stepsPerSnap);
     }
@@ -80,7 +83,7 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
     {
         xml::Node contactThreshold = contactThresholdList.front();
         string measure = getAttributeByName(contactThreshold.getAttributes(), "measure");
-        float value = atof( getAttributeByName(contactThreshold.getAttributes(), "value").c_str() );
+        gcm_real value = lexical_cast<gcm_real>(getAttributeByName(contactThreshold.getAttributes(), "value"));
         if( measure == "avgH" )
         {
             engine.setContactThresholdType(CONTACT_THRESHOLD_BY_AVG_H);
@@ -124,12 +127,12 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
     for(auto& matNode: matNodes)
     {
         string rheology = getAttributeByName(matNode.getAttributes(), "rheology");
-                if (rheology == AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE)
-                    engine.addMaterial(AnisotropicElasticMaterialLoader::getInstance().load(matNode));
-                else if (rheology == IsotropicElasticMaterialLoader::RHEOLOGY_TYPE)
-                    engine.addMaterial(IsotropicElasticMaterialLoader::getInstance().load(matNode));
-                else
-                    THROW_UNSUPPORTED("Unsupported rheology found: " + rheology);
+        if (rheology == AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE)
+            engine.addMaterial(AnisotropicElasticMaterialLoader::getInstance().load(matNode));
+        else if (rheology == IsotropicElasticMaterialLoader::RHEOLOGY_TYPE)
+            engine.addMaterial(IsotropicElasticMaterialLoader::getInstance().load(matNode));
+        else
+            THROW_UNSUPPORTED("Unsupported rheology found: " + rheology);
     }
 
     AABB globalScene;
@@ -180,9 +183,9 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
                 string transformType = getAttributeByName(transformNode.getAttributes(), "type");
                 if( transformType == "translate" )
                 {
-                    float x = atof( getAttributeByName(transformNode.getAttributes(), "moveX").c_str() );
-                    float y = atof( getAttributeByName(transformNode.getAttributes(), "moveY").c_str() );
-                    float z = atof( getAttributeByName(transformNode.getAttributes(), "moveZ").c_str() );
+                    gcm_real x = lexical_cast<gcm_real>(getAttributeByName(transformNode.getAttributes(), "moveX"));
+                    gcm_real y = lexical_cast<gcm_real>(getAttributeByName(transformNode.getAttributes(), "moveY"));
+                    gcm_real z = lexical_cast<gcm_real>(getAttributeByName(transformNode.getAttributes(), "moveZ"));
                     LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
                     localScene.transfer(x, y, z);
                 }
@@ -233,18 +236,18 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
         Body* body = engine.getBodyById(id);
 
         // FIXME - WA - we need this to determine isMine() correctly for moved points
-        float dX = 0;
-        float dY = 0;
-        float dZ = 0;
+        gcm_real dX = 0;
+        gcm_real dY = 0;
+        gcm_real dZ = 0;
         NodeList tmpTransformNodes = bodyNode.getChildrenByName("transform");
         for(auto& transformNode: tmpTransformNodes)
         {
             string transformType = getAttributeByName(transformNode.getAttributes(), "type");
             if( transformType == "translate" )
             {
-                dX += atof( getAttributeByName(transformNode.getAttributes(), "moveX").c_str() );
-                dY += atof( getAttributeByName(transformNode.getAttributes(), "moveY").c_str() );
-                dZ += atof( getAttributeByName(transformNode.getAttributes(), "moveZ").c_str() );
+                dX += lexical_cast<gcm_real>(getAttributeByName(transformNode.getAttributes(), "moveX"));
+                dY += lexical_cast<gcm_real>(getAttributeByName(transformNode.getAttributes(), "moveY"));
+                dZ += lexical_cast<gcm_real>(getAttributeByName(transformNode.getAttributes(), "moveZ"));
             }
         }
         engine.getDispatcher()->setTransferVector(dX, dY, dZ, id);
@@ -274,9 +277,9 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
             string transformType = getAttributeByName(transformNode.getAttributes(), "type");
             if( transformType == "translate" )
             {
-                float x = atof( getAttributeByName(transformNode.getAttributes(), "moveX").c_str() );
-                float y = atof( getAttributeByName(transformNode.getAttributes(), "moveY").c_str() );
-                float z = atof( getAttributeByName(transformNode.getAttributes(), "moveZ").c_str() );
+                gcm_real x = lexical_cast<gcm_real>(getAttributeByName(transformNode.getAttributes(), "moveX"));
+                gcm_real y = lexical_cast<gcm_real>(getAttributeByName(transformNode.getAttributes(), "moveY"));
+                gcm_real z = lexical_cast<gcm_real>(getAttributeByName(transformNode.getAttributes(), "moveZ"));
                 LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
                 body->getMeshes()->transfer(x, y, z);
             }
@@ -309,12 +312,12 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
                 if( areaType == "box" )
                 {
                     LOG_DEBUG("Material area: " << areaType);
-                    float minX = atof( getAttributeByName(areaNodes.front().getAttributes(), "minX").c_str() );
-                    float maxX = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxX").c_str() );
-                    float minY = atof( getAttributeByName(areaNodes.front().getAttributes(), "minY").c_str() );
-                    float maxY = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxY").c_str() );
-                    float minZ = atof( getAttributeByName(areaNodes.front().getAttributes(), "minZ").c_str() );
-                    float maxZ = atof( getAttributeByName(areaNodes.front().getAttributes(), "maxZ").c_str() );
+                    gcm_real minX = lexical_cast<gcm_real>(getAttributeByName(areaNodes.front().getAttributes(), "minX"));
+                    gcm_real maxX = lexical_cast<gcm_real>(getAttributeByName(areaNodes.front().getAttributes(), "maxX"));
+                    gcm_real minY = lexical_cast<gcm_real>(getAttributeByName(areaNodes.front().getAttributes(), "minY"));
+                    gcm_real maxY = lexical_cast<gcm_real>(getAttributeByName(areaNodes.front().getAttributes(), "maxY"));
+                    gcm_real minZ = lexical_cast<gcm_real>(getAttributeByName(areaNodes.front().getAttributes(), "minZ"));
+                    gcm_real maxZ = lexical_cast<gcm_real>(getAttributeByName(areaNodes.front().getAttributes(), "maxZ"));
                     LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] "
                                         << "[" << minY << ", " << maxY << "] "
                                         << "[" << minZ << ", " << maxZ << "]");
@@ -343,7 +346,7 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
                         THROW_INVALID_INPUT("Number of areas don't coincide with number of values");
 
         Area* stateArea = NULL;
-        float values[9];
+        gcm_real values[9];
         if (areaNodes.size() != valuesNodes.size())
         //    THROW_INVALID_INPUT("Only one area element allowed for initial state");
             THROW_INVALID_INPUT("Number of areas don't coincide with number of values");
@@ -353,12 +356,12 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
             if( areaType == "box" )
             {
                 LOG_DEBUG("Initial state area: " << areaType);
-                float minX = atof( getAttributeByName(areaNodes[node].getAttributes(), "minX").c_str() );
-                float maxX = atof( getAttributeByName(areaNodes[node].getAttributes(), "maxX").c_str() );
-                float minY = atof( getAttributeByName(areaNodes[node].getAttributes(), "minY").c_str() );
-                float maxY = atof( getAttributeByName(areaNodes[node].getAttributes(), "maxY").c_str() );
-                float minZ = atof( getAttributeByName(areaNodes[node].getAttributes(), "minZ").c_str() );
-                float maxZ = atof( getAttributeByName(areaNodes[node].getAttributes(), "maxZ").c_str() );
+                gcm_real minX = lexical_cast<gcm_real>(getAttributeByName(areaNodes[node].getAttributes(), "minX"));
+                gcm_real maxX = lexical_cast<gcm_real>(getAttributeByName(areaNodes[node].getAttributes(), "maxX"));
+                gcm_real minY = lexical_cast<gcm_real>(getAttributeByName(areaNodes[node].getAttributes(), "minY"));
+                gcm_real maxY = lexical_cast<gcm_real>(getAttributeByName(areaNodes[node].getAttributes(), "maxY"));
+                gcm_real minZ = lexical_cast<gcm_real>(getAttributeByName(areaNodes[node].getAttributes(), "minZ"));
+                gcm_real maxZ = lexical_cast<gcm_real>(getAttributeByName(areaNodes[node].getAttributes(), "maxZ"));
                 LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] "
                                     << "[" << minY << ", " << maxY << "] "
                                     << "[" << minZ << ", " << maxZ << "]");
@@ -368,34 +371,34 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
             }
         //if (valuesNodes.size() > 1)
         //    THROW_INVALID_INPUT("Only one values element allowed for initial state");
-            memset(values, 0, 9*sizeof(float));
+            memset(values, 0, 9*sizeof(gcm_real));
             string vx = valuesNodes[node].getAttributes()["vx"];
             if( !vx.empty() )
-                values[0] = atof( vx.c_str() );
+                values[0] = lexical_cast<gcm_real>(vx);
             string vy = valuesNodes[node].getAttributes()["vy"];
             if( !vy.empty() )
-                values[1] = atof( vy.c_str() );
+                values[1] = lexical_cast<gcm_real>(vy);
             string vz = valuesNodes[node].getAttributes()["vz"];
             if( !vz.empty() )
-                values[2] = atof( vz.c_str() );
+                values[2] = lexical_cast<gcm_real>(vz);
             string sxx = valuesNodes[node].getAttributes()["sxx"];
             if( !sxx.empty() )
-                values[3] = atof( sxx.c_str() );
+                values[3] = lexical_cast<gcm_real>(sxx);
             string sxy = valuesNodes[node].getAttributes()["sxy"];
             if( !sxy.empty() )
-                values[4] = atof( sxy.c_str() );
+                values[4] = lexical_cast<gcm_real>(sxy);
             string sxz = valuesNodes[node].getAttributes()["sxz"];
             if( !sxz.empty() )
-                values[5] = atof( sxz.c_str() );
+                values[5] = lexical_cast<gcm_real>(sxz);
             string syy = valuesNodes[node].getAttributes()["syy"];
             if( !syy.empty() )
-                values[6] = atof( syy.c_str() );
+                values[6] = lexical_cast<gcm_real>(syy);
             string syz = valuesNodes[node].getAttributes()["syz"];
             if( !syz.empty() )
-                values[7] = atof( syz.c_str() );
+                values[7] = lexical_cast<gcm_real>(syz);
             string szz = valuesNodes[node].getAttributes()["szz"];
             if( !szz.empty() )
-                values[8] = atof( szz.c_str() );
+                values[8] = lexical_cast<gcm_real>(szz);
             LOG_DEBUG("Initial state values: "
                             << values[0] << " " << values[1] << " " << values[2] << " "
                             << values[3] << " " << values[4] << " " << values[5] << " "

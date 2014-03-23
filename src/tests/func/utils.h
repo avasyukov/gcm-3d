@@ -9,6 +9,9 @@
 #include "Engine.h"
 
 #include <gtest/gtest.h>
+#include <boost/filesystem.hpp>
+
+namespace bfs = boost::filesystem;
 
 typedef struct {
     std::vector<float> startPoint;
@@ -23,9 +26,9 @@ typedef struct {
 
 int mkpath(std::string s);
 
-std::string getTestDataDirName();
+bfs::path getTestDataDirName();
 
-std::string getDataFileName(int stepNum);
+bfs::path getDataFileName(int stepNum);
 
 Engine& loadTaskScenario(std::string taskFile);
 

@@ -119,6 +119,9 @@ def configure(conf):
 
     if not conf.env.without_tests:
         libs.append('libgtest')
+    
+    if not conf.env.without_tests or not conf.env.without_launcher:
+        libs.append('libboost')
 
     conf.env.LINKFLAGS += ['-Wl,-rpath,%s/lib' % os.path.abspath(conf.options.prefix)]
 
