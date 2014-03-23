@@ -5,7 +5,7 @@ def options(opt):
 def configure(conf):
     conf.load('compiler_cxx')
 
-    conf.start_msg('Checking for gsl version')
+    conf.start_msg('Checking for gsl')
 
     conf.check_linux()
 

@@ -5,7 +5,7 @@ def options(opt):
 def configure(conf):
     conf.load('compiler_cxx')
 
-    conf.start_msg('Checking for gmsh version')
+    conf.start_msg('Checking for gmsh')
 
     conf.check_linux()
 
