@@ -696,7 +696,7 @@ void gcm::Engine::transferScene(float x, float y, float z) {
     scene.transfer(x, y, z);
 }
 
-FileLookupService& gcm::Engine::getFileLookupService() {
+FileFolderLookupService& gcm::Engine::getFileFolderLookupService() {
     return fls;
 }
 

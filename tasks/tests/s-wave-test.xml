@@ -6,14 +6,6 @@
 			<material id="testMaterial" />
 		</body>
 	</bodies>
-	<materials>
-            <material name="testMaterial" rheology="IsotropicElastic">
-                <la>70000</la>
-                <mu>10000</mu>
-                <rho>1</rho>
-                <crackThreshold>INF</crackThreshold>
-            </material>
-	</materials>
 	<initialState>
 		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
 		<values vx="1" sxz="100" />

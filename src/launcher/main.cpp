@@ -12,7 +12,8 @@
 
 #include <mpi.h>
 
-#include "../launcher/launcher.h"
+#include "launcher/launcher.h"
+#include "Engine.h"
 
 #ifndef CONFIG_SHARE_GCM
 #define CONFIG_SHARE_GCM "/usr/share/gcm3d"
@@ -32,7 +33,7 @@ void print_help(char* binaryName)
 
 int main(int argc, char **argv, char **envp)
 {
-    FileLookupService fls;
+    FileFolderLookupService fls;
 
     // Parse command line options
     int c;
@@ -93,8 +94,10 @@ int main(int argc, char **argv, char **envp)
         LOG_INFO("Starting with taskFile '" << taskFile << "' and dataDir '" << dataDir << "'");
 
         Engine& engine = Engine::getInstance();
-        engine.getFileLookupService().addPath(dataDir);
-        launcher::loadSceneFromFile(engine, taskFile);
+        engine.getFileFolderLookupService().addPath(dataDir);
+        launcher::Launcher launcher;
+        launcher.loadMaterialLibrary("materials");
+        launcher.loadSceneFromFile(taskFile);
         engine.calculate();
         engine.cleanUp();
 

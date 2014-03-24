@@ -26,7 +26,7 @@ xml::Doc::~Doc()
 //    xmlFreeDoc(doc);
 }
 
-xml::Node xml::Doc::getRootElement()
+xml::Node xml::Doc::getRootElement() const
 {
     return  Node(xmlDocGetRootElement(doc));
 }
@@ -37,13 +37,13 @@ xml::Node::Node(xmlNodePtr node)
     this->node = node;
 }
 
-std::string xml::Node::getTagName()
+std::string xml::Node::getTagName() const
 {
     std::string name((char*) node->name);
     return name;
 }
 
-xml::NodeList xml::Node::getChildNodes()
+xml::NodeList xml::Node::getChildNodes() const
 {
     NodeList nodes;
     for (xmlNodePtr child = node->children; child; child = child->next)
@@ -54,7 +54,7 @@ xml::NodeList xml::Node::getChildNodes()
     return nodes;
 }
 
-xml::NodeList xml::Node::getChildrenByName(std::string name)
+xml::NodeList xml::Node::getChildrenByName(std::string name) const
 {
     NodeList nodes;
     for (xmlNodePtr child = node->children; child; child = child->next)
@@ -65,7 +65,7 @@ xml::NodeList xml::Node::getChildrenByName(std::string name)
     return nodes;
 }
 
-xml::Node xml::Node::getChildByName(std::string name)
+xml::Node xml::Node::getChildByName(std::string name) const
 {
     NodeList nodes = getChildrenByName(name);
     auto l = nodes.size();
@@ -76,7 +76,7 @@ xml::Node xml::Node::getChildByName(std::string name)
     return nodes[0];
 }
 
-xml::AttrList xml::Node::getAttributes()
+xml::AttrList xml::Node::getAttributes() const
 {
     xml::AttrList attrs;
 
@@ -89,7 +89,7 @@ xml::AttrList xml::Node::getAttributes()
     return attrs;
 }
 
-xml::NodeList xml::Node::xpath(std::string expr)
+xml::NodeList xml::Node::xpath(std::string expr) const
 {
     xml::NodeList nodes;
 
@@ -112,7 +112,7 @@ xml::NodeList xml::Node::xpath(std::string expr)
     return nodes;
 }
 
-std::string xml::Node::getTextContent()
+std::string xml::Node::getTextContent() const
 {
     return std::string((char*)xmlNodeGetContent(node));
 }

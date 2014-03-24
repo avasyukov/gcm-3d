@@ -7,7 +7,7 @@
 
 int main(int argc, char **argv) {
     #ifdef CONFIG_ENABLE_LOGGING
-    gcm::FileLookupService fls;
+    gcm::FileFolderLookupService fls;
     fls.addPath("src/tests");
     log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
     #endif

@@ -46,7 +46,7 @@ void gcm::Msh2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
         myDispatcher->prepare(1, &scene);
 
         MshTetrFileReader* reader = new MshTetrFileReader();
-        reader->readFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]),
+        reader->readFile(engine->getFileFolderLookupService().lookupFile(params[PARAM_FILE]),
                             foMesh, myDispatcher, engine->getRank(), true);
         soMesh->copyMesh(foMesh);
         soMesh->preProcess();
@@ -79,6 +79,6 @@ void gcm::Msh2MeshLoader::preLoadMesh(Params params, AABB* scene, int& sliceDire
         THROW_INVALID_ARG("Msh file name was not provided");
     }
     MshTetrFileReader* reader = new MshTetrFileReader();
-    reader->preReadFile(engine->getFileLookupService().lookupFile(params[PARAM_FILE]), scene, sliceDirection, numberOfNodes);
+    reader->preReadFile(engine->getFileFolderLookupService().lookupFile(params[PARAM_FILE]), scene, sliceDirection, numberOfNodes);
     delete reader;
 }
