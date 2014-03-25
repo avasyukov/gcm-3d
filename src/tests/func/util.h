@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "mesh/tetr/TetrMesh.h"
-#include "elem/TetrFirstOrder.h"
-#include "Engine.h"
+#include "libgcm/mesh/tetr/TetrMesh.h"
+#include "libgcm/elem/TetrFirstOrder.h"
+#include "libgcm/Engine.h"
 
 #include <gtest/gtest.h>
 #include <boost/filesystem.hpp>

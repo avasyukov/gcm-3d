@@ -2,7 +2,7 @@
 
 #ifdef CONFIG_ENABLE_LOGGING
 #include <log4cxx/propertyconfigurator.h>
-#include "Utils.h"
+#include "libgcm/Utils.h"
 #endif
 
 int main(int argc, char **argv) {

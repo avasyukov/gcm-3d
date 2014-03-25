@@ -164,7 +164,7 @@ def build(bld):
         bld(
             features='cxx cxxprogram',
             source=bld.path.ant_glob('src/launcher/**/*.cpp'),
-            includes=['src/libgcm', 'src/launcher'],
+            includes=['src'],
             use=['gcm'] + libs,
             target='gcm3d'
         )
@@ -176,7 +176,7 @@ def build(bld):
                 bld.path.ant_glob('src/launcher/loaders/**/*.cpp') + [
                 bld.path.find_node('src/launcher/util/xml.cpp')
             ],
-            includes=['src/libgcm', 'src/launcher'],
+            includes=['src'],
             use=['gcm'] + libs,
             target='gcm3d_unit_tests',
             install_path=None
@@ -188,20 +188,25 @@ def build(bld):
                 bld.path.find_node('src/launcher/launcher.cpp'),
                 bld.path.find_node('src/launcher/util/xml.cpp')
             ],
-            includes=['src/libgcm', 'src/launcher'],
+            includes=['src'],
             use=['gcm'] + libs,
             target='gcm3d_func_tests',
             install_path=None
         )
-        bld(
-            features='cxx cxxprogram',
-            source=bld.path.ant_glob('src/tests/perf/fast_map.cpp'),
-            includes='src/libgcm',
-            lib=['rt'],
-            use=['gcm'] + libs,
-            target='gcm3d_perf_fast_map',
-            install_path=None
-        )
+        perf_test_sources = [x for x in bld.path.ant_glob('src/tests/perf/*.cpp') if x.name != 'util.cpp']
+        for s in perf_test_sources:
+            bld(
+                features='cxx cxxprogram',
+                source=[
+                    bld.path.find_node('src/tests/perf/util.cpp'),
+                    s
+                ],
+                includes='src',
+                lib=['rt'],
+                use=['gcm'] + libs,
+                target='gcm3d_perf_%s' % s.name[:-4],
+                install_path=None
+            )
 
     if not bld.env.without_resources:
         bld.install_files(
