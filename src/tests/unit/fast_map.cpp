@@ -25,7 +25,7 @@ TEST(FastMap, Fuzzy) {
         data[idx] = data[j];
         data[j] = t;
     }
-    
+
 
     for (int i = 0; i < MAP_SIZE; i++) {
         int k = data[i];

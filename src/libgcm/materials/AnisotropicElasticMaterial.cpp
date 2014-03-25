@@ -10,7 +10,7 @@ gcm::AnisotropicElasticMaterial::~AnisotropicElasticMaterial()
 {
 }
 
-const gcm::IAnisotropicElasticMaterial::RheologyParameters& gcm::AnisotropicElasticMaterial::getParameters() const 
+const gcm::IAnisotropicElasticMaterial::RheologyParameters& gcm::AnisotropicElasticMaterial::getParameters() const
 {
     return rheologyParameters;
 }

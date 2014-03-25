@@ -134,6 +134,8 @@ $(GCM3D_FUNC_TESTS): $(GCMLIB_SO) $(FUNC_OBJS)
 	 $(LDFLAGS)              \
 	 -lgcm                   \
 	 -lgtest                 \
+	 -lboost_filesystem      \
+	 -lboost_system          \
 	 $(FUNC_OBJS)            \
 	 -o $@
 

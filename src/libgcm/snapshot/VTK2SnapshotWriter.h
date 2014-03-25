@@ -22,22 +22,22 @@
 #include "Utils.h"
 
 namespace gcm {
-	class VTK2SnapshotWriter : public SnapshotWriter {
-	private:
-		void dumpVTK(string filename, TetrMeshSecondOrder* mesh, int step);
-		bool shouldSnapshot(CalcNode& node, TetrMeshSecondOrder* mesh);
+    class VTK2SnapshotWriter : public SnapshotWriter {
+    private:
+        void dumpVTK(string filename, TetrMeshSecondOrder* mesh, int step);
+        bool shouldSnapshot(CalcNode& node, TetrMeshSecondOrder* mesh);
 
-		USE_LOGGER;
-	public:
-		VTK2SnapshotWriter();
-		VTK2SnapshotWriter(const char *snapName);
-		virtual ~VTK2SnapshotWriter();
-		/*
-		 * Returns snapshot writer type
-		 */
-		string getType();
-		void dump(Mesh* mesh, int step);
-	};
+        USE_LOGGER;
+    public:
+        VTK2SnapshotWriter();
+        VTK2SnapshotWriter(const char *snapName);
+        virtual ~VTK2SnapshotWriter();
+        /*
+         * Returns snapshot writer type
+         */
+        string getType();
+        void dump(Mesh* mesh, int step);
+    };
 }
 
 

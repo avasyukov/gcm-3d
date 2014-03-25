@@ -15,7 +15,7 @@ namespace gcm
 
     /**
      * @brief Elastic rheology matrix implementation.
-     * @details Creates corresponding rheology matrices for case 
+     * @details Creates corresponding rheology matrices for case
      *          of elastic  material. Params in this case contain
      *          lambda, mu and rho.
      */
@@ -31,10 +31,10 @@ namespace gcm
     //     void createAy(const ICalcNode& node) override;
     //     void createAz(const ICalcNode& node) override;
 //        /**
-//         * Prepares matrices using specified values. Creates 
+//         * Prepares matrices using specified values. Creates
 //         * rheology matrices (\f$A_x\f$, \f$A_y\f$, \f$A_z\f$) depending
 //         * on stage.
-//         *  
+//         *
 //         * @param lambda Lame \f$\lambda\f$ parameter
 //         * @param mu Lame \f$\mu\f$ parameter
 //         * @param rho Material density

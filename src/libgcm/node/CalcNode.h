@@ -180,56 +180,56 @@ namespace gcm {
 
         /**
          * Returns compression.
-         * 
+         *
          * @return Compression value.
          */
         gcm_real getCompression() const;
         /**
          * Returns compression.
-         * 
+         *
          * @return Compression value.
          */
         gcm_real getTension() const;
         /**
          * Returns shear.
-         * 
+         *
          * @return Shear value.
          */
         gcm_real getShear() const;
         /**
          * Returns deviator.
-         * 
+         *
          * @return Deviator value.
          */
         gcm_real getDeviator() const;
         /**
          * Returns pressure.
-         * 
+         *
          * @return Pressure value.
          */
         gcm_real getPressure() const;
 
         /**
          * Returns tensor J1 invariant. TODO document
-         * 
+         *
          * @return J1 value.
          */
         gcm_real getJ1() const;
         /**
          * Returns tensor J2 invariant. TODO document
-         * 
+         *
          * @return J2 value.
          */
         gcm_real getJ2() const;
         /**
          * Returns tensor J3 invariant. TODO document
-         * 
+         *
          * @return J3 value.
          */
         gcm_real getJ3() const;
         /**
          * Returns main stress components. TODO document
-         * 
+         *
          * @param s1 Variable to put first main stress component in.
          * @param s2 Variable to put second main stress component in.
          * @param s3 Variable to put third main stress component in.
@@ -245,7 +245,7 @@ namespace gcm {
 
         /**
          * Checks if rheology is valid. TODO document
-         * 
+         *
          * @return True in case rheology is valid and false otherwise.
          */
         bool rheologyIsValid() const;
@@ -265,26 +265,26 @@ namespace gcm {
 
         /**
          * Indicates whether node is local or not.
-         * 
+         *
          * @return True in case of local node and false otherwise.
          */
         bool isLocal() const;
         /**
          * Indicates whether node is remote or not.
-         * 
+         *
          * @return True in case of remote node and false otherwise.
          */
         bool isRemote() const;
         /**
          * Sets node placement to specified value and also marks node as used
-         * 
+         *
          * @param Flag that indicates whether node is local or not
          */
         void setPlacement(bool local);
 
         /**
          * Indicates whether node is used or not.
-         * 
+         *
          * @return True in case of used node and false otherwise.
          */
         bool isUsed() const;
@@ -297,38 +297,38 @@ namespace gcm {
 
         /**
          * Indicates whether node is first order or not.
-         * 
+         *
          * @return True in case of first order node and false otherwise.
          */
         bool isFirstOrder() const;
         /**
          * Indicates whether node is second order or not.
-         * 
+         *
          * @return True in case of second order node and false otherwise.
          */
         bool isSecondOrder() const;
         /**
          * Sets node order flag.
-         * 
+         *
          * @param order Node order
          */
         void setOrder(uchar order);
 
         /**
          * Returns whether node is border or not.
-         * 
+         *
          * @return True in case of border node and false otherwise.
          */
         bool isBorder() const;
         /**
          * Returns whether node is inner or not.
-         * 
+         *
          * @return True in case of inner node and false otherwise.
          */
         bool isInner() const;
         /**
          * Sets node border flag.
-         * 
+         *
          * @param value  Border flag value.
          */
         void setIsBorder(bool value);
@@ -351,11 +351,11 @@ namespace gcm {
         void setNormalError();
         /**
          * Sets node neigh error flag depending on specified axis. TODO document
-         * 
+         *
          * @param axisName Number of axis to set error flag for.
          */
         void setNeighError(unsigned int axisNum);
-        
+
         /**
          * Returns value of specified custom flag.
          *
@@ -379,7 +379,7 @@ namespace gcm {
         void setBorderConditionId(uchar newBorderConditionId);
         /**
          * Returns id of the node border condition. TODO document
-         * 
+         *
          * @return Id of the border condition.
          */
         uchar getBorderConditionId() const;
@@ -392,7 +392,7 @@ namespace gcm {
         void setContactConditionId(uchar newContactConditionId);
         /**
          * Returns id of the node contact condition. TODO document
-         * 
+         *
          * @return Id of the contact condition.
          */
         uchar getContactConditionId() const;
@@ -405,21 +405,21 @@ namespace gcm {
         void setMaterialId(uchar id);
         /**
          * Returns node material id.
-         * 
+         *
          * @return Material id.
          */
         uchar getMaterialId() const;
         /**
          * Returns node material.
-         * 
+         *
          * @return Material.
          */
         Material* getMaterial() const override;
-        
+
         /**
          * Returns rheology matrix for node. It's wrapper for corresponding
          * material APIs.
-         * 
+         *
          * @return Rheology matrix.
          */
         RheologyMatrix3D& getRheologyMatrix() const;
@@ -438,14 +438,14 @@ namespace gcm {
         /**
          * Returns density value for the material. Returns node-independent
          * density value (material-specific).
-         * 
+         *
          * @return Density value.
          */
         gcm_real getRho0() const;
-        
+
         /**
          * Returns crack direction. TODO document
-         * 
+         *
          * @return Crack direction.
          */
         const vector3& getCrackDirection() const;

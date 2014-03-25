@@ -1,5 +1,5 @@
 #ifndef GCM_INTERPOLATOR_H
-#define	GCM_INTERPOLATOR_H
+#define    GCM_INTERPOLATOR_H
 
 #include <string>
 
@@ -11,16 +11,16 @@ using namespace gcm;
 
 namespace gcm {
 
-	class TetrInterpolator {
-	public:
-		TetrInterpolator();
-		~TetrInterpolator();
-		string getType();
-	protected:
-		string type;
-	private:
-		USE_LOGGER;
-	};
+    class TetrInterpolator {
+    public:
+        TetrInterpolator();
+        ~TetrInterpolator();
+        string getType();
+    protected:
+        string type;
+    private:
+        USE_LOGGER;
+    };
 }
 
 #endif

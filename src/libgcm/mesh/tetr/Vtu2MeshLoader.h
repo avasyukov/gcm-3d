@@ -15,23 +15,23 @@ using namespace gcm;
 using namespace std;
 
 namespace gcm {
-	class Vtu2MeshLoader: public TemplatedMeshLoader<TetrMeshSecondOrder>
-	{
-	protected:
-		/*
-		 * Loads mesh from using passed configuration
-		 */
-		 void loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher);
-		 void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes);
-		 USE_LOGGER;
-	public:
-		Vtu2MeshLoader();
-		~Vtu2MeshLoader();
-		/*
-		 * Returns mesh loader type
-		 */
-		string getType();
-	};
+    class Vtu2MeshLoader: public TemplatedMeshLoader<TetrMeshSecondOrder>
+    {
+    protected:
+        /*
+         * Loads mesh from using passed configuration
+         */
+         void loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher);
+         void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes);
+         USE_LOGGER;
+    public:
+        Vtu2MeshLoader();
+        ~Vtu2MeshLoader();
+        /*
+         * Returns mesh loader type
+         */
+        string getType();
+    };
 }
 
 #endif /* GCM_VTU_MESH_LOADER_H_ */

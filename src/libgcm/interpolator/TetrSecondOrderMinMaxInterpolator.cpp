@@ -1,7 +1,7 @@
-/* 
+/*
  * File:   TetrSecondOrderMinMaxInterpolator.cpp
  * Author: anganar
- * 
+ *
  * Created on May 3, 2013, 12:13 AM
  */
 #include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
@@ -99,10 +99,10 @@ void gcm::TetrSecondOrderMinMaxInterpolator::interpolate(CalcNode& node,
         }
             // If point is not in tetr - throw exception
         else {
-            /*			*logger << "\tTetrVol = " < Vol;
-             *logger << "\tfactor[0]=" << factor[0] << " factor[1]=" << factor[1] << " factor[2]=" << factor[2] 	<< " factor[3]=" << factor[3] << " Sum: " < factor[0] + factor[1] + factor[2] + factor[3];
+            /*            *logger << "\tTetrVol = " < Vol;
+             *logger << "\tfactor[0]=" << factor[0] << " factor[1]=" << factor[1] << " factor[2]=" << factor[2]     << " factor[3]=" << factor[3] << " Sum: " < factor[0] + factor[1] + factor[2] + factor[3];
 
-             *logger << "\tnode.x[0]=" << node.coords[0] << " node.x[1]=" << node.coords[1] 
+             *logger << "\tnode.x[0]=" << node.coords[0] << " node.x[1]=" << node.coords[1]
                                             << " node.x[2]=" < node.coords[2];
                                     if( node.isFirstOrder() )
              *logger < "First order node";
@@ -110,7 +110,7 @@ void gcm::TetrSecondOrderMinMaxInterpolator::interpolate(CalcNode& node,
              *logger < "Second order node";
 
              *logger << "\tv0.x[0]=" << nodes[tetr.vert[0]].coords[0] << " v0.x[1]=" << nodes[tetr.vert[0]].coords[1] << " v0.x[2]=" < nodes[tetr.vert[0]].coords[2];
-						
+
              *logger << "\tv1.x[0]=" << nodes[tetr.vert[1]].coords[0] << " v1.x[1]=" << nodes[tetr.vert[1]].coords[1] << " v1.x[2]=" < nodes[tetr.vert[1]].coords[2];
 
              *logger << "\tv2.x[0]=" << nodes[tetr.vert[2]].coords[0] << " v2.x[1]=" << nodes[tetr.vert[2]].coords[1] << " v2.x[2]=" < nodes[tetr.vert[2]].coords[2];

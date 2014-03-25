@@ -5,7 +5,7 @@ def options(opt):
 def configure(conf):
     conf.load('compiler_cxx')
 
-    conf.start_msg('Checking for libxml2 version')
+    conf.start_msg('Checking for libxml2')
 
     conf.check_linux()
 

@@ -17,55 +17,55 @@ std::string gcm::Exception::demangle(const char* symbol) {
   if (1 == sscanf(symbol, "%127s", temp)) {
     return temp;
   }
- 
+
   //if all else fails, just return the symbol
   return symbol;
 }
 void gcm::Exception::saveCallStack() {
-	void** buffer = new void*[100];
-	callStackLen = backtrace(buffer, 100);
-	callStack = backtrace_symbols(buffer, callStackLen);
-	delete[] buffer;
+    void** buffer = new void*[100];
+    callStackLen = backtrace(buffer, 100);
+    callStack = backtrace_symbols(buffer, callStackLen);
+    delete[] buffer;
 }
 
 gcm::Exception::Exception() {
-	saveCallStack();
-	this->code  = Exception::UNKNOWN;
-	this->line = -1;
-	this->message = "";
-	this->file = "";
+    saveCallStack();
+    this->code  = Exception::UNKNOWN;
+    this->line = -1;
+    this->message = "";
+    this->file = "";
 }
 
 string gcm::Exception::getCallStack() {
-	stringstream ss;
-	for (int i = 0; i < callStackLen; i++)
-		ss << demangle(callStack[i]) << "\n";
-	return ss.str();
+    stringstream ss;
+    for (int i = 0; i < callStackLen; i++)
+        ss << demangle(callStack[i]) << "\n";
+    return ss.str();
 }
 
 gcm::Exception::Exception(int code, string message, string file, int line) {
-	saveCallStack();
-	this->code = code;
-	this->line = line;
-	this->message = message;
-	this->file = file;
+    saveCallStack();
+    this->code = code;
+    this->line = line;
+    this->message = message;
+    this->file = file;
 }
 
 gcm::Exception::~Exception() {
-	free(callStack);
+    free(callStack);
 }
 int gcm::Exception::getCode() {
-	return code;
+    return code;
 }
 
 string gcm::Exception::getMessage() {
-	return message;
+    return message;
 }
 
 string gcm::Exception::getFile() {
-	return file;
+    return file;
 }
 
 int gcm::Exception::getLine() {
-	return line;
+    return line;
 }

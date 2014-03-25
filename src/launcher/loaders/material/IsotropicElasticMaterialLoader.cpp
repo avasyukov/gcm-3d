@@ -3,8 +3,9 @@
 #include <cstdlib>
 #include <cerrno>
 #include <utility>
+#include <boost/lexical_cast.hpp>
 
-#include "util/helpers.h"
+using boost::lexical_cast;
 
 const string launcher::IsotropicElasticMaterialLoader::RHEOLOGY_TYPE = "IsotropicElastic";
 
@@ -16,15 +17,12 @@ gcm::IsotropicElasticMaterial* launcher::IsotropicElasticMaterialLoader::load(xm
         string rheology = getAttributeByName(attrs, "rheology");
         assert(rheology == RHEOLOGY_TYPE);
 
-        int _errno = errno;
-        errno = 0;
-        gcm_real la = s2r(desc.getChildByName("la").getTextContent());
-        gcm_real mu = s2r(desc.getChildByName("mu").getTextContent());
-        gcm_real rho = s2r(desc.getChildByName("rho").getTextContent());
-        gcm_real crackThreshold = s2r(desc.getChildByName("crackThreshold").getTextContent());
-        swap(errno, _errno);
+        gcm_real la = lexical_cast<gcm_real>(desc.getChildByName("la").getTextContent());
+        gcm_real mu = lexical_cast<gcm_real>(desc.getChildByName("mu").getTextContent());
+        gcm_real rho = lexical_cast<gcm_real>(desc.getChildByName("rho").getTextContent());
+        gcm_real crackThreshold = lexical_cast<gcm_real>(desc.getChildByName("crackThreshold").getTextContent());
 
-        if (la <= 0.0 || mu <= 0.0 || rho <= 0.0 || crackThreshold <= 0.0 || _errno)
+        if (la <= 0.0 || mu <= 0.0 || rho <= 0.0 || crackThreshold <= 0.0)
             THROW_INVALID_INPUT("Seems xml snippet does not contain valid rheology parameters.");
 
         return new IsotropicElasticMaterial(name, rho, crackThreshold, la, mu);

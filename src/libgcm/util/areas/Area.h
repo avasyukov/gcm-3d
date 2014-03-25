@@ -6,13 +6,13 @@
 #include "Math.h"
 
 namespace gcm {
-	class Area
-	{
-	public:
-		virtual ~Area() = 0;
-		bool isInArea( Node* cur_node );
-		virtual bool isInArea( Node& cur_node ) = 0;
-	};
+    class Area
+    {
+    public:
+        virtual ~Area() = 0;
+        bool isInArea( Node* cur_node );
+        virtual bool isInArea( Node& cur_node ) = 0;
+    };
 }
 
 #endif

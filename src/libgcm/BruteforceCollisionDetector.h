@@ -8,14 +8,14 @@ using namespace std;
 
 namespace gcm {
 
-	class BruteforceCollisionDetector : public CollisionDetector
-	{
-	public:
-		BruteforceCollisionDetector();
-		~BruteforceCollisionDetector();
-		string getType () const;
-		void find_collisions(vector<CalcNode> &virt_nodes);
-	};
+    class BruteforceCollisionDetector : public CollisionDetector
+    {
+    public:
+        BruteforceCollisionDetector();
+        ~BruteforceCollisionDetector();
+        string getType () const;
+        void find_collisions(vector<CalcNode> &virt_nodes);
+    };
 
 }
 

@@ -24,8 +24,8 @@ class FastMap {
             if (aa == bb) {
                 stringstream ss;
                 ss << "Equal map keys are not allowed."
-                   << " key: " << aa 
-                   << " value1: " << ((map_struct*)a)->value 
+                   << " key: " << aa
+                   << " value1: " << ((map_struct*)a)->value
                    << " value2: " << ((map_struct*)b)->value;
                 throw invalid_argument(ss.str());
             }

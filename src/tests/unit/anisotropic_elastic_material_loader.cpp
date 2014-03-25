@@ -13,7 +13,7 @@ TEST(AnisotropicElasticMaterialLoader, Valid)
     auto loader = AnisotropicElasticMaterialLoader::getInstance();
 
     auto doc = xml::Doc::fromString("                                        \
-	<materials>                                                              \
+    <materials>                                                              \
             <material name=\"testMaterial\" rheology=\"AnisotropicElastic\"> \
                 <crackThreshold>1.7</crackThreshold>                         \
                 <c11>1</c11>                                                 \
@@ -39,7 +39,7 @@ TEST(AnisotropicElasticMaterialLoader, Valid)
                 <c66>21</c66>                                                \
                 <rho>1</rho>                                                 \
             </material>                                                      \
-	</materials>                                                             \
+    </materials>                                                             \
     ");
 
     AnisotropicElasticMaterial* material = nullptr;
@@ -61,10 +61,10 @@ TEST(AnisotropicElasticMaterialLoader, Empty)
     auto loader = AnisotropicElasticMaterialLoader::getInstance();
 
     auto doc = xml::Doc::fromString("                  \
-	<materials>                                        \
+    <materials>                                        \
             <material rheology=\"AnisotropicElastic\"> \
             </material>                                \
-	</materials>                                       \
+    </materials>                                       \
     ");
     ASSERT_ANY_THROW(loader.load(doc.getRootElement().getChildByName("material")));
 }
@@ -74,7 +74,7 @@ TEST(AnisotropicElasticMaterialLoader, Invalid)
     auto loader = AnisotropicElasticMaterialLoader::getInstance();
 
     auto doc = xml::Doc::fromString("                                        \
-	<materials>                                                              \
+    <materials>                                                              \
             <material name=\"testMaterial\" rheology=\"AnisotropicElastic\"> \
                 <crackThreshold>1.7</crackThreshold>                         \
                 <c11>1</c11>                                                 \
@@ -100,7 +100,7 @@ TEST(AnisotropicElasticMaterialLoader, Invalid)
                 <c66>ZZ</c66>                                                \
                 <rho>1</rho>                                                 \
             </material>                                                      \
-	</materials>                                                             \
+    </materials>                                                             \
     ");
 
     ASSERT_ANY_THROW(

@@ -20,19 +20,19 @@
 #include <vtkPointData.h>
 
 namespace gcm {
-	class VTKCubicSnapshotWriter : public SnapshotWriter {
-	private:
-		void dumpVTK(string filename, BasicCubicMesh* mesh, int step);
-		USE_LOGGER;
-	public:
-		VTKCubicSnapshotWriter();
-		VTKCubicSnapshotWriter(const char *snapName);
-		/*
-		 * Returns snapshot writer type
-		 */
-		string getType();
-		void dump(Mesh* mesh, int step);
-	};
+    class VTKCubicSnapshotWriter : public SnapshotWriter {
+    private:
+        void dumpVTK(string filename, BasicCubicMesh* mesh, int step);
+        USE_LOGGER;
+    public:
+        VTKCubicSnapshotWriter();
+        VTKCubicSnapshotWriter(const char *snapName);
+        /*
+         * Returns snapshot writer type
+         */
+        string getType();
+        void dump(Mesh* mesh, int step);
+    };
 }
 
 
