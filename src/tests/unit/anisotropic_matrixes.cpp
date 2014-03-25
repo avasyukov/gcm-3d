@@ -10,7 +10,7 @@
 #include "Math.h"
 #include "Exception.h"
 
-#define ITERATIONS 10000
+#define ITERATIONS 1000
 
 // Use these limits if anisotropic rheology parameters tensor should be
 // isotropic one plus smaller random values
