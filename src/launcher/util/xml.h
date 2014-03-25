@@ -8,8 +8,7 @@
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 
-#include "Logging.h"
-
+#include "libgcm/Logging.h"
 
 namespace xml {
 
@@ -21,7 +20,7 @@ namespace xml {
     class Node {
     private:
         xmlNodePtr node;
-                USE_LOGGER;
+        USE_LOGGER;
     public:
         Node(xmlNodePtr node);
 

@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "util/xml.h"
-#include "Logging.h"
+#include "launcher/util/xml.h"
+#include "libgcm/Logging.h"
 
 namespace launcher {
     class Launcher

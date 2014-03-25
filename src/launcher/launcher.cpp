@@ -1,19 +1,19 @@
-#include "launcher.h"
+#include "launcher/launcher.h"
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
 
-#include "loaders/material/AnisotropicElasticMaterialLoader.h"
-#include "loaders/material/IsotropicElasticMaterialLoader.h"
+#include "launcher/loaders/material/AnisotropicElasticMaterialLoader.h"
+#include "launcher/loaders/material/IsotropicElasticMaterialLoader.h"
 
-#include "util/forms/StepPulseForm.h"
-#include "mesh/Mesh.h"
-#include "Engine.h"
-#include "Utils.h"
-#include "Logging.h"
-#include "ContactCondition.h"
-#include "Exception.h"
+#include "libgcm/util/forms/StepPulseForm.h"
+#include "libgcm/mesh/Mesh.h"
+#include "libgcm/Engine.h"
+#include "libgcm/Utils.h"
+#include "libgcm/Logging.h"
+#include "libgcm/ContactCondition.h"
+#include "libgcm/Exception.h"
 
 namespace ba = boost::algorithm;
 namespace bfs = boost::filesystem;

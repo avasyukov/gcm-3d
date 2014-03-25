@@ -13,7 +13,7 @@
 #include <mpi.h>
 
 #include "launcher/launcher.h"
-#include "Engine.h"
+#include "libgcm/Engine.h"
 
 #ifndef CONFIG_SHARE_GCM
 #define CONFIG_SHARE_GCM "/usr/share/gcm3d"

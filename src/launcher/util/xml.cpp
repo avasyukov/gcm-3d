@@ -1,8 +1,8 @@
-#include "xml.h"
+#include "launcher/util/xml.h"
 
 #include <string.h>
 
-#include "Exception.h"
+#include "libgcm/Exception.h"
 
 xml::Doc::Doc(xmlDocPtr doc): doc(doc)
 {
