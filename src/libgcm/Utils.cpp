@@ -1,5 +1,9 @@
 #include "Utils.h"
 
+#include <boost/filesystem.hpp>
+
+namespace bfs = boost::filesystem;
+
 gcm::Params::Params() {
 
 }
@@ -22,11 +26,11 @@ bool gcm::Params::paramEquals(string param, string value) {
     return false;
 }
 
-void gcm::FileLookupService::addPath(string path) {
+void gcm::FileFolderLookupService::addPath(string path) {
     paths.push_back(path);
 }
 
-string gcm::FileLookupService::lookupFile(string fname) {
+string gcm::FileFolderLookupService::lookupFile(string fname) {
     for(auto& path: paths) {
         // FIXME should we use different separators for different
         // target platforms? Windows is ok with /-sep
@@ -36,6 +40,17 @@ string gcm::FileLookupService::lookupFile(string fname) {
             return fullName;
     }
     THROW_INVALID_ARG("File not found: " + fname);
+}
+
+string gcm::FileFolderLookupService::lookupFolder(string fname)
+{
+    for(auto path: paths) {
+        bfs::path p(path);
+        p /= fname;
+        if (bfs::is_directory(p))
+            return p.string();
+    }
+    THROW_INVALID_ARG("Folder not found: " + fname);
 }
 
 void checkStream(fstream &f) {

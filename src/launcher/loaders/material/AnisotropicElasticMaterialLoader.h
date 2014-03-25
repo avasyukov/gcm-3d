@@ -8,9 +8,9 @@
 #ifndef ANISOTROPICELASTICMATERIALLOADER_H
 #define    ANISOTROPICELASTICMATERIALLOADER_H
 
-#include "materials/AnisotropicElasticMaterial.h"
-#include "util/Singleton.h"
-#include "util/xml.h"
+#include "libgcm/materials/AnisotropicElasticMaterial.h"
+#include "libgcm/util/Singleton.h"
+#include "launcher/util/xml.h"
 
 using namespace gcm;
 using namespace xml;

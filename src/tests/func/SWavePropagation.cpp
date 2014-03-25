@@ -2,11 +2,11 @@
 #include <gtest/gtest.h>
 
 
-#include "utils.h"
+#include "tests/func/util.h"
 
-#include "Exception.h"
-#include "materials/IsotropicElasticMaterial.h"
-#include "node/CalcNode.h"
+#include "libgcm/Exception.h"
+#include "libgcm/materials/IsotropicElasticMaterial.h"
+#include "libgcm/node/CalcNode.h"
 
 /*
  * Analytics for the test described in tasks/tests/s-wave-test.xml

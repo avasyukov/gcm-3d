@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "loaders/material/IsotropicElasticMaterialLoader.h"
-#include "util/xml.h"
+#include "launcher/loaders/material/IsotropicElasticMaterialLoader.h"
+#include "launcher/util/xml.h"
 
 using namespace launcher;
 using namespace std;

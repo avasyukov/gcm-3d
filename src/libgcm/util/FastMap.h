@@ -17,6 +17,8 @@ class FastMap {
             value_type value;
         } map_struct;
 
+        int sz;
+
         static int cmp(const void *a, const void *b) {
             key_type aa = *((key_type*)a);
             key_type bb = *((key_type*)b);
@@ -71,7 +73,7 @@ class FastMap {
     }
 
     public:
-    FastMap(int sz = 0) {
+    FastMap(int sz = 0): sz(sz) {
         data.reserve(sz);
     }
 
@@ -96,6 +98,13 @@ class FastMap {
             sort();
         }
         return lookup(key, 0, data.size()-1);
+    }
+
+    void clear()
+    {
+        data.clear();
+        data.reserve(sz);
+        modified = false;
     }
 };
 

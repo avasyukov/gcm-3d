@@ -57,7 +57,7 @@ namespace gcm
         /*
          * File lookup service
          */
-         FileLookupService fls;
+         FileFolderLookupService fls;
         /*
          * Engines counter.
          */
@@ -283,7 +283,7 @@ namespace gcm
         DataBus* getDataBus();
         CalcNode& getVirtNode(unsigned int i);
 
-        FileLookupService& getFileLookupService();
+        FileFolderLookupService& getFileFolderLookupService();
         void setContactThresholdType(unsigned char type);
         unsigned char getContactThresholdType();
         void setContactThresholdFactor(float val);

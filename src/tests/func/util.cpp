@@ -1,8 +1,8 @@
-#include "utils.h"
+#include "tests/func/util.h"
 
 #include "launcher/launcher.h"
-#include "node/CalcNode.h"
-#include "Math.h"
+#include "libgcm/node/CalcNode.h"
+#include "libgcm/Math.h"
 
 #include <iostream>
 #include <vector>
@@ -20,15 +20,6 @@ bfs::path getTestDataDirName()
 bfs::path getDataFileName(int stepNum)
 {
     return getTestDataDirName() / ("step" + std::to_string(stepNum) + ".data");
-}
-
-Engine& loadTaskScenario(std::string taskFile) {
-    Engine& engine = Engine::getInstance();
-    engine.setGmshVerbosity(0.0);
-    engine.clear();
-    engine.getFileLookupService().addPath(".");
-    launcher::loadSceneFromFile(engine, taskFile);
-    return engine;
 }
 
 void dumpPoint(CalcNode& analytical, CalcNode& numerical, SnapshotLine line, int stepNum)
@@ -128,8 +119,16 @@ void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, 
         valueLimits[k].max = - numeric_limits<float>::infinity();
     }
 
+    // load material library
+    launcher::Launcher launcher;
     // Load task
-    Engine& engine = loadTaskScenario(taskFile);
+    Engine& engine = Engine::getInstance();
+    
+    engine.setGmshVerbosity(0.0);
+    engine.clear();
+    engine.getFileFolderLookupService().addPath(".");
+    launcher.loadMaterialLibrary("materials");
+    launcher.loadSceneFromFile(taskFile);
 
     float dt = engine.calculateRecommendedTimeStep();
     engine.setTimeStep(dt);

@@ -8,9 +8,9 @@
 #ifndef ISOTROPICELASTICMATERIALLOADER_H
 #define    ISOTROPICELASTICMATERIALLOADER_H
 
-#include "materials/IsotropicElasticMaterial.h"
-#include "util/Singleton.h"
-#include "util/xml.h"
+#include "libgcm/materials/IsotropicElasticMaterial.h"
+#include "libgcm/util/Singleton.h"
+#include "launcher/util/xml.h"
 
 using namespace gcm;
 using namespace xml;

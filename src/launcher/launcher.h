@@ -3,10 +3,22 @@
 
 #include <string>
 
-#include "Engine.h"
+#include "launcher/util/xml.h"
+#include "libgcm/Logging.h"
 
 namespace launcher {
-    void loadSceneFromFile(Engine& engine, std::string fileName);
+    class Launcher
+    {
+    private:
+        void loadMaterialsFromXml(xml::NodeList matNodes);
+
+        USE_LOGGER;
+    public:
+        Launcher();
+
+        void loadMaterialLibrary(std::string path);
+        void loadSceneFromFile(std::string fileName);
+    };
 }
 
 

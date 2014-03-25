@@ -33,7 +33,7 @@ namespace gcm {
     };
 
 
-    class FileLookupService {
+    class FileFolderLookupService {
         private:
             vector<string> paths;
         public:
@@ -45,6 +45,11 @@ namespace gcm {
              * Looks up file by relative name
              */
             string lookupFile(string fname);
+            /**
+             * Searches for folder by relative path
+             * @param fname Folder name
+             */
+            string lookupFolder(string fname);
     };
 
 }

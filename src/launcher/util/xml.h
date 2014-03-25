@@ -8,8 +8,7 @@
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 
-#include "Logging.h"
-
+#include "libgcm/Logging.h"
 
 namespace xml {
 
@@ -21,18 +20,17 @@ namespace xml {
     class Node {
     private:
         xmlNodePtr node;
-                USE_LOGGER;
+        USE_LOGGER;
     public:
         Node(xmlNodePtr node);
 
-        std::string getTagName();
-        NodeList getChildNodes();
-        NodeList getChildrenByName(std::string name);
-                Node getChildByName(std::string name);
-        AttrList getAttributes();
-        NodeList xpath(std::string expr);
-
-                std::string getTextContent();
+        std::string getTagName() const;
+        NodeList getChildNodes() const;
+        NodeList getChildrenByName(std::string name) const;
+        Node getChildByName(std::string name) const;
+        AttrList getAttributes() const;
+        NodeList xpath(std::string expr) const;
+        std::string getTextContent() const;
 
     };
 
@@ -41,12 +39,12 @@ namespace xml {
         xmlDocPtr doc;
 
     public:
-                Doc(xmlDocPtr doc);
+        Doc(xmlDocPtr doc);
         static Doc fromFile(std::string fname);
-                static Doc fromString(std:: string str);
+        static Doc fromString(std:: string str);
         ~Doc();
 
-        Node getRootElement();
+        Node getRootElement() const;
     };
     std::string getAttributeByName(AttrList attrs, std::string name, std::string defaultValue);
     std::string getAttributeByName(AttrList attrs, std::string name);

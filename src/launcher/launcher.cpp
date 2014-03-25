@@ -1,28 +1,82 @@
-#include "launcher.h"
+#include "launcher/launcher.h"
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/filesystem.hpp>
 
-#include "util/xml.h"
+#include "launcher/loaders/material/AnisotropicElasticMaterialLoader.h"
+#include "launcher/loaders/material/IsotropicElasticMaterialLoader.h"
 
-#include "loaders/material/AnisotropicElasticMaterialLoader.h"
-#include "loaders/material/IsotropicElasticMaterialLoader.h"
+#include "libgcm/util/forms/StepPulseForm.h"
+#include "libgcm/mesh/Mesh.h"
+#include "libgcm/Engine.h"
+#include "libgcm/Utils.h"
+#include "libgcm/Logging.h"
+#include "libgcm/ContactCondition.h"
+#include "libgcm/Exception.h"
 
-#include "util/forms/StepPulseForm.h"
-#include "mesh/Mesh.h"
-#include "Engine.h"
-#include "Utils.h"
-#include "Logging.h"
-#include "ContactCondition.h"
+namespace ba = boost::algorithm;
+namespace bfs = boost::filesystem;
 
 using namespace xml;
 using boost::lexical_cast;
 
-void launcher::loadSceneFromFile(Engine& engine, string fileName)
+
+launcher::Launcher::Launcher()
 {
-    USE_LOGGER;
-    INIT_LOGGER("gcm.launcher.TaskLoader");
+    INIT_LOGGER("gcm.launcher");
+}
+
+
+void launcher::Launcher::loadMaterialsFromXml(NodeList matNodes)
+{
+    gcm::Engine& engine = gcm::Engine::getInstance();
+    for(auto& matNode: matNodes)
+    {
+        string rheology = getAttributeByName(matNode.getAttributes(), "rheology");
+        Material* mat = nullptr;
+        if (rheology == AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE)
+            mat = AnisotropicElasticMaterialLoader::getInstance().load(matNode);
+        else if (rheology == IsotropicElasticMaterialLoader::RHEOLOGY_TYPE)
+            mat = IsotropicElasticMaterialLoader::getInstance().load(matNode);
+        else
+            THROW_UNSUPPORTED("Unsupported rheology found: " + rheology);
+        try
+        {
+            engine.getMaterial(mat->getName());
+            LOG_WARN("Material \"" << mat->getName() << "\" already loaded. Ignoring duplicate.");
+        }
+        catch (gcm::Exception& e)
+        {
+            engine.addMaterial(mat);
+        }
+    }
+}
+
+void launcher::Launcher::loadMaterialLibrary(std::string path)
+{
+    LOG_INFO("Loading material library from " << path);
+
+    bfs::recursive_directory_iterator dir(path), end;
+    for (; dir != end; dir++)
+    {
+        if (bfs::is_regular_file(dir->path()))
+            if (ba::iends_with(dir->path().string(), ".xml"))
+            {
+                string fname = dir->path().string();
+                LOG_DEBUG("Loading material library item from " << fname);
+                Doc doc = Doc::fromFile(fname);
+                loadMaterialsFromXml(doc.getRootElement().xpath("/materials/material"));
+            }
+    }
+}
+
+void launcher::Launcher::loadSceneFromFile(string fileName)
+{
+    Engine& engine = gcm::Engine::getInstance();
+
     // FIXME should we validate task file against xml schema?
-    FileLookupService& fls =  engine.getFileLookupService();
+    FileFolderLookupService& fls =  engine.getFileFolderLookupService();
     string fname = fls.lookupFile(fileName);
     LOG_DEBUG("Loading scene from file " << fname);
     // parse file
@@ -123,17 +177,8 @@ void launcher::loadSceneFromFile(Engine& engine, string fileName)
     }
 
     // reading materials
-    NodeList matNodes = rootNode.xpath("/task/materials/material");
-    for(auto& matNode: matNodes)
-    {
-        string rheology = getAttributeByName(matNode.getAttributes(), "rheology");
-        if (rheology == AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE)
-            engine.addMaterial(AnisotropicElasticMaterialLoader::getInstance().load(matNode));
-        else if (rheology == IsotropicElasticMaterialLoader::RHEOLOGY_TYPE)
-            engine.addMaterial(IsotropicElasticMaterialLoader::getInstance().load(matNode));
-        else
-            THROW_UNSUPPORTED("Unsupported rheology found: " + rheology);
-    }
+    loadMaterialsFromXml(rootNode.xpath("/task/materials/material"));
+
 
     AABB globalScene;
 

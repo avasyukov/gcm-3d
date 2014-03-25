@@ -1,5 +1,4 @@
-#include "AnisotropicElasticMaterialLoader.h"
-#include "materials/IAnisotropicElasticMaterial.h"
+#include "launcher/loaders/material/AnisotropicElasticMaterialLoader.h"
 
 #include <cstdlib>
 #include <cerrno>
@@ -7,7 +6,7 @@
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 
-#include "materials/IAnisotropicElasticMaterial.h"
+#include "libgcm/materials/IAnisotropicElasticMaterial.h"
 
 using boost::lexical_cast;
 

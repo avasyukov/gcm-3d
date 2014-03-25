@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 #define ITERATIONS 1000
 

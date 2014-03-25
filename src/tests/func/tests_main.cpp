@@ -2,12 +2,12 @@
 
 #ifdef CONFIG_ENABLE_LOGGING
 #include <log4cxx/propertyconfigurator.h>
-#include "Utils.h"
+#include "libgcm/Utils.h"
 #endif
 
 int main(int argc, char **argv) {
     #ifdef CONFIG_ENABLE_LOGGING
-    gcm::FileLookupService fls;
+    gcm::FileFolderLookupService fls;
     fls.addPath("src/tests");
     log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
     #endif
