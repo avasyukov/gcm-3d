@@ -12,56 +12,58 @@ APPNAME = 'gcm3d'
 def options(opt):
     '''Sets gcm3d specific options'''
 
-    opt.add_option(
+    og = opt.get_option_group('configure options')
+
+    og.add_option(
         '--without-launcher',
         action='store_true',
         default=False,
         help='Disable gcm3d launcher'
     )
 
-    opt.add_option(
+    og.add_option(
         '--without-logging',
         action='store_true',
         default=False,
         help='Disable libgcm logging routines'
     )
 
-    opt.add_option(
+    og.add_option(
         '--without-tests',
         action='store_true',
         default=False,
         help='Do not execute tests'
     )
 
-    opt.add_option(
+    og.add_option(
         '--without-default-cxxflags',
         action='store_true',
         default=False,
         help='Disable default cxxflags'
     )
 
-    opt.add_option(
+    og.add_option(
         '--without-headers',
         action='store_true',
         default=False,
         help='Do not install header files'
     )
 
-    opt.add_option(
+    og.add_option(
         '--without-resources',
         action='store_true',
         default=False,
         help='Do not install resources files'
     )
     
-    opt.add_option(
+    og.add_option(
         '--disable-auto-rpath',
         action='store_true',
         default=False,
         help='Do not adjust linker rpath automatically'
     )
 
-    opt.add_option(
+    og.add_option(
         '--static',
         action='store_true',
         default=False,
