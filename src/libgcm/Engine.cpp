@@ -27,9 +27,6 @@
 
 gcm::Engine::Engine()
 {
-    // init MPI subsystem used for IPC
-    if( ! MPI::Is_initialized() )
-        MPI::Init();
     rank = MPI::COMM_WORLD.Get_rank();
     numberOfWorkers = MPI::COMM_WORLD.Get_size();
     // get logger
@@ -131,9 +128,6 @@ void gcm::Engine::cleanUp()
     //delete vtkSnapshotWriter;
     //delete vtkDumpWriter;
     delete colDet;
-    // shutdown MPI
-    if( !MPI::Is_finalized() )
-        MPI::Finalize();
     LOG_INFO("Clean up done");
 }
 

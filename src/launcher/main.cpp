@@ -81,8 +81,8 @@ int main(int argc, char **argv, char **envp)
         fls.addPath("./src/launcher/");
 
 
-        #ifdef CONFIG_ENABLE_LOGGING
         MPI::Init();
+        #ifdef CONFIG_ENABLE_LOGGING
         char pe[5];
         sprintf(pe, "%d", MPI::COMM_WORLD.Get_rank());
         log4cxx::MDC::put("PE", pe);
@@ -100,6 +100,7 @@ int main(int argc, char **argv, char **envp)
         launcher.loadSceneFromFile(taskFile);
         engine.calculate();
         engine.cleanUp();
+        MPI::Finalize();
 
     } catch (Exception &e) {
         LOG_FATAL("Exception was thrown: " << e.getMessage() << "\n @" << e.getFile() << ":" << e.getLine() << "\nCall stack: \n"<< e.getCallStack());
