@@ -25,27 +25,8 @@
 #include "rheology/DummyRheologyCalculator.h"
 #include "BruteforceCollisionDetector.h"
 
-// initialiaze static fields
-int gcm::Engine::enginesNumber = 0;
-Engine* gcm::Engine::engineInstance = 0;
-
-Engine& gcm::Engine::getInstance()
-{
-    if (!engineInstance) initInstance();
-    return *engineInstance;
-}
-
 gcm::Engine::Engine()
 {
-    // check engines counter
-    if (enginesNumber)
-    {
-        // because of some internal architecture limitations we support
-        // only one instance of engine at the same time
-        throw logic_error("Only one engine can be used at the same time");
-    }
-    engineInstance = this;
-    enginesNumber++;
     // init MPI subsystem used for IPC
     if( ! MPI::Is_initialized() )
         MPI::Init();
@@ -146,8 +127,6 @@ void gcm::Engine::cleanUp()
         (ml.second)->cleanUp();
         delete (ml.second);
     }
-    // decrement engines counter
-    enginesNumber--;
     delete dataBus;
     //delete vtkSnapshotWriter;
     //delete vtkDumpWriter;

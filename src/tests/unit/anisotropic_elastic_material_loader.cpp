@@ -10,7 +10,7 @@ using namespace std;
 
 TEST(AnisotropicElasticMaterialLoader, Valid)
 {
-    auto loader = AnisotropicElasticMaterialLoader::getInstance();
+    auto& loader = AnisotropicElasticMaterialLoader::getInstance();
 
     auto doc = xml::Doc::fromString("                                        \
     <materials>                                                              \
@@ -58,7 +58,7 @@ TEST(AnisotropicElasticMaterialLoader, Valid)
 
 TEST(AnisotropicElasticMaterialLoader, Empty)
 {
-    auto loader = AnisotropicElasticMaterialLoader::getInstance();
+    auto& loader = AnisotropicElasticMaterialLoader::getInstance();
 
     auto doc = xml::Doc::fromString("                  \
     <materials>                                        \
@@ -71,7 +71,7 @@ TEST(AnisotropicElasticMaterialLoader, Empty)
 
 TEST(AnisotropicElasticMaterialLoader, Invalid)
 {
-    auto loader = AnisotropicElasticMaterialLoader::getInstance();
+    auto& loader = AnisotropicElasticMaterialLoader::getInstance();
 
     auto doc = xml::Doc::fromString("                                        \
     <materials>                                                              \

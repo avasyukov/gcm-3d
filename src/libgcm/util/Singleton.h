@@ -33,6 +33,13 @@ public:
 
 private:
     static T* instance_;
+
+protected:
+    Singleton()
+    {
+    }
+    Singleton(const Singleton& s);
+    void operator=(const Singleton& s);
 };
 
 template<typename T>
