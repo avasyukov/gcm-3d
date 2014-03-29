@@ -9,6 +9,7 @@ from waflib.Build import UninstallContext
 from waflib.Task import Task
 from waflib.Task import always_run
 from waflib.Configure import ConfigurationContext
+from waflib.Configure import conf
 
 
 VERSION = '0.1'
@@ -116,8 +117,12 @@ def options(opt):
     )
 
     opt.load('compiler_cxx')
-    opt.load('utils', tooldir='waftools')
 
+
+@conf
+def check_linux(conf):
+    if not sys.platform.startswith('linux'):
+        conf.fatal('Only Linux platform is supported at the moment')
 
 def configure(conf):
     '''Configures build environment'''
@@ -138,7 +143,6 @@ def configure(conf):
     conf.msg('Add test coverage support', yes_no(conf.options.coverage))
 
     libs = [
-        'utils',
         'libmpi',
         'libgsl',
         'libxml2',
@@ -156,6 +160,11 @@ def configure(conf):
     conf.env.CXXFLAGS += ['-Wall']
     conf.env.CXXFLAGS += ['-Wno-deprecated']
     conf.env.CXXFLAGS += ['-std=c++11']
+    
+    conf.env.LINKFLAGS += ['-lpthread', '-lrt']
+
+    conf.env.INCLUDES += [conf.path.find_dir('src').abspath()]
+    conf.env.INCLUDES += [conf.path.find_dir('src/libgcm').abspath()]
 
     conf.env.CXXFLAGS += ['-DCONFIG_PREFIX="%s"' % conf.options.prefix]
     if conf.env.with_resources:
@@ -260,7 +269,6 @@ def build(bld):
         bld(
             features='cxx cxxprogram',
             source=bld.path.find_node('src/launcher/main.cpp'),
-            includes=['src'],
             use=['gcm', 'xml', 'loaders', 'launcher'] + libs,
             target='gcm3d'
         )
@@ -269,7 +277,6 @@ def build(bld):
         bld(
             features='cxx cxxprogram',
             source=bld.path.ant_glob('src/tests/unit/**/*.cpp'),
-            includes=['src'],
             use=['gcm', 'xml', 'loaders'] + libs,
             target='gcm3d_unit_tests',
             install_path=None
@@ -277,7 +284,6 @@ def build(bld):
         bld(
             features='cxx cxxprogram',
             source=bld.path.ant_glob('src/tests/func/**/*.cpp'),
-            includes=['src'],
             use=['gcm', 'xml', 'loaders', 'launcher'] + libs,
             target='gcm3d_func_tests',
             install_path=None
@@ -292,8 +298,6 @@ def build(bld):
             bld(
                 features='cxx cxxprogram',
                 source=s,
-                includes='src',
-                lib=['rt'],
                 use=['gcm', 'perf_util'] + libs,
                 target='gcm3d_perf_%s' % s.name[:-4],
                 install_path=None
