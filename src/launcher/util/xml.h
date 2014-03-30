@@ -22,15 +22,17 @@ namespace xml {
         xmlNodePtr node;
         USE_LOGGER;
     public:
-        Node(xmlNodePtr node);
+        Node(const xmlNodePtr node);
 
         std::string getTagName() const;
         NodeList getChildNodes() const;
-        NodeList getChildrenByName(std::string name) const;
-        Node getChildByName(std::string name) const;
+        NodeList getChildrenByName(const std::string& name) const;
+        Node getChildByName(const std::string& name) const;
         AttrList getAttributes() const;
-        NodeList xpath(std::string expr) const;
+        NodeList xpath(const std::string& expr) const;
         std::string getTextContent() const;
+
+        std::string operator[](const std::string& name) const;
 
     };
 
@@ -39,17 +41,21 @@ namespace xml {
         xmlDocPtr doc;
 
     public:
-        Doc(xmlDocPtr doc);
-        static Doc fromFile(std::string fname);
-        static Doc fromString(std:: string str);
+        Doc(const xmlDocPtr doc);
+        Doc(Doc&& d);
+
+        static Doc fromFile(const std::string& fname);
+        static Doc fromString(const std::string& str);
         ~Doc();
+
+        void operator=(Doc&& d);
 
         Node getRootElement() const;
     };
-    std::string getAttributeByName(AttrList attrs, std::string name, std::string defaultValue);
-    std::string getAttributeByName(Node node, std::string name, std::string defaultValue);
-    std::string getAttributeByName(AttrList attrs, std::string name);
-    std::string getAttributeByName(Node node, std::string name);
+    std::string getAttributeByName(const AttrList& attrs, const std::string& name, const std::string& defaultValue);
+    std::string getAttributeByName(const Node& node, const std::string& name, const std::string& defaultValue);
+    std::string getAttributeByName(const AttrList& attrs, const std::string& name);
+    std::string getAttributeByName(const Node& node, const std::string& name);
 };
 
 #endif

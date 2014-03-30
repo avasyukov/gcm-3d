@@ -14,10 +14,8 @@ const string launcher::AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE = "Anisot
 
 gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::load(xml::Node desc)
 {
-    AttrList attrs = desc.getAttributes();
-
-    string name = getAttributeByName(attrs, "name");
-    string rheology = getAttributeByName(attrs, "rheology");
+    string name = desc["name"];
+    string rheology = desc["rheology"];
     assert(rheology == RHEOLOGY_TYPE);
 
     IAnisotropicElasticMaterial::RheologyParameters params;

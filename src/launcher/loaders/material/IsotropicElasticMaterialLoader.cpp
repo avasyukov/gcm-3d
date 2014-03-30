@@ -11,10 +11,8 @@ const string launcher::IsotropicElasticMaterialLoader::RHEOLOGY_TYPE = "Isotropi
 
 gcm::IsotropicElasticMaterial* launcher::IsotropicElasticMaterialLoader::load(xml::Node desc)
 {
-        AttrList attrs = desc.getAttributes();
-
-        string name = getAttributeByName(attrs, "name");
-        string rheology = getAttributeByName(attrs, "rheology");
+        string name = desc["name"];
+        string rheology = desc["rheology"];
         assert(rheology == RHEOLOGY_TYPE);
 
         gcm_real la = lexical_cast<gcm_real>(desc.getChildByName("la").getTextContent());

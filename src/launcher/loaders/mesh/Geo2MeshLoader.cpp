@@ -10,9 +10,9 @@ void launcher::Geo2MeshLoader::parseDesc(const xml::Node& desc, string& id, stri
 {
     auto& ffls = Engine::getInstance().getFileFolderLookupService();
 
-    id = getAttributeByName(desc, "id");
-    fileName = ffls.lookupFile(getAttributeByName(desc, "file"));
-    tetrSize = lexical_cast<float>(getAttributeByName(desc, "tetrSize"));
+    id = desc["id"];
+    fileName = ffls.lookupFile(desc["file"]);
+    tetrSize = lexical_cast<float>(desc["tetrSize"]);
 }
 
 void launcher::Geo2MeshLoader::preLoadMesh(const xml::Node& desc, AABB& aabb, int& sliceDirection, int& numberOfNodes)
