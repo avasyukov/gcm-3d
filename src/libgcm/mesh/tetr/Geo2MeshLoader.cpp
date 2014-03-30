@@ -1,12 +1,8 @@
 #include "mesh/tetr/Geo2MeshLoader.h"
 
-string gcm::Geo2MeshLoader::getType(){
-    return "geo2";
-}
-
-bool gcm::Geo2MeshLoader::isMshFileCreated(Params params)
+bool gcm::Geo2MeshLoader::isMshFileCreated(string fileName)
 {
-    return ( createdFiles.find( params[PARAM_FILE] ) != createdFiles.end() );
+    return createdFiles.find(fileName) != createdFiles.end();
 }
 
 gcm::Geo2MeshLoader::Geo2MeshLoader() {
@@ -39,15 +35,16 @@ string gcm::Geo2MeshLoader::getVtkFileName(string geoFile)
     return geoFile + ".tmp.vtu";
 }
 
-void gcm::Geo2MeshLoader::createMshFile(Params params)
+void gcm::Geo2MeshLoader::createMshFile(string fileName, float tetrSize)
 {
-    if( engine->getNumberOfWorkers() > 1 )
+    Engine& engine = Engine::getInstance();
+
+    if( engine.getNumberOfWorkers() > 1 )
     {
-        if( engine->getRank() != 0 )
+        if( engine.getRank() != 0 )
         {
             MPI::COMM_WORLD.Barrier();
-            //mshFileCreated = true;
-            createdFiles[ params[PARAM_FILE] ] = true;
+            createdFiles[fileName] = true;
             return;
         }
     }
@@ -56,61 +53,55 @@ void gcm::Geo2MeshLoader::createMshFile(Params params)
      * have been guessed to get a mesh with acceptable tetrahedra sizes.
      * In future need to undestand GMsh meshing algorithms and set these options correctly.
      */
-    float tetrSize = params.count ("tetrSize") > 0 ? atof (params.at ("tetrSize").c_str ()) : 1.0;
-    LOG_DEBUG("loadGeoScriptFile (" << engine->getFileFolderLookupService().lookupFile(params[PARAM_FILE]) << "): will mesh with H = " << tetrSize);
-    GmshSetOption ("General", "Terminal", 1.0);
-    GmshSetOption ("General", "Verbosity", engine->getGmshVerbosity());
-    GmshSetOption ("Mesh", "CharacteristicLengthMin", tetrSize);
-    GmshSetOption ("Mesh", "CharacteristicLengthMax", tetrSize);
-    GmshSetOption ("Mesh", "Optimize", 1.0);
+    LOG_DEBUG("loadGeoScriptFile (" << fileName << "): will mesh with H = " << tetrSize);
+    GmshSetOption("General", "Terminal", 1.0);
+    GmshSetOption("General", "Verbosity", engine.getGmshVerbosity());
+    GmshSetOption("Mesh", "CharacteristicLengthMin", tetrSize);
+    GmshSetOption("Mesh", "CharacteristicLengthMax", tetrSize);
+    GmshSetOption("Mesh", "Optimize", 1.0);
 
     GModel gmshModel;
     gmshModel.setFactory ("Gmsh");
-    gmshModel.readGEO (engine->getFileFolderLookupService().lookupFile(params[PARAM_FILE]));
+    gmshModel.readGEO (fileName);
     LOG_INFO("Creating mesh using gmsh library");
     gmshModel.mesh (3);
-    gmshModel.writeMSH (getMshFileName(params[PARAM_FILE]));
-    //mshFileCreated = true;
-    createdFiles[ params[PARAM_FILE] ] = true;
+    gmshModel.writeMSH (getMshFileName(fileName));
+    createdFiles[fileName] = true;
 
-    if( engine->getNumberOfWorkers() > 1 )
+    if (engine.getNumberOfWorkers() > 1)
         MPI::COMM_WORLD.Barrier();
 }
 
-void gcm::Geo2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher)
+void gcm::Geo2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, string fileName, float tetrSize)
 {
-    if (params.find(PARAM_FILE) == params.end()) {
-        delete mesh;
-        THROW_INVALID_ARG("Geo file name was not provided");
-    }
-    if( ! isMshFileCreated(params) )
-        createMshFile(params);
+    if (!isMshFileCreated(fileName))
+        createMshFile(fileName, tetrSize);
 
-    IBody* body = mesh->getBody();
-    IEngine* engine = body->getEngine();
-    if( engine->getRank() == 0 )
+    //IBody* body = mesh->getBody();
+    Engine& engine = Engine::getInstance();
+    if( engine.getRank() == 0 )
     {
         LOG_DEBUG("Worker 0 started generating second order mesh from first order msh file");
         TetrMeshFirstOrder* foMesh = new TetrMeshFirstOrder();
-        foMesh->setBody(body);
+//        foMesh->setBody(body);
 
         TetrMeshSecondOrder* soMesh = new TetrMeshSecondOrder();
-        soMesh->setBody(body);
+//        soMesh->setBody(body);
 
         int sd, nn;
         AABB scene;
         GCMDispatcher* myDispatcher = new DummyDispatcher();
-        myDispatcher->setEngine(engine);
-        preLoadMesh(params, &scene, sd, nn);
+        myDispatcher->setEngine(&Engine::getInstance());
+        preLoadMesh(&scene, sd, nn, fileName, tetrSize);
         myDispatcher->prepare(1, &scene);
 
         MshTetrFileReader* reader = new MshTetrFileReader();
-        reader->readFile(getMshFileName(params[PARAM_FILE]), foMesh, myDispatcher, engine->getRank(), true);
+        reader->readFile(getMshFileName(fileName), foMesh, myDispatcher, engine.getRank(), true);
         soMesh->copyMesh(foMesh);
         soMesh->preProcess();
 
         VTK2SnapshotWriter* sw = new VTK2SnapshotWriter();
-        sw->setFileName(getVtkFileName(params[PARAM_FILE]));
+        sw->setFileName(getVtkFileName(fileName));
         sw->dump(soMesh, -1);
 
         delete sw;
@@ -124,19 +115,16 @@ void gcm::Geo2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 
     LOG_DEBUG("Starting reading mesh");
     Vtu2TetrFileReader* reader = new Vtu2TetrFileReader();
-    reader->readFile(getVtkFileName(params[PARAM_FILE]), mesh, dispatcher, engine->getRank());
+    reader->readFile(getVtkFileName(fileName), mesh, dispatcher, engine.getRank());
     delete reader;
 
     mesh->preProcess();
 }
 
-void gcm::Geo2MeshLoader::preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes) {
-    if (params.find(PARAM_FILE) == params.end()) {
-        THROW_INVALID_ARG("Msh file name was not provided");
-    }
-    if( ! isMshFileCreated(params) )
-        createMshFile(params);
+void gcm::Geo2MeshLoader::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, string fileName, float tetrSize) {
+    if (!isMshFileCreated(fileName))
+        createMshFile(fileName, tetrSize);
     MshTetrFileReader* reader = new MshTetrFileReader();
-    reader->preReadFile(getMshFileName(params[PARAM_FILE]), scene, sliceDirection, numberOfNodes);
+    reader->preReadFile(getMshFileName(fileName), scene, sliceDirection, numberOfNodes);
     delete reader;
 }

@@ -131,7 +131,17 @@ std::string xml::getAttributeByName(AttrList attrs, std::string name, std::strin
     THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list and default value is not provided");
 }
 
+std::string xml::getAttributeByName(Node node, std::string name, std::string defaultValue)
+{
+    return getAttributeByName(node.getAttributes(), name, defaultValue);
+}
+
 std::string xml::getAttributeByName(AttrList attrs, std::string name)
 {
     return getAttributeByName(attrs, name, "");
+}
+
+std::string xml::getAttributeByName(Node node, std::string name)
+{
+    return getAttributeByName(node.getAttributes(), name);
 }

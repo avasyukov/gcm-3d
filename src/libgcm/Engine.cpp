@@ -3,7 +3,6 @@
 #include "mesh/tetr/MshMeshLoader.h"
 #include "mesh/tetr/Msh2MeshLoader.h"
 #include "mesh/tetr/GeoMeshLoader.h"
-#include "mesh/tetr/Geo2MeshLoader.h"
 #include "mesh/tetr/VtuMeshLoader.h"
 #include "mesh/tetr/Vtu2MeshLoader.h"
 #include "mesh/tetr/Vtu2MeshZoneLoader.h"
@@ -37,7 +36,6 @@ gcm::Engine::Engine()
     registerMeshLoader(new MshMeshLoader());
     registerMeshLoader(new Msh2MeshLoader());
     registerMeshLoader(new GeoMeshLoader());
-    registerMeshLoader(new Geo2MeshLoader());
     registerMeshLoader(new VtuMeshLoader());
     registerMeshLoader(new Vtu2MeshLoader());
     registerMeshLoader(new Vtu2MeshZoneLoader());

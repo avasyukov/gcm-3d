@@ -4,10 +4,10 @@
 #include <map>
 #include <string>
 
-#include "mesh/MeshLoader.h"
 #include "mesh/tetr/TetrMeshSecondOrder.h"
 #include "util/formats/MshTetrFileReader.h"
 #include "util/formats/Vtu2TetrFileReader.h"
+#include "util/Singleton.h"
 #include "snapshot/VTK2SnapshotWriter.h"
 #include "Exception.h"
 #include "Utils.h"
@@ -28,27 +28,23 @@ using namespace gcm;
 using namespace std;
 
 namespace gcm {
-    class Geo2MeshLoader: public TemplatedMeshLoader<TetrMeshSecondOrder>
+    class Geo2MeshLoader: public Singleton<Geo2MeshLoader>
     {
     protected:
         /*
          * Loads mesh from using passed configuration
          */
-         void loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher);
-         void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes);
-         void createMshFile(Params params);
          USE_LOGGER;
-         bool isMshFileCreated(Params params);
+         bool isMshFileCreated(string fileName);
          string getMshFileName(string geoFile);
          string getVtkFileName(string geoFile);
+         void createMshFile(string fileName, float tetrSize);
          map<string,bool> createdFiles;
     public:
         Geo2MeshLoader();
         ~Geo2MeshLoader();
-        /*
-         * Returns mesh loader type
-         */
-        string getType();
+        void preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, string fileName, float tetrSize);
+        void loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, string fileName, float tetrSize);
         void cleanUp();
     };
 }

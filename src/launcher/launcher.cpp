@@ -6,6 +6,7 @@
 
 #include "launcher/loaders/material/AnisotropicElasticMaterialLoader.h"
 #include "launcher/loaders/material/IsotropicElasticMaterialLoader.h"
+#include "launcher/loaders/mesh/Geo2MeshLoader.h"
 
 #include "libgcm/util/forms/StepPulseForm.h"
 #include "libgcm/mesh/Mesh.h"
@@ -205,21 +206,31 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         // preload meshes for dispatcher
         NodeList meshNodes = bodyNode.getChildrenByName("mesh");
         for(auto& meshNode: meshNodes)
-        {
-            Params params = Params(meshNode.getAttributes());
-            if (!params.has("type"))
-                THROW_INVALID_INPUT("Mesh type is not specified.");
-
-            MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
-            if (!meshLoader)
-                THROW_INVALID_INPUT("Mesh loader not found.");
+        {         
+            string type = getAttributeByName(meshNode, "type");
 
             LOG_INFO("Preparing mesh for body '" << id << "'");
 
             AABB localScene;
             int slicingDirection;
             int numberOfNodes;
-            meshLoader->preLoadMesh(params, &localScene, slicingDirection, numberOfNodes);
+
+            if (type == Geo2MeshLoader::MESH_TYPE)
+                Geo2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else
+            {
+                // TODO remove this code            
+                // -----------------------------------------------------------------
+                Params params = Params(meshNode.getAttributes());
+                if (!params.has("type"))
+                    THROW_INVALID_INPUT("Mesh type is not specified.");
+
+                gcm::MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
+                if (!meshLoader)
+                    THROW_INVALID_INPUT("Mesh loader not found.");
+                meshLoader->preLoadMesh(params, &localScene, slicingDirection, numberOfNodes);
+                // -----------------------------------------------------------------
+            }
 
             // transform meshes
             NodeList transformNodes = bodyNode.getChildrenByName("transform");
@@ -301,17 +312,30 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         NodeList meshNodes = bodyNode.getChildrenByName("mesh");
         for(auto& meshNode: meshNodes)
         {
-            Params params = Params(meshNode.getAttributes());
-            MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
-
             LOG_INFO("Loading mesh for body '" << id << "'");
-            // use loader to load mesh
-            Mesh* mesh = meshLoader->load(body, params);
+
+            string type = getAttributeByName(meshNode, "type");
+
+            Mesh* mesh;
+
+            if (type == Geo2MeshLoader::MESH_TYPE)
+            {
+                mesh = Geo2MeshLoader::getInstance().load(meshNode, body);
+            }
+            else
+            {
+                // TODO remove this code            
+                // -----------------------------------------------------------------
+                Params params = Params(meshNode.getAttributes());
+                gcm::MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
+                mesh = meshLoader->load(body, params);
+                // -----------------------------------------------------------------
+            }
 
             // attach mesh to body
             body->attachMesh(mesh);
             mesh->setBodyNum( engine.getBodyNum(id) );
-            LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  meshLoader->getType() << "' created. "
+            LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  type << "' created. "
                         << "Number of nodes: " << mesh->getNodesNumber() << ".");
         }
 
