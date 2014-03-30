@@ -19,7 +19,7 @@ public:
     static T& getInstance(Args... args)
     {
         if (!instance_) {
-            instance_ = new T(std::forward<Args>(args)...);
+            instance_ = new T(args...);
         }
 
         return *instance_;
