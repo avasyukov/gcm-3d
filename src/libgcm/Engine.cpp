@@ -1,9 +1,6 @@
 #include "Engine.h"
 
-#include "mesh/tetr/MshMeshLoader.h"
 #include "mesh/tetr/Msh2MeshLoader.h"
-#include "mesh/tetr/GeoMeshLoader.h"
-#include "mesh/tetr/VtuMeshLoader.h"
 #include "mesh/tetr/Vtu2MeshLoader.h"
 #include "mesh/tetr/Vtu2MeshZoneLoader.h"
 #include "mesh/cube/BasicCubicMeshGenerator.h"
@@ -33,10 +30,7 @@ gcm::Engine::Engine()
     LOG_DEBUG("GCM engine created");
     LOG_DEBUG("Setting default engine values");
     LOG_DEBUG("Registering default mesh loaders");
-    registerMeshLoader(new MshMeshLoader());
     registerMeshLoader(new Msh2MeshLoader());
-    registerMeshLoader(new GeoMeshLoader());
-    registerMeshLoader(new VtuMeshLoader());
     registerMeshLoader(new Vtu2MeshLoader());
     registerMeshLoader(new Vtu2MeshZoneLoader());
     registerMeshLoader(new BasicCubicMeshGenerator());

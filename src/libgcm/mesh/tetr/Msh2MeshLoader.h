@@ -6,7 +6,6 @@
 
 #include "mesh/MeshLoader.h"
 #include "mesh/tetr/TetrMeshSecondOrder.h"
-#include "mesh/tetr/MshMeshLoader.h"
 #include "snapshot/VTK2SnapshotWriter.h"
 #include "util/formats/Vtu2TetrFileReader.h"
 #include "Exception.h"
