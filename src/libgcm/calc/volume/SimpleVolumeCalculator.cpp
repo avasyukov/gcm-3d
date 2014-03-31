@@ -1,6 +1,6 @@
-#include "libgcm/calc/volume/SimpleVolumeCalculator.h"
+#include "libgcm/calc/volume/SimpleVolumeCalculator.hpp"
 
-#include "libgcm/node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 SimpleVolumeCalculator::SimpleVolumeCalculator() {
     INIT_LOGGER("gcm.SimpleVolumeCalculator");

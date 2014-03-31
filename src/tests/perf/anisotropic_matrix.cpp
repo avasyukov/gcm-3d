@@ -3,15 +3,15 @@
 
 #ifdef CONFIG_ENABLE_LOGGING
 #include <log4cxx/propertyconfigurator.h>
-#include "libgcm/Utils.h"
+#include "libgcm/Utils.hpp"
 #endif
 
-#include "tests/perf/util.h"
-#include "libgcm/util/AnisotropicMatrix3D.h"
-#include "libgcm/util/AnisotropicMatrix3DAnalytical.h"
-#include "libgcm/materials/AnisotropicElasticMaterial.h"
-#include "libgcm/node/CalcNode.h"
-#include "libgcm/Engine.h"
+#include "tests/perf/util.hpp"
+#include "libgcm/util/AnisotropicMatrix3D.hpp"
+#include "libgcm/util/AnisotropicMatrix3DAnalytical.hpp"
+#include "libgcm/materials/AnisotropicElasticMaterial.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/Engine.hpp"
 
 #define ITERATIONS 1000
 

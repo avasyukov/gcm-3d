@@ -4,8 +4,8 @@
 #include <ctime>
 #include <unordered_map>
 
-#include <libgcm/util/FastMap.h>
-#include "tests/perf/util.h"
+#include "libgcm/util/FastMap.hpp"
+#include "tests/perf/util.hpp"
 
 using namespace std;
 

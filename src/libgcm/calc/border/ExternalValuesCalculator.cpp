@@ -1,6 +1,6 @@
-#include "libgcm/calc/border/ExternalValuesCalculator.h"
+#include "libgcm/calc/border/ExternalValuesCalculator.hpp"
 
-#include "libgcm/node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 ExternalValuesCalculator::ExternalValuesCalculator()
 {

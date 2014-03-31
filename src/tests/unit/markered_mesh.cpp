@@ -1,10 +1,10 @@
 #include <cstdlib>
 #include <gtest/gtest.h>
 
-#include "libgcm/mesh/markers/MarkeredMesh.h"
-#include "libgcm/mesh/markers/MarkeredBoxMeshGenerator.h"
-#include "libgcm/materials/IsotropicElasticMaterial.h"
-#include "libgcm/Utils.h"
+#include "libgcm/mesh/markers/MarkeredMesh.hpp"
+#include "libgcm/mesh/markers/MarkeredBoxMeshGenerator.hpp"
+#include "libgcm/materials/IsotropicElasticMaterial.hpp"
+#include "libgcm/Utils.hpp"
 
 using namespace std;
 

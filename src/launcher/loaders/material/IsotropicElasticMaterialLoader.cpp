@@ -1,4 +1,4 @@
-#include "launcher/loaders/material/IsotropicElasticMaterialLoader.h"
+#include "launcher/loaders/material/IsotropicElasticMaterialLoader.hpp"
 
 #include <cstdlib>
 #include <cerrno>

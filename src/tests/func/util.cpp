@@ -1,8 +1,8 @@
-#include "tests/func/util.h"
+#include "tests/func/util.hpp"
 
-#include "launcher/launcher.h"
-#include "libgcm/node/CalcNode.h"
-#include "libgcm/Math.h"
+#include "launcher/launcher.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/Math.hpp"
 
 #include <iostream>
 #include <vector>

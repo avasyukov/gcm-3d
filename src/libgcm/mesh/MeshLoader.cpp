@@ -1,4 +1,4 @@
-#include "libgcm/mesh/MeshLoader.h"
+#include "libgcm/mesh/MeshLoader.hpp"
 
 // init constants
 const string gcm::MeshLoader::PARAM_CALC          = "calc";

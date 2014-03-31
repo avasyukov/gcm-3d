@@ -1,6 +1,6 @@
-#include "libgcm/calc/border/ExternalForceCalculator.h"
+#include "libgcm/calc/border/ExternalForceCalculator.hpp"
 
-#include "libgcm/node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 ExternalForceCalculator::ExternalForceCalculator()
 {

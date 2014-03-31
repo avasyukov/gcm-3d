@@ -1,4 +1,4 @@
-#include "launcher/loaders/mesh/Geo2MeshLoader.h"
+#include "launcher/loaders/mesh/Geo2MeshLoader.hpp"
 
 #include <boost/lexical_cast.hpp>
 

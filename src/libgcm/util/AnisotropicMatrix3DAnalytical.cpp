@@ -1,5 +1,5 @@
-#include "libgcm/util/AnisotropicMatrix3DAnalytical.h"
-#include "libgcm/materials/AnisotropicElasticMaterial.h"
+#include "libgcm/util/AnisotropicMatrix3DAnalytical.hpp"
+#include "libgcm/materials/AnisotropicElasticMaterial.hpp"
 
 void gcm::AnisotropicMatrix3DAnalytical::fixValuesOrder()
 {

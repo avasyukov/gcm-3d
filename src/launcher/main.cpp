@@ -12,8 +12,8 @@
 
 #include <mpi.h>
 
-#include "launcher/launcher.h"
-#include "libgcm/Engine.h"
+#include "launcher/launcher.hpp"
+#include "libgcm/Engine.hpp"
 
 #ifndef CONFIG_SHARE_GCM
 #define CONFIG_SHARE_GCM "/usr/share/gcm3d"

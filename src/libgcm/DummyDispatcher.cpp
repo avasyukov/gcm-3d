@@ -1,6 +1,6 @@
-#include "libgcm/DummyDispatcher.h"
+#include "libgcm/DummyDispatcher.hpp"
 
-#include "libgcm/Body.h"
+#include "libgcm/Body.hpp"
 
 gcm::DummyDispatcher::DummyDispatcher() {
     INIT_LOGGER("gcm.Dispatcher");

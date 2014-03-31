@@ -1,4 +1,4 @@
-#include "libgcm/elem/TetrFirstOrder.h"
+#include "libgcm/elem/TetrFirstOrder.hpp"
 
 gcm::TetrFirstOrder::TetrFirstOrder() {
     number = -1;

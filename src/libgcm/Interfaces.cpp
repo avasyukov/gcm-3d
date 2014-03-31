@@ -1,4 +1,4 @@
-#include "libgcm/Interfaces.h"
+#include "libgcm/Interfaces.hpp"
 
 gcm::IEngine::~IEngine() {
 

@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-#include <libgcm/util/FastMap.h>
+#include "libgcm/util/FastMap.hpp"
 
 #define MAP_SIZE 100000
 

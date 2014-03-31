@@ -1,6 +1,6 @@
-#include "libgcm/mesh/cube/BasicCubicMeshGenerator.h"
+#include "libgcm/mesh/cube/BasicCubicMeshGenerator.hpp"
 
-#include "libgcm/node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 const string gcm::BasicCubicMeshGenerator::PARAM_H          = "h";
 const string gcm::BasicCubicMeshGenerator::PARAM_NUMBER     = "num";

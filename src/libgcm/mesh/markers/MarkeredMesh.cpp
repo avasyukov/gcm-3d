@@ -1,8 +1,8 @@
-#include "libgcm/mesh/markers/MarkeredMesh.h"
+#include "libgcm/mesh/markers/MarkeredMesh.hpp"
 
 #include <cmath>
 
-#include "libgcm/Math.h"
+#include "libgcm/Math.hpp"
 
 float gcm::MarkeredMesh::getRecommendedTimeStep() {
     return getMinH()/getMaxEigenvalue();

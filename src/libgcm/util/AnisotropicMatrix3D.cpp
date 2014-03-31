@@ -1,5 +1,5 @@
-#include "libgcm/util/AnisotropicMatrix3D.h"
-#include "libgcm/materials/AnisotropicElasticMaterial.h"
+#include "libgcm/util/AnisotropicMatrix3D.hpp"
+#include "libgcm/materials/AnisotropicElasticMaterial.hpp"
 
 gcm::AnisotropicMatrix3D::AnisotropicMatrix3D(): ImmutableRheologyMatrix3D()
 {

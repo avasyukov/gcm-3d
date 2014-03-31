@@ -1,4 +1,4 @@
-#include "libgcm/Utils.h"
+#include "libgcm/Utils.hpp"
 
 #include <boost/filesystem.hpp>
 

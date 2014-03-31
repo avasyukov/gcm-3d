@@ -1,4 +1,4 @@
-#include "libgcm/Body.h"
+#include "libgcm/Body.hpp"
 
 string gcm::Body::getId() {
     return id;

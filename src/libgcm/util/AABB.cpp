@@ -1,4 +1,4 @@
-#include "libgcm/util/AABB.h"
+#include "libgcm/util/AABB.hpp"
 
 gcm::AABB::AABB()
 {

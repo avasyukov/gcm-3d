@@ -1,11 +1,11 @@
 #include <vector>
 #include <gtest/gtest.h>
 
-#include "tests/func/util.h"
+#include "tests/func/util.hpp"
 
-#include "libgcm/Exception.h"
-#include "libgcm/materials/IsotropicElasticMaterial.h"
-#include "libgcm/node/CalcNode.h"
+#include "libgcm/Exception.hpp"
+#include "libgcm/materials/IsotropicElasticMaterial.hpp"
+#include "libgcm/node/CalcNode.hpp"
 
 /*
  * Analytics for the test described in tasks/tests/p-wave-test.xml

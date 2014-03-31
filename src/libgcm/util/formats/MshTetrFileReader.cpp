@@ -1,9 +1,9 @@
-#include "libgcm/util/formats/MshTetrFileReader.h"
+#include "libgcm/util/formats/MshTetrFileReader.hpp"
 
-#include "libgcm/util/AABB.h"
-#include "libgcm/mesh/tetr/TetrMeshFirstOrder.h"
-#include "libgcm/node/CalcNode.h"
-#include "libgcm/GCMDispatcher.h"
+#include "libgcm/util/AABB.hpp"
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/GCMDispatcher.hpp"
 
 gcm::MshTetrFileReader::MshTetrFileReader()
 {

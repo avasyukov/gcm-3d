@@ -1,9 +1,9 @@
 #include <time.h>
 
-#include "libgcm/materials/IsotropicElasticMaterial.h"
-#include "libgcm/util/ElasticMatrix3D.h"
-#include "libgcm/node/CalcNode.h"
-#include "libgcm/Engine.h"
+#include "libgcm/materials/IsotropicElasticMaterial.hpp"
+#include "libgcm/util/ElasticMatrix3D.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/Engine.hpp"
 
 #include <gtest/gtest.h>
 

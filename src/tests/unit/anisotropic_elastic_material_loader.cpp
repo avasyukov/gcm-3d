@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "launcher/loaders/material/AnisotropicElasticMaterialLoader.h"
-#include "launcher/util/xml.h"
-#include "libgcm/materials/IAnisotropicElasticMaterial.h"
-#include "libgcm/materials/AnisotropicElasticMaterial.h"
+#include "launcher/loaders/material/AnisotropicElasticMaterialLoader.hpp"
+#include "launcher/util/xml.hpp"
+#include "libgcm/materials/IAnisotropicElasticMaterial.hpp"
+#include "libgcm/materials/AnisotropicElasticMaterial.hpp"
 
 using namespace launcher;
 using namespace std;

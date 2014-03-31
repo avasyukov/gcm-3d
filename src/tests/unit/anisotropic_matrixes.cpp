@@ -1,14 +1,14 @@
 #include <time.h>
 #include <gtest/gtest.h>
 
-#include "libgcm/materials/IAnisotropicElasticMaterial.h"
-#include "libgcm/materials/AnisotropicElasticMaterial.h"
-#include "libgcm/materials/IsotropicElasticMaterial.h"
-#include "libgcm/util/AnisotropicMatrix3DAnalytical.h"
-#include "libgcm/util/AnisotropicMatrix3D.h"
-#include "libgcm/util/ElasticMatrix3D.h"
-#include "libgcm/Math.h"
-#include "libgcm/Exception.h"
+#include "libgcm/materials/IAnisotropicElasticMaterial.hpp"
+#include "libgcm/materials/AnisotropicElasticMaterial.hpp"
+#include "libgcm/materials/IsotropicElasticMaterial.hpp"
+#include "libgcm/util/AnisotropicMatrix3DAnalytical.hpp"
+#include "libgcm/util/AnisotropicMatrix3D.hpp"
+#include "libgcm/util/ElasticMatrix3D.hpp"
+#include "libgcm/Math.hpp"
+#include "libgcm/Exception.hpp"
 
 #define ITERATIONS 1000
 

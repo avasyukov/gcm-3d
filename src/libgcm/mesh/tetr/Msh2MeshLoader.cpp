@@ -1,6 +1,6 @@
-#include "libgcm/mesh/tetr/Msh2MeshLoader.h"
+#include "libgcm/mesh/tetr/Msh2MeshLoader.hpp"
 
-#include "libgcm/util/formats/MshTetrFileReader.h"
+#include "libgcm/util/formats/MshTetrFileReader.hpp"
 
 string gcm::Msh2MeshLoader::getType(){
     return "msh2";

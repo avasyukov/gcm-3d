@@ -1,6 +1,6 @@
-#include "libgcm/mesh/tetr/TetrMeshSecondOrder.h"
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
 
-#include "libgcm/node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 gcm::TetrMeshSecondOrder::TetrMeshSecondOrder()
 {

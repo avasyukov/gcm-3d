@@ -1,4 +1,4 @@
-#include "libgcm/util/RheologyMatrix3D.h"
+#include "libgcm/util/RheologyMatrix3D.hpp"
 
 gcm::RheologyMatrix3D::~RheologyMatrix3D()
 {

@@ -1,4 +1,4 @@
-#include "libgcm/mesh/tetr/Geo2MeshLoader.h"
+#include "libgcm/mesh/tetr/Geo2MeshLoader.hpp"
 
 bool gcm::Geo2MeshLoader::isMshFileCreated(string fileName)
 {

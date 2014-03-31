@@ -4,9 +4,9 @@
  *
  * Created on May 3, 2013, 12:13 AM
  */
-#include "libgcm/interpolator/TetrSecondOrderMinMaxInterpolator.h"
+#include "libgcm/interpolator/TetrSecondOrderMinMaxInterpolator.hpp"
 
-#include "libgcm/node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 gcm::TetrSecondOrderMinMaxInterpolator::TetrSecondOrderMinMaxInterpolator()
 {

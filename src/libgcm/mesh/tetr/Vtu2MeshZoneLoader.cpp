@@ -1,4 +1,4 @@
-#include "libgcm/mesh/tetr/Vtu2MeshZoneLoader.h"
+#include "libgcm/mesh/tetr/Vtu2MeshZoneLoader.hpp"
 
 string gcm::Vtu2MeshZoneLoader::getType(){
     return "vtu2zone";

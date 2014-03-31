@@ -4,7 +4,7 @@
  *
  * Created on May 3, 2013, 11:07 AM
  */
-#include "libgcm/elem/TriangleFirstOrder.h"
+#include "libgcm/elem/TriangleFirstOrder.hpp"
 
 gcm::TriangleFirstOrder::TriangleFirstOrder() {
     number = -1;

@@ -1,6 +1,6 @@
-#include "libgcm/mesh/Mesh.h"
+#include "libgcm/mesh/Mesh.hpp"
 
-#include "libgcm/node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 gcm::Mesh::Mesh()
 {

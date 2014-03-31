@@ -1,4 +1,4 @@
-#include "libgcm/util/matrixes.h"
+#include "libgcm/util/matrixes.hpp"
 
 gcm::gcm_matrix::gcm_matrix() {
     INIT_LOGGER("gcm.matrixes");
