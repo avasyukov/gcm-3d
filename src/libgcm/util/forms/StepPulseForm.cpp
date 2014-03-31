@@ -1,4 +1,4 @@
-#include "util/forms/StepPulseForm.h"
+#include "libgcm/util/forms/StepPulseForm.h"
 
 float StepPulseForm::calcMagnitudeNorm( float time, float coords[3], Area* area )
 {

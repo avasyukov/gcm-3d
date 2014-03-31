@@ -1,4 +1,4 @@
-#include "rheology/RheologyCalculator.h"
+#include "libgcm/rheology/RheologyCalculator.h"
 
 gcm::RheologyCalculator::~RheologyCalculator() {
 

@@ -4,11 +4,11 @@
 #include <map>
 #include <string>
 
-#include "mesh/MeshLoader.h"
-#include "mesh/cube/BasicCubicMesh.h"
-#include "Exception.h"
-#include "Utils.h"
-#include "Logging.h"
+#include "libgcm/mesh/MeshLoader.h"
+#include "libgcm/mesh/cube/BasicCubicMesh.h"
+#include "libgcm/Exception.h"
+#include "libgcm/Utils.h"
+#include "libgcm/Logging.h"
 
 using namespace gcm;
 using namespace std;

@@ -1,6 +1,6 @@
-#include "calc/border/FixedBorderCalculator.h"
+#include "libgcm/calc/border/FixedBorderCalculator.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 FixedBorderCalculator::FixedBorderCalculator()
 {

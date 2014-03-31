@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "util/Types.h"
-//#include "util/RheologyMatrix3D.h"
+#include "libgcm/util/Types.h"
+//#include "libgcm/util/RheologyMatrix3D.h"
 
 using namespace std;
 

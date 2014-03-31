@@ -12,7 +12,7 @@
 #include <fstream>
 #include <limits>
 
-#include "Logging.h"
+#include "libgcm/Logging.h"
 
 using namespace std;
 

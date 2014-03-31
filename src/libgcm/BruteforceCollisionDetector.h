@@ -1,8 +1,8 @@
 #ifndef _GCM_Bruteforce_COLLISION_DETECTOR
 #define _GCM_Bruteforce_COLLISION_DETECTOR 1
 
-#include "CollisionDetector.h"
-#include "Math.h"
+#include "libgcm/CollisionDetector.h"
+#include "libgcm/Math.h"
 
 using namespace std;
 

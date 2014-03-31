@@ -3,9 +3,9 @@
 
 #include <vector>
 
-#include "mesh/Mesh.h"
-#include "node/CalcNode.h"
-#include "node/Node.h"
+#include "libgcm/mesh/Mesh.h"
+#include "libgcm/node/CalcNode.h"
+#include "libgcm/node/Node.h"
 
 using namespace std;
 

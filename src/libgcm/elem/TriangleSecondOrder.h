@@ -1,7 +1,7 @@
 #ifndef GCM_TRIANGLE_SECOND_ORDER_H_
 #define GCM_TRIANGLE_SECOND_ORDER_H_
 
-#include "elem/TriangleFirstOrder.h"
+#include "libgcm/elem/TriangleFirstOrder.h"
 
 namespace gcm {
     /*

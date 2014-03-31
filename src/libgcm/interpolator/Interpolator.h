@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "Math.h"
-#include "Logging.h"
+#include "libgcm/Math.h"
+#include "libgcm/Logging.h"
 
 using namespace std;
 using namespace gcm;

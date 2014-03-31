@@ -1,7 +1,7 @@
 #ifndef IMMUTABLE_RHEOLOGY_MATRIX_3D_H
 #define IMMUTABLE_RHEOLOGY_MATRIX_3D_H
 
-#include "util/RheologyMatrix3D.h"
+#include "libgcm/util/RheologyMatrix3D.h"
 
 namespace gcm {
     class ImmutableRheologyMatrix3D: public RheologyMatrix3D {

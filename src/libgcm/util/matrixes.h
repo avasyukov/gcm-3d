@@ -12,9 +12,9 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_vector.h>
 
-#include "Math.h"
-#include "Exception.h"
-#include "Logging.h"
+#include "libgcm/Math.h"
+#include "libgcm/Exception.h"
+#include "libgcm/Logging.h"
 
 #define GCM_MATRIX_SIZE 9
 

@@ -1,11 +1,11 @@
 #ifndef GCM_TETR_MESH_SECOND_ORDER_H_
 #define GCM_TETR_MESH_SECOND_ORDER_H_
 
-#include "mesh/tetr/TetrMeshFirstOrder.h"
-#include "elem/TetrSecondOrder.h"
-#include "elem/TriangleSecondOrder.h"
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.h"
+#include "libgcm/elem/TetrSecondOrder.h"
+#include "libgcm/elem/TriangleSecondOrder.h"
 
-#include "interpolator/TetrSecondOrderMinMaxInterpolator.h"
+#include "libgcm/interpolator/TetrSecondOrderMinMaxInterpolator.h"
 
 using namespace std;
 using namespace gcm;

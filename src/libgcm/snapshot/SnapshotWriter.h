@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "mesh/Mesh.h"
-#include "Utils.h"
+#include "libgcm/mesh/Mesh.h"
+#include "libgcm/Utils.h"
 
 using namespace std;
 

@@ -1,7 +1,7 @@
-#include "BorderCondition.h"
+#include "libgcm/BorderCondition.h"
 
-#include "util/forms/PulseForm.h"
-#include "node/CalcNode.h"
+#include "libgcm/util/forms/PulseForm.h"
+#include "libgcm/node/CalcNode.h"
 
 gcm::BorderCondition::BorderCondition() {
     area = NULL;

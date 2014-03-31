@@ -8,11 +8,11 @@
 #ifndef ANISOTROPICELASTICMATERIAL_H
 #define    ANISOTROPICELASTICMATERIAL_H
 
-#include "materials/IAnisotropicElasticMaterial.h"
-#include "materials/Material.h"
-#include "node/CalcNode.h"
-#include "util/AnisotropicMatrix3D.h"
-#include "util/Types.h"
+#include "libgcm/materials/IAnisotropicElasticMaterial.h"
+#include "libgcm/materials/Material.h"
+#include "libgcm/node/CalcNode.h"
+#include "libgcm/util/AnisotropicMatrix3D.h"
+#include "libgcm/util/Types.h"
 
 
 using namespace std;

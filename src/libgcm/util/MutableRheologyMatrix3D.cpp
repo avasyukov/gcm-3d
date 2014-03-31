@@ -1,4 +1,4 @@
-#include "MutableRheologyMatrix3D.h"
+#include "libgcm/util/MutableRheologyMatrix3D.h"
 
 gcm::MutableRheologyMatrix3D::MutableRheologyMatrix3D()
 {

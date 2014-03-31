@@ -1,6 +1,6 @@
-#include "calc/border/ExternalVelocityCalculator.h"
+#include "libgcm/calc/border/ExternalVelocityCalculator.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 ExternalVelocityCalculator::ExternalVelocityCalculator()
 {

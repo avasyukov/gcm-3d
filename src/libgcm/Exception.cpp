@@ -1,4 +1,4 @@
-#include "Exception.h"
+#include "libgcm/Exception.h"
 
 std::string gcm::Exception::demangle(const char* symbol) {
   size_t size;

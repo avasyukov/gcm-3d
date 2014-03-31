@@ -3,11 +3,11 @@
 
 #include <assert.h>
 
-#include "materials/IAnisotropicElasticMaterial.h"
-#include "util/MutableRheologyMatrix3D.h"
-#include "util/matrixes.h"
-#include "util/ThirdDegreePolynomial.h"
-#include "Exception.h"
+#include "libgcm/materials/IAnisotropicElasticMaterial.h"
+#include "libgcm/util/MutableRheologyMatrix3D.h"
+#include "libgcm/util/matrixes.h"
+#include "libgcm/util/ThirdDegreePolynomial.h"
+#include "libgcm/Exception.h"
 #include <iomanip>
 
 using namespace gcm;

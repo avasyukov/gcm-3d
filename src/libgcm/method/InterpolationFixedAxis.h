@@ -1,16 +1,16 @@
 #ifndef GCM_INTERPOLATION_FIXED_AXIS_H
 #define    GCM_INTERPOLATION_FIXED_AXIS_H
 
-#include "mesh/tetr/TetrMeshFirstOrder.h"
-#include "mesh/tetr/TetrMeshSecondOrder.h"
-#include "method/NumericalMethod.h"
-#include "mesh/Mesh.h"
-#include "util/AnisotropicMatrix3D.h"
-#include "util/ElasticMatrix3D.h"
-#include "util/Types.h"
-#include "node/CalcNode.h"
-#include "Logging.h"
-#include "Exception.h"
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.h"
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.h"
+#include "libgcm/method/NumericalMethod.h"
+#include "libgcm/mesh/Mesh.h"
+#include "libgcm/util/AnisotropicMatrix3D.h"
+#include "libgcm/util/ElasticMatrix3D.h"
+#include "libgcm/util/Types.h"
+#include "libgcm/node/CalcNode.h"
+#include "libgcm/Logging.h"
+#include "libgcm/Exception.h"
 
 
 namespace gcm

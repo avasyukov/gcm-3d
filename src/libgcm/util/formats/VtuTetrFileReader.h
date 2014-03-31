@@ -14,8 +14,8 @@
 #include <vtkIntArray.h>
 #include <vtkPointData.h>
 
-#include "mesh/tetr/TetrMeshFirstOrder.h"
-#include "Logging.h"
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.h"
+#include "libgcm/Logging.h"
 
 using namespace std;
 

@@ -3,8 +3,8 @@
 
 #include <string.h>
 
-#include "util/areas/Area.h"
-#include "calc/border/BorderCalculator.h"
+#include "libgcm/util/areas/Area.h"
+#include "libgcm/calc/border/BorderCalculator.h"
 
 namespace gcm {
     class PulseForm;

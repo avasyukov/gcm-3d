@@ -6,15 +6,15 @@
 
 #include <gsl/gsl_linalg.h>
 
-#include "mesh/tetr/TetrMesh.h"
-#include "elem/TetrFirstOrder.h"
-#include "elem/TriangleFirstOrder.h"
-#include "util/AABB.h"
-#include "method/NumericalMethod.h"
-#include "Logging.h"
-#include "Exception.h"
-#include "Math.h"
-#include "interpolator/TetrFirstOrderInterpolator.h"
+#include "libgcm/mesh/tetr/TetrMesh.h"
+#include "libgcm/elem/TetrFirstOrder.h"
+#include "libgcm/elem/TriangleFirstOrder.h"
+#include "libgcm/util/AABB.h"
+#include "libgcm/method/NumericalMethod.h"
+#include "libgcm/Logging.h"
+#include "libgcm/Exception.h"
+#include "libgcm/Math.h"
+#include "libgcm/interpolator/TetrFirstOrderInterpolator.h"
 
 using namespace gcm;
 using namespace std;

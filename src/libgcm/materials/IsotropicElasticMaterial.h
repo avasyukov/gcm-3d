@@ -8,8 +8,8 @@
 #ifndef ELASTICMATERIAL_H
 #define    ELASTICMATERIAL_H
 
-#include "materials/Material.h"
-#include "util/ElasticMatrix3D.h"
+#include "libgcm/materials/Material.h"
+#include "libgcm/util/ElasticMatrix3D.h"
 
 namespace gcm
 {

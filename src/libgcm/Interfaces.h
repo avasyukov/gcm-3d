@@ -5,7 +5,7 @@
 
 #include <mpi.h>
 
-#include "Utils.h"
+#include "libgcm/Utils.h"
 
 namespace gcm {
     class Area;

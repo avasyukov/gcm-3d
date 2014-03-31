@@ -1,12 +1,12 @@
 #ifndef MARKERED_BOX_MESH_LOADER_H_
 #define MARKERED_BOX_MESH_LOADER_H_
 
-#include "mesh/MeshLoader.h"
+#include "libgcm/mesh/MeshLoader.h"
 
 #include <string>
 
-#include "mesh/markers/MarkeredMesh.h"
-#include "mesh/Mesh.h"
+#include "libgcm/mesh/markers/MarkeredMesh.h"
+#include "libgcm/mesh/Mesh.h"
 
 using namespace std;
 

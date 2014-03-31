@@ -1,6 +1,6 @@
-#include "calc/border/SmoothBorderCalculator.h"
+#include "libgcm/calc/border/SmoothBorderCalculator.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 SmoothBorderCalculator::SmoothBorderCalculator()
 {

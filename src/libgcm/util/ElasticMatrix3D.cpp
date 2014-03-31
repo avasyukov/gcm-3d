@@ -1,6 +1,6 @@
-#include "util/ElasticMatrix3D.h"
-#include "materials/IsotropicElasticMaterial.h"
-#include "node/CalcNode.h"
+#include "libgcm/util/ElasticMatrix3D.h"
+#include "libgcm/materials/IsotropicElasticMaterial.h"
+#include "libgcm/node/CalcNode.h"
 
 void gcm::ElasticMatrix3D::initializeAx(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {

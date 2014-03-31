@@ -1,6 +1,6 @@
-#include "rheology/DummyRheologyCalculator.h"
+#include "libgcm/rheology/DummyRheologyCalculator.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 gcm::DummyRheologyCalculator::DummyRheologyCalculator() {
     INIT_LOGGER("gcm.DummyRheologyCalculator");

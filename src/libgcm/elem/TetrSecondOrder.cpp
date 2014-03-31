@@ -1,4 +1,4 @@
-#include "elem/TetrSecondOrder.h"
+#include "libgcm/elem/TetrSecondOrder.h"
 
 gcm::TetrSecondOrder::TetrSecondOrder() {
     for( int j = 0; j < 6; j++ )

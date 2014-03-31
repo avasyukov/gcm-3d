@@ -1,4 +1,4 @@
-#include "util/areas/SphereArea.h"
+#include "libgcm/util/areas/SphereArea.h"
 
 SphereArea::SphereArea( float _radius, float x, float y, float z )
 {

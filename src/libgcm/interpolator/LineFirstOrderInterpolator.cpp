@@ -1,6 +1,6 @@
-#include "interpolator/LineFirstOrderInterpolator.h"
+#include "libgcm/interpolator/LineFirstOrderInterpolator.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 gcm::LineFirstOrderInterpolator::LineFirstOrderInterpolator()
 {

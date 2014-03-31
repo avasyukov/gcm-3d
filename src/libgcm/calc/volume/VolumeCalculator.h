@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "util/RheologyMatrix3D.h"
+#include "libgcm/util/RheologyMatrix3D.h"
 
 using namespace std;
 

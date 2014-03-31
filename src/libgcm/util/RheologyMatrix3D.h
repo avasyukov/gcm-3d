@@ -4,10 +4,10 @@
 #include <initializer_list>
 #include <assert.h>
 
-#include "node/ICalcNode.h"
-#include "util/matrixes.h"
-#include "Exception.h"
-#include "Types.h"
+#include "libgcm/node/ICalcNode.h"
+#include "libgcm/util/matrixes.h"
+#include "libgcm/Exception.h"
+#include "libgcm/util/Types.h"
 
 using namespace std;
 

@@ -4,15 +4,15 @@
 #include <map>
 #include <string>
 
-#include "mesh/tetr/TetrMeshSecondOrder.h"
-#include "util/formats/MshTetrFileReader.h"
-#include "util/formats/Vtu2TetrFileReader.h"
-#include "util/Singleton.h"
-#include "snapshot/VTK2SnapshotWriter.h"
-#include "Exception.h"
-#include "Utils.h"
-#include "Logging.h"
-#include "DummyDispatcher.h"
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.h"
+#include "libgcm/util/formats/MshTetrFileReader.h"
+#include "libgcm/util/formats/Vtu2TetrFileReader.h"
+#include "libgcm/util/Singleton.h"
+#include "libgcm/snapshot/VTK2SnapshotWriter.h"
+#include "libgcm/Exception.h"
+#include "libgcm/Utils.h"
+#include "libgcm/Logging.h"
+#include "libgcm/DummyDispatcher.h"
 
 
 

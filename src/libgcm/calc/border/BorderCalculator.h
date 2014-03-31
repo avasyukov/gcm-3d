@@ -11,8 +11,8 @@
 #include <string>
 #include <vector>
 
-#include "util/RheologyMatrix3D.h"
-#include "Logging.h"
+#include "libgcm/util/RheologyMatrix3D.h"
+#include "libgcm/Logging.h"
 
 using namespace std;
 

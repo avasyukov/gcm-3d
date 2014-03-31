@@ -1,7 +1,7 @@
 #ifndef GCM_TRIANGLE_H_
 #define GCM_TRIANGLE_H_
 
-#include "elem/TetrFirstOrder.h"
+#include "libgcm/elem/TetrFirstOrder.h"
 
 namespace gcm {
     /*

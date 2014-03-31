@@ -3,9 +3,9 @@
 
 #include <gsl/gsl_linalg.h>
 
-#include "calc/contact/ContactCalculator.h"
-#include "calc/contact/AdhesionContactCalculator.h"
-#include "calc/contact/SlidingContactCalculator.h"
+#include "libgcm/calc/contact/ContactCalculator.h"
+#include "libgcm/calc/contact/AdhesionContactCalculator.h"
+#include "libgcm/calc/contact/SlidingContactCalculator.h"
 
 
 class AdhesionContactDestroyCalculator : public ContactCalculator

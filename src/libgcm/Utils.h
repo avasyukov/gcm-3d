@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "Exception.h"
+#include "libgcm/Exception.h"
 
 using namespace std;
 

@@ -4,9 +4,9 @@
 #include <vector>
 #include <string>
 
-#include "mesh/Mesh.h"
-#include "Logging.h"
-#include "Utils.h"
+#include "libgcm/mesh/Mesh.h"
+#include "libgcm/Logging.h"
+#include "libgcm/Utils.h"
 
 using namespace std;
 using namespace gcm;

@@ -1,9 +1,9 @@
 #ifndef ICALC_NODE_H_
 #define ICALC_NODE_H_
 
-//#include "materials/Material.h"
-#include "node/Node.h"
-#include "util/Types.h"
+//#include "libgcm/materials/Material.h"
+#include "libgcm/node/Node.h"
+#include "libgcm/util/Types.h"
 
 #define GCM_VALUES_SIZE 9
 using namespace std;

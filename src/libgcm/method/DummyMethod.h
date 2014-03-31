@@ -1,7 +1,7 @@
 #ifndef GCM_DUMMY_METHOD_H
 #define    GCM_DUMMY_METHOD_H
 
-#include "method/NumericalMethod.h"
+#include "libgcm/method/NumericalMethod.h"
 
 namespace gcm {
     /*

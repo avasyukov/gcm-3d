@@ -1,9 +1,9 @@
 #ifndef _GCM_CONTACT_CONDITION_H
 #define _GCM_CONTACT_CONDITION_H 1
 
-#include "util/areas/Area.h"
-#include "util/forms/PulseForm.h"
-#include "calc/contact/ContactCalculator.h"
+#include "libgcm/util/areas/Area.h"
+#include "libgcm/util/forms/PulseForm.h"
+#include "libgcm/calc/contact/ContactCalculator.h"
 
 namespace gcm {
     class PulseForm;

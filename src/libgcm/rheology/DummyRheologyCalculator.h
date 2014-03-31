@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "rheology/RheologyCalculator.h"
-#include "Logging.h"
+#include "libgcm/rheology/RheologyCalculator.h"
+#include "libgcm/Logging.h"
 
 using namespace std;
 

@@ -1,4 +1,4 @@
-#include "snapshot/SnapshotWriter.h"
+#include "libgcm/snapshot/SnapshotWriter.h"
 
 gcm::SnapshotWriter::~SnapshotWriter() {
 

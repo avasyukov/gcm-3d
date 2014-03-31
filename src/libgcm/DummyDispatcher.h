@@ -3,8 +3,8 @@
 
 #include <stdexcept>
 
-#include "Interfaces.h"
-#include "GCMDispatcher.h"
+#include "libgcm/Interfaces.h"
+#include "libgcm/GCMDispatcher.h"
 
 using namespace std;
 using namespace gcm;

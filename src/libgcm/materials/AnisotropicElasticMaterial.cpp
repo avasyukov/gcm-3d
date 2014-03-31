@@ -1,4 +1,4 @@
-#include "AnisotropicElasticMaterial.h"
+#include "libgcm/materials/AnisotropicElasticMaterial.h"
 
 #include <cassert>
 

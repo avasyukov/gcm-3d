@@ -1,6 +1,6 @@
-#include "calc/contact/AdhesionContactDestroyCalculator.h"
+#include "libgcm/calc/contact/AdhesionContactDestroyCalculator.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 AdhesionContactDestroyCalculator::AdhesionContactDestroyCalculator()
 {

@@ -1,12 +1,12 @@
 #ifndef GCM_BASIC_CUBIC_MESH_H_
 #define GCM_BASIC_CUBIC_MESH_H_
 
-#include "mesh/Mesh.h"
-#include "Math.h"
-#include "Logging.h"
-#include "Exception.h"
+#include "libgcm/mesh/Mesh.h"
+#include "libgcm/Math.h"
+#include "libgcm/Logging.h"
+#include "libgcm/Exception.h"
 
-#include "interpolator/LineFirstOrderInterpolator.h"
+#include "libgcm/interpolator/LineFirstOrderInterpolator.h"
 
 using namespace gcm;
 

@@ -10,10 +10,10 @@
 #include <gsl/gsl_complex.h>
 #include <gsl/gsl_complex_math.h>
 
-#include "util/matrixes.h"
-#include "util/ImmutableRheologyMatrix3D.h"
-#include "materials/IAnisotropicElasticMaterial.h"
-#include "Exception.h"
+#include "libgcm/util/matrixes.h"
+#include "libgcm/util/ImmutableRheologyMatrix3D.h"
+#include "libgcm/materials/IAnisotropicElasticMaterial.h"
+#include "libgcm/Exception.h"
 
 using namespace gcm;
 

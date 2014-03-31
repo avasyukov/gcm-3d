@@ -3,8 +3,8 @@
 
 #include <assert.h>
 
-#include "node/Node.h"
-#include "Math.h"
+#include "libgcm/node/Node.h"
+#include "libgcm/Math.h"
 
 namespace gcm {
     class AABB {

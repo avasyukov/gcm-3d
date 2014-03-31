@@ -1,6 +1,6 @@
-#include "calc/contact/SlidingContactCalculator.h"
+#include "libgcm/calc/contact/SlidingContactCalculator.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 SlidingContactCalculator::SlidingContactCalculator()
 {

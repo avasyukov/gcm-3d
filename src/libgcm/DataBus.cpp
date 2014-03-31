@@ -1,8 +1,8 @@
-#include "DataBus.h"
+#include "libgcm/DataBus.h"
 
-#include "mesh/tetr/TetrMeshSecondOrder.h"
-#include "node/CalcNode.h"
-#include "Body.h"
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.h"
+#include "libgcm/node/CalcNode.h"
+#include "libgcm/Body.h"
 
 #define BARRIER(name) \
 do { \

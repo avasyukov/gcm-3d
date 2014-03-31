@@ -3,7 +3,7 @@
 
 #include "launcher/util/xml.h"
 
-#include "Body.h"
+#include "libgcm/Body.h"
 
 using namespace gcm;
 

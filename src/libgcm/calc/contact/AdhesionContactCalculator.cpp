@@ -1,6 +1,6 @@
-#include "calc/contact/AdhesionContactCalculator.h"
+#include "libgcm/calc/contact/AdhesionContactCalculator.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 AdhesionContactCalculator::AdhesionContactCalculator()
 {

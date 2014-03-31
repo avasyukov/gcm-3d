@@ -164,7 +164,6 @@ def configure(conf):
     conf.env.LINKFLAGS += ['-lpthread', '-lrt']
 
     conf.env.INCLUDES += [conf.path.find_dir('src').abspath()]
-    conf.env.INCLUDES += [conf.path.find_dir('src/libgcm').abspath()]
 
     conf.env.CXXFLAGS += ['-DCONFIG_PREFIX="%s"' % conf.options.prefix]
     if conf.env.with_resources:
@@ -227,9 +226,7 @@ def build(bld):
 
     bld.load(bld.env.LIBS, tooldir='waftools')
 
-    libs = [l.upper() for l in bld.env.LIBS]
-
-    src_dir = bld.path.find_dir('src/libgcm')
+    libs = [l.upper() for l in bld.env.LIBS] 
 
     if bld.env.static:
         lib_type = 'cxxstlib'
@@ -325,7 +322,7 @@ def build(bld):
         bld.install_files(
             '${PREFIX}/include/%s-%s/%s' % (APPNAME, VERSION, APPNAME),
             bld.path.ant_glob('**/*.h'),
-            cwd=src_dir,
+            cwd=bld.path.find_dir('src/libgcm'),
             relative_trick=True
         )
 

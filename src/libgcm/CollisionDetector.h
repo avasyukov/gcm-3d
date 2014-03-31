@@ -4,10 +4,10 @@
 #include <vector>
 #include <string>
 
-#include "util/AABB.h"
-#include "elem/TriangleFirstOrder.h"
-#include "mesh/tetr/TetrMeshSecondOrder.h"
-#include "Logging.h"
+#include "libgcm/util/AABB.h"
+#include "libgcm/elem/TriangleFirstOrder.h"
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.h"
+#include "libgcm/Logging.h"
 
 using namespace std;
 

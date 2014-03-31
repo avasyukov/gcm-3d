@@ -1,8 +1,8 @@
 #ifndef THIRDDEGREEPOLYNOMIAL_H
 #define    THIRDDEGREEPOLYNOMIAL_H 1
 
-#include "util/AnisotropicMatrix3DAnalytical.h"
-#include "materials/IAnisotropicElasticMaterial.h"
+#include "libgcm/util/AnisotropicMatrix3DAnalytical.h"
+#include "libgcm/materials/IAnisotropicElasticMaterial.h"
 
 namespace gcm {
     class ThirdDegreePolynomial

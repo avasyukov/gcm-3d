@@ -1,6 +1,6 @@
-#include "mesh/markers/MarkeredBoxMeshGenerator.h"
+#include "libgcm/mesh/markers/MarkeredBoxMeshGenerator.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 const string gcm::MarkeredBoxMeshGenerator::PARAM_MESH_EDGE = "meshEdge";
 const string gcm::MarkeredBoxMeshGenerator::PARAM_CUBE_EDGE = "cubeEdge";

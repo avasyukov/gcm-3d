@@ -1,9 +1,9 @@
-#include "mesh/tetr/TetrMeshFirstOrder.h"
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.h"
 
 #include <unordered_map>
 
-#include "node/CalcNode.h"
-#include "materials/IsotropicElasticMaterial.h"
+#include "libgcm/node/CalcNode.h"
+#include "libgcm/materials/IsotropicElasticMaterial.h"
 
 gcm::TetrMeshFirstOrder::TetrMeshFirstOrder()
 {

@@ -3,7 +3,7 @@
 
 #include <gsl/gsl_linalg.h>
 
-#include "calc/border/BorderCalculator.h"
+#include "libgcm/calc/border/BorderCalculator.h"
 
 
 class ExternalValuesCalculator : public BorderCalculator

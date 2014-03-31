@@ -4,7 +4,7 @@
  *
  * Created on May 3, 2013, 12:00 AM
  */
-#include "method/InterpolationFixedAxis.h"
+#include "libgcm/method/InterpolationFixedAxis.h"
 
 string gcm::InterpolationFixedAxis::getType()
 {

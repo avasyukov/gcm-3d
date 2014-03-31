@@ -3,11 +3,11 @@
 
 #include <string>
 
-#include "snapshot/SnapshotWriter.h"
-#include "mesh/markers/MarkeredMesh.h"
-#include "node/CalcNode.h"
-#include "Logging.h"
-#include "Utils.h"
+#include "libgcm/snapshot/SnapshotWriter.h"
+#include "libgcm/mesh/markers/MarkeredMesh.h"
+#include "libgcm/node/CalcNode.h"
+#include "libgcm/Logging.h"
+#include "libgcm/Utils.h"
 
 #include <vtkstd/string>
 #include <vtkStructuredGrid.h>

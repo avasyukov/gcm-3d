@@ -1,9 +1,9 @@
 #ifndef GCM_DATABUS_H
 #define    GCM_DATABUS_H
 
-#include "Interfaces.h"
-#include "GCMDispatcher.h"
-#include "Logging.h"
+#include "libgcm/Interfaces.h"
+#include "libgcm/GCMDispatcher.h"
+#include "libgcm/Logging.h"
 
 using namespace std;
 using namespace gcm;

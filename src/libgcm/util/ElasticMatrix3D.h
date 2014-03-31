@@ -3,9 +3,9 @@
 
 #include <assert.h>
 
-#include "util/matrixes.h"
-#include "util/ImmutableRheologyMatrix3D.h"
-#include "Exception.h"
+#include "libgcm/util/matrixes.h"
+#include "libgcm/util/ImmutableRheologyMatrix3D.h"
+#include "libgcm/Exception.h"
 
 using namespace gcm;
 using namespace std;

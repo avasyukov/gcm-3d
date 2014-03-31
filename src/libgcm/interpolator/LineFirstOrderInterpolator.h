@@ -3,9 +3,9 @@
 
 #include <string>
 
-#include "Math.h"
-#include "Logging.h"
-#include "interpolator/TetrInterpolator.h"
+#include "libgcm/Math.h"
+#include "libgcm/Logging.h"
+#include "libgcm/interpolator/TetrInterpolator.h"
 
 using namespace std;
 using namespace gcm;

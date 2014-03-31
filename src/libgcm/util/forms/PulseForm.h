@@ -1,8 +1,8 @@
 #ifndef _GCM_PULSE_FORM_H
 #define _GCM_PULSE_FORM_H 1
 
-#include "util/areas/Area.h"
-#include "Exception.h"
+#include "libgcm/util/areas/Area.h"
+#include "libgcm/Exception.h"
 
 namespace gcm
 {

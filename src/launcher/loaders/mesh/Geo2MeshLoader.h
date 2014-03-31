@@ -3,11 +3,11 @@
 
 #include <string>
 
-#include "GCMDispatcher.h"
-#include "util/AABB.h"
-#include "util/Singleton.h"
-#include "mesh/tetr/TetrMeshSecondOrder.h"
-#include "mesh/tetr/Geo2MeshLoader.h"
+#include "libgcm/GCMDispatcher.h"
+#include "libgcm/util/AABB.h"
+#include "libgcm/util/Singleton.h"
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.h"
+#include "libgcm/mesh/tetr/Geo2MeshLoader.h"
 
 #include "launcher/util/xml.h"
 

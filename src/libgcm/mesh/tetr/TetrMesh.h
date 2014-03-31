@@ -1,9 +1,9 @@
 #ifndef GCM_TETR_MESH_H_
 #define GCM_TETR_MESH_H_
 
-#include "mesh/Mesh.h"
-#include "elem/TetrFirstOrder.h"
-#include "elem/TriangleFirstOrder.h"
+#include "libgcm/mesh/Mesh.h"
+#include "libgcm/elem/TetrFirstOrder.h"
+#include "libgcm/elem/TriangleFirstOrder.h"
 
 using namespace gcm;
 

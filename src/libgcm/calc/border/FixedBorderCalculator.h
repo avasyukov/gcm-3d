@@ -1,7 +1,7 @@
 #ifndef _GCM_FIXED_BORDER_CALCULATOR_H
 #define _GCM_FIXED_BORDER_CALCULATOR_H  1
 
-#include "BorderCalculator.h"
+#include "libgcm/calc/border/BorderCalculator.h"
 #include <gsl/gsl_linalg.h>
 
 class FixedBorderCalculator : public BorderCalculator

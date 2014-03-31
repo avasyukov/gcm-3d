@@ -6,9 +6,9 @@
 #include <iostream>
 #include <string>
 
-#include "node/Node.h"
-#include "util/Types.h"
-#include "Engine.h"
+#include "libgcm/node/Node.h"
+#include "libgcm/util/Types.h"
+#include "libgcm/Engine.h"
 
 #define GCM_VALUES_SIZE 9
 using namespace std;

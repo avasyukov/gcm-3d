@@ -1,4 +1,4 @@
-#include "interpolator/TetrInterpolator.h"
+#include "libgcm/interpolator/TetrInterpolator.h"
 
 gcm::TetrInterpolator::TetrInterpolator() {
     type = "Interpolator";

@@ -3,9 +3,9 @@
 
 #include <gsl/gsl_linalg.h>
 
-#include "calc/contact/ContactCalculator.h"
-#include "calc/border/FreeBorderCalculator.h"
-#include "Math.h"
+#include "libgcm/calc/contact/ContactCalculator.h"
+#include "libgcm/calc/border/FreeBorderCalculator.h"
+#include "libgcm/Math.h"
 
 
 class SlidingContactCalculator : public ContactCalculator

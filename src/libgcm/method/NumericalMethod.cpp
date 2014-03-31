@@ -4,9 +4,9 @@
  *
  * Created on April 30, 2013, 8:18 PM
  */
-#include "method/NumericalMethod.h"
+#include "libgcm/method/NumericalMethod.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 gcm::NumericalMethod::NumericalMethod() {
     spaceOrder = 1;

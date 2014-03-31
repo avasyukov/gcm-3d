@@ -13,13 +13,13 @@
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 
-#include "snapshot/SnapshotWriter.h"
-#include "mesh/tetr/TetrMeshFirstOrder.h"
-#include "mesh/tetr/TetrMeshSecondOrder.h"
-#include "node/CalcNode.h"
-#include "elem/TetrFirstOrder.h"
-#include "Logging.h"
-#include "Utils.h"
+#include "libgcm/snapshot/SnapshotWriter.h"
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.h"
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.h"
+#include "libgcm/node/CalcNode.h"
+#include "libgcm/elem/TetrFirstOrder.h"
+#include "libgcm/Logging.h"
+#include "libgcm/Utils.h"
 
 namespace gcm {
     class VTKSnapshotWriter : public SnapshotWriter {

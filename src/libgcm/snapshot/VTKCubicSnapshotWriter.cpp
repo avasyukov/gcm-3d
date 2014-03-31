@@ -1,4 +1,4 @@
-#include "snapshot/VTKCubicSnapshotWriter.h"
+#include "libgcm/snapshot/VTKCubicSnapshotWriter.h"
 
 gcm::VTKCubicSnapshotWriter::VTKCubicSnapshotWriter() {
     INIT_LOGGER("gcm.VTKCubicSnapshotWriter");

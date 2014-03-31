@@ -1,4 +1,4 @@
-#include "snapshot/VTKMarkeredMeshSnapshotWriter.h"
+#include "libgcm/snapshot/VTKMarkeredMeshSnapshotWriter.h"
 
 gcm::VTKMarkeredMeshSnapshotWriter::VTKMarkeredMeshSnapshotWriter() {
     INIT_LOGGER("gcm.VTKMarkeredMeshSnapshotWriter");

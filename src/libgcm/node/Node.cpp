@@ -1,4 +1,4 @@
-#include "node/Node.h"
+#include "libgcm/node/Node.h"
 
 gcm::Node::Node() : Node(-1)
 {

@@ -10,8 +10,8 @@
 
 #include <string>
 
-#include "Interfaces.h"
-#include "mesh/Mesh.h"
+#include "libgcm/Interfaces.h"
+#include "libgcm/mesh/Mesh.h"
 
 namespace gcm {
     class CalcNode;

@@ -3,7 +3,7 @@
 
 #include <gsl/gsl_linalg.h>
 
-#include "calc/contact/ContactCalculator.h"
+#include "libgcm/calc/contact/ContactCalculator.h"
 
 class AdhesionContactCalculator : public ContactCalculator
 {

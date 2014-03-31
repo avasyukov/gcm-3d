@@ -15,8 +15,8 @@
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 
-#include "mesh/tetr/TetrMeshSecondOrder.h"
-#include "Logging.h"
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.h"
+#include "libgcm/Logging.h"
 
 using namespace std;
 

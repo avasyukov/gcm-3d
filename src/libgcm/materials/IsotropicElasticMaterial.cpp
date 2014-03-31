@@ -1,5 +1,5 @@
-#include "IsotropicElasticMaterial.h"
-#include "util/RheologyMatrix3D.h"
+#include "libgcm/materials/IsotropicElasticMaterial.h"
+#include "libgcm/util/RheologyMatrix3D.h"
 
 gcm::IsotropicElasticMaterial::IsotropicElasticMaterial(string name, gcm_real rho, gcm_real crackThreshold, gcm_real la, gcm_real mu) : Material(name, rho, crackThreshold), la(la), mu(mu)
 {

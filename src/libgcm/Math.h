@@ -14,10 +14,10 @@
 #include <cmath>
 #include <limits>
 
-#include "util/Types.h"
-//#include "Math.h"
-#include "Exception.h"
-#include "Logging.h"
+#include "libgcm/util/Types.h"
+//#include "libgcm/Math.h"
+#include "libgcm/Exception.h"
+#include "libgcm/Logging.h"
 
 #define EQUALITY_TOLERANCE 0.00001
 

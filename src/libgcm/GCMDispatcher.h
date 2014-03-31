@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "util/AABB.h"
-#include "Logging.h"
+#include "libgcm/util/AABB.h"
+#include "libgcm/Logging.h"
 
 using namespace std;
 

@@ -1,6 +1,6 @@
-#include "mesh/cube/BasicCubicMesh.h"
+#include "libgcm/mesh/cube/BasicCubicMesh.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 gcm::BasicCubicMesh::BasicCubicMesh()
 {

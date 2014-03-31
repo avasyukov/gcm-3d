@@ -4,11 +4,11 @@
 #include <unordered_map>
 #include <string>
 
-#include "util/AABB.h"
-#include "util/RheologyMatrix3D.h"
-#include "util/areas/Area.h"
-#include "Interfaces.h"
-#include "node/Node.h"
+#include "libgcm/util/AABB.h"
+#include "libgcm/util/RheologyMatrix3D.h"
+#include "libgcm/util/areas/Area.h"
+#include "libgcm/Interfaces.h"
+#include "libgcm/node/Node.h"
 
 #define STORAGE_OVERCOMMIT_RATIO 1.0
 #define STORAGE_ONDEMAND_GROW_RATE 1.25

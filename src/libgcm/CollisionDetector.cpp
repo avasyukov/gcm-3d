@@ -1,6 +1,6 @@
-#include "CollisionDetector.h"
+#include "libgcm/CollisionDetector.h"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.h"
 
 gcm::CollisionDetector::CollisionDetector() {
     INIT_LOGGER("gcm.CollisionDetector");

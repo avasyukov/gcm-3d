@@ -1,7 +1,7 @@
 #ifndef _GCM_AREA_SPHERE_H
 #define _GCM_AREA_SPHERE_H 1
 
-#include "util/areas/Area.h"
+#include "libgcm/util/areas/Area.h"
 
 class SphereArea : public Area
 {
