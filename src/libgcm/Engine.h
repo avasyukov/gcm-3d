@@ -33,6 +33,7 @@
 #include "Logging.h"
 #include "Body.h"
 #include "Interfaces.h"
+#include "util/Singleton.h"
 #include "Utils.h"
 
 #define CONTACT_THRESHOLD_BY_AVG_H 0
@@ -49,19 +50,14 @@ namespace gcm
     /*
      * Main class to operate calculation scene.
      */
-    class Engine: public IEngine {
-
-        static Engine* engineInstance;
-
+    class Engine: public IEngine, public  Singleton<Engine>
+    {
+    friend class Singleton;
     protected:
         /*
          * File lookup service
          */
          FileFolderLookupService fls;
-        /*
-         * Engines counter.
-         */
-        static int enginesNumber;
         /*
          * Process rank in MPI communicator.
          */
@@ -154,11 +150,6 @@ namespace gcm
         ~Engine();
 
     public:
-        /*
-         * Returns singletone engine instance
-         */
-        static Engine& getInstance();
-        static void initInstance() { new Engine; }
         void clear();
         void cleanUp();
         /*

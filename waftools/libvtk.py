@@ -1,3 +1,5 @@
+import os
+
 def options(opt):
     opt.load('compiler_cxx')
 
@@ -11,15 +13,31 @@ def configure(conf):
 
     conf.env.INCLUDES_LIBVTK = [
         '/usr/include/vtk',
-        '/usr/include/vtk-5.8/'
     ]
 
     conf.env.LIBPATH_LIBVTK = [
         '/usr/lib',
         '/usr/lib64',
         '/usr/lib64/vtk',
-        '/usr/lib/vtk-5.8/'
     ]
+
+    include_path = '/usr/include'
+    for d in os.listdir(include_path):
+        full_path = include_path + '/' + d
+        if os.path.isdir(full_path):
+            if d.startswith('vtk-'):
+                conf.env.INCLUDES_LIBVTK += [full_path]
+    
+    lib_path = [
+        '/usr/lib64/',
+        '/usr/lib'
+    ]
+    for l in  lib_path:
+        for d in os.listdir(l):
+            full_path = l + '/' + d
+            if os.path.isdir(full_path):
+                if d.startswith('vtk-'):
+                    conf.env.LIBPATH_LIBVTK += [full_path]
 
     LIBS = [
         ['vtkCommon', 'vtkFiltering', 'vtkIO']

@@ -1,93 +1,148 @@
 import sys
 import os
+
+from waflib import ConfigSet
 from waflib.Build import BuildContext
+from waflib.Build import CleanContext
+from waflib.Build import InstallContext
+from waflib.Build import UninstallContext
 from waflib.Task import Task
 from waflib.Task import always_run
+from waflib.Configure import ConfigurationContext
+from waflib.Configure import conf
 
 
 VERSION = '0.1'
 APPNAME = 'gcm3d'
 
+out = 'build'
+env_file = os.path.join(out, 'current_env.txt')
+
+
+def init(ctx):
+    env = ConfigSet.ConfigSet()
+
+    try:
+        env.load(env_file)
+    except:
+        return
+    build_variant = env.variant
+
+    for c in (BuildContext, CleanContext, InstallContext, UninstallContext, ConfigurationContext):
+        c.variant = build_variant
+
 
 def options(opt):
     '''Sets gcm3d specific options'''
 
-    opt.add_option(
+    pcog = opt.add_option_group('Project components options')
+
+    pcog.add_option(
         '--without-launcher',
         action='store_true',
         default=False,
         help='Disable gcm3d launcher'
     )
 
-    opt.add_option(
+    pcog.add_option(
         '--without-logging',
         action='store_true',
         default=False,
         help='Disable libgcm logging routines'
     )
 
-    opt.add_option(
+    pcog.add_option(
         '--without-tests',
         action='store_true',
         default=False,
-        help='Do not execute tests'
+        help='Do not build tests'
     )
 
-    opt.add_option(
-        '--without-default-cxxflags',
+    pcog.add_option(
+        '--with-headers',
         action='store_true',
         default=False,
-        help='Disable default cxxflags'
+        help='Install header files'
     )
 
-    opt.add_option(
-        '--without-headers',
+    pcog.add_option(
+        '--with-resources',
         action='store_true',
         default=False,
-        help='Do not install header files'
+        help='Install resource files'
     )
 
-    opt.add_option(
-        '--without-resources',
-        action='store_true',
-        default=False,
-        help='Do not install resources files'
-    )
-    
-    opt.add_option(
+    pbog = opt.add_option_group('Project build options')
+
+    pbog.add_option(
         '--disable-auto-rpath',
         action='store_true',
         default=False,
         help='Do not adjust linker rpath automatically'
     )
 
-    opt.add_option(
+    pbog.add_option(
         '--static',
         action='store_true',
         default=False,
         help='Build static library instead of dynamic one'
     )
 
-    opt.load('compiler_cxx')
-    opt.load('utils', tooldir='waftools')
+    pbog.add_option(
+        '--debug-symbols',
+        action='store_true',
+        default=False,
+        help='Add debug symbols to binary'
+    )
 
+    pbog.add_option(
+        '--optimize',
+        action='store_true',
+        default=False,
+        help='Use compiler optimization flags'
+    )
+
+    pbog.add_option(
+        '--profile',
+        action='store_true',
+        default=False,
+        help='Add profiling support'
+    )
+
+    pbog.add_option(
+        '--coverage',
+        action='store_true',
+        default=False,
+        help='Add test coverage support'
+    )
+
+    opt.load('compiler_cxx')
+
+
+@conf
+def check_linux(conf):
+    if not sys.platform.startswith('linux'):
+        conf.fatal('Only Linux platform is supported at the moment')
 
 def configure(conf):
     '''Configures build environment'''
 
     def yes_no(b):
         return 'yes' if b else 'no'
-    
+
     conf.msg('Prefix', conf.options.prefix)
     conf.msg('Build static lib', yes_no(conf.options.static))
     conf.msg('Build launcher', yes_no(not conf.options.without_launcher))
     conf.msg('Enable logging', yes_no(not conf.options.without_logging))
     conf.msg('Execute tests', yes_no(not conf.options.without_tests))
-    conf.msg('Install headers', yes_no(not conf.options.without_headers))
-    conf.msg('Install resources', yes_no(not conf.options.without_resources))
+    conf.msg('Install headers', yes_no(conf.options.with_headers))
+    conf.msg('Install resources', yes_no(conf.options.with_resources))
+    conf.msg('Add debug symbols', yes_no(conf.options.debug_symbols))
+    conf.msg('Use optimizations', yes_no(conf.options.optimize))
+    conf.msg('Add profiling support', yes_no(conf.options.profile))
+    conf.msg('Add test coverage support', yes_no(conf.options.coverage))
 
     libs = [
-        'utils',
         'libmpi',
         'libgsl',
         'libxml2',
@@ -98,17 +153,21 @@ def configure(conf):
     conf.env.without_launcher = conf.options.without_launcher
     conf.env.without_logging = conf.options.without_logging
     conf.env.without_tests = conf.options.without_tests
-    conf.env.without_headers = conf.options.without_headers
-    conf.env.without_resources = conf.options.without_resources
+    conf.env.with_headers = conf.options.with_headers
+    conf.env.with_resources = conf.options.with_resources
     conf.env.static = conf.options.static
 
-    if not conf.options.without_default_cxxflags:
-        conf.env.CXXFLAGS += ['-Wall']
-        conf.env.CXXFLAGS += ['-Wno-deprecated']
-        conf.env.CXXFLAGS += ['-std=c++11']
+    conf.env.CXXFLAGS += ['-Wall']
+    conf.env.CXXFLAGS += ['-Wno-deprecated']
+    conf.env.CXXFLAGS += ['-std=c++11']
+    
+    conf.env.LINKFLAGS += ['-lpthread', '-lrt']
+
+    conf.env.INCLUDES += [conf.path.find_dir('src').abspath()]
+    conf.env.INCLUDES += [conf.path.find_dir('src/libgcm').abspath()]
 
     conf.env.CXXFLAGS += ['-DCONFIG_PREFIX="%s"' % conf.options.prefix]
-    if not conf.env.without_resources:
+    if conf.env.with_resources:
         conf.env.CXXFLAGS += ['-DCONFIG_SHARE_GCM="%s/share/gcm3d"' % conf.options.prefix]
     else:
         conf.env.CXXFLAGS += ['-DCONFIG_SHARE_GCM="."']
@@ -119,15 +178,37 @@ def configure(conf):
 
     if not conf.env.without_tests:
         libs.append('libgtest')
-    
+
     if not conf.env.without_tests or not conf.env.without_launcher:
         libs.append('libboost')
 
-    conf.env.LINKFLAGS += ['-Wl,-rpath,%s/lib' % os.path.abspath(conf.options.prefix)]
+    build_variant = []
+
+    if conf.options.debug_symbols:
+        conf.env.CXXFLAGS += ['-g']
+        build_variant += ['debug']
+
+    if conf.options.optimize:
+        conf.env.CXXFLAGS += ['-O3', '-funroll-loops']
+        build_variant += ['optimize']
+
+    if conf.options.profile:
+        conf.env.CXXFLAGS += ['-pg']
+        build_variant += ['profile']
+
+    if conf.options.coverage:
+        conf.env.CXXFLAGS += ['-fprofile-arcs', '-ftest-coverage']
+        conf.env.LINKFLAGS += ['-fprofile-arcs']
+        build_variant += ['coverage']
+
+    if len(build_variant) == 0:
+        build_variant += ['default']
+
+    conf.env.variant = '_'.join(build_variant)
 
     conf.load(libs, tooldir='waftools')
     conf.env.LIBS = libs
- 
+
     if not conf.options.disable_auto_rpath:
         keys = [x for x in conf.env.keys() if x.find('LIBPATH_LIB') >= 0]
         for key in keys:
@@ -136,6 +217,9 @@ def configure(conf):
             conf.env.LINKFLAGS += ['-Wl,-rpath,' + conf.options.prefix]
 
         conf.env.LINKFLAGS = list(set(conf.env.LINKFLAGS))
+        conf.env.LINKFLAGS += ['-Wl,-rpath,%s/lib' % os.path.abspath(conf.options.prefix)]
+
+    conf.env.store(env_file)
 
 
 def build(bld):
@@ -160,75 +244,74 @@ def build(bld):
         target='gcm'
     )
 
+    if not bld.env.without_launcher or not bld.env.without_tests:
+        bld(
+            features='cxx',
+            source=bld.path.find_node('src/launcher/util/xml.cpp'),
+            use=libs,
+            name='xml'
+        )
+        bld(
+            features='cxx',
+            source=bld.path.find_node('src/launcher/launcher.cpp'),
+            use=libs,
+            name='launcher'
+        )
+        bld(
+            features='cxx',
+            source=bld.path.ant_glob('src/launcher/loaders/**/*.cpp'),
+            use=libs,
+            name='loaders'
+        )
+       
+
     if not bld.env.without_launcher:
         bld(
             features='cxx cxxprogram',
-            source=bld.path.ant_glob('src/launcher/**/*.cpp'),
-            includes=['src'],
-            use=['gcm'] + libs,
+            source=bld.path.find_node('src/launcher/main.cpp'),
+            use=['gcm', 'xml', 'loaders', 'launcher'] + libs,
             target='gcm3d'
         )
 
     if not bld.env.without_tests:
         bld(
             features='cxx cxxprogram',
-            source=bld.path.ant_glob('src/tests/unit/**/*.cpp') + 
-                bld.path.ant_glob('src/launcher/loaders/**/*.cpp') + [
-                bld.path.find_node('src/launcher/util/xml.cpp')
-            ],
-            includes=['src'],
-            use=['gcm'] + libs,
+            source=bld.path.ant_glob('src/tests/unit/**/*.cpp'),
+            use=['gcm', 'xml', 'loaders'] + libs,
             target='gcm3d_unit_tests',
             install_path=None
         )
         bld(
             features='cxx cxxprogram',
-            source=bld.path.ant_glob('src/tests/func/**/*.cpp') + 
-                bld.path.ant_glob('src/launcher/loaders/**/*.cpp') + [
-                bld.path.find_node('src/launcher/launcher.cpp'),
-                bld.path.find_node('src/launcher/util/xml.cpp')
-            ],
-            includes=['src'],
-            use=['gcm'] + libs,
+            source=bld.path.ant_glob('src/tests/func/**/*.cpp'),
+            use=['gcm', 'xml', 'loaders', 'launcher'] + libs,
             target='gcm3d_func_tests',
             install_path=None
         )
         perf_test_sources = [x for x in bld.path.ant_glob('src/tests/perf/*.cpp') if x.name != 'util.cpp']
+        bld(
+            features='cxx',
+            source=bld.path.find_node('src/tests/perf/util.cpp'),
+            name='perf_util'
+        )
         for s in perf_test_sources:
             bld(
                 features='cxx cxxprogram',
-                source=[
-                    bld.path.find_node('src/tests/perf/util.cpp'),
-                    s
-                ],
-                includes='src',
-                lib=['rt'],
-                use=['gcm'] + libs,
+                source=s,
+                use=['gcm', 'perf_util'] + libs,
                 target='gcm3d_perf_%s' % s.name[:-4],
                 install_path=None
             )
 
-    if not bld.env.without_resources:
+    if bld.env.with_resources:
         bld.install_files(
             '${PREFIX}/share/doc/%s' % APPNAME,
             ['README']
         )
-
-    if not bld.env.without_resources:
         bld.install_files(
             '${PREFIX}/share/%s' % APPNAME,
             ['src/launcher/log4cxx.properties']
         )
-
-    if not bld.env.without_headers:
-        bld.install_files(
-            '${PREFIX}/include/%s-%s/%s' % (APPNAME, VERSION, APPNAME),
-            bld.path.ant_glob('**/*.h'),
-            cwd=src_dir,
-            relative_trick=True
-        )
-
-    if not bld.env.without_resources:
         bld.install_files(
             '${PREFIX}/share/%s/models' % APPNAME,
             bld.path.ant_glob('models/*')
@@ -238,6 +321,13 @@ def build(bld):
             bld.path.ant_glob('tasks/*')
         )
 
+    if bld.env.with_headers:
+        bld.install_files(
+            '${PREFIX}/include/%s-%s/%s' % (APPNAME, VERSION, APPNAME),
+            bld.path.ant_glob('**/*.h'),
+            cwd=src_dir,
+            relative_trick=True
+        )
 
 class func_tests_target(BuildContext):
     '''run gcm3d functional tests'''

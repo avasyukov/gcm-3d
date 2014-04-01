@@ -8,7 +8,7 @@ using namespace std;
 
 TEST(IsotropicElasticMaterialLoader, Valid)
 {
-    auto loader = IsotropicElasticMaterialLoader::getInstance();
+    auto& loader = IsotropicElasticMaterialLoader::getInstance();
 
     auto doc = xml::Doc::fromString("                                      \
     <materials>                                                            \
@@ -34,7 +34,7 @@ TEST(IsotropicElasticMaterialLoader, Valid)
 
 TEST(IsotropicElasticMaterialLoader, Empty)
 {
-    auto loader = IsotropicElasticMaterialLoader::getInstance();
+    auto& loader = IsotropicElasticMaterialLoader::getInstance();
 
     auto doc = xml::Doc::fromString("                \
     <materials>                                      \
@@ -47,7 +47,7 @@ TEST(IsotropicElasticMaterialLoader, Empty)
 
 TEST(IsotropicElasticMaterialLoader, Invalid)
 {
-    auto loader = IsotropicElasticMaterialLoader::getInstance();
+    auto& loader = IsotropicElasticMaterialLoader::getInstance();
 
     auto doc = xml::Doc::fromString("                                      \
     <materials>                                                            \

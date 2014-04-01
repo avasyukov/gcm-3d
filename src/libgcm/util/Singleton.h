@@ -19,7 +19,7 @@ public:
     static T& getInstance(Args... args)
     {
         if (!instance_) {
-            instance_ = new T(std::forward<Args>(args)...);
+            instance_ = new T(args...);
         }
 
         return *instance_;
@@ -33,6 +33,13 @@ public:
 
 private:
     static T* instance_;
+
+protected:
+    Singleton()
+    {
+    }
+    Singleton(const Singleton& s);
+    void operator=(const Singleton& s);
 };
 
 template<typename T>
