@@ -234,7 +234,7 @@ unsigned int gcm::Engine::addBorderCondition(BorderCondition *borderCondition)
 
 void gcm::Engine::replaceDefaultBorderCondition(BorderCondition *borderCondition)
 {
-    assert( borderConditions.size() > 1 );
+    assert_gt(borderConditions.size(), 1 );
     if (!borderCondition)
         THROW_INVALID_ARG("Border condition parameter cannot be NULL");
     borderConditions[1] = borderCondition;
@@ -252,7 +252,7 @@ unsigned int gcm::Engine::addContactCondition(ContactCondition *contactCondition
 
 void gcm::Engine::replaceDefaultContactCondition(ContactCondition *contactCondition)
 {
-    assert( contactConditions.size() > 0 );
+    assert_gt(contactConditions.size(), 0 );
     if (!contactCondition)
         THROW_INVALID_ARG("Contact condition parameter cannot be NULL");
     contactConditions[0] = contactCondition;
@@ -277,7 +277,8 @@ Material* gcm::Engine::getMaterial(string name)
 
 Material* gcm::Engine::getMaterial(unsigned char index)
 {
-    assert( index >=0 && index < materials.size() );
+    assert_ge(index, 0);
+    assert_lt(index, materials.size());
     return materials[index];
 }
 
@@ -301,7 +302,7 @@ int gcm::Engine::getBodyNum(string id)
 
 Body* gcm::Engine::getBody(unsigned int num)
 {
-    assert( num < bodies.size() );
+    assert_lt(num, bodies.size() );
     return bodies[num];
 }
 
@@ -367,13 +368,13 @@ RheologyCalculator* gcm::Engine::getRheologyCalculator(string type)
 
 BorderCondition* gcm::Engine::getBorderCondition(unsigned int num)
 {
-    assert( num < borderConditions.size() );
+    assert_lt(num, borderConditions.size() );
     return borderConditions[num];
 }
 
 ContactCondition* gcm::Engine::getContactCondition(unsigned int num)
 {
-    assert( num < contactConditions.size() );
+    assert_lt(num, contactConditions.size() );
     return contactConditions[num];
 }
 
@@ -384,7 +385,8 @@ void gcm::Engine::addBody(Body* body)
 
 CalcNode& gcm::Engine::getVirtNode(unsigned int i)
 {
-    assert( i >=0 && i < virtNodes.size() );
+    assert_ge(i, 0);
+    assert_lt(i, virtNodes.size());
     return virtNodes[i];
 }
 
@@ -667,7 +669,7 @@ FileFolderLookupService& gcm::Engine::getFileFolderLookupService() {
 
 void gcm::Engine::setContactThresholdType(unsigned char type)
 {
-    assert( type == CONTACT_THRESHOLD_BY_AVG_H
+    assert_true( type == CONTACT_THRESHOLD_BY_AVG_H
             || type == CONTACT_THRESHOLD_BY_MAX_LT
             || type == CONTACT_THRESHOLD_FIXED );
     contactThresholdType = type;
@@ -680,7 +682,7 @@ unsigned char gcm::Engine::getContactThresholdType()
 
 void gcm::Engine::setContactThresholdFactor(float val)
 {
-    assert( val > 0 );
+    assert_gt(val, 0 );
     contactThresholdFactor = val;
 }
 

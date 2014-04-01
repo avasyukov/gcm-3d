@@ -1,8 +1,6 @@
 #ifndef _GCM_ANISOTROPIC_MATRIX_3D_H
 #define _GCM_ANISOTROPIC_MATRIX_3D_H  1
 
-#include <assert.h>
-
 #include <gsl/gsl_eigen.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_blas.h>

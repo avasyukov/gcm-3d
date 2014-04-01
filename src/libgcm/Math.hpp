@@ -8,7 +8,6 @@
 #ifndef GCM_MATH_H
 #define    GCM_MATH_H
 
-#include <assert.h>
 #include <string>
 #include <string.h>
 #include <cmath>
@@ -18,6 +17,7 @@
 //#include "libgcm/Math.hpp"
 #include "libgcm/Exception.hpp"
 #include "libgcm/Logging.hpp"
+#include "libgcm/util/Assertion.hpp"
 
 #define EQUALITY_TOLERANCE 0.00001
 
@@ -134,9 +134,9 @@ inline float tetrHeight(float coordsP0[3], float coordsP1[3], float coordsP2[3],
         );
 
         // Check if all nodes are already loaded from other CPUs and tetrahadron is correct
-        assert( vol > 0 );
+        assert_gt(vol, 0);
         for(int j = 0; j < 4; j++)
-            assert( area[j] > 0 );
+            assert_gt(area[j], 0);
 
         // Find maximum face area
         maxArea = area[0];
@@ -327,7 +327,7 @@ inline bool vectorIntersectsTriangle(float *p1, float *p2, float *p3, float *p0,
         LOG_TRACE("Factor: " << (areas[0] + areas[1] + areas[2]) / area);
     }
 
-    // assert( result != resultArea );
+    // assert_ne(result, resultArea);
 
     return resultArea;
 
@@ -537,7 +537,7 @@ inline bool pointInTetr(float x, float y, float z,
 // Create local basis based on the first vector - used to create the basis having normal only
 inline void createLocalBasis(float n[], float n1[], float n2[])
 {
-    assert( fabs( vectorNorm(n[0], n[1], n[2]) - 1 ) < EQUALITY_TOLERANCE );
+    assert_lt(fabs( vectorNorm(n[0], n[1], n[2]) - 1 ), EQUALITY_TOLERANCE );
 
     if(fabs(n[0]) <= fabs(n[1])) {
         if(fabs(n[0]) <= fabs(n[2])) {
@@ -571,7 +571,7 @@ inline void createLocalBasis(float n[], float n1[], float n2[])
 
 inline void shiftArrayLeft( int* arr, int n )
 {
-    assert( n > 0 );
+    assert_gt(n, 0);
     int a0 = arr[0];
     memmove(arr, arr+1, (n-1)*sizeof(int));
     arr[n-1] = a0;

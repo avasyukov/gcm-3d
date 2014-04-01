@@ -23,8 +23,8 @@ void AdhesionContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, C
                             RheologyMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
                             float outer_normal[], float scale)
 {
-    assert(previousNodes.size() == 9);
-    assert(virtPreviousNodes.size() == 9);
+    assert_eq(previousNodes.size(), 9);
+    assert_eq(virtPreviousNodes.size(), 9);
 
     // Here we will store (omega = Matrix_OMEGA * u)
     float omega[9];

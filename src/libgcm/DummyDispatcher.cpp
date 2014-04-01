@@ -25,7 +25,7 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
         throw logic_error("You should have either 1 worker OR more workers than bodies. It's crazy stupid internal dispatcher limitation. We are really sorry.");
 
     LOG_DEBUG("Start preparation for " << numberOfWorkers << " workers");
-    assert( numberOfWorkers > 0 );
+    assert_gt(numberOfWorkers, 0 );
 
     if( outlines != NULL )
         delete[] outlines;
@@ -186,7 +186,8 @@ int gcm::DummyDispatcher::getOwner(float x, float y, float z)
 
 AABB* gcm::DummyDispatcher::getOutline(int index)
 {
-    assert( index >= 0 && index < outlinesNum );
+    assert_ge(index, 0);
+    assert_lt(index, outlinesNum);
     return outlines + index;
 }
 

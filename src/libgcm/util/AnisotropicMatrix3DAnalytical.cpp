@@ -33,7 +33,7 @@ void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
     auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 #else
     auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
-    assert(mat);
+    assert_true(mat);
 #endif
 
     auto rho = node.getRho();
@@ -108,7 +108,7 @@ void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
     auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 #else
     auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
-    assert(mat);
+    assert_true(mat);
 #endif
 
     auto rho = node.getRho();
@@ -182,7 +182,7 @@ void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
     auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 #else
     auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
-    assert(mat);
+    assert_true(mat);
 #endif
 
     auto rho = node.getRho();

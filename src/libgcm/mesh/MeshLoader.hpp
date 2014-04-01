@@ -77,8 +77,8 @@ namespace gcm {
                 mesh->setCalc(params[PARAM_CALC] == PARAM_VALUE_TRUE);
             // set body
             mesh->setBody(body);
-            assert( body->getEngine() != NULL );
-            assert( body->getEngine()->getDispatcher() != NULL );
+            assert_true(body->getEngine());
+            assert_true(body->getEngine()->getDispatcher());
             // invoke mesh type-specific code
             loadMesh(params, mesh, body->getEngine()->getDispatcher());
             return mesh;

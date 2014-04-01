@@ -396,7 +396,7 @@ void gcm::Mesh::createNodes(int number) {
 
 bool gcm::Mesh::hasNode(int index)
 {
-    assert( index >= 0 );
+    assert_ge(index, 0 );
     unordered_map<int, int>::const_iterator itr;
     itr = nodesMap.find(index);
     return itr != nodesMap.end();
@@ -404,28 +404,29 @@ bool gcm::Mesh::hasNode(int index)
 
 CalcNode& gcm::Mesh::getNode(int index)
 {
-    assert( index >= 0 );
+    assert_ge(index, 0 );
     unordered_map<int, int>::const_iterator itr;
     itr = nodesMap.find(index);
-    assert( itr != nodesMap.end() );
+    assert_true(itr != nodesMap.end() );
     return nodes[itr->second];
 }
 
 CalcNode& gcm::Mesh::getNewNode(int index) {
-    assert( index >= 0 );
+    assert_ge(index, 0 );
     unordered_map<int, int>::const_iterator itr;
     itr = nodesMap.find(index);
-    assert( itr != nodesMap.end() );
+    assert_true(itr != nodesMap.end() );
     return new_nodes[itr->second];
 }
 
 CalcNode& gcm::Mesh::getNodeByLocalIndex(unsigned int index) {
-    assert( index >= 0 && index < nodes.size() );
+    assert_ge(index, 0);
+    assert_lt(index, nodes.size());
     return nodes[index];
 }
 
 int gcm::Mesh::getNodeLocalIndex(int index) {
-    assert( index >= 0 );
+    assert_ge(index, 0 );
     unordered_map<int, int>::const_iterator itr;
     itr = nodesMap.find(index);
     return ( itr != nodesMap.end() ? itr->second : -1 );
@@ -436,7 +437,7 @@ void gcm::Mesh::addNode(CalcNode& node) {
         // FIXME what is this?
         // why not to use a propper allocator for container?
         createNodes((nodesStorageSize+1)*STORAGE_ONDEMAND_GROW_RATE);
-    assert( nodesNumber < nodesStorageSize );
+    assert_lt(nodesNumber, nodesStorageSize );
     nodes[nodesNumber] = node;
     nodesMap[node.number] = nodesNumber;
     nodesNumber++;
@@ -460,7 +461,7 @@ void gcm::Mesh::defaultNextPartStep(float tau, int stage)
     {
         LOG_ERROR("Area of interest: " << areaOfInterest);
         LOG_ERROR("Synced area: " << syncedArea);
-        assert( syncedArea.includes( &areaOfInterest ) );
+        assert_true(syncedArea.includes( &areaOfInterest ) );
     }
 
     // Border nodes

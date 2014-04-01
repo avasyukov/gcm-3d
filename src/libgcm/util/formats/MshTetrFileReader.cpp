@@ -183,8 +183,8 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 
 void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher)
 {
-    assert( mesh != NULL );
-    assert( dispatcher != NULL );
+    assert_true(mesh);
+    assert_true(dispatcher);
     int tetrsCount = 0;
     int fileVer;
     string str;

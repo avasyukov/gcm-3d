@@ -418,7 +418,7 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
             //LOG_DEBUG("R1: " << j << " " << mesh->getBody()->getId());
             int owner = dispatcher->getOwner(node.coords/*, mesh->getBody()->getId()*/);
             //LOG_DEBUG("R2: " << owner);
-            assert( owner != rank );
+            assert_ne(owner, rank );
             local_numbers[rank][owner].push_back( mesh->nodesMap[node.number] );
             remote_numbers[rank][owner].push_back(node.number);
         }

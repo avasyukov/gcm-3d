@@ -150,10 +150,10 @@ void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, G
     delete nodes;
 
     vtkIntArray* tetr2ndOrderNodes = (vtkIntArray*) g->GetCellData ()->GetArray ("tetr2ndOrderNodes");
-    assert (tetr2ndOrderNodes->GetNumberOfComponents () == 6);
+    assert_eq(tetr2ndOrderNodes->GetNumberOfComponents (), 6);
     vtkIntArray* tetr1stOrderNodes = (vtkIntArray*) g->GetCellData ()->GetArray ("tetr1stOrderNodes");
     vtkIntArray* tetrNumber = (vtkIntArray*) g->GetCellData ()->GetArray ("tetrNumber");
-    assert (tetr1stOrderNodes->GetNumberOfComponents () == 4);
+    assert_eq(tetr1stOrderNodes->GetNumberOfComponents (), 4);
     vector<TetrSecondOrder*>* tetrs = new vector<TetrSecondOrder*>;
 
     TetrSecondOrder new_tetr;

@@ -23,7 +23,7 @@ void FreeBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheolo
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)
 {
-    assert(previousNodes.size() == 9);
+    assert_eq(previousNodes.size(), 9);
 
     int outer_count = 3;
 

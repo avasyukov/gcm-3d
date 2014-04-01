@@ -32,7 +32,7 @@ void ExternalForceCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rhe
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)
 {
-    assert(previousNodes.size() == 9);
+    assert_eq(previousNodes.size(), 9);
 
     float local_n[3][3];
     local_n[0][0] = outer_normal[0];

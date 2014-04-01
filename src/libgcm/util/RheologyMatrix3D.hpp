@@ -2,12 +2,12 @@
 #define _GCM_RHEOLOGY_MATRIX_3D_H  1
 
 #include <initializer_list>
-#include <assert.h>
 
 #include "libgcm/node/ICalcNode.hpp"
 #include "libgcm/util/matrixes.hpp"
 #include "libgcm/Exception.hpp"
 #include "libgcm/util/Types.hpp"
+#include "libgcm/util/Assertion.hpp"
 
 using namespace std;
 

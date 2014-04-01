@@ -121,7 +121,7 @@ void gcm::AnisotropicMatrix3D::initializeAx(const Material* material, gcm_matrix
     const auto mat = static_cast<const AnisotropicElasticMaterial*> (material);
 #else
     const auto mat = dynamic_cast<const AnisotropicElasticMaterial*> (material);
-    assert(mat);
+    assert_true(mat);
 #endif
 
     auto rho = mat->getRho();
@@ -206,7 +206,7 @@ void gcm::AnisotropicMatrix3D::initializeAy(const Material* material, gcm_matrix
     const auto mat = static_cast<const AnisotropicElasticMaterial*> (material);
 #else
     const auto mat = dynamic_cast<const AnisotropicElasticMaterial*> (material);
-    assert(mat);
+    assert_true(mat);
 #endif
 
     auto rho = mat->getRho();
@@ -289,7 +289,7 @@ void gcm::AnisotropicMatrix3D::initializeAz(const Material* material, gcm_matrix
     const auto mat = static_cast<const AnisotropicElasticMaterial*> (material);
 #else
     const auto mat = dynamic_cast<const AnisotropicElasticMaterial*> (material);
-    assert(mat);
+    assert_true(mat);
 #endif
 
     auto rho = mat->getRho();

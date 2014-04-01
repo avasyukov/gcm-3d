@@ -1,8 +1,6 @@
 #ifndef ANISOTROPICMATRIX3DANALYTICAL_H
 #define ANISOTROPICMATRIX3DANALYTICAL_H  1
 
-#include <assert.h>
-
 #include "libgcm/materials/IAnisotropicElasticMaterial.hpp"
 #include "libgcm/util/MutableRheologyMatrix3D.hpp"
 #include "libgcm/util/matrixes.hpp"

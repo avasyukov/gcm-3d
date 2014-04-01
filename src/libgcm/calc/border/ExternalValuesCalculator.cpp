@@ -30,7 +30,7 @@ void ExternalValuesCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rh
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)
 {
-    assert(previousNodes.size() == 9);
+    assert_eq(previousNodes.size(), 9);
 
     // Tmp value for GSL solver
     int s;

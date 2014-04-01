@@ -1,8 +1,6 @@
 #ifndef _GCM_AABB_OUTLINE_H
 #define _GCM_AABB_OUTLINE_H  1
 
-#include <assert.h>
-
 #include "libgcm/node/Node.hpp"
 #include "libgcm/Math.hpp"
 
