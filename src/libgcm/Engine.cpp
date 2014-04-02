@@ -1,7 +1,6 @@
 #include "libgcm/Engine.hpp"
 
 #include "libgcm/mesh/cube/BasicCubicMeshGenerator.hpp"
-#include "libgcm/mesh/markers/MarkeredBoxMeshGenerator.hpp"
 #include "libgcm/method/DummyMethod.hpp"
 #include "libgcm/method/InterpolationFixedAxis.hpp"
 #include "libgcm/calc/volume/SimpleVolumeCalculator.hpp"
@@ -28,7 +27,6 @@ gcm::Engine::Engine()
     LOG_DEBUG("Setting default engine values");
     LOG_DEBUG("Registering default mesh loaders");
     registerMeshLoader(new BasicCubicMeshGenerator());
-    registerMeshLoader(new MarkeredBoxMeshGenerator());
     LOG_DEBUG("Registering default methods");
     registerNumericalMethod( new DummyMethod() );
     registerNumericalMethod( new InterpolationFixedAxis() );

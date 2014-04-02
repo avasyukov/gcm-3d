@@ -2,29 +2,15 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-const string gcm::MarkeredBoxMeshGenerator::PARAM_MESH_EDGE = "meshEdge";
-const string gcm::MarkeredBoxMeshGenerator::PARAM_CUBE_EDGE = "cubeEdge";
-const string gcm::MarkeredBoxMeshGenerator::PARAM_CELL_NUM = "pointNum";
-
-string gcm::MarkeredBoxMeshGenerator::getType(){
-    return "markered-box";
-}
-
 gcm::MarkeredBoxMeshGenerator::MarkeredBoxMeshGenerator() {
     INIT_LOGGER("gcm.MarkeredBoxMeshLoader");
 }
 
-void gcm::MarkeredBoxMeshGenerator::loadMesh(Params params, MarkeredMesh* mesh,
-        GCMDispatcher* dispatcher) {
-    // get mesh parameters
-    float mesh_edge = atof(params[PARAM_MESH_EDGE].c_str());
-    float cube_edge = atof(params[PARAM_CUBE_EDGE].c_str());
-    int cells_num =atoi(params[PARAM_CELL_NUM].c_str());
+void gcm::MarkeredBoxMeshGenerator::loadMesh(MarkeredMesh* mesh, GCMDispatcher* dispatcher, float meshEdge, float cubeEdge, int cellsNum) {
+    float points_num = 1 + cellsNum;
+    float h = meshEdge / cellsNum;
 
-    float points_num = 1 + cells_num;
-    float h = mesh_edge / cells_num;
-
-    mesh->setNumberOfCells(cells_num, cells_num, cells_num);
+    mesh->setNumberOfCells(cellsNum, cellsNum, cellsNum);
 
     // generate mesh
     LOG_DEBUG("Generating nodes");
@@ -33,9 +19,9 @@ void gcm::MarkeredBoxMeshGenerator::loadMesh(Params params, MarkeredMesh* mesh,
             for (int i = 0; i < points_num; i++) {
                 int n = mesh->getPointNumber(i, j, k);
                 CalcNode node;
-                node.x = -mesh_edge/2 + i*h;
-                node.y = -mesh_edge/2 + j*h;
-                node.z = -mesh_edge/2 + k*h;
+                node.x = -meshEdge/2 + i*h;
+                node.y = -meshEdge/2 + j*h;
+                node.z = -meshEdge/2 + k*h;
                 node.number = n;
                 node.setPlacement(true);
                 mesh->addNode(node);
@@ -44,8 +30,8 @@ void gcm::MarkeredBoxMeshGenerator::loadMesh(Params params, MarkeredMesh* mesh,
     // set cell inner flags
     float minX, minY, minZ;
     float maxX, maxY, maxZ;
-    minX = minY = minZ = -cube_edge/2;
-    maxX = maxY = maxZ = cube_edge/2;
+    minX = minY = minZ = -cubeEdge/2;
+    maxX = maxY = maxZ = cubeEdge/2;
 
     LOG_DEBUG("Setting cells inner flag");
     AABB cubeAABB(minX, maxX, minY, maxY, minZ, maxZ);
@@ -64,6 +50,5 @@ void gcm::MarkeredBoxMeshGenerator::loadMesh(Params params, MarkeredMesh* mesh,
 gcm::MarkeredBoxMeshGenerator::~MarkeredBoxMeshGenerator() {
 }
 
-void gcm::MarkeredBoxMeshGenerator::preLoadMesh(Params params, AABB* scene,
-        int& sliceDirection, int& numberOfNodes) {
+void gcm::MarkeredBoxMeshGenerator::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, float meshEdge, float cubeEdge, int cellsNum) {
 }
