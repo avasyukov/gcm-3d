@@ -9,29 +9,23 @@
 #include "libgcm/util/formats/Vtu2TetrFileReader.hpp"
 #include "libgcm/Exception.hpp"
 #include "libgcm/Utils.hpp"
+#include "libgcm/util/Singleton.hpp"
 #include "libgcm/Logging.hpp"
 
 using namespace gcm;
 using namespace std;
 
 namespace gcm {
-    class Vtu2MeshLoader: public TemplatedMeshLoader<TetrMeshSecondOrder>
+    class Vtu2MeshLoader: public Singleton<Vtu2MeshLoader>
     {
     protected:
-        /*
-         * Loads mesh from using passed configuration
-         */
-         void loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher);
-         void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes);
          USE_LOGGER;
     public:
         Vtu2MeshLoader();
         ~Vtu2MeshLoader();
-        /*
-         * Returns mesh loader type
-         */
-        string getType();
+        void loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName);
+        void preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const string& fileName);
     };
 }
 
-#endif /* GCM_VTU_MESH_LOADER_H_ */
+#endif /* GCM_VTU2_MESH_LOADER_H_ */
