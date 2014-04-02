@@ -1,6 +1,5 @@
 #include "libgcm/Engine.hpp"
 
-#include "libgcm/mesh/tetr/Vtu2MeshZoneLoader.hpp"
 #include "libgcm/mesh/cube/BasicCubicMeshGenerator.hpp"
 #include "libgcm/mesh/markers/MarkeredBoxMeshGenerator.hpp"
 #include "libgcm/method/DummyMethod.hpp"
@@ -28,7 +27,6 @@ gcm::Engine::Engine()
     LOG_DEBUG("GCM engine created");
     LOG_DEBUG("Setting default engine values");
     LOG_DEBUG("Registering default mesh loaders");
-    registerMeshLoader(new Vtu2MeshZoneLoader());
     registerMeshLoader(new BasicCubicMeshGenerator());
     registerMeshLoader(new MarkeredBoxMeshGenerator());
     LOG_DEBUG("Registering default methods");

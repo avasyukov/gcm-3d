@@ -9,6 +9,7 @@
 #include "launcher/loaders/mesh/Geo2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Msh2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Vtu2MeshLoader.hpp"
+#include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
 
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/mesh/Mesh.hpp"
@@ -223,20 +224,10 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 Msh2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == Vtu2MeshLoader::MESH_TYPE)
                 Vtu2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == Vtu2MeshZoneLoader::MESH_TYPE)
+                Vtu2MeshZoneLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else
-            {
-                // TODO remove this code            
-                // -----------------------------------------------------------------
-                Params params = Params(meshNode.getAttributes());
-                if (!params.has("type"))
-                    THROW_INVALID_INPUT("Mesh type is not specified.");
-
-                gcm::MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
-                if (!meshLoader)
-                    THROW_INVALID_INPUT("Mesh loader not found.");
-                meshLoader->preLoadMesh(params, &localScene, slicingDirection, numberOfNodes);
-                // -----------------------------------------------------------------
-            }
+                THROW_UNSUPPORTED("Specified mesh loader is not supported");
 
             // transform meshes
             NodeList transformNodes = bodyNode.getChildrenByName("transform");
@@ -322,7 +313,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
 
             string type = getAttributeByName(meshNode, "type");
 
-            Mesh* mesh;
+            Mesh* mesh = nullptr;
 
             if (type == Geo2MeshLoader::MESH_TYPE)
                 mesh = Geo2MeshLoader::getInstance().load(meshNode, body);
@@ -330,15 +321,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 mesh = Msh2MeshLoader::getInstance().load(meshNode, body);
             else if (type == Vtu2MeshLoader::MESH_TYPE)
                 mesh = Vtu2MeshLoader::getInstance().load(meshNode, body);
-            else
-            {
-                // TODO remove this code            
-                // -----------------------------------------------------------------
-                Params params = Params(meshNode.getAttributes());
-                gcm::MeshLoader* meshLoader = engine.getMeshLoader(params["type"]);
-                mesh = meshLoader->load(body, params);
-                // -----------------------------------------------------------------
-            }
+            else if (type == Vtu2MeshZoneLoader::MESH_TYPE)
+                mesh = Vtu2MeshZoneLoader::getInstance().load(meshNode, body);
 
             // attach mesh to body
             body->attachMesh(mesh);
