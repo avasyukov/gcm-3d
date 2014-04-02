@@ -11,6 +11,7 @@
 #include "launcher/loaders/mesh/Vtu2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
 #include "launcher/loaders/mesh/MarkeredBoxMeshLoader.hpp"
+#include "launcher/loaders/mesh/CubicMeshLoader.hpp"
 
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/mesh/Mesh.hpp"
@@ -229,6 +230,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 Vtu2MeshZoneLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == MarkeredBoxMeshLoader::MESH_TYPE)
                 MarkeredBoxMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == CubicMeshLoader::MESH_TYPE)
+                CubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else
                 THROW_UNSUPPORTED("Specified mesh loader is not supported");
 
@@ -328,6 +331,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 mesh = Vtu2MeshZoneLoader::getInstance().load(meshNode, body);
             else if (type == MarkeredBoxMeshLoader::MESH_TYPE)
                 mesh = MarkeredBoxMeshLoader::getInstance().load(meshNode, body);
+            else if (type == CubicMeshLoader::MESH_TYPE)
+                mesh = CubicMeshLoader::getInstance().load(meshNode, body);
 
             // attach mesh to body
             body->attachMesh(mesh);
