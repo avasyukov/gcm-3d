@@ -4,28 +4,6 @@
 
 namespace bfs = boost::filesystem;
 
-gcm::Params::Params() {
-
-}
-
-gcm::Params::Params(map<string, string> attrs) {
-    for(auto& attr: attrs)
-    {
-        (*this)[attr.first] = attr.second;
-    }
-}
-
-bool gcm::Params::has(string param) {
-    return find(param) != end();
-}
-
-bool gcm::Params::paramEquals(string param, string value) {
-    if (has(param))
-        if ((*this)[param] == value)
-            return true;
-    return false;
-}
-
 void gcm::FileFolderLookupService::addPath(string path) {
     paths.push_back(path);
 }

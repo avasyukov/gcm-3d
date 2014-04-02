@@ -11,26 +11,6 @@
 using namespace std;
 
 namespace gcm {
-    /*
-     * Class to hold params while loading tasks.
-     */
-
-    class Params: public map<string, string> {
-        public:
-            /*
-             * Constructors
-             */
-            Params();
-            Params(map<string, string> attrs);
-            /*
-             * Checks if specified key is in params.
-             */
-            bool has(string param);
-            /*
-             * Checks if value stored in map equals to specifie one.
-             */
-            bool paramEquals(string param, string value);
-    };
 
 
     class FileFolderLookupService {
