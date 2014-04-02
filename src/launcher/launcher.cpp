@@ -7,6 +7,7 @@
 #include "launcher/loaders/material/AnisotropicElasticMaterialLoader.hpp"
 #include "launcher/loaders/material/IsotropicElasticMaterialLoader.hpp"
 #include "launcher/loaders/mesh/Geo2MeshLoader.hpp"
+#include "launcher/loaders/mesh/Msh2MeshLoader.hpp"
 
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/mesh/Mesh.hpp"
@@ -217,6 +218,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
 
             if (type == Geo2MeshLoader::MESH_TYPE)
                 Geo2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == Msh2MeshLoader::MESH_TYPE)
+                Msh2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else
             {
                 // TODO remove this code            
@@ -319,9 +322,9 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             Mesh* mesh;
 
             if (type == Geo2MeshLoader::MESH_TYPE)
-            {
                 mesh = Geo2MeshLoader::getInstance().load(meshNode, body);
-            }
+            else if (type == Msh2MeshLoader::MESH_TYPE)
+                mesh = Msh2MeshLoader::getInstance().load(meshNode, body);
             else
             {
                 // TODO remove this code            

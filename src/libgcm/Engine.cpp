@@ -1,6 +1,5 @@
 #include "libgcm/Engine.hpp"
 
-#include "libgcm/mesh/tetr/Msh2MeshLoader.hpp"
 #include "libgcm/mesh/tetr/Vtu2MeshLoader.hpp"
 #include "libgcm/mesh/tetr/Vtu2MeshZoneLoader.hpp"
 #include "libgcm/mesh/cube/BasicCubicMeshGenerator.hpp"
@@ -30,7 +29,6 @@ gcm::Engine::Engine()
     LOG_DEBUG("GCM engine created");
     LOG_DEBUG("Setting default engine values");
     LOG_DEBUG("Registering default mesh loaders");
-    registerMeshLoader(new Msh2MeshLoader());
     registerMeshLoader(new Vtu2MeshLoader());
     registerMeshLoader(new Vtu2MeshZoneLoader());
     registerMeshLoader(new BasicCubicMeshGenerator());

@@ -11,30 +11,26 @@
 #include "libgcm/Exception.hpp"
 #include "libgcm/Utils.hpp"
 #include "libgcm/Logging.hpp"
+#include "libgcm/util/Singleton.hpp"
 #include "libgcm/DummyDispatcher.hpp"
 
 using namespace gcm;
 using namespace std;
 
 namespace gcm {
-    class Msh2MeshLoader: public TemplatedMeshLoader<TetrMeshSecondOrder>
+    class Msh2MeshLoader: public Singleton<Msh2MeshLoader>
     {
     protected:
-        /*
-         * Loads mesh from using passed configuration
-         */
-         void loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher);
-         void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes);
          USE_LOGGER;
          string getVtkFileName(string mshFile);
     public:
         Msh2MeshLoader();
         ~Msh2MeshLoader();
-        /*
-         * Returns mesh loader type
-         */
-        string getType();
-        void cleanUp();
+         
+        void loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName);
+        void preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const string& fileName);
+       
+       void cleanUp();
     };
 }
 
