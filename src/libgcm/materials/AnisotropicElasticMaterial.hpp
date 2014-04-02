@@ -76,6 +76,15 @@ namespace gcm
          * @return Rheology matrix
          */
         AnisotropicMatrix3D& getRheologyMatrix() override;
+
+        /**
+         * Changes material parameters assuming it was rotated
+         *
+         * @param a1 rotation angle
+         * @param a2 rotation angle
+         * @param a3 rotation angle
+         */
+        void rotate(float a1, float a2, float a3);
     };
 }
 

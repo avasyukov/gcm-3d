@@ -1,4 +1,5 @@
 #include "libgcm/materials/AnisotropicElasticMaterial.hpp"
+#include "libgcm/Exception.hpp"
 
 #include <cassert>
 
@@ -33,4 +34,9 @@ const gcm::IAnisotropicElasticMaterial::RheologyParameters& gcm::AnisotropicElas
 AnisotropicMatrix3D& gcm::AnisotropicElasticMaterial::getRheologyMatrix()
 {
     return matrix;
+}
+
+void AnisotropicElasticMaterial::rotate(float a1, float a2, float a3)
+{
+    THROW_UNSUPPORTED("Not implemented yet");
 }

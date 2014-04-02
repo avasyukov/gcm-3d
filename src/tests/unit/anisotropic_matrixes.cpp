@@ -1,3 +1,4 @@
+#include <cmath>
 #include <time.h>
 #include <gtest/gtest.h>
 
@@ -391,3 +392,43 @@ TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
         Engine::getInstance().clear();
     }
 };
+
+
+void testRotation(int f1, int f2, int f3)
+{
+        AnisotropicElasticMaterial mat = generateRandomMaterial("");
+
+        auto m = mat;
+        
+        const auto& p = mat.getParameters();
+        const auto& p1 = m.getParameters();
+
+        float a = 0.0;
+        for (int i = 0; i < 4; i++)
+        {
+            a += M_PI/2;
+            m.rotate(f1*a, f2*a, f3*a);
+            
+
+            for (int j = 0; j < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; j++)
+                if (i != 3)
+                    ASSERT_NE(p1.values[j], p.values[j]);
+                else
+                    ASSERT_FLOAT_EQ(p1.values[j], p.values[j]);
+        }
+}
+
+TEST(AnisotropicMatrix3D, rotateA1)
+{
+    testRotation(1, 0, 0);
+}
+
+TEST(AnisotropicMatrix3D, rotateA2)
+{
+    testRotation(0, 1, 0);
+}
+
+TEST(AnisotropicMatrix3D, rotateA3)
+{
+    testRotation(0, 0, 1);
+}
