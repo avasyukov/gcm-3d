@@ -212,7 +212,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         NodeList meshNodes = bodyNode.getChildrenByName("mesh");
         for(auto& meshNode: meshNodes)
         {         
-            string type = getAttributeByName(meshNode, "type");
+            string type = meshNode["type"];
 
             LOG_INFO("Preparing mesh for body '" << id << "'");
 
@@ -317,7 +317,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         {
             LOG_INFO("Loading mesh for body '" << id << "'");
 
-            string type = getAttributeByName(meshNode, "type");
+            string type = meshNode["type"];
 
             Mesh* mesh = nullptr;
 

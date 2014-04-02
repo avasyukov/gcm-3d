@@ -18,8 +18,8 @@ namespace launcher
             MeshType* load(const xml::Node& desc, Body* body)
             {
                 MeshType* mesh = new MeshType();
-                mesh->setId(getAttributeByName(desc, "id"));
-                mesh->setCalc(getAttributeByName(desc, "calc", "false") == "true");
+                mesh->setId(desc["id"]);
+                mesh->setCalc(desc.getAttributeByName("calc", "false") == "true");
                 mesh->setBody(body);
                 loadMesh(desc, mesh);
                 return mesh;

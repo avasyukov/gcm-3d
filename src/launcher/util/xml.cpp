@@ -129,34 +129,28 @@ std::string xml::Node::getTextContent() const
 
 std::string xml::Node::operator[](const std::string& name) const
 {
-    return getAttributeByName(this->getAttributes(), name);
+    return getAttributeByName(name);
 }
 
-/*
- * Returns value of named attribute.
- */
-
-std::string xml::getAttributeByName(const AttrList& attrs, const std::string& name, const std::string& defaultValue)
+std::string xml::Node::getAttributeByName(const std::string& name) const
 {
+    auto attrs = getAttributes();
     auto iter = attrs.find(name);
     if (iter != attrs.end())
         return iter->second;
-    if (defaultValue != "")
-        return defaultValue;
     THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list and default value is not provided");
 }
 
-std::string xml::getAttributeByName(const Node& node, const std::string& name, const std::string& defaultValue)
+std::string xml::Node::getAttributeByName(const std::string& name, const std::string& defaultValue) const
 {
-    return getAttributeByName(node.getAttributes(), name, defaultValue);
+    if (hasAttribute(name))
+        return getAttributeByName(name);
+    else
+        return defaultValue;
 }
 
-std::string xml::getAttributeByName(const AttrList& attrs, const std::string& name)
+bool xml::Node::hasAttribute(const std::string& name) const
 {
-    return getAttributeByName(attrs, name, "");
-}
-
-std::string xml::getAttributeByName(const Node& node, const std::string& name)
-{
-    return getAttributeByName(node.getAttributes(), name);
+    auto attrs = getAttributes();
+    return attrs.find(name) != attrs.end();
 }

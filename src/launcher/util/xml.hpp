@@ -33,6 +33,9 @@ namespace xml {
         std::string getTextContent() const;
 
         std::string operator[](const std::string& name) const;
+        std::string getAttributeByName(const std::string& name) const;
+        std::string getAttributeByName(const std::string& name, const std::string& defaultValue) const;
+        bool hasAttribute(const std::string& name) const;
 
     };
 
@@ -52,10 +55,6 @@ namespace xml {
 
         Node getRootElement() const;
     };
-    std::string getAttributeByName(const AttrList& attrs, const std::string& name, const std::string& defaultValue);
-    std::string getAttributeByName(const Node& node, const std::string& name, const std::string& defaultValue);
-    std::string getAttributeByName(const AttrList& attrs, const std::string& name);
-    std::string getAttributeByName(const Node& node, const std::string& name);
 };
 
 #endif
