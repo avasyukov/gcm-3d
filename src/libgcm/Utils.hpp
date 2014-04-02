@@ -27,6 +27,4 @@ static std::string t_to_string(T i)
     return s;
 }
 
-void split (const std::string& str, std::vector<std::string>& dest, char delim);
-
 #endif
