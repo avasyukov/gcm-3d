@@ -10,11 +10,6 @@
 
 using namespace std;
 
-/*
- * Checks if previous read operation succeeded.
- */
-void checkStream(fstream &f);
-
 void replaceAll(std::string& str, const std::string& from, const std::string& to);
 
 #endif

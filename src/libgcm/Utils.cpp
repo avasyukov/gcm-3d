@@ -1,10 +1,5 @@
 #include "libgcm/Utils.hpp"
 
-void checkStream(fstream &f) {
-    if (f.eof() || f.fail() || f.bad())
-        THROW_INVALID_INPUT("Input file is corrupted");
-}
-
 void replaceAll(std::string& str, const std::string& from, const std::string& to) {
     size_t start_pos = 0;
     while((start_pos = str.find(from, start_pos)) != std::string::npos) {
