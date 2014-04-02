@@ -17,7 +17,6 @@
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/mesh/Mesh.hpp"
 #include "libgcm/Engine.hpp"
-#include "libgcm/Utils.hpp"
 #include "libgcm/Logging.hpp"
 #include "libgcm/ContactCondition.hpp"
 #include "libgcm/Exception.hpp"

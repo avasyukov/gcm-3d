@@ -10,7 +10,6 @@
 #include "libgcm/util/Singleton.hpp"
 #include "libgcm/snapshot/VTK2SnapshotWriter.hpp"
 #include "libgcm/Exception.hpp"
-#include "libgcm/Utils.hpp"
 #include "libgcm/Logging.hpp"
 #include "libgcm/DummyDispatcher.hpp"
 

@@ -7,7 +7,6 @@
 #include "libgcm/mesh/markers/MarkeredMesh.hpp"
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/Logging.hpp"
-#include "libgcm/Utils.hpp"
 
 #include <vtkstd/string>
 #include <vtkStructuredGrid.h>

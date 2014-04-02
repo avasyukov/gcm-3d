@@ -19,7 +19,6 @@
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/elem/TetrFirstOrder.hpp"
 #include "libgcm/Logging.hpp"
-#include "libgcm/Utils.hpp"
 
 namespace gcm {
     class VTK2SnapshotWriter : public SnapshotWriter {

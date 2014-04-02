@@ -3,7 +3,6 @@
 
 #ifdef CONFIG_ENABLE_LOGGING
 #include <log4cxx/propertyconfigurator.h>
-#include "libgcm/Utils.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
 #endif
 
