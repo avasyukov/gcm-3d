@@ -1,4 +1,5 @@
 #include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
+#include "launcher/util/FileFolderLookupService.hpp"
 #include "libgcm/mesh/tetr/Vtu2MeshZoneLoader.hpp"
 #include "libgcm/Engine.hpp"
 
@@ -10,7 +11,7 @@ const string launcher::Vtu2MeshZoneLoader::MESH_TYPE = "vtu2zone";
 
 void launcher::Vtu2MeshZoneLoader::parseDesc(const xml::Node& desc, string& id, string& fileName)
 {
-    auto& ffls = Engine::getInstance().getFileFolderLookupService();
+    auto& ffls = FileFolderLookupService::getInstance();
 
     id = desc["id"];
     fileName = ffls.lookupFile(desc["file"]);

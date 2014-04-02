@@ -4,6 +4,7 @@
 #ifdef CONFIG_ENABLE_LOGGING
 #include <log4cxx/propertyconfigurator.h>
 #include "libgcm/Utils.hpp"
+#include "launcher/util/FileFolderLookupService.hpp"
 #endif
 
 #include "tests/perf/util.hpp"
@@ -21,9 +22,9 @@ using namespace std;
 int main()
 {
     #ifdef CONFIG_ENABLE_LOGGING
-    gcm::FileFolderLookupService fls;
-    fls.addPath("src/tests");
-    log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
+    auto& ffls = launcher::FileFolderLookupService::getInstance();
+    ffls.addPath("src/tests");
+    log4cxx::PropertyConfigurator::configure(ffls.lookupFile("log4cxx.properties"));
     #endif
 
     cout << "This test compares performance of two anisotropic elastic matrix implementations: numerical and analytical." << endl;

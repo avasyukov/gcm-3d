@@ -10,30 +10,6 @@
 
 using namespace std;
 
-namespace gcm {
-
-
-    class FileFolderLookupService {
-        private:
-            vector<string> paths;
-        public:
-            /*
-             * Adds path to lookup list
-             */
-            void addPath(string path);
-            /*
-             * Looks up file by relative name
-             */
-            string lookupFile(string fname);
-            /**
-             * Searches for folder by relative path
-             * @param fname Folder name
-             */
-            string lookupFolder(string fname);
-    };
-
-}
-
 /*
  * Checks if previous read operation succeeded.
  */

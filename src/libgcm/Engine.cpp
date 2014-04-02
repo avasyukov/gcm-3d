@@ -631,10 +631,6 @@ void gcm::Engine::transferScene(float x, float y, float z) {
     scene.transfer(x, y, z);
 }
 
-FileFolderLookupService& gcm::Engine::getFileFolderLookupService() {
-    return fls;
-}
-
 void gcm::Engine::setContactThresholdType(unsigned char type)
 {
     assert_true( type == CONTACT_THRESHOLD_BY_AVG_H

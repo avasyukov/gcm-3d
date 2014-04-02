@@ -1,4 +1,5 @@
 #include "launcher/loaders/mesh/Vtu2MeshLoader.hpp"
+#include "launcher/util/FileFolderLookupService.hpp"
 #include "libgcm/Engine.hpp"
 
 #include <boost/lexical_cast.hpp>
@@ -9,7 +10,7 @@ const string launcher::Vtu2MeshLoader::MESH_TYPE = "vtu2";
 
 void launcher::Vtu2MeshLoader::parseDesc(const xml::Node& desc, string& id, string& fileName)
 {
-    auto& ffls = Engine::getInstance().getFileFolderLookupService();
+    auto& ffls = FileFolderLookupService::getInstance();
 
     id = desc["id"];
     fileName = ffls.lookupFile(desc["file"]);

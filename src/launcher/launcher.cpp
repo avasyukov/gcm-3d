@@ -12,6 +12,7 @@
 #include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
 #include "launcher/loaders/mesh/MarkeredBoxMeshLoader.hpp"
 #include "launcher/loaders/mesh/CubicMeshLoader.hpp"
+#include "launcher/util/FileFolderLookupService.hpp"
 
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/mesh/Mesh.hpp"
@@ -82,8 +83,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     Engine& engine = gcm::Engine::getInstance();
 
     // FIXME should we validate task file against xml schema?
-    FileFolderLookupService& fls =  engine.getFileFolderLookupService();
-    string fname = fls.lookupFile(fileName);
+    auto& ffls = FileFolderLookupService::getInstance();
+    string fname = ffls.lookupFile(fileName);
     LOG_DEBUG("Loading scene from file " << fname);
     // parse file
     Doc doc = Doc::fromFile(fname);

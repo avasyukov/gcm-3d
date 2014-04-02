@@ -1,4 +1,5 @@
 #include "launcher/loaders/mesh/Msh2MeshLoader.hpp"
+#include "launcher/util/FileFolderLookupService.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -8,7 +9,7 @@ const string launcher::Msh2MeshLoader::MESH_TYPE = "msh2";
 
 void launcher::Msh2MeshLoader::parseDesc(const xml::Node& desc, string& id, string& fileName)
 {
-    auto& ffls = Engine::getInstance().getFileFolderLookupService();
+    auto& ffls = FileFolderLookupService::getInstance();
 
     id = desc["id"];
     fileName = ffls.lookupFile(desc["file"]);

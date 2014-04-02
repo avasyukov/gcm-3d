@@ -33,7 +33,6 @@
 #include "libgcm/Body.hpp"
 #include "libgcm/Interfaces.hpp"
 #include "libgcm/util/Singleton.hpp"
-#include "libgcm/Utils.hpp"
 
 #define CONTACT_THRESHOLD_BY_AVG_H 0
 #define CONTACT_THRESHOLD_BY_MAX_LT 1
@@ -53,10 +52,6 @@ namespace gcm
     {
     friend class Singleton;
     protected:
-        /*
-         * File lookup service
-         */
-         FileFolderLookupService fls;
         /*
          * Process rank in MPI communicator.
          */
@@ -258,7 +253,6 @@ namespace gcm
         DataBus* getDataBus();
         CalcNode& getVirtNode(unsigned int i);
 
-        FileFolderLookupService& getFileFolderLookupService();
         void setContactThresholdType(unsigned char type);
         unsigned char getContactThresholdType();
         void setContactThresholdFactor(float val);
