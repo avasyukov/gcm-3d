@@ -85,8 +85,6 @@ void gcm::Engine::clear() {
         delete b;
     bodies.clear();
     materials.clear();
-    for (auto& ml: meshLoaders)
-        ml.second->cleanUp();
     // clear state
     currentTime = 0;
     currentTimeStep = 0;
@@ -100,11 +98,6 @@ void gcm::Engine::clear() {
 void gcm::Engine::cleanUp()
 {
     clear();
-    for(auto& ml: meshLoaders)
-    {
-        (ml.second)->cleanUp();
-        delete (ml.second);
-    }
     delete dataBus;
     //delete vtkSnapshotWriter;
     //delete vtkDumpWriter;
@@ -135,15 +128,6 @@ float gcm::Engine::getTimeStep()
 GCMDispatcher* gcm::Engine::getDispatcher()
 {
     return dispatcher;
-}
-
-void gcm::Engine::registerMeshLoader(MeshLoader* meshLoader)
-{
-    if (!meshLoader)
-        THROW_INVALID_ARG("Mesh loader parameter cannot be NULL");
-    meshLoaders[meshLoader->getType()] = meshLoader;
-    meshLoader->setEngine(this);
-    LOG_DEBUG("Registered mesh loader: " << meshLoader->getType());
 }
 
 void gcm::Engine::registerSnapshotWriter(SnapshotWriter* snapshotWriter)
@@ -303,11 +287,6 @@ int gcm::Engine::getNumberOfBodies()
 int gcm::Engine::getNumberOfMaterials()
 {
     return materials.size();
-}
-
-MeshLoader* gcm::Engine::getMeshLoader(string type)
-{
-    return meshLoaders.find(type) != meshLoaders.end() ? meshLoaders[type] : NULL;
 }
 
 SnapshotWriter* gcm::Engine::getSnapshotWriter(string type)

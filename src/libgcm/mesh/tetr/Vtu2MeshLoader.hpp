@@ -5,7 +5,6 @@
 #include <string>
 
 #include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
-#include "libgcm/mesh/MeshLoader.hpp"
 #include "libgcm/util/formats/Vtu2TetrFileReader.hpp"
 #include "libgcm/Exception.hpp"
 #include "libgcm/Utils.hpp"

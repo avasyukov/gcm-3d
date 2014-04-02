@@ -12,7 +12,6 @@
 #include "libgcm/calc/contact/ContactCalculator.hpp"
 #include "libgcm/util/forms/PulseForm.hpp"
 #include "libgcm/util/areas/BoxArea.hpp"
-#include "libgcm/mesh/MeshLoader.hpp"
 #include "libgcm/snapshot/SnapshotWriter.hpp"
 #include "libgcm/method/NumericalMethod.hpp"
 // FIXME - do we need it here?
@@ -63,10 +62,6 @@ namespace gcm
          */
         int rank;
         int numberOfWorkers;
-        /*
-         * Mesh loaders.
-         */
-        map<string, MeshLoader*> meshLoaders;
         /*
          * Snapshot writers.
          */
@@ -165,12 +160,6 @@ namespace gcm
          */
         void doStep(float step = 0.0);
         /*
-         * Registers new mesh loader. Out-of-box mesh loaders are
-         * registered automatically at engine creation. Note, that if mesh
-         * loader with the same type is registered already it will be replaced.
-         */
-        void registerMeshLoader(MeshLoader *meshLoader);
-        /*
          * Registers new snapshot writer. Out-of-box snapshot writers are
          * registered automatically at engine creation. Note, that if snapshot
          * writer with the same type is registered already it will be replaced.
@@ -211,11 +200,6 @@ namespace gcm
 
         void setDefaultRheologyCalculatorType(string calcType);
         string getDefaultRheologyCalculatorType();
-
-        /*
-         * Returns mesh loader by type or NULL if not found.
-         */
-        MeshLoader* getMeshLoader(string type);
         /*
          * Returns snapshot writer by type or NULL if not found.
          */

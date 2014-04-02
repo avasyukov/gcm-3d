@@ -4,7 +4,6 @@
 #include <map>
 #include <string>
 
-#include "libgcm/mesh/MeshLoader.hpp"
 #include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
 #include "libgcm/snapshot/VTK2SnapshotWriter.hpp"
 #include "libgcm/util/formats/Vtu2TetrFileReader.hpp"
