@@ -7,15 +7,15 @@
 class SimpleVolumeCalculator : public VolumeCalculator
 {
 public:
-	SimpleVolumeCalculator();
-	void doCalc(CalcNode& new_node, RheologyMatrix3D& matrix, 
-									vector<CalcNode>& previousNodes);
-	inline string getType() {
-		return "SimpleVolumeCalculator";
-	}
+    SimpleVolumeCalculator();
+    void doCalc(CalcNode& new_node, RheologyMatrix3D& matrix,
+                                    vector<CalcNode>& previousNodes);
+    inline string getType() {
+        return "SimpleVolumeCalculator";
+    }
 
 protected:
-	USE_LOGGER;
+    USE_LOGGER;
 
 };
 

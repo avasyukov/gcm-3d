@@ -4,9 +4,7 @@ nbproject/
 *.msh
 *.cas
 *.pyc
-.lock-waf_linux2_build
-.waf*
-.lock*
+.*
 build
 install
 *.sublime-*

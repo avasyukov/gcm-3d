@@ -26,7 +26,7 @@ TEST(IsotropicMatrix3D, FuzzyMultiplication)
         IsotropicElasticMaterial mat("IsotropicMatrix3D_IsotropicTransition_IEM_" + k, rho, crackThreshold, la, mu);
 
         isotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
-        
+
         RheologyMatrix3D& isotropicMatrix = isotropicNode.getRheologyMatrix();
 
         for (int i = 0; i < 3; i++) {
@@ -65,7 +65,7 @@ TEST(IsotropicMatrix3D, FuzzyElasticVelocities)
         IsotropicElasticMaterial mat("IsotropicMatrix3D_IsotropicTransition_IEM_" + k, rho, crackThreshold, la, mu);
 
         isotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
-        
+
         RheologyMatrix3D& isotropicMatrix = isotropicNode.getRheologyMatrix();
 
         for (int i = 0; i < 3; i++) {
@@ -77,7 +77,7 @@ TEST(IsotropicMatrix3D, FuzzyElasticVelocities)
             case 2: isotropicMatrix.createAz(isotropicNode);
                 break;
             }
-            
+
             ASSERT_NEAR( isotropicMatrix.getMaxEigenvalue(), pVel, EQUALITY_TOLERANCE );
             for(int j = 0; j < 9; j++)
             {

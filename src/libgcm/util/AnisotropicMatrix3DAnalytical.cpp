@@ -20,21 +20,21 @@ void gcm::AnisotropicMatrix3DAnalytical::fixValuesOrder()
 
 void gcm::AnisotropicMatrix3DAnalytical::clear()
 {
-	A.clear();
-	L.clear();
-	U.clear();
-	U1.clear();
+    A.clear();
+    L.clear();
+    U.clear();
+    U1.clear();
 };
 
 void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
 {
-	clear();
+    clear();
 
 #ifdef NDEBUG
-	auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 #else
-	auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
-	assert(mat);
+    auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    assert(mat);
 #endif
 
 	auto rho = node.getRho();
@@ -108,13 +108,13 @@ void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
 
 void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
 {
-	clear();
+    clear();
 
 #ifdef NDEBUG
-	auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 #else
-	auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
-	assert(mat);
+    auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    assert(mat);
 #endif
 
 	auto rho = node.getRho();
@@ -187,13 +187,13 @@ void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
 
 void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
 {
-	clear();
+    clear();
 
 #ifdef NDEBUG
-	auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
 #else
-	auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
-	assert(mat);
+    auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    assert(mat);
 #endif
 
 	auto rho = node.getRho();
@@ -267,228 +267,228 @@ void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
 
 void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, double *x)
 {
-	// Range ( M ) = 2, one of x[i] is random
+    // Range ( M ) = 2, one of x[i] is random
 
-	int I = 0, J = 1, P = 0, Q = 1;
-	double det = 0;
-	for(int i = 0; i < 2; i++)
-	for(int j = i+1; j < 3; j++)
-			for(int p = 0; p < 2; p++)
-			for(int q = p+1; q < 3; q++)
-				if ( abs (M[p][i]*M[q][j] - M[q][i]*M[p][j]) > abs (det) ) {
-					det = M[p][i]*M[q][j] - M[q][i]*M[p][j];
-					I = i; J = j; P = p; Q = q;
-				}
+    int I = 0, J = 1, P = 0, Q = 1;
+    double det = 0;
+    for(int i = 0; i < 2; i++)
+    for(int j = i+1; j < 3; j++)
+            for(int p = 0; p < 2; p++)
+            for(int q = p+1; q < 3; q++)
+                if ( abs (M[p][i]*M[q][j] - M[q][i]*M[p][j]) > abs (det) ) {
+                    det = M[p][i]*M[q][j] - M[q][i]*M[p][j];
+                    I = i; J = j; P = p; Q = q;
+                }
 
-	// unity = no I and no J
-	int unity = ! I;
-	unity += (unity == J) ? 1 : 0;
+    // unity = no I and no J
+    int unity = ! I;
+    unity += (unity == J) ? 1 : 0;
 
-	x[unity] = 1;
-	x[I] = (-M[P][unity]*M[Q][J] + M[Q][unity]*M[P][J]) / det;
-	x[J] = (-M[P][I]*M[Q][unity] + M[Q][I]*M[P][unity]) / det;
+    x[unity] = 1;
+    x[I] = (-M[P][unity]*M[Q][J] + M[Q][unity]*M[P][J]) / det;
+    x[J] = (-M[P][I]*M[Q][unity] + M[Q][I]*M[P][unity]) / det;
 };
 
 void gcm::AnisotropicMatrix3DAnalytical::findEigenVec(double *eigenVec,
 					double l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage)
 {
-	// Analitycal search eigenvectors
-	// M * x = 0, x = (x1, x2, x3)
-	// then x[4-9] <= x[1-3]
-	double** M = new double* [3];
-	for (int i = 0; i < 3; i++)
-		M[i] = new double [3];
+    // Analitycal search eigenvectors
+    // M * x = 0, x = (x1, x2, x3)
+    // then x[4-9] <= x[1-3]
+    double** M = new double* [3];
+    for (int i = 0; i < 3; i++)
+        M[i] = new double [3];
 
-	switch ( stage ) {
-		case 0 :
-		{
-			M[0][0] = -C.c11 + rho*l*l;
-			M[1][2] = -C.c55 + rho*l*l;
-			M[2][1] = -C.c66 + rho*l*l;
-			M[0][1] = M[2][0] = -C.c16;
-			M[0][2] = M[1][0] = -C.c15;
-			M[1][1] = M[2][2] = -C.c56;
-			break;
-		}
-		case 1 :
-		{
-			M[0][1] = -C.c22 + rho*l*l;
-			M[1][2] = -C.c44 + rho*l*l;
-			M[2][0] = -C.c66 + rho*l*l;
-			M[0][0] = M[2][1] = -C.c26;
-			M[1][0] = M[2][2] = -C.c46;
-			M[1][1] = M[0][2] = -C.c24;
-			break;
-		}
-		case 2 :
-		{
-			M[0][2] = -C.c33 + rho*l*l;
-			M[1][1] = -C.c44 + rho*l*l;
-			M[2][0] = -C.c55 + rho*l*l;
-			M[0][0] = M[2][2] = -C.c35;
-			M[2][1] = M[1][0] = -C.c45;
-			M[0][1] = M[1][2] = -C.c34;
-			break;
-		}
-		default:
-			THROW_INVALID_ARG("Wrong stage number (from findEigenVec)");
-	}
+    switch ( stage ) {
+        case 0 :
+        {
+            M[0][0] = -C.c11 + rho*l*l;
+            M[1][2] = -C.c55 + rho*l*l;
+            M[2][1] = -C.c66 + rho*l*l;
+            M[0][1] = M[2][0] = -C.c16;
+            M[0][2] = M[1][0] = -C.c15;
+            M[1][1] = M[2][2] = -C.c56;
+            break;
+        }
+        case 1 :
+        {
+            M[0][1] = -C.c22 + rho*l*l;
+            M[1][2] = -C.c44 + rho*l*l;
+            M[2][0] = -C.c66 + rho*l*l;
+            M[0][0] = M[2][1] = -C.c26;
+            M[1][0] = M[2][2] = -C.c46;
+            M[1][1] = M[0][2] = -C.c24;
+            break;
+        }
+        case 2 :
+        {
+            M[0][2] = -C.c33 + rho*l*l;
+            M[1][1] = -C.c44 + rho*l*l;
+            M[2][0] = -C.c55 + rho*l*l;
+            M[0][0] = M[2][2] = -C.c35;
+            M[2][1] = M[1][0] = -C.c45;
+            M[0][1] = M[1][2] = -C.c34;
+            break;
+        }
+        default:
+            THROW_INVALID_ARG("Wrong stage number (from findEigenVec)");
+    }
 
-	findNonZeroSolution(M, eigenVec);
+    findNonZeroSolution(M, eigenVec);
 
-	switch ( stage ) {
-		case 0 :
-		{
-			eigenVec[3] = -rho*l*eigenVec[0];
-			eigenVec[8] = -rho*l*eigenVec[1];
-			eigenVec[7] = -rho*l*eigenVec[2];
-			eigenVec[4] = -(C.c12*eigenVec[0] + C.c26*eigenVec[1] + C.c25*eigenVec[2])/l;
-			eigenVec[5] = -(C.c13*eigenVec[0] + C.c36*eigenVec[1] + C.c35*eigenVec[2])/l;
-			eigenVec[6] = -(C.c14*eigenVec[0] + C.c46*eigenVec[1] + C.c45*eigenVec[2])/l;
-			break;
-		}
-		case 1 :
-		{
-			eigenVec[4] = -rho*l*eigenVec[1];
-			eigenVec[8] = -rho*l*eigenVec[0];
-			eigenVec[6] = -rho*l*eigenVec[2];
-			eigenVec[3] = -(C.c16*eigenVec[0] + C.c12*eigenVec[1] + C.c14*eigenVec[2])/l;
-			eigenVec[5] = -(C.c36*eigenVec[0] + C.c23*eigenVec[1] + C.c34*eigenVec[2])/l;
-			eigenVec[7] = -(C.c56*eigenVec[0] + C.c25*eigenVec[1] + C.c45*eigenVec[2])/l;
-			break;
-		}
-		case 2 :
-		{
-			eigenVec[7] = -rho*l*eigenVec[0];
-			eigenVec[6] = -rho*l*eigenVec[1];
-			eigenVec[5] = -rho*l*eigenVec[2];
-			eigenVec[3] = -(C.c15*eigenVec[0] + C.c14*eigenVec[1] + C.c13*eigenVec[2])/l;
-			eigenVec[4] = -(C.c25*eigenVec[0] + C.c24*eigenVec[1] + C.c23*eigenVec[2])/l;
-			eigenVec[8] = -(C.c56*eigenVec[0] + C.c46*eigenVec[1] + C.c36*eigenVec[2])/l;
-			break;
-		}
-	}
+    switch ( stage ) {
+        case 0 :
+        {
+            eigenVec[3] = -rho*l*eigenVec[0];
+            eigenVec[8] = -rho*l*eigenVec[1];
+            eigenVec[7] = -rho*l*eigenVec[2];
+            eigenVec[4] = -(C.c12*eigenVec[0] + C.c26*eigenVec[1] + C.c25*eigenVec[2])/l;
+            eigenVec[5] = -(C.c13*eigenVec[0] + C.c36*eigenVec[1] + C.c35*eigenVec[2])/l;
+            eigenVec[6] = -(C.c14*eigenVec[0] + C.c46*eigenVec[1] + C.c45*eigenVec[2])/l;
+            break;
+        }
+        case 1 :
+        {
+            eigenVec[4] = -rho*l*eigenVec[1];
+            eigenVec[8] = -rho*l*eigenVec[0];
+            eigenVec[6] = -rho*l*eigenVec[2];
+            eigenVec[3] = -(C.c16*eigenVec[0] + C.c12*eigenVec[1] + C.c14*eigenVec[2])/l;
+            eigenVec[5] = -(C.c36*eigenVec[0] + C.c23*eigenVec[1] + C.c34*eigenVec[2])/l;
+            eigenVec[7] = -(C.c56*eigenVec[0] + C.c25*eigenVec[1] + C.c45*eigenVec[2])/l;
+            break;
+        }
+        case 2 :
+        {
+            eigenVec[7] = -rho*l*eigenVec[0];
+            eigenVec[6] = -rho*l*eigenVec[1];
+            eigenVec[5] = -rho*l*eigenVec[2];
+            eigenVec[3] = -(C.c15*eigenVec[0] + C.c14*eigenVec[1] + C.c13*eigenVec[2])/l;
+            eigenVec[4] = -(C.c25*eigenVec[0] + C.c24*eigenVec[1] + C.c23*eigenVec[2])/l;
+            eigenVec[8] = -(C.c56*eigenVec[0] + C.c46*eigenVec[1] + C.c36*eigenVec[2])/l;
+            break;
+        }
+    }
 };
 
 void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, double *x, double *y)
 {
-	// Range ( M ) = 1, two of x[i] are random
+    // Range ( M ) = 1, two of x[i] are random
 
-	int I = 0, J = 0, p, q;
-	double det = 0;
-	for (int i = 0; i < 3; i++)
-		for (int j = 0; j < 3; j++)
-			if ( abs(det) < abs(M[i][j]) ) {
-				det = M[i][j];
-				I = i; J = j;
-			}
-	// p and q = no J
-	if (J == 0) { p = 1; q = 2; }
-	else if (J == 1) { p = 0; q = 2; }
-	else { p = 0; q = 1; }
+    int I = 0, J = 0, p, q;
+    double det = 0;
+    for (int i = 0; i < 3; i++)
+        for (int j = 0; j < 3; j++)
+            if ( abs(det) < abs(M[i][j]) ) {
+                det = M[i][j];
+                I = i; J = j;
+            }
+    // p and q = no J
+    if (J == 0) { p = 1; q = 2; }
+    else if (J == 1) { p = 0; q = 2; }
+    else { p = 0; q = 1; }
 
-	x[p] = y[q] = 1;
-	x[q] = y[p] = 0;
-	x[J] = -M[I][p] / det;
-	y[J] = -M[I][q] / det;
+    x[p] = y[q] = 1;
+    x[q] = y[p] = 0;
+    x[J] = -M[I][p] / det;
+    y[J] = -M[I][q] / det;
 };
 
 
 void gcm::AnisotropicMatrix3DAnalytical::findEigenVec (double *eigenVec1,
 		double *eigenVec2, double l, float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage)
 {
-	// Analitycal search eigenvectors
-	// M * x = 0, x = (x1, x2, x3)
-	// then x[4-9] <= x[1-3]
-	double** M = new double* [3];
-	for (int i = 0; i < 3; i++)
-		M[i] = new double [3];
+    // Analitycal search eigenvectors
+    // M * x = 0, x = (x1, x2, x3)
+    // then x[4-9] <= x[1-3]
+    double** M = new double* [3];
+    for (int i = 0; i < 3; i++)
+        M[i] = new double [3];
 
-	switch ( stage ) {
-		case 0 :
-		{
-			M[0][0] = -C.c11 + rho*l*l;
-			M[1][2] = -C.c55 + rho*l*l;
-			M[2][1] = -C.c66 + rho*l*l;
-			M[0][1] = M[2][0] = -C.c16;
-			M[0][2] = M[1][0] = -C.c15;
-			M[1][1] = M[2][2] = -C.c56;
-			break;
-		}
-		case 1 :
-		{
-			M[0][1] = -C.c22 + rho*l*l;
-			M[1][2] = -C.c44 + rho*l*l;
-			M[2][0] = -C.c66 + rho*l*l;
-			M[0][0] = M[2][1] = -C.c26;
-			M[1][0] = M[2][2] = -C.c46;
-			M[1][1] = M[0][2] = -C.c24;
-			break;
-		}
-		case 2 :
-		{
-			M[0][2] = -C.c33 + rho*l*l;
-			M[1][1] = -C.c44 + rho*l*l;
-			M[2][0] = -C.c55 + rho*l*l;
-			M[0][0] = M[2][2] = -C.c35;
-			M[2][1] = M[1][0] = -C.c45;
-			M[0][1] = M[1][2] = -C.c34;
-			break;
-		}
-		default:
-			THROW_INVALID_ARG("Wrong stage number (from findEigenVec)");
-	}
+    switch ( stage ) {
+        case 0 :
+        {
+            M[0][0] = -C.c11 + rho*l*l;
+            M[1][2] = -C.c55 + rho*l*l;
+            M[2][1] = -C.c66 + rho*l*l;
+            M[0][1] = M[2][0] = -C.c16;
+            M[0][2] = M[1][0] = -C.c15;
+            M[1][1] = M[2][2] = -C.c56;
+            break;
+        }
+        case 1 :
+        {
+            M[0][1] = -C.c22 + rho*l*l;
+            M[1][2] = -C.c44 + rho*l*l;
+            M[2][0] = -C.c66 + rho*l*l;
+            M[0][0] = M[2][1] = -C.c26;
+            M[1][0] = M[2][2] = -C.c46;
+            M[1][1] = M[0][2] = -C.c24;
+            break;
+        }
+        case 2 :
+        {
+            M[0][2] = -C.c33 + rho*l*l;
+            M[1][1] = -C.c44 + rho*l*l;
+            M[2][0] = -C.c55 + rho*l*l;
+            M[0][0] = M[2][2] = -C.c35;
+            M[2][1] = M[1][0] = -C.c45;
+            M[0][1] = M[1][2] = -C.c34;
+            break;
+        }
+        default:
+            THROW_INVALID_ARG("Wrong stage number (from findEigenVec)");
+    }
 
-	findNonZeroSolution(M, eigenVec1, eigenVec2);
+    findNonZeroSolution(M, eigenVec1, eigenVec2);
 
-	switch ( stage ) {
-		case 0 :
-		{
-			eigenVec1[3] = -rho*l*eigenVec1[0];
-			eigenVec1[8] = -rho*l*eigenVec1[1];
-			eigenVec1[7] = -rho*l*eigenVec1[2];
-			eigenVec1[4] = -(C.c12*eigenVec1[0] + C.c26*eigenVec1[1] + C.c25*eigenVec1[2])/l;
-			eigenVec1[5] = -(C.c13*eigenVec1[0] + C.c36*eigenVec1[1] + C.c35*eigenVec1[2])/l;
-			eigenVec1[6] = -(C.c14*eigenVec1[0] + C.c46*eigenVec1[1] + C.c45*eigenVec1[2])/l;
-			eigenVec2[3] = -rho*l*eigenVec2[0];
-			eigenVec2[8] = -rho*l*eigenVec2[1];
-			eigenVec2[7] = -rho*l*eigenVec2[2];
-			eigenVec2[4] = -(C.c12*eigenVec2[0] + C.c26*eigenVec2[1] + C.c25*eigenVec2[2])/l;
-			eigenVec2[5] = -(C.c13*eigenVec2[0] + C.c36*eigenVec2[1] + C.c35*eigenVec2[2])/l;
-			eigenVec2[6] = -(C.c14*eigenVec2[0] + C.c46*eigenVec2[1] + C.c45*eigenVec2[2])/l;
-			break;
-		}
-		case 1 :
-		{
-			eigenVec1[4] = -rho*l*eigenVec1[1];
-			eigenVec1[8] = -rho*l*eigenVec1[0];
-			eigenVec1[6] = -rho*l*eigenVec1[2];
-			eigenVec1[3] = -(C.c16*eigenVec1[0] + C.c12*eigenVec1[1] + C.c14*eigenVec1[2])/l;
-			eigenVec1[5] = -(C.c36*eigenVec1[0] + C.c23*eigenVec1[1] + C.c34*eigenVec1[2])/l;
-			eigenVec1[7] = -(C.c56*eigenVec1[0] + C.c25*eigenVec1[1] + C.c45*eigenVec1[2])/l;
-			eigenVec2[4] = -rho*l*eigenVec2[1];
-			eigenVec2[8] = -rho*l*eigenVec2[0];
-			eigenVec2[6] = -rho*l*eigenVec2[2];
-			eigenVec2[3] = -(C.c16*eigenVec2[0] + C.c12*eigenVec2[1] + C.c14*eigenVec2[2])/l;
-			eigenVec2[5] = -(C.c36*eigenVec2[0] + C.c23*eigenVec2[1] + C.c34*eigenVec2[2])/l;
-			eigenVec2[7] = -(C.c56*eigenVec2[0] + C.c25*eigenVec2[1] + C.c45*eigenVec2[2])/l;
-			break;
-		}
-		case 2 :
-		{
-			eigenVec1[7] = -rho*l*eigenVec1[0];
-			eigenVec1[6] = -rho*l*eigenVec1[1];
-			eigenVec1[5] = -rho*l*eigenVec1[2];
-			eigenVec1[3] = -(C.c15*eigenVec1[0] + C.c14*eigenVec1[1] + C.c13*eigenVec1[2])/l;
-			eigenVec1[4] = -(C.c25*eigenVec1[0] + C.c24*eigenVec1[1] + C.c23*eigenVec1[2])/l;
-			eigenVec1[8] = -(C.c56*eigenVec1[0] + C.c46*eigenVec1[1] + C.c36*eigenVec1[2])/l;
-			eigenVec2[7] = -rho*l*eigenVec2[0];
-			eigenVec2[6] = -rho*l*eigenVec2[1];
-			eigenVec2[5] = -rho*l*eigenVec2[2];
-			eigenVec2[3] = -(C.c15*eigenVec2[0] + C.c14*eigenVec2[1] + C.c13*eigenVec2[2])/l;
-			eigenVec2[4] = -(C.c25*eigenVec2[0] + C.c24*eigenVec2[1] + C.c23*eigenVec2[2])/l;
-			eigenVec2[8] = -(C.c56*eigenVec2[0] + C.c46*eigenVec2[1] + C.c36*eigenVec2[2])/l;
-			break;
-		}
-	}
+    switch ( stage ) {
+        case 0 :
+        {
+            eigenVec1[3] = -rho*l*eigenVec1[0];
+            eigenVec1[8] = -rho*l*eigenVec1[1];
+            eigenVec1[7] = -rho*l*eigenVec1[2];
+            eigenVec1[4] = -(C.c12*eigenVec1[0] + C.c26*eigenVec1[1] + C.c25*eigenVec1[2])/l;
+            eigenVec1[5] = -(C.c13*eigenVec1[0] + C.c36*eigenVec1[1] + C.c35*eigenVec1[2])/l;
+            eigenVec1[6] = -(C.c14*eigenVec1[0] + C.c46*eigenVec1[1] + C.c45*eigenVec1[2])/l;
+            eigenVec2[3] = -rho*l*eigenVec2[0];
+            eigenVec2[8] = -rho*l*eigenVec2[1];
+            eigenVec2[7] = -rho*l*eigenVec2[2];
+            eigenVec2[4] = -(C.c12*eigenVec2[0] + C.c26*eigenVec2[1] + C.c25*eigenVec2[2])/l;
+            eigenVec2[5] = -(C.c13*eigenVec2[0] + C.c36*eigenVec2[1] + C.c35*eigenVec2[2])/l;
+            eigenVec2[6] = -(C.c14*eigenVec2[0] + C.c46*eigenVec2[1] + C.c45*eigenVec2[2])/l;
+            break;
+        }
+        case 1 :
+        {
+            eigenVec1[4] = -rho*l*eigenVec1[1];
+            eigenVec1[8] = -rho*l*eigenVec1[0];
+            eigenVec1[6] = -rho*l*eigenVec1[2];
+            eigenVec1[3] = -(C.c16*eigenVec1[0] + C.c12*eigenVec1[1] + C.c14*eigenVec1[2])/l;
+            eigenVec1[5] = -(C.c36*eigenVec1[0] + C.c23*eigenVec1[1] + C.c34*eigenVec1[2])/l;
+            eigenVec1[7] = -(C.c56*eigenVec1[0] + C.c25*eigenVec1[1] + C.c45*eigenVec1[2])/l;
+            eigenVec2[4] = -rho*l*eigenVec2[1];
+            eigenVec2[8] = -rho*l*eigenVec2[0];
+            eigenVec2[6] = -rho*l*eigenVec2[2];
+            eigenVec2[3] = -(C.c16*eigenVec2[0] + C.c12*eigenVec2[1] + C.c14*eigenVec2[2])/l;
+            eigenVec2[5] = -(C.c36*eigenVec2[0] + C.c23*eigenVec2[1] + C.c34*eigenVec2[2])/l;
+            eigenVec2[7] = -(C.c56*eigenVec2[0] + C.c25*eigenVec2[1] + C.c45*eigenVec2[2])/l;
+            break;
+        }
+        case 2 :
+        {
+            eigenVec1[7] = -rho*l*eigenVec1[0];
+            eigenVec1[6] = -rho*l*eigenVec1[1];
+            eigenVec1[5] = -rho*l*eigenVec1[2];
+            eigenVec1[3] = -(C.c15*eigenVec1[0] + C.c14*eigenVec1[1] + C.c13*eigenVec1[2])/l;
+            eigenVec1[4] = -(C.c25*eigenVec1[0] + C.c24*eigenVec1[1] + C.c23*eigenVec1[2])/l;
+            eigenVec1[8] = -(C.c56*eigenVec1[0] + C.c46*eigenVec1[1] + C.c36*eigenVec1[2])/l;
+            eigenVec2[7] = -rho*l*eigenVec2[0];
+            eigenVec2[6] = -rho*l*eigenVec2[1];
+            eigenVec2[5] = -rho*l*eigenVec2[2];
+            eigenVec2[3] = -(C.c15*eigenVec2[0] + C.c14*eigenVec2[1] + C.c13*eigenVec2[2])/l;
+            eigenVec2[4] = -(C.c25*eigenVec2[0] + C.c24*eigenVec2[1] + C.c23*eigenVec2[2])/l;
+            eigenVec2[8] = -(C.c56*eigenVec2[0] + C.c46*eigenVec2[1] + C.c36*eigenVec2[2])/l;
+            break;
+        }
+    }
 };

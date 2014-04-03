@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   AnisotropicElasticMaterial.h
  * Author: Alexey Ermakov
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef ANISOTROPICELASTICMATERIAL_H
-#define	ANISOTROPICELASTICMATERIAL_H
+#define    ANISOTROPICELASTICMATERIAL_H
 
 #include "materials/IAnisotropicElasticMaterial.h"
 #include "materials/Material.h"
@@ -36,7 +36,7 @@ namespace gcm
     public:
         /**
          * Constructor. Constructs material using specified parameters.
-         * 
+         *
          * @param name Material name
          * @param rho Material density
          * @param crackThreshold Material crack threshold
@@ -44,40 +44,41 @@ namespace gcm
          */
         AnisotropicElasticMaterial(string name, gcm_real rho, gcm_real crackThreshold, RheologyParameters params);
         ~AnisotropicElasticMaterial();
-        
+		void rotate(float a1, float a2, float a3);
+
         /**
          * Returns material parameters.
-         * 
+         *
          * @return Material rheology parameters.
          */
         const RheologyParameters& getParameters() const;
-        
+
 //        /**
 //         * Recomputes \f$A_x\f$ matrix with respect to node state.
-//         * 
+//         *
 //         * @param node Mesh node
 //         */
 //        void prepareRheologyMatrixX(const CalcNode& node) override;
 //        /**
 //         * Recomputes \f$A_y\f$ matrix with respect to node state.
-//         * 
+//         *
 //         * @param node Mesh node
 //         */
 //        void prepareRheologyMatrixY(const CalcNode& node) override;
 //        /**
 //         * Recomputes \f$A_z\f$ matrix with respect to node state.
-//         * 
+//         *
 //         * @param node Mesh node
 //         */
 //        void prepareRheologyMatrixZ(const CalcNode& node) override;
         /**
          * Returns previously computed rheology matrix.
-         * 
+         *
          * @return Rheology matrix
          */
-        AnisotropicMatrix3D& getRheologyMatrix() override;        
+        AnisotropicMatrix3D& getRheologyMatrix() override;
     };
 }
 
-#endif	/* ANISOTROPICELASTICMATERIAL_H */
+#endif    /* ANISOTROPICELASTICMATERIAL_H */
 

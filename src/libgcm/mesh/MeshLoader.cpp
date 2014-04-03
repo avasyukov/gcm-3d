@@ -13,5 +13,5 @@ gcm::MeshLoader::~MeshLoader() {
 }
 
 void gcm::MeshLoader::setEngine(IEngine* engine) {
-	this->engine = engine;	
+    this->engine = engine;
 }

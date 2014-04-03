@@ -57,7 +57,7 @@ def configure(conf):
         conf.fatal('Cannot extract MPI compiler and linker flags')
 
     try:
-        conf.start_msg('Checking for mpi version')
+        conf.start_msg('Checking for mpi')
         version = conf.run_c_code(
             code='''
                 #include <stdio.h>

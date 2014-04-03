@@ -12,7 +12,7 @@ namespace gcm {
     // forward declaration
     class CalcNode;
     class RheologyMatrix3D;
-    
+
     /**
      * Base class to inherit from to implement different material types.
      */
@@ -33,7 +33,7 @@ namespace gcm {
     public:
         /**
          * Constructor. Constructs material using specified parameters.
-         * 
+         *
          * @param name Material name
          * @param rho Material density
          * @param crackThreshold Material crack threshold
@@ -46,13 +46,13 @@ namespace gcm {
 
         /**
          * Returns material name.
-         * 
+         *
          * @return Material name.
          */
         const string& getName() const;
         /**
          * Returns material density.
-         * 
+         *
          * @return Density value.
          */
         gcm_real getRho() const;
@@ -62,29 +62,29 @@ namespace gcm {
          * @return Crack threshold value.
          */
         gcm_real getCrackThreshold() const;
-        
+
 //        /**
 //         * Recomputes \f$A_x\f$ matrix with respect to node state.
-//         * 
+//         *
 //         * @param node Mesh node
 //         */
 //        virtual void prepareRheologyMatrixX(const CalcNode& node) = 0;
 //        /**
 //         * Recomputes \f$A_y\f$ matrix with respect to node state.
-//         * 
+//         *
 //         * @param node Mesh node
 //         */
 //        virtual void prepareRheologyMatrixY(const CalcNode& node) = 0;
 //        /**
 //         * Recomputes \f$A_z\f$ matrix with respect to node state.
-//         * 
+//         *
 //         * @param node Mesh node
 //         */
 //        virtual void prepareRheologyMatrixZ(const CalcNode& node) = 0;
-        
+
         /**
          * Returns rheology matrix.
-         * 
+         *
          * @return Rheology matrix
          */
         virtual RheologyMatrix3D& getRheologyMatrix() = 0;

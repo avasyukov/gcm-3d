@@ -122,8 +122,8 @@ void gcm::TetrMeshSecondOrder::copyMesh(TetrMeshFirstOrder* src)
     createTetrs(src->getTetrsNumber());
     //for( int i = 0; i < tetrsNumber; i++ )
     //for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
-    //	int i = itr->first;
-    //	addTetr( src->getTetr(i) );
+    //    int i = itr->first;
+    //    addTetr( src->getTetr(i) );
     //}
     for (int i = 0; i < src->getTetrsNumber(); i++) {
         addTetr(src->getTetrByLocalIndex(i));
@@ -309,7 +309,7 @@ void gcm::TetrMeshSecondOrder::build_first_order_border()
     }
 
     //if( number != faceCount )
-    //	LOG_WARN("Number: " << number << " FaceCount: " << faceCount);
+    //    LOG_WARN("Number: " << number << " FaceCount: " << faceCount);
     assert(number == faceCount);
     LOG_DEBUG("Created " << faceNumber << " triangles");
 }
@@ -335,7 +335,7 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderBorder()
             v2 = getTriangle(i).verts[ combinations[j].second ];
 
             //if( ( v1 == 0 && v2 == 420 ) || ( v1 == 420 && v2 == 0 ) )
-            //	debug = true;
+            //    debug = true;
 
             ind = -1;
             vector<int>& elements = getVolumeElementsForNode(v1);
@@ -514,12 +514,12 @@ int gcm::TetrMeshSecondOrder::countSecondOrderNodes(TetrMeshFirstOrder* src)
     for (int i = 0; i < src->getTetrsNumber(); i++) {
         TetrFirstOrder& tetr = src->getTetrByLocalIndex(i);
         //if( body->getEngine()->getRank() == 1 )
-        //	LOG_DEBUG("Tetr " << i << " Num: " << tetr.number);
+        //    LOG_DEBUG("Tetr " << i << " Num: " << tetr.number);
         for (int j = 0; j < 6; j++) {
             v1 = tetr.verts[ combinations[j].first ];
             v2 = tetr.verts[ combinations[j].second ];
             //if( body->getEngine()->getRank() == 1 )
-            //	LOG_DEBUG("V1 = " << v1 << " V2 = " << v2);
+            //    LOG_DEBUG("V1 = " << v1 << " V2 = " << v2);
             ind = -1;
 
             for (unsigned int z = 0; z < processed[v1 - minFirstOrderNum]->size(); z++)
@@ -643,22 +643,22 @@ bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& origin, float dx, float
 // TODO: rewrite it
 bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& node)
 {
-	for (int i = 0; i < getTetrsNumber(); i++)
-	{
-		TetrSecondOrder& t = getTetr2ByLocalIndex(i);
-		if ( pointInTetr(node.x, node.y, node.z, 
-				getNode(t.verts[0]).coords, getNode(t.verts[1]).coords, 
-				getNode(t.verts[2]).coords, getNode(t.verts[3]).coords, false) )
-		{
-			interpolator->interpolate( node,
-					getNode(t.verts[0]), getNode(t.verts[1]),
-					getNode(t.verts[2]), getNode(t.verts[3]),
-					getNode(t.addVerts[0]), getNode(t.addVerts[1]),
-					getNode(t.addVerts[2]), getNode(t.addVerts[3]),
-					getNode(t.addVerts[4]), getNode(t.addVerts[5]));
-			return true;
-		}
-	}
+    for (int i = 0; i < getTetrsNumber(); i++)
+    {
+        TetrSecondOrder& t = getTetr2ByLocalIndex(i);
+        if ( pointInTetr(node.x, node.y, node.z,
+                getNode(t.verts[0]).coords, getNode(t.verts[1]).coords,
+                getNode(t.verts[2]).coords, getNode(t.verts[3]).coords, false) )
+        {
+            interpolator->interpolate( node,
+                    getNode(t.verts[0]), getNode(t.verts[1]),
+                    getNode(t.verts[2]), getNode(t.verts[3]),
+                    getNode(t.addVerts[0]), getNode(t.addVerts[1]),
+                    getNode(t.addVerts[2]), getNode(t.addVerts[3]),
+                    getNode(t.addVerts[4]), getNode(t.addVerts[5]));
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }

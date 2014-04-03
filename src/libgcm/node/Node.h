@@ -9,10 +9,10 @@ using namespace std;
 namespace gcm {
 
     /**
-     * Base class that contains node data. All other node implementations 
+     * Base class that contains node data. All other node implementations
      * should derive from this one. Contains basic node information such
      * as number and coordinates.
-     * 
+     *
      */
     class Node {
     public:

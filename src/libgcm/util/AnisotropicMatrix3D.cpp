@@ -31,59 +31,59 @@ void gcm::AnisotropicMatrix3D::realChecker(gsl_matrix_complex* a, gsl_matrix* u,
 {
     int i, j;
     gsl_complex z;
-	
-	switch(stage) {
+
+    switch(stage) {
     case 0:
-		for (i = 0; i < 9; i++)
-			for (j = 0; j < 6; j++) {
-				z = gsl_matrix_complex_get(a, i, j);
-				if (fabs(GSL_IMAG(z)) > 1e-8) THROW_INVALID_INPUT("Vector is complex!");
-				gsl_matrix_set(u, i, j, GSL_REAL(z));
-			}
-			
-		for (i = 0; i < 9; i++)
-			for (j = 6; j < 9; j++)
-				gsl_matrix_set(u, i, j, 0.0);
-				
-		gsl_matrix_set(u, 6, 6, 1.0);
-		gsl_matrix_set(u, 7, 7, 1.0);
-		gsl_matrix_set(u, 8, 8, 1.0);
-		break;
-		
-	case 1:
-		for (i = 0; i < 9; i++)
-			for (j = 0; j < 6; j++) {
-				z = gsl_matrix_complex_get(a, i, j);
-				if (fabs(GSL_IMAG(z)) > 1e-8) THROW_INVALID_INPUT("Vector is complex!");
-				gsl_matrix_set(u, i, j, GSL_REAL(z));
-			}
-			
-		for (i = 0; i < 9; i++)
-			for (j = 6; j < 9; j++)
-				gsl_matrix_set(u, i, j, 0.0);
-				
-		gsl_matrix_set(u, 3, 6, 1.0);
-		gsl_matrix_set(u, 5, 7, 1.0);
-		gsl_matrix_set(u, 8, 8, 1.0);
-		break;
-		
-	case 2:
-		for (i = 0; i < 9; i++)
-			for (j = 0; j < 6; j++) {
-				z = gsl_matrix_complex_get(a, i, j);
-				if (fabs(GSL_IMAG(z)) > 1e-8) THROW_INVALID_INPUT("Vector is complex!");
-				gsl_matrix_set(u, i, j, GSL_REAL(z));
-			}
-			
-		for (i = 0; i < 9; i++)
-			for (j = 6; j < 9; j++)
-				gsl_matrix_set(u, i, j, 0.0);
-				
-		gsl_matrix_set(u, 3, 6, 1.0);
-		gsl_matrix_set(u, 4, 7, 1.0);
-		gsl_matrix_set(u, 6, 8, 1.0);
-		break;
-	}
+        for (i = 0; i < 9; i++)
+            for (j = 0; j < 6; j++) {
+                z = gsl_matrix_complex_get(a, i, j);
+                if (fabs(GSL_IMAG(z)) > 1e-8) THROW_INVALID_INPUT("Vector is complex!");
+                gsl_matrix_set(u, i, j, GSL_REAL(z));
+            }
+
+        for (i = 0; i < 9; i++)
+            for (j = 6; j < 9; j++)
+                gsl_matrix_set(u, i, j, 0.0);
+
+        gsl_matrix_set(u, 6, 6, 1.0);
+        gsl_matrix_set(u, 7, 7, 1.0);
+        gsl_matrix_set(u, 8, 8, 1.0);
+        break;
+
+    case 1:
+        for (i = 0; i < 9; i++)
+            for (j = 0; j < 6; j++) {
+                z = gsl_matrix_complex_get(a, i, j);
+                if (fabs(GSL_IMAG(z)) > 1e-8) THROW_INVALID_INPUT("Vector is complex!");
+                gsl_matrix_set(u, i, j, GSL_REAL(z));
+            }
+
+        for (i = 0; i < 9; i++)
+            for (j = 6; j < 9; j++)
+                gsl_matrix_set(u, i, j, 0.0);
+
+        gsl_matrix_set(u, 3, 6, 1.0);
+        gsl_matrix_set(u, 5, 7, 1.0);
+        gsl_matrix_set(u, 8, 8, 1.0);
+        break;
+
+    case 2:
+        for (i = 0; i < 9; i++)
+            for (j = 0; j < 6; j++) {
+                z = gsl_matrix_complex_get(a, i, j);
+                if (fabs(GSL_IMAG(z)) > 1e-8) THROW_INVALID_INPUT("Vector is complex!");
+                gsl_matrix_set(u, i, j, GSL_REAL(z));
+            }
+
+        for (i = 0; i < 9; i++)
+            for (j = 6; j < 9; j++)
+                gsl_matrix_set(u, i, j, 0.0);
+
+        gsl_matrix_set(u, 3, 6, 1.0);
+        gsl_matrix_set(u, 4, 7, 1.0);
+        gsl_matrix_set(u, 6, 8, 1.0);
+        break;
+    }
 };
 
 void gcm::AnisotropicMatrix3D::realChecker(gsl_vector_complex* a, gsl_matrix* l)
@@ -94,7 +94,7 @@ void gcm::AnisotropicMatrix3D::realChecker(gsl_vector_complex* a, gsl_matrix* l)
         z = gsl_vector_complex_get(a, i);
         if (fabs(GSL_IMAG(z)) > 1e-8) THROW_INVALID_INPUT("Value is complex!");
         gsl_matrix_set(l, i, i, GSL_REAL(z));
-    }  
+    }
 };
 
 void gcm::AnisotropicMatrix3D::decompositeIt(gsl_matrix* a, gsl_vector_complex* eval,  gsl_matrix_complex* evec)
@@ -103,7 +103,7 @@ void gcm::AnisotropicMatrix3D::decompositeIt(gsl_matrix* a, gsl_vector_complex* 
     gsl_eigen_nonsymmv_workspace* w = gsl_eigen_nonsymmv_alloc(9);
     gsl_eigen_nonsymmv(a, eval, evec, w);
     gsl_eigen_nonsymmv_free(w);
-    gsl_eigen_nonsymmv_sort(eval, evec, GSL_EIGEN_SORT_ABS_DESC); 
+    gsl_eigen_nonsymmv_sort(eval, evec, GSL_EIGEN_SORT_ABS_DESC);
 };
 
 void gcm::AnisotropicMatrix3D::initializeAx(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
@@ -155,32 +155,32 @@ void gcm::AnisotropicMatrix3D::initializeAx(const Material* material, gcm_matrix
     gsl_matrix_set(a, 8, 0, -params.c13);
     gsl_matrix_set(a, 8, 1, -params.c36);
     gsl_matrix_set(a, 8, 2, -params.c35);
-    
-	gslTogcm(a, A);	
-	
+
+    gslTogcm(a, A);
+
     gsl_vector_complex* eval = gsl_vector_complex_alloc(9);
     gsl_matrix_complex* evec = gsl_matrix_complex_alloc(9, 9);
     decompositeIt(a, eval, evec);
-	
-	// Checking eigenvalues & filling L
-	gsl_matrix* l = gsl_matrix_alloc(9, 9);
-	clear(l);
+
+    // Checking eigenvalues & filling L
+    gsl_matrix* l = gsl_matrix_alloc(9, 9);
+    clear(l);
     realChecker(eval, l);
-	gslTogcm(l, L);
-	
-	// Checking eigenvectors & filling U1
-	gsl_matrix* u1 = gsl_matrix_alloc(9, 9);
-	clear(u1);
-	realChecker(evec, u1, 0);
-	gslTogcm(u1, U1);
-	
-	// Inverting of U1 matrix
-	int i;
-	gsl_matrix* u = gsl_matrix_alloc(9, 9);
-	gsl_permutation* perm = gsl_permutation_alloc(9);
+    gslTogcm(l, L);
+
+    // Checking eigenvectors & filling U1
+    gsl_matrix* u1 = gsl_matrix_alloc(9, 9);
+    clear(u1);
+    realChecker(evec, u1, 0);
+    gslTogcm(u1, U1);
+
+    // Inverting of U1 matrix
+    int i;
+    gsl_matrix* u = gsl_matrix_alloc(9, 9);
+    gsl_permutation* perm = gsl_permutation_alloc(9);
     gsl_linalg_LU_decomp(u1, perm, &i);
     gsl_linalg_LU_invert(u1, perm, u);
-	
+
     gslTogcm(u, U);
 
     gsl_matrix_free(a);
@@ -240,28 +240,28 @@ void gcm::AnisotropicMatrix3D::initializeAy(const Material* material, gcm_matrix
     gsl_matrix_set(a, 8, 1, -params.c23);
     gsl_matrix_set(a, 8, 2, -params.c34);
 
-	gslTogcm(a, A);	
-	
+    gslTogcm(a, A);
+
     gsl_vector_complex* eval = gsl_vector_complex_alloc(9);
     gsl_matrix_complex* evec = gsl_matrix_complex_alloc(9, 9);
     decompositeIt(a, eval, evec);
-	
-	// Checking eigenvalues & filling L
-	gsl_matrix* l = gsl_matrix_alloc(9, 9);
-	clear(l);
+
+    // Checking eigenvalues & filling L
+    gsl_matrix* l = gsl_matrix_alloc(9, 9);
+    clear(l);
     realChecker(eval, l);
-	gslTogcm(l, L);
-	
-	// Checking eigenvalues & filling U1
-	gsl_matrix* u1 = gsl_matrix_alloc(9, 9);
-	clear(u1);
-	realChecker(evec, u1, 1);
-	gslTogcm(u1, U1);
-	
-	// Inverting of U1 matrix
-	int i;
-	gsl_matrix* u = gsl_matrix_alloc(9, 9);
-	gsl_permutation* perm = gsl_permutation_alloc(9);
+    gslTogcm(l, L);
+
+    // Checking eigenvalues & filling U1
+    gsl_matrix* u1 = gsl_matrix_alloc(9, 9);
+    clear(u1);
+    realChecker(evec, u1, 1);
+    gslTogcm(u1, U1);
+
+    // Inverting of U1 matrix
+    int i;
+    gsl_matrix* u = gsl_matrix_alloc(9, 9);
+    gsl_permutation* perm = gsl_permutation_alloc(9);
     gsl_linalg_LU_decomp(u1, perm, &i);
     gsl_linalg_LU_invert(u1, perm, u);
     gslTogcm(u, U);
@@ -323,28 +323,28 @@ void gcm::AnisotropicMatrix3D::initializeAz(const Material* material, gcm_matrix
     gsl_matrix_set(a, 8, 1, -params.c34);
     gsl_matrix_set(a, 8, 2, -params.c33);
 
-	gslTogcm(a, A);	
-	
+    gslTogcm(a, A);
+
     gsl_vector_complex* eval = gsl_vector_complex_alloc(9);
     gsl_matrix_complex* evec = gsl_matrix_complex_alloc(9, 9);
     decompositeIt(a, eval, evec);
-	
-	// Checking eigenvalues & filling L
-	gsl_matrix* l = gsl_matrix_alloc(9, 9);
-	clear(l);
+
+    // Checking eigenvalues & filling L
+    gsl_matrix* l = gsl_matrix_alloc(9, 9);
+    clear(l);
     realChecker(eval, l);
-	gslTogcm(l, L);
-	
-	// Checking eigenvalues & filling U1
-	gsl_matrix* u1 = gsl_matrix_alloc(9, 9);
-	clear(u1);
-	realChecker(evec, u1, 2);
-	gslTogcm(u1, U1);
-	
-	// Inverting of U1 matrix
-	int i;
-	gsl_matrix* u = gsl_matrix_alloc(9, 9);
-	gsl_permutation* perm = gsl_permutation_alloc(9);
+    gslTogcm(l, L);
+
+    // Checking eigenvalues & filling U1
+    gsl_matrix* u1 = gsl_matrix_alloc(9, 9);
+    clear(u1);
+    realChecker(evec, u1, 2);
+    gslTogcm(u1, U1);
+
+    // Inverting of U1 matrix
+    int i;
+    gsl_matrix* u = gsl_matrix_alloc(9, 9);
+    gsl_permutation* perm = gsl_permutation_alloc(9);
     gsl_linalg_LU_decomp(u1, perm, &i);
     gsl_linalg_LU_invert(u1, perm, u);
     gslTogcm(u, U);

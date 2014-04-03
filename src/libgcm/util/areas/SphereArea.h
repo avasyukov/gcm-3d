@@ -6,11 +6,11 @@
 class SphereArea : public Area
 {
 public:
-	SphereArea( float _radius, float x, float y, float z );
-	bool isInArea( Node& cur_node );
+    SphereArea( float _radius, float x, float y, float z );
+    bool isInArea( Node& cur_node );
 private:
-	float radius;
-	float center[3];
+    float radius;
+    float center[3];
 };
 
 #endif

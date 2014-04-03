@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   Singleton.h
  * Author: Alexey Ermakov
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef SINGLETON_H
-#define	SINGLETON_H
+#define    SINGLETON_H
 
 #include <utility>
 
@@ -39,5 +39,5 @@ template<typename T>
 T* Singleton<T>::instance_ = nullptr;
 
 
-#endif	/* SINGLETON_H */
+#endif    /* SINGLETON_H */
 

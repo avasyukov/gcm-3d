@@ -16,9 +16,9 @@ using namespace gcm;
 namespace gcm {
 
     /**
-     * Anisotropic rheology matrix implementation. 
-	 * Creates corresponding rheology matrices for case of anisotropic material. 
-	 * Implements 'semi-analytical' solution. 
+     * Anisotropic rheology matrix implementation.
+     * Creates corresponding rheology matrices for case of anisotropic material.
+     * Implements 'semi-analytical' solution.
      */
 	class AnisotropicMatrix3DAnalytical : public MutableRheologyMatrix3D
 	{

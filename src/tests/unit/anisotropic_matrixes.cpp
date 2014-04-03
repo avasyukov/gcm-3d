@@ -19,12 +19,12 @@
 // Random part of anisotropic rheology parameters tensor
 #define RANDOM_LIMIT 1.0e+3
 
-#define RHO_LIMIT 10.0
+#define RHO_LIMIT 1.0
 
 // Limits for isotropic transition test
-#define ISOTROPIC_LAMBDA_LIMIT 1.0e+9
-#define ISOTROPIC_MU_LIMIT 1.0e+8
-#define ISOTROPIC_RHO_LIMIT 1.0e+4
+#define ISOTROPIC_LAMBDA_LIMIT 1
+#define ISOTROPIC_MU_LIMIT 1.0e-1
+#define ISOTROPIC_RHO_LIMIT 1.0
 
 
 class AnisotropicElasticMaterialAnalytical : public Material, public IAnisotropicElasticMaterial
@@ -70,13 +70,19 @@ AnisotropicElasticMaterial generateRandomMaterial(string name)
     }
 
     float matC[6][6];
+	float max = 0;
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < 6; j++) {
             matC[i][j] = 0;
             for (int k = 0; k < 6; k++)
                 matC[i][j] += L[k][i] * L[k][j];
-        }
+			max = fmax( max, matC[i][j] );
+		}
     }
+	
+	for (int i = 0; i < 6; i++)
+        for (int j = 0; j < 6; j++)
+			matC[i][j] = matC[i][j]/max;
 
     IAnisotropicElasticMaterial::RheologyParameters C;
     C.c11 = la + 2 * mu + matC[0][0];
@@ -103,7 +109,7 @@ AnisotropicElasticMaterial generateRandomMaterial(string name)
 
     float rho = RHO_LIMIT * (double) rand() / RAND_MAX;
     gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
-
+	
     AnisotropicElasticMaterial mat(name, rho, crackThreshold, C);
     return mat;
 };
@@ -158,7 +164,7 @@ void testDecomposition(AnisotropicElasticMaterial(*generateMaterial)(string))
     for (int count = 0; count < ITERATIONS; count++) {
         CalcNode anisotropicNode;
         AnisotropicMatrixImplementation matrix;
-        
+
         string testMaterialName = "AnisotropicMatrix3D_FuzzyMultiplication_" + to_string(count);
         AnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
         anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
@@ -184,37 +190,37 @@ void testDecomposition(AnisotropicElasticMaterial(*generateMaterial)(string))
 
 // To build difference between U1 in alalytical and numerical matrixes
 void build_U1_Difference(RheologyMatrix3D& analyticalMatrix, RheologyMatrix3D& numericalMatrix) {
-	gcm_matrix diff;
-	diff.clear();
-	
-	int j_an, j_num, k, k_max;
-	float eigenvA, max, ratio;
-	
-	// Through all eigenvalues
-	for(j_an = 0; j_an < 6; j_an++) {
-		eigenvA = analyticalMatrix.getL().get(j_an, j_an);
-		
-		// Finding the same eigenvalue in numericalMatrix
-		j_num = 0;
-		while(fabs(eigenvA - numericalMatrix.getL().get(j_num, j_num)) > fmax(fabs(eigenvA), fabs(numericalMatrix.getL().get(j_num, j_num)))*EQUALITY_TOLERANCE) { j_num++; }
-		
-		// Finding the maximum component
-		max = 0.0;
-		k_max = 0;
-		for(k = 0; k < 9; k++)
-			if(max < fabs(analyticalMatrix.getU1().get(k, j_an))) {
-				max = fabs(analyticalMatrix.getU1().get(k, j_an));
-				k_max = k;
-			}
-		ratio = analyticalMatrix.getU1().get(k_max, j_an)/numericalMatrix.getU1().get(k_max, j_num);
-		// Build the difference between the same eigenvectors
-		for(k = 0; k < 9; k++)
-			diff(k, j_an) = fabs(analyticalMatrix.getU1().get(k, j_an) - ratio*numericalMatrix.getU1().get(k, j_num));
-	}
-	
-	cout << '\n' << analyticalMatrix.getU1() << '\n';	
-	cout << '\n' << diff << '\n';	
-	
+    gcm_matrix diff;
+    diff.clear();
+
+    int j_an, j_num, k, k_max;
+    float eigenvA, max, ratio;
+
+    // Through all eigenvalues
+    for(j_an = 0; j_an < 6; j_an++) {
+        eigenvA = analyticalMatrix.getL().get(j_an, j_an);
+
+        // Finding the same eigenvalue in numericalMatrix
+        j_num = 0;
+        while(fabs(eigenvA - numericalMatrix.getL().get(j_num, j_num)) > fmax(fabs(eigenvA), fabs(numericalMatrix.getL().get(j_num, j_num)))*EQUALITY_TOLERANCE) { j_num++; }
+
+        // Finding the maximum component
+        max = 0.0;
+        k_max = 0;
+        for(k = 0; k < 9; k++)
+            if(max < fabs(analyticalMatrix.getU1().get(k, j_an))) {
+                max = fabs(analyticalMatrix.getU1().get(k, j_an));
+                k_max = k;
+            }
+        ratio = analyticalMatrix.getU1().get(k_max, j_an)/numericalMatrix.getU1().get(k_max, j_num);
+        // Build the difference between the same eigenvectors
+        for(k = 0; k < 9; k++)
+            diff(k, j_an) = fabs(analyticalMatrix.getU1().get(k, j_an) - ratio*numericalMatrix.getU1().get(k, j_num));
+    }
+
+    cout << '\n' << analyticalMatrix.getU1() << '\n';
+    cout << '\n' << diff << '\n';
+
 };
 
 template<class AnisotropicMatrixImplementation1, class AnisotropicMatrixImplementation2>
@@ -224,11 +230,11 @@ void compareDecomposition(AnisotropicElasticMaterial(*generateMaterial)(string))
         CalcNode anisotropicNode;
         AnisotropicMatrixImplementation1 matrix1;
         AnisotropicMatrixImplementation2 matrix2;
-        
-        string testMaterialName = "AnisotropicMatrix3D_Comparing_" + count;
+
+        string testMaterialName = "AnisotropicMatrix3D_Comparing_" + to_string(count);
         AnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
         anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
-        
+
         for (int i = 0; i < 3; i++) {
             switch (i) {
             case 0: matrix1.createAx(anisotropicNode);
@@ -241,14 +247,14 @@ void compareDecomposition(AnisotropicElasticMaterial(*generateMaterial)(string))
                 matrix2.createAz(anisotropicNode);
                 break;
             }
-            
+
             int j_an, j_num, k;
             float eigenvA, ratio;
-            
+
             // Through all eigenvalues
             for(j_an = 0; j_an < 6; j_an++) {
                 eigenvA = matrix1.getL().get(j_an, j_an);
-                
+
                 // Finding the same eigenvalue in numericalMatrix
                 j_num = 0;
                 while(fabs(eigenvA - matrix2.getL().get(j_num, j_num)) > fmax(fabs(eigenvA), fabs(matrix2.getL().get(j_num, j_num)))*10.0*EQUALITY_TOLERANCE) { j_num++; }
@@ -364,7 +370,7 @@ TEST(AnisotropicMatrix3D, NumericalIsotropicTransition)
 //    compareDecomposition<AnisotropicMatrix3DAnalytical, AnisotropicMatrix3D>(generateRandomMaterial);
 //};
 
-TEST(AnisotropicMatrix3D, AnalyticalEqNumerical) 
+TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
 {
     srand(time(NULL));
     for (int count = 0; count < ITERATIONS; count++) {
@@ -387,7 +393,7 @@ TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
         analyticalMatrix.createAz(anisotropicNode);
         numericalMatrix.createAz(anisotropicNode);
         ASSERT_TRUE( analyticalMatrix.getA() == numericalMatrix.getA() );
-        
+
         Engine::getInstance().clear();
     }
 };

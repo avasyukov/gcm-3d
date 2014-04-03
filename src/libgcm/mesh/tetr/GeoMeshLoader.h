@@ -24,28 +24,28 @@ using namespace gcm;
 using namespace std;
 
 namespace gcm {
-	class GeoMeshLoader: public TemplatedMeshLoader<TetrMeshFirstOrder>
-	{
-	protected:
-		/*
-		 * Loads mesh from using passed configuration
-		 */
-		 void loadMesh(Params params, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher);
-		 void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes);
-		 void createMshFile(Params params);
-		 USE_LOGGER;
-		 bool isMshFileCreated(Params params);
-		 string getMshFileName(string geoFile);
-		 map<string,bool> createdFiles;
-	public:
-		GeoMeshLoader();
-		~GeoMeshLoader();
-		/*
-		 * Returns mesh loader type
-		 */
-		string getType();
-		void cleanUp();
-	};
+    class GeoMeshLoader: public TemplatedMeshLoader<TetrMeshFirstOrder>
+    {
+    protected:
+        /*
+         * Loads mesh from using passed configuration
+         */
+         void loadMesh(Params params, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher);
+         void preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes);
+         void createMshFile(Params params);
+         USE_LOGGER;
+         bool isMshFileCreated(Params params);
+         string getMshFileName(string geoFile);
+         map<string,bool> createdFiles;
+    public:
+        GeoMeshLoader();
+        ~GeoMeshLoader();
+        /*
+         * Returns mesh loader type
+         */
+        string getType();
+        void cleanUp();
+    };
 }
 
 #endif /* GCM_GEO_MESH_LOADER_H_ */
