@@ -12,68 +12,104 @@
 using namespace std;
 
 namespace gcm {
-    /*
-     * Base exception class
+    /**
+     * Custom gcm exception implementation.
      */
     class Exception {
         private:
-            /*
-             * Exception details: code, message, file and line number.
+            /**
+             * Exception code.
              */
             int code;
+            /**
+             * Line number where exception was thrown.
+             */
             int line;
+            /**
+             * Exception message
+             */
             string message;
+            /**
+             * File name where exception was thrown.
+             */
             string file;
-            /*
-             * Call stack.
+            /**
+             * Call stack as at the moment when exception was thrown.
              */
-            char **callStack;
-            int callStackLen;
-            /*
-             * Saves current call stack.
-             */
-            void saveCallStack();
-            /*
-             * Demangles symbol.
-             */
-            string demangle(const char* symbol);
+            string callStack;
         public:
-            /*
-             * Constructors and destructors.
+            /**
+             * Constructor.
+             *
+             * @param code Exception code.
+             * @param message Exception message.
+             * @param file Name of the file where exception was thrown.
+             * @param line Number of line in the file where exception was thrown.
              */
-            Exception();
-            ~Exception();
-            Exception(int code, string message, string file, int line);
-            /*
-             * Returns exception code.
+            Exception(int code, const string& message, const string& file, int line);
+            /**
+             * Getter for exception code.
+             *
+             * @return Exception code.
              */
-            int getCode();
-            /*
-             * Returns exception message.
+            int getCode() const;
+            /**
+             * Getter for exception message.
+             *
+             * @return Exception message.
              */
-            string getMessage();
-            /*
-             * Returns name of the file where exception was thrown.
+            const string& getMessage() const;
+            /**
+             * Getter for exception file name.
+             *
+             * @return File name where exception was thrown.
              */
-            string getFile();
-            /*
-             * Returns number of the file where exception was thrown.
+            const string& getFile() const;
+            /**
+             * Getter for line number.
+             *
+             * @return Line number in the file where exception was thrown.
              */
-            int getLine();
-            /*
-             * Returns all call stack as a single string.
+            int getLine() const;
+            /**
+             * Getter for call stack.
+             *
+             * @return String representation of call stack as at the moment when exception was thrown.
              */
-            string getCallStack();
-            /*
-             * Constants
+            const string& getCallStack() const;
+            /**
+             * Unsopported exception code.
              */
             static const int UNSUPPORTED   = -1;
+            /**
+             * Unknown exception code.
+             */
             static const int UNKNOWN       = 0;
+            /**
+             * Invalid argument exception code;
+             */
             static const int INVALID_ARG   = 1;
+            /**
+             * Invalid input exception code.
+             */
             static const int INVALID_INPUT = 2;
+            /**
+             * Invalid operation exception code.
+             */
             static const int INVALID_OP    = 3;
+            /**
+             * Bad mesh exception code.
+             */
             static const int BAD_MESH      = 4;
+            /**
+             * Bad condfig exception code.
+             *
+             * FIXME Does it really need to be here? There is no configs for libgcm anymore.
+             */
             static const int BAD_CONFIG    = 5;
+            /**
+             * Invalid method exception code.
+             */
             static const int BAD_METHOD    = 6;
     };
 }
