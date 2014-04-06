@@ -1,6 +1,6 @@
-#include "ContactCondition.h"
+#include "libgcm/ContactCondition.hpp"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 gcm::ContactCondition::ContactCondition() {
     area = NULL;

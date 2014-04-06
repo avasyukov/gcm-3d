@@ -1,8 +1,8 @@
-#include "BruteforceCollisionDetector.h"
+#include "libgcm/BruteforceCollisionDetector.hpp"
 
-#include "node/CalcNode.h"
-#include "mesh/tetr/TetrMeshSecondOrder.h"
-#include "Engine.h"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
+#include "libgcm/Engine.hpp"
 
 gcm::BruteforceCollisionDetector::BruteforceCollisionDetector() {
     INIT_LOGGER("gcm.BruteforceCollisionDetector");

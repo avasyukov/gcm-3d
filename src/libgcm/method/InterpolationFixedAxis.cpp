@@ -4,7 +4,7 @@
  *
  * Created on May 3, 2013, 12:00 AM
  */
-#include "method/InterpolationFixedAxis.h"
+#include "libgcm/method/InterpolationFixedAxis.hpp"
 
 string gcm::InterpolationFixedAxis::getType()
 {
@@ -27,7 +27,8 @@ int gcm::InterpolationFixedAxis::getNumberOfStages()
 
 void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh)
 {
-    assert(stage >= 0 && stage <= 2);
+    assert_ge(stage, 0);
+    assert_le(stage, 2);
 
     IEngine* engine = mesh->getBody()->getEngine();
 
@@ -243,7 +244,8 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix
                                               float* dksi, bool* inner, vector<CalcNode>& previous_nodes,
                                               float* outer_normal)
 {
-    assert(stage >= 0 && stage <= 2);
+    assert_ge(stage, 0);
+    assert_le(stage, 2);
 
     if (cur_node.isBorder())
         mesh->findBorderNodeNormal(cur_node.number, &outer_normal[0], &outer_normal[1], &outer_normal[2], false);
@@ -375,7 +377,7 @@ int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur
         if (!inner[i])
             outer_count++;
 
-    // assert( outer_count == 0 || outer_count == 3 );
+    // assert_true(outer_count == 0 || outer_count == 3);
 
     LOG_TRACE("Looking for nodes on previous time layer done. Outer count = " << outer_count);
 

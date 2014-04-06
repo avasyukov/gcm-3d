@@ -12,8 +12,9 @@
 
 #include <mpi.h>
 
-#include "launcher/launcher.h"
-#include "libgcm/Engine.h"
+#include "launcher/launcher.hpp"
+#include "launcher/util/FileFolderLookupService.hpp"
+#include "libgcm/Engine.hpp"
 
 #ifndef CONFIG_SHARE_GCM
 #define CONFIG_SHARE_GCM "/usr/share/gcm3d"
@@ -21,6 +22,7 @@
 
 using namespace std;
 using namespace gcm;
+using namespace launcher;
 
 
 // This function print usage message
@@ -94,7 +96,7 @@ int main(int argc, char **argv, char **envp)
         LOG_INFO("Starting with taskFile '" << taskFile << "' and dataDir '" << dataDir << "'");
 
         Engine& engine = Engine::getInstance();
-        engine.getFileFolderLookupService().addPath(dataDir);
+        FileFolderLookupService::getInstance().addPath(dataDir);
         launcher::Launcher launcher;
         launcher.loadMaterialLibrary("materials");
         launcher.loadSceneFromFile(taskFile);

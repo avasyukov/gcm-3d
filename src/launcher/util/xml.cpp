@@ -1,29 +1,40 @@
-#include "launcher/util/xml.h"
+#include "launcher/util/xml.hpp"
 
 #include <string.h>
 
-#include "libgcm/Exception.h"
+#include "libgcm/Exception.hpp"
 
-xml::Doc::Doc(xmlDocPtr doc): doc(doc)
+xml::Doc::Doc(const xmlDocPtr doc): doc(doc)
 {
-
 }
 
-xml::Doc xml::Doc::fromFile(std::string fname)
+xml::Doc::Doc(Doc&& d)
+{
+    doc = d.doc;
+    d.doc = nullptr;
+}
+
+xml::Doc xml::Doc::fromFile(const std::string& fname)
 {
     return Doc(xmlParseFile(fname.c_str()));
 }
 
-xml::Doc xml::Doc::fromString(std::string str)
+xml::Doc xml::Doc::fromString(const std::string& str)
 {
     return Doc(xmlParseDoc((xmlChar*)str.c_str()));
 }
 
 xml::Doc::~Doc()
 {
-// FIXME
-// this causes segfaults when using Doc::fromString more than once
-//    xmlFreeDoc(doc);
+    if (doc)
+        xmlFreeDoc(doc);
+}
+
+void xml::Doc::operator=(Doc&& d)
+{
+    xmlFreeDoc(doc);
+    doc = d.doc;
+    d.doc = nullptr;
 }
 
 xml::Node xml::Doc::getRootElement() const
@@ -31,10 +42,9 @@ xml::Node xml::Doc::getRootElement() const
     return  Node(xmlDocGetRootElement(doc));
 }
 
-xml::Node::Node(xmlNodePtr node)
+xml::Node::Node(const xmlNodePtr node): node(node)
 {
     INIT_LOGGER("xml.Node");
-    this->node = node;
 }
 
 std::string xml::Node::getTagName() const
@@ -54,7 +64,7 @@ xml::NodeList xml::Node::getChildNodes() const
     return nodes;
 }
 
-xml::NodeList xml::Node::getChildrenByName(std::string name) const
+xml::NodeList xml::Node::getChildrenByName(const std::string& name) const
 {
     NodeList nodes;
     for (xmlNodePtr child = node->children; child; child = child->next)
@@ -65,7 +75,7 @@ xml::NodeList xml::Node::getChildrenByName(std::string name) const
     return nodes;
 }
 
-xml::Node xml::Node::getChildByName(std::string name) const
+xml::Node xml::Node::getChildByName(const std::string& name) const
 {
     NodeList nodes = getChildrenByName(name);
     auto l = nodes.size();
@@ -89,7 +99,7 @@ xml::AttrList xml::Node::getAttributes() const
     return attrs;
 }
 
-xml::NodeList xml::Node::xpath(std::string expr) const
+xml::NodeList xml::Node::xpath(const std::string& expr) const
 {
     xml::NodeList nodes;
 
@@ -117,21 +127,30 @@ std::string xml::Node::getTextContent() const
     return std::string((char*)xmlNodeGetContent(node));
 }
 
-/*
- * Returns value of named attribute.
- */
-
-std::string xml::getAttributeByName(AttrList attrs, std::string name, std::string defaultValue)
+std::string xml::Node::operator[](const std::string& name) const
 {
-    AttrList::iterator iter = attrs.find(name);
+    return getAttributeByName(name);
+}
+
+std::string xml::Node::getAttributeByName(const std::string& name) const
+{
+    auto attrs = getAttributes();
+    auto iter = attrs.find(name);
     if (iter != attrs.end())
         return iter->second;
-    if (defaultValue != "")
-        return defaultValue;
     THROW_INVALID_ARG("Attribute \"" + name + "\" not found in list and default value is not provided");
 }
 
-std::string xml::getAttributeByName(AttrList attrs, std::string name)
+std::string xml::Node::getAttributeByName(const std::string& name, const std::string& defaultValue) const
 {
-    return getAttributeByName(attrs, name, "");
+    if (hasAttribute(name))
+        return getAttributeByName(name);
+    else
+        return defaultValue;
+}
+
+bool xml::Node::hasAttribute(const std::string& name) const
+{
+    auto attrs = getAttributes();
+    return attrs.find(name) != attrs.end();
 }

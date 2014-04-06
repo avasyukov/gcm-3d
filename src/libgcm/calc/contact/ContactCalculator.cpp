@@ -4,9 +4,9 @@
  *
  * Created on April 30, 2013, 3:27 PM
  */
-#include "calc/contact/ContactCalculator.h"
+#include "libgcm/calc/contact/ContactCalculator.hpp"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 gcm::ContactCalculator::~ContactCalculator() {
 }

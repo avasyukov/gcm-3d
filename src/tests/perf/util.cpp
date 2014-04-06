@@ -1,4 +1,4 @@
-#include "tests/perf/util.h"
+#include "tests/perf/util.hpp"
 
 #include <vector>
 #include <algorithm>

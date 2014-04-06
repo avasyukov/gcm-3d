@@ -1,8 +1,8 @@
-#include "util/formats/VtuTetrFileReader.h"
+#include "libgcm/util/formats/VtuTetrFileReader.hpp"
 
-#include "util/AABB.h"
-#include "node/CalcNode.h"
-#include "GCMDispatcher.h"
+#include "libgcm/util/AABB.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/GCMDispatcher.hpp"
 
 
 gcm::VtuTetrFileReader::VtuTetrFileReader()

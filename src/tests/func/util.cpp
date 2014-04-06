@@ -1,8 +1,9 @@
-#include "tests/func/util.h"
+#include "tests/func/util.hpp"
 
-#include "launcher/launcher.h"
-#include "libgcm/node/CalcNode.h"
-#include "libgcm/Math.h"
+#include "launcher/launcher.hpp"
+#include "launcher/util/FileFolderLookupService.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/Math.hpp"
 
 #include <iostream>
 #include <vector>
@@ -126,7 +127,7 @@ void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, 
     
     engine.setGmshVerbosity(0.0);
     engine.clear();
-    engine.getFileFolderLookupService().addPath(".");
+    launcher::FileFolderLookupService::getInstance().addPath(".");
     launcher.loadMaterialLibrary("materials");
     launcher.loadSceneFromFile(taskFile);
 

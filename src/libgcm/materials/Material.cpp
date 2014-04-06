@@ -1,4 +1,4 @@
-#include "Material.h"
+#include "libgcm/materials/Material.hpp"
 
 gcm::Material::Material(string name, gcm_real rho, gcm_real crackThreshold) : name(name), rho(rho), crackThreshold(crackThreshold)
 {

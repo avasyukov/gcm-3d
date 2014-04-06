@@ -1,9 +1,9 @@
-#include "util/formats/MshTetrFileReader.h"
+#include "libgcm/util/formats/MshTetrFileReader.hpp"
 
-#include "util/AABB.h"
-#include "mesh/tetr/TetrMeshFirstOrder.h"
-#include "node/CalcNode.h"
-#include "GCMDispatcher.h"
+#include "libgcm/util/AABB.hpp"
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/GCMDispatcher.hpp"
 
 gcm::MshTetrFileReader::MshTetrFileReader()
 {
@@ -183,8 +183,8 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 
 void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher)
 {
-    assert( mesh != NULL );
-    assert( dispatcher != NULL );
+    assert_true(mesh);
+    assert_true(dispatcher);
     int tetrsCount = 0;
     int fileVer;
     string str;

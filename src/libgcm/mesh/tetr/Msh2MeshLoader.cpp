@@ -1,10 +1,6 @@
-#include "mesh/tetr/Msh2MeshLoader.h"
+#include "libgcm/mesh/tetr/Msh2MeshLoader.hpp"
 
-#include "mesh/tetr/MshMeshLoader.h"
-
-string gcm::Msh2MeshLoader::getType(){
-    return "msh2";
-}
+#include "libgcm/util/formats/MshTetrFileReader.hpp"
 
 gcm::Msh2MeshLoader::Msh2MeshLoader() {
     INIT_LOGGER("gcm.Msh2MeshLoader");
@@ -21,12 +17,8 @@ string gcm::Msh2MeshLoader::getVtkFileName(string mshFile)
 void gcm::Msh2MeshLoader::cleanUp() {
 }
 
-void gcm::Msh2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher)
+void gcm::Msh2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName)
 {
-    if (params.find(PARAM_FILE) == params.end()) {
-        delete mesh;
-        THROW_INVALID_ARG("Msh file name was not provided");
-    }
     IBody* body = mesh->getBody();
     IEngine* engine = body->getEngine();
     if( engine->getRank() == 0 )
@@ -42,17 +34,17 @@ void gcm::Msh2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
         AABB scene;
         GCMDispatcher* myDispatcher = new DummyDispatcher();
         myDispatcher->setEngine(engine);
-        preLoadMesh(params, &scene, sd, nn);
+        preLoadMesh(&scene, sd, nn, fileName);
         myDispatcher->prepare(1, &scene);
 
         MshTetrFileReader* reader = new MshTetrFileReader();
-        reader->readFile(engine->getFileFolderLookupService().lookupFile(params[PARAM_FILE]),
+        reader->readFile(fileName,
                             foMesh, myDispatcher, engine->getRank(), true);
         soMesh->copyMesh(foMesh);
         soMesh->preProcess();
 
         VTK2SnapshotWriter* sw = new VTK2SnapshotWriter();
-        sw->setFileName(getVtkFileName(params[PARAM_FILE]));
+        sw->setFileName(fileName);
         sw->dump(soMesh, -1);
 
         delete sw;
@@ -66,19 +58,16 @@ void gcm::Msh2MeshLoader::loadMesh(Params params, TetrMeshSecondOrder* mesh, GCM
 
     LOG_DEBUG("Starting reading mesh");
     Vtu2TetrFileReader* reader = new Vtu2TetrFileReader();
-    reader->readFile(getVtkFileName(params[PARAM_FILE]), mesh, dispatcher, engine->getRank());
+    reader->readFile(getVtkFileName(fileName), mesh, dispatcher, engine->getRank());
     delete reader;
-    LOG_DEBUG("Deleting generated file: " << getVtkFileName(params[PARAM_FILE]));
-    remove( getVtkFileName(params[PARAM_FILE]).c_str() );
+    LOG_DEBUG("Deleting generated file: " << getVtkFileName(fileName));
+    remove( getVtkFileName(fileName).c_str() );
 
     mesh->preProcess();
 }
 
-void gcm::Msh2MeshLoader::preLoadMesh(Params params, AABB* scene, int& sliceDirection, int& numberOfNodes) {
-    if (params.find(PARAM_FILE) == params.end()) {
-        THROW_INVALID_ARG("Msh file name was not provided");
-    }
+void gcm::Msh2MeshLoader::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const string& fileName) {
     MshTetrFileReader* reader = new MshTetrFileReader();
-    reader->preReadFile(engine->getFileFolderLookupService().lookupFile(params[PARAM_FILE]), scene, sliceDirection, numberOfNodes);
+    reader->preReadFile(fileName, scene, sliceDirection, numberOfNodes);
     delete reader;
 }

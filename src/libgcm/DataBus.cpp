@@ -1,8 +1,8 @@
-#include "DataBus.h"
+#include "libgcm/DataBus.hpp"
 
-#include "mesh/tetr/TetrMeshSecondOrder.h"
-#include "node/CalcNode.h"
-#include "Body.h"
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/Body.hpp"
 
 #define BARRIER(name) \
 do { \
@@ -418,7 +418,7 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
             //LOG_DEBUG("R1: " << j << " " << mesh->getBody()->getId());
             int owner = dispatcher->getOwner(node.coords/*, mesh->getBody()->getId()*/);
             //LOG_DEBUG("R2: " << owner);
-            assert( owner != rank );
+            assert_ne(owner, rank );
             local_numbers[rank][owner].push_back( mesh->nodesMap[node.number] );
             remote_numbers[rank][owner].push_back(node.number);
         }

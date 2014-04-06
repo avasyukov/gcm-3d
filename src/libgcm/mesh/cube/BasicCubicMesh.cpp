@@ -1,6 +1,6 @@
-#include "mesh/cube/BasicCubicMesh.h"
+#include "libgcm/mesh/cube/BasicCubicMesh.hpp"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 gcm::BasicCubicMesh::BasicCubicMesh()
 {
@@ -110,7 +110,7 @@ float gcm::BasicCubicMesh::getMinH()
 void gcm::BasicCubicMesh::findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug)
 {
     CalcNode& node = getNode( border_node_index );
-    assert( node.isBorder() );
+    assert_true(node.isBorder() );
     float normal[3];
     normal[0] = normal[1] = normal[2] = 0.0;
     for( int i = 0; i < 3; i ++)
@@ -135,7 +135,7 @@ int gcm::BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, 
 {
     int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
 
-    assert( vectorSquareNorm(dx, dy, dz) <= getMinH() * getMinH() * (1 + EQUALITY_TOLERANCE) );
+    assert_le(vectorSquareNorm(dx, dy, dz), getMinH() * getMinH() * (1 + EQUALITY_TOLERANCE) );
 
     coords[0] = node.coords[0] + dx;
     coords[1] = node.coords[1] + dy;

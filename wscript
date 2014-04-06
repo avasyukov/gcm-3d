@@ -164,7 +164,6 @@ def configure(conf):
     conf.env.LINKFLAGS += ['-lpthread', '-lrt']
 
     conf.env.INCLUDES += [conf.path.find_dir('src').abspath()]
-    conf.env.INCLUDES += [conf.path.find_dir('src/libgcm').abspath()]
 
     conf.env.CXXFLAGS += ['-DCONFIG_PREFIX="%s"' % conf.options.prefix]
     if conf.env.with_resources:
@@ -227,9 +226,7 @@ def build(bld):
 
     bld.load(bld.env.LIBS, tooldir='waftools')
 
-    libs = [l.upper() for l in bld.env.LIBS]
-
-    src_dir = bld.path.find_dir('src/libgcm')
+    libs = [l.upper() for l in bld.env.LIBS] 
 
     if bld.env.static:
         lib_type = 'cxxstlib'
@@ -247,9 +244,9 @@ def build(bld):
     if not bld.env.without_launcher or not bld.env.without_tests:
         bld(
             features='cxx',
-            source=bld.path.find_node('src/launcher/util/xml.cpp'),
+            source=bld.path.ant_glob('src/launcher/util/*.cpp'),
             use=libs,
-            name='xml'
+            name='launcher_util'
         )
         bld(
             features='cxx',
@@ -269,7 +266,7 @@ def build(bld):
         bld(
             features='cxx cxxprogram',
             source=bld.path.find_node('src/launcher/main.cpp'),
-            use=['gcm', 'xml', 'loaders', 'launcher'] + libs,
+            use=['gcm', 'launcher_util', 'loaders', 'launcher'] + libs,
             target='gcm3d'
         )
 
@@ -277,14 +274,14 @@ def build(bld):
         bld(
             features='cxx cxxprogram',
             source=bld.path.ant_glob('src/tests/unit/**/*.cpp'),
-            use=['gcm', 'xml', 'loaders'] + libs,
+            use=['gcm', 'launcher_util', 'loaders'] + libs,
             target='gcm3d_unit_tests',
             install_path=None
         )
         bld(
             features='cxx cxxprogram',
             source=bld.path.ant_glob('src/tests/func/**/*.cpp'),
-            use=['gcm', 'xml', 'loaders', 'launcher'] + libs,
+            use=['gcm', 'launcher_util', 'loaders', 'launcher'] + libs,
             target='gcm3d_func_tests',
             install_path=None
         )
@@ -298,7 +295,7 @@ def build(bld):
             bld(
                 features='cxx cxxprogram',
                 source=s,
-                use=['gcm', 'perf_util'] + libs,
+                use=['gcm', 'perf_util', 'launcher_util'] + libs,
                 target='gcm3d_perf_%s' % s.name[:-4],
                 install_path=None
             )
@@ -325,7 +322,7 @@ def build(bld):
         bld.install_files(
             '${PREFIX}/include/%s-%s/%s' % (APPNAME, VERSION, APPNAME),
             bld.path.ant_glob('**/*.h'),
-            cwd=src_dir,
+            cwd=bld.path.find_dir('src/libgcm'),
             relative_trick=True
         )
 

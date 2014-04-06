@@ -1,4 +1,4 @@
-#include "util/forms/PulseForm.h"
+#include "libgcm/util/forms/PulseForm.hpp"
 
 #include <iostream>
 

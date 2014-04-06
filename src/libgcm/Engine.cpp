@@ -1,29 +1,20 @@
-#include "Engine.h"
+#include "libgcm/Engine.hpp"
 
-#include "mesh/tetr/MshMeshLoader.h"
-#include "mesh/tetr/Msh2MeshLoader.h"
-#include "mesh/tetr/GeoMeshLoader.h"
-#include "mesh/tetr/Geo2MeshLoader.h"
-#include "mesh/tetr/VtuMeshLoader.h"
-#include "mesh/tetr/Vtu2MeshLoader.h"
-#include "mesh/tetr/Vtu2MeshZoneLoader.h"
-#include "mesh/cube/BasicCubicMeshGenerator.h"
-#include "mesh/markers/MarkeredBoxMeshGenerator.h"
-#include "method/DummyMethod.h"
-#include "method/InterpolationFixedAxis.h"
-#include "calc/volume/SimpleVolumeCalculator.h"
-#include "calc/border/FreeBorderCalculator.h"
-#include "calc/border/SmoothBorderCalculator.h"
-#include "calc/contact/SlidingContactCalculator.h"
-#include "calc/contact/AdhesionContactCalculator.h"
-#include "calc/contact/AdhesionContactDestroyCalculator.h"
-#include "util/forms/StepPulseForm.h"
-#include "snapshot/VTKSnapshotWriter.h"
-#include "snapshot/VTK2SnapshotWriter.h"
-#include "snapshot/VTKCubicSnapshotWriter.h"
-#include "snapshot/VTKMarkeredMeshSnapshotWriter.h"
-#include "rheology/DummyRheologyCalculator.h"
-#include "BruteforceCollisionDetector.h"
+#include "libgcm/method/DummyMethod.hpp"
+#include "libgcm/method/InterpolationFixedAxis.hpp"
+#include "libgcm/calc/volume/SimpleVolumeCalculator.hpp"
+#include "libgcm/calc/border/FreeBorderCalculator.hpp"
+#include "libgcm/calc/border/SmoothBorderCalculator.hpp"
+#include "libgcm/calc/contact/SlidingContactCalculator.hpp"
+#include "libgcm/calc/contact/AdhesionContactCalculator.hpp"
+#include "libgcm/calc/contact/AdhesionContactDestroyCalculator.hpp"
+#include "libgcm/util/forms/StepPulseForm.hpp"
+#include "libgcm/snapshot/VTKSnapshotWriter.hpp"
+#include "libgcm/snapshot/VTK2SnapshotWriter.hpp"
+#include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
+#include "libgcm/snapshot/VTKMarkeredMeshSnapshotWriter.hpp"
+#include "libgcm/rheology/DummyRheologyCalculator.hpp"
+#include "libgcm/BruteforceCollisionDetector.hpp"
 
 gcm::Engine::Engine()
 {
@@ -33,16 +24,6 @@ gcm::Engine::Engine()
     INIT_LOGGER("gcm.Engine");
     LOG_DEBUG("GCM engine created");
     LOG_DEBUG("Setting default engine values");
-    LOG_DEBUG("Registering default mesh loaders");
-    registerMeshLoader(new MshMeshLoader());
-    registerMeshLoader(new Msh2MeshLoader());
-    registerMeshLoader(new GeoMeshLoader());
-    registerMeshLoader(new Geo2MeshLoader());
-    registerMeshLoader(new VtuMeshLoader());
-    registerMeshLoader(new Vtu2MeshLoader());
-    registerMeshLoader(new Vtu2MeshZoneLoader());
-    registerMeshLoader(new BasicCubicMeshGenerator());
-    registerMeshLoader(new MarkeredBoxMeshGenerator());
     LOG_DEBUG("Registering default methods");
     registerNumericalMethod( new DummyMethod() );
     registerNumericalMethod( new InterpolationFixedAxis() );
@@ -104,8 +85,6 @@ void gcm::Engine::clear() {
         delete b;
     bodies.clear();
     materials.clear();
-    for (auto& ml: meshLoaders)
-        ml.second->cleanUp();
     // clear state
     currentTime = 0;
     currentTimeStep = 0;
@@ -119,11 +98,6 @@ void gcm::Engine::clear() {
 void gcm::Engine::cleanUp()
 {
     clear();
-    for(auto& ml: meshLoaders)
-    {
-        (ml.second)->cleanUp();
-        delete (ml.second);
-    }
     delete dataBus;
     //delete vtkSnapshotWriter;
     //delete vtkDumpWriter;
@@ -154,15 +128,6 @@ float gcm::Engine::getTimeStep()
 GCMDispatcher* gcm::Engine::getDispatcher()
 {
     return dispatcher;
-}
-
-void gcm::Engine::registerMeshLoader(MeshLoader* meshLoader)
-{
-    if (!meshLoader)
-        THROW_INVALID_ARG("Mesh loader parameter cannot be NULL");
-    meshLoaders[meshLoader->getType()] = meshLoader;
-    meshLoader->setEngine(this);
-    LOG_DEBUG("Registered mesh loader: " << meshLoader->getType());
 }
 
 void gcm::Engine::registerSnapshotWriter(SnapshotWriter* snapshotWriter)
@@ -242,7 +207,7 @@ unsigned int gcm::Engine::addBorderCondition(BorderCondition *borderCondition)
 
 void gcm::Engine::replaceDefaultBorderCondition(BorderCondition *borderCondition)
 {
-    assert( borderConditions.size() > 1 );
+    assert_gt(borderConditions.size(), 1 );
     if (!borderCondition)
         THROW_INVALID_ARG("Border condition parameter cannot be NULL");
     borderConditions[1] = borderCondition;
@@ -260,7 +225,7 @@ unsigned int gcm::Engine::addContactCondition(ContactCondition *contactCondition
 
 void gcm::Engine::replaceDefaultContactCondition(ContactCondition *contactCondition)
 {
-    assert( contactConditions.size() > 0 );
+    assert_gt(contactConditions.size(), 0 );
     if (!contactCondition)
         THROW_INVALID_ARG("Contact condition parameter cannot be NULL");
     contactConditions[0] = contactCondition;
@@ -285,7 +250,8 @@ Material* gcm::Engine::getMaterial(string name)
 
 Material* gcm::Engine::getMaterial(unsigned char index)
 {
-    assert( index >=0 && index < materials.size() );
+    assert_ge(index, 0);
+    assert_lt(index, materials.size());
     return materials[index];
 }
 
@@ -309,7 +275,7 @@ int gcm::Engine::getBodyNum(string id)
 
 Body* gcm::Engine::getBody(unsigned int num)
 {
-    assert( num < bodies.size() );
+    assert_lt(num, bodies.size() );
     return bodies[num];
 }
 
@@ -321,11 +287,6 @@ int gcm::Engine::getNumberOfBodies()
 int gcm::Engine::getNumberOfMaterials()
 {
     return materials.size();
-}
-
-MeshLoader* gcm::Engine::getMeshLoader(string type)
-{
-    return meshLoaders.find(type) != meshLoaders.end() ? meshLoaders[type] : NULL;
 }
 
 SnapshotWriter* gcm::Engine::getSnapshotWriter(string type)
@@ -375,13 +336,13 @@ RheologyCalculator* gcm::Engine::getRheologyCalculator(string type)
 
 BorderCondition* gcm::Engine::getBorderCondition(unsigned int num)
 {
-    assert( num < borderConditions.size() );
+    assert_lt(num, borderConditions.size() );
     return borderConditions[num];
 }
 
 ContactCondition* gcm::Engine::getContactCondition(unsigned int num)
 {
-    assert( num < contactConditions.size() );
+    assert_lt(num, contactConditions.size() );
     return contactConditions[num];
 }
 
@@ -392,7 +353,8 @@ void gcm::Engine::addBody(Body* body)
 
 CalcNode& gcm::Engine::getVirtNode(unsigned int i)
 {
-    assert( i >=0 && i < virtNodes.size() );
+    assert_ge(i, 0);
+    assert_lt(i, virtNodes.size());
     return virtNodes[i];
 }
 
@@ -669,13 +631,9 @@ void gcm::Engine::transferScene(float x, float y, float z) {
     scene.transfer(x, y, z);
 }
 
-FileFolderLookupService& gcm::Engine::getFileFolderLookupService() {
-    return fls;
-}
-
 void gcm::Engine::setContactThresholdType(unsigned char type)
 {
-    assert( type == CONTACT_THRESHOLD_BY_AVG_H
+    assert_true( type == CONTACT_THRESHOLD_BY_AVG_H
             || type == CONTACT_THRESHOLD_BY_MAX_LT
             || type == CONTACT_THRESHOLD_FIXED );
     contactThresholdType = type;
@@ -688,7 +646,7 @@ unsigned char gcm::Engine::getContactThresholdType()
 
 void gcm::Engine::setContactThresholdFactor(float val)
 {
-    assert( val > 0 );
+    assert_gt(val, 0 );
     contactThresholdFactor = val;
 }
 

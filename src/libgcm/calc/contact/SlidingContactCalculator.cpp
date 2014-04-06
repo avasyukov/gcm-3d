@@ -1,6 +1,6 @@
-#include "calc/contact/SlidingContactCalculator.h"
+#include "libgcm/calc/contact/SlidingContactCalculator.hpp"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 SlidingContactCalculator::SlidingContactCalculator()
 {
@@ -25,8 +25,8 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
                             RheologyMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
                             float outer_normal[], float scale)
 {
-    assert(previousNodes.size() == 9);
-    assert(virtPreviousNodes.size() == 9);
+    assert_eq(previousNodes.size(), 9);
+    assert_eq(virtPreviousNodes.size(), 9);
 
     float local_n[3][3];
     local_n[0][0] = outer_normal[0];

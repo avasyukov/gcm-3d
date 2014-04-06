@@ -7,9 +7,6 @@
 			<transform type="translate" moveX="-5" moveY="-5" moveZ="-5" />
 		</body>
 	</bodies>
-	<materials>
-		<material id="testMaterial" la="70000" mu="10000" rho="1" />
-	</materials>
 	<initialState>
 		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
 		<values vz="300" sxx="70000" syy="70000" szz="90000" />

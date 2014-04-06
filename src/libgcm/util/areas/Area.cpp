@@ -1,4 +1,4 @@
-#include "util/areas/Area.h"
+#include "libgcm/util/areas/Area.hpp"
 
 gcm::Area::~Area() {
 }

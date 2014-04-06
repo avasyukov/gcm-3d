@@ -1,4 +1,4 @@
-#include "util/ThirdDegreePolynomial.h"
+#include "libgcm/util/ThirdDegreePolynomial.hpp"
 
 gcm::ThirdDegreePolynomial::ThirdDegreePolynomial(float rho,
                                 const IAnisotropicElasticMaterial::RheologyParameters &C, int stage)

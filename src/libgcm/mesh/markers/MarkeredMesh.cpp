@@ -1,8 +1,8 @@
-#include "mesh/markers/MarkeredMesh.h"
+#include "libgcm/mesh/markers/MarkeredMesh.hpp"
 
 #include <cmath>
 
-#include "Math.h"
+#include "libgcm/Math.hpp"
 
 float gcm::MarkeredMesh::getRecommendedTimeStep() {
     return getMinH()/getMaxEigenvalue();
@@ -96,12 +96,18 @@ unsigned int gcm::MarkeredMesh::getTotalNumberOfCells() {
 }
 
 int gcm::MarkeredMesh::getPointNumber(unsigned int i, unsigned int j, unsigned int k) {
-    assert(i < points_num[0] && j < points_num[1] && k < points_num[2] && "Point indexes are out of range");
+    // ensure that point indexes are not out of range
+    assert_lt(i, points_num[0]);
+    assert_lt(j, points_num[1]);
+    assert_lt(k, points_num[2]);
     return k*points_num[1]*points_num[0]+j*points_num[0]+i;
 }
 
 int gcm::MarkeredMesh::getCellNumber(unsigned int i, unsigned int j, unsigned int k) {
-    assert(i < cells_num[0] && j < cells_num[1] && k < cells_num[2] && "Cell indexes are out of range");
+    // ensure Cell indexes are not out of range
+    assert_lt(i, cells_num[0]);
+    assert_lt(j, cells_num[1]);
+    assert_lt(k, cells_num[2]);
     return k*cells_num[1]*cells_num[0]+j*cells_num[0]+i;
 }
 
@@ -334,19 +340,19 @@ void gcm::MarkeredMesh::findBorderNodeNormal(int border_node_index, float* x,
     *x = *y = *z = 0.0;
 
     CalcNode& node = getNode(border_node_index);
-    assert(node.isBorder());
+    assert_true(node.isBorder());
 
     auto idx = getNodeLocalIndex(border_node_index);
 
     unsigned int i1, i2, i3;
     getPointIndexes(idx, i1, i2, i3);
 
-    assert(i1 > 0);
-    assert(i2 > 0);
-    assert(i3 > 0);
-    assert(i1 < points_num[0]-1);
-    assert(i2 < points_num[1]-1);
-    assert(i3 < points_num[2]-1);
+    assert_gt(i1, 0);
+    assert_gt(i2, 0);
+    assert_gt(i3, 0);
+    assert_lt(i1, points_num[0]-1);
+    assert_lt(i2, points_num[1]-1);
+    assert_lt(i3, points_num[2]-1);
 
     for (int k = 1; k >= 0; k--)
         for (int j = 1; j >= 0; j-- )
@@ -368,7 +374,7 @@ void gcm::MarkeredMesh::findBorderNodeNormal(int border_node_index, float* x,
 
 bool gcm::MarkeredMesh::interpolateNode(CalcNode& origin, float dx, float dy,
         float dz, bool debug, CalcNode& targetNode, bool& isInnerPoint) {
-    assert(((dx == 0.0) && (dy == 0.0)) || ((dy == 0.0) && (dz == 0.0)) || ((dx == 0.0) && (dz == 0.0)));
+    assert_true(((dx == 0.0) && (dy == 0.0)) || ((dy == 0.0) && (dz == 0.0)) || ((dx == 0.0) && (dz == 0.0)));
 
     auto idx = getNodeLocalIndex(origin.number);
     unsigned int i1, i2, i3;

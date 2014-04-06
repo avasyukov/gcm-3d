@@ -1,6 +1,6 @@
-#include "util/ElasticMatrix3D.h"
-#include "materials/IsotropicElasticMaterial.h"
-#include "node/CalcNode.h"
+#include "libgcm/util/ElasticMatrix3D.hpp"
+#include "libgcm/materials/IsotropicElasticMaterial.hpp"
+#include "libgcm/node/CalcNode.hpp"
 
 void gcm::ElasticMatrix3D::initializeAx(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
@@ -13,7 +13,7 @@ void gcm::ElasticMatrix3D::initializeAx(const Material* material, gcm_matrix& A,
     const auto mat = static_cast<const IsotropicElasticMaterial*>(material);
 #else
     const auto mat = dynamic_cast<const IsotropicElasticMaterial*>(material);
-    assert(mat);
+    assert_true(mat);
 #endif
 
     auto rho = mat->getRho();
@@ -86,7 +86,7 @@ void gcm::ElasticMatrix3D::initializeAy(const Material* material, gcm_matrix& A,
     const auto mat = reinterpret_cast<const IsotropicElasticMaterial*>(material);
 #else
     const auto mat = dynamic_cast<const IsotropicElasticMaterial*>(material);
-    assert(mat);
+    assert_true(mat);
 #endif
 
     auto rho = mat->getRho();
@@ -159,7 +159,7 @@ void gcm::ElasticMatrix3D::initializeAz(const Material* material, gcm_matrix& A,
     const auto mat = reinterpret_cast<const IsotropicElasticMaterial*>(material);
 #else
     const auto mat = dynamic_cast<const IsotropicElasticMaterial*>(material);
-    assert(mat);
+    assert_true(mat);
 #endif
 
     auto rho = mat->getRho();

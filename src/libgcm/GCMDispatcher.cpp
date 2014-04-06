@@ -1,4 +1,4 @@
-#include "GCMDispatcher.h"
+#include "libgcm/GCMDispatcher.hpp"
 
 gcm::GCMDispatcher::GCMDispatcher() {
     INIT_LOGGER("gcm.Dispatcher");

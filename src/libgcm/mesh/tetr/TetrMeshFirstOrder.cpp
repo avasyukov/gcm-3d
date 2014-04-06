@@ -1,9 +1,9 @@
-#include "mesh/tetr/TetrMeshFirstOrder.h"
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.hpp"
 
 #include <unordered_map>
 
-#include "node/CalcNode.h"
-#include "materials/IsotropicElasticMaterial.h"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/materials/IsotropicElasticMaterial.hpp"
 
 gcm::TetrMeshFirstOrder::TetrMeshFirstOrder()
 {
@@ -55,7 +55,7 @@ int gcm::TetrMeshFirstOrder::getTriangleNumber()
 TetrFirstOrder& gcm::TetrMeshFirstOrder::getTetr(unsigned int index) {
     unordered_map<int, int>::const_iterator itr;
     itr = tetrsMap.find(index);
-    assert( itr != tetrsMap.end() );
+    assert_true(itr != tetrsMap.end() );
     return tetrs1[itr->second];
 }
 
@@ -70,7 +70,7 @@ TetrFirstOrder& gcm::TetrMeshFirstOrder::getTetrByLocalIndex(unsigned int index)
 }
 
 TriangleFirstOrder& gcm::TetrMeshFirstOrder::getTriangle(int index) {
-    assert( index >= 0 );
+    assert_ge(index, 0 );
     return border1[index];
 }
 
@@ -91,7 +91,7 @@ void gcm::TetrMeshFirstOrder::createTriangles(int number) {
 void gcm::TetrMeshFirstOrder::addTetr(TetrFirstOrder& tetr) {
     if( tetrsNumber == tetrsStorageSize )
         createTetrs(tetrsStorageSize*STORAGE_ONDEMAND_GROW_RATE);
-    assert( tetrsNumber < tetrsStorageSize );
+    assert_lt(tetrsNumber, tetrsStorageSize );
     tetrs1[tetrsNumber] = tetr;
     tetrsMap[tetr.number] = tetrsNumber;
     tetrsNumber++;
@@ -153,7 +153,7 @@ void gcm::TetrMeshFirstOrder::build_volume_reverse_lookups()
         for(int j = 0; j < 4; j++)
         {
             CalcNode& node = getNode( tetr.verts[j] );
-            assert( node.isFirstOrder() );
+            assert_true(node.isFirstOrder() );
             // Push to data of nodes the number of this tetrahedron
             getVolumeElementsForNode(i).push_back( tetr.number );
         }
@@ -210,7 +210,7 @@ void gcm::TetrMeshFirstOrder::build_border()
             for(unsigned j = 0; j < elements.size(); j++)
             {
                 solid_angle_part = get_solid_angle(i, elements[j]);
-                assert(solid_angle_part >= 0);
+                assert_ge(solid_angle_part, 0);
                 solid_angle += solid_angle_part;
             }
             if( fabs(4 * M_PI - solid_angle) > M_PI * EQUALITY_TOLERANCE ) {
@@ -260,7 +260,7 @@ void gcm::TetrMeshFirstOrder::build_border()
         }
     }
 
-    assert( number == faceCount );
+    assert_eq(number, faceCount );
     LOG_DEBUG("Created " << faceNumber << " triangles");
 }
 
@@ -282,7 +282,7 @@ void gcm::TetrMeshFirstOrder::build_surface_reverse_lookups()
         for(int j = 0; j < 3; j++)
         {
             CalcNode& node = getNode( tri.verts[j] );
-            assert( node.isFirstOrder() );
+            assert_true(node.isFirstOrder() );
             getBorderElementsForNode(i).push_back( i );
         }
     }
@@ -384,7 +384,7 @@ void gcm::TetrMeshFirstOrder::verifyTetrahedraVertices ()
         TetrFirstOrder& tetr = getTetr(tetrInd);
         for (int vertInd = 0; vertInd < 4; vertInd++)
         {
-            assert( getNode( tetr.verts[vertInd] ).isFirstOrder() );
+            assert_true(getNode( tetr.verts[vertInd] ).isFirstOrder() );
         }
     }
 }
@@ -394,7 +394,7 @@ TriangleFirstOrder gcm::TetrMeshFirstOrder::createBorderTriangle(int v[4], int n
     bool needSwap;
     bool isBorder;
     isBorder = isTriangleBorder( v, &needSwap );
-    assert( isBorder );
+    assert_true(isBorder );
 
     // Create and return trianlge
     TriangleFirstOrder tri;
@@ -557,7 +557,7 @@ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, floa
 {
     if( debug )
         LOG_TRACE("Fast scan - debug ON (however, consider !inAABB condition)");
-    //assert( vectorSquareNorm(dx, dy, dz) <= mesh_min_h * mesh_min_h );
+    //assert_le(vectorSquareNorm(dx, dy, dz), mesh_min_h * mesh_min_h );
 
     int res;
     if( charactCacheAvailable() )
@@ -676,7 +676,7 @@ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, floa
         for(unsigned i = 0; i < tetrsToCheck.size(); i++)
         {
             TetrFirstOrder& curTetr = getTetr(tetrsToCheck[i]);
-            assert( curTetr.number == tetrsToCheck[i] );
+            assert_eq(curTetr.number, tetrsToCheck[i] );
 
             // Check inside points of current tetr
             if( pointInTetr(x, y, z,
@@ -839,7 +839,7 @@ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, floa
 void gcm::TetrMeshFirstOrder::findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug)
 {
     CalcNode& node = getNode( border_node_index );
-    assert( node.isBorder() );
+    assert_true(node.isBorder() );
 
     float final_normal[3];
     final_normal[0] = 0;
@@ -909,7 +909,7 @@ float gcm::TetrMeshFirstOrder::get_solid_angle(int node_index, int tetr_index)
     TetrFirstOrder& tetr = getTetr(tetr_index);
     CalcNode& node = getNode(node_index);
     // Node should belong to Tetr
-    assert( ( tetr.verts[0] == node_index )
+    assert_true(( tetr.verts[0] == node_index )
             || ( tetr.verts[1] == node_index )
             || ( tetr.verts[2] == node_index )
             || ( tetr.verts[3] == node_index ) );
@@ -933,7 +933,7 @@ float gcm::TetrMeshFirstOrder::get_solid_angle(int node_index, int tetr_index)
         }
 
     // We are to find 3 other verticles to form the face we are looking at
-    assert( count == 3 );
+    assert_eq(count, 3 );
 
     CalcNode& v0 = getNode( verts[0] );
     CalcNode& v1 = getNode( verts[1] );
@@ -964,11 +964,11 @@ void gcm::TetrMeshFirstOrder::find_border_elem_normal(int border_element_index,
 
 void gcm::TetrMeshFirstOrder::calcMinH()
 {
-    //assert( tetrsNumber > 0 );
+    //assert_gt(tetrsNumber, 0 );
     if( tetrsNumber == 0 )
         return;
     float min_h = tetr_h(tetrsMap.begin()->first);
-    assert( min_h > 0 );
+    assert_gt(min_h, 0 );
 
     float h;
     // Go through tetrahedrons
@@ -984,7 +984,7 @@ void gcm::TetrMeshFirstOrder::calcMinH()
 
         // Get current h
         h = tetr_h(i);
-        assert( h > 0 );
+        assert_gt(h, 0 );
         // Otherwise - just find minimum
         if(h < min_h) { min_h = h; }
     }
@@ -999,11 +999,11 @@ void gcm::TetrMeshFirstOrder::calcMinH()
 
 void gcm::TetrMeshFirstOrder::calcMaxH()
 {
-    //assert( tetrsNumber > 0 );
+    //assert_gt(tetrsNumber, 0 );
     if( tetrsNumber == 0 )
         return;
     float max_h = tetr_h(tetrsMap.begin()->first);
-    assert( max_h > 0 );
+    assert_gt(max_h, 0 );
 
     float h;
     // Go through tetrahedrons
@@ -1019,7 +1019,7 @@ void gcm::TetrMeshFirstOrder::calcMaxH()
 
         // Get current h
         h = tetr_h(i);
-        assert( h > 0 );
+        assert_gt(h, 0 );
         // Otherwise - just find minimum
         if(h > max_h) { max_h = h; }
     }
@@ -1028,7 +1028,7 @@ void gcm::TetrMeshFirstOrder::calcMaxH()
 
 void gcm::TetrMeshFirstOrder::calcAvgH()
 {
-    //assert( tetrsNumber > 0 );
+    //assert_gt(tetrsNumber, 0 );
     if( tetrsNumber == 0 )
         return;
     float avg_h = 0;
@@ -1047,7 +1047,7 @@ void gcm::TetrMeshFirstOrder::calcAvgH()
 
         // Get current h
         h = tetr_h(i);
-        assert( h > 0 );
+        assert_gt(h, 0 );
         // Otherwise - just find minimum
         avg_h += h;
     }
@@ -1384,7 +1384,11 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, floa
     else
         scale = 2;
 
-    assert( direction > 0 && direction < 4 && scale > 0 && scale < 4 && (sign == 1 || sign == 2) );
+    assert_gt(direction, 0);
+    assert_lt(direction, 4);
+    assert_gt(scale, 0);
+    assert_lt(scale, 4);
+    assert_true(sign == 1 || sign == 2);
 
     return (direction - 1)*6 + (sign-1)*3 + (scale-1);
 }

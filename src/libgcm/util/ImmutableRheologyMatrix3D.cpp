@@ -1,4 +1,4 @@
-#include "ImmutableRheologyMatrix3D.h"
+#include "libgcm/util/ImmutableRheologyMatrix3D.hpp"
 
 gcm::ImmutableRheologyMatrix3D::ImmutableRheologyMatrix3D(): matrixCreated {false, false, false}, currentMatrix(0)
 {

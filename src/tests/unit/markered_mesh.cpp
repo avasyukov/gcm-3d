@@ -1,27 +1,11 @@
 #include <cstdlib>
 #include <gtest/gtest.h>
 
-#include "libgcm/mesh/markers/MarkeredMesh.h"
-#include "libgcm/mesh/markers/MarkeredBoxMeshGenerator.h"
-#include "libgcm/materials/IsotropicElasticMaterial.h"
-#include "libgcm/Utils.h"
+#include "libgcm/mesh/markers/MarkeredMesh.hpp"
+#include "libgcm/mesh/markers/MarkeredBoxMeshGenerator.hpp"
+#include "libgcm/materials/IsotropicElasticMaterial.hpp"
 
 using namespace std;
-
-class MarkeredBoxMeshGeneratorWrapper : public MarkeredBoxMeshGenerator
-{
-public:
-
-    void generate(MarkeredMesh* mesh, string mesh_edge, string cube_edge, string num)
-    {
-        Params p;
-        p[MarkeredBoxMeshGenerator::PARAM_CUBE_EDGE] = cube_edge;
-        p[MarkeredBoxMeshGenerator::PARAM_MESH_EDGE] = mesh_edge;
-        p[MarkeredBoxMeshGenerator::PARAM_CELL_NUM] = num;
-
-        loadMesh(p, mesh, nullptr);
-    }
-};
 
 class MarkeredBoxMesh : public ::testing::Test
 {
@@ -38,9 +22,10 @@ protected:
 TEST_F(MarkeredBoxMesh, getCellAABB)
 {
 
-    MarkeredBoxMeshGeneratorWrapper mg;
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
+
     MarkeredMesh m;
-    mg.generate(&m, "2.0", "1.0", "2");
+    mg.loadMesh(&m, nullptr, 2.0, 1.0, 2);
 
     AABB aabb;
     m.getCellAABB(0, aabb);
@@ -78,9 +63,10 @@ TEST_F(MarkeredBoxMesh, getCellAABB)
 TEST_F(MarkeredBoxMesh, innerCells)
 {
 
-    MarkeredBoxMeshGeneratorWrapper mg;
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
+
     MarkeredMesh m;
-    mg.generate(&m, "4.0", "2.0", "8");
+    mg.loadMesh(&m, nullptr, 4.0, 2.0, 8);
 
     for (unsigned int i = 0; i < 8; i++)
         for (unsigned int j = 0; j < 8; j++)
@@ -94,10 +80,10 @@ TEST_F(MarkeredBoxMesh, innerCells)
 
 TEST_F(MarkeredBoxMesh, outlines)
 {
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
 
-    MarkeredBoxMeshGeneratorWrapper mg;
     MarkeredMesh m;
-    mg.generate(&m, "2.0", "1.0", "20");
+    mg.loadMesh(&m, nullptr, 2.0, 1.0, 20);
 
     AABB outline = m.getOutline();
     ASSERT_FLOAT_EQ(-0.5, outline.minX);
@@ -119,10 +105,10 @@ TEST_F(MarkeredBoxMesh, outlines)
 
 TEST_F(MarkeredBoxMesh, cellNighbours)
 {
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
 
-    MarkeredBoxMeshGeneratorWrapper mg;
     MarkeredMesh m;
-    mg.generate(&m, "2.0", "1.0", "3");
+    mg.loadMesh(&m, nullptr, 2.0, 1.0, 3);
 
     NeighbourCells cells;
 
@@ -158,9 +144,10 @@ TEST_F(MarkeredBoxMesh, cellNighbours)
 TEST_F(MarkeredBoxMesh, markersGeneration)
 {
 
-    MarkeredBoxMeshGeneratorWrapper mg;
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
+
     MarkeredMesh m;
-    mg.generate(&m, "2.0", "1.0", "20");
+    mg.loadMesh(&m, nullptr, 2.0, 1.0, 20);
 
     AABB inner(m.getOutline());
     AABB outer(m.getOutline());
@@ -178,10 +165,11 @@ TEST_F(MarkeredBoxMesh, markersGeneration)
 TEST_F(MarkeredBoxMesh, innerFlagsReconstruction)
 {
 
-    MarkeredBoxMeshGeneratorWrapper mg;
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
+
     MarkeredMesh m1, m2;
-    mg.generate(&m1, "2.0", "1.0", "20");
-    mg.generate(&m2, "2.0", "1.0", "20");
+    mg.loadMesh(&m1, nullptr, 2.0, 1.0, 20);
+    mg.loadMesh(&m2, nullptr, 2.0, 1.0, 20);
 
     m2.reconstructInnerFlags();
 
@@ -193,9 +181,10 @@ TEST_F(MarkeredBoxMesh, innerFlagsReconstruction)
 TEST_F(MarkeredBoxMesh, reconstructBorder)
 {
 
-    MarkeredBoxMeshGeneratorWrapper mg;
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
+
     MarkeredMesh m;
-    mg.generate(&m, "2.0", "1.0", "20");
+    mg.loadMesh(&m, nullptr, 2.0, 1.0, 20);
 
     m.reconstructBorder();
 
@@ -216,9 +205,10 @@ TEST_F(MarkeredBoxMesh, reconstructBorder)
 TEST_F(MarkeredBoxMesh, markUnusedNodes)
 {
 
-    MarkeredBoxMeshGeneratorWrapper mg;
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
+
     MarkeredMesh m;
-    mg.generate(&m, "2.0", "1.0", "20");
+    mg.loadMesh(&m, nullptr, 2.0, 1.0, 20);
 
     m.reconstructBorder();
     m.markUnusedNodes();
@@ -240,9 +230,10 @@ int cmp(const void *a, const void *b)
 TEST_F(MarkeredBoxMesh, getCellsCommonPoints)
 {
 
-    MarkeredBoxMeshGeneratorWrapper mg;
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
+
     MarkeredMesh m;
-    mg.generate(&m, "2.0", "1.0", "2");
+    mg.loadMesh(&m, nullptr, 2.0, 1.0, 2);
 
     CommonPoints pts;
 
@@ -273,9 +264,10 @@ TEST_F(MarkeredBoxMesh, getCellsCommonPoints)
 TEST_F(MarkeredBoxMesh, findBorderNodeNormal)
 {
 
-    MarkeredBoxMeshGeneratorWrapper mg;
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
+
     MarkeredMesh m;
-    mg.generate(&m, "3.0", "1.0", "3");
+    mg.loadMesh(&m, nullptr, 3.0, 1.0, 3);
 
     float c = vectorNorm(1, 1, 1);
     float x, y, z;
@@ -323,9 +315,11 @@ TEST_F(MarkeredBoxMesh, findBorderNodeNormal)
 
 TEST_F(MarkeredBoxMesh, interpolation)
 {
-    MarkeredBoxMeshGeneratorWrapper mg;
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
+
     MarkeredMesh m;
-    mg.generate(&m, "4.0", "2.0", "4");
+    mg.loadMesh(&m, nullptr, 4.0, 2.0, 4);
+
     m.reconstructBorder();
     m.markUnusedNodes();
 
@@ -393,9 +387,10 @@ TEST_F(MarkeredBoxMesh, interpolation)
 
 TEST_F(MarkeredBoxMesh, moveMarkers)
 {
-    MarkeredBoxMeshGeneratorWrapper mg;
+    auto& mg = gcm::MarkeredBoxMeshGenerator::getInstance();
+
     MarkeredMesh m;
-    mg.generate(&m, "4.0", "2.0", "4");
+    mg.loadMesh(&m, nullptr, 4.0, 2.0, 4);
 
     m.reconstructBorder();
     m.markUnusedNodes();

@@ -3,15 +3,15 @@
 
 #ifdef CONFIG_ENABLE_LOGGING
 #include <log4cxx/propertyconfigurator.h>
-#include "libgcm/Utils.h"
+#include "launcher/util/FileFolderLookupService.hpp"
 #endif
 
-#include "tests/perf/util.h"
-#include "libgcm/util/AnisotropicMatrix3D.h"
-#include "libgcm/util/AnisotropicMatrix3DAnalytical.h"
-#include "libgcm/materials/AnisotropicElasticMaterial.h"
-#include "libgcm/node/CalcNode.h"
-#include "libgcm/Engine.h"
+#include "tests/perf/util.hpp"
+#include "libgcm/util/AnisotropicMatrix3D.hpp"
+#include "libgcm/util/AnisotropicMatrix3DAnalytical.hpp"
+#include "libgcm/materials/AnisotropicElasticMaterial.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/Engine.hpp"
 
 #define ITERATIONS 1000
 
@@ -21,9 +21,9 @@ using namespace std;
 int main()
 {
     #ifdef CONFIG_ENABLE_LOGGING
-    gcm::FileFolderLookupService fls;
-    fls.addPath("src/tests");
-    log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
+    auto& ffls = launcher::FileFolderLookupService::getInstance();
+    ffls.addPath("src/tests");
+    log4cxx::PropertyConfigurator::configure(ffls.lookupFile("log4cxx.properties"));
     #endif
 
     cout << "This test compares performance of two anisotropic elastic matrix implementations: numerical and analytical." << endl;

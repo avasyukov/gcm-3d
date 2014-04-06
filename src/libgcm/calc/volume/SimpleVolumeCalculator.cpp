@@ -1,6 +1,6 @@
-#include "calc/volume/SimpleVolumeCalculator.h"
+#include "libgcm/calc/volume/SimpleVolumeCalculator.hpp"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 SimpleVolumeCalculator::SimpleVolumeCalculator() {
     INIT_LOGGER("gcm.SimpleVolumeCalculator");
@@ -9,7 +9,7 @@ SimpleVolumeCalculator::SimpleVolumeCalculator() {
 void SimpleVolumeCalculator::doCalc(CalcNode& new_node, RheologyMatrix3D& matrix,
                                                         vector<CalcNode>& previousNodes)
 {
-    assert(previousNodes.size() == 9);
+    assert_eq(previousNodes.size(), 9);
 
     LOG_TRACE("Start calc");
 

@@ -1,6 +1,6 @@
-#include "calc/border/FreeBorderCalculator.h"
+#include "libgcm/calc/border/FreeBorderCalculator.hpp"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 FreeBorderCalculator::FreeBorderCalculator()
 {
@@ -23,7 +23,7 @@ void FreeBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheolo
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)
 {
-    assert(previousNodes.size() == 9);
+    assert_eq(previousNodes.size(), 9);
 
     int outer_count = 3;
 

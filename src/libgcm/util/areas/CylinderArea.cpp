@@ -1,4 +1,4 @@
-#include "util/areas/CylinderArea.h"
+#include "libgcm/util/areas/CylinderArea.hpp"
 
 CylinderArea::CylinderArea( float _radius, float _bX, float _bY, float _bZ, float _eX, float _eY, float _eZ )
 {

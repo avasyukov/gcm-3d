@@ -1,4 +1,4 @@
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 gcm::CalcNode::CalcNode() : CalcNode(-1)
 {

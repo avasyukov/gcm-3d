@@ -1,6 +1,6 @@
-#include "method/DummyMethod.h"
+#include "libgcm/method/DummyMethod.hpp"
 
-#include "node/CalcNode.h"
+#include "libgcm/node/CalcNode.hpp"
 
 gcm::DummyMethod::DummyMethod()
 {
