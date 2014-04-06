@@ -80,6 +80,13 @@ def options(opt):
         default=False,
         help='Do not adjust linker rpath automatically'
     )
+    
+    pbog.add_option(
+        '--no-export-dynamic-symbols',
+        action='store_true',
+        default=False,
+        help='Do not pass --export-dynamic option to linker'
+    )
 
     pbog.add_option(
         '--static',
@@ -155,6 +162,7 @@ def configure(conf):
     conf.env.without_tests = conf.options.without_tests
     conf.env.with_headers = conf.options.with_headers
     conf.env.with_resources = conf.options.with_resources
+    conf.env.no_export_dynamic_symbols = conf.options.no_export_dynamic_symbols
     conf.env.static = conf.options.static
 
     conf.env.CXXFLAGS += ['-Wall']
@@ -162,6 +170,8 @@ def configure(conf):
     conf.env.CXXFLAGS += ['-std=c++11']
     
     conf.env.LINKFLAGS += ['-lpthread', '-lrt']
+    if not conf.env.no_export_dynamic_symbols:
+        conf.env.LINKFLAGS += ['-rdynamic']
 
     conf.env.INCLUDES += [conf.path.find_dir('src').abspath()]
 
