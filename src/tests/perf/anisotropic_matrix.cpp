@@ -1,7 +1,9 @@
 #include <iostream>
 #include <string>
 
-#ifdef CONFIG_ENABLE_LOGGING
+#include "libgcm/config.hpp"
+
+#if CONFIG_ENABLE_LOGGING
 #include <log4cxx/propertyconfigurator.h>
 #include "launcher/util/FileFolderLookupService.hpp"
 #endif
@@ -20,7 +22,7 @@ using namespace std;
 
 int main()
 {
-    #ifdef CONFIG_ENABLE_LOGGING
+    #if CONFIG_ENABLE_LOGGING
     auto& ffls = launcher::FileFolderLookupService::getInstance();
     ffls.addPath("src/tests");
     log4cxx::PropertyConfigurator::configure(ffls.lookupFile("log4cxx.properties"));

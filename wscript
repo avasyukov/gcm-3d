@@ -80,7 +80,7 @@ def options(opt):
         default=False,
         help='Do not adjust linker rpath automatically'
     )
-    
+
     pbog.add_option(
         '--no-export-dynamic-symbols',
         action='store_true',
@@ -168,21 +168,19 @@ def configure(conf):
     conf.env.CXXFLAGS += ['-Wall']
     conf.env.CXXFLAGS += ['-Wno-deprecated']
     conf.env.CXXFLAGS += ['-std=c++11']
-    
+
     conf.env.LINKFLAGS += ['-lpthread', '-lrt']
     if not conf.env.no_export_dynamic_symbols:
         conf.env.LINKFLAGS += ['-rdynamic']
 
     conf.env.INCLUDES += [conf.path.find_dir('src').abspath()]
 
-    conf.env.CXXFLAGS += ['-DCONFIG_PREFIX="%s"' % conf.options.prefix]
-    if conf.env.with_resources:
-        conf.env.CXXFLAGS += ['-DCONFIG_SHARE_GCM="%s/share/gcm3d"' % conf.options.prefix]
-    else:
-        conf.env.CXXFLAGS += ['-DCONFIG_SHARE_GCM="."']
+    conf.define('CONFIG_INSTALL_PREFIX', os.path.abspath(conf.options.prefix))
+    conf.define('CONFIG_SHARE_GCM', os.path.join(os.path.abspath(conf.options.prefix), 'share', 'gcm3d'))
+    conf.define('CONFIG_ENABLE_LOGGING', int(not conf.env.without_logging))
+
 
     if not conf.env.without_logging:
-        conf.env.CXXFLAGS += ['-DCONFIG_ENABLE_LOGGING']
         libs.append('liblog4cxx')
 
     if not conf.env.without_tests:
@@ -228,6 +226,9 @@ def configure(conf):
         conf.env.LINKFLAGS = list(set(conf.env.LINKFLAGS))
         conf.env.LINKFLAGS += ['-Wl,-rpath,%s/lib' % os.path.abspath(conf.options.prefix)]
 
+    conf.write_config_header(os.path.join(conf.env.variant, 'generated_sources', 'libgcm', 'config.hpp'))
+    conf.env.INCLUDES += [ 'generated_sources' ]
+
     conf.env.store(env_file)
 
 
@@ -236,7 +237,7 @@ def build(bld):
 
     bld.load(bld.env.LIBS, tooldir='waftools')
 
-    libs = [l.upper() for l in bld.env.LIBS] 
+    libs = [l.upper() for l in bld.env.LIBS]
 
     if bld.env.static:
         lib_type = 'cxxstlib'
@@ -270,7 +271,7 @@ def build(bld):
             use=libs,
             name='loaders'
         )
-       
+
 
     if not bld.env.without_launcher:
         bld(
@@ -331,8 +332,14 @@ def build(bld):
     if bld.env.with_headers:
         bld.install_files(
             '${PREFIX}/include/%s-%s/%s' % (APPNAME, VERSION, APPNAME),
-            bld.path.ant_glob('**/*.h'),
+            bld.path.ant_glob('src/libgcm/**/*.hpp'),
             cwd=bld.path.find_dir('src/libgcm'),
+            relative_trick=True
+        )
+        bld.install_files(
+            '${PREFIX}/include/%s-%s/%s' % (APPNAME, VERSION, APPNAME),
+            bld.path.find_node(os.path.join(out, bld.variant, 'generated_sources', 'libgcm', 'config.hpp')),
+            cwd=bld.path.find_dir(os.path.join(out, bld.variant, 'generated_sources', 'libgcm')),
             relative_trick=True
         )
 

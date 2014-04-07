@@ -18,13 +18,14 @@
 #include "libgcm/Exception.hpp"
 #include "libgcm/Logging.hpp"
 #include "libgcm/util/Assertion.hpp"
+#include "libgcm/config.hpp"
 
 #define EQUALITY_TOLERANCE 0.00001
 
 using namespace std;
 using namespace gcm;
 
-#ifdef CONFIG_ENABLE_LOGGING
+#if CONFIG_ENABLE_LOGGING
 extern USE_LOGGER;
 #endif
 

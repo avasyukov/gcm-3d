@@ -1,13 +1,11 @@
 #ifndef GCM_LOGGING_H_
 #define GCM_LOGGING_H_
 
-#include <iostream>
-#include <string>
+#include "libgcm/config.hpp"
 
-#include <log4cxx/logger.h>
-#include <log4cxx/mdc.h>
-
-#ifdef CONFIG_ENABLE_LOGGING
+#if CONFIG_ENABLE_LOGGING
+    #include <log4cxx/logger.h>
+    #include <log4cxx/mdc.h>
     #define USE_LOGGER log4cxx::LoggerPtr logger;
     #define INIT_LOGGER(name) do { logger = log4cxx::Logger::getLogger(name); } while (0)
     #define USE_AND_INIT_LOGGER(name) log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger(name);
