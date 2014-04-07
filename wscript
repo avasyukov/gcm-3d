@@ -50,6 +50,13 @@ def options(opt):
         default=False,
         help='Disable libgcm logging routines'
     )
+    
+    pcog.add_option(
+        '--without-assertions',
+        action='store_true',
+        default=False,
+        help='Disable libgcm assert routines'
+    )
 
     pcog.add_option(
         '--without-tests',
@@ -141,6 +148,7 @@ def configure(conf):
     conf.msg('Build static lib', yes_no(conf.options.static))
     conf.msg('Build launcher', yes_no(not conf.options.without_launcher))
     conf.msg('Enable logging', yes_no(not conf.options.without_logging))
+    conf.msg('Enable assertions', yes_no(not conf.options.without_assertions))
     conf.msg('Execute tests', yes_no(not conf.options.without_tests))
     conf.msg('Install headers', yes_no(conf.options.with_headers))
     conf.msg('Install resources', yes_no(conf.options.with_resources))
@@ -159,6 +167,7 @@ def configure(conf):
 
     conf.env.without_launcher = conf.options.without_launcher
     conf.env.without_logging = conf.options.without_logging
+    conf.env.without_assertions = conf.options.without_assertions
     conf.env.without_tests = conf.options.without_tests
     conf.env.with_headers = conf.options.with_headers
     conf.env.with_resources = conf.options.with_resources
@@ -178,6 +187,7 @@ def configure(conf):
     conf.define('CONFIG_INSTALL_PREFIX', os.path.abspath(conf.options.prefix))
     conf.define('CONFIG_SHARE_GCM', os.path.join(os.path.abspath(conf.options.prefix), 'share', 'gcm3d'))
     conf.define('CONFIG_ENABLE_LOGGING', int(not conf.env.without_logging))
+    conf.define('CONFIG_ENABLE_ASSERTIONS', int(not conf.env.assertions_logging))
 
 
     if not conf.env.without_logging:
