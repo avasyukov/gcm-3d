@@ -7,12 +7,19 @@
 #include <boost/lexical_cast.hpp>
 
 #include "libgcm/materials/IAnisotropicElasticMaterial.hpp"
+#include "libgcm/util/AnisotropicMatrix3D.hpp"
+#include "libgcm/util/AnisotropicMatrix3DAnalytical.hpp"
 
 using boost::lexical_cast;
 
 const string launcher::AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE = "AnisotropicElastic";
 
 gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::load(xml::Node desc)
+{
+    load(desc, "numerical");
+}
+
+gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::load(xml::Node desc, string anisotropicMatrixImplementation)
 {
     string name = desc["name"];
     string rheology = desc["rheology"];
@@ -44,7 +51,12 @@ gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::loa
         a2 = d2r(lexical_cast<float>(rotate["a2"]));
         a3 = d2r(lexical_cast<float>(rotate["a3"]));
         
-        result = new AnisotropicElasticMaterial(name, rho, crackThreshold, params);
+        RheologyMatrix3D* matrix;
+        if( anisotropicMatrixImplementation == "analytical")
+            matrix = new AnisotropicMatrix3DAnalytical();
+        else
+            matrix = new AnisotropicMatrix3D();
+        result = new AnisotropicElasticMaterial(name, rho, crackThreshold, params, matrix);
         result->rotate(a1, a2, a3);
     }
     else
@@ -66,8 +78,13 @@ gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::loa
         for (k = 0; k < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; k++)
             if (params.values[k] < 0.0)
                 THROW_INVALID_INPUT("Seems xml snippet does not contain valid rheology parameters.");
-        
-        result = new AnisotropicElasticMaterial(name, rho, crackThreshold, params);
+
+        RheologyMatrix3D* matrix;
+        if( anisotropicMatrixImplementation == "analytical")
+            matrix = new AnisotropicMatrix3DAnalytical();
+        else
+            matrix = new AnisotropicMatrix3D();
+        result = new AnisotropicElasticMaterial(name, rho, crackThreshold, params, matrix);
     }
 
 

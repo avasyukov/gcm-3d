@@ -3,12 +3,23 @@
 
 #include <cassert>
 
-gcm::AnisotropicElasticMaterial::AnisotropicElasticMaterial(string name, gcm_real rho, gcm_real crackThreshold, RheologyParameters params) : Material(name, rho, crackThreshold), rheologyParameters(params)
+gcm::AnisotropicElasticMaterial::AnisotropicElasticMaterial(string name, gcm_real rho, gcm_real crackThreshold, 
+                RheologyParameters params) 
+        : Material(name, rho, crackThreshold), rheologyParameters(params)
 {
+    matrix = new AnisotropicMatrix3D();
+}
+
+gcm::AnisotropicElasticMaterial::AnisotropicElasticMaterial(string name, gcm_real rho, gcm_real crackThreshold, 
+                RheologyParameters params, RheologyMatrix3D* anisotropicMatrixImplementation) 
+        : Material(name, rho, crackThreshold), rheologyParameters(params)
+{
+    matrix = anisotropicMatrixImplementation;
 }
 
 gcm::AnisotropicElasticMaterial::~AnisotropicElasticMaterial()
 {
+    delete matrix;
 }
 
 void gcm::AnisotropicElasticMaterial::rotate(float a1, float a2, float a3)
@@ -130,7 +141,7 @@ const gcm::IAnisotropicElasticMaterial::RheologyParameters& gcm::AnisotropicElas
 ////    matrix.prepareMatrix({}, stage);
 //}
 
-AnisotropicMatrix3D& gcm::AnisotropicElasticMaterial::getRheologyMatrix()
+RheologyMatrix3D& gcm::AnisotropicElasticMaterial::getRheologyMatrix()
 {
-    return matrix;
+    return (*matrix);
 }

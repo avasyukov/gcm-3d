@@ -33,8 +33,7 @@ launcher::Launcher::Launcher()
     INIT_LOGGER("gcm.launcher");
 }
 
-
-void launcher::Launcher::loadMaterialsFromXml(NodeList matNodes)
+void launcher::Launcher::loadMaterialsFromXml(NodeList matNodes, string anisotropicMatrixImplementation)
 {
     gcm::Engine& engine = gcm::Engine::getInstance();
     for(auto& matNode: matNodes)
@@ -42,7 +41,7 @@ void launcher::Launcher::loadMaterialsFromXml(NodeList matNodes)
         string rheology = matNode["rheology"];
         Material* mat = nullptr;
         if (rheology == AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE)
-            mat = AnisotropicElasticMaterialLoader::getInstance().load(matNode);
+            mat = AnisotropicElasticMaterialLoader::getInstance().load(matNode, anisotropicMatrixImplementation);
         else if (rheology == IsotropicElasticMaterialLoader::RHEOLOGY_TYPE)
             mat = IsotropicElasticMaterialLoader::getInstance().load(matNode);
         else
@@ -61,6 +60,11 @@ void launcher::Launcher::loadMaterialsFromXml(NodeList matNodes)
 
 void launcher::Launcher::loadMaterialLibrary(std::string path)
 {
+    loadMaterialLibrary(path, "numerical");
+}
+
+void launcher::Launcher::loadMaterialLibrary(std::string path, string anisotropicMatrixImplementation)
+{
     LOG_INFO("Loading material library from " << path);
 
     bfs::recursive_directory_iterator dir(path), end;
@@ -72,7 +76,7 @@ void launcher::Launcher::loadMaterialLibrary(std::string path)
                 string fname = dir->path().string();
                 LOG_DEBUG("Loading material library item from " << fname);
                 Doc doc = Doc::fromFile(fname);
-                loadMaterialsFromXml(doc.getRootElement().xpath("/materials/material"));
+                loadMaterialsFromXml(doc.getRootElement().xpath("/materials/material"), anisotropicMatrixImplementation);
             }
     }
 }
@@ -195,8 +199,20 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         }
     }
 
+    string anisotropicMatrixImplementation = "numerical";
+    NodeList anisotropicMatrixList = rootNode.xpath("/task/system/anisotropicMatrix");
+    if( anisotropicMatrixList.size() > 1 )
+        THROW_INVALID_INPUT("Config file can contain only one <anisotropicMatrix/> element");
+    if( anisotropicMatrixList.size() == 1 )
+    {
+        xml::Node anisotropicMatrix = anisotropicMatrixList.front();
+        anisotropicMatrixImplementation = anisotropicMatrix["implementation"];
+    }
+
+    loadMaterialLibrary("materials", anisotropicMatrixImplementation);
+    
     // reading materials
-    loadMaterialsFromXml(rootNode.xpath("/task/materials/material"));
+    loadMaterialsFromXml(rootNode.xpath("/task/materials/material"), anisotropicMatrixImplementation);
 
 
     AABB globalScene;
