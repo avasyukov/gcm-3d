@@ -21,6 +21,7 @@ namespace launcher {
     public:
           // FIXME possible memory leak here.
           AnisotropicElasticMaterial* load(xml::Node desc);
+          AnisotropicElasticMaterial* load(xml::Node desc, string anisotropicMatrixImplementation);
 
           const static string RHEOLOGY_TYPE;
 

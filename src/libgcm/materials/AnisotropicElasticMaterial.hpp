@@ -12,6 +12,7 @@
 #include "libgcm/materials/Material.hpp"
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/util/AnisotropicMatrix3D.hpp"
+#include "libgcm/util/AnisotropicMatrix3DAnalytical.hpp"
 #include "libgcm/util/Types.hpp"
 
 
@@ -32,7 +33,7 @@ namespace gcm
         /**
          * Rheology matrix.
          */
-        AnisotropicMatrix3D matrix;
+        RheologyMatrix3D* matrix;
     public:
         /**
          * Constructor. Constructs material using specified parameters.
@@ -42,7 +43,9 @@ namespace gcm
          * @param crackThreshold Material crack threshold
          * @param params Anisotropic rheology parameters
          */
-        AnisotropicElasticMaterial(string name, gcm_real rho, gcm_real crackThreshold, RheologyParameters params);
+		AnisotropicElasticMaterial(string name, gcm_real rho, gcm_real crackThreshold, RheologyParameters params);
+        AnisotropicElasticMaterial(string name, gcm_real rho, gcm_real crackThreshold, 
+                RheologyParameters params, RheologyMatrix3D* anisotropicMatrixImplementation);
         ~AnisotropicElasticMaterial();
 
         /**
@@ -75,7 +78,7 @@ namespace gcm
          *
          * @return Rheology matrix
          */
-        AnisotropicMatrix3D& getRheologyMatrix() override;
+        RheologyMatrix3D& getRheologyMatrix() override;
 
         /**
          * Changes material parameters assuming it was rotated

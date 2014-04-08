@@ -1,4 +1,8 @@
 <task numberOfSnaps="5" stepsPerSnap="1">
+	<system>
+		<meshMovement type="none" />
+		<anisotropicMatrix implementation="analytical" />
+	</system>
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />

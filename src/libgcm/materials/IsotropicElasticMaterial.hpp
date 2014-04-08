@@ -79,7 +79,7 @@ namespace gcm
          *
          * @return Rheology matrix
          */
-        ElasticMatrix3D& getRheologyMatrix();
+        RheologyMatrix3D& getRheologyMatrix();
     };
 }
 

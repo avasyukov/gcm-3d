@@ -34,7 +34,7 @@ gcm_real gcm::IsotropicElasticMaterial::getMu() const
 ////    matrix.prepareMatrix({la, mu, rho}, stage);
 //}
 
-ElasticMatrix3D& gcm::IsotropicElasticMaterial::getRheologyMatrix()
+RheologyMatrix3D& gcm::IsotropicElasticMaterial::getRheologyMatrix()
 {
     return matrix;
 }

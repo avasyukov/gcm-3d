@@ -96,7 +96,7 @@ int main(int argc, char **argv, char **envp)
         Engine& engine = Engine::getInstance();
         FileFolderLookupService::getInstance().addPath(dataDir);
         launcher::Launcher launcher;
-        launcher.loadMaterialLibrary("materials");
+        //launcher.loadMaterialLibrary("materials");
         launcher.loadSceneFromFile(taskFile);
         engine.calculate();
         engine.cleanUp();
