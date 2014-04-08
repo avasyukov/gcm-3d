@@ -1,8 +1,6 @@
 #include "libgcm/materials/AnisotropicElasticMaterial.hpp"
 #include "libgcm/Exception.hpp"
 
-#include <cassert>
-
 gcm::AnisotropicElasticMaterial::AnisotropicElasticMaterial(string name, gcm_real rho, gcm_real crackThreshold, 
                 RheologyParameters params) 
         : Material(name, rho, crackThreshold), rheologyParameters(params)

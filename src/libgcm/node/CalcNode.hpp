@@ -2,7 +2,6 @@
 #define CALC_NODE_H_
 
 #include <vector>
-#include <cassert>
 #include <iostream>
 #include <string>
 
