@@ -401,18 +401,17 @@ TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
 
 void testRotation(int f1, int f2, int f3)
 {
-        AnisotropicElasticMaterial mat = generateRandomMaterial("");
+        AnisotropicElasticMaterial mat = generateRandomMaterial("testRotationMaterial");
 
-        auto m = mat;
+        gcm::IAnisotropicElasticMaterial::RheologyParameters p = mat.getParameters();
         
-        const auto& p = mat.getParameters();
-        const auto& p1 = m.getParameters();
+        const auto& p1 = mat.getParameters();
 
         float a = 0.0;
         for (int i = 0; i < 4; i++)
         {
             a += M_PI/2;
-            m.rotate(f1*a, f2*a, f3*a);
+            mat.rotate(f1*a, f2*a, f3*a);
             
             int differentComponentsNum = 0;
             for (int j = 0; j < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; j++)

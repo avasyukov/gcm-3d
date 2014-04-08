@@ -16,7 +16,7 @@ const string launcher::AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE = "Anisot
 
 gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::load(xml::Node desc)
 {
-    load(desc, "numerical");
+    return load(desc, "numerical");
 }
 
 gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::load(xml::Node desc, string anisotropicMatrixImplementation)

@@ -2,6 +2,7 @@
 #define _PERF_UTILS_H
 
 #include <functional>
+#include <string>
 
 typedef struct
 {
