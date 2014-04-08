@@ -178,7 +178,7 @@ def configure(conf):
     conf.env.CXXFLAGS += ['-Wno-deprecated']
     conf.env.CXXFLAGS += ['-std=c++11']
 
-    conf.env.LINKFLAGS += ['-lpthread', '-lrt']
+    conf.env.LINKFLAGS += ['-lpthread', '-lrt', '-lstdc++']
     if not conf.env.no_export_dynamic_symbols:
         conf.env.LINKFLAGS += ['-rdynamic']
 
