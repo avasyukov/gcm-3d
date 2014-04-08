@@ -110,6 +110,8 @@ namespace gcm
         int numberOfSnaps;
         int stepsPerSnap;
 
+        bool meshesMovable;
+
         AABB scene;
 
         string defaultRheoCalcType;
@@ -259,6 +261,8 @@ namespace gcm
         float getContactThresholdFactor();
         void setCollisionDetectorStatic(bool val);
         bool isCollisionDetectorStatic();
+        void setMeshesMovable(bool val);
+        bool getMeshesMovable();
 
         float getGmshVerbosity();
         void setGmshVerbosity(float verbosity);
