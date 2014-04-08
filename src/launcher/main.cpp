@@ -5,7 +5,9 @@
 
 #include <getopt.h>
 
-#ifdef CONFIG_ENABLE_LOGGING
+#include "libgcm/config.hpp"
+
+#if CONFIG_ENABLE_LOGGING
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/mdc.h>
 #endif
@@ -15,10 +17,6 @@
 #include "launcher/launcher.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
 #include "libgcm/Engine.hpp"
-
-#ifndef CONFIG_SHARE_GCM
-#define CONFIG_SHARE_GCM "/usr/share/gcm3d"
-#endif
 
 using namespace std;
 using namespace gcm;
@@ -84,13 +82,13 @@ int main(int argc, char **argv, char **envp)
 
 
         MPI::Init();
-        #ifdef CONFIG_ENABLE_LOGGING
+        #if CONFIG_ENABLE_LOGGING
         char pe[5];
         sprintf(pe, "%d", MPI::COMM_WORLD.Get_rank());
         log4cxx::MDC::put("PE", pe);
         log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
         #endif
-
+    
         if( taskFile.empty() )
             THROW_INVALID_ARG("No task file provided");
         LOG_INFO("Starting with taskFile '" << taskFile << "' and dataDir '" << dataDir << "'");

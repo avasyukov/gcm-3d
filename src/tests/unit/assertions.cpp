@@ -2,10 +2,11 @@
 
 #include "libgcm/util/Assertion.hpp"
 #include "libgcm/Exception.hpp"
+#include "libgcm/config.hpp"
 
 using namespace gcm;
 
-#ifndef CONFIG_WITHOUT_ASSERTIONS
+#if CONFIG_ENABLE_ASSERTIONS
 #define FAILED(statement) ASSERT_THROW(statement, Exception)
 #define PASSED(statement) ASSERT_NO_THROW(statement)
 #else

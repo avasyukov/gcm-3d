@@ -4,10 +4,11 @@
 #include <string>
 
 #include "libgcm/Exception.hpp"
+#include "libgcm/config.hpp"
 
 #define DO_WHILE(statement) do { statement } while(0)
 
-#ifndef CONFIG_WITHOUT_ASSERTIONS
+#if CONFIG_ENABLE_ASSERTIONS
 #define THROW_ASSERTION_FAILED(msg) THROW(gcm::Exception::UNKNOWN, msg)
 #else
 #define THROW_ASSERTION_FAILED(msg) DO_WHILE(;)
