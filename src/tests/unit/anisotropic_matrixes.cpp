@@ -11,7 +11,7 @@
 #include "libgcm/Math.hpp"
 #include "libgcm/Exception.hpp"
 
-#define ITERATIONS 1000
+#define ITERATIONS 10000
 
 // Use these limits if anisotropic rheology parameters tensor should be
 // isotropic one plus smaller random values
@@ -84,7 +84,7 @@ AnisotropicElasticMaterial generateRandomMaterial(string name)
 	for (int i = 0; i < 6; i++)
         for (int j = 0; j < 6; j++)
 			matC[i][j] = matC[i][j]/max;
-
+	
     IAnisotropicElasticMaterial::RheologyParameters C;
     C.c11 = la + 2 * mu + matC[0][0];
     C.c12 = la + matC[0][1];
@@ -405,28 +405,28 @@ TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
 
 void testRotation(int f1, int f2, int f3)
 {
-        AnisotropicElasticMaterial mat = generateRandomMaterial("");
+        AnisotropicElasticMaterial mat = generateOrthotropicMaterial("");
 
         auto m = mat;
         
         const auto& p = mat.getParameters();
         const auto& p1 = m.getParameters();
 
-        float a = 0.0;
+        float a = M_PI/2;
+        float tmp;
         for (int i = 0; i < 4; i++)
         {
-            a += M_PI/2;
             m.rotate(f1*a, f2*a, f3*a);
-            
-            int differentComponentsNum = 0;
-            for (int j = 0; j < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; j++)
-                if( fabs(p1.values[j] - p.values[j]) > EQUALITY_TOLERANCE )
-                    differentComponentsNum++;
-
-            if (i != 3)
-                ASSERT_NE(differentComponentsNum, 0);
-            else
-                ASSERT_NE(differentComponentsNum, ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM);
+            if(i == 3) {
+				for (int j = 0; j < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; j++) {
+					tmp = fabs(p1.values[j] - p.values[j]);
+					if( tmp > EQUALITY_TOLERANCE ) {
+							for (int k = 0; k < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; k++)
+								cout << p.values[k] << " " << p1.values[k] << endl;
+							ASSERT_NEAR(p1.values[j], p.values[j], EQUALITY_TOLERANCE);
+					}
+				}
+			}
         }
 }
 
