@@ -181,6 +181,19 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             engine.setCollisionDetectorStatic(false);
         }
     }
+    
+    NodeList meshMovementList = rootNode.xpath("/task/system/meshMovement");
+    if( meshMovementList.size() > 1 )
+        THROW_INVALID_INPUT("Config file can contain only one <meshMovement/> element");
+    if( meshMovementList.size() == 1 )
+    {
+        xml::Node meshMovement = meshMovementList.front();
+        string meshMovementType = meshMovement["type"];
+        if( meshMovementType == "none" )
+        {
+            engine.setMeshesMovable(false);
+        }
+    }
 
     // reading materials
     loadMaterialsFromXml(rootNode.xpath("/task/materials/material"));

@@ -69,6 +69,7 @@ gcm::Engine::Engine()
     stepsPerSnap = 1;
     contactThresholdType = CONTACT_THRESHOLD_BY_AVG_H;
     contactThresholdFactor = 1.0;
+    meshesMovable = true;
 
     gmshVerbosity = 0.0;
 }
@@ -483,7 +484,7 @@ void gcm::Engine::doNextStepAfterStages(const float time_step) {
         LOG_DEBUG( "Processing crack state for mesh " << mesh->getId() );
         mesh->processCrackState();
         LOG_DEBUG( "Processing crack state done" );
-        if( mesh->getMovable() )
+        if( getMeshesMovable() && mesh->getMovable() )
         {
             LOG_DEBUG( "Moving mesh " << mesh->getId() );
             mesh->moveCoords(time_step);
@@ -673,6 +674,16 @@ void gcm::Engine::setCollisionDetectorStatic(bool val)
 bool gcm::Engine::isCollisionDetectorStatic()
 {
     return colDet->is_static();
+}
+
+void gcm::Engine::setMeshesMovable(bool val)
+{
+    meshesMovable = val;
+}
+
+bool gcm::Engine::getMeshesMovable()
+{
+    return meshesMovable;
 }
 
 float gcm::Engine::getGmshVerbosity() {
