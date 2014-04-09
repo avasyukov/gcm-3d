@@ -135,7 +135,7 @@ void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, 
     engine.setTimeStep(dt);
 
     // Create snap nodes
-    CalcNode snapNodes[line.numberOfPoints];
+    CalcNode* snapNodes = new CalcNode[line.numberOfPoints];
     // Determine line size
     float dx[3];
     for (int k = 0; k < 3; k++)
@@ -231,4 +231,6 @@ void runTaskAsTest(std::string taskFile, void(*setAnalytical)(CalcNode&, float, 
         drawValues(valuesToDraw, t, &valueLimits);
 
     ASSERT_EQ(badTimeSteps, 0);
+
+    delete[] snapNodes;
 }
