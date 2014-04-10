@@ -195,8 +195,8 @@ void build_U1_Difference(RheologyMatrix3D& analyticalMatrix, RheologyMatrix3D& n
             diff(k, j_an) = fabs(analyticalMatrix.getU1().get(k, j_an) - ratio*numericalMatrix.getU1().get(k, j_num));
     }
 
-    cout << '\n' << analyticalMatrix.getU1() << '\n';
-    cout << '\n' << diff << '\n';
+    LOG_DEBUG("FIXME: add description here   " << analyticalMatrix.getU1());
+    LOG_DEBUG("FIXME: add description here   " << diff);
 
 };
 

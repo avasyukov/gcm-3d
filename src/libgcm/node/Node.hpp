@@ -1,7 +1,6 @@
 #ifndef GCM_NODE_H_
 #define GCM_NODE_H_
 
-#include <iostream>
 #include <log4cxx/logger.h>
 
 using namespace std;
