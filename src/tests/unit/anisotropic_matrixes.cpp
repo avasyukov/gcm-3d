@@ -1,6 +1,7 @@
 #include <cmath>
 #include <time.h>
 #include <gtest/gtest.h>
+#include <functional>
 
 #include "libgcm/materials/IAnisotropicElasticMaterial.hpp"
 #include "libgcm/materials/AnisotropicElasticMaterial.hpp"
@@ -27,6 +28,8 @@
 #define ISOTROPIC_MU_LIMIT 1.0e-1
 #define ISOTROPIC_RHO_LIMIT 1.0
 
+
+typedef std::function<NumericalAnisotropicElasticMaterial(std::string)> MaterialGenerator;
 
 NumericalAnisotropicElasticMaterial generateRandomMaterial(string name)
 {
@@ -133,14 +136,14 @@ NumericalAnisotropicElasticMaterial generateOrthotropicMaterial(string name)
 };
 
 template<class AnisotropicMatrixImplementation>
-void testDecomposition(NumericalAnisotropicElasticMaterial(*generateMaterial)(string))
+void testDecomposition(MaterialGenerator generator)
 {
     for (int count = 0; count < ITERATIONS; count++) {
         CalcNode anisotropicNode;
         AnisotropicMatrixImplementation matrix;
 
         string testMaterialName = "AnisotropicMatrix3D_FuzzyMultiplication_" + to_string(count);
-        NumericalAnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
+        NumericalAnisotropicElasticMaterial mat = generator(testMaterialName);
         anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
 
         for (int i = 0; i < 3; i++) {
@@ -198,7 +201,7 @@ void build_U1_Difference(RheologyMatrix3D& analyticalMatrix, RheologyMatrix3D& n
 };
 
 template<class AnisotropicMatrixImplementation1, class AnisotropicMatrixImplementation2>
-void compareDecomposition(NumericalAnisotropicElasticMaterial(*generateMaterial)(string))
+void compareDecomposition(MaterialGenerator generator)
 {
     for (int count = 0; count < ITERATIONS; count++) {
         CalcNode anisotropicNode;
@@ -206,7 +209,7 @@ void compareDecomposition(NumericalAnisotropicElasticMaterial(*generateMaterial)
         AnisotropicMatrixImplementation2 matrix2;
 
         string testMaterialName = "AnisotropicMatrix3D_Comparing_" + to_string(count);
-        NumericalAnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
+        NumericalAnisotropicElasticMaterial mat = generator(testMaterialName);
         anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
 
         for (int i = 0; i < 3; i++) {
