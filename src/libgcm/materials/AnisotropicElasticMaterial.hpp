@@ -6,7 +6,7 @@
  */
 
 #ifndef ANISOTROPICELASTICMATERIAL_H
-#define    ANISOTROPICELASTICMATERIAL_H
+#define ANISOTROPICELASTICMATERIAL_H
 
 #include "libgcm/materials/IAnisotropicElasticMaterial.hpp"
 #include "libgcm/materials/Material.hpp"
@@ -30,10 +30,6 @@ namespace gcm
          * Rheology parameters.
          */
         RheologyParameters rheologyParameters;
-        /**
-         * Rheology matrix.
-         */
-        RheologyMatrix3D* matrix;
     public:
         /**
          * Constructor. Constructs material using specified parameters.
@@ -44,9 +40,6 @@ namespace gcm
          * @param params Anisotropic rheology parameters
          */
 		AnisotropicElasticMaterial(string name, gcm_real rho, gcm_real crackThreshold, RheologyParameters params);
-        AnisotropicElasticMaterial(string name, gcm_real rho, gcm_real crackThreshold, 
-                RheologyParameters params, RheologyMatrix3D* anisotropicMatrixImplementation);
-        ~AnisotropicElasticMaterial();
 
         /**
          * Returns material parameters.
@@ -54,31 +47,6 @@ namespace gcm
          * @return Material rheology parameters.
          */
         const RheologyParameters& getParameters() const;
-
-//        /**
-//         * Recomputes \f$A_x\f$ matrix with respect to node state.
-//         *
-//         * @param node Mesh node
-//         */
-//        void prepareRheologyMatrixX(const CalcNode& node) override;
-//        /**
-//         * Recomputes \f$A_y\f$ matrix with respect to node state.
-//         *
-//         * @param node Mesh node
-//         */
-//        void prepareRheologyMatrixY(const CalcNode& node) override;
-//        /**
-//         * Recomputes \f$A_z\f$ matrix with respect to node state.
-//         *
-//         * @param node Mesh node
-//         */
-//        void prepareRheologyMatrixZ(const CalcNode& node) override;
-        /**
-         * Returns previously computed rheology matrix.
-         *
-         * @return Rheology matrix
-         */
-        RheologyMatrix3D& getRheologyMatrix() override;
 
         /**
          * Changes material parameters assuming it was rotated
@@ -89,6 +57,39 @@ namespace gcm
          */
         void rotate(float a1, float a2, float a3);
     };
+    
+    template<typename MatrixImplementation>
+    class AnisotropicElasticMaterialImplementation: public AnisotropicElasticMaterial
+    {
+    protected:
+        MatrixImplementation rheologyMatrix;
+    public:
+        /**
+         * Constructor. Constructs material using specified parameters.
+         *
+         * @param name Material name
+         * @param rho Material density
+         * @param crackThreshold Material crack threshold
+         * @param params Anisotropic rheology parameters
+         */
+		AnisotropicElasticMaterialImplementation(string name, gcm_real rho, gcm_real crackThreshold, RheologyParameters params):
+            AnisotropicElasticMaterial(name, rho, crackThreshold, params)
+        {
+        }
+        /**
+         * Returns previously computed rheology matrix.
+         *
+         * @return Rheology matrix
+         */
+        RheologyMatrix3D& getRheologyMatrix() override
+        {
+            return rheologyMatrix;
+        }
+    };
+
+    typedef AnisotropicElasticMaterialImplementation<AnisotropicMatrix3D> NumericalAnisotropicElasticMaterial;
+    typedef AnisotropicElasticMaterialImplementation<AnisotropicMatrix3DAnalytical> AnalyticalAnisotropicElasticMaterial;
+
 }
 
 #endif    /* ANISOTROPICELASTICMATERIAL_H */

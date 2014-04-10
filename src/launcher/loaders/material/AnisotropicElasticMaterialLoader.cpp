@@ -9,17 +9,23 @@
 #include "libgcm/materials/IAnisotropicElasticMaterial.hpp"
 #include "libgcm/util/AnisotropicMatrix3D.hpp"
 #include "libgcm/util/AnisotropicMatrix3DAnalytical.hpp"
+#include "libgcm/Exception.hpp"
 
 using boost::lexical_cast;
 
 const string launcher::AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE = "AnisotropicElastic";
-
-gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::load(xml::Node desc)
+const string launcher::AnisotropicElasticMaterialLoader::MATRIX_TYPE_ANALYTICAL = "analytical";
+const string launcher::AnisotropicElasticMaterialLoader::MATRIX_TYPE_NUMERICAL = "numerical";
+          
+launcher::AnisotropicElasticMaterialLoader::AnisotropicElasticMaterialLoader(): AnisotropicElasticMaterialLoader(MATRIX_TYPE_NUMERICAL)
 {
-    return load(desc, "numerical");
 }
 
-gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::load(xml::Node desc, string anisotropicMatrixImplementation)
+launcher::AnisotropicElasticMaterialLoader::AnisotropicElasticMaterialLoader(string type): type(type)
+{
+}
+
+gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::load(xml::Node desc)
 {
     string name = desc["name"];
     string rheology = desc["rheology"];
@@ -29,6 +35,16 @@ gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::loa
     gcm_real crackThreshold;
     IAnisotropicElasticMaterial::RheologyParameters params;
     AnisotropicElasticMaterial* result = nullptr;
+
+    auto createMaterial = [&]()
+    {
+        if (type == MATRIX_TYPE_NUMERICAL)
+            result = new NumericalAnisotropicElasticMaterial(name, rho, crackThreshold, params);
+        else if (type == MATRIX_TYPE_ANALYTICAL)
+            result = new AnalyticalAnisotropicElasticMaterial(name, rho, crackThreshold, params);
+        else
+            THROW_UNSUPPORTED("Specified anisotropic matrix implementation\"" + type + "\" is not supported yet.");
+    };
 
 
     if (desc.hasAttribute("source"))
@@ -51,12 +67,8 @@ gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::loa
         a2 = d2r(lexical_cast<float>(rotate["a2"]));
         a3 = d2r(lexical_cast<float>(rotate["a3"]));
         
-        RheologyMatrix3D* matrix;
-        if( anisotropicMatrixImplementation == "analytical")
-            matrix = new AnisotropicMatrix3DAnalytical();
-        else
-            matrix = new AnisotropicMatrix3D();
-        result = new AnisotropicElasticMaterial(name, rho, crackThreshold, params, matrix);
+        createMaterial();
+        
         result->rotate(a1, a2, a3);
     }
     else
@@ -79,12 +91,7 @@ gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::loa
             if (params.values[k] < 0.0)
                 THROW_INVALID_INPUT("Seems xml snippet does not contain valid rheology parameters.");
 
-        RheologyMatrix3D* matrix;
-        if( anisotropicMatrixImplementation == "analytical")
-            matrix = new AnisotropicMatrix3DAnalytical();
-        else
-            matrix = new AnisotropicMatrix3D();
-        result = new AnisotropicElasticMaterial(name, rho, crackThreshold, params, matrix);
+        createMaterial();
     }
 
 

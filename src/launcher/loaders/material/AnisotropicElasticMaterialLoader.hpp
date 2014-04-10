@@ -18,15 +18,22 @@ using namespace std;
 
 namespace launcher {
     class AnisotropicElasticMaterialLoader: public Singleton<AnisotropicElasticMaterialLoader> {
+    protected:
+        string type;
     public:
+          AnisotropicElasticMaterialLoader();
+          AnisotropicElasticMaterialLoader(string type);
+
           // FIXME possible memory leak here.
           AnisotropicElasticMaterial* load(xml::Node desc);
-          AnisotropicElasticMaterial* load(xml::Node desc, string anisotropicMatrixImplementation);
 
           const static string RHEOLOGY_TYPE;
+          const static string MATRIX_TYPE_ANALYTICAL;
+          const static string MATRIX_TYPE_NUMERICAL;
 
     };
 };
 
 #endif    /* ANISOTROPICELASTICMATERIALLOADER_H */
+
 

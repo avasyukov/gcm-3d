@@ -126,7 +126,7 @@ TEST(AnisotropicElasticMaterialLoader, Rotation)
     for (int i = 0; i < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; i++)
         params.values[i] = i*3;
 
-    AnisotropicElasticMaterial sourceMaterial("sourceMaterial", 1.0, 1.0, params);
+    NumericalAnisotropicElasticMaterial sourceMaterial("sourceMaterial", 1.0, 1.0, params);
 
     Engine::getInstance().addMaterial(&sourceMaterial);
 

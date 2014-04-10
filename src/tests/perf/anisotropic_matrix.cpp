@@ -48,7 +48,7 @@ int main()
     float rho = 1e3;
     gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
 
-    AnisotropicElasticMaterial mat("AnisotropicMatrix3D_Perf", rho, crackThreshold, C);
+    NumericalAnisotropicElasticMaterial mat("AnisotropicMatrix3D_Perf", rho, crackThreshold, C);
     anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
 
     auto t1 = measure_time(
