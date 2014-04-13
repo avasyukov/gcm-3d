@@ -12,7 +12,7 @@
 #include "libgcm/Math.hpp"
 #include "libgcm/Exception.hpp"
 
-#define ITERATIONS 10000
+#define ITERATIONS 1000
 
 // Use these limits if anisotropic rheology parameters tensor should be
 // isotropic one plus smaller random values
@@ -21,12 +21,12 @@
 // Random part of anisotropic rheology parameters tensor
 #define RANDOM_LIMIT 1.0e+3
 
-#define RHO_LIMIT 1.0
+#define RHO_LIMIT 10.0
 
 // Limits for isotropic transition test
-#define ISOTROPIC_LAMBDA_LIMIT 1
-#define ISOTROPIC_MU_LIMIT 1.0e-1
-#define ISOTROPIC_RHO_LIMIT 1.0
+#define ISOTROPIC_LAMBDA_LIMIT 1e+6
+#define ISOTROPIC_MU_LIMIT 1.0e+5
+#define ISOTROPIC_RHO_LIMIT 10.0
 
 
 typedef std::function<NumericalAnisotropicElasticMaterial(std::string)> MaterialGenerator;
@@ -57,9 +57,10 @@ NumericalAnisotropicElasticMaterial generateRandomMaterial(string name)
 		}
     }
 	
+	/*
 	for (int i = 0; i < 6; i++)
         for (int j = 0; j < 6; j++)
-			matC[i][j] = matC[i][j]/max;
+			matC[i][j] = matC[i][j]/max;*/
 	
     IAnisotropicElasticMaterial::RheologyParameters C;
     C.c11 = la + 2 * mu + matC[0][0];
@@ -365,15 +366,15 @@ TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
 
         analyticalMatrix.createAx(anisotropicNode);
         numericalMatrix.createAx(anisotropicNode);
-        ASSERT_TRUE( analyticalMatrix.getA() == numericalMatrix.getA() );
+        ASSERT_TRUE( analyticalMatrix.getA() |= numericalMatrix.getA() );
 
         analyticalMatrix.createAy(anisotropicNode);
         numericalMatrix.createAy(anisotropicNode);
-        ASSERT_TRUE( analyticalMatrix.getA() == numericalMatrix.getA() );
+        ASSERT_TRUE( analyticalMatrix.getA() |= numericalMatrix.getA() );
 
         analyticalMatrix.createAz(anisotropicNode);
         numericalMatrix.createAz(anisotropicNode);
-        ASSERT_TRUE( analyticalMatrix.getA() == numericalMatrix.getA() );
+        ASSERT_TRUE( analyticalMatrix.getA() |= numericalMatrix.getA() );
 
         Engine::getInstance().clear();
     }
@@ -381,30 +382,19 @@ TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
 
 void testRotation(int f1, int f2, int f3)
 {
+        auto mat = generateRandomMaterial("testRotationMaterial");
 
-        AnisotropicElasticMaterial mat = generateOrthotropicMaterial("");
+        gcm::IAnisotropicElasticMaterial::RheologyParameters p = mat.getParameters();
+        
+        const auto& p1 = mat.getParameters();
 
-        auto m = mat
+        float a = 2*M_PI;
 
-        const auto& p = mat.getParameters();
-        const auto& p1 = m.getParameters();
+        mat.rotate(f1*a, f2*a, f3*a);
+            
+        for (int j = 0; j < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; j++)
+            ASSERT_NEAR( p1.values[j], p.values[j], fabs(p.values[j])*EQUALITY_TOLERANCE );
 
-        float a = M_PI/2;
-        float tmp;
-        for (int i = 0; i < 4; i++)
-        {
-            m.rotate(f1*a, f2*a, f3*a);
-            if(i == 3) {
-				for (int j = 0; j < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; j++) {
-					tmp = fabs(p1.values[j] - p.values[j]);
-					if( tmp > EQUALITY_TOLERANCE ) {
-							for (int k = 0; k < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; k++)
-								cout << p.values[k] << " " << p1.values[k] << endl;
-							ASSERT_NEAR(p1.values[j], p.values[j], EQUALITY_TOLERANCE);
-					}
-				}
-			}
-        }
 }
 
 TEST(AnisotropicMatrix3D, rotateA1)

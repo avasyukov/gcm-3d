@@ -64,7 +64,7 @@ bool gcm::gcm_matrix::operator|=(const gcm_matrix &A) const {
 			float val2 = fabs(A.p[i][j]);
 			float norm = fmax (val1, val2);
 			// If the element is not 0 ...
-			if ( !( (p[i][j] == 0) || (A.p[i][j] == 0) )
+			if ( !(( fabs(p[i][j]) < 1.0e-8) || (fabs(A.p[i][j]) < 1.0e-8) )
 					// ... check for the difference to be less then 1%
 					&& (fabs(p[i][j] - A.p[i][j]) > 0.01 * norm)) {
 				LOG_ERROR((*this - A)/A << "i, j = " << i << ", " << j << 
