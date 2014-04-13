@@ -67,8 +67,8 @@ bool gcm::gcm_matrix::operator|=(const gcm_matrix &A) const {
 			if ( !( (p[i][j] == 0) || (A.p[i][j] == 0) )
 					// ... check for the difference to be less then 1%
 					&& (fabs(p[i][j] - A.p[i][j]) > 0.01 * norm)) {
-				cout << (*this - A)/A << "i, j = " << i << ", " << j << 
-						"\t err = " << fabs(p[i][j] - A.p[i][j])/norm << endl;
+				LOG_ERROR((*this - A)/A << "i, j = " << i << ", " << j << 
+						"\t err = " << fabs(p[i][j] - A.p[i][j])/norm);
 				return false;
 			}
 		}

@@ -1,6 +1,7 @@
 #include <cmath>
 #include <time.h>
 #include <gtest/gtest.h>
+#include <functional>
 
 #include "libgcm/materials/IAnisotropicElasticMaterial.hpp"
 #include "libgcm/materials/AnisotropicElasticMaterial.hpp"
@@ -28,34 +29,9 @@
 #define ISOTROPIC_RHO_LIMIT 1.0
 
 
-class AnisotropicElasticMaterialAnalytical : public Material, public IAnisotropicElasticMaterial
-{
-protected:
-    RheologyParameters rheologyParameters;
-    AnisotropicMatrix3DAnalytical matrix;
+typedef std::function<NumericalAnisotropicElasticMaterial(std::string)> MaterialGenerator;
 
-public:
-    AnisotropicElasticMaterialAnalytical(string name, gcm_real rho, gcm_real crackThreshold, RheologyParameters params):  Material(name, rho, crackThreshold), rheologyParameters(params)
-    {
-    }
-
-    ~AnisotropicElasticMaterialAnalytical()
-    {
-    }
-
-    const RheologyParameters& getParameters() const
-    {
-        return rheologyParameters;
-    }
-
-    AnisotropicMatrix3DAnalytical& getRheologyMatrix() override
-    {
-        return matrix;
-    }
-};
-
-
-AnisotropicElasticMaterial generateRandomMaterial(string name)
+NumericalAnisotropicElasticMaterial generateRandomMaterial(string name)
 {
     gcm_real la = LAMBDA_LIMIT * (double) rand() / RAND_MAX;
     gcm_real mu = MU_LIMIT * (double) rand() / RAND_MAX;
@@ -111,11 +87,11 @@ AnisotropicElasticMaterial generateRandomMaterial(string name)
     float rho = RHO_LIMIT * (double) rand() / RAND_MAX;
     gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
 	
-    AnisotropicElasticMaterial mat(name, rho, crackThreshold, C);
+    NumericalAnisotropicElasticMaterial mat(name, rho, crackThreshold, C);
     return mat;
 };
 
-AnisotropicElasticMaterial generateOrthotropicMaterial(string name)
+NumericalAnisotropicElasticMaterial generateOrthotropicMaterial(string name)
 {
     gcm_real la = ISOTROPIC_LAMBDA_LIMIT * (double) rand() / RAND_MAX;
     gcm_real mu = ISOTROPIC_MU_LIMIT * (double) rand() / RAND_MAX;
@@ -155,19 +131,19 @@ AnisotropicElasticMaterial generateOrthotropicMaterial(string name)
     float rho = RHO_LIMIT * (double) rand() / RAND_MAX;
     gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
 
-    AnisotropicElasticMaterial mat(name, rho, crackThreshold, C);
+    NumericalAnisotropicElasticMaterial mat(name, rho, crackThreshold, C);
     return mat;
 };
 
 template<class AnisotropicMatrixImplementation>
-void testDecomposition(AnisotropicElasticMaterial(*generateMaterial)(string))
+void testDecomposition(MaterialGenerator generator)
 {
     for (int count = 0; count < ITERATIONS; count++) {
         CalcNode anisotropicNode;
         AnisotropicMatrixImplementation matrix;
 
         string testMaterialName = "AnisotropicMatrix3D_FuzzyMultiplication_" + to_string(count);
-        AnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
+        NumericalAnisotropicElasticMaterial mat = generator(testMaterialName);
         anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
 
         for (int i = 0; i < 3; i++) {
@@ -220,13 +196,13 @@ void build_U1_Difference(RheologyMatrix3D& analyticalMatrix, RheologyMatrix3D& n
             diff(k, j_an) = fabs(analyticalMatrix.getU1().get(k, j_an) - ratio*numericalMatrix.getU1().get(k, j_num));
     }
 
-    cout << '\n' << analyticalMatrix.getU1() << '\n';
-    cout << '\n' << diff << '\n';
+    LOG_DEBUG("FIXME: add description here   " << analyticalMatrix.getU1());
+    LOG_DEBUG("FIXME: add description here   " << diff);
 
 };
 
 template<class AnisotropicMatrixImplementation1, class AnisotropicMatrixImplementation2>
-void compareDecomposition(AnisotropicElasticMaterial(*generateMaterial)(string))
+void compareDecomposition(MaterialGenerator generator)
 {
     for (int count = 0; count < ITERATIONS; count++) {
         CalcNode anisotropicNode;
@@ -234,7 +210,7 @@ void compareDecomposition(AnisotropicElasticMaterial(*generateMaterial)(string))
         AnisotropicMatrixImplementation2 matrix2;
 
         string testMaterialName = "AnisotropicMatrix3D_Comparing_" + to_string(count);
-        AnisotropicElasticMaterial mat = generateMaterial(testMaterialName);
+        NumericalAnisotropicElasticMaterial mat = generator(testMaterialName);
         anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
 
         for (int i = 0; i < 3; i++) {
@@ -360,13 +336,13 @@ TEST(AnisotropicMatrix3D, NumericalFuzzOrthotropic)
 TEST(AnisotropicMatrix3D, AnalyticalIsotropicTransition)
 {
     srand(time(NULL));
-    testIsotropicTransition<AnisotropicElasticMaterialAnalytical>();
+    testIsotropicTransition<AnalyticalAnisotropicElasticMaterial>();
 };
 
 TEST(AnisotropicMatrix3D, NumericalIsotropicTransition)
 {
     srand(time(NULL));
-    testIsotropicTransition<AnisotropicElasticMaterial>();
+    testIsotropicTransition<NumericalAnisotropicElasticMaterial>();
 };
 
 //TEST(AnisotropicMatrix3D, AnalyticalVSNumericalRandom) 
@@ -384,7 +360,7 @@ TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
         CalcNode anisotropicNode;
 
         string testMaterialName = "AnisotropicMatrix3D_AnalyticalEqNumerical";
-        AnisotropicElasticMaterial mat = generateRandomMaterial(testMaterialName);
+        auto mat = generateRandomMaterial(testMaterialName);
         anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
 
         analyticalMatrix.createAx(anisotropicNode);
@@ -405,10 +381,11 @@ TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
 
 void testRotation(int f1, int f2, int f3)
 {
+
         AnisotropicElasticMaterial mat = generateOrthotropicMaterial("");
 
-        auto m = mat;
-        
+        auto m = mat
+
         const auto& p = mat.getParameters();
         const auto& p1 = m.getParameters();
 
