@@ -14,6 +14,8 @@
 
 #define ITERATIONS 1000
 
+#define MAX_ROTATIONS_NUMBER 6
+
 // Use these limits if anisotropic rheology parameters tensor should be
 // isotropic one plus smaller random values
 #define LAMBDA_LIMIT 0.0
@@ -389,12 +391,14 @@ void testRotation(int f1, int f2, int f3)
         const auto& p1 = mat.getParameters();
 
         double a = 2*M_PI;
+		for(int i = 1; i <= MAX_ROTATIONS_NUMBER; i++) {
 
-        mat.rotate(f1*a, f2*a, f3*a);
-            
-        for (int j = 0; j < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; j++)
-            ASSERT_NEAR( p1.values[j], p.values[j], fabs(p.values[j])*EQUALITY_TOLERANCE );
+			for(int k = 1; k <= i; k++)
+				mat.rotate(f1*a/i, f2*a/i, f3*a/i);
 
+			for (int j = 0; j < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; j++)
+				ASSERT_NEAR( p1.values[j], p.values[j], fabs(p.values[j])*EQUALITY_TOLERANCE );
+		}
 }
 
 TEST(AnisotropicMatrix3D, rotateA1)
