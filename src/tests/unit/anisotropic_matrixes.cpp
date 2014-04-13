@@ -388,7 +388,7 @@ void testRotation(int f1, int f2, int f3)
         
         const auto& p1 = mat.getParameters();
 
-        float a = 2*M_PI;
+        double a = 2*M_PI;
 
         mat.rotate(f1*a, f2*a, f3*a);
             
