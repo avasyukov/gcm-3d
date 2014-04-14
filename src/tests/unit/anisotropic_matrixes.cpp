@@ -14,6 +14,8 @@
 
 #define ITERATIONS 1000
 
+#define MAX_ROTATIONS_NUMBER 6
+
 // Use these limits if anisotropic rheology parameters tensor should be
 // isotropic one plus smaller random values
 #define LAMBDA_LIMIT 0.0
@@ -21,12 +23,12 @@
 // Random part of anisotropic rheology parameters tensor
 #define RANDOM_LIMIT 1.0e+3
 
-#define RHO_LIMIT 1.0
+#define RHO_LIMIT 10.0
 
 // Limits for isotropic transition test
-#define ISOTROPIC_LAMBDA_LIMIT 1
-#define ISOTROPIC_MU_LIMIT 1.0e-1
-#define ISOTROPIC_RHO_LIMIT 1.0
+#define ISOTROPIC_LAMBDA_LIMIT 1e+6
+#define ISOTROPIC_MU_LIMIT 1.0e+5
+#define ISOTROPIC_RHO_LIMIT 10.0
 
 
 typedef std::function<NumericalAnisotropicElasticMaterial(std::string)> MaterialGenerator;
@@ -57,10 +59,11 @@ NumericalAnisotropicElasticMaterial generateRandomMaterial(string name)
 		}
     }
 	
+	/*
 	for (int i = 0; i < 6; i++)
         for (int j = 0; j < 6; j++)
-			matC[i][j] = matC[i][j]/max;
-
+			matC[i][j] = matC[i][j]/max;*/
+	
     IAnisotropicElasticMaterial::RheologyParameters C;
     C.c11 = la + 2 * mu + matC[0][0];
     C.c12 = la + matC[0][1];
@@ -158,8 +161,9 @@ void testDecomposition(MaterialGenerator generator)
 
             // Test decomposition
             ASSERT_TRUE( matrix.getU1() * matrix.getL() * matrix.getU() |= matrix.getA() );
-            // Test eigen values and eigen rows
+            // Test eigenvalues and eigenvectors
             ASSERT_TRUE( matrix.getU1() * matrix.getL() |= matrix.getA() * matrix.getU1() );
+
         }
         Engine::getInstance().clear();
     }
@@ -234,7 +238,10 @@ void compareDecomposition(MaterialGenerator generator)
 
                 // Finding the same eigenvalue in numericalMatrix
                 j_num = 0;
-                while(fabs(eigenvA - matrix2.getL().get(j_num, j_num)) > fmax(fabs(eigenvA), fabs(matrix2.getL().get(j_num, j_num)))*10.0*EQUALITY_TOLERANCE) { j_num++; }
+                while(fabs(eigenvA - matrix2.getL().get(j_num, j_num)) > fmax(fabs(eigenvA), fabs(matrix2.getL().get(j_num, j_num)))*10.0*EQUALITY_TOLERANCE) { 
+					j_num++; 
+					//if(j_num > 5) THROW_INVALID_ARG("Remaining quality is inaccessible!");
+				}
 
                 // Finding the first exapmle ratio of components
                 k = -1;
@@ -246,7 +253,7 @@ void compareDecomposition(MaterialGenerator generator)
                 // Comparing this ratio with another ratios
                 for(k = 0; k < 9; k++) {
                     if(fabs(matrix1.getU1().get(k, j_an)) < 1.0e-8) ASSERT_NEAR(matrix2.getU1().get(k, j_num), 0.0, 1.0e-8);
-                    else ASSERT_NEAR(ratio, matrix1.getU1().get(k, j_an)/matrix2.getU1().get(k, j_num), fmax(fabs(ratio), fabs(matrix1.getU1().get(k, j_an)/matrix2.getU1().get(k, j_num)))*10.0*EQUALITY_TOLERANCE);
+                    else ASSERT_NEAR(ratio, matrix1.getU1().get(k, j_an)/matrix2.getU1().get(k, j_num), fmax(fabs(ratio), fabs(matrix1.getU1().get(k, j_an)/matrix2.getU1().get(k, j_num)))*100.0*EQUALITY_TOLERANCE);
                 }
             }
         }
@@ -361,15 +368,15 @@ TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
 
         analyticalMatrix.createAx(anisotropicNode);
         numericalMatrix.createAx(anisotropicNode);
-        ASSERT_TRUE( analyticalMatrix.getA() == numericalMatrix.getA() );
+        ASSERT_TRUE( analyticalMatrix.getA() |= numericalMatrix.getA() );
 
         analyticalMatrix.createAy(anisotropicNode);
         numericalMatrix.createAy(anisotropicNode);
-        ASSERT_TRUE( analyticalMatrix.getA() == numericalMatrix.getA() );
+        ASSERT_TRUE( analyticalMatrix.getA() |= numericalMatrix.getA() );
 
         analyticalMatrix.createAz(anisotropicNode);
         numericalMatrix.createAz(anisotropicNode);
-        ASSERT_TRUE( analyticalMatrix.getA() == numericalMatrix.getA() );
+        ASSERT_TRUE( analyticalMatrix.getA() |= numericalMatrix.getA() );
 
         Engine::getInstance().clear();
     }
@@ -377,28 +384,24 @@ TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
 
 void testRotation(int f1, int f2, int f3)
 {
+	srand(time(NULL));
+	for (int count = 0; count < ITERATIONS; count++) {
         auto mat = generateRandomMaterial("testRotationMaterial");
 
         gcm::IAnisotropicElasticMaterial::RheologyParameters p = mat.getParameters();
         
         const auto& p1 = mat.getParameters();
 
-        float a = 0.0;
-        for (int i = 0; i < 4; i++)
-        {
-            a += M_PI/2;
-            mat.rotate(f1*a, f2*a, f3*a);
-            
-            int differentComponentsNum = 0;
-            for (int j = 0; j < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; j++)
-                if( fabs(p1.values[j] - p.values[j]) > EQUALITY_TOLERANCE )
-                    differentComponentsNum++;
+        double a = 2*M_PI;
+		for(int i = 1; i <= MAX_ROTATIONS_NUMBER; i++) {
 
-            if (i != 3)
-                ASSERT_NE(differentComponentsNum, 0);
-            else
-                ASSERT_NE(differentComponentsNum, ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM);
-        }
+			for(int k = 1; k <= i; k++)
+				mat.rotate(f1*a/i, f2*a/i, f3*a/i);
+
+			for (int j = 0; j < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; j++)
+				ASSERT_NEAR( p1.values[j], p.values[j], fabs(p.values[j])*EQUALITY_TOLERANCE );
+		}
+	}
 }
 
 TEST(AnisotropicMatrix3D, rotateA1)

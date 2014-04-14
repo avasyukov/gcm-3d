@@ -55,7 +55,7 @@ namespace gcm
          * @param a2 rotation angle
          * @param a3 rotation angle
          */
-        void rotate(float a1, float a2, float a3);
+        void rotate(double a1, double a2, double a3);
     };
     
     template<typename MatrixImplementation>

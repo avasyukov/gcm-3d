@@ -7,7 +7,7 @@ gcm::AnisotropicElasticMaterial::AnisotropicElasticMaterial(string name, gcm_rea
 {
 }
 
-void gcm::AnisotropicElasticMaterial::rotate(float a1, float a2, float a3)
+void gcm::AnisotropicElasticMaterial::rotate(double a1, double a2, double a3)
 {
 	/**
 	 *  
@@ -23,7 +23,7 @@ void gcm::AnisotropicElasticMaterial::rotate(float a1, float a2, float a3)
 	 * 
 	 */
 	
-	float G[3][3];	// matrix of rotation
+	double G[3][3];	// matrix of rotation
 	G[0][0] = cos(a2)*cos(a3);
 	G[0][1] = cos(a3)*sin(a1)*sin(a2) - sin(a3)*cos(a1);
 	G[0][2] = cos(a1)*sin(a2)*cos(a3) + sin(a1)*sin(a3);
@@ -34,7 +34,7 @@ void gcm::AnisotropicElasticMaterial::rotate(float a1, float a2, float a3)
 	G[2][1] = sin(a1)*cos(a2);
 	G[2][2] = cos(a1)*cos(a2);
 	
-	float C[3][3][3][3];	// old tensor
+	double C[3][3][3][3];	// old tensor
 
 	C[0][0][0][0] = rheologyParameters.c11; 
 	C[1][1][1][1] = rheologyParameters.c22; 
@@ -69,7 +69,7 @@ void gcm::AnisotropicElasticMaterial::rotate(float a1, float a2, float a3)
 	C[0][2][0][1] = C[2][0][0][1] = C[0][2][1][0] = C[2][0][1][0] =
 	C[0][1][0][2] = C[0][1][2][0] = C[1][0][0][2] = C[1][0][2][0] = rheologyParameters.c56; 
 
-	float C1[3][3][3][3];	// new tensor
+	double C1[3][3][3][3];	// new tensor
 	
 	for (int m = 0; m < 3; m++)	// rotation 
 	for (int n = 0; n < 3; n++) 

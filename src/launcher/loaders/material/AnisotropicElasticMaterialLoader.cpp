@@ -59,13 +59,13 @@ gcm::AnisotropicElasticMaterial* launcher::AnisotropicElasticMaterialLoader::loa
     
         xml::Node rotate = desc.getChildByName("rotate");
 
-        auto d2r = [](float x){ return M_PI*x/180; };
+        auto d2r = [](double x){ return M_PI*x/180; };
     
-        float a1, a2, a3;
+        double a1, a2, a3;
 
-        a1 = d2r(lexical_cast<float>(rotate["a1"]));
-        a2 = d2r(lexical_cast<float>(rotate["a2"]));
-        a3 = d2r(lexical_cast<float>(rotate["a3"]));
+        a1 = d2r(lexical_cast<double>(rotate["a1"]));
+        a2 = d2r(lexical_cast<double>(rotate["a2"]));
+        a3 = d2r(lexical_cast<double>(rotate["a3"]));
         
         createMaterial();
         
