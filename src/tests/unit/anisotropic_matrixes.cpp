@@ -384,6 +384,8 @@ TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
 
 void testRotation(int f1, int f2, int f3)
 {
+	srand(time(NULL));
+	for (int count = 0; count < ITERATIONS; count++) {
         auto mat = generateRandomMaterial("testRotationMaterial");
 
         gcm::IAnisotropicElasticMaterial::RheologyParameters p = mat.getParameters();
@@ -399,6 +401,7 @@ void testRotation(int f1, int f2, int f3)
 			for (int j = 0; j < ANISOTROPIC_ELASTIC_MATERIALS_PARAMETERS_NUM; j++)
 				ASSERT_NEAR( p1.values[j], p.values[j], fabs(p.values[j])*EQUALITY_TOLERANCE );
 		}
+	}
 }
 
 TEST(AnisotropicMatrix3D, rotateA1)
