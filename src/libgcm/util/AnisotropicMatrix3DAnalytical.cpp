@@ -368,6 +368,10 @@ void gcm::AnisotropicMatrix3DAnalytical::findEigenVec(double *eigenVec,
             break;
         }
     }
+    
+    for (int i = 0; i < 3; i++)
+        delete M[i];
+    delete M;
 };
 
 void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, double *x, double *y)
@@ -491,4 +495,8 @@ void gcm::AnisotropicMatrix3DAnalytical::findEigenVec (double *eigenVec1,
             break;
         }
     }
+    
+    for (int i = 0; i < 3; i++)
+        delete M[i];
+    delete M;
 };
