@@ -14,7 +14,7 @@
 
 #define ITERATIONS 1000
 
-#define MAX_ROTATIONS_NUMBER 1
+#define MAX_ROTATIONS_NUMBER 2
 
 // Use these limits if anisotropic rheology parameters tensor should be
 // isotropic one plus smaller random values
@@ -386,15 +386,15 @@ void testRotation(int f1, int f2, int f3)
 {
 	srand(time(NULL));
 	for (int count = 0; count < ITERATIONS; count++) {
-        auto mat = generateRandomMaterial("testRotationMaterial");
-
-        gcm::IAnisotropicElasticMaterial::RheologyParameters p = mat.getParameters();
-        
-        const auto& p1 = mat.getParameters();
 
         double a = 2*M_PI;
         // TODO: current impl works for MAX_ROTATIONS_NUMBER == 1 only
 		for(int i = 1; i <= MAX_ROTATIONS_NUMBER; i++) {
+
+			auto mat = generateRandomMaterial("testRotationMaterial");
+			gcm::IAnisotropicElasticMaterial::RheologyParameters p = mat.getParameters();
+
+			const auto& p1 = mat.getParameters();
 
 			for(int k = 1; k <= i; k++)
 				mat.rotate(f1*a/i, f2*a/i, f3*a/i);
