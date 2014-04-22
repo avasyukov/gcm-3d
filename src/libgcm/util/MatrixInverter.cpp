@@ -32,6 +32,9 @@ void gcm::MatrixInverter::inv(gcm_matrix &result)
 	for(int i = 0; i < GCM_MATRIX_SIZE; i++)
 		for(int j = 0; j < GCM_MATRIX_SIZE; j++)
 			result(i,j) = gsl_matrix_get(U1, i,j);
+	
+	gsl_matrix_free(U1);
+	gsl_permutation_free(perm);
 };
 
 void gcm::MatrixInverter::setColumn(double *Clmn, int num)
