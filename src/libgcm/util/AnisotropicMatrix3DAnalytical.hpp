@@ -2,7 +2,7 @@
 #define ANISOTROPICMATRIX3DANALYTICAL_H  1
 
 #include "libgcm/materials/IAnisotropicElasticMaterial.hpp"
-#include "libgcm/util/MutableRheologyMatrix3D.hpp"
+#include "libgcm/util/ImmutableRheologyMatrix3D.hpp"
 #include "libgcm/util/matrixes.hpp"
 #include "libgcm/util/ThirdDegreePolynomial.hpp"
 #include "libgcm/util/MatrixInverter.hpp"
@@ -20,16 +20,22 @@ namespace gcm {
      * Creates corresponding rheology matrices for case of anisotropic material.
      * Implements 'semi-analytical' solution.
      */
-	class AnisotropicMatrix3DAnalytical : public MutableRheologyMatrix3D
+	class AnisotropicMatrix3DAnalytical : public ImmutableRheologyMatrix3D
 	{
 	public:
-		void createAx(const ICalcNode& node) override;
+		AnisotropicMatrix3DAnalytical();
+		/*void createAx(const ICalcNode& node) override;
 		void createAy(const ICalcNode& node) override;
-		void createAz(const ICalcNode& node) override;
+		void createAz(const ICalcNode& node) override;*/
+	protected:
+		void initializeAx(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1) override;
+		void initializeAy(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1) override;
+		void initializeAz(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1) override;
+		
 	private:
 		
-		void clear();
-		void fixValuesOrder();
+		void clear(gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1);
+		void fixValuesOrder(gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1);
 		void findNonZeroSolution(double **M, double *x);
 		void findNonZeroSolution(double **M, double *x, double *y);
 		void findEigenVec(double *eigenVec,

@@ -1,7 +1,12 @@
 #include "libgcm/util/AnisotropicMatrix3DAnalytical.hpp"
 #include "libgcm/materials/AnisotropicElasticMaterial.hpp"
 
-void gcm::AnisotropicMatrix3DAnalytical::fixValuesOrder()
+gcm::AnisotropicMatrix3DAnalytical::AnisotropicMatrix3DAnalytical(): ImmutableRheologyMatrix3D()
+{
+
+}
+
+void gcm::AnisotropicMatrix3DAnalytical::fixValuesOrder(gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
 	// TODO - swap the components not by matrix multyplication
 	gcm_matrix P;
@@ -18,7 +23,7 @@ void gcm::AnisotropicMatrix3DAnalytical::fixValuesOrder()
 	U1 = P1 * U1;
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::clear()
+void gcm::AnisotropicMatrix3DAnalytical::clear(gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
     A.clear();
     L.clear();
@@ -26,18 +31,18 @@ void gcm::AnisotropicMatrix3DAnalytical::clear()
     U1.clear();
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
+void gcm::AnisotropicMatrix3DAnalytical::initializeAx(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
-    clear();
+    clear(A, L, U, U1);
 
 #ifdef NDEBUG
-    auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    auto mat = static_cast<const AnisotropicElasticMaterial*> (material);
 #else
-    auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    auto mat = dynamic_cast<const AnisotropicElasticMaterial*> (material);
     assert_true(mat);
 #endif
 
-	auto rho = node.getRho();
+	auto rho = mat->getRho();
 	auto C = mat->getParameters();
 
 	// Setting values of A
@@ -103,21 +108,21 @@ void gcm::AnisotropicMatrix3DAnalytical::createAx(const ICalcNode& node)
 	// Search U = U1^(-1)
 	matInv.inv(U);
 	
-	fixValuesOrder();
+	fixValuesOrder(A, L, U, U1);
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
+void gcm::AnisotropicMatrix3DAnalytical::initializeAy(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
-    clear();
+    clear(A, L, U, U1);
 
 #ifdef NDEBUG
-    auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    auto mat = static_cast<const AnisotropicElasticMaterial*> (material);
 #else
-    auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    auto mat = dynamic_cast<const AnisotropicElasticMaterial*> (material);
     assert_true(mat);
 #endif
 
-	auto rho = node.getRho();
+	auto rho = mat->getRho();
 	auto C = mat->getParameters();
 
 	// Setting values of A
@@ -182,21 +187,21 @@ void gcm::AnisotropicMatrix3DAnalytical::createAy(const ICalcNode& node)
 	// Search U = U1^(-1)
 	matInv.inv(U);
 
-	fixValuesOrder();
+	fixValuesOrder(A, L, U, U1);
 };
 
-void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
+void gcm::AnisotropicMatrix3DAnalytical::initializeAz(const Material* material, gcm_matrix& A, gcm_matrix& L, gcm_matrix& U, gcm_matrix& U1)
 {
-    clear();
+    clear(A, L, U, U1);
 
 #ifdef NDEBUG
-    auto mat = static_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    auto mat = static_cast<const AnisotropicElasticMaterial*> (material);
 #else
-    auto mat = dynamic_cast<IAnisotropicElasticMaterial*> (node.getMaterial());
+    auto mat = dynamic_cast<const AnisotropicElasticMaterial*> (material);
     assert_true(mat);
 #endif
 
-	auto rho = node.getRho();
+	auto rho = mat->getRho();
 	auto C = mat->getParameters();
 
 	// Setting values of A
@@ -262,7 +267,7 @@ void gcm::AnisotropicMatrix3DAnalytical::createAz(const ICalcNode& node)
 	// Search U = U1^(-1)
 	matInv.inv(U);
 
-	fixValuesOrder();
+	fixValuesOrder(A, L, U, U1);
 };
 
 void gcm::AnisotropicMatrix3DAnalytical::findNonZeroSolution(double **M, double *x)
