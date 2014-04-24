@@ -232,6 +232,35 @@ void gcm::Mesh::transfer(float x, float y, float z)
     body->getEngine()->transferScene(x, y, z);
 }
 
+void gcm::Mesh::scale(float x0, float y0, float z0, 
+		float scaleX, float scaleY, float scaleZ)
+{
+    for(int i = 0; i < getNodesNumber(); i++)
+    {
+        CalcNode& node = getNodeByLocalIndex(i);
+        node.coords[0] = (node.coords[0] - x0)*scaleX + x0;
+        node.coords[1] = (node.coords[1] - y0)*scaleY + y0;
+        node.coords[2] = (node.coords[2] - z0)*scaleZ + z0;
+    }
+    if( !isinf(outline.minX) )
+    {
+        outline.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
+    }
+    if( !isinf(expandedOutline.minX) )
+    {
+        expandedOutline.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
+    }
+    if( !isinf(syncedArea.minX) )
+    {
+        syncedArea.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
+    }
+    if( !isinf(areaOfInterest.minX) )
+    {
+        areaOfInterest.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
+    }
+    body->getEngine()->scaleScene(x0, y0, z0, scaleX, scaleY, scaleZ);
+}
+
 void gcm::Mesh::applyRheology(RheologyCalculator* rc)
 {
     for(int i = 0; i < getNodesNumber(); i++)

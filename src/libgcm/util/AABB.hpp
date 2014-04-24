@@ -34,6 +34,8 @@ namespace gcm {
         AABB* findIntersection( AABB* box );
         void findIntersection( AABB* box, AABB* intersection );
         void transfer( float x, float y, float z );
+		void scale(float x0, float y0, float z0, 
+				float scaleX, float scaleY, float scaleZ);
         float getVolume();
     };
 }

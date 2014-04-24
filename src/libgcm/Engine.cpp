@@ -632,6 +632,11 @@ void gcm::Engine::transferScene(float x, float y, float z) {
     scene.transfer(x, y, z);
 }
 
+void gcm::Engine::scaleScene(float x0, float y0, float z0, 
+		float scaleX, float scaleY, float scaleZ) {
+    scene.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
+}
+
 void gcm::Engine::setContactThresholdType(unsigned char type)
 {
     assert_true( type == CONTACT_THRESHOLD_BY_AVG_H
