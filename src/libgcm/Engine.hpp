@@ -251,6 +251,8 @@ namespace gcm
         AABB getScene();
         void setScene(AABB src);
         void transferScene(float x, float y, float z);
+		void scaleScene(float x0, float y0, float z0, 
+				float scaleX, float scaleY, float scaleZ);
 
         DataBus* getDataBus();
         CalcNode& getVirtNode(unsigned int i);

@@ -52,6 +52,8 @@ namespace gcm {
             virtual AABB getScene() = 0;
             virtual void setScene(AABB src) = 0;
             virtual void transferScene(float x, float y, float z) = 0;
+			virtual void scaleScene(float x0, float y0, float z0, 
+					float scaleX, float scaleY, float scaleZ) = 0;
             virtual CalcNode& getVirtNode(unsigned int i) = 0;
             virtual float getGmshVerbosity() = 0;
             virtual void setGmshVerbosity(float verbosity) = 0;

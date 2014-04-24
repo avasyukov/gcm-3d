@@ -108,6 +108,17 @@ void gcm::AABB::transfer(float x, float y, float z)
     max_coords[2] += z;
 }
 
+void gcm::AABB::scale(float x0, float y0, float z0, 
+		float scaleX, float scaleY, float scaleZ)
+{
+    min_coords[0] = (min_coords[0] - x0)*scaleX + x0;
+    min_coords[1] = (min_coords[1] - y0)*scaleY + y0;
+    min_coords[2] = (min_coords[2] - z0)*scaleZ + z0;
+    max_coords[0] = (min_coords[0] - x0)*scaleX + x0;
+    max_coords[1] = (min_coords[1] - y0)*scaleY + y0;
+    max_coords[2] = (min_coords[2] - z0)*scaleZ + z0;
+}
+
 float gcm::AABB::getVolume()
 {
     return (maxX - minX) * (maxY - minY) * (maxZ - minZ);
