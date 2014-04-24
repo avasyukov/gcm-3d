@@ -274,7 +274,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                     LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
                     localScene.transfer(x, y, z);
                 } 
-				if ( transformType == "scale" )
+                if ( transformType == "scale" )
                 {
                     gcm_real x0 = lexical_cast<gcm_real>(transformNode["x0"]);
                     gcm_real y0 = lexical_cast<gcm_real>(transformNode["y0"]);
@@ -283,7 +283,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                     gcm_real scaleY = lexical_cast<gcm_real>(transformNode["scaleY"]);
                     gcm_real scaleZ = lexical_cast<gcm_real>(transformNode["scaleZ"]);
                     LOG_DEBUG("Scaling body: [" << x0 << "; " << scaleX << "; " 
-							<< y0 << "; " << scaleY << "; " << z0 << "; " << scaleZ << "]");
+                                        << y0 << "; " << scaleY << "; " << z0 << "; " << scaleZ << "]");
                     localScene.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
                 }
             }
@@ -346,20 +346,20 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 dY += lexical_cast<gcm_real>(transformNode["moveY"]);
                 dZ += lexical_cast<gcm_real>(transformNode["moveZ"]);
             }
-			if ( transformType == "scale" )
-			{
-				gcm_real x0 = lexical_cast<gcm_real>(transformNode["x0"]);
-				gcm_real y0 = lexical_cast<gcm_real>(transformNode["y0"]);
-				gcm_real z0 = lexical_cast<gcm_real>(transformNode["z0"]);
-				gcm_real scaleX = lexical_cast<gcm_real>(transformNode["scaleX"]);
-				gcm_real scaleY = lexical_cast<gcm_real>(transformNode["scaleY"]);
-				gcm_real scaleZ = lexical_cast<gcm_real>(transformNode["scaleZ"]);
-				
-				// !!!!!!!!!!!!!!!!!!!!!!!!
-				// Здесь и в диспатчере надо что-то сделать
-				// по поводу растяжения, насколько я понимаю?
-				//
-			}
+            if ( transformType == "scale" )
+            {
+                gcm_real x0 = lexical_cast<gcm_real>(transformNode["x0"]);
+                gcm_real y0 = lexical_cast<gcm_real>(transformNode["y0"]);
+                gcm_real z0 = lexical_cast<gcm_real>(transformNode["z0"]);
+                gcm_real scaleX = lexical_cast<gcm_real>(transformNode["scaleX"]);
+                gcm_real scaleY = lexical_cast<gcm_real>(transformNode["scaleY"]);
+                gcm_real scaleZ = lexical_cast<gcm_real>(transformNode["scaleZ"]);
+                
+                // !!!!!!!!!!!!!!!!!!!!!!!!
+                // Здесь и в диспатчере надо что-то сделать
+                // по поводу растяжения, насколько я понимаю?
+                //
+            }
         }
         engine.getDispatcher()->setTransferVector(dX, dY, dZ, id);
 
@@ -406,18 +406,18 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
                 body->getMeshes()->transfer(x, y, z);
             }
-			if ( transformType == "scale" )
-			{
-				gcm_real x0 = lexical_cast<gcm_real>(transformNode["x0"]);
-				gcm_real y0 = lexical_cast<gcm_real>(transformNode["y0"]);
-				gcm_real z0 = lexical_cast<gcm_real>(transformNode["z0"]);
-				gcm_real scaleX = lexical_cast<gcm_real>(transformNode["scaleX"]);
-				gcm_real scaleY = lexical_cast<gcm_real>(transformNode["scaleY"]);
-				gcm_real scaleZ = lexical_cast<gcm_real>(transformNode["scaleZ"]);
-				LOG_DEBUG("Scaling body: [" << x0 << "; " << scaleX << "; " 
-						<< y0 << "; " << scaleY << "; " << z0 << "; " << scaleZ << "]");
-				body->getMeshes()->scale(x0, y0, z0, scaleX, scaleY, scaleZ);
-			}
+            if ( transformType == "scale" )
+            {
+                gcm_real x0 = lexical_cast<gcm_real>(transformNode["x0"]);
+                gcm_real y0 = lexical_cast<gcm_real>(transformNode["y0"]);
+                gcm_real z0 = lexical_cast<gcm_real>(transformNode["z0"]);
+                gcm_real scaleX = lexical_cast<gcm_real>(transformNode["scaleX"]);
+                gcm_real scaleY = lexical_cast<gcm_real>(transformNode["scaleY"]);
+                gcm_real scaleZ = lexical_cast<gcm_real>(transformNode["scaleZ"]);
+                LOG_DEBUG("Scaling body: [" << x0 << "; " << scaleX << "; " 
+                                << y0 << "; " << scaleY << "; " << z0 << "; " << scaleZ << "]");
+                body->getMeshes()->scale(x0, y0, z0, scaleX, scaleY, scaleZ);
+            }
         }
 
         // FIXME - Part of the WA above
