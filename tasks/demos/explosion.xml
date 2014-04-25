@@ -38,7 +38,7 @@
 			<crackThreshold>INF</crackThreshold>
 		</material>
 		<material name="rotated" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
-			<rotate a1="0" a2="0" a3="0"/>
+			<rotate a1="0" a2="90" a3="0"/>
 		</material>
 	</materials>
 	<initialState>

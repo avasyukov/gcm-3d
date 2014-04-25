@@ -1,17 +1,26 @@
 <task numberOfSnaps="50" stepsPerSnap="1">
 	<system>
 		<meshMovement type="none" />
-		<anisotropicMatrix implementation="analytical" />
+		<anisotropicMatrix implementation="numerical" />
 	</system>
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />
 			<mesh id="main" type="geo2" file="models/layer-x-strike.geo" tetrSize="0.2" />
 			<material id="layer1">
-				<area type="box" minX="-2.51" maxX="0.01" minY="-5.01" maxY="5.01" minZ="-5.01" maxZ="5.01"/>
+				<area type="box" minX="-5.01" maxX="-3.99" minY="-5.01" maxY="5.01" minZ="-5.01" maxZ="5.01"/>
 			</material>
 			<material id="layer2">
-				<area type="box" minX="-5.01" maxX="-2.49" minY="-5.01" maxY="5.01" minZ="-5.01" maxZ="5.01"/>
+				<area type="box" minX="-4.01" maxX="-2.99" minY="-5.01" maxY="5.01" minZ="-5.01" maxZ="5.01"/>
+			</material>
+			<material id="layer3">
+				<area type="box" minX="-3.01" maxX="-1.99" minY="-5.01" maxY="5.01" minZ="-5.01" maxZ="5.01"/>
+			</material>
+			<material id="layer4">
+				<area type="box" minX="-2.01" maxX="-0.99" minY="-5.01" maxY="5.01" minZ="-5.01" maxZ="5.01"/>
+			</material>
+			<material id="layer5">
+				<area type="box" minX="-1.01" maxX="0.01" minY="-5.01" maxY="5.01" minZ="-5.01" maxZ="5.01"/>
 			</material>
 		</body>
 	</bodies>
@@ -42,10 +51,19 @@
 			<crackThreshold>INF</crackThreshold>
 		</material>
 		<material name="layer1" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
-			<rotate a1="0" a2="0" a3="0"/>
+			<rotate a1="45" a2="0" a3="0"/>
 		</material>
 		<material name="layer2" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
-			<rotate a1="90" a2="0" a3="0"/>
+			<rotate a1="0" a2="0" a3="0"/>
+		</material>
+		<material name="layer3" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="-45" a2="0" a3="0"/>
+		</material>
+		<material name="layer4" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="0" a2="0" a3="0"/>
+		</material>
+		<material name="layer5" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="0" a2="0" a3="0"/>
 		</material>
 	</materials>
 	<initialState>

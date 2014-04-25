@@ -8,22 +8,22 @@
 			<rheology type="elastic" />
 			<mesh id="main" type="geo2" file="models/layer-x-strike.geo" tetrSize="0.2" />
 			<material id="layer1">
-				<area type="box" minX="-2.51" maxX="0.01" minY="-5.01" maxY="5.01" minZ="-5.01" maxZ="5.01"/>
+				<area type="box" minX="-4.01" maxX="0.01" minY="-5.01" maxY="5.01" minZ="-5.01" maxZ="5.01"/>
 			</material>
 			<material id="layer2">
-				<area type="box" minX="-5.01" maxX="-2.49" minY="-5.01" maxY="5.01" minZ="-5.01" maxZ="5.01"/>
+				<area type="box" minX="-5.01" maxX="-3.99" minY="-5.01" maxY="5.01" minZ="-5.01" maxZ="5.01"/>
 			</material>
 		</body>
 	</bodies>
 	<materials>
 		<material name="testAnisotropicMaterial" rheology="AnisotropicElastic">
-			<c11>90000</c11>
-			<c12>70000</c12>
+			<c11>180000</c11>
+			<c12>140000</c12>
 			<c13>17500</c13>
 			<c14>0</c14>
 			<c15>0</c15>
 			<c16>0</c16>
-			<c22>90000</c22>
+			<c22>180000</c22>
 			<c23>17500</c23>
 			<c24>0</c24>
 			<c25>0</c25>
