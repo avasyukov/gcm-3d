@@ -1,4 +1,7 @@
 <task numberOfSnaps="20" stepsPerSnap="1">
+	<system>
+		<meshMovement type="none" />
+	</system>
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />

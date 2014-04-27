@@ -1,7 +1,7 @@
 <task numberOfSnaps="30" stepsPerSnap="2">
 	<system>
 		<defaultContactCalculator type="SlidingContactCalculator" />
-		<contactThreshold measure="avgH" value="1.0" />
+		<meshMovement type="none" />
 	</system>
 	<bodies>
 		<body id="cube">
@@ -9,16 +9,13 @@
 			<mesh id="cube" type="geo2" file="models/cube.geo" tetrSize="0.4" />
 			<material id="testMaterial" />
 		</body>
-                <body id="cube2">
-                        <rheology type="elastic" />
-                        <mesh id="cube2" type="geo2" file="models/cube.geo" tetrSize="0.4" />
-                        <material id="testMaterial" />
+		<body id="cube2">
+			<rheology type="elastic" />
+			<mesh id="cube2" type="geo2" file="models/cube.geo" tetrSize="0.4" />
+			<material id="testMaterial" />
 			<transform type="translate" moveX="10.01" moveY="0" moveZ="0" />
-                </body>
-        </bodies>
-	<materials>
-		<material id="testMaterial" la="70000" mu="10000" rho="1" />
-	</materials>
+		</body>
+	</bodies>
 	<initialState>
 		<area type="box" minX="9" maxX="9.8" minY="-10" maxY="10" minZ="-10" maxZ="10"/>
 		<values vx="-0.03" sxx="-9" syy="-7" szz="-7" />
