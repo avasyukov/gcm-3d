@@ -1337,7 +1337,8 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, floa
     float fdx = fabs(dx);
     float fdy = fabs(dy);
     float fdz = fabs(dz);
-    // FIXME ASAP: calling m.createAi() on each cache index access is horrible for performance
+    // FIXME_ASAP: calling m.createAi() on each cache index access is horrible for performance
+    // FIXME_ASAP: calling m.createAi() on each cache index access MODIFIES currentMatrix (!!!)
     RheologyMatrix3D& m = node.getRheologyMatrix();
 
     short sign = -1;
