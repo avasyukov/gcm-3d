@@ -1,0 +1,32 @@
+<task numberOfSnaps="1" stepsPerSnap="1">
+	<system>
+		<defaultBorderCalculator type="FreeBorderCalculator" />
+	</system>
+	<bodies>
+		<body id="F135_plate">
+			<rheology type="elastic" />
+			<mesh id="F135_plate_down" type="geo2" file="models/cd_cover.geo" tetrSize="0.5" />
+			<material id="subpacket" />
+		</body>
+	</bodies>
+	<materials>
+		<material name="subpacket" rheology="IsotropicElastic">
+			<la>1440000000</la>
+			<mu>960000000</mu>
+			<rho>0.00125</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+	</materials>
+	<!-- Strike from the top surface -->
+	<initialState>
+		<area type="box" minX="-1" maxX="1" minY="-1" maxY="1" minZ="1.999" maxZ="2.001"/>
+		<values vz="-3090000"/>
+	</initialState>
+	<!-- Fixed frame on the bottom surface -->
+	<borderCondition calculator="FixedBorderCalculator">
+		<area type="box" minX="-6" maxX="-5" minY="-6" maxY="6" minZ="-0.001" maxZ="0.001"/>
+		<area type="box" minX="5" maxX="6" minY="-6" maxY="6" minZ="-0.001" maxZ="0.001"/>
+		<area type="box" minX="-6" maxX="6" minY="-6" maxY="-5" minZ="-0.001" maxZ="0.001"/>
+		<area type="box" minX="-6" maxX="6" minY="5" maxY="6" minZ="-0.001" maxZ="0.001"/>
+	</borderCondition>
+</task>
