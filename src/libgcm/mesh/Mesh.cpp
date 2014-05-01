@@ -193,6 +193,16 @@ void gcm::Mesh::setBorderCondition(Area* area, unsigned int num)
     }
 }
 
+void gcm::Mesh::setContactCondition(Area* area, unsigned int num)
+{
+    for(int i = 0; i < getNodesNumber(); i++)
+    {
+        CalcNode& node = getNodeByLocalIndex(i);
+        if( area->isInArea( node ) )
+            node.setContactConditionId(num);
+    }
+}
+
 void gcm::Mesh::setRheology(unsigned char matId) {
     for(int i = 0; i < getNodesNumber(); i++)
     {

@@ -501,17 +501,12 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     {
         NodeList areaNodes = initialStateNode.getChildrenByName("area");
         NodeList valuesNodes = initialStateNode.getChildrenByName("values");
-        if (areaNodes.size() != 1)
-            THROW_INVALID_INPUT("Only one area element allowed for initial state");
+        if (areaNodes.size() == 0)
+            THROW_INVALID_INPUT("Area element should be provided for initial state");
         if (valuesNodes.size() != 1)
             THROW_INVALID_INPUT("Only one values element allowed for initial state");
-        xml::Node areaNode = areaNodes.front();
         xml::Node valuesNode = valuesNodes.front();
 
-        Area* stateArea = readArea(areaNodes.front());
-        if(stateArea == NULL)
-            THROW_INVALID_INPUT("Can not read area");
-        
         gcm_real values[9];
         
         memset(values, 0, 9*sizeof(gcm_real));
@@ -546,10 +541,18 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                         << values[0] << " " << values[1] << " " << values[2] << " "
                         << values[3] << " " << values[4] << " " << values[5] << " "
                         << values[6] << " " << values[7] << " " << values[8] );
-        for( int i = 0; i < engine.getNumberOfBodies(); i++ )
+        
+        for(auto& areaNode: areaNodes)
         {
-            engine.getBody(i)->setInitialState(stateArea, values);
-            engine.getBody(i)->getMeshes()->processStressState();
+            Area* stateArea = readArea(areaNode);
+            if(stateArea == NULL)
+                THROW_INVALID_INPUT("Can not read area");
+
+            for( int i = 0; i < engine.getNumberOfBodies(); i++ )
+            {
+                engine.getBody(i)->setInitialState(stateArea, values);
+                engine.getBody(i)->getMeshes()->processStressState();
+            }
         }
     }
     
@@ -582,5 +585,41 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             }
         }
     }
+    
+    NodeList contactConditionNodes = rootNode.xpath("/task/contactCondition");
+    for(auto& contactConditionNode: contactConditionNodes)
+    {
+        string calculator = contactConditionNode["calculator"];
+        if( engine.getContactCalculator(calculator) == NULL )
+        {
+            THROW_INVALID_INPUT("Unknown border calculator requested: " + calculator);
+        }
+        unsigned int conditionId = engine.addContactCondition(
+                new ContactCondition(NULL, new StepPulseForm(-1, -1), engine.getContactCalculator(calculator) ) 
+        );
+        if (calculator == "AdhesionContactDestroyCalculator")
+        {
+            gcm_real adhesionThreshold = lexical_cast<gcm_real>(contactConditionNode["adhesionThreshold"]);
+            engine.getContactCondition(conditionId)->setConditionParam(adhesionThreshold);
+        }
+        LOG_INFO("Contact condition created with calculator: " + calculator);
+        
+        NodeList areaNodes = contactConditionNode.getChildrenByName("area");
+        if (areaNodes.size() == 0)
+            THROW_INVALID_INPUT("Area should be specified for contact condition");
+        
+        for(auto& areaNode: areaNodes)
+        {
+            Area* conditionArea = readArea(areaNode);
+            if(conditionArea == NULL)
+                THROW_INVALID_INPUT("Can not read area");
+
+            for( int i = 0; i < engine.getNumberOfBodies(); i++ )
+            {
+                engine.getBody(i)->setContactCondition(conditionArea, conditionId);
+            }
+        }
+    }
+    
     LOG_DEBUG("Scene loaded");
 }

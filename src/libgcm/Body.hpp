@@ -66,6 +66,7 @@ namespace gcm {
 
         void setInitialState(Area* area, float values[9]);
 		void setBorderCondition(Area* area, unsigned int num);
+		void setContactCondition(Area* area, unsigned int num);
 
         string getRheologyCalculatorType();
         void setRheologyCalculatorType(string calcType);
