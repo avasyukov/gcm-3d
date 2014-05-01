@@ -11,6 +11,13 @@ namespace gcm {
 
     class ContactCondition
     {
+    protected:
+        /** 
+         * Parameter of contact condition. It is interpreted by contact calculator.
+         * Depending on contact type it can be adhesion treshold, friction coefficient or smth else.
+         */
+        gcm_real conditionParam;
+        
     public:
         ContactCondition();
         ContactCondition(Area* _area, PulseForm* _form, ContactCalculator* _calc);
@@ -23,6 +30,9 @@ namespace gcm {
                             RheologyMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[],
                             RheologyMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
                             float outer_normal[]);
+        
+        void setConditionParam(gcm_real param);
+        gcm_real getConditionParam() const;
     };
 }
 

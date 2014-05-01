@@ -27,3 +27,13 @@ void gcm::ContactCondition::doCalc(float time, CalcNode& cur_node, CalcNode& new
                     virt_matrix, virtPreviousNodes, virt_inner, outer_normal,
                     form->calcMagnitudeNorm(time, cur_node.coords, area) );
 };
+
+void gcm::ContactCondition::setConditionParam(gcm_real param)
+{
+    conditionParam = param;
+};
+
+gcm_real gcm::ContactCondition::getConditionParam() const
+{
+    return conditionParam;
+};

@@ -121,7 +121,11 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         }
         else if (type == "AdhesionContactDestroyCalculator")
         {
-            engine.replaceDefaultContactCondition( new ContactCondition( NULL, new StepPulseForm(-1,-1), engine.getContactCalculator("AdhesionContactDestroyCalculator")));
+            engine.replaceDefaultContactCondition( new ContactCondition( 
+                            NULL, new StepPulseForm(-1,-1), 
+                            engine.getContactCalculator("AdhesionContactDestroyCalculator")));
+            gcm_real adhesionThreshold = lexical_cast<gcm_real>(defaultContactCalculator["adhesionThreshold"]);
+            engine.getContactCondition(0)->setConditionParam(adhesionThreshold);
         }
     }
 

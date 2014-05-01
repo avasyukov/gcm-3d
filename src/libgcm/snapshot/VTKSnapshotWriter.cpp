@@ -51,7 +51,8 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     vtkIntArray    *borderState = vtkIntArray::New();
     vtkIntArray    *contactState = vtkIntArray::New();
     vtkIntArray    *mpiState = vtkIntArray::New();
-    vtkIntArray       *nodeErrorFlags = vtkIntArray::New ();
+    vtkIntArray    *nodeErrorFlags = vtkIntArray::New ();
+    vtkIntArray    *contactDestroyed = vtkIntArray::New();
 
     float v[3];
     int snapNodeCount = 0;
@@ -87,6 +88,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
             contactState->InsertNextValue(node.getContactConditionId());
             mpiState->InsertNextValue( node.isRemote() ? 1 : 0 );
             nodeErrorFlags->InsertNextValue (node.getErrorFlags());
+            contactDestroyed->InsertNextValue( node.isContactDestroyed() ? 1 : 0 );
         }
     }
     g->SetPoints(pts);
@@ -121,6 +123,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     contactState->SetName("contactState");
     mpiState->SetName("mpiState");
     nodeErrorFlags->SetName ("errorFlags");
+    contactDestroyed->SetName("destroyedContacts");
 
     g->GetPointData()->SetVectors(vel);
     g->GetPointData()->AddArray(crack);
@@ -139,7 +142,8 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     g->GetPointData()->AddArray(borderState);
     g->GetPointData()->AddArray(contactState);
     g->GetPointData()->AddArray(mpiState);
-    g->GetPointData ()->AddArray (nodeErrorFlags);
+    g->GetPointData()->AddArray(nodeErrorFlags);
+    g->GetPointData()->AddArray(contactDestroyed);
 
     vel->Delete();
     crack->Delete();
@@ -158,7 +162,8 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     borderState->Delete();
     contactState->Delete();
     mpiState->Delete();
-    nodeErrorFlags->Delete ();
+    nodeErrorFlags->Delete();
+    contactDestroyed->Delete();
 
     xgw->SetInput(g);
     xgw->SetFileName(filename.c_str());
