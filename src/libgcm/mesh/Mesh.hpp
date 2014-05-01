@@ -213,6 +213,7 @@ namespace gcm {
         void preProcess();
 
         void setInitialState(Area* area, float* values);
+		void setBorderCondition(Area* area, unsigned int num);
         void setRheology(unsigned char matId);
         void setRheology(unsigned char matId, Area* area);
 
