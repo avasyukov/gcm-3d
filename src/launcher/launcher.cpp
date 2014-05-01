@@ -14,6 +14,10 @@
 #include "launcher/loaders/mesh/CubicMeshLoader.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
 
+#include "libgcm/util/areas/BoxArea.hpp"
+#include "libgcm/util/areas/SphereArea.hpp"
+#include "libgcm/util/areas/CylinderArea.hpp"
+
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/mesh/Mesh.hpp"
 #include "libgcm/Engine.hpp"
@@ -83,6 +87,10 @@ Area* launcher::Launcher::readArea(xml::Node areaNode)
     
     if (areaType == "box")
         return readBoxArea(areaNode);
+    else if (areaType == "sphere")
+        return readSphereArea(areaNode);
+    else if (areaType == "cylinder")
+        return readCylinderArea(areaNode);
     
     LOG_ERROR("Unknown initial state area: " << areaType);
     return NULL;
@@ -100,6 +108,31 @@ Area* launcher::Launcher::readBoxArea(xml::Node areaNode)
             << "[" << minY << ", " << maxY << "] "
             << "[" << minZ << ", " << maxZ << "]");
     return new BoxArea(minX, maxX, minY, maxY, minZ, maxZ);
+}
+
+Area* launcher::Launcher::readSphereArea(xml::Node areaNode)
+{
+    gcm_real r = lexical_cast<gcm_real>(areaNode["r"]);
+    gcm_real x = lexical_cast<gcm_real>(areaNode["x"]);
+    gcm_real y = lexical_cast<gcm_real>(areaNode["y"]);
+    gcm_real z = lexical_cast<gcm_real>(areaNode["z"]);
+    LOG_DEBUG("Sphere R = " << r << ". Center: (" << x << ", " << y << ", " << z << ").");
+    return new SphereArea(r, x, y, z);
+}
+
+Area* launcher::Launcher::readCylinderArea(xml::Node areaNode)
+{
+    gcm_real r = lexical_cast<gcm_real>(areaNode["r"]);
+    gcm_real x1 = lexical_cast<gcm_real>(areaNode["x1"]);
+    gcm_real y1 = lexical_cast<gcm_real>(areaNode["y1"]);
+    gcm_real z1 = lexical_cast<gcm_real>(areaNode["z1"]);
+    gcm_real x2 = lexical_cast<gcm_real>(areaNode["x2"]);
+    gcm_real y2 = lexical_cast<gcm_real>(areaNode["y2"]);
+    gcm_real z2 = lexical_cast<gcm_real>(areaNode["z2"]);
+    LOG_DEBUG("Cylinder R = " << r << "." 
+            << " Center1: (" << x1 << ", " << y1 << ", " << z1 << ")."
+            << " Center2: (" << x2 << ", " << y2 << ", " << z2 << ").");
+    return new CylinderArea(r, x1, y1, z1, x2, y2, z2);
 }
 
 void launcher::Launcher::loadSceneFromFile(string fileName)

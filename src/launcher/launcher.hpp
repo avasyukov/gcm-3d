@@ -14,6 +14,8 @@ namespace launcher {
     {
     private:
         void loadMaterialsFromXml(xml::NodeList matNodes);
+		Area* readCylinderArea(xml::Node areaNode);
+		Area* readSphereArea(xml::Node areaNode);
 		Area* readBoxArea(xml::Node areaNode);
 		Area* readArea(xml::Node areaNode);
 
