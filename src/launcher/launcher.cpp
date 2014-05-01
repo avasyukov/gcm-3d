@@ -76,6 +76,32 @@ void launcher::Launcher::loadMaterialLibrary(std::string path)
     }
 }
 
+Area* launcher::Launcher::readArea(xml::Node areaNode)
+{
+    string areaType = areaNode["type"];
+    LOG_DEBUG("Material area: " << areaType);
+    
+    if (areaType == "box")
+        return readBoxArea(areaNode);
+    
+    LOG_ERROR("Unknown initial state area: " << areaType);
+    return NULL;
+}
+                
+Area* launcher::Launcher::readBoxArea(xml::Node areaNode)
+{
+    gcm_real minX = lexical_cast<gcm_real>(areaNode["minX"]);
+    gcm_real maxX = lexical_cast<gcm_real>(areaNode["maxX"]);
+    gcm_real minY = lexical_cast<gcm_real>(areaNode["minY"]);
+    gcm_real maxY = lexical_cast<gcm_real>(areaNode["maxY"]);
+    gcm_real minZ = lexical_cast<gcm_real>(areaNode["minZ"]);
+    gcm_real maxZ = lexical_cast<gcm_real>(areaNode["maxZ"]);
+    LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] "
+            << "[" << minY << ", " << maxY << "] "
+            << "[" << minZ << ", " << maxZ << "]");
+    return new BoxArea(minX, maxX, minY, maxY, minZ, maxZ);
+}
+
 void launcher::Launcher::loadSceneFromFile(string fileName)
 {
     Engine& engine = gcm::Engine::getInstance();
@@ -107,26 +133,36 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     {
         xml::Node defaultContactCalculator = defaultContactCalculatorList.front();
         string type = defaultContactCalculator["type"];
-        if( type == "SlidingContactCalculator" )
+        if( engine.getContactCalculator(type) == NULL )
         {
-            engine.replaceDefaultContactCondition( new ContactCondition(
-                            NULL, new StepPulseForm(-1, -1),
-                            engine.getContactCalculator("SlidingContactCalculator") ) );
+            THROW_INVALID_INPUT("Unknown contact calculator requested: " + type);
         }
-        else if( type == "AdhesionContactCalculator" )
+        engine.replaceDefaultContactCondition( 
+                new ContactCondition(NULL, new StepPulseForm(-1, -1), engine.getContactCalculator(type) ) 
+        );
+        LOG_INFO("Default contact calculator set to: " + type);
+        if (type == "AdhesionContactDestroyCalculator")
         {
-            engine.replaceDefaultContactCondition( new ContactCondition(
-                            NULL, new StepPulseForm(-1, -1),
-                            engine.getContactCalculator("AdhesionContactCalculator") ) );
-        }
-        else if (type == "AdhesionContactDestroyCalculator")
-        {
-            engine.replaceDefaultContactCondition( new ContactCondition( 
-                            NULL, new StepPulseForm(-1,-1), 
-                            engine.getContactCalculator("AdhesionContactDestroyCalculator")));
             gcm_real adhesionThreshold = lexical_cast<gcm_real>(defaultContactCalculator["adhesionThreshold"]);
             engine.getContactCondition(0)->setConditionParam(adhesionThreshold);
         }
+    }
+    
+    NodeList defaultBorderCalculatorList = rootNode.xpath("/task/system/defaultBorderCalculator");
+    if( defaultBorderCalculatorList.size() > 1 )
+        THROW_INVALID_INPUT("Config file can contain only one <defaultBorderCalculator/> element");
+    if( defaultBorderCalculatorList.size() == 1 )
+    {
+        xml::Node defaultBorderCalculator = defaultBorderCalculatorList.front();
+        string type = defaultBorderCalculator["type"];
+        if( engine.getBorderCalculator(type) == NULL )
+        {
+            THROW_INVALID_INPUT("Unknown border calculator requested: " + type);
+        }
+        engine.replaceDefaultBorderCondition( 
+                new BorderCondition(NULL, new StepPulseForm(-1, -1), engine.getBorderCalculator(type) ) 
+        );
+        LOG_INFO("Default border calculator set to: " + type);
     }
 
     NodeList defaultRheoCalculatorList = rootNode.xpath("/task/system/defaultRheologyCalculator");
@@ -446,24 +482,9 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             }
             else if (areaNodes.size() == 1)
             {
-                Area* matArea = NULL;
-                string areaType = areaNodes.front()["type"];
-                if( areaType == "box" )
-                {
-                    LOG_DEBUG("Material area: " << areaType);
-                    gcm_real minX = lexical_cast<gcm_real>(areaNodes.front()["minX"]);
-                    gcm_real maxX = lexical_cast<gcm_real>(areaNodes.front()["maxX"]);
-                    gcm_real minY = lexical_cast<gcm_real>(areaNodes.front()["minY"]);
-                    gcm_real maxY = lexical_cast<gcm_real>(areaNodes.front()["maxY"]);
-                    gcm_real minZ = lexical_cast<gcm_real>(areaNodes.front()["minZ"]);
-                    gcm_real maxZ = lexical_cast<gcm_real>(areaNodes.front()["maxZ"]);
-                    LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] "
-                                        << "[" << minY << ", " << maxY << "] "
-                                        << "[" << minZ << ", " << maxZ << "]");
-                    matArea = new BoxArea(minX, maxX, minY, maxY, minZ, maxZ);
-                } else {
-                    LOG_WARN("Unknown initial state area: " << areaType);
-                }
+                Area* matArea = readArea(areaNodes.front());
+                if(matArea == NULL)
+                    THROW_INVALID_INPUT("Can not read area");
                 mesh->setRheology( engine.getMaterialIndex(id), matArea );
             }
             else
@@ -479,75 +500,87 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     for(auto& initialStateNode: initialStateNodes)
     {
         NodeList areaNodes = initialStateNode.getChildrenByName("area");
-            NodeList valuesNodes = initialStateNode.getChildrenByName("values");
-            if (areaNodes.size() != valuesNodes.size())
-                //      THROW_INVALID_INPUT("Only one area element allowed for initial state");
-                        THROW_INVALID_INPUT("Number of areas don't coincide with number of values");
+        NodeList valuesNodes = initialStateNode.getChildrenByName("values");
+        if (areaNodes.size() != 1)
+            THROW_INVALID_INPUT("Only one area element allowed for initial state");
+        if (valuesNodes.size() != 1)
+            THROW_INVALID_INPUT("Only one values element allowed for initial state");
+        xml::Node areaNode = areaNodes.front();
+        xml::Node valuesNode = valuesNodes.front();
 
-        Area* stateArea = NULL;
+        Area* stateArea = readArea(areaNodes.front());
+        if(stateArea == NULL)
+            THROW_INVALID_INPUT("Can not read area");
+        
         gcm_real values[9];
-        if (areaNodes.size() != valuesNodes.size())
-        //    THROW_INVALID_INPUT("Only one area element allowed for initial state");
-            THROW_INVALID_INPUT("Number of areas don't coincide with number of values");
-        for (unsigned int node=0; node<areaNodes.size(); node++)
-    {
-            string areaType = areaNodes.front()["type"];
-            if( areaType == "box" )
-            {
-                LOG_DEBUG("Initial state area: " << areaType);
-                gcm_real minX = lexical_cast<gcm_real>(areaNodes[node]["minX"]);
-                gcm_real maxX = lexical_cast<gcm_real>(areaNodes[node]["maxX"]);
-                gcm_real minY = lexical_cast<gcm_real>(areaNodes[node]["minY"]);
-                gcm_real maxY = lexical_cast<gcm_real>(areaNodes[node]["maxY"]);
-                gcm_real minZ = lexical_cast<gcm_real>(areaNodes[node]["minZ"]);
-                gcm_real maxZ = lexical_cast<gcm_real>(areaNodes[node]["maxZ"]);
-                LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] "
-                                    << "[" << minY << ", " << maxY << "] "
-                                    << "[" << minZ << ", " << maxZ << "]");
-                stateArea = new BoxArea(minX, maxX, minY, maxY, minZ, maxZ);
-            } else {
-                LOG_WARN("Unknown initial state area: " << areaType);
-            }
-        //if (valuesNodes.size() > 1)
-        //    THROW_INVALID_INPUT("Only one values element allowed for initial state");
-            memset(values, 0, 9*sizeof(gcm_real));
-            string vx = valuesNodes[node].getAttributes()["vx"];
-            if( !vx.empty() )
-                values[0] = lexical_cast<gcm_real>(vx);
-            string vy = valuesNodes[node].getAttributes()["vy"];
-            if( !vy.empty() )
-                values[1] = lexical_cast<gcm_real>(vy);
-            string vz = valuesNodes[node].getAttributes()["vz"];
-            if( !vz.empty() )
-                values[2] = lexical_cast<gcm_real>(vz);
-            string sxx = valuesNodes[node].getAttributes()["sxx"];
-            if( !sxx.empty() )
-                values[3] = lexical_cast<gcm_real>(sxx);
-            string sxy = valuesNodes[node].getAttributes()["sxy"];
-            if( !sxy.empty() )
-                values[4] = lexical_cast<gcm_real>(sxy);
-            string sxz = valuesNodes[node].getAttributes()["sxz"];
-            if( !sxz.empty() )
-                values[5] = lexical_cast<gcm_real>(sxz);
-            string syy = valuesNodes[node].getAttributes()["syy"];
-            if( !syy.empty() )
-                values[6] = lexical_cast<gcm_real>(syy);
-            string syz = valuesNodes[node].getAttributes()["syz"];
-            if( !syz.empty() )
-                values[7] = lexical_cast<gcm_real>(syz);
-            string szz = valuesNodes[node].getAttributes()["szz"];
-            if( !szz.empty() )
-                values[8] = lexical_cast<gcm_real>(szz);
-            LOG_DEBUG("Initial state values: "
-                            << values[0] << " " << values[1] << " " << values[2] << " "
-                            << values[3] << " " << values[4] << " " << values[5] << " "
-                            << values[6] << " " << values[7] << " " << values[8] );
+        
+        memset(values, 0, 9*sizeof(gcm_real));
+        string vx = valuesNode.getAttributes()["vx"];
+        if( !vx.empty() )
+            values[0] = lexical_cast<gcm_real>(vx);
+        string vy = valuesNode.getAttributes()["vy"];
+        if( !vy.empty() )
+            values[1] = lexical_cast<gcm_real>(vy);
+        string vz = valuesNode.getAttributes()["vz"];
+        if( !vz.empty() )
+            values[2] = lexical_cast<gcm_real>(vz);
+        string sxx = valuesNode.getAttributes()["sxx"];
+        if( !sxx.empty() )
+            values[3] = lexical_cast<gcm_real>(sxx);
+        string sxy = valuesNode.getAttributes()["sxy"];
+        if( !sxy.empty() )
+            values[4] = lexical_cast<gcm_real>(sxy);
+        string sxz = valuesNode.getAttributes()["sxz"];
+        if( !sxz.empty() )
+            values[5] = lexical_cast<gcm_real>(sxz);
+        string syy = valuesNode.getAttributes()["syy"];
+        if( !syy.empty() )
+            values[6] = lexical_cast<gcm_real>(syy);
+        string syz = valuesNode.getAttributes()["syz"];
+        if( !syz.empty() )
+            values[7] = lexical_cast<gcm_real>(syz);
+        string szz = valuesNode.getAttributes()["szz"];
+        if( !szz.empty() )
+            values[8] = lexical_cast<gcm_real>(szz);
+        LOG_DEBUG("Initial state values: "
+                        << values[0] << " " << values[1] << " " << values[2] << " "
+                        << values[3] << " " << values[4] << " " << values[5] << " "
+                        << values[6] << " " << values[7] << " " << values[8] );
         for( int i = 0; i < engine.getNumberOfBodies(); i++ )
         {
             engine.getBody(i)->setInitialState(stateArea, values);
             engine.getBody(i)->getMeshes()->processStressState();
         }
     }
+    
+    NodeList borderConditionNodes = rootNode.xpath("/task/borderCondition");
+    for(auto& borderConditionNode: borderConditionNodes)
+    {
+        string calculator = borderConditionNode["calculator"];
+        if( engine.getBorderCalculator(calculator) == NULL )
+        {
+            THROW_INVALID_INPUT("Unknown border calculator requested: " + calculator);
+        }
+        unsigned int conditionId = engine.addBorderCondition(
+                new BorderCondition(NULL, new StepPulseForm(-1, -1), engine.getBorderCalculator(calculator) ) 
+        );
+        LOG_INFO("Border condition created with calculator: " + calculator);
+        
+        NodeList areaNodes = borderConditionNode.getChildrenByName("area");
+        if (areaNodes.size() == 0)
+            THROW_INVALID_INPUT("Area should be specified for border condition");
+        
+        for(auto& areaNode: areaNodes)
+        {
+            Area* conditionArea = readArea(areaNode);
+            if(conditionArea == NULL)
+                THROW_INVALID_INPUT("Can not read area");
+
+            for( int i = 0; i < engine.getNumberOfBodies(); i++ )
+            {
+                engine.getBody(i)->setBorderCondition(conditionArea, conditionId);
+            }
+        }
     }
     LOG_DEBUG("Scene loaded");
 }
