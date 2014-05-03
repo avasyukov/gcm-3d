@@ -53,3 +53,8 @@ void gcm::Body::setRheologyCalculatorType(string calcType) {
 string gcm::Body::getRheologyCalculatorType() {
     return rheoCalcType;
 }
+        
+const vector<Mesh*>& gcm::Body::getMeshesVector()
+{
+    return meshes;
+}

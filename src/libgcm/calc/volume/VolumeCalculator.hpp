@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "libgcm/util/RheologyMatrix3D.hpp"
+#include "libgcm/rheology/RheologyMatrix.hpp"
 
 using namespace std;
 
@@ -30,7 +30,7 @@ namespace gcm
         /*
          * Calculate next state for the given node
          */
-        virtual void doCalc(CalcNode& new_node, RheologyMatrix3D& matrix,
+        virtual void doCalc(CalcNode& new_node, RheologyMatrixPtr matrix,
                                                 vector<CalcNode>& previousNodes) = 0;
         /*
          * Returns type of the calculator

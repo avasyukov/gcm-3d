@@ -8,6 +8,14 @@
 
 #define DO_WHILE(statement) do { statement } while(0)
 
+namespace std
+{
+    inline string to_string(const string& s)
+    {
+        return s;
+    }
+}
+
 #if CONFIG_ENABLE_ASSERTIONS
 #define THROW_ASSERTION_FAILED(msg) THROW(gcm::Exception::UNKNOWN, msg)
 #else

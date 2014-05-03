@@ -187,7 +187,7 @@ void gcm::Engine::registerRheologyCalculator(RheologyCalculator* rheologyCalcula
     LOG_DEBUG("Registered rheology calculator: " << rheologyCalculator->getType());
 }
 
-unsigned char gcm::Engine::addMaterial(Material* material)
+unsigned char gcm::Engine::addMaterial(MaterialPtr material)
 {
     if( !material )
         THROW_INVALID_ARG("Material parameter cannot be NULL");
@@ -241,7 +241,7 @@ unsigned char gcm::Engine::getMaterialIndex(string name)
     THROW_INVALID_ARG("Material was not found");
 }
 
-Material* gcm::Engine::getMaterial(string name)
+const MaterialPtr& gcm::Engine::getMaterial(string name)
 {
     for (unsigned char i = 0; i < materials.size(); i++)
         if (materials[i]->getName() == name)
@@ -249,7 +249,7 @@ Material* gcm::Engine::getMaterial(string name)
     THROW_INVALID_ARG("Material was not found");
 }
 
-Material* gcm::Engine::getMaterial(unsigned char index)
+const MaterialPtr& gcm::Engine::getMaterial(unsigned char index)
 {
     assert_ge(index, 0);
     assert_lt(index, materials.size());
@@ -708,4 +708,16 @@ bool gcm::Engine::interpolateNode(CalcNode& node)
             return true;
     }
     return false;
+}
+        
+void gcm::Engine::setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode)
+{
+    for (auto& b: bodies)
+        for (auto& m: b->getMeshesVector())
+            for (int i = 0; i < m->getNodesNumber(); i++)
+            {
+                CalcNode& node = m->getNodeByLocalIndex(i);
+                if (node.isUsed())
+                    node.setRheologyMatrix(getMatrixForNode(node));
+            }
 }

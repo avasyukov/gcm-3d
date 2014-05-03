@@ -21,8 +21,8 @@ SlidingContactCalculator::~SlidingContactCalculator()
 };
 
 void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node,
-                            RheologyMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[],
-                            RheologyMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
+                            RheologyMatrixPtr matrix, vector<CalcNode>& previousNodes, bool inner[],
+                            RheologyMatrixPtr virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
                             float outer_normal[], float scale)
 {
     assert_eq(previousNodes.size(), 9);
@@ -86,14 +86,14 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
             // omega on new time layer is equal to omega on previous time layer along characteristic
             omega[i] = 0;
             for( int j = 0; j < 9; j++ ) {
-                omega[i] += matrix.getU(i,j) * previousNodes[i].values[j];
+                omega[i] += matrix->getU(i,j) * previousNodes[i].values[j];
             }
 
             // then we must set the corresponding values of the 18x18 matrix
             gsl_vector_set( om_gsl, 6 * curNN + posInEq18, omega[i] );
 
             for( int j = 0; j < 9; j++ ) {
-                gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, matrix.getU( i, j ) );
+                gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, matrix->getU( i, j ) );
             }
             for( int j = 9; j < 18; j++ ) {
                 gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, 0 );
@@ -113,7 +113,7 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
             // omega on new time layer is equal to omega on previous time layer along characteristic
             virt_omega[i] = 0;
             for( int j = 0; j < 9; j++ ) {
-                virt_omega[i] += virt_matrix.getU(i,j) * virtPreviousNodes[i].values[j];
+                virt_omega[i] += virt_matrix->getU(i,j) * virtPreviousNodes[i].values[j];
             }
 
             // then we must set the corresponding values of the 18x18 matrix
@@ -123,7 +123,7 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
                 gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, 0 );
             }
             for( int j = 9; j < 18; j++ ) {
-                gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, virt_matrix.getU( i, j - 9 ) );
+                gsl_matrix_set( U_gsl, 6 * curNN + posInEq18, j, virt_matrix->getU( i, j - 9 ) );
             }
             posInEq18++;
         }

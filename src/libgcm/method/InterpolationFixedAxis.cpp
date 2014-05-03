@@ -239,7 +239,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
     }
 }
 
-int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix3D& rheologyMatrix,
+int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrixPtr rheologyMatrix,
                                               float time_step, int stage, Mesh* mesh,
                                               float* dksi, bool* inner, vector<CalcNode>& previous_nodes,
                                               float* outer_normal)
@@ -254,19 +254,19 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix
     //  Prepare matrixes  A, Lambda, Omega, Omega^(-1)
 
     switch (stage) {
-    case 0: rheologyMatrix.createAx(cur_node);
+    case 0: rheologyMatrix->decomposeX(cur_node);
         break;
-    case 1: rheologyMatrix.createAy(cur_node);
+    case 1: rheologyMatrix->decomposeY(cur_node);
         break;
-    case 2: rheologyMatrix.createAz(cur_node);
+    case 2: rheologyMatrix->decomposeZ(cur_node);
         break;
     }
     LOG_TRACE("Preparing elastic matrix done");
 
-    LOG_TRACE("Elastic matrix eigen values:\n" << rheologyMatrix.getL());
+    LOG_TRACE("Elastic matrix eigen values:\n" << rheologyMatrix->getL());
 
     for (int i = 0; i < 9; i++)
-        dksi[i] = -rheologyMatrix.getL(i, i) * time_step;
+        dksi[i] = -rheologyMatrix->getL(i, i) * time_step;
 
     return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal);
 }

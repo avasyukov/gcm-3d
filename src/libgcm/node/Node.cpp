@@ -1,17 +1,23 @@
 #include "libgcm/node/Node.hpp"
 
-gcm::Node::Node() : Node(-1)
+using namespace gcm;
+
+Node::Node() : Node(-1)
 {
 }
 
-gcm::Node::Node(int num) : Node(num, 0.0, 0.0, 0.0)
+Node::Node(int num) : Node(num, 0.0, 0.0, 0.0)
 {
 }
 
-gcm::Node::Node(int num, float x, float y, float z) : number(num), x(x), y(y)
+Node::Node(int num, float x, float y, float z) : number(num), x(x), y(y)
 {
 }
 
-gcm::Node::~Node()
+Node::Node(const Node& src) {
+    *this = src;
+}
+
+Node::~Node()
 {
 }

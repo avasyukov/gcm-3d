@@ -1,30 +1,162 @@
-#include "libgcm/util/RheologyMatrix3D.hpp"
+#include "libgcm/rheology/RheologyMatrix.hpp"
 
-gcm::RheologyMatrix3D::~RheologyMatrix3D()
+#include "libgcm/util/Assertion.hpp"
+
+using namespace gcm;
+#include <iostream>
+
+RheologyMatrix::RheologyMatrix(const MaterialPtr& material, const SetterPtr& setter, const DecomposerPtr& decomposer): material(material), setter(setter), decomposer(decomposer)
 {
+    auto n = setter->getNumberOfStates(); 
+    if (n == 0)
+    {
+        n = 1;
+        immutable = false;
+    }
+    for (auto& m: matrices)
+    {   
+        m.a = new gcm_matrix[n];
+        m.u = new gcm_matrix[n];
+        m.l = new gcm_matrix[n];
+        m.u1 = new gcm_matrix[n];
+        m.cached = new bool[n];
+        for (unsigned int j = 0; j < n; j++)
+            m.cached[j] = false;
+    }
 }
 
-gcm_real gcm::RheologyMatrix3D::getA(unsigned int i, unsigned int j) const
+RheologyMatrix::~RheologyMatrix()
+{
+    for (auto m: matrices)
+    {
+        delete[] m.a;
+        delete[] m.u;
+        delete[] m.l;
+        delete[] m.u1;
+        delete[] m.cached;
+    }
+}
+
+gcm_real RheologyMatrix::getMaxEigenvalue() const
+{
+    float res = 0;
+    for (unsigned i = 0; i < GCM_MATRIX_SIZE; ++i)
+    {
+        gcm_real la = getL(i, i);
+        if(la > res)
+            res = la;
+    }
+    return res;
+}
+
+gcm_real RheologyMatrix::getMinEigenvalue() const
+{
+    float res = numeric_limits<gcm_real>::infinity();
+    for (unsigned i = 0; i < GCM_MATRIX_SIZE; ++i)
+    {
+        gcm_real la = getL(i, i);
+        if(la > 0 && la < res)
+            res = la;
+    }
+    return res;
+}
+
+const gcm_matrix& RheologyMatrix::getA() const
+{
+    assert_true(matrices[direction].cached[index]);
+    return matrices[direction].a[index];
+}
+
+gcm_real RheologyMatrix::getA(unsigned int i, unsigned int j) const
 {
     return getA().get(i, j);
 }
 
-gcm_real gcm::RheologyMatrix3D::getL(unsigned int i, unsigned int j) const
+const gcm_matrix& RheologyMatrix::getL() const
+{
+    assert_true(matrices[direction].cached[index]);
+    return matrices[direction].l[index];
+}
+
+gcm_real RheologyMatrix::getL(unsigned int i, unsigned int j) const
 {
     return getL().get(i, j);
 }
 
-gcm_real gcm::RheologyMatrix3D::getU(unsigned int i, unsigned int j) const
+const gcm_matrix& RheologyMatrix::getU() const
+{
+    assert_true(matrices[direction].cached[index]);
+    return matrices[direction].u[index];
+}
+
+gcm_real RheologyMatrix::getU(unsigned int i, unsigned int j) const
 {
     return getU().get(i, j);
 }
 
-gcm_real gcm::RheologyMatrix3D::getU1(unsigned int i, unsigned int j) const
+const gcm_matrix& RheologyMatrix::getU1() const
+{
+    assert_true(matrices[direction].cached[index]);
+    return matrices[direction].u1[index];
+}
+
+gcm_real RheologyMatrix::getU1(unsigned int i, unsigned int j) const
 {
     return getU1().get(i, j);
 }
+
+const MaterialPtr& RheologyMatrix::getMaterial() const
+{
+    return material;
+}
+
+void RheologyMatrix::decomposeX(const ICalcNode& node)
+{
+    decompose(node, 0);
+}
+
+void RheologyMatrix::decomposeY(const ICalcNode& node)
+{
+    decompose(node, 1);
+}
+
+void RheologyMatrix::decomposeZ(const ICalcNode& node)
+{
+    decompose(node, 2);
+}
+
+void RheologyMatrix::decompose(const ICalcNode& node, unsigned int direction)
+{
+    assert_le(direction, 2);
+
+    auto s = setter->getStateForNode(node);
+    if (!matrices[direction].cached[s] || !immutable)
+    {
+        switch(direction)
+        {
+            case 0: setter->setX(matrices[0].a[s], material); break;
+            case 1: setter->setY(matrices[1].a[s], material); break;
+            case 2: setter->setZ(matrices[2].a[s], material); break;
+
+        }
+        switch (direction)
+        {
+            case 0: decomposer->decomposeX(matrices[0].a[s], matrices[0].u[s], matrices[0].l[s], matrices[0].u1[s]); break;
+            case 1: decomposer->decomposeY(matrices[1].a[s], matrices[1].u[s], matrices[1].l[s], matrices[1].u1[s]); break;
+            case 2: decomposer->decomposeZ(matrices[2].a[s], matrices[2].u[s], matrices[2].l[s], matrices[2].u1[s]); break;
+        }
+        matrices[direction].cached[s] = true;
+    }
+
+    this->direction = direction;
+    this->index = s;
+}
+
+
+// ====================================================================================================================
+
 /*
-void gcm::RheologyMatrix3D::CreateGeneralizedMatrix(float la, float mu, float ro,
+void RheologyMatrix::CreateGeneralizedMatrix(float la, float mu, float ro,
                                                     float qjx, float qjy, float qjz)
 {
 
@@ -256,7 +388,7 @@ void gcm::RheologyMatrix3D::CreateGeneralizedMatrix(float la, float mu, float ro
 };
 
 
-void gcm::RheologyMatrix3D::createMatrixN(int i, int j, float *res)
+void RheologyMatrix::createMatrixN(int i, int j, float *res)
 {
     *res = (n[i][0]*n[j][0] + n[j][0]*n[i][0])/2;
     *(res+1) = (n[i][0]*n[j][1] + n[j][0]*n[i][1])/2;

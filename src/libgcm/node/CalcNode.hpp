@@ -5,11 +5,11 @@
 #include <iostream>
 #include <string>
 
-#include "libgcm/node/Node.hpp"
+#include "libgcm/node/ICalcNode.hpp"
 #include "libgcm/util/Types.hpp"
 #include "libgcm/Engine.hpp"
 
-#define GCM_VALUES_SIZE 9
+#define VALUES_NUMBER 9
 using namespace std;
 using namespace gcm;
 
@@ -95,6 +95,9 @@ namespace gcm {
         // crack direction
         // TODO  document it
         gcm_real crackDirection[3];
+
+        // rheology matrix
+        RheologyMatrixPtr rheologyMatrix;
 
         // calculates main stress components
         void calcMainStressComponents() const;
@@ -413,16 +416,18 @@ namespace gcm {
          *
          * @return Material.
          */
-        Material* getMaterial() const override;
-
+        MaterialPtr getMaterial() const /*override*/;
+        /**
+         * Sets rheology matrix for node.
+         */
+        void setRheologyMatrix(RheologyMatrixPtr matrix);
         /**
          * Returns rheology matrix for node. It's wrapper for corresponding
          * material APIs.
          *
          * @return Rheology matrix.
          */
-        RheologyMatrix3D& getRheologyMatrix() const;
-
+        RheologyMatrixPtr getRheologyMatrix() const;
         /**
          * Sets density value for node.
          *
@@ -505,7 +510,7 @@ namespace std {
         for (int i = 0; i < 3; i++)
             os << " " << node.values[i];
         os << "\n\tStress:";
-        for (int i = 3; i < GCM_VALUES_SIZE; i++)
+        for (int i = 3; i < VALUES_NUMBER; i++)
             os << " " << node.values[i];
         os << "\n\tRho: " << node.getRho();
         return os;

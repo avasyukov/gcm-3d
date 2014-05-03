@@ -112,7 +112,7 @@ void gcm::Mesh::initNewNodes()
         CalcNode& node = getNodeByLocalIndex(i);
         CalcNode& newNode = getNewNode( node.number );
         copy(node.coords, node.coords + 3, newNode.coords);
-                copy(node.values, node.values + GCM_VALUES_SIZE, newNode.values);
+        copy(node.values, node.values + VALUES_NUMBER, newNode.values);
         newNode.setRho(node.getRho());
         newNode.setMaterialId(node.getMaterialId());
         newNode.setContactConditionId(node.getContactConditionId());
@@ -377,13 +377,13 @@ float gcm::Mesh::getMaxEigenvalue()
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
-        RheologyMatrix3D& m =  node.getRheologyMatrix();
-                m.createAx(node);
-                auto l1 = m.getMaxEigenvalue();
-                m.createAy(node);
-                auto l2 = m.getMaxEigenvalue();
-                m.createAz(node);
-                auto l3 = m.getMaxEigenvalue();
+        RheologyMatrixPtr m = node.getRheologyMatrix();
+        m->decomposeX(node);
+        auto l1 = m->getMaxEigenvalue();
+        m->decomposeY(node);
+        auto l2 = m->getMaxEigenvalue();
+        m->decomposeZ(node);
+        auto l3 = m->getMaxEigenvalue();
         maxLambda = max({maxLambda, l1, l2, l3});
     }
     return maxLambda;
@@ -517,6 +517,6 @@ void gcm::Mesh::defaultNextPartStep(float tau, int stage)
         int i = itr->first;
         CalcNode& node = getNode(i);
         if( node.isLocal() )
-            memcpy( node.values, getNewNode(i).values, GCM_VALUES_SIZE * sizeof(float) );
+            memcpy( node.values, getNewNode(i).values, VALUES_NUMBER * sizeof(float) );
     }
 }

@@ -20,8 +20,8 @@ namespace gcm {
         PulseForm* form;
         ContactCalculator* calc;
         void doCalc(float time, CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node,
-                            RheologyMatrix3D& matrix, vector<CalcNode>& previousNodes, bool inner[],
-                            RheologyMatrix3D& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
+                            RheologyMatrixPtr& matrix, vector<CalcNode>& previousNodes, bool inner[],
+                            RheologyMatrixPtr& virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
                             float outer_normal[]);
     };
 }

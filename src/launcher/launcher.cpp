@@ -4,8 +4,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
 
-#include "launcher/loaders/material/AnisotropicElasticMaterialLoader.hpp"
-#include "launcher/loaders/material/IsotropicElasticMaterialLoader.hpp"
+#include "launcher/loaders/material/MaterialLoader.hpp"
 #include "launcher/loaders/mesh/Geo2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Msh2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Vtu2MeshLoader.hpp"
@@ -20,6 +19,13 @@
 #include "libgcm/Logging.hpp"
 #include "libgcm/ContactCondition.hpp"
 #include "libgcm/Exception.hpp"
+
+#include "libgcm/rheology/setters/IsotropicRheologyMatrixSetter.hpp"
+#include "libgcm/rheology/setters/AnisotropicRheologyMatrixSetter.hpp"
+#include "libgcm/rheology/setters/LinearPlasticityRheologyMatrixSetter.hpp"
+#include "libgcm/rheology/decomposers/IsotropicRheologyMatrixDecomposer.hpp"
+#include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer.hpp"
+#include "libgcm/rheology/Plasticity.hpp"
 
 namespace ba = boost::algorithm;
 namespace bfs = boost::filesystem;
@@ -38,14 +44,7 @@ void launcher::Launcher::loadMaterialsFromXml(NodeList matNodes)
     gcm::Engine& engine = gcm::Engine::getInstance();
     for(auto& matNode: matNodes)
     {
-        string rheology = matNode["rheology"];
-        Material* mat = nullptr;
-        if (rheology == AnisotropicElasticMaterialLoader::RHEOLOGY_TYPE)
-            mat = AnisotropicElasticMaterialLoader::getInstance().load(matNode);
-        else if (rheology == IsotropicElasticMaterialLoader::RHEOLOGY_TYPE)
-            mat = IsotropicElasticMaterialLoader::getInstance().load(matNode);
-        else
-            THROW_UNSUPPORTED("Unsupported rheology found: " + rheology);
+        MaterialPtr mat = MaterialLoader::getInstance().load(matNode);
         try
         {
             engine.getMaterial(mat->getName());
@@ -84,7 +83,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     auto& ffls = FileFolderLookupService::getInstance();
     string fname = ffls.lookupFile(fileName);
     LOG_DEBUG("Loading scene from file " << fname);
-    // parse file
+// parse file
     Doc doc = Doc::fromFile(fname);
     xml::Node rootNode = doc.getRootElement();
     // read task parameters
@@ -193,6 +192,15 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             engine.setMeshesMovable(false);
         }
     }
+    
+    NodeList plasticityTypeList = rootNode.xpath("/task/system/plasticity");
+    if( plasticityTypeList.size() > 1 )
+        THROW_INVALID_INPUT("Config file can contain only one <plasticity/> element");
+    string plasticityType = "none";
+    if( plasticityTypeList.size() == 1 )
+    {
+        plasticityType = plasticityTypeList.front()["type"];
+    }
 
     string anisotropicMatrixImplementation = "numerical";
     NodeList anisotropicMatrixList = rootNode.xpath("/task/system/anisotropicMatrix");
@@ -203,8 +211,6 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         xml::Node anisotropicMatrix = anisotropicMatrixList.front();
         anisotropicMatrixImplementation = anisotropicMatrix["implementation"];
     }
-
-    AnisotropicElasticMaterialLoader::getInstance(anisotropicMatrixImplementation);
 
     loadMaterialLibrary("materials");
     
@@ -545,5 +551,48 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         }
     }
     }
+
+    // create rheology matrixes
+    vector<RheologyMatrixPtr> matrices;
+    for (int i = 0; i < engine.getNumberOfMaterials(); i++)
+    {
+        MaterialPtr material = engine.getMaterial(i);
+        
+        SetterPtr setter;
+        DecomposerPtr decomposer;
+        RheologyMatrixPtr matrix;
+
+        if (material->isIsotropic())
+        {
+            if (plasticityType == PLASTICITY_TYPE_NONE)
+            {
+                setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
+                decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
+            }
+            else if (plasticityType == PLASTICITY_TYPE_LINEAR)
+            {
+                setter = makeSetterPtr<LinearPlasticityRheologyMatrixSetter>();
+                decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
+            }
+            else
+            {
+                THROW_UNSUPPORTED("Plasticity type\"" + plasticityType + "\" is not supported.");
+            }
+        } else 
+        {
+            LOG_WARN("Plasticity is not supported for anisotropic materials, using elastic instead.");
+            setter = makeSetterPtr<AnisotropicRheologyMatrixSetter>();
+            decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
+        }
+
+        matrices.push_back(makeRheologyMatrixPtr(material, setter, decomposer));
+    }
+
+    engine.setRheologyMatrices([&matrices](const CalcNode& node) -> RheologyMatrixPtr
+        {
+            return matrices[node.getMaterialId()];
+        }
+    );
+
     LOG_DEBUG("Scene loaded");
 }
