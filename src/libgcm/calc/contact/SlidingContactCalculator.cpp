@@ -37,16 +37,17 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
 
     //---------------------------------------Check if nodes fall apart
     // TODO - may be '-'?
+    // FIXME_ASAP - it's regarding normals...
     float vel_rel[3] = {
-        cur_node.values[0] + virt_node.values[0],
-        cur_node.values[1] + virt_node.values[1],
-        cur_node.values[2] + virt_node.values[2]
+        cur_node.vx + virt_node.vx,
+        cur_node.vy + virt_node.vy,
+        cur_node.vz + virt_node.vz
     };
 
     float force_cur[3] = {
-        cur_node.values[3]*outer_normal[0] + cur_node.values[4]*outer_normal[1] + cur_node.values[5]*outer_normal[2],
-        cur_node.values[4]*outer_normal[0] + cur_node.values[6]*outer_normal[1] + cur_node.values[7]*outer_normal[2],
-        cur_node.values[5]*outer_normal[0] + cur_node.values[7]*outer_normal[1] + cur_node.values[8]*outer_normal[2]
+        cur_node.sxx*outer_normal[0] + cur_node.sxy*outer_normal[1] + cur_node.sxz*outer_normal[2],
+        cur_node.sxy*outer_normal[0] + cur_node.syy*outer_normal[1] + cur_node.syz*outer_normal[2],
+        cur_node.sxz*outer_normal[0] + cur_node.syz*outer_normal[1] + cur_node.szz*outer_normal[2]
     };
 
     float vel_abs = -scalarProduct(vel_rel, outer_normal);

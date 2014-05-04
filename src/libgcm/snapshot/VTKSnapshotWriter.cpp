@@ -47,11 +47,13 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     vtkDoubleArray *shear = vtkDoubleArray::New();
     vtkDoubleArray *deviator = vtkDoubleArray::New();
     vtkIntArray    *matId = vtkIntArray::New();
+    vtkIntArray    *borderId = vtkIntArray::New();
+    vtkIntArray    *contactId = vtkIntArray::New();
     vtkDoubleArray *rho = vtkDoubleArray::New();
     vtkIntArray    *borderState = vtkIntArray::New();
-    vtkIntArray    *contactState = vtkIntArray::New();
     vtkIntArray    *mpiState = vtkIntArray::New();
-    vtkIntArray       *nodeErrorFlags = vtkIntArray::New ();
+    vtkIntArray    *nodeErrorFlags = vtkIntArray::New ();
+    vtkIntArray    *contactDestroyed = vtkIntArray::New();
 
     float v[3];
     int snapNodeCount = 0;
@@ -82,11 +84,13 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
             shear->InsertNextValue( node.getShear() );
             deviator->InsertNextValue( node.getDeviator() );
             matId->InsertNextValue( node.getMaterialId() );
+            borderId->InsertNextValue( node.getBorderConditionId() );
+            contactId->InsertNextValue( node.getContactConditionId() );
             rho->InsertNextValue( node.getRho() );
             borderState->InsertNextValue( node.isBorder() ? ( node.isInContact() ? 2 : 1 ) : 0 );
-            contactState->InsertNextValue(node.getContactConditionId());
             mpiState->InsertNextValue( node.isRemote() ? 1 : 0 );
             nodeErrorFlags->InsertNextValue (node.getErrorFlags());
+            contactDestroyed->InsertNextValue( node.isContactDestroyed() ? 1 : 0 );
         }
     }
     g->SetPoints(pts);
@@ -116,11 +120,13 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     shear->SetName("shear");
     deviator->SetName("deviator");
     matId->SetName("materialID");
+    borderId->SetName("borderConditionID");
+    contactId->SetName("contactConditionID");
     rho->SetName("rho");
     borderState->SetName("borderState");
-    contactState->SetName("contactState");
     mpiState->SetName("mpiState");
     nodeErrorFlags->SetName ("errorFlags");
+    contactDestroyed->SetName("destroyedContacts");
 
     g->GetPointData()->SetVectors(vel);
     g->GetPointData()->AddArray(crack);
@@ -135,11 +141,13 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     g->GetPointData()->AddArray(shear);
     g->GetPointData()->AddArray(deviator);
     g->GetPointData()->AddArray(matId);
+    g->GetPointData()->AddArray(borderId);
+    g->GetPointData()->AddArray(contactId);
     g->GetPointData()->AddArray(rho);
     g->GetPointData()->AddArray(borderState);
-    g->GetPointData()->AddArray(contactState);
     g->GetPointData()->AddArray(mpiState);
-    g->GetPointData ()->AddArray (nodeErrorFlags);
+    g->GetPointData()->AddArray(nodeErrorFlags);
+    g->GetPointData()->AddArray(contactDestroyed);
 
     vel->Delete();
     crack->Delete();
@@ -154,11 +162,13 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     shear->Delete();
     deviator->Delete();
     matId->Delete();
+    borderId->Delete();
+    contactId->Delete();
     rho->Delete();
     borderState->Delete();
-    contactState->Delete();
     mpiState->Delete();
-    nodeErrorFlags->Delete ();
+    nodeErrorFlags->Delete();
+    contactDestroyed->Delete();
 
     xgw->SetInput(g);
     xgw->SetFileName(filename.c_str());

@@ -1336,6 +1336,7 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, floa
     float fdx = fabs(dx);
     float fdy = fabs(dy);
     float fdz = fabs(dz);
+    
     // FIXME ASAP: calling m.createAi() on each cache index access is horrible for performance
     RheologyMatrixPtr m = node.getRheologyMatrix();
 

@@ -38,12 +38,12 @@ namespace gcm {
             struct {
                 uchar contact : 1;
                 uchar order : 1;
+                uchar isDestroyed : 1;
+                uchar isContactDestroyed : 1;
                 uchar flag1 : 1;
                 uchar flag2 : 1;
                 uchar flag3 : 1;
                 uchar flag4 : 1;
-                uchar flag5 : 1;
-                uchar flag6 : 1;
             };
         } PublicFlags;
 
@@ -264,6 +264,32 @@ namespace gcm {
          * @param value Contact state.
          */
         void setInContact(bool value);
+
+        /**
+         * Indicates whether node is in destroyed area
+         *
+         * @return True in case of node belonging to destroyed area
+         */
+        bool isDestroyed() const;
+        /**
+         * Sets new destroyed state of the node
+         *
+         * @param value Destroyed state.
+         */
+        void setDestroyed(bool value);
+
+        /**
+         * Indicates whether node is on destroyed contact
+         *
+         * @return True in case of destroyed contact and false otherwise.
+         */
+        bool isContactDestroyed() const;
+        /**
+         * Sets new contact destoyed state of the node
+         *
+         * @param value Contact destoyed state.
+         */
+        void setContactDestroyed(bool value);
 
         /**
          * Indicates whether node is local or not.
@@ -488,14 +514,6 @@ namespace gcm {
          * Constant to access custom flag4 using getCustomFlag / setCustomFlag.
          */
         static const int FLAG_4 = 4;
-        /**
-         * Constant to access custom flag5 using getCustomFlag / setCustomFlag.
-         */
-        static const int FLAG_5 = 5;
-        /**
-         * Constant to access custom flag6 using getCustomFlag / setCustomFlag.
-         */
-        static const int FLAG_6 = 6;
     };
 }
 

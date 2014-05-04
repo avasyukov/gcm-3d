@@ -22,7 +22,6 @@ gcm::BorderCondition::~BorderCondition() {
 void gcm::BorderCondition::doCalc(float time, CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[], float outer_normal[])
 {
-    memcpy(new_node.coords, cur_node.coords, 3*sizeof(float) ); // TODO - why is it here?
     calc->doCalc(cur_node, new_node, matrix, previousNodes, inner, outer_normal,
                     form->calcMagnitudeNorm(time, cur_node.coords, area) );
 };

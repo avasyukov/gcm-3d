@@ -1,0 +1,110 @@
+<task numberOfSnaps="1" stepsPerSnap="1">
+	<system>
+		<meshMovement type="none" />
+		<anisotropicMatrix implementation="numerical" />
+	</system>
+	<bodies>
+		<body id="cube_for_11">
+			<rheology type="elastic" />
+			<mesh id="main" type="geo2" file="models/layer-x-strike.geo" tetrSize="0.2" />
+			<material id="layer1">
+				<area type="box" minX="-6.01" maxX="-4.99" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
+			</material>
+			<material id="layer2">
+				<area type="box" minX="-5.01" maxX="-3.99" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
+			</material>
+			<material id="layer3">
+				<area type="box" minX="-4.01" maxX="-2.99" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
+			</material>
+			<material id="layer4">
+				<area type="box" minX="-3.01" maxX="-1.99" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
+			</material>
+			<material id="layer5">
+				<area type="box" minX="-2.01" maxX="-0.99" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
+			</material>
+			<material id="layer6">
+				<area type="box" minX="-1.01" maxX="0.01" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
+			</material>
+			<material id="layer7">
+				<area type="box" minX="-0.01" maxX="1.01" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
+			</material>
+			<material id="layer8">
+				<area type="box" minX="0.99" maxX="2.01" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
+			</material>
+			<material id="layer9">
+				<area type="box" minX="1.99" maxX="3.01" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
+			</material>
+			<material id="layer10">
+				<area type="box" minX="2.99" maxX="4.01" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
+			</material>
+			<material id="layer11">
+				<area type="box" minX="3.99" maxX="5.01" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
+			</material>
+			<transform type="scale" x0="0" scaleX="1" y0="0" scaleY="50" z0="0" scaleZ="50" />
+		</body>
+	</bodies>
+	<materials>
+		<material name="testAnisotropicMaterial" rheology="AnisotropicElastic">
+			<c11>90000</c11>
+			<c12>70000</c12>
+			<c13>17500</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>90000</c22>
+			<c23>17500</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>22500</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>10000</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>10000</c55>
+			<c56>0</c56>
+			<c66>10000</c66>
+			<rho>1</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+		<material name="layer1" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="45" a2="0" a3="0"/>
+		</material>
+		<material name="layer2" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="0" a2="0" a3="0"/>
+		</material>
+		<material name="layer3" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="-45" a2="0" a3="0"/>
+		</material>
+		<material name="layer4" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="0" a2="0" a3="0"/>
+		</material>
+		<material name="layer5" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="0" a2="0" a3="0"/>
+		</material>
+		<material name="layer6" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="90" a2="0" a3="0"/>
+		</material>
+		<material name="layer7" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="0" a2="0" a3="0"/>
+		</material>
+		<material name="layer8" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="0" a2="0" a3="0"/>
+		</material>
+		<material name="layer9" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="-45" a2="0" a3="0"/>
+		</material>
+		<material name="layer10" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="0" a2="0" a3="0"/>
+		</material>
+		<material name="layer11" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+			<rotate a1="45" a2="0" a3="0"/>
+		</material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-600.01" maxX="-500.99" minY="-25" maxY="25" minZ="-25" maxZ="25"/>
+		<values vx="0" />
+	</initialState>
+</task>

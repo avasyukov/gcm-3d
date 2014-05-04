@@ -46,6 +46,16 @@ void gcm::Body::setInitialState(Area* area, float values[9]) {
         meshes[i]->setInitialState(area, values);
 }
 
+void gcm::Body::setBorderCondition(Area* area, unsigned int num) {
+    for( unsigned int i = 0; i < meshes.size(); i++ )
+        meshes[i]->setBorderCondition(area, num);
+}
+
+void gcm::Body::setContactCondition(Area* area, unsigned int num) {
+    for( unsigned int i = 0; i < meshes.size(); i++ )
+        meshes[i]->setContactCondition(area, num);
+}
+
 void gcm::Body::setRheologyCalculatorType(string calcType) {
     rheoCalcType = calcType;
 }

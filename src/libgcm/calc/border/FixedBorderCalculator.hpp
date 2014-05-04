@@ -9,7 +9,7 @@ class FixedBorderCalculator : public BorderCalculator
 public:
     FixedBorderCalculator();
     ~FixedBorderCalculator();
-    void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr& matrix,
+    void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale);
     inline string getType() {
