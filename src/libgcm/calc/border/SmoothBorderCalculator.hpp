@@ -11,7 +11,7 @@ class SmoothBorderCalculator : public BorderCalculator
 public:
     SmoothBorderCalculator();
     ~SmoothBorderCalculator();
-    void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrix3D& matrix,
+    void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale);
 

@@ -6,7 +6,6 @@
 #include <algorithm>
 
 #include "libgcm/util/AABB.hpp"
-#include "libgcm/util/RheologyMatrix3D.hpp"
 #include "libgcm/util/areas/Area.hpp"
 #include "libgcm/Interfaces.hpp"
 #include "libgcm/node/Node.hpp"

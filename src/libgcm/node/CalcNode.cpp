@@ -11,7 +11,7 @@ gcm::CalcNode::CalcNode(int num) : CalcNode(num, 0.0, 0.0, 0.0)
 gcm::CalcNode::CalcNode(int num, gcm_real x, gcm_real y, gcm_real z) : ICalcNode(num, x, y, z)
 {
     bodyId = -1;
-    memset(values, 0, GCM_VALUES_SIZE * sizeof (gcm_real));
+    memset(values, 0, VALUES_NUMBER * sizeof (gcm_real));
     rho = 0;
     materialId = 0;
     publicFlags.flags = 0;
@@ -33,7 +33,7 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
     number = src.number;
 
     copy(src.coords, src.coords + 3, coords);
-    copy(src.values, src.values + GCM_VALUES_SIZE, values);
+    copy(src.values, src.values + VALUES_NUMBER, values);
     copy(src.crackDirection, src.crackDirection + 3, crackDirection);
 
     bodyId = src.bodyId;
@@ -46,6 +46,7 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
     errorFlags = src.errorFlags;
     borderConditionId = src.borderConditionId;
     contactConditionId = src.contactConditionId;
+    rheologyMatrix = src.rheologyMatrix;
 
     return *this;
 }
@@ -391,12 +392,18 @@ uchar gcm::CalcNode::getMaterialId() const
     return materialId;
 }
 
-RheologyMatrix3D& gcm::CalcNode::getRheologyMatrix() const
+void gcm::CalcNode::setRheologyMatrix(RheologyMatrixPtr matrix)
 {
-    return getMaterial()->getRheologyMatrix();
+    assert_true(matrix.get());
+    rheologyMatrix = matrix;
 }
 
-Material* gcm::CalcNode::getMaterial() const
+RheologyMatrixPtr gcm::CalcNode::getRheologyMatrix() const
+{
+    return rheologyMatrix;
+}
+
+MaterialPtr gcm::CalcNode::getMaterial() const
 {
     return Engine::getInstance().getMaterial(materialId);
 }

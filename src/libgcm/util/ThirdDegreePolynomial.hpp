@@ -1,8 +1,7 @@
 #ifndef THIRDDEGREEPOLYNOMIAL_H
 #define    THIRDDEGREEPOLYNOMIAL_H 1
 
-#include "libgcm/util/AnisotropicMatrix3DAnalytical.hpp"
-#include "libgcm/materials/IAnisotropicElasticMaterial.hpp"
+#include "libgcm/rheology/Material.hpp"
 
 namespace gcm {
     class ThirdDegreePolynomial
@@ -18,7 +17,7 @@ namespace gcm {
         void findRoots();
         bool isMltpl;
     public:
-        ThirdDegreePolynomial(float rho, const IAnisotropicElasticMaterial::RheologyParameters &C, int stage);
+        ThirdDegreePolynomial(float rho, const Material::RheologyProperties &C, int stage);
         ~ThirdDegreePolynomial();
         void getRoots(double *place);
         bool isMultiple();

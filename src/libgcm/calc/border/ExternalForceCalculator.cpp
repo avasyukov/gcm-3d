@@ -28,7 +28,7 @@ void ExternalForceCalculator::set_parameters(float sn, float st, float xv, float
     tangential_direction[2] = zv / dtmp;
 };
 
-void ExternalForceCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrix3D& matrix,
+void ExternalForceCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)
 {
@@ -58,12 +58,12 @@ void ExternalForceCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rhe
             omega[i] = 0;
             for(int j = 0; j < 9; j++)
             {
-                omega[i] += matrix.getU(i,j) * previousNodes[i].values[j];
+                omega[i] += matrix->getU(i,j) * previousNodes[i].values[j];
             }
             // Load appropriate values into GSL containers
             gsl_vector_set(om_gsl, i, omega[i]);
             for(int j = 0; j < 9; j++)
-                gsl_matrix_set(U_gsl, i, j, matrix.getU(i,j));
+                gsl_matrix_set(U_gsl, i, j, matrix->getU(i,j));
         }
         // If omega is 'outer' one
         else

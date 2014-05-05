@@ -3,7 +3,6 @@
 #include <unordered_map>
 
 #include "libgcm/node/CalcNode.hpp"
-#include "libgcm/materials/IsotropicElasticMaterial.hpp"
 
 gcm::TetrMeshFirstOrder::TetrMeshFirstOrder()
 {
@@ -1337,9 +1336,9 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, floa
     float fdx = fabs(dx);
     float fdy = fabs(dy);
     float fdz = fabs(dz);
-    // FIXME_ASAP: calling m.createAi() on each cache index access is horrible for performance
-    // FIXME_ASAP: calling m.createAi() on each cache index access MODIFIES currentMatrix (!!!)
-    RheologyMatrix3D& m = node.getRheologyMatrix();
+    
+    // FIXME ASAP: calling m.createAi() on each cache index access is horrible for performance
+    RheologyMatrixPtr m = node.getRheologyMatrix();
 
     short sign = -1;
     short direction = -1;
@@ -1347,26 +1346,26 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, floa
         if( fdx > fdz )
         {
             direction = 1;
-            m.createAx(node);
+            m->decomposeX(node);
             sign = (dx > 0 ? 2 : 1);
         }
         else
         {
             direction = 3;
-            m.createAz(node);
+            m->decomposeZ(node);
             sign = (dz > 0 ? 2 : 1);
         }
     else
         if( fdy > fdz )
         {
             direction = 2;
-            m.createAy(node);
+            m->decomposeY(node);
             sign = (dy > 0 ? 2 : 1);
         }
         else
         {
             direction = 3;
-            m.createAz(node);
+            m->decomposeZ(node);
             sign = (dz > 0 ? 2 : 1);
         }
 
@@ -1374,8 +1373,8 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, floa
     float tau = gcm::Engine::getInstance().getTimeStep();
 
 
-    float maxV = m.getMaxEigenvalue();
-    float minV = m.getMinEigenvalue();
+    float maxV = m->getMaxEigenvalue();
+    float minV = m->getMinEigenvalue();
 
     short scale = -1;
     if( fabs(l2 - tau*tau*maxV*maxV) < l2 * EQUALITY_TOLERANCE )

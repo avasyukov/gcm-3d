@@ -1,11 +1,11 @@
 <task numberOfSnaps="20" stepsPerSnap="1">
+    <system>
+        <plasticity type="linear" />
+    </system>
 	<bodies>
 		<body id="cube">
 			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.4" />
-			<material id="testPlasticMaterial" plasticity="none" />
-			<!--material id="testPlasticMaterial" plasticity="linear" /-->
-			<!--material id="testPlasticMaterial" plasticity="Mises" /-->
-			<!--material id="testPlasticMaterial" plasticity="PrandtlReiss" /-->
+	    	<material id="testMaterial" />
 		</body>
 	</bodies>
 	<initialState>

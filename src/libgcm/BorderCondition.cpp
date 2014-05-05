@@ -19,7 +19,7 @@ gcm::BorderCondition::~BorderCondition() {
 
 }
 
-void gcm::BorderCondition::doCalc(float time, CalcNode& cur_node, CalcNode& new_node, RheologyMatrix3D& matrix,
+void gcm::BorderCondition::doCalc(float time, CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[], float outer_normal[])
 {
     calc->doCalc(cur_node, new_node, matrix, previousNodes, inner, outer_normal,

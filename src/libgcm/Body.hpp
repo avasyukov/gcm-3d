@@ -48,6 +48,8 @@ namespace gcm {
          * Returns all meshes associated with body.
          */
         Mesh* getMeshes();
+        // FIXME merge with method above
+        const vector<Mesh*>& getMeshesVector();
         /*
          * Returns mesh by id.
          */

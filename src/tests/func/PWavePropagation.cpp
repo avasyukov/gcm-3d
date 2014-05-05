@@ -4,7 +4,7 @@
 #include "tests/func/util.hpp"
 
 #include "libgcm/Exception.hpp"
-#include "libgcm/materials/IsotropicElasticMaterial.hpp"
+#include "libgcm/rheology/Material.hpp"
 #include "libgcm/node/CalcNode.hpp"
 
 /*
@@ -20,9 +20,8 @@ void setPWaveAnalytics(CalcNode& node, float t, Engine& engine)
     float RIGHT_MARK_START = 3.0;
     float WAVE_AMPLITUDE_SCALE = 0.01;
 
-    IsotropicElasticMaterial* mat = dynamic_cast<IsotropicElasticMaterial*> (engine.getMaterial("testMaterial"));
-    ASSERT_TRUE(mat);
-    float la = mat->getLambda();
+    const MaterialPtr& mat = engine.getMaterial("testMaterial");
+    float la = mat->getLa();
     float mu = mat->getMu();
     float rho = mat->getRho();
 
