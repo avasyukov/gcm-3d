@@ -44,7 +44,7 @@ bool gcm::CollisionDetector::find_intersection(AABB &outline1, AABB &outline2, A
     return true;
 }
 
-void gcm::CollisionDetector::find_nodes_in_intersection(TetrMeshSecondOrder* mesh, AABB& intersection, vector<CalcNode>& result)
+void gcm::CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersection, vector<CalcNode>& result)
 {
     for(int i = 0; i < mesh->getNodesNumber(); i++)
     {
@@ -59,7 +59,7 @@ void gcm::CollisionDetector::find_nodes_in_intersection(TetrMeshSecondOrder* mes
     }
 }
 
-void gcm::CollisionDetector::find_nodes_in_intersection(TetrMeshSecondOrder* mesh, AABB& intersection, vector<int>& result)
+void gcm::CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersection, vector<int>& result)
 {
     for(int i = 0; i < mesh->getNodesNumber(); i++)
     {
@@ -71,34 +71,6 @@ void gcm::CollisionDetector::find_nodes_in_intersection(TetrMeshSecondOrder* mes
             if(intersection.isInAABB(node))
                 result.push_back(i);
         }
-    }
-}
-
-void gcm::CollisionDetector::find_faces_in_intersection(TetrMeshSecondOrder* mesh, AABB& intersection, vector<TriangleFirstOrder>& result)
-{
-    for (int i = 0; i < mesh->faceNumber; i++)
-    {
-        int verts = 0;
-        TriangleFirstOrder& tri = mesh->getTriangle(i);
-        for (int j = 0; j < 3; j++)
-            if( ! intersection.isInAABB( mesh->getNode( tri.verts[j] ) ) )
-                verts++;
-        if (verts != 3)
-            result.push_back(tri);
-    }
-}
-
-void gcm::CollisionDetector::find_faces_in_intersection(TetrMeshSecondOrder* mesh, AABB& intersection, vector<int>& result)
-{
-    for (int i = 0; i < mesh->faceNumber; i++)
-    {
-        int verts = 0;
-        TriangleFirstOrder& tri = mesh->getTriangle(i);
-        for (int j = 0; j < 3; j++)
-            if( ! intersection.isInAABB( mesh->getNode( tri.verts[j] ) ) )
-                verts++;
-        if (verts != 3)
-            result.push_back(i);
     }
 }
 

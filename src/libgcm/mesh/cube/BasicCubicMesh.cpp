@@ -187,3 +187,35 @@ bool gcm::BasicCubicMesh::interpolateNode(CalcNode& node)
     // Not implemented
     return false;
 };
+
+bool gcm::BasicCubicMesh::interpolateBorderNode(gcm_real x, gcm_real y, gcm_real z, 
+                                gcm_real dx, gcm_real dy, gcm_real dz, CalcNode& node)
+{
+    int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
+    float coords[3];
+    float tx = coords[0] = x + dx;
+    float ty = coords[1] = y + dy;
+    float tz = coords[2] = z + dz;
+
+    if( outline.isInAABB(tx, ty, tz) != outline.isInAABB(x, y, z) )
+    {
+        // FIXME_ASAP
+        float minH = distance(coords, getNodeByLocalIndex(0).coords);
+        int num = 0;
+        for(int i = 1; i < getNodesNumber(); i++)
+        {
+            CalcNode& node = getNodeByLocalIndex(i);
+            float h = distance(coords, node.coords);
+            if( h < minH )
+            {
+                minH = h;
+                num = i;
+            }
+        }
+        node = getNodeByLocalIndex(num);
+        
+        return true;
+    }
+
+    return false;
+};

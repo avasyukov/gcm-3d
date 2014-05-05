@@ -19,8 +19,6 @@
 using namespace gcm;
 using namespace std;
 
-typedef unordered_map<int, int>::const_iterator MapIter;
-
 namespace gcm
 {
     class CalcNode;
@@ -158,6 +156,9 @@ namespace gcm
                                 CalcNode& targetNode, bool& isInnerPoint);
 
         bool interpolateNode(CalcNode& node);
+		
+        bool interpolateBorderNode(gcm_real x, gcm_real y, gcm_real z, 
+                                gcm_real dx, gcm_real dy, gcm_real dz, CalcNode& node);
     };
 }
 #endif

@@ -1418,7 +1418,7 @@ bool gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& origin, float dx, float 
     return true;
 }
 
-// TODO: rewrite it
+// FIXME_ASAP: rewrite it
 bool gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& node)
 {
     for (int i = 0; i < getTetrsNumber(); i++)
@@ -1432,6 +1432,45 @@ bool gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& node)
                     getNode( t.verts[0] ), getNode( t.verts[1] ),
                     getNode( t.verts[2] ), getNode( t.verts[3] ) );
             return true;
+        }
+    }
+
+    return false;
+}
+
+// FIXME_ASAP: rewrite it
+bool gcm::TetrMeshFirstOrder::interpolateBorderNode(gcm_real x, gcm_real y, gcm_real z, 
+                                gcm_real dx, gcm_real dy, gcm_real dz, CalcNode& node)
+{
+    gcm_real start[3];
+    start[0] = x;
+    start[1] = y;
+    start[2] = z;
+    gcm_real direction[3];
+    gcm_real length;
+    length = vectorNorm(dx, dy, dz);
+    direction[0] = dx / length;
+    direction[1] = dy / length;
+    direction[2] = dz / length;
+
+    for (int i = 0; i < getTriangleNumber(); i++)
+    {
+        TriangleFirstOrder& face = getTriangle(i);
+        CalcNode& n1 = getNode(face.verts[0]);
+        CalcNode& n2 = getNode(face.verts[1]);
+        CalcNode& n3 = getNode(face.verts[2]);
+        // FIXME_ASAP - ugly WA 
+        node = n1;
+        
+        if(vectorIntersectsTriangle( n1.coords, n2.coords, n3.coords,
+                                     start, direction, length, node.coords, false))
+        {
+                interpolateTriangle( n1.coords, n2.coords, n3.coords, node.coords,
+                                     n1.values, n2.values, n3.values, node.values, 9);
+                node.setRho((getNode(face.verts[0])).getRho());
+                node.setMaterialId((getNode(face.verts[0])).getMaterialId());
+
+                return true;
         }
     }
 
