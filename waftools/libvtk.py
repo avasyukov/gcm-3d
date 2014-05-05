@@ -12,16 +12,15 @@ def configure(conf):
     conf.check_linux()
 
     conf.env.INCLUDES_LIBVTK = [
-        '/usr/include/vtk',
+        '/usr/include/vtk-5.8'
     ]
 
     conf.env.LIBPATH_LIBVTK = [
         '/usr/lib',
-        '/usr/lib64',
-        '/usr/lib64/vtk',
+        '/usr/lib/vtk-5.8'
     ]
 
-    include_path = '/usr/include'
+    include_path = '/usr/include/vtk-5.8'
     for d in os.listdir(include_path):
         full_path = include_path + '/' + d
         if os.path.isdir(full_path):
@@ -29,8 +28,8 @@ def configure(conf):
                 conf.env.INCLUDES_LIBVTK += [full_path]
     
     lib_path = [
-        '/usr/lib64/',
-        '/usr/lib'
+        '/usr/lib',
+        '/usr/lib/vtk-5.8'
     ]
     for l in  lib_path:
         for d in os.listdir(l):

@@ -15,7 +15,9 @@ def configure(conf):
 
     conf.env.LIBPATH_LIBXML2 = [
         '/usr/lib',
-        '/usr/lib64'
+        '/usr/lib64',	
+        '/usr/lib/x86_64-linux-gnu'
+
     ]
 
     LIBS = [
