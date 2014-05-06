@@ -75,12 +75,12 @@ TEST(IsotropicMatrix3D, FuzzyElasticVelocities)
                 break;
             }
 
-            ASSERT_NEAR( isotropicMatrix->getMaxEigenvalue(), pVel, EQUALITY_TOLERANCE );
+            ASSERT_NEAR( isotropicMatrix->getMaxEigenvalue(), pVel, pVel * EQUALITY_TOLERANCE );
             for(int j = 0; j < 9; j++)
             {
                 gcm_real v = fabs(isotropicMatrix->getL(j,j));
-                ASSERT_TRUE( ( fabs(v - pVel) < EQUALITY_TOLERANCE )
-                                || ( fabs(v - sVel) < EQUALITY_TOLERANCE )
+                ASSERT_TRUE( ( fabs(v - pVel) < pVel * EQUALITY_TOLERANCE )
+                                || ( fabs(v - sVel) < sVel * EQUALITY_TOLERANCE )
                                 || ( fabs(v - 0) < EQUALITY_TOLERANCE ) );
             }
         }
