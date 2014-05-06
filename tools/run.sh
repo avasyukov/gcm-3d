@@ -19,6 +19,6 @@ if [[ -z $task ]]; then
     task=$@;
 fi
 
-rm -R *vtu
+rm -R *vtu *vts
 echo -e "Complete command:\n\ttime mpirun -np 1 ./build/optimize/gcm3d --data-dir . --task $task"
 time mpirun -np 1 ./build/optimize/gcm3d --data-dir . --task $task
