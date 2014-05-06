@@ -1,4 +1,4 @@
-#include "libgcm/rheology/setters/PrandtlReissPlasticityRheologyMatrixSetter.hpp"
+#include "libgcm/rheology/setters/PrandtlRaussPlasticityRheologyMatrixSetter.hpp"
 #include "libgcm/Exception.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
 #include "libgcm/util/Types.hpp"
@@ -7,23 +7,23 @@
 
 using namespace gcm;
 
-void PrandtlReissPlasticityRheologyMatrixSetter::getPlasticityProps(MaterialPtr material, float& yieldStrength)
+void PrandtlRaussPlasticityRheologyMatrixSetter::getPlasticityProps(MaterialPtr material, float& yieldStrength)
 {
     auto props = material->getPlasticityProperties();
-    yieldStrength = props[PLASTICITY_TYPE_PRANDTL_REISS][PLASTICITY_PROP_YIELD_STRENGTH];
+    yieldStrength = props[PLASTICITY_TYPE_PRANDTL_RAUSS][PLASTICITY_PROP_YIELD_STRENGTH];
 }
 
-unsigned int PrandtlReissPlasticityRheologyMatrixSetter::getNumberOfStates() const
+unsigned int PrandtlRaussPlasticityRheologyMatrixSetter::getNumberOfStates() const
 {
     return 0;
 }
 
-unsigned int PrandtlReissPlasticityRheologyMatrixSetter::getStateForNode(const ICalcNode& node) const
+unsigned int PrandtlRaussPlasticityRheologyMatrixSetter::getStateForNode(const ICalcNode& node) const
 {
     return 0;
 };
 
-void PrandtlReissPlasticityRheologyMatrixSetter::computeQ(const MaterialPtr& material, const ICalcNode& node)
+void PrandtlRaussPlasticityRheologyMatrixSetter::computeQ(const MaterialPtr& material, const ICalcNode& node)
 {
     float yieldStrength;
     getPlasticityProps(material, yieldStrength);
@@ -52,7 +52,7 @@ void PrandtlReissPlasticityRheologyMatrixSetter::computeQ(const MaterialPtr& mat
 	
 };
 
-void PrandtlReissPlasticityRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
+void PrandtlRaussPlasticityRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
 	a.clear();
 	
@@ -72,7 +72,7 @@ void PrandtlReissPlasticityRheologyMatrixSetter::setX(gcm_matrix& a, const Mater
 	a(8, 0) = -q[2][2][0][0];	a(8, 1) = -(q[2][2][0][1] + q[2][2][1][0])/2.0;	a(8, 2) = -(q[2][2][0][2] + q[2][2][2][0])/2.0;	
 };
 
-void PrandtlReissPlasticityRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
+void PrandtlRaussPlasticityRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
 	a.clear();
 	
@@ -92,7 +92,7 @@ void PrandtlReissPlasticityRheologyMatrixSetter::setY(gcm_matrix& a, const Mater
 	a(8, 0) = -(q[2][2][0][1] + q[2][2][1][0])/2.0;	a(8, 1) = -q[2][2][1][1];	a(8, 2) = -(q[2][2][1][2] + q[2][2][2][1])/2.0;
 };
 
-void PrandtlReissPlasticityRheologyMatrixSetter::setZ(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
+void PrandtlRaussPlasticityRheologyMatrixSetter::setZ(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
 	a.clear();
 	

@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include "libgcm/rheology/Material.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
-#include "libgcm/rheology/setters/PrandtlReissPlasticityRheologyMatrixSetter.hpp"
+#include "libgcm/rheology/setters/PrandtlRaussPlasticityRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/setters/IsotropicRheologyMatrixSetter.hpp"
 #include "libgcm/node/CalcNode.hpp"
 
@@ -11,7 +11,7 @@
 
 using namespace gcm;
 
-TEST(Plasticity, PrandtlReissElasticTransition)
+TEST(Plasticity, PrandtlRaussElasticTransition)
 {
     srand(time(NULL));
 
@@ -25,13 +25,13 @@ TEST(Plasticity, PrandtlReissElasticTransition)
         gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
         
         Material::PlasticityProperties props;
-        props[PLASTICITY_TYPE_PRANDTL_REISS][PLASTICITY_PROP_YIELD_STRENGTH] = numeric_limits<gcm_real>::infinity();
+        props[PLASTICITY_TYPE_PRANDTL_RAUSS][PLASTICITY_PROP_YIELD_STRENGTH] = numeric_limits<gcm_real>::infinity();
 
         auto mat = makeMaterialPtr("material", rho, crackThreshold, la, mu, props);
 	
 	    gcm_matrix a1, a2;
 		IsotropicRheologyMatrixSetter elasticSetter;
-		PrandtlReissPlasticityRheologyMatrixSetter plasticSetter;
+		PrandtlRaussPlasticityRheologyMatrixSetter plasticSetter;
 		CalcNode node;
 		
 		node.setRho(rho);

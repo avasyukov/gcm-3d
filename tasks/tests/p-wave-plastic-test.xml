@@ -1,6 +1,6 @@
 <task numberOfSnaps="20" stepsPerSnap="1">
     <system>
-        <plasticity type="PrandtlReiss" />
+        <plasticity type="PrandtlRauss" />
     </system>
 	<bodies>
 		<body id="cube">

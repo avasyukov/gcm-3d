@@ -6,7 +6,7 @@
 
 namespace gcm
 {
-        class PrandtlReissPlasticityRheologyMatrixSetter: public ISetter
+        class PrandtlRaussPlasticityRheologyMatrixSetter: public ISetter
         {
             protected:
 				float q[3][3][3][3];

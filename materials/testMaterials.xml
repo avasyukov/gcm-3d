@@ -5,7 +5,7 @@
             <mu>10000</mu>
             <rho>1</rho>
             <crackThreshold>INF</crackThreshold>
-			<plasticity type="PrandtlReiss">
+			<plasticity type="PrandtlRauss">
 				<yieldStrength>30000</yieldStrength>
 			</plasticity>
         </material>
@@ -15,7 +15,7 @@
             <mu>77000</mu>
             <rho>8</rho>
             <crackThreshold>INF</crackThreshold>
-			<plasticity type="PrandtlReiss">
+			<plasticity type="PrandtlRauss">
 				<yieldStrength>300</yieldStrength>
 			</plasticity>
         </material>
