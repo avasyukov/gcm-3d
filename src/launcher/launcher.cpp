@@ -26,7 +26,7 @@
 
 #include "libgcm/rheology/setters/IsotropicRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/setters/AnisotropicRheologyMatrixSetter.hpp"
-#include "libgcm/rheology/setters/LinearPlasticityRheologyMatrixSetter.hpp"
+#include "libgcm/rheology/setters/PrandtlReissPlasticityRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/decomposers/IsotropicRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
@@ -677,9 +677,9 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
                 decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
             }
-            else if (plasticityType == PLASTICITY_TYPE_LINEAR)
+            else if (plasticityType == PLASTICITY_TYPE_PRANDTL_REISS)
             {
-                setter = makeSetterPtr<LinearPlasticityRheologyMatrixSetter>();
+                setter = makeSetterPtr<PrandtlReissPlasticityRheologyMatrixSetter>();
                 decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
             }
             else

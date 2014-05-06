@@ -6,8 +6,7 @@
 namespace gcm
 {
     const std::string PLASTICITY_TYPE_NONE = "none";
-    const std::string PLASTICITY_TYPE_LINEAR = "linear";
-    const std::string PLASTICITY_PROP_YIELD_LIMIT = "yieldLimit";
-    const std::string PLASTICITY_PROP_NORM_E = "normE";
+    const std::string PLASTICITY_TYPE_PRANDTL_REISS = "PrandtlReiss";
+    const std::string PLASTICITY_PROP_YIELD_STRENGTH = "yieldStrength";
 }
 #endif /* PLASTICITY_HPP */

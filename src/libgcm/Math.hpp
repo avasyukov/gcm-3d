@@ -578,6 +578,11 @@ inline void shiftArrayLeft( int* arr, int n )
     arr[n-1] = a0;
 };
 
+inline int delta(int i, int j)
+{
+	return 1 ? i == j : 0;	
+};
+
 template <typename T>
 int sgn(T val) {
     return (T(0) < val) - (val < T(0));
