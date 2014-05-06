@@ -1,21 +1,17 @@
-#ifndef LINEARPLASTICITYRHEOLOGYMATRIXSETTER_HPP
-#define LINEARPLASTICITYRHEOLOGYMATRIXSETTER_HPP
+#ifndef PRANDTLREISSPLASTICITYRHEOLOGYMATRIXSETTER_HPP
+#define PRANDTLREISSPLASTICITYRHEOLOGYMATRIXSETTER_HPP
 
 #include "libgcm/rheology/setters/ISetter.hpp"
+#include "libgcm/Math.hpp"
 
 namespace gcm
 {
-        class LinearPlasticityRheologyMatrixSetter: public ISetter
+        class PrandtlRaussPlasticityRheologyMatrixSetter: public ISetter
         {
             protected:
-                /**
-                 * Yield limit.
-                 */
-                float yieldLimit;
-                /**
-                 * TODO document
-                 */
-                float normE;
+				float q[3][3][3][3];
+				void computeQ(const MaterialPtr& material, const ICalcNode& node);
+            
                 /**
                  * Extracts plasticity parameters
                  *
@@ -23,7 +19,7 @@ namespace gcm
                  * @param yieldLimit Yield limit
                  * @param normE TODO document
                  */
-                void getPlasticityProps(MaterialPtr material, float& yieldLimit, float& normE);
+                void getPlasticityProps(MaterialPtr material, float& yieldStrength);
             public:
                 /**
                  * Returns number of matrix states after decompositions. This method is supposed to be used to
@@ -66,4 +62,4 @@ namespace gcm
                 void setZ(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node) override;
         };
 }
-#endif /* LINEARPLASTICITYRHEOLOGYMATRIXSETTER_HPP */
+#endif /* PRANDLREISSPLASTICITYRHEOLOGYMATRIXSETTER_HPP */

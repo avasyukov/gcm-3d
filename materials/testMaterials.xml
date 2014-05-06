@@ -5,18 +5,21 @@
             <mu>10000</mu>
             <rho>1</rho>
             <crackThreshold>INF</crackThreshold>
-			<plasticity type="PrandtlReiss">
-				<yieldLimit>30000</yieldLimit>
-			</plasticity>
-			<plasticity type="Mises">
-				<yieldLimit>30000</yieldLimit>
-			</plasticity>
-			<plasticity type="linear">
-				<yieldLimit>30000</yieldLimit>
-				<normE>0.1</normE>
+			<plasticity type="PrandtlRauss">
+				<yieldStrength>30000</yieldStrength>
 			</plasticity>
         </material>
 
+        <material name="steel" rheology="isotropic">
+            <la>115000</la>
+            <mu>77000</mu>
+            <rho>8</rho>
+            <crackThreshold>INF</crackThreshold>
+			<plasticity type="PrandtlRauss">
+				<yieldStrength>300</yieldStrength>
+			</plasticity>
+        </material>
+        
 		<material name="testAnisotropicMaterial" rheology="anisotropic">
 			<c11>90000</c11>
 			<c12>70000</c12>
