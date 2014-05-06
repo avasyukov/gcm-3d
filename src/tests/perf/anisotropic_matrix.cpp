@@ -53,9 +53,11 @@ int main()
     NumericalRheologyMatrixDecomposer numericalDecomposer;
     AnalyticalRheologyMatrixDecomposer analyticalDecomposer;
 
-    setter.setX(ax, mat);
-    setter.setY(ay, mat);
-    setter.setZ(az, mat);
+    CalcNode node;
+
+    setter.setX(ax, mat, node);
+    setter.setY(ay, mat, node);
+    setter.setZ(az, mat, node);
 
 
     auto t1 = measure_time(

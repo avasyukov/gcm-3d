@@ -27,22 +27,25 @@ namespace gcm
                  *
                  * @param a Matrix to fill
                  * @param material Material to use
+                 * @param node Node to set matrix at
                  */
-                void setX(gcm_matrix& a, const MaterialPtr& material) override;
+                void setX(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node) override;
                 /**
                  * Fills matrix \f$A_y\f$ using specified material parameters.
                  *
                  * @param a Matrix to fill
                  * @param material Material to use
+                 * @param node Node to set matrix at
                  */
-                void setY(gcm_matrix& a, const MaterialPtr& material) override;
+                void setY(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node) override;
                 /**
                  * Fills matrix \f$A_z\f$ using specified material parameters.
                  *
                  * @param a Matrix to fill
                  * @param material Material to use
+                 * @param node Node to set matrix at
                  */
-                void setZ(gcm_matrix& a, const MaterialPtr& material) override;
+                void setZ(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node) override;
         };
 }
 #endif /* ISOTROPICRHEOLOGYMATRIXSETTER_HPP */

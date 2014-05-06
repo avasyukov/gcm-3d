@@ -40,22 +40,25 @@ namespace gcm
              *
              * @param a Matrix to fill
              * @param material Material to use
+             * @param node Node to set matrix at
              */
-            virtual void setX(gcm_matrix& a, const MaterialPtr& material) = 0;
+            virtual void setX(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node) = 0;
             /**
              * Fills matrix \f$A_y\f$ using specified material parameters.
              *
              * @param a Matrix to fill
              * @param material Material to use
+             * @param node Node to set matrix at
              */
-            virtual void setY(gcm_matrix& a, const MaterialPtr& material) = 0;
+            virtual void setY(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node) = 0;
             /**
              * Fills matrix \f$A_z\f$ using specified material parameters.
              *
              * @param a Matrix to fill
              * @param material Material to use
+             * @param node Node to set matrix at
              */
-            virtual void setZ(gcm_matrix& a, const MaterialPtr& material) = 0;
+            virtual void setZ(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node) = 0;
 
     };
 

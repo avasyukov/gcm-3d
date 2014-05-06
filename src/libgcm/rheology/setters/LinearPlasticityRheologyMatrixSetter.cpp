@@ -21,7 +21,7 @@ unsigned int LinearPlasticityRheologyMatrixSetter::getStateForNode(const ICalcNo
     return 0;
 }
 
-void LinearPlasticityRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr& material)
+void LinearPlasticityRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
     float yieldLimit, normE;
     getPlasticityProps(material, yieldLimit, normE);
@@ -29,7 +29,7 @@ void LinearPlasticityRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr
     THROW_UNSUPPORTED("Not implemented");
 }
 
-void LinearPlasticityRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr& material)
+void LinearPlasticityRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
     float yieldLimit, normE;
     getPlasticityProps(material, yieldLimit, normE);
@@ -37,7 +37,7 @@ void LinearPlasticityRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr
     THROW_UNSUPPORTED("Not implemented");
 }
 
-void LinearPlasticityRheologyMatrixSetter::setZ(gcm_matrix& a, const MaterialPtr& material)
+void LinearPlasticityRheologyMatrixSetter::setZ(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
     float yieldLimit, normE;
     getPlasticityProps(material, yieldLimit, normE);
