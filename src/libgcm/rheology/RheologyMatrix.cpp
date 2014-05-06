@@ -134,9 +134,9 @@ void RheologyMatrix::decompose(const ICalcNode& node, unsigned int direction)
     {
         switch(direction)
         {
-            case 0: setter->setX(matrices[0].a[s], material); break;
-            case 1: setter->setY(matrices[1].a[s], material); break;
-            case 2: setter->setZ(matrices[2].a[s], material); break;
+            case 0: setter->setX(matrices[0].a[s], material, node); break;
+            case 1: setter->setY(matrices[1].a[s], material, node); break;
+            case 2: setter->setZ(matrices[2].a[s], material, node); break;
 
         }
         switch (direction)
