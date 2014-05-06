@@ -11,7 +11,7 @@ unsigned int IsotropicRheologyMatrixSetter::getStateForNode(const ICalcNode& nod
     return 0;
 }
 
-void IsotropicRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr& material)
+void IsotropicRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
     a.clear();
     
@@ -29,7 +29,7 @@ void IsotropicRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr& mater
     a(8, 0) = -la;
 }
 
-void IsotropicRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr& material)
+void IsotropicRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
     a.clear();
     
@@ -47,7 +47,7 @@ void IsotropicRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr& mater
     a(8, 1) = -la;
 }
 
-void IsotropicRheologyMatrixSetter::setZ(gcm_matrix& a, const MaterialPtr& material)
+void IsotropicRheologyMatrixSetter::setZ(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
     a.clear();
     

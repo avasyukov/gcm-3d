@@ -12,7 +12,7 @@ unsigned int AnisotropicRheologyMatrixSetter::getStateForNode(const ICalcNode& n
     return 0;
 }
 
-void AnisotropicRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr& material)
+void AnisotropicRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
     a.clear();
 
@@ -29,7 +29,7 @@ void AnisotropicRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr& mat
 	a(8,0) = -p.c13;	a(8,1) = -p.c36;	a(8,2) = -p.c35;
 }
 
-void AnisotropicRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr& material)
+void AnisotropicRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
     a.clear();
 
@@ -46,7 +46,7 @@ void AnisotropicRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr& mat
 	a(8,0) = -p.c36;	a(8,1) = -p.c23;	a(8,2) = -p.c34;
 }
 
-void AnisotropicRheologyMatrixSetter::setZ(gcm_matrix& a, const MaterialPtr& material)
+void AnisotropicRheologyMatrixSetter::setZ(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
 {
     a.clear();
 
