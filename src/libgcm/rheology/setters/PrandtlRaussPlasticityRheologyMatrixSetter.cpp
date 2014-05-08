@@ -42,7 +42,7 @@ void PrandtlRaussPlasticityRheologyMatrixSetter::computeQ(const MaterialPtr& mat
 		return node.stress[m + _i + _j];
 	};
 
-	int I = ((S(0, 0)*S(0, 0) + S(1, 1)*S(1, 1) + S(2, 2)*S(2, 2) + 2 * (S(0, 1)*S(0, 1) + S(1, 2)*S(1, 2) + S(0, 2)*S(0, 2))) / (2 * yieldStrength * yieldStrength)) >= 1.0 ? 1 : 0;
+	int I = (((S(0, 0) - S(1, 1))*(S(0, 0) - S(1, 1)) + (S(1, 1) - S(2, 2))*(S(1, 1) - S(2, 2)) + (S(0, 0) - S(2, 2))*(S(0, 0) - S(2, 2)) + S(0, 1)*S(0, 1) + S(1, 2)*S(1, 2) + S(0, 2)*S(0, 2)) / (6 * yieldStrength * yieldStrength)) >= 1.0 ? 1 : 0;
 	
 	for(int i = 0; i < 3; i++)
 		for(int j = 0; j < 3; j++)
@@ -70,6 +70,7 @@ void PrandtlRaussPlasticityRheologyMatrixSetter::setX(gcm_matrix& a, const Mater
 	a(6, 0) = -q[1][1][0][0];	a(6, 1) = -(q[1][1][0][1] + q[1][1][1][0])/2.0;	a(6, 2) = -(q[1][1][0][2] + q[1][1][2][0])/2.0;
 	a(7, 0) = -q[1][2][0][0];	a(7, 1) = -(q[1][2][0][1] + q[1][2][1][0])/2.0;	a(7, 2) = -(q[1][2][0][2] + q[1][2][2][0])/2.0;
 	a(8, 0) = -q[2][2][0][0];	a(8, 1) = -(q[2][2][0][1] + q[2][2][1][0])/2.0;	a(8, 2) = -(q[2][2][0][2] + q[2][2][2][0])/2.0;	
+
 };
 
 void PrandtlRaussPlasticityRheologyMatrixSetter::setY(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
@@ -90,6 +91,7 @@ void PrandtlRaussPlasticityRheologyMatrixSetter::setY(gcm_matrix& a, const Mater
 	a(6, 0) = -(q[1][1][0][1] + q[1][1][1][0])/2.0;	a(6, 1) = -q[1][1][1][1];	a(6, 2) = -(q[1][1][1][2] + q[1][1][2][1])/2.0;
 	a(7, 0) = -(q[1][2][0][1] + q[1][2][1][0])/2.0;	a(7, 1) = -q[1][2][1][1];	a(7, 2) = -(q[1][2][1][2] + q[1][2][2][1])/2.0;
 	a(8, 0) = -(q[2][2][0][1] + q[2][2][1][0])/2.0;	a(8, 1) = -q[2][2][1][1];	a(8, 2) = -(q[2][2][1][2] + q[2][2][2][1])/2.0;
+	
 };
 
 void PrandtlRaussPlasticityRheologyMatrixSetter::setZ(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
@@ -110,4 +112,5 @@ void PrandtlRaussPlasticityRheologyMatrixSetter::setZ(gcm_matrix& a, const Mater
 	a(6, 0) = -(q[1][1][0][2] + q[1][1][2][0])/2.0;	a(6, 1) = -(q[1][1][1][2] + q[1][1][2][1])/2.0;	a(6, 2) = -q[1][1][2][2];
 	a(7, 0) = -(q[1][2][0][2] + q[1][2][2][0])/2.0;	a(7, 1) = -(q[1][2][1][2] + q[1][2][2][1])/2.0;	a(7, 2) = -q[1][2][2][2];
 	a(8, 0) = -(q[2][2][0][2] + q[2][2][2][0])/2.0;	a(8, 1) = -(q[2][2][1][2] + q[2][2][2][1])/2.0;	a(8, 2) = -q[2][2][2][2];
+	
 };
