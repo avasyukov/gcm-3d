@@ -12,7 +12,7 @@
 		</body>
 	</bodies>
 	<materials>
-		<material name="rotated" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+		<material name="rotated" rheology="anisotropic" source="testAnisotropicMaterial">
 			<rotate a1="0" a2="90" a3="0"/>
 		</material>
 	</materials>

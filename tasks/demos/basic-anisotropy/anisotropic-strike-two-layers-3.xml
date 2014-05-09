@@ -19,7 +19,7 @@
 		</body>
 	</bodies>
 	<materials>
-		<material name="testAnisotropicMaterial" rheology="AnisotropicElastic">
+		<material name="testAnisotropicMaterial" rheology="anisotropic">
 			<c11>90000</c11>
 			<c12>70000</c12>
 			<c13>17500</c13>
@@ -44,10 +44,10 @@
 			<rho>1</rho>
 			<crackThreshold>INF</crackThreshold>
 		</material>
-		<material name="layer1_mat" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+		<material name="layer1_mat" rheology="anisotropic" source="testAnisotropicMaterial">
 			<rotate a1="0" a2="0" a3="0"/>
 		</material>
-		<material name="layer2_mat" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+		<material name="layer2_mat" rheology="anisotropic" source="testAnisotropicMaterial">
 			<rotate a1="90" a2="0" a3="0"/>
 		</material>
 	</materials>
