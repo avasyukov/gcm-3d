@@ -19,6 +19,8 @@ namespace launcher {
 		Area* readBoxArea(xml::Node areaNode);
 		Area* readArea(xml::Node areaNode);
 
+        std::vector<int> usedMaterialsIds;
+
         USE_LOGGER;
     public:
         Launcher();
