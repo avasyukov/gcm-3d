@@ -10,7 +10,7 @@
 		</body>
 	</bodies>
 	<materials>
-		<material name="subpacket" rheology="IsotropicElastic">
+		<material name="subpacket" rheology="isotropic">
 			<la>1440000000</la>
 			<mu>960000000</mu>
 			<rho>0.00125</rho>

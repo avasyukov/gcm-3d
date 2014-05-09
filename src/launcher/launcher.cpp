@@ -515,16 +515,19 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             Mesh* mesh = body->getMeshes();
 
             NodeList areaNodes = matNode.getChildrenByName("area");
+            int matId = engine.getMaterialIndex(id);
+            usedMaterialsIds.push_back(matId);
+            
             if (areaNodes.size() == 0)
             {
-                mesh->setRheology( engine.getMaterialIndex(id) );
+                mesh->setRheology( matId );
             }
             else if (areaNodes.size() == 1)
             {
                 Area* matArea = readArea(areaNodes.front());
                 if(matArea == NULL)
                     THROW_INVALID_INPUT("Can not read area");
-                mesh->setRheology( engine.getMaterialIndex(id), matArea );
+                mesh->setRheology( matId, matArea );
             }
             else
             {
@@ -666,17 +669,28 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     {
         MaterialPtr material = engine.getMaterial(i);
         
+        bool materialUsedInTask = (std::find(usedMaterialsIds.begin(), usedMaterialsIds.end(), i) != usedMaterialsIds.end());
+        
+        auto props = material->getPlasticityProperties();
+        bool plasticityPropsPresent = (props[plasticityType].size() != 0);
+        
         SetterPtr setter;
         DecomposerPtr decomposer;
         RheologyMatrixPtr matrix;
 
         if (material->isIsotropic())
         {
+            if(materialUsedInTask)
+            {
+                LOG_INFO("Using \"" << plasticityType << "\" plasticity model for isotropic material \"" << material->getName() << "\".");
+                if( !plasticityPropsPresent )
+                    THROW_UNSUPPORTED("Required plasticity properties were not found.");
+            }
+            
             if (plasticityType == PLASTICITY_TYPE_NONE)
             {
                 setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
                 decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
-                LOG_INFO(plasticityType + " plasticity model for isotropic material is used.");
             }
             else if (plasticityType == PLASTICITY_TYPE_PRANDTL_RAUSS)
             {
@@ -689,7 +703,12 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             }
         } else 
         {
-            LOG_WARN("Plasticity is not supported for anisotropic materials, using elastic instead.");
+            if(materialUsedInTask)
+            {
+                LOG_INFO("Using \"" << plasticityType << "\" plasticity model for anisotropic material \"" << material->getName() << "\".");
+                if (plasticityType != PLASTICITY_TYPE_NONE)
+                    LOG_WARN("Plasticity is not supported for anisotropic materials, using elastic instead.");
+            }
             setter = makeSetterPtr<AnisotropicRheologyMatrixSetter>();
             decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
         }

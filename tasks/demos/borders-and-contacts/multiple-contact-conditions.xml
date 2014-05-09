@@ -24,13 +24,13 @@
 		</body>
 	</bodies>
 	<materials>
-		<material name="steel" rheology="IsotropicElastic">
+		<material name="steel" rheology="isotropic">
 			<la>99430000000</la>
 			<mu>78130000000</mu>
 			<rho>0.0078</rho>
 			<crackThreshold>INF</crackThreshold>
 		</material>
-		<material name="subpacket" rheology="IsotropicElastic">
+		<material name="subpacket" rheology="isotropic">
 			<la>1440000000</la>
 			<mu>960000000</mu>
 			<rho>0.00125</rho>

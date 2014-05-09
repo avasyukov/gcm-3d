@@ -145,7 +145,7 @@ Material::Material(string name, gcm_real rho, gcm_real crackThreshold, RheologyP
 {
 }
         
-Material::Material(const shared_ptr<Material>& source, string name, double a1, double a2, double a3): Material(source->name, source->rho, source->crackThreshold, source->rheologyProps, source->plasticityProps)
+Material::Material(const shared_ptr<Material>& source, string name, double a1, double a2, double a3): Material(name, source->rho, source->crackThreshold, source->rheologyProps, source->plasticityProps)
 {
     rheologyProps.rotate(a1, a2, a3);
 }

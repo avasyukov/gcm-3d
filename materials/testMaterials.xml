@@ -5,9 +5,6 @@
             <mu>10000</mu>
             <rho>1</rho>
             <crackThreshold>INF</crackThreshold>
-			<plasticity type="PrandtlRauss">
-				<yieldStrength>30000</yieldStrength>
-			</plasticity>
         </material>
 
         <material name="steel" rheology="isotropic">
@@ -44,8 +41,5 @@
 			<c66>10000</c66>
 			<rho>1</rho>
 			<crackThreshold>INF</crackThreshold>
-            <plasticity type="unknown">
-                <param>0.1</param>
-            </plasticity>
 		</material>
 </materials>
