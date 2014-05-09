@@ -40,6 +40,7 @@ MaterialPtr launcher::MaterialLoader::loadAnisotropic(const xml::Node& desc, Mat
     {
         string source = desc["source"];
         auto& m = Engine::getInstance().getMaterial(source);
+        LOG_DEBUG("Creating material \"" << name << "\" from \"" << m->getName() << "\" using rotation" );
     
         xml::Node rotate = desc.getChildByName("rotate");
 
