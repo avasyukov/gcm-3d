@@ -672,7 +672,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         bool materialUsedInTask = (std::find(usedMaterialsIds.begin(), usedMaterialsIds.end(), i) != usedMaterialsIds.end());
         
         auto props = material->getPlasticityProperties();
-        bool plasticityPropsPresent = (props[plasticityType].size() != 0);
+        bool plasticityPropsPresent = ( (props[plasticityType].size() != 0) 
+                                        || (plasticityType == PLASTICITY_TYPE_NONE) );
         
         SetterPtr setter;
         DecomposerPtr decomposer;
