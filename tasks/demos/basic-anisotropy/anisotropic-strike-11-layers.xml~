@@ -40,6 +40,7 @@
 			<material id="layer11">
 				<area type="box" minX="3.99" maxX="5.01" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
 			</material>
+			<transform type="scale" x0="0" scaleX="1" y0="0" scaleY="50" z0="0" scaleZ="50" />
 		</body>
 	</bodies>
 	<materials>
@@ -103,7 +104,7 @@
 		</material>
 	</materials>
 	<initialState>
-		<area type="box" minX="-7" maxX="-5.9" minY="-1" maxY="1" minZ="-1" maxZ="1"/>
-		<values vz="30" />
+		<area type="box" minX="-7" maxX="-5.9" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+		<values vx="30" />
 	</initialState>
 </task>
