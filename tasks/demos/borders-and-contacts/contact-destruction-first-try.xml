@@ -1,0 +1,49 @@
+<task numberOfSnaps="15" stepsPerSnap="10">
+	<system>
+		<defaultContactCalculator type="AdhesionContactDestroyCalculator" adhesionThreshold="42000000" />
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+		 <body id="F135_sph0">
+			<rheology type="elastic" />
+			<mesh id="F135_sph0" type="geo2" file="models/cd_sphere.geo" tetrSize="0.4" />
+			<material id="steel" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="3.51" />
+		</body>
+		<body id="F135_plate_down">
+			<rheology type="elastic" />
+			<mesh id="F135_plate_down" type="geo2" file="models/cd_cover.geo" tetrSize="0.5" />
+			<material id="subpacket" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-4.02" />
+		</body>
+		<body id="F135_plate_up">
+			<rheology type="elastic" />
+			<mesh id="F135_plate_up" type="geo2" file="models/cd_cover.geo" tetrSize="0.5" />
+			<material id="subpacket" />
+		</body>
+		<body id="F135_plate_mid">
+			<rheology type="elastic" />
+			<mesh id="F135_plate_mid" type="geo2" file="models/cd_cover.geo" tetrSize="0.5" />
+			<material id="subpacket" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-2.01" />
+		</body>
+	</bodies>
+	<materials>
+		<material name="steel" rheology="isotropic">
+			<la>99430000000</la>
+			<mu>78130000000</mu>
+			<rho>0.0078</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+		<material name="subpacket" rheology="isotropic">
+			<la>1440000000</la>
+			<mu>960000000</mu>
+			<rho>0.00125</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="2.002" maxZ="100"/>
+		<values vz="-3090000"/>
+	</initialState>
+</task>

@@ -1,0 +1,25 @@
+<task numberOfSnaps="1" stepsPerSnap="1">
+	<system>
+		<defaultContactCalculator type="AdhesionContactCalculator" />
+		<meshMovement type="none" />
+		<contactThreshold measure="abs" value="0.1"/>
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="cube" type="cube" h="0.2" num="50" />
+			<material id="testMaterial" />
+			<transform type="translate" moveX="-5" moveY="-5" moveZ="-5" />
+		</body>
+		<body id="cube2">
+			<rheology type="elastic" />
+			<mesh id="cube2" type="cube" h="0.2" num="50" />
+			<material id="testMaterial" />
+			<transform type="translate" moveX="5.01" moveY="-5" moveZ="-5" />
+		</body>
+	</bodies>
+	<initialState>
+		<area type="box" minX="6" maxX="8" minY="-10" maxY="10" minZ="-10" maxZ="10"/>
+		<values vx="300" sxx="90000" syy="70000" szz="70000" />
+	</initialState>
+</task>

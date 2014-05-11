@@ -5,6 +5,7 @@
 
 #include "launcher/util/xml.hpp"
 #include "libgcm/Logging.hpp"
+#include "libgcm/util/areas/Area.hpp"
 
 using namespace std;
 
@@ -13,6 +14,12 @@ namespace launcher {
     {
     private:
         void loadMaterialsFromXml(xml::NodeList matNodes);
+		Area* readCylinderArea(xml::Node areaNode);
+		Area* readSphereArea(xml::Node areaNode);
+		Area* readBoxArea(xml::Node areaNode);
+		Area* readArea(xml::Node areaNode);
+
+        std::vector<int> usedMaterialsIds;
 
         USE_LOGGER;
     public:

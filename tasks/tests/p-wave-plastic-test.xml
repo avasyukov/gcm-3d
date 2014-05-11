@@ -1,15 +1,17 @@
-<task numberOfSnaps="20" stepsPerSnap="1">
+<task numberOfSnaps="5" stepsPerSnap="1">
+    <system>
+        <meshMovement type="none" />
+        <plasticity type="PrandtlRauss" />
+	<!--plasticity type="none" /-->
+    </system>
 	<bodies>
 		<body id="cube">
 			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.4" />
-			<material id="testPlasticMaterial" plasticity="none" />
-			<!--material id="testPlasticMaterial" plasticity="linear" /-->
-			<!--material id="testPlasticMaterial" plasticity="Mises" /-->
-			<!--material id="testPlasticMaterial" plasticity="PrandtlReiss" /-->
+	    	<material id="steel" />
 		</body>
 	</bodies>
 	<initialState>
 		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
-		<values vz="3" sxx="700" syy="700" szz="900" />
+		<values vz="0.366" sxx="230" syy="230" szz="540" />
 	</initialState>
 </task>

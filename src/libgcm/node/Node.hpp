@@ -44,6 +44,10 @@ namespace gcm {
          */
         Node();
         /**
+         * Copy constructor
+         */
+        Node(const Node& src);
+        /**
          * Constructor. Creates node with specified number assigned.
          *
          * @param num Number of the node

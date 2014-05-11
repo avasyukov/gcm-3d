@@ -3,9 +3,9 @@
 
 #include <unordered_map>
 #include <string>
+#include <algorithm>
 
 #include "libgcm/util/AABB.hpp"
-#include "libgcm/util/RheologyMatrix3D.hpp"
 #include "libgcm/util/areas/Area.hpp"
 #include "libgcm/Interfaces.hpp"
 #include "libgcm/node/Node.hpp"
@@ -15,6 +15,8 @@
 
 using namespace std;
 using namespace gcm;
+
+typedef unordered_map<int, int>::const_iterator MapIter;
 
 namespace gcm {
     class CalcNode;
@@ -147,6 +149,17 @@ namespace gcm {
          * and 'false' if the node can not be interpolated with this mesh.
          */
         virtual bool interpolateNode(CalcNode& node) = 0;
+        
+        /*
+         * Takes vector from (x; y; z) with length (dx; dy; dz) and
+         * finds its intersection with mesh border.
+         * It's a separate function since (x; y; z) is outside of the mesh, 
+         * and we neither have 'origin' node nor exact 'target' node position.
+         * Returns 'true' if vector intersects mesh border and target node interpolated successfully.
+         * Returns 'false' if vector does not intersect mesh border.
+         */
+        virtual bool interpolateBorderNode(gcm_real x, gcm_real y, gcm_real z, 
+                                gcm_real dx, gcm_real dy, gcm_real dz, CalcNode& node) = 0;
 
         virtual void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug) = 0;
 
@@ -213,6 +226,8 @@ namespace gcm {
         void preProcess();
 
         void setInitialState(Area* area, float* values);
+		void setBorderCondition(Area* area, unsigned int num);
+		void setContactCondition(Area* area, unsigned int num);
         void setRheology(unsigned char matId);
         void setRheology(unsigned char matId, Area* area);
 

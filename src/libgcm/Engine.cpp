@@ -3,6 +3,9 @@
 #include "libgcm/method/DummyMethod.hpp"
 #include "libgcm/method/InterpolationFixedAxis.hpp"
 #include "libgcm/calc/volume/SimpleVolumeCalculator.hpp"
+//#include "libgcm/calc/border/ExternalVelocityCalculator.hpp"
+//#include "libgcm/calc/border/ExternalForceCalculator.hpp"
+#include "libgcm/calc/border/FixedBorderCalculator.hpp"
 #include "libgcm/calc/border/FreeBorderCalculator.hpp"
 #include "libgcm/calc/border/SmoothBorderCalculator.hpp"
 #include "libgcm/calc/contact/SlidingContactCalculator.hpp"
@@ -36,6 +39,9 @@ gcm::Engine::Engine()
     defaultRheoCalcType = "DummyRheologyCalculator";
     LOG_DEBUG("Registering default calculators");
     registerVolumeCalculator( new SimpleVolumeCalculator() );
+    //registerBorderCalculator( new ExternalVelocityCalculator() );
+    //registerBorderCalculator( new ExternalForceCalculator() );
+    registerBorderCalculator( new FixedBorderCalculator() );
     registerBorderCalculator( new FreeBorderCalculator() );
     registerBorderCalculator( new SmoothBorderCalculator() );
     registerContactCalculator( new SlidingContactCalculator() );
@@ -187,7 +193,7 @@ void gcm::Engine::registerRheologyCalculator(RheologyCalculator* rheologyCalcula
     LOG_DEBUG("Registered rheology calculator: " << rheologyCalculator->getType());
 }
 
-unsigned char gcm::Engine::addMaterial(Material* material)
+unsigned char gcm::Engine::addMaterial(MaterialPtr material)
 {
     if( !material )
         THROW_INVALID_ARG("Material parameter cannot be NULL");
@@ -241,7 +247,7 @@ unsigned char gcm::Engine::getMaterialIndex(string name)
     THROW_INVALID_ARG("Material was not found");
 }
 
-Material* gcm::Engine::getMaterial(string name)
+const MaterialPtr& gcm::Engine::getMaterial(string name)
 {
     for (unsigned char i = 0; i < materials.size(); i++)
         if (materials[i]->getName() == name)
@@ -249,7 +255,7 @@ Material* gcm::Engine::getMaterial(string name)
     THROW_INVALID_ARG("Material was not found");
 }
 
-Material* gcm::Engine::getMaterial(unsigned char index)
+const MaterialPtr& gcm::Engine::getMaterial(unsigned char index)
 {
     assert_ge(index, 0);
     assert_lt(index, materials.size());
@@ -708,4 +714,16 @@ bool gcm::Engine::interpolateNode(CalcNode& node)
             return true;
     }
     return false;
+}
+        
+void gcm::Engine::setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode)
+{
+    for (auto& b: bodies)
+        for (auto& m: b->getMeshesVector())
+            for (int i = 0; i < m->getNodesNumber(); i++)
+            {
+                CalcNode& node = m->getNodeByLocalIndex(i);
+                if (node.isUsed())
+                    node.setRheologyMatrix(getMatrixForNode(node));
+            }
 }

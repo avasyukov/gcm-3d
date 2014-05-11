@@ -1,4 +1,4 @@
-<task numberOfSnaps="5" stepsPerSnap="1">
+<task numberOfSnaps="50" stepsPerSnap="1">
 	<system>
 		<meshMovement type="none" />
 		<anisotropicMatrix implementation="analytical" />
@@ -12,12 +12,12 @@
 		</body>
 	</bodies>
 	<materials>
-		<material name="rotated" rheology="AnisotropicElastic" source="testAnisotropicMaterial">
+		<material name="rotated" rheology="anisotropic" source="testAnisotropicMaterial">
 			<rotate a1="0" a2="90" a3="0"/>
 		</material>
 	</materials>
 	<initialState>
-		<area type="box" minX="-3" maxX="3" minY="-3" maxY="3" minZ="-3" maxZ="3"/>
+		<area type="sphere" r="3" x="0" y="0" z="0" />
 		<values sxx="90000" syy="90000" szz="90000" />
 	</initialState>
 </task>

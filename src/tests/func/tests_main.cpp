@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 #include <mpi.h>
 
+#include "libgcm/config.hpp"
+
 #if CONFIG_ENABLE_LOGGING
 #include <log4cxx/propertyconfigurator.h>
 #include "launcher/util/FileFolderLookupService.hpp"
 #endif
-
+#include <iostream>
 int main(int argc, char **argv) {
     MPI::Init();
     #if CONFIG_ENABLE_LOGGING

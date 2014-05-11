@@ -6,6 +6,7 @@
 #include <vector>
 #include <mpi.h>
 #include <limits>
+#include <functional>
 
 #include "libgcm/calc/volume/VolumeCalculator.hpp"
 #include "libgcm/calc/border/BorderCalculator.hpp"
@@ -20,7 +21,7 @@
 #include "libgcm/interpolator/TetrSecondOrderMinMaxInterpolator.hpp"
 #include "libgcm/interpolator/LineFirstOrderInterpolator.hpp"
 //
-#include "libgcm/materials/Material.hpp"
+#include "libgcm/rheology/Material.hpp"
 #include "libgcm/rheology/RheologyCalculator.hpp"
 #include "libgcm/rheology/DummyRheologyCalculator.hpp"
 #include "libgcm/GCMDispatcher.hpp"
@@ -86,7 +87,7 @@ namespace gcm
         vector<BorderCondition*> borderConditions;
         vector<ContactCondition*> contactConditions;
 
-        vector<Material*> materials;
+        vector<MaterialPtr> materials;
         /*
          * Scene bodies.
          */
@@ -193,7 +194,7 @@ namespace gcm
         unsigned int addContactCondition(ContactCondition *contactCondition);
         void replaceDefaultContactCondition(ContactCondition *contactCondition);
 
-        unsigned char addMaterial(Material *material);
+        unsigned char addMaterial(MaterialPtr material);
 
         void setDefaultRheologyCalculatorType(string calcType);
         string getDefaultRheologyCalculatorType();
@@ -221,10 +222,11 @@ namespace gcm
         int getBodyNum(string id);
 
         unsigned char getMaterialIndex(string name);
-        Material* getMaterial(string name);
-        Material* getMaterial(unsigned char index);
+        const MaterialPtr& getMaterial(string name);
+        const MaterialPtr& getMaterial(unsigned char index);
 
         Body* getBody(unsigned int num);
+
         /*
          * Adds new body to scene.
          */
@@ -270,6 +272,8 @@ namespace gcm
         void setGmshVerbosity(float verbosity);
 
         bool interpolateNode(CalcNode& node);
+
+        void setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode);
     };
 }
 

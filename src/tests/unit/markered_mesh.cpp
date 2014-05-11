@@ -3,7 +3,7 @@
 
 #include "libgcm/mesh/markers/MarkeredMesh.hpp"
 #include "libgcm/mesh/markers/MarkeredBoxMeshGenerator.hpp"
-#include "libgcm/materials/IsotropicElasticMaterial.hpp"
+#include "libgcm/rheology/Material.hpp"
 
 using namespace std;
 
@@ -13,8 +13,7 @@ protected:
 
     static void SetUpTestCase()
     {
-        IsotropicElasticMaterial mat("default", 0, 0, 0, 0);
-        Engine::getInstance().addMaterial(&mat);
+        Engine::getInstance().addMaterial(makeMaterialPtr("default", 0, 0, 0, 0));
     }
 
 };

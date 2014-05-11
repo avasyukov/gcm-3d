@@ -441,6 +441,13 @@ bool gcm::MarkeredMesh::interpolateNode(CalcNode& node)
     return false;
 };
 
+bool gcm::MarkeredMesh::interpolateBorderNode(gcm_real x, gcm_real y, gcm_real z, 
+                                gcm_real dx, gcm_real dy, gcm_real dz, CalcNode& node)
+{
+    // Not implemented
+    return false;
+};
+
 void gcm::MarkeredMesh::moveMarkers(float dt) {
     for (auto& m: markers) {
         CellPoints pts;

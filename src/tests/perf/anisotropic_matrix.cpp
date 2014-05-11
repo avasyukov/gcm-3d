@@ -9,11 +9,13 @@
 #endif
 
 #include "tests/perf/util.hpp"
-#include "libgcm/util/AnisotropicMatrix3D.hpp"
-#include "libgcm/util/AnisotropicMatrix3DAnalytical.hpp"
-#include "libgcm/materials/AnisotropicElasticMaterial.hpp"
 #include "libgcm/node/CalcNode.hpp"
+#include "libgcm/rheology/Material.hpp"
 #include "libgcm/Engine.hpp"
+#include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
+#include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer.hpp"
+#include "libgcm/rheology/setters/AnisotropicRheologyMatrixSetter.hpp"
+#include "libgcm/util/matrixes.hpp"
 
 #define ITERATIONS 1000
 
@@ -31,12 +33,7 @@ int main()
     cout << "This test compares performance of two anisotropic elastic matrix implementations: numerical and analytical." << endl;
     cout << "Analytical implementation is expected to be few times faster." << endl;
     
-    AnisotropicMatrix3DAnalytical *analyticalMatrices = nullptr;
-    AnisotropicMatrix3D *numericalMatrices = nullptr;
-    CalcNode anisotropicNode;
-    
-
-    IAnisotropicElasticMaterial::RheologyParameters C;
+    Material::RheologyProperties C;
     gcm_real la = 1e8;
     gcm_real mu = 1e6;
     C.c12 = C.c13 = C.c23 = la;
@@ -48,21 +45,28 @@ int main()
     float rho = 1e3;
     gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
 
-    NumericalAnisotropicElasticMaterial mat("AnisotropicMatrix3D_Perf", rho, crackThreshold, C);
-    anisotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
+    auto mat = makeMaterialPtr("test", rho, crackThreshold, C);
+
+
+    gcm_matrix ax, ay, az, u, l, u1;
+    AnisotropicRheologyMatrixSetter setter;
+    NumericalRheologyMatrixDecomposer numericalDecomposer;
+    AnalyticalRheologyMatrixDecomposer analyticalDecomposer;
+
+    CalcNode node;
+
+    setter.setX(ax, mat, node);
+    setter.setY(ay, mat, node);
+    setter.setZ(az, mat, node);
+
 
     auto t1 = measure_time(
         [&]()
         {
-            delete[] analyticalMatrices;
-            analyticalMatrices = new AnisotropicMatrix3DAnalytical[ITERATIONS];
-        },
-        [&]()
-        {
             for (int i = 0; i < ITERATIONS; i++) {
-                analyticalMatrices[i].createAx(anisotropicNode);
-                analyticalMatrices[i].createAy(anisotropicNode);
-                analyticalMatrices[i].createAz(anisotropicNode);
+                analyticalDecomposer.decomposeX(ax, u, l, u1);                  
+                analyticalDecomposer.decomposeY(ay, u, l, u1);                  
+                analyticalDecomposer.decomposeZ(az, u, l, u1);                  
             }
         }
     );
@@ -70,20 +74,15 @@ int main()
     auto t2 = measure_time(
         [&]()
         {
-            delete[] numericalMatrices;
-            numericalMatrices = new AnisotropicMatrix3D[ITERATIONS];
-        },
-        [&]()
-        {
             for (int i = 0; i < ITERATIONS; i++) {
-                numericalMatrices[i].createAx(anisotropicNode);
-                numericalMatrices[i].createAy(anisotropicNode);
-                numericalMatrices[i].createAz(anisotropicNode);
+                numericalDecomposer.decomposeX(ax, u, l, u1);                  
+                numericalDecomposer.decomposeY(ay, u, l, u1);                  
+                numericalDecomposer.decomposeZ(az, u, l, u1);                  
             }
         }
     );
 
-    print_test_results("AnisotropicMatrix3DAnalytical", t1, "AnisotropicMatrix3D", t2);
+    print_test_results("Analytical decomposer", t1, "Numerical decomposer", t2);
 
     return 0;
 }

@@ -48,6 +48,8 @@ namespace gcm {
          * Returns all meshes associated with body.
          */
         Mesh* getMeshes();
+        // FIXME merge with method above
+        const vector<Mesh*>& getMeshesVector();
         /*
          * Returns mesh by id.
          */
@@ -65,6 +67,8 @@ namespace gcm {
         IEngine* getEngine();
 
         void setInitialState(Area* area, float values[9]);
+		void setBorderCondition(Area* area, unsigned int num);
+		void setContactCondition(Area* area, unsigned int num);
 
         string getRheologyCalculatorType();
         void setRheologyCalculatorType(string calcType);

@@ -640,7 +640,7 @@ bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& origin, float dx, float
     return true;
 }
 
-// TODO: rewrite it
+// FIXME_ASAP: rewrite it
 bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& node)
 {
     for (int i = 0; i < getTetrsNumber(); i++)

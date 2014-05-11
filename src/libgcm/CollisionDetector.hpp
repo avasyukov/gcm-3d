@@ -5,8 +5,7 @@
 #include <string>
 
 #include "libgcm/util/AABB.hpp"
-#include "libgcm/elem/TriangleFirstOrder.hpp"
-#include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
+#include "libgcm/mesh/Mesh.hpp"
 #include "libgcm/Logging.hpp"
 
 using namespace std;
@@ -32,10 +31,8 @@ namespace gcm {
         virtual void find_collisions(vector<CalcNode> &virt_nodes) = 0;
         bool find_intersection(AABB &outline1, AABB &outline2, AABB &intersection);
         // return elements that are in intersection
-        void find_nodes_in_intersection(TetrMeshSecondOrder* mesh, AABB &intersection, vector<CalcNode> &result);
-        void find_nodes_in_intersection(TetrMeshSecondOrder* mesh, AABB &intersection, vector<int> &result);
-        void find_faces_in_intersection(TetrMeshSecondOrder* mesh, AABB &intersection, vector<TriangleFirstOrder> &result);
-        void find_faces_in_intersection(TetrMeshSecondOrder* mesh, AABB &intersection, vector<int> &result);
+        void find_nodes_in_intersection(Mesh* mesh, AABB &intersection, vector<CalcNode> &result);
+        void find_nodes_in_intersection(Mesh* mesh, AABB &intersection, vector<int> &result);
         // number returned surface elements (nodes and triangles) sequentially
         //void renumber_surface(vector<TriangleFirstOrder> &faces, vector<CalcNode> &nodes);
         // returns surface elements (nodes and triangles) renumbered sequentially

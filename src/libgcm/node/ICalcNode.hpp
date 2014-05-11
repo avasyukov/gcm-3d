@@ -1,11 +1,11 @@
 #ifndef ICALC_NODE_H_
 #define ICALC_NODE_H_
 
-//#include "libgcm/materials/Material.hpp"
+#include "libgcm/rheology/Material.hpp"
 #include "libgcm/node/Node.hpp"
 #include "libgcm/util/Types.hpp"
 
-#define GCM_VALUES_SIZE 9
+#define VALUES_NUMBER 9
 using namespace std;
 using namespace gcm;
 
@@ -22,7 +22,7 @@ namespace gcm
 
         union
         {
-            gcm_real values[GCM_VALUES_SIZE];
+            gcm_real values[VALUES_NUMBER];
 
             struct
             {
@@ -88,12 +88,12 @@ namespace gcm
          * @return Density value.
          */
         virtual gcm_real getRho() const = 0;
-        /**
-         * Returns node material.
-         *
-         * @return Material.
-         */
-        virtual Material* getMaterial() const = 0;
+//        /**
+//         * Returns node material.
+//         *
+//         * @return Material.
+//         */
+//        virtual MaterialPtr* getMaterial() const = 0;
     };
 }
 

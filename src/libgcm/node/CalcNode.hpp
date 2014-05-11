@@ -5,11 +5,11 @@
 #include <iostream>
 #include <string>
 
-#include "libgcm/node/Node.hpp"
+#include "libgcm/node/ICalcNode.hpp"
 #include "libgcm/util/Types.hpp"
 #include "libgcm/Engine.hpp"
 
-#define GCM_VALUES_SIZE 9
+#define VALUES_NUMBER 9
 using namespace std;
 using namespace gcm;
 
@@ -38,12 +38,12 @@ namespace gcm {
             struct {
                 uchar contact : 1;
                 uchar order : 1;
+                uchar isDestroyed : 1;
+                uchar isContactDestroyed : 1;
                 uchar flag1 : 1;
                 uchar flag2 : 1;
                 uchar flag3 : 1;
                 uchar flag4 : 1;
-                uchar flag5 : 1;
-                uchar flag6 : 1;
             };
         } PublicFlags;
 
@@ -95,6 +95,9 @@ namespace gcm {
         // crack direction
         // TODO  document it
         gcm_real crackDirection[3];
+
+        // rheology matrix
+        RheologyMatrixPtr rheologyMatrix;
 
         // calculates main stress components
         void calcMainStressComponents() const;
@@ -263,6 +266,32 @@ namespace gcm {
         void setInContact(bool value);
 
         /**
+         * Indicates whether node is in destroyed area
+         *
+         * @return True in case of node belonging to destroyed area
+         */
+        bool isDestroyed() const;
+        /**
+         * Sets new destroyed state of the node
+         *
+         * @param value Destroyed state.
+         */
+        void setDestroyed(bool value);
+
+        /**
+         * Indicates whether node is on destroyed contact
+         *
+         * @return True in case of destroyed contact and false otherwise.
+         */
+        bool isContactDestroyed() const;
+        /**
+         * Sets new contact destoyed state of the node
+         *
+         * @param value Contact destoyed state.
+         */
+        void setContactDestroyed(bool value);
+
+        /**
          * Indicates whether node is local or not.
          *
          * @return True in case of local node and false otherwise.
@@ -413,16 +442,18 @@ namespace gcm {
          *
          * @return Material.
          */
-        Material* getMaterial() const override;
-
+        MaterialPtr getMaterial() const /*override*/;
+        /**
+         * Sets rheology matrix for node.
+         */
+        void setRheologyMatrix(RheologyMatrixPtr matrix);
         /**
          * Returns rheology matrix for node. It's wrapper for corresponding
          * material APIs.
          *
          * @return Rheology matrix.
          */
-        RheologyMatrix3D& getRheologyMatrix() const;
-
+        RheologyMatrixPtr getRheologyMatrix() const;
         /**
          * Sets density value for node.
          *
@@ -483,14 +514,6 @@ namespace gcm {
          * Constant to access custom flag4 using getCustomFlag / setCustomFlag.
          */
         static const int FLAG_4 = 4;
-        /**
-         * Constant to access custom flag5 using getCustomFlag / setCustomFlag.
-         */
-        static const int FLAG_5 = 5;
-        /**
-         * Constant to access custom flag6 using getCustomFlag / setCustomFlag.
-         */
-        static const int FLAG_6 = 6;
     };
 }
 
@@ -505,7 +528,7 @@ namespace std {
         for (int i = 0; i < 3; i++)
             os << " " << node.values[i];
         os << "\n\tStress:";
-        for (int i = 3; i < GCM_VALUES_SIZE; i++)
+        for (int i = 3; i < VALUES_NUMBER; i++)
             os << " " << node.values[i];
         os << "\n\tRho: " << node.getRho();
         return os;

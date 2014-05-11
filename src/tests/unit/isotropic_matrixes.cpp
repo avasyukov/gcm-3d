@@ -1,7 +1,8 @@
 #include <time.h>
 
-#include "libgcm/materials/IsotropicElasticMaterial.hpp"
-#include "libgcm/util/ElasticMatrix3D.hpp"
+#include "libgcm/rheology/Material.hpp"
+#include "libgcm/rheology/setters/IsotropicRheologyMatrixSetter.hpp"
+#include "libgcm/rheology/decomposers/IsotropicRheologyMatrixDecomposer.hpp"
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/Engine.hpp"
 
@@ -23,26 +24,24 @@ TEST(IsotropicMatrix3D, FuzzyMultiplication)
         gcm_real rho = 1.0e+4 * (double) rand() / RAND_MAX;
         gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
 
-        IsotropicElasticMaterial mat("IsotropicMatrix3D_IsotropicTransition_IEM_" + k, rho, crackThreshold, la, mu);
+        auto mat = makeMaterialPtr("material", rho, crackThreshold, la, mu);
 
-        isotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
-
-        RheologyMatrix3D& isotropicMatrix = isotropicNode.getRheologyMatrix();
+        RheologyMatrixPtr isotropicMatrix = makeRheologyMatrixPtr<IsotropicRheologyMatrixSetter, IsotropicRheologyMatrixDecomposer>(mat);
 
         for (int i = 0; i < 3; i++) {
             switch (i) {
-            case 0: isotropicMatrix.createAx(isotropicNode);
+            case 0: isotropicMatrix->decomposeX(isotropicNode);
                 break;
-            case 1: isotropicMatrix.createAy(isotropicNode);
+            case 1: isotropicMatrix->decomposeY(isotropicNode);
                 break;
-            case 2: isotropicMatrix.createAz(isotropicNode);
+            case 2: isotropicMatrix->decomposeZ(isotropicNode);
                 break;
             }
 
             // Test decomposition
-            ASSERT_TRUE( isotropicMatrix.getU1() * isotropicMatrix.getL() * isotropicMatrix.getU() == isotropicMatrix.getA() );
+            ASSERT_TRUE( isotropicMatrix->getU1() * isotropicMatrix->getL() * isotropicMatrix->getU() == isotropicMatrix->getA() );
             // Test eigen values and eigen rows
-            ASSERT_TRUE( isotropicMatrix.getU1() * isotropicMatrix.getL() == isotropicMatrix.getA() * isotropicMatrix.getU1() );
+            ASSERT_TRUE( isotropicMatrix->getU1() * isotropicMatrix->getL() == isotropicMatrix->getA() * isotropicMatrix->getU1() );
         }
         Engine::getInstance().clear();
     }
@@ -62,28 +61,26 @@ TEST(IsotropicMatrix3D, FuzzyElasticVelocities)
         gcm_real pVel = sqrt( ( la + 2 * mu ) / rho );
         gcm_real sVel = sqrt( mu / rho );
 
-        IsotropicElasticMaterial mat("IsotropicMatrix3D_IsotropicTransition_IEM_" + k, rho, crackThreshold, la, mu);
+        auto mat = makeMaterialPtr("material", rho, crackThreshold, la, mu);
 
-        isotropicNode.setMaterialId(Engine::getInstance().addMaterial(&mat));
-
-        RheologyMatrix3D& isotropicMatrix = isotropicNode.getRheologyMatrix();
+        RheologyMatrixPtr isotropicMatrix = makeRheologyMatrixPtr<IsotropicRheologyMatrixSetter, IsotropicRheologyMatrixDecomposer>(mat);
 
         for (int i = 0; i < 3; i++) {
             switch (i) {
-            case 0: isotropicMatrix.createAx(isotropicNode);
+            case 0: isotropicMatrix->decomposeX(isotropicNode);
                 break;
-            case 1: isotropicMatrix.createAy(isotropicNode);
+            case 1: isotropicMatrix->decomposeY(isotropicNode);
                 break;
-            case 2: isotropicMatrix.createAz(isotropicNode);
+            case 2: isotropicMatrix->decomposeZ(isotropicNode);
                 break;
             }
 
-            ASSERT_NEAR( isotropicMatrix.getMaxEigenvalue(), pVel, EQUALITY_TOLERANCE );
+            ASSERT_NEAR( isotropicMatrix->getMaxEigenvalue(), pVel, pVel * EQUALITY_TOLERANCE );
             for(int j = 0; j < 9; j++)
             {
-                gcm_real v = fabs(isotropicMatrix.getL(j,j));
-                ASSERT_TRUE( ( fabs(v - pVel) < EQUALITY_TOLERANCE )
-                                || ( fabs(v - sVel) < EQUALITY_TOLERANCE )
+                gcm_real v = fabs(isotropicMatrix->getL(j,j));
+                ASSERT_TRUE( ( fabs(v - pVel) < pVel * EQUALITY_TOLERANCE )
+                                || ( fabs(v - sVel) < sVel * EQUALITY_TOLERANCE )
                                 || ( fabs(v - 0) < EQUALITY_TOLERANCE ) );
             }
         }
