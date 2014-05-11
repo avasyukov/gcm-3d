@@ -6,7 +6,7 @@
 	<bodies>
 		<body id="cube_for_11">
 			<rheology type="elastic" />
-			<mesh id="main" type="geo2" file="models/layer-x-strike.geo" tetrSize="0.2" />
+			<mesh id="main" type="geo2" file="models/cube_for_11.geo" tetrSize="0.2" />
 			<material id="layer1">
 				<area type="box" minX="-6.01" maxX="-4.99" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
 			</material>
@@ -104,7 +104,7 @@
 		</material>
 	</materials>
 	<initialState>
-		<area type="box" minX="-600.01" maxX="-500.99" minY="-25" maxY="25" minZ="-25" maxZ="25"/>
-		<values vx="0" />
+		<area type="box" minX="-7" maxX="-5.5" minY="-25" maxY="25" minZ="-25" maxZ="25"/>
+		<values vx="30" />
 	</initialState>
 </task>
