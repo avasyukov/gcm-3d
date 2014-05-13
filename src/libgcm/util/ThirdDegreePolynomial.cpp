@@ -1,33 +1,34 @@
 #include "libgcm/util/ThirdDegreePolynomial.hpp"
-#include "libgcm/Exception.hpp"
-#include "libgcm/Math.hpp"
 
-#include <cmath>
 
-gcm::ThirdDegreePolynomial::ThirdDegreePolynomial(float rho,
-                                const Material::RheologyProperties &C, int stage)
-{
-    if (stage == 0) {
-        a = -1.0/rho * ( C.c11 + C.c55 + C.c66 ) ;
-        b = 1.0/rho/rho * ( C.c11*C.c55 + C.c11*C.c66 + C.c66*C.c55 -
-                C.c15*C.c15 - C.c16*C.c16 - C.c56*C.c56 ) ;
-        c = 1.0/rho/rho/rho * ( C.c11*C.c56*C.c56 + C.c55*C.c16*C.c16 +
-                C.c66*C.c15*C.c15 - C.c11*C.c55*C.c66 - 2*C.c15*C.c16*C.c56 ) ;
-    } else if (stage == 1) {
-        a = -1.0/rho * ( C.c22 + C.c44 + C.c66 ) ;
-        b = 1.0/rho/rho * ( C.c22*C.c44 + C.c22*C.c66 + C.c66*C.c44 -
-                C.c24*C.c24 - C.c26*C.c26 - C.c46*C.c46 ) ;
-        c = 1.0/rho/rho/rho * ( C.c22*C.c46*C.c46 + C.c44*C.c26*C.c26 +
-                C.c66*C.c24*C.c24 - C.c22*C.c44*C.c66 - 2*C.c24*C.c26*C.c46 ) ;
-    } else if (stage == 2) {
-        a = -1.0/rho * ( C.c33 + C.c55 + C.c44 ) ;
-        b = 1.0/rho/rho * ( C.c33*C.c55 + C.c33*C.c44 + C.c44*C.c55 -
-                C.c34*C.c34 - C.c35*C.c35 - C.c45*C.c45 ) ;
-        c = 1.0/rho/rho/rho * ( C.c33*C.c45*C.c45 + C.c44*C.c35*C.c35 +
-                C.c55*C.c34*C.c34 - C.c33*C.c55*C.c44 - 2*C.c35*C.c34*C.c45 ) ;
-    } else {
-        THROW_BAD_CONFIG("Wrong stage number");
-    }
+gcm::ThirdDegreePolynomial::ThirdDegreePolynomial(const gcm_matrix &A, int stage) {
+	if (stage == 0) {
+		double r = A(0,3);
+		a = r * (-A(5,2) - A(4,1) - A(3,0));
+		b = r * r * ((A(4,1) + A(3,0)) * A(5,2) - A(4,2) * A(5,1) - 
+				A(3,2) * A(5,0) + A(3,0) * A(4,1) - A(3,1) * A(4,0));
+		c = r * r * r * ((-A(3,0) * A(4,1) + A(3,1) * A(4,0)) * A(5,2) + 
+				(A(3,0) * A(4,2) - A(3,2) * A(4,0)) * A(5,1) +
+				(-A(3,1) * A(4,2) + A(3,2) * A(4,1)) * A(5,0));
+	} else if (stage == 1) {
+		double r = A(0,4);
+		a = r * (-A(7,2) - A(6,1) - A(4,0));
+		b = r * r * ((A(6,1) + A(4,0)) * A(7,2) - A(6,2) * A(7,1) - 
+				A(4,2) * A(7,0) + A(4,0) * A(6,1) - A(4,1) * A(6,0));
+		c = r * r * r * ((-A(4,0) * A(6,1) + A(4,1) * A(6,0)) * A(7,2) + 
+				(A(4,0) * A(6,2) - A(4,2) * A(6,0)) * A(7,1) +
+				(-A(4,1) * A(6,2) + A(4,2) * A(6,1)) * A(7,0));
+	} else if (stage == 2) {
+		double r = A(0,5);
+		a = r * (-A(8,2) - A(7,1) - A(5,0));
+		b = r * r * ((A(7,1) + A(5,0)) * A(8,2) - A(7,2) * A(8,1) - 
+				A(5,2) * A(8,0) + A(5,0) * A(7,1) - A(5,1) * A(7,0));
+		c = r * r * r * ((-A(5,0) * A(7,1) + A(5,1) * A(7,0)) * A(8,2) + 
+				(A(5,0) * A(7,2) - A(5,2) * A(7,0)) * A(8,1) +
+				(-A(5,1) * A(7,2) + A(5,2) * A(7,1)) * A(8,0));
+	} else {
+		THROW_BAD_CONFIG("Wrong stage number");
+	}
     findRoots();
 };
 
@@ -69,16 +70,15 @@ void gcm::ThirdDegreePolynomial::findRoots()
     }
 };
 
-gcm::ThirdDegreePolynomial::~ThirdDegreePolynomial() {};
-
 void gcm::ThirdDegreePolynomial::getRoots(double *place)
 {
-    for (int i = 0; i < 3; i++){
-        place[i] = roots[i];
-    }
+	for (int i = 0; i < 3; i++)
+		place[i] = roots[i];
 };
 
 bool gcm::ThirdDegreePolynomial::isMultiple()
 {
     return isMltpl;
 };
+
+gcm::ThirdDegreePolynomial::~ThirdDegreePolynomial() {};
