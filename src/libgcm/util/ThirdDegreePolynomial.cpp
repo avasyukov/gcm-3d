@@ -3,29 +3,29 @@
 
 gcm::ThirdDegreePolynomial::ThirdDegreePolynomial(const gcm_matrix &A, int stage) {
 	if (stage == 0) {
-		double r = A(0,3);
-		a = r * (-A(5,2) - A(4,1) - A(3,0));
-		b = r * r * ((A(4,1) + A(3,0)) * A(5,2) - A(4,2) * A(5,1) - 
-				A(3,2) * A(5,0) + A(3,0) * A(4,1) - A(3,1) * A(4,0));
-		c = r * r * r * ((-A(3,0) * A(4,1) + A(3,1) * A(4,0)) * A(5,2) + 
-				(A(3,0) * A(4,2) - A(3,2) * A(4,0)) * A(5,1) +
-				(-A(3,1) * A(4,2) + A(3,2) * A(4,1)) * A(5,0));
+		double r = A.get(0,3);
+		a = r * (-A.get(5,2) - A.get(4,1) - A.get(3,0));
+		b = r * r * ((A.get(4,1) + A.get(3,0)) * A.get(5,2) - A.get(4,2) * A.get(5,1) - 
+				A.get(3,2) * A.get(5,0) + A.get(3,0) * A.get(4,1) - A.get(3,1) * A.get(4,0));
+		c = r * r * r * ((-A.get(3,0) * A.get(4,1) + A.get(3,1) * A.get(4,0)) * A.get(5,2) + 
+				(A.get(3,0) * A.get(4,2) - A.get(3,2) * A.get(4,0)) * A.get(5,1) +
+				(-A.get(3,1) * A.get(4,2) + A.get(3,2) * A.get(4,1)) * A.get(5,0));
 	} else if (stage == 1) {
-		double r = A(0,4);
-		a = r * (-A(7,2) - A(6,1) - A(4,0));
-		b = r * r * ((A(6,1) + A(4,0)) * A(7,2) - A(6,2) * A(7,1) - 
-				A(4,2) * A(7,0) + A(4,0) * A(6,1) - A(4,1) * A(6,0));
-		c = r * r * r * ((-A(4,0) * A(6,1) + A(4,1) * A(6,0)) * A(7,2) + 
-				(A(4,0) * A(6,2) - A(4,2) * A(6,0)) * A(7,1) +
-				(-A(4,1) * A(6,2) + A(4,2) * A(6,1)) * A(7,0));
+		double r = A.get(0,4);
+		a = r * (-A.get(7,2) - A.get(6,1) - A.get(4,0));
+		b = r * r * ((A.get(6,1) + A.get(4,0)) * A.get(7,2) - A.get(6,2) * A.get(7,1) - 
+				A.get(4,2) * A.get(7,0) + A.get(4,0) * A.get(6,1) - A.get(4,1) * A.get(6,0));
+		c = r * r * r * ((-A.get(4,0) * A.get(6,1) + A.get(4,1) * A.get(6,0)) * A.get(7,2) + 
+				(A.get(4,0) * A.get(6,2) - A.get(4,2) * A.get(6,0)) * A.get(7,1) +
+				(-A.get(4,1) * A.get(6,2) + A.get(4,2) * A.get(6,1)) * A.get(7,0));
 	} else if (stage == 2) {
-		double r = A(0,5);
-		a = r * (-A(8,2) - A(7,1) - A(5,0));
-		b = r * r * ((A(7,1) + A(5,0)) * A(8,2) - A(7,2) * A(8,1) - 
-				A(5,2) * A(8,0) + A(5,0) * A(7,1) - A(5,1) * A(7,0));
-		c = r * r * r * ((-A(5,0) * A(7,1) + A(5,1) * A(7,0)) * A(8,2) + 
-				(A(5,0) * A(7,2) - A(5,2) * A(7,0)) * A(8,1) +
-				(-A(5,1) * A(7,2) + A(5,2) * A(7,1)) * A(8,0));
+		double r = A.get(0,5);
+		a = r * (-A.get(8,2) - A.get(7,1) - A.get(5,0));
+		b = r * r * ((A.get(7,1) + A.get(5,0)) * A.get(8,2) - A.get(7,2) * A.get(8,1) - 
+				A.get(5,2) * A.get(8,0) + A.get(5,0) * A.get(7,1) - A.get(5,1) * A.get(7,0));
+		c = r * r * r * ((-A.get(5,0) * A.get(7,1) + A.get(5,1) * A.get(7,0)) * A.get(8,2) + 
+				(A.get(5,0) * A.get(7,2) - A.get(5,2) * A.get(7,0)) * A.get(8,1) +
+				(-A.get(5,1) * A.get(7,2) + A.get(5,2) * A.get(7,1)) * A.get(8,0));
 	} else {
 		THROW_BAD_CONFIG("Wrong stage number");
 	}

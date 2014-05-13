@@ -13,7 +13,7 @@
 #include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 
-#define ITERATIONS 1000
+#define ITERATIONS 10
 
 #define MAX_ROTATIONS_NUMBER 2
 

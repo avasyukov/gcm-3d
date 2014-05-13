@@ -29,7 +29,6 @@
 #include "libgcm/rheology/setters/PrandtlRaussPlasticityRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/decomposers/IsotropicRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer.hpp"
-#include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
 
 namespace ba = boost::algorithm;
@@ -712,10 +711,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                     LOG_WARN("Plasticity is not supported for anisotropic materials, using elastic instead.");
             }
             setter = makeSetterPtr<AnisotropicRheologyMatrixSetter>();
-            if( anisotropicMatrixImplementation == "numerical" )
-                decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
-            else
-                decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer>();
+            decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
         }
 
         matrices.push_back(makeRheologyMatrixPtr(material, setter, decomposer));

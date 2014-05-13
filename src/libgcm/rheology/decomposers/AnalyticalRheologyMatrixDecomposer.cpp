@@ -226,26 +226,26 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findEigenVec(double *eigenVec,
     switch ( stage ) {
         case 0 :
         {
-			double r = A(0,3);
-            M[0][0] = A(3,0) - l*l/r;	M[0][1] = A(3,1);	M[0][2] = A(3,2);
-            M[1][0] = A(4,0);	M[1][1] = A(4,1) - l*l/r;	M[1][2] = A(4,2);
-			M[2][0] = A(5,0);	M[2][1] = A(5,1);	M[2][2] = A(5,2) - l*l/r;
+			double r = A.get(0,3);
+            M[0][0] = A.get(3,0) - l*l/r;	M[0][1] = A.get(3,1);	M[0][2] = A.get(3,2);
+            M[1][0] = A.get(4,0);	M[1][1] = A.get(4,1) - l*l/r;	M[1][2] = A.get(4,2);
+			M[2][0] = A.get(5,0);	M[2][1] = A.get(5,1);	M[2][2] = A.get(5,2) - l*l/r;
             break;
         }
         case 1 :
         {
-			double r = A(0,4);
-            M[0][0] = A(4,0) - l*l/r;	M[0][1] = A(4,1);	M[0][2] = A(4,2);
-            M[1][0] = A(6,0);	M[1][1] = A(6,1) - l*l/r;	M[1][2] = A(6,2);
-			M[2][0] = A(7,0);	M[2][1] = A(7,1);	M[2][2] = A(7,2) - l*l/r;
+			double r = A.get(0,4);
+            M[0][0] = A.get(4,0) - l*l/r;	M[0][1] = A.get(4,1);	M[0][2] = A.get(4,2);
+            M[1][0] = A.get(6,0);	M[1][1] = A.get(6,1) - l*l/r;	M[1][2] = A.get(6,2);
+			M[2][0] = A.get(7,0);	M[2][1] = A.get(7,1);	M[2][2] = A.get(7,2) - l*l/r;
             break;
         }
         case 2 :
         {
-			double r = A(0,5);
-            M[0][0] = A(5,0) - l*l/r;	M[0][1] = A(5,1);	M[0][2] = A(5,2);
-            M[1][0] = A(7,0);	M[1][1] = A(7,1) - l*l/r;	M[1][2] = A(7,2);
-			M[2][0] = A(8,0);	M[2][1] = A(8,1);	M[2][2] = A(8,2) - l*l/r;
+			double r = A.get(0,5);
+            M[0][0] = A.get(5,0) - l*l/r;	M[0][1] = A.get(5,1);	M[0][2] = A.get(5,2);
+            M[1][0] = A.get(7,0);	M[1][1] = A.get(7,1) - l*l/r;	M[1][2] = A.get(7,2);
+			M[2][0] = A.get(8,0);	M[2][1] = A.get(8,1);	M[2][2] = A.get(8,2) - l*l/r;
             break;
         }
         default:
@@ -257,35 +257,35 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findEigenVec(double *eigenVec,
     switch ( stage ) {
         case 0 :
         {
-			double r = A(0,3);
+			double r = A.get(0,3);
             eigenVec[3] = l/r*eigenVec[0];
             eigenVec[4] = l/r*eigenVec[1];
             eigenVec[5] = l/r*eigenVec[2];
-            eigenVec[6] = (A(6,0)*eigenVec[0] + A(6,1)*eigenVec[1] + A(6,2)*eigenVec[2])/l;
-            eigenVec[7] = (A(7,0)*eigenVec[0] + A(7,1)*eigenVec[1] + A(7,2)*eigenVec[2])/l;
-            eigenVec[8] = (A(8,0)*eigenVec[0] + A(8,1)*eigenVec[1] + A(8,2)*eigenVec[2])/l;
+            eigenVec[6] = (A.get(6,0)*eigenVec[0] + A.get(6,1)*eigenVec[1] + A.get(6,2)*eigenVec[2])/l;
+            eigenVec[7] = (A.get(7,0)*eigenVec[0] + A.get(7,1)*eigenVec[1] + A.get(7,2)*eigenVec[2])/l;
+            eigenVec[8] = (A.get(8,0)*eigenVec[0] + A.get(8,1)*eigenVec[1] + A.get(8,2)*eigenVec[2])/l;
             break;
         }
         case 1 :
         {
-			double r = A(0,4);
+			double r = A.get(0,4);
             eigenVec[4] = l/r*eigenVec[0];
             eigenVec[6] = l/r*eigenVec[1];
             eigenVec[7] = l/r*eigenVec[2];
-            eigenVec[3] = (A(3,0)*eigenVec[0] + A(3,1)*eigenVec[1] + A(3,2)*eigenVec[2])/l;
-            eigenVec[5] = (A(5,0)*eigenVec[0] + A(5,1)*eigenVec[1] + A(5,2)*eigenVec[2])/l;
-            eigenVec[8] = (A(8,0)*eigenVec[0] + A(8,1)*eigenVec[1] + A(8,2)*eigenVec[2])/l;
+            eigenVec[3] = (A.get(3,0)*eigenVec[0] + A.get(3,1)*eigenVec[1] + A.get(3,2)*eigenVec[2])/l;
+            eigenVec[5] = (A.get(5,0)*eigenVec[0] + A.get(5,1)*eigenVec[1] + A.get(5,2)*eigenVec[2])/l;
+            eigenVec[8] = (A.get(8,0)*eigenVec[0] + A.get(8,1)*eigenVec[1] + A.get(8,2)*eigenVec[2])/l;
             break;
         }
         case 2 :
         {
-			double r = A(0,5);
+			double r = A.get(0,5);
             eigenVec[5] = l/r*eigenVec[0];
             eigenVec[7] = l/r*eigenVec[1];
             eigenVec[8] = l/r*eigenVec[2];
-            eigenVec[6] = (A(6,0)*eigenVec[0] + A(6,1)*eigenVec[1] + A(6,2)*eigenVec[2])/l;
-            eigenVec[3] = (A(3,0)*eigenVec[0] + A(3,1)*eigenVec[1] + A(3,2)*eigenVec[2])/l;
-            eigenVec[4] = (A(4,0)*eigenVec[0] + A(4,1)*eigenVec[1] + A(4,2)*eigenVec[2])/l;
+            eigenVec[6] = (A.get(6,0)*eigenVec[0] + A.get(6,1)*eigenVec[1] + A.get(6,2)*eigenVec[2])/l;
+            eigenVec[3] = (A.get(3,0)*eigenVec[0] + A.get(3,1)*eigenVec[1] + A.get(3,2)*eigenVec[2])/l;
+            eigenVec[4] = (A.get(4,0)*eigenVec[0] + A.get(4,1)*eigenVec[1] + A.get(4,2)*eigenVec[2])/l;
             break;
         }
     }
@@ -333,26 +333,26 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findEigenVec (double *eigenVec1,
     switch ( stage ) {
         case 0 :
         {
-			double r = A(0,3);
-            M[0][0] = A(3,0) - l*l/r;	M[0][1] = A(3,1);	M[0][2] = A(3,2);
-            M[1][0] = A(4,0);	M[1][1] = A(4,1) - l*l/r;	M[1][2] = A(4,2);
-			M[2][0] = A(5,0);	M[2][1] = A(5,1);	M[2][2] = A(5,2) - l*l/r;
+			double r = A.get(0,3);
+            M[0][0] = A.get(3,0) - l*l/r;	M[0][1] = A.get(3,1);	M[0][2] = A.get(3,2);
+            M[1][0] = A.get(4,0);	M[1][1] = A.get(4,1) - l*l/r;	M[1][2] = A.get(4,2);
+			M[2][0] = A.get(5,0);	M[2][1] = A.get(5,1);	M[2][2] = A.get(5,2) - l*l/r;
             break;
         }
         case 1 :
         {
-			double r = A(0,4);
-            M[0][0] = A(4,0) - l*l/r;	M[0][1] = A(4,1);	M[0][2] = A(4,2);
-            M[1][0] = A(6,0);	M[1][1] = A(6,1) - l*l/r;	M[1][2] = A(6,2);
-			M[2][0] = A(7,0);	M[2][1] = A(7,1);	M[2][2] = A(7,2) - l*l/r;
+			double r = A.get(0,4);
+            M[0][0] = A.get(4,0) - l*l/r;	M[0][1] = A.get(4,1);	M[0][2] = A.get(4,2);
+            M[1][0] = A.get(6,0);	M[1][1] = A.get(6,1) - l*l/r;	M[1][2] = A.get(6,2);
+			M[2][0] = A.get(7,0);	M[2][1] = A.get(7,1);	M[2][2] = A.get(7,2) - l*l/r;
             break;
         }
         case 2 :
         {
-			double r = A(0,5);
-            M[0][0] = A(5,0) - l*l/r;	M[0][1] = A(5,1);	M[0][2] = A(5,2);
-            M[1][0] = A(7,0);	M[1][1] = A(7,1) - l*l/r;	M[1][2] = A(7,2);
-			M[2][0] = A(8,0);	M[2][1] = A(8,1);	M[2][2] = A(8,2) - l*l/r;
+			double r = A.get(0,5);
+            M[0][0] = A.get(5,0) - l*l/r;	M[0][1] = A.get(5,1);	M[0][2] = A.get(5,2);
+            M[1][0] = A.get(7,0);	M[1][1] = A.get(7,1) - l*l/r;	M[1][2] = A.get(7,2);
+			M[2][0] = A.get(8,0);	M[2][1] = A.get(8,1);	M[2][2] = A.get(8,2) - l*l/r;
             break;
         }
         default:
@@ -364,56 +364,56 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findEigenVec (double *eigenVec1,
     switch ( stage ) {
         case 0 :
         {
-			double r = A(0,3);
+			double r = A.get(0,3);
             eigenVec1[3] = l/r*eigenVec1[0];
             eigenVec1[4] = l/r*eigenVec1[1];
             eigenVec1[5] = l/r*eigenVec1[2];
-            eigenVec1[6] = (A(6,0)*eigenVec1[0] + A(6,1)*eigenVec1[1] + A(6,2)*eigenVec1[2])/l;
-            eigenVec1[7] = (A(7,0)*eigenVec1[0] + A(7,1)*eigenVec1[1] + A(7,2)*eigenVec1[2])/l;
-            eigenVec1[8] = (A(8,0)*eigenVec1[0] + A(8,1)*eigenVec1[1] + A(8,2)*eigenVec1[2])/l;
+            eigenVec1[6] = (A.get(6,0)*eigenVec1[0] + A.get(6,1)*eigenVec1[1] + A.get(6,2)*eigenVec1[2])/l;
+            eigenVec1[7] = (A.get(7,0)*eigenVec1[0] + A.get(7,1)*eigenVec1[1] + A.get(7,2)*eigenVec1[2])/l;
+            eigenVec1[8] = (A.get(8,0)*eigenVec1[0] + A.get(8,1)*eigenVec1[1] + A.get(8,2)*eigenVec1[2])/l;
 
             eigenVec2[3] = l/r*eigenVec2[0];
             eigenVec2[4] = l/r*eigenVec2[1];
             eigenVec2[5] = l/r*eigenVec2[2];
-            eigenVec2[6] = (A(6,0)*eigenVec2[0] + A(6,1)*eigenVec2[1] + A(6,2)*eigenVec2[2])/l;
-            eigenVec2[7] = (A(7,0)*eigenVec2[0] + A(7,1)*eigenVec2[1] + A(7,2)*eigenVec2[2])/l;
-            eigenVec2[8] = (A(8,0)*eigenVec2[0] + A(8,1)*eigenVec2[1] + A(8,2)*eigenVec2[2])/l;          
+            eigenVec2[6] = (A.get(6,0)*eigenVec2[0] + A.get(6,1)*eigenVec2[1] + A.get(6,2)*eigenVec2[2])/l;
+            eigenVec2[7] = (A.get(7,0)*eigenVec2[0] + A.get(7,1)*eigenVec2[1] + A.get(7,2)*eigenVec2[2])/l;
+            eigenVec2[8] = (A.get(8,0)*eigenVec2[0] + A.get(8,1)*eigenVec2[1] + A.get(8,2)*eigenVec2[2])/l;          
 			break;
         }
         case 1 :
         {
-			double r = A(0,4);
+			double r = A.get(0,4);
             eigenVec1[4] = l/r*eigenVec1[0];
             eigenVec1[6] = l/r*eigenVec1[1];
             eigenVec1[7] = l/r*eigenVec1[2];
-            eigenVec1[3] = (A(3,0)*eigenVec1[0] + A(3,1)*eigenVec1[1] + A(3,2)*eigenVec1[2])/l;
-            eigenVec1[5] = (A(5,0)*eigenVec1[0] + A(5,1)*eigenVec1[1] + A(5,2)*eigenVec1[2])/l;
-            eigenVec1[8] = (A(8,0)*eigenVec1[0] + A(8,1)*eigenVec1[1] + A(8,2)*eigenVec1[2])/l;
+            eigenVec1[3] = (A.get(3,0)*eigenVec1[0] + A.get(3,1)*eigenVec1[1] + A.get(3,2)*eigenVec1[2])/l;
+            eigenVec1[5] = (A.get(5,0)*eigenVec1[0] + A.get(5,1)*eigenVec1[1] + A.get(5,2)*eigenVec1[2])/l;
+            eigenVec1[8] = (A.get(8,0)*eigenVec1[0] + A.get(8,1)*eigenVec1[1] + A.get(8,2)*eigenVec1[2])/l;
    
 			eigenVec2[4] = l/r*eigenVec2[0];
             eigenVec2[6] = l/r*eigenVec2[1];
             eigenVec2[7] = l/r*eigenVec2[2];
-            eigenVec2[3] = (A(3,0)*eigenVec2[0] + A(3,1)*eigenVec2[1] + A(3,2)*eigenVec2[2])/l;
-            eigenVec2[5] = (A(5,0)*eigenVec2[0] + A(5,1)*eigenVec2[1] + A(5,2)*eigenVec2[2])/l;
-            eigenVec2[8] = (A(8,0)*eigenVec2[0] + A(8,1)*eigenVec2[1] + A(8,2)*eigenVec2[2])/l;
+            eigenVec2[3] = (A.get(3,0)*eigenVec2[0] + A.get(3,1)*eigenVec2[1] + A.get(3,2)*eigenVec2[2])/l;
+            eigenVec2[5] = (A.get(5,0)*eigenVec2[0] + A.get(5,1)*eigenVec2[1] + A.get(5,2)*eigenVec2[2])/l;
+            eigenVec2[8] = (A.get(8,0)*eigenVec2[0] + A.get(8,1)*eigenVec2[1] + A.get(8,2)*eigenVec2[2])/l;
 			break;
         }
         case 2 :
         {
-			double r = A(0,5);
+			double r = A.get(0,5);
             eigenVec1[5] = l/r*eigenVec1[0];
             eigenVec1[7] = l/r*eigenVec1[1];
             eigenVec1[8] = l/r*eigenVec1[2];
-            eigenVec1[6] = (A(6,0)*eigenVec1[0] + A(6,1)*eigenVec1[1] + A(6,2)*eigenVec1[2])/l;
-            eigenVec1[3] = (A(3,0)*eigenVec1[0] + A(3,1)*eigenVec1[1] + A(3,2)*eigenVec1[2])/l;
-            eigenVec1[4] = (A(4,0)*eigenVec1[0] + A(4,1)*eigenVec1[1] + A(4,2)*eigenVec1[2])/l;
+            eigenVec1[6] = (A.get(6,0)*eigenVec1[0] + A.get(6,1)*eigenVec1[1] + A.get(6,2)*eigenVec1[2])/l;
+            eigenVec1[3] = (A.get(3,0)*eigenVec1[0] + A.get(3,1)*eigenVec1[1] + A.get(3,2)*eigenVec1[2])/l;
+            eigenVec1[4] = (A.get(4,0)*eigenVec1[0] + A.get(4,1)*eigenVec1[1] + A.get(4,2)*eigenVec1[2])/l;
 
             eigenVec2[5] = l/r*eigenVec2[0];
             eigenVec2[7] = l/r*eigenVec2[1];
             eigenVec2[8] = l/r*eigenVec2[2];
-            eigenVec2[6] = (A(6,0)*eigenVec2[0] + A(6,1)*eigenVec2[1] + A(6,2)*eigenVec2[2])/l;
-            eigenVec2[3] = (A(3,0)*eigenVec2[0] + A(3,1)*eigenVec2[1] + A(3,2)*eigenVec2[2])/l;
-            eigenVec2[4] = (A(4,0)*eigenVec2[0] + A(4,1)*eigenVec2[1] + A(4,2)*eigenVec2[2])/l;
+            eigenVec2[6] = (A.get(6,0)*eigenVec2[0] + A.get(6,1)*eigenVec2[1] + A.get(6,2)*eigenVec2[2])/l;
+            eigenVec2[3] = (A.get(3,0)*eigenVec2[0] + A.get(3,1)*eigenVec2[1] + A.get(3,2)*eigenVec2[2])/l;
+            eigenVec2[4] = (A.get(4,0)*eigenVec2[0] + A.get(4,1)*eigenVec2[1] + A.get(4,2)*eigenVec2[2])/l;
             break;
         }
     }
