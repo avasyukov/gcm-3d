@@ -7,7 +7,7 @@ gcm::AnalyticalRheologyMatrixDecomposer::~AnalyticalRheologyMatrixDecomposer() {
 }
 
 void gcm::AnalyticalRheologyMatrixDecomposer::decomposeX(const gcm_matrix& a, 
-							gcm_matrix& l, gcm_matrix& u, gcm_matrix& u1) const
+							gcm_matrix& u, gcm_matrix& l, gcm_matrix& u1) const
 {
 	l.clear();
     u.clear();
@@ -68,7 +68,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeX(const gcm_matrix& a,
 };
 
 void gcm::AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
-							gcm_matrix& l, gcm_matrix& u, gcm_matrix& u1) const
+							gcm_matrix& u, gcm_matrix& l, gcm_matrix& u1) const
 {
 	l.clear();
     u.clear();
@@ -128,7 +128,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
 };
 
 void gcm::AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
-							gcm_matrix& l, gcm_matrix& u, gcm_matrix& u1) const
+							gcm_matrix& u, gcm_matrix& l, gcm_matrix& u1) const
 {
 	l.clear();
     u.clear();
