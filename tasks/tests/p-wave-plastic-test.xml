@@ -2,6 +2,7 @@
     <system>
         <meshMovement type="none" />
         <plasticity type="PrandtlRauss" />
+		<anisotropicMatrix implementation="analytical" />
 	<!--plasticity type="none" /-->
     </system>
 	<bodies>
@@ -12,6 +13,6 @@
 	</bodies>
 	<initialState>
 		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
-		<values vz="0.366" sxx="230" syy="230" szz="540" />
+		<values vz="0.732" sxx="460" syy="460" szz="1080" />
 	</initialState>
 </task>

@@ -1,4 +1,4 @@
-<task numberOfSnaps="50" stepsPerSnap="1">
+<task numberOfSnaps="4" stepsPerSnap="1">
 	<system>
 		<meshMovement type="none" />
 		<anisotropicMatrix implementation="analytical" />

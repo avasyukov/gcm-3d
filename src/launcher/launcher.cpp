@@ -280,7 +280,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     NodeList anisotropicMatrixList = rootNode.xpath("/task/system/anisotropicMatrix");
     if( anisotropicMatrixList.size() > 1 )
         THROW_INVALID_INPUT("Config file can contain only one <anisotropicMatrix/> element");
-    if( anisotropicMatrixList.size() == 1 )
+    if (1)	//( anisotropicMatrixList.size() == 1 )
     {
         xml::Node anisotropicMatrix = anisotropicMatrixList.front();
         anisotropicMatrixImplementation = anisotropicMatrix["implementation"];
@@ -697,7 +697,10 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             else if (plasticityType == PLASTICITY_TYPE_PRANDTL_RAUSS)
             {
                 setter = makeSetterPtr<PrandtlRaussPlasticityRheologyMatrixSetter>();
-                decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
+				if (anisotropicMatrixImplementation == "numerical")
+					decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
+				else
+					decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer>();
             }
             else
             {

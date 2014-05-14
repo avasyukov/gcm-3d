@@ -58,10 +58,9 @@ void PrandtlRaussPlasticityRheologyMatrixSetter::computeQ(const MaterialPtr& mat
 		for(int j = 0; j < 3; j++)
 			for(int k = 0; k < 3; k++)
 				for(int l = 0; l < 3; l++) {
-					if(I == 1) cout << "Plasticity x = " << x << endl; 
+					//if(I == 1) cout << "Plasticity x = " << x << endl; 
 					q[i][j][k][l] = la * delta(i, j) * delta(k, l) + mu * (delta(i, k) * delta(j, l) + delta(i, l) * delta(j, k)) - mu*I*D(i, j)*D(k, l)/yieldStrength/yieldStrength;
 				}
-	
 };
 
 void PrandtlRaussPlasticityRheologyMatrixSetter::setX(gcm_matrix& a, const MaterialPtr& material, const ICalcNode& node)
