@@ -267,6 +267,17 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         }
     }
     
+    NodeList timeStepList = rootNode.xpath("/task/system/timeStep");
+    if( timeStepList.size() > 1 )
+        THROW_INVALID_INPUT("Config file can contain only one <timeStepList/> element");
+    if( timeStepList.size() == 1 )
+    {
+        xml::Node timeStep = timeStepList.front();
+        gcm_real value = lexical_cast<gcm_real>(timeStep["multiplier"]);
+        engine.setTimeStepMultiplier(value);
+        LOG_INFO("Using time step multiplier: " << value);
+    }
+    
     NodeList plasticityTypeList = rootNode.xpath("/task/system/plasticity");
     if( plasticityTypeList.size() > 1 )
         THROW_INVALID_INPUT("Config file can contain only one <plasticity/> element");

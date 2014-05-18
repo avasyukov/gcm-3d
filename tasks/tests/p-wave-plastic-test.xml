@@ -1,9 +1,10 @@
 <task numberOfSnaps="5" stepsPerSnap="1">
     <system>
         <meshMovement type="none" />
+        <timeStep multiplier="1.0" />
         <plasticity type="PrandtlRauss" />
-	<matrixDecomposition implementation="analytical" />
-	<!--plasticity type="none" /-->
+        <matrixDecomposition implementation="analytical" />
+        <!--plasticity type="none" /-->
     </system>
 	<bodies>
 		<body id="cube">
