@@ -2,7 +2,7 @@
     <system>
         <meshMovement type="none" />
         <plasticity type="PrandtlRauss" />
-		<anisotropicMatrix implementation="analytical" />
+	<matrixDecomposition implementation="analytical" />
 	<!--plasticity type="none" /-->
     </system>
 	<bodies>

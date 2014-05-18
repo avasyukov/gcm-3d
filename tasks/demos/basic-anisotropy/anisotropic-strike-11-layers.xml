@@ -1,7 +1,7 @@
 <task numberOfSnaps="50" stepsPerSnap="1">
 	<system>
 		<meshMovement type="none" />
-		<anisotropicMatrix implementation="numerical" />
+		<matrixDecomposition implementation="numerical" />
 	</system>
 	<bodies>
 		<body id="cube_for_11">

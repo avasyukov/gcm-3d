@@ -3,7 +3,7 @@
 		<defaultContactCalculator type="AdhesionContactCalculator" />
 		<meshMovement type="none" />
 		<!--collisionDetector static="true" /-->
-		<anisotropicMatrix implementation="analytical" />
+		<matrixDecomposition implementation="analytical" />
 	</system>
 	<bodies>
 		<body id="layer1">
