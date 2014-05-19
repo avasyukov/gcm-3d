@@ -1,12 +1,12 @@
 <task numberOfSnaps="50" stepsPerSnap="1">
 	<system>
 		<meshMovement type="none" />
-		<anisotropicMatrix implementation="numerical" />
+		<matrixDecomposition implementation="numerical" />
 	</system>
 	<bodies>
 		<body id="cube_for_11">
 			<rheology type="elastic" />
-			<mesh id="main" type="geo2" file="models/layer-x-strike_for_11.geo" tetrSize="0.2" />
+			<mesh id="main" type="geo2" file="models/cube_for_11.geo" tetrSize="0.2" />
 			<material id="layer1">
 				<area type="box" minX="-6.01" maxX="-4.99" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
 			</material>

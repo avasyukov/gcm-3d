@@ -105,6 +105,7 @@ namespace gcm
         unsigned char contactThresholdType;
         float contactThresholdFactor;
         float fixedTimeStep;
+        float timeStepMultiplier;
         float currentTime;
         int currentTimeStep;
 
@@ -243,6 +244,8 @@ namespace gcm
 
         void setTimeStep(float dt);
         float getTimeStep();
+        void setTimeStepMultiplier(float m);
+        float getTimeStepMultiplier();
         float getCurrentTime();
         void setCurrentTime(float time);
         void syncNodes();

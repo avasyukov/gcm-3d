@@ -53,6 +53,7 @@ void NumericalRheologyMatrixDecomposer::decompose(const gcm_matrix& a, gcm_matri
     for (int i = 0; i < 9; i++)
     {
         gsl_complex z = gsl_vector_complex_get(eval, i);
+	// FIXME_ASAP
         if (fabs(GSL_IMAG(z)) > IMAG_THRESHOLD) {
             cout << endl << a << endl << endl;
 			for(int j = 0; j < 9; j++)

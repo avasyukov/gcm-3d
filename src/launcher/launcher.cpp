@@ -267,6 +267,17 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         }
     }
     
+    NodeList timeStepList = rootNode.xpath("/task/system/timeStep");
+    if( timeStepList.size() > 1 )
+        THROW_INVALID_INPUT("Config file can contain only one <timeStepList/> element");
+    if( timeStepList.size() == 1 )
+    {
+        xml::Node timeStep = timeStepList.front();
+        gcm_real value = lexical_cast<gcm_real>(timeStep["multiplier"]);
+        engine.setTimeStepMultiplier(value);
+        LOG_INFO("Using time step multiplier: " << value);
+    }
+    
     NodeList plasticityTypeList = rootNode.xpath("/task/system/plasticity");
     if( plasticityTypeList.size() > 1 )
         THROW_INVALID_INPUT("Config file can contain only one <plasticity/> element");
@@ -276,15 +287,17 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         plasticityType = plasticityTypeList.front()["type"];
     }
 
-    string anisotropicMatrixImplementation = "numerical";
-    NodeList anisotropicMatrixList = rootNode.xpath("/task/system/anisotropicMatrix");
-    if( anisotropicMatrixList.size() > 1 )
-        THROW_INVALID_INPUT("Config file can contain only one <anisotropicMatrix/> element");
-    if (1)	//( anisotropicMatrixList.size() == 1 )
+    string matrixDecompositionImplementation = "numerical";
+    NodeList matrixDecompositionList = rootNode.xpath("/task/system/matrixDecomposition");
+    if( matrixDecompositionList.size() > 1 )
+        THROW_INVALID_INPUT("Config file can contain only one <matrixDecomposition/> element");
+    if( matrixDecompositionList.size() == 1 )
     {
-        xml::Node anisotropicMatrix = anisotropicMatrixList.front();
-        anisotropicMatrixImplementation = anisotropicMatrix["implementation"];
+        xml::Node matrixDecomposition = matrixDecompositionList.front();
+        matrixDecompositionImplementation = matrixDecomposition["implementation"];
     }
+
+    LOG_INFO("Using matrix decomposition: " << matrixDecompositionImplementation);
 
     loadMaterialLibrary("materials");
     
@@ -697,10 +710,10 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             else if (plasticityType == PLASTICITY_TYPE_PRANDTL_RAUSS)
             {
                 setter = makeSetterPtr<PrandtlRaussPlasticityRheologyMatrixSetter>();
-				if (anisotropicMatrixImplementation == "numerical")
-					decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
-				else
-					decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer>();
+                if (matrixDecompositionImplementation == "numerical")
+                    decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
+                else
+                    decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer>();
             }
             else
             {
@@ -715,7 +728,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                     LOG_WARN("Plasticity is not supported for anisotropic materials, using elastic instead.");
             }
             setter = makeSetterPtr<AnisotropicRheologyMatrixSetter>();
-            if( anisotropicMatrixImplementation == "numerical" )
+            if( matrixDecompositionImplementation == "numerical" )
                 decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
             else
                 decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer>();
