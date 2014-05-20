@@ -7,7 +7,7 @@
 
 using namespace gcm;
 
-void PrandtlRaussPlasticityRheologyMatrixSetter::getPlasticityProps(MaterialPtr material, float& yieldStrength)
+void PrandtlRaussPlasticityRheologyMatrixSetter::getPlasticityProps(MaterialPtr material, gcm_real& yieldStrength)
 {
     auto props = material->getPlasticityProperties();
     yieldStrength = props[PLASTICITY_TYPE_PRANDTL_RAUSS][PLASTICITY_PROP_YIELD_STRENGTH];
@@ -25,7 +25,7 @@ unsigned int PrandtlRaussPlasticityRheologyMatrixSetter::getStateForNode(const I
 
 void PrandtlRaussPlasticityRheologyMatrixSetter::computeQ(const MaterialPtr& material, const ICalcNode& node)
 {
-    float yieldStrength;
+    gcm_real yieldStrength;
     getPlasticityProps(material, yieldStrength);
 
     auto mu = material->getMu();
