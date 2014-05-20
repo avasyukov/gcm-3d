@@ -5,7 +5,11 @@
 using namespace gcm;
 #include <iostream>
 
-RheologyMatrix::RheologyMatrix(const MaterialPtr& material, const SetterPtr& setter, const DecomposerPtr& decomposer): material(material), setter(setter), decomposer(decomposer)
+RheologyMatrix::RheologyMatrix(const MaterialPtr& material, const SetterPtr& setter, const DecomposerPtr& decomposer): RheologyMatrix(material, setter, decomposer, nullptr)
+{
+}
+
+RheologyMatrix::RheologyMatrix(const MaterialPtr& material, const SetterPtr& setter, const DecomposerPtr& decomposer, const CorrectorPtr& corrector): material(material), setter(setter), decomposer(decomposer), corrector(corrector)
 {
     auto n = setter->getNumberOfStates(); 
     if (n == 0)
@@ -152,6 +156,11 @@ void RheologyMatrix::decompose(const ICalcNode& node, unsigned int direction)
     this->index = s;
 }
 
+void RheologyMatrix::applyCorrector(ICalcNode& node)
+{
+    if( corrector != nullptr)
+        corrector->correctNodeState(node, material);
+}
 
 // ====================================================================================================================
 

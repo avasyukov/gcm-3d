@@ -11,6 +11,7 @@
 #include "libgcm/rheology/Material.hpp"
 #include "libgcm/rheology/setters/ISetter.hpp"
 #include "libgcm/rheology/decomposers/IDecomposer.hpp"
+#include "libgcm/rheology/correctors/ICorrector.hpp"
 
 using namespace std;
 
@@ -38,6 +39,10 @@ namespace gcm
          * Matrix decomposer to use.
          */
         DecomposerPtr decomposer;
+        /**
+         * Node state corrector to use.
+         */
+        CorrectorPtr corrector;
         /**
          * Matrices cache.
          */
@@ -70,6 +75,15 @@ namespace gcm
          * @param decomposer Rheology matrix decomposer
          */
         RheologyMatrix(const MaterialPtr& material, const SetterPtr& setter, const DecomposerPtr& decomposer);
+        /**
+         * Constructs new rheology matrix.
+         *
+         * @param material Material to use for this matrix
+         * @param setter Rheology matrix setter
+         * @param decomposer Rheology matrix decomposer
+         * @param corrector Node state corrector
+         */
+        RheologyMatrix(const MaterialPtr& material, const SetterPtr& setter, const DecomposerPtr& decomposer, const CorrectorPtr& corrector);
         /**
          * Disabled copy constructor.
          */
@@ -159,6 +173,8 @@ namespace gcm
          * @param direction Direction to compute decomposition for
          */
         void decompose(const ICalcNode& node, unsigned int direction);
+        
+        void applyCorrector(ICalcNode& node);
     };
 
     typedef shared_ptr<RheologyMatrix> RheologyMatrixPtr;
