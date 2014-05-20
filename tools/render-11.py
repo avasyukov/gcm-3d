@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 import os
 import sys
@@ -39,10 +39,10 @@ def CreateImage(obj, field, label, limit, step):
     Show(obj)
     Render()
     SetUpView()
-    WriteImage('res-%(field)s-%(step)d.png' % {"field":label, "step":step})
+    WriteImage('res-%(field)s-%(step)d.png' % {"field":label, "step":step}, "vtkPNGWriter")
     GetActiveView().Representations.remove(bar)
 
-def CreateMatView():
+def CreateMatView(step):
     readers = [XMLUnstructuredGridReader(FileName = [os.path.join(os.getcwd(), 'snap_mesh_main_cpu_0_step_0.vtu')])]
     gds = GroupDatasets(*readers)
     s = Slice(gds)
@@ -64,7 +64,7 @@ def CreateSnap(step):
 step = int(sys.argv[1])
 
 SetUpView()
-CreateMatView()
+CreateMatView(step)
 
 for i in range(step+1):
 	CreateSnap(i)	
