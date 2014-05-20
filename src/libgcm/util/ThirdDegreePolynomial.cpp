@@ -71,8 +71,8 @@ void gcm::ThirdDegreePolynomial::findRoots()
 	for (int i = 0; i < 3; i++)
 		if (roots[i] < 0) {
 			// FIXME_ASAP
-			cout << "roots[" << i << "] = " << roots[i] << endl;
-			cout << roots[0] << "\t" << roots[1] << "\t" << roots[2] << endl;
+			// cout << "roots[" << i << "] = " << roots[i] << endl;
+			// cout << roots[0] << "\t" << roots[1] << "\t" << roots[2] << endl;
 			THROW_INVALID_INPUT("Root < 0");
 		}
 };
