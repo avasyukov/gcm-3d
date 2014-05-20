@@ -12,6 +12,7 @@
 #include "libgcm/rheology/decomposers/IsotropicRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
+#include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 
 #define ITERATIONS 1000
 
@@ -278,6 +279,33 @@ void testIsotropicTransition()
         Engine::getInstance().clear();
     }
 };
+
+TEST(AnisotropicMatrix3D, AnalyticalDecompositionTmp) 
+{	
+	CalcNode anisotropicNode;
+	auto mat = generateRandomMaterial("test");
+	auto matrix1 = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter,
+									AnalyticalRheologyMatrixDecomposer>(mat);
+	auto matrix2 = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter,
+									NumericalRheologyMatrixDecomposer>(mat);
+
+	for (int i = 0; i < 3; i++) {
+		switch (i) {
+			case 0: matrix1->decomposeX(anisotropicNode);
+				matrix2->decomposeX(anisotropicNode);
+				break;
+			case 1: matrix1->decomposeY(anisotropicNode);
+				matrix2->decomposeY(anisotropicNode);
+				break;
+			case 2: matrix1->decomposeZ(anisotropicNode);
+				matrix2->decomposeZ(anisotropicNode);
+				break;
+		}
+//		cout << matrix1->getA() << endl << matrix2->getA() << endl << 
+//				matrix1->getL() << endl << matrix2->getL() << endl;
+	}
+};
+
 
 TEST(AnisotropicMatrix3D, AnalyticalFuzzRandom)
 {

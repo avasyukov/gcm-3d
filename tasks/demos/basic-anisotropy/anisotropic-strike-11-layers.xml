@@ -1,7 +1,7 @@
-<task numberOfSnaps="1" stepsPerSnap="1">
+<task numberOfSnaps="50" stepsPerSnap="1">
 	<system>
 		<meshMovement type="none" />
-		<anisotropicMatrix implementation="numerical" />
+		<matrixDecomposition implementation="numerical" />
 	</system>
 	<bodies>
 		<body id="cube_for_11">
@@ -40,7 +40,6 @@
 			<material id="layer11">
 				<area type="box" minX="3.99" maxX="5.01" minY="-500.01" maxY="500.01" minZ="-500.01" maxZ="500.01"/>
 			</material>
-			<transform type="scale" x0="0" scaleX="1" y0="0" scaleY="50" z0="0" scaleZ="50" />
 		</body>
 	</bodies>
 	<materials>
@@ -104,7 +103,7 @@
 		</material>
 	</materials>
 	<initialState>
-		<area type="box" minX="-7" maxX="-5.5" minY="-25" maxY="25" minZ="-25" maxZ="25"/>
-		<values vx="30" />
+		<area type="box" minX="-7" maxX="-5.9" minY="-1" maxY="1" minZ="-1" maxZ="1"/>
+		<values vz="30" />
 	</initialState>
 </task>

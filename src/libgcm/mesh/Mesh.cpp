@@ -348,6 +348,18 @@ void gcm::Mesh::processCrackResponse()
     }
 }
 
+void gcm::Mesh::applyCorrectors()
+{
+    for(int i = 0; i < getNodesNumber(); i++)
+    {
+        CalcNode& node = getNodeByLocalIndex(i);
+        if( node.isLocal() )
+        {
+            node.getRheologyMatrix()->applyCorrector(node);
+        }
+    }
+}
+
 void gcm::Mesh::processStressState()
 {
     // FIXME  remove these obsolete code since there is no necessary to recalculate

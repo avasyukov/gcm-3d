@@ -5,7 +5,7 @@
 			<mesh id="main" type="geo2" file="models/layer.geo" tetrSize="0.4" />
 			<material id="testMaterial" />
 			<transform type="translate" moveX="0" moveY="0" moveZ="0" />
-			<transform type="scale" x0="0" scaleX="1" y0="0" scaleY="1" z0="0" scaleZ="1" />
+			<transform type="scale" x0="0" scaleX="1" y0="0" scaleY="1" z0="0" scaleZ="5" />
 		</body>
 	</bodies>
 	<materials>

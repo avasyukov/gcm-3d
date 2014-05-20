@@ -1,7 +1,11 @@
 #ifndef THIRDDEGREEPOLYNOMIAL_H
 #define    THIRDDEGREEPOLYNOMIAL_H 1
 
-#include "libgcm/rheology/Material.hpp"
+#include "libgcm/util/matrixes.hpp"
+#include "libgcm/Exception.hpp"
+#include "libgcm/Math.hpp"
+
+#include <cmath>
 
 namespace gcm {
     class ThirdDegreePolynomial
@@ -17,7 +21,7 @@ namespace gcm {
         void findRoots();
         bool isMltpl;
     public:
-        ThirdDegreePolynomial(float rho, const Material::RheologyProperties &C, int stage);
+        ThirdDegreePolynomial(const gcm_matrix &A, int stage);
         ~ThirdDegreePolynomial();
         void getRoots(double *place);
         bool isMultiple();

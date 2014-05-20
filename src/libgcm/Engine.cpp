@@ -71,6 +71,7 @@ gcm::Engine::Engine()
     currentTime = 0;
     currentTimeStep = 0;
     fixedTimeStep = -1;
+    timeStepMultiplier = 1.0;
     numberOfSnaps = 0;
     stepsPerSnap = 1;
     contactThresholdType = CONTACT_THRESHOLD_BY_AVG_H;
@@ -96,6 +97,7 @@ void gcm::Engine::clear() {
     currentTime = 0;
     currentTimeStep = 0;
     fixedTimeStep = -1;
+    timeStepMultiplier = 1.0;
     numberOfSnaps = 0;
     stepsPerSnap = 1;
     contactThresholdType = CONTACT_THRESHOLD_BY_AVG_H;
@@ -124,12 +126,24 @@ int gcm::Engine::getNumberOfWorkers()
 
 void gcm::Engine::setTimeStep(float dt)
 {
-    fixedTimeStep = dt;
+    if(dt > 0)
+        fixedTimeStep = dt;
 }
 
 float gcm::Engine::getTimeStep()
 {
     return fixedTimeStep;
+}
+
+void gcm::Engine::setTimeStepMultiplier(float m)
+{
+    if(m > 0)
+        timeStepMultiplier = m;
+}
+
+float gcm::Engine::getTimeStepMultiplier()
+{
+    return timeStepMultiplier;
 }
 
 GCMDispatcher* gcm::Engine::getDispatcher()
@@ -403,7 +417,7 @@ void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actu
     if( fixedTimeStep > 0 ) {
         tau = fixedTimeStep;
     } else {
-        tau = calculateRecommendedTimeStep();
+        tau = timeStepMultiplier * calculateRecommendedTimeStep();
     }
     LOG_DEBUG( "Local time step " << tau );
 
@@ -470,6 +484,9 @@ void gcm::Engine::doNextStepStages(const float time_step)
             LOG_DEBUG( "Doing calculations for mesh " << mesh->getId() );
             mesh->doNextPartStep(time_step, j);
             LOG_DEBUG( "Mesh calculation done" );
+            LOG_DEBUG( "Applying correctors for mesh " << mesh->getId() );
+            mesh->applyCorrectors();
+            LOG_DEBUG( "Applying correctors done" );
         }
         LOG_DEBUG( "Stage done" );
     }
@@ -527,8 +544,8 @@ void gcm::Engine::syncOutlines() {
 void gcm::Engine::calculate()
 {
     // We set time step once and do not change it during calculation
-    float tau = calculateRecommendedTimeStep();
-    setTimeStep( tau );
+    // float tau = calculateRecommendedTimeStep();
+    // setTimeStep( tau );
 
     for( int i = 0; i < numberOfSnaps; i++ )
     {
