@@ -15,6 +15,9 @@
 			<plasticity type="PrandtlRauss">
 				<yieldStrength>300</yieldStrength>
 			</plasticity>
+			<plasticity type="PrandtlRaussCorrector">
+				<yieldStrength>300</yieldStrength>
+			</plasticity>
         </material>
         
 		<material name="testAnisotropicMaterial" rheology="anisotropic">

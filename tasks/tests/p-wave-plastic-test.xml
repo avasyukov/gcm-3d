@@ -2,7 +2,7 @@
     <system>
         <meshMovement type="none" />
         <timeStep multiplier="1.0" />
-        <plasticity type="PrandtlRauss" />
+        <plasticity type="PrandtlRaussCorrector" />
         <matrixDecomposition implementation="analytical" />
         <!--plasticity type="none" /-->
     </system>

@@ -484,6 +484,9 @@ void gcm::Engine::doNextStepStages(const float time_step)
             LOG_DEBUG( "Doing calculations for mesh " << mesh->getId() );
             mesh->doNextPartStep(time_step, j);
             LOG_DEBUG( "Mesh calculation done" );
+            LOG_DEBUG( "Applying correctors for mesh " << mesh->getId() );
+            mesh->applyCorrectors();
+            LOG_DEBUG( "Applying correctors done" );
         }
         LOG_DEBUG( "Stage done" );
     }

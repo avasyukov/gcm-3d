@@ -30,6 +30,7 @@
 #include "libgcm/rheology/decomposers/IsotropicRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
+#include "libgcm/rheology/correctors/IdealPlasticFlowCorrector.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
 
 namespace ba = boost::algorithm;
@@ -691,6 +692,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         
         SetterPtr setter;
         DecomposerPtr decomposer;
+        CorrectorPtr corrector;
         RheologyMatrixPtr matrix;
 
         if (material->isIsotropic())
@@ -704,12 +706,23 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             
             if (plasticityType == PLASTICITY_TYPE_NONE)
             {
+                corrector = nullptr;
                 setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
                 decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
             }
             else if (plasticityType == PLASTICITY_TYPE_PRANDTL_RAUSS)
             {
+                corrector = nullptr;
                 setter = makeSetterPtr<PrandtlRaussPlasticityRheologyMatrixSetter>();
+                if (matrixDecompositionImplementation == "numerical")
+                    decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
+                else
+                    decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer>();
+            }
+            else if (plasticityType == PLASTICITY_TYPE_PRANDTL_RAUSS_CORRECTOR)
+            {
+                corrector = makeCorrectorPtr<IdealPlasticFlowCorrector>();
+                setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
                 if (matrixDecompositionImplementation == "numerical")
                     decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
                 else
@@ -727,6 +740,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 if (plasticityType != PLASTICITY_TYPE_NONE)
                     LOG_WARN("Plasticity is not supported for anisotropic materials, using elastic instead.");
             }
+            corrector = nullptr;
             setter = makeSetterPtr<AnisotropicRheologyMatrixSetter>();
             if( matrixDecompositionImplementation == "numerical" )
                 decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
@@ -734,7 +748,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer>();
         }
 
-        matrices.push_back(makeRheologyMatrixPtr(material, setter, decomposer));
+        matrices.push_back(makeRheologyMatrixPtr(material, setter, decomposer, corrector));
     }
 
     engine.setRheologyMatrices([&matrices](const CalcNode& node) -> RheologyMatrixPtr

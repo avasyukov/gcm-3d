@@ -240,6 +240,7 @@ namespace gcm {
         void processStressState();
         void processCrackState();
         void processCrackResponse();
+        void applyCorrectors();
         void moveCoords(float tau);
 
         float getMaxEigenvalue();
