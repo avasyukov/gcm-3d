@@ -723,10 +723,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             {
                 corrector = makeCorrectorPtr<IdealPlasticFlowCorrector>();
                 setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
-                if (matrixDecompositionImplementation == "numerical")
-                    decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
-                else
-                    decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer>();
+                decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
             }
             else
             {

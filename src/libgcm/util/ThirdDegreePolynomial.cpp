@@ -68,12 +68,10 @@ void gcm::ThirdDegreePolynomial::findRoots()
                     roots[1] = roots[2] = tmp;
                 }
     }
-//	for (int i = 0; i < 3; i++)
-//		if (roots[i] < 0) {
-//			cout << "roots[" << i << "] = " << roots[i] << endl;
-//			cout << roots[0] << "\t" << roots[1] << "\t" << roots[2] << endl;
-//			//THROW_INVALID_INPUT("Root < 0");
-//		}
+	for (int i = 0; i < 3; i++)
+		if (roots[i] < 0) {
+			THROW_INVALID_INPUT("Root < 0");
+		}
 };
 
 void gcm::ThirdDegreePolynomial::getRoots(double *place)
