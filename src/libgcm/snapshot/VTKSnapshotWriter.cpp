@@ -36,6 +36,8 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     vel->SetNumberOfComponents(3);
     vtkDoubleArray *crack = vtkDoubleArray::New();
     crack->SetNumberOfComponents(3);
+    vtkDoubleArray *force = vtkDoubleArray::New();
+    force->SetNumberOfComponents(3);
     vtkDoubleArray *sxx = vtkDoubleArray::New();
     vtkDoubleArray *sxy = vtkDoubleArray::New();
     vtkDoubleArray *sxz = vtkDoubleArray::New();
@@ -58,7 +60,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     float v[3];
     int snapNodeCount = 0;
     float c[3];
-
+    float f[3];
 
     for(int i = 0; i < mesh->getNodesNumber(); i++)
     {
@@ -73,6 +75,21 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
             memcpy(c, node.getCrackDirection(), 3*sizeof(float));
             vel->InsertNextTuple(v);
             crack->InsertNextTuple(c);
+            if( node.isBorder() )
+            {
+                float n[3];
+                mesh->findBorderNodeNormal(node.number, &n[0], &n[1], &n[2], false);
+                f[0] = node.sxx * n[0] + node.sxy * n[1] + node.sxz * n[2];
+                f[1] = node.sxy * n[0] + node.syy * n[1] + node.syz * n[2];
+                f[2] = node.sxz * n[0] + node.syz * n[1] + node.szz * n[2];
+            }
+            else
+            {
+                f[0] = 0.0;
+                f[1] = 0.0;
+                f[2] = 0.0;
+            }
+            force->InsertNextTuple(f);
             sxx->InsertNextValue( node.values[3] );
             sxy->InsertNextValue( node.values[4] );
             sxz->InsertNextValue( node.values[5] );
@@ -109,6 +126,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 
     vel->SetName("velocity");
     crack->SetName("crack");
+    force->SetName("externalForce");
     sxx->SetName("sxx");
     sxy->SetName("sxy");
     sxz->SetName("sxz");
@@ -130,6 +148,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 
     g->GetPointData()->SetVectors(vel);
     g->GetPointData()->AddArray(crack);
+    g->GetPointData()->AddArray(force);
     g->GetPointData()->AddArray(sxx);
     g->GetPointData()->AddArray(sxy);
     g->GetPointData()->AddArray(sxz);
@@ -151,6 +170,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 
     vel->Delete();
     crack->Delete();
+    force->Delete();
     sxx->Delete();
     sxy->Delete();
     sxz->Delete();
