@@ -1,4 +1,4 @@
-<task numberOfSnaps="5" stepsPerSnap="1">
+<task numberOfSnaps="100" stepsPerSnap="1">
     <system>
         <meshMovement type="none" />
         <timeStep multiplier="1.0" />
@@ -8,12 +8,15 @@
     </system>
 	<bodies>
 		<body id="cube">
-			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.4" />
+			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.2" />
 	    	<material id="steel" />
 		</body>
 	</bodies>
-	<initialState>
+	<!--initialState>
 		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
-		<values vz="0.732" sxx="460" syy="460" szz="1080" />
-	</initialState>
+		<values vz="-1.464" sxx="-920" syy="-920" szz="-2160" />
+	</initialState-->
+	<borderCondition calculator="ExternalForceCalculator" normalStress="-2160" tangentialStress="0.0">
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="4.9" maxZ="5.1"/>
+	</borderCondition>
 </task>
