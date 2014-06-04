@@ -17,6 +17,8 @@ public:
     inline string getType() {
         return "FreeBorderCalculator";
     }
+	
+	void setParameters(const xml::Node& params);
 
 protected:
 

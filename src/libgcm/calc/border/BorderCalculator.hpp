@@ -10,9 +10,13 @@
 
 #include <string>
 #include <vector>
+#include <initializer_list>
 
 #include "libgcm/Logging.hpp"
 #include "libgcm/rheology/RheologyMatrix.hpp"
+
+#include <boost/lexical_cast.hpp>
+#include "launcher/util/xml.hpp"
 
 using namespace std;
 
@@ -38,6 +42,12 @@ namespace gcm
          * Returns type of the calculator
          */
         virtual string getType() = 0;
+		
+		// TODO: we should either 'officially approve' using xml:Node here or implement loaders
+		/*
+		 * Initializes calculator parameters
+		 */
+		virtual void setParameters(const xml::Node& params) = 0;
 
         /*
          * Intended for SPGCM. Sorry for that.

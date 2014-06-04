@@ -1,6 +1,9 @@
 #include "libgcm/calc/border/ExternalForceCalculator.hpp"
 
+#include <boost/lexical_cast.hpp>
 #include "libgcm/node/CalcNode.hpp"
+
+using boost::lexical_cast;
 
 ExternalForceCalculator::ExternalForceCalculator()
 {
@@ -18,14 +21,30 @@ ExternalForceCalculator::~ExternalForceCalculator()
     gsl_permutation_free(p_gsl);
 };
 
-void ExternalForceCalculator::set_parameters(float sn, float st, float xv, float yv, float zv)
+void ExternalForceCalculator::setParameters(const xml::Node& params)
 {
-    normal_stress = sn;
-    tangential_stress = st;
-    float dtmp = vectorNorm(xv, yv, zv);
-    tangential_direction[0] = xv / dtmp;
-    tangential_direction[1] = yv / dtmp;
-    tangential_direction[2] = zv / dtmp;
+    gcm_real normalStress = lexical_cast<gcm_real>(params["normalStress"]);
+    gcm_real tangentialStress = lexical_cast<gcm_real>(params["tangentialStress"]);
+    gcm_real tangentialDirection[3];
+    if(tangentialStress == 0.0)
+    {
+        tangentialDirection[0] = 1.0;
+        tangentialDirection[1] = 0.0;
+        tangentialDirection[2] = 0.0;
+    }
+    else
+    {
+        tangentialDirection[0] = lexical_cast<gcm_real>(params["tangentialX"]);
+        tangentialDirection[1] = lexical_cast<gcm_real>(params["tangentialY"]);
+        tangentialDirection[2] = lexical_cast<gcm_real>(params["tangentialZ"]);
+    }
+    
+    normal_stress = normalStress;
+    tangential_stress = tangentialStress;
+    float dtmp = vectorNorm(tangentialDirection[0], tangentialDirection[1], tangentialDirection[2]);
+    tangential_direction[0] = tangentialDirection[0] / dtmp;
+    tangential_direction[1] = tangentialDirection[1] / dtmp;
+    tangential_direction[2] = tangentialDirection[2] / dtmp;
 };
 
 void ExternalForceCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,

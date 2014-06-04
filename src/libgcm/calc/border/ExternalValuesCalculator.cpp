@@ -18,6 +18,11 @@ ExternalValuesCalculator::~ExternalValuesCalculator()
     gsl_permutation_free(p_gsl);
 };
 
+void ExternalValuesCalculator::setParameters(const xml::Node& params)
+{
+    
+};
+
 void ExternalValuesCalculator::set_parameters(int vars[], float vals[])
 {
     for(int i = 0; i < 3; i++) {

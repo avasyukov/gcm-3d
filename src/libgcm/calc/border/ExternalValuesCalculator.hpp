@@ -17,6 +17,7 @@ public:
     inline string getType() {
         return "ExternalValuesCalculator";
     }
+	void setParameters(const xml::Node& params);
     void set_parameters(int vars[], float vals[]);
 
 protected:

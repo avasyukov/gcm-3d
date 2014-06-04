@@ -11,6 +11,11 @@ SmoothBorderCalculator::~SmoothBorderCalculator()
 {
 };
 
+void SmoothBorderCalculator::setParameters(const xml::Node& params)
+{
+    
+};
+
 void SmoothBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)
