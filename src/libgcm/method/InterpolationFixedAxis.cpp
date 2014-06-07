@@ -79,10 +79,11 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
     if (cur_node.isBorder())
     {
         LOG_TRACE("Start border node calc");
-        // FIXME - do smth with this!
+        // FIXME_ASAP - do smth with this!
+        // It is not stable now. See ugly hack below.
         // Think about: (a) cube, (b) rotated cube, (c) sphere.
-        outer_normal[0] = outer_normal[1] = outer_normal[2] = 0;
-        outer_normal[stage] = 1;
+        // outer_normal[0] = outer_normal[1] = outer_normal[2] = 0;
+        // outer_normal[stage] = 1;
         // If there is no 'outer' omega - it is ok, border node can be inner for some directions
         if (outer_count == 0)
         {
