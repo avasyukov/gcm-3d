@@ -1,0 +1,19 @@
+<task numberOfSnaps="25" stepsPerSnap="1">
+    <system>
+        <meshMovement type="none" />
+        <timeStep multiplier="1.0" />
+        <plasticity type="PrandtlRaussCorrector" />
+        <matrixDecomposition implementation="analytical" />
+        <!--plasticity type="none" /-->
+    </system>
+	<bodies>
+		<body id="cube">
+			<mesh id="main" type="cube" h="0.2" num="50" />
+			<material id="steel" />
+			<transform type="translate" moveX="-5" moveY="-5" moveZ="-5" />
+		</body>
+	</bodies>
+	<borderCondition calculator="ExternalForceCalculator" normalStress="-2160" tangentialStress="0.0">
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="4.9" maxZ="5.1"/>
+	</borderCondition>
+</task>
