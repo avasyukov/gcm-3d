@@ -1,0 +1,70 @@
+<task numberOfSnaps="70" stepsPerSnap="1">
+	<system>
+		<!-- Default contact condition is sliding -->
+		<defaultContactCalculator type="SlidingContactCalculator" />
+		<meshMovement type="none" />
+		<matrixDecomposition implementation="analytical" />
+		<collisionDetector static="true" />
+	</system>
+	<bodies>
+		 <body id="sphere">
+			<rheology type="elastic" />
+			<mesh id="sphere" type="geo2" file="models/cd_sphere.geo" tetrSize="0.4" />
+			<material id="steelAH" />
+			<transform type="translate" moveX="-4.01" moveY="0" moveZ="0" />
+		</body>
+		<body id="layer1">
+			<rheology type="elastic" />
+			<mesh id="layer1" type="geo2" file="models/layer-thin-x-strike.geo" tetrSize="0.4" />
+			<material id="layer1_mat" />
+		</body>
+		<body id="layer2">
+			<rheology type="elastic" />
+			<mesh id="layer2" type="geo2" file="models/layer-thin-x-strike.geo" tetrSize="0.4" />
+			<transform type="translate" moveX="2.51" moveY="0" moveZ="0" />
+			<material id="layer2_mat" />
+		</body>
+	</bodies>
+	<materials>
+		<material name="layer1_mat" rheology="anisotropic" source="testLayer">
+			<rotate a1="0" a2="0" a3="0"/>
+		</material>
+		<material name="layer2_mat" rheology="anisotropic" source="testLayer">
+			<rotate a1="90" a2="0" a3="0"/>
+		</material>
+		<material name="steelAH" rheology="anisotropic">
+                        <c11>180000</c11>
+                        <c12>140000</c12>
+                        <c13>140000</c13>
+                        <c14>0</c14>
+                        <c15>0</c15>
+                        <c16>0</c16>
+                        <c22>180000</c22>
+                        <c23>140000</c23>
+                        <c24>0</c24>
+                        <c25>0</c25>
+                        <c26>0</c26>
+                        <c33>180000</c33>
+                        <c34>0</c34>
+                        <c35>0</c35>
+                        <c36>0</c36>
+                        <c44>20000</c44>
+                        <c45>0</c45>
+                        <c46>0</c46>
+                        <c55>20000</c55>
+                        <c56>0</c56>
+                        <c66>20000</c66>
+                        <rho>1</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+	</materials>
+	<!-- Strike from the top -->
+	<initialState>
+		<area type="box" minX="-6" maxX="-2.501" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+		<values vx="30"/>
+	</initialState>
+	<!-- Plates are glued to each other -->
+	<contactCondition calculator="AdhesionContactDestroyCalculator" adhesionThreshold="100">
+		<area type="box" minX="-0.02" maxX="0.02" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+	</contactCondition>
+</task>
