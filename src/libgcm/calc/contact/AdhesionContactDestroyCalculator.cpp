@@ -31,6 +31,10 @@ void AdhesionContactDestroyCalculator::doCalc(CalcNode& cur_node, CalcNode& new_
         float force_cur_abs = scalarProduct(force_cur, outer_normal);
         float adhesionTreshold = Engine::getInstance().getContactCondition( 
                                         cur_node.getContactConditionId() )->getConditionParam();
+        //if (force_cur_abs > 0.1 * adhesionTreshold)
+        //{
+        //    std::cout << "Force: " << force_cur_abs << "\n";
+        //}
         if (force_cur_abs > adhesionTreshold)
         {
             cur_node.setContactDestroyed(true);

@@ -79,10 +79,12 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
     if (cur_node.isBorder())
     {
         LOG_TRACE("Start border node calc");
-        // FIXME - do smth with this!
+        // FIXME_ASAP - do smth with this!
+        // It is not stable now. See ugly hack below.
         // Think about: (a) cube, (b) rotated cube, (c) sphere.
+        float val = (outer_normal[stage] >= 0 ? 1.0 : -1.0);
         outer_normal[0] = outer_normal[1] = outer_normal[2] = 0;
-        outer_normal[stage] = 1;
+        outer_normal[stage] = val;
         // If there is no 'outer' omega - it is ok, border node can be inner for some directions
         if (outer_count == 0)
         {
@@ -120,7 +122,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
                 // TODO FIXME - most probably CollisionDetector should do it
                 // But we should check it anycase
                 virt_node.setInContact(true);
-                virt_node.contactNodeNum = cur_node.contactNodeNum;
+                //virt_node.contactNodeNum = cur_node.contactNodeNum;
 
                 // Variables used in calculations internally
 

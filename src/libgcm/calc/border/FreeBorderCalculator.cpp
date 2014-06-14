@@ -19,6 +19,11 @@ FreeBorderCalculator::~FreeBorderCalculator()
     gsl_permutation_free(p_gsl);
 };
 
+void FreeBorderCalculator::setParameters(const xml::Node& params)
+{
+    
+};
+
 void FreeBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)

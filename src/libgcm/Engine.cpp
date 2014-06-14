@@ -4,7 +4,7 @@
 #include "libgcm/method/InterpolationFixedAxis.hpp"
 #include "libgcm/calc/volume/SimpleVolumeCalculator.hpp"
 //#include "libgcm/calc/border/ExternalVelocityCalculator.hpp"
-//#include "libgcm/calc/border/ExternalForceCalculator.hpp"
+#include "libgcm/calc/border/ExternalForceCalculator.hpp"
 #include "libgcm/calc/border/FixedBorderCalculator.hpp"
 #include "libgcm/calc/border/FreeBorderCalculator.hpp"
 #include "libgcm/calc/border/SmoothBorderCalculator.hpp"
@@ -40,7 +40,7 @@ gcm::Engine::Engine()
     LOG_DEBUG("Registering default calculators");
     registerVolumeCalculator( new SimpleVolumeCalculator() );
     //registerBorderCalculator( new ExternalVelocityCalculator() );
-    //registerBorderCalculator( new ExternalForceCalculator() );
+    registerBorderCalculator( new ExternalForceCalculator() );
     registerBorderCalculator( new FixedBorderCalculator() );
     registerBorderCalculator( new FreeBorderCalculator() );
     registerBorderCalculator( new SmoothBorderCalculator() );

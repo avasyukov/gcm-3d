@@ -1,0 +1,111 @@
+<task numberOfSnaps="300" stepsPerSnap="1">
+	<system>
+		<meshMovement type="none" />
+		<anisotropicMatrix implementation="analytical" />
+		<defaultContactCalculator type="SlidingContactCalculator" />
+		<collisionDetector static="true" />
+	</system>
+	<bodies>
+		<body id="ad_up">
+			<rheology type="elastic" />
+			<mesh id="ad_up" type="geo2" file="models/ai-dl-cover-up.geo" tetrSize="1.0" />
+			<material id="mat_up" />
+		</body>
+		<body id="ad_dn">
+                        <rheology type="elastic" />
+                        <mesh id="ad_dn" type="geo2" file="models/ai-dl-cover-dn.geo" tetrSize="1.0" />
+                        <material id="mat_dn" />
+                </body>
+		<body id="ad_sp">
+                        <rheology type="elastic" />
+                        <mesh id="ad_sp" type="geo2" file="models/ai-dl-sphere.geo" tetrSize="0.6" />
+                        <material id="steel" />
+                </body>
+	</bodies>
+	<materials>
+		<material name="mat_up" rheology="anisotropic">
+			<c11>180000</c11>
+			<c12>70000</c12>
+			<c13>70000</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>90000</c22>
+			<c23>70000</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>90000</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>10000</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>20000</c55>
+			<c56>0</c56>
+			<c66>20000</c66>
+			<rho>1</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+		<material name="mat_dn" rheology="anisotropic">
+                        <c11>90000</c11>
+                        <c12>70000</c12>
+                        <c13>70000</c13>
+                        <c14>0</c14>
+                        <c15>0</c15>
+                        <c16>0</c16>
+                        <c22>180000</c22>
+                        <c23>70000</c23>
+                        <c24>0</c24>
+                        <c25>0</c25>
+                        <c26>0</c26>
+                        <c33>90000</c33>
+                        <c34>0</c34>
+                        <c35>0</c35>
+                        <c36>0</c36>
+                        <c44>20000</c44>
+                        <c45>0</c45>
+                        <c46>0</c46>
+                        <c55>10000</c55>
+                        <c56>0</c56>
+                        <c66>20000</c66>
+                        <rho>1</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+		<material name="steel" rheology="anisotropic">
+                        <c11>180000</c11>
+                        <c12>140000</c12>
+                        <c13>140000</c13>
+                        <c14>0</c14>
+                        <c15>0</c15>
+                        <c16>0</c16>
+                        <c22>180000</c22>
+                        <c23>140000</c23>
+                        <c24>0</c24>
+                        <c25>0</c25>
+                        <c26>0</c26>
+                        <c33>180000</c33>
+                        <c34>0</c34>
+                        <c35>0</c35>
+                        <c36>0</c36>
+                        <c44>20000</c44>
+                        <c45>0</c45>
+                        <c46>0</c46>
+                        <c55>20000</c55>
+                        <c56>0</c56>
+                        <c66>20000</c66>
+                        <rho>1</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+
+		
+	</materials>
+	<initialState>
+		<area type="box" minX="-5.01" maxX="4.99" minY="-10" maxY="10" minZ="6.005" maxZ="100"/>
+		<values vz="-30" />
+	</initialState>
+	<contactCondition calculator="AdhesionContactDestroyCalculator" adhesionThreshold="100">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-0.02" maxZ="0.02"/>
+        </contactCondition>
+</task>

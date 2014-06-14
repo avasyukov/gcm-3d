@@ -18,6 +18,8 @@ public:
     inline string getType() {
         return "SmoothBorderCalculator";
     }
+	
+	void setParameters(const xml::Node& params);
 
 protected:
 

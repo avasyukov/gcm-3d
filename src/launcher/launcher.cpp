@@ -621,6 +621,10 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         {
             THROW_INVALID_INPUT("Unknown border calculator requested: " + calculator);
         }
+        
+        // FIXME_ASAP: calculators became statefull
+        engine.getBorderCalculator(calculator)->setParameters( borderConditionNode );
+        
         unsigned int conditionId = engine.addBorderCondition(
                 new BorderCondition(NULL, new StepPulseForm(-1, -1), engine.getBorderCalculator(calculator) ) 
         );

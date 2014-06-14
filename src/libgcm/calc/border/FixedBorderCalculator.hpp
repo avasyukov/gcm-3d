@@ -15,6 +15,8 @@ public:
     inline string getType() {
         return "FixedBorderCalculator";
     }
+	
+	void setParameters(const xml::Node& params);
 
 protected:
 

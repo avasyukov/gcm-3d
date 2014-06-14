@@ -18,6 +18,11 @@ FixedBorderCalculator::~FixedBorderCalculator()
     gsl_permutation_free(p_gsl);
 };
 
+void FixedBorderCalculator::setParameters(const xml::Node& params)
+{
+    
+};
+
 void FixedBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)

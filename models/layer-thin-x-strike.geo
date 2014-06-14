@@ -1,13 +1,13 @@
 meshPointDist = 0.2;
 
-Point(1) = {-2.5, -5, -5, meshPointDist};
-Point(2) = {-2.5, -5, 5, meshPointDist};
-Point(3) = {0, -5, 5, meshPointDist};
-Point(4) = {0, -5, -5, meshPointDist};
-Point(5) = {-2.5, 5, -5, meshPointDist};
-Point(6) = {-2.5, 5, 5, meshPointDist};
-Point(7) = {0, 5, 5, meshPointDist};
-Point(8) = {0, 5, -5, meshPointDist};
+Point(1) = {-2.5, -10, -10, meshPointDist};
+Point(2) = {-2.5, -10, 10, meshPointDist};
+Point(3) = {0, -10, 10, meshPointDist};
+Point(4) = {0, -10, -10, meshPointDist};
+Point(5) = {-2.5, 10, -10, meshPointDist};
+Point(6) = {-2.5, 10, 10, meshPointDist};
+Point(7) = {0, 10, 10, meshPointDist};
+Point(8) = {0, 10, -10, meshPointDist};
 Line(9) = {1, 2};
 Line(10) = {2, 3};
 Line(11) = {3, 4};

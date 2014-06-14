@@ -17,6 +17,7 @@ public:
     inline string getType() {
         return "ExternalVelocityCalculator";
     }
+	void setParameters(const xml::Node& params);
     void set_parameters(float vn, float vt, float xv, float yv, float zv);
 
 protected:

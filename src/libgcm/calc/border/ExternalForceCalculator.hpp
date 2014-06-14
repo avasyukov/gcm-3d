@@ -13,11 +13,11 @@ public:
     ~ExternalForceCalculator();
     void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[],
-                            float outer_normal[], float scale) = 0;
+                            float outer_normal[], float scale);
     inline string getType() {
         return "ExternalForceCalculator";
     }
-    void set_parameters(float sn, float st, float xv, float yv, float zv);
+	void setParameters(const xml::Node& params);
 
 protected:
 

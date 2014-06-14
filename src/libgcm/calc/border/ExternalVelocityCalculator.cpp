@@ -18,6 +18,11 @@ ExternalVelocityCalculator::~ExternalVelocityCalculator()
     gsl_permutation_free(p_gsl);
 };
 
+void ExternalVelocityCalculator::setParameters(const xml::Node& params)
+{
+    
+};
+
 void ExternalVelocityCalculator::set_parameters(float vn, float vt, float xv, float yv, float zv)
 {
     normal_v = vn;
