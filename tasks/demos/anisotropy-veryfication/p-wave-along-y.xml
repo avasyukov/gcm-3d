@@ -6,7 +6,7 @@
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />
-			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.2" />
+			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.4" />
 			<material id="trans-isotropic" />
 		</body>
 	</bodies>
