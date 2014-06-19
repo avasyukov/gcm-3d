@@ -1,0 +1,44 @@
+<task numberOfSnaps="20" stepsPerSnap="1">
+	<system>
+		<meshMovement type="none" />
+		<matrixDecomposition implementation="numerical" />
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.2" />
+			<material id="trans-isotropic" />
+		</body>
+	</bodies>
+	<materials>
+		<material name="trans-isotropic" rheology="anisotropic">
+			<c11>90000</c11>
+			<c12>70000</c12>
+			<c13>17500</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>90000</c22>
+			<c23>17500</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>22500</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>10000</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>10000</c55>
+			<c56>0</c56>
+			<c66>10000</c66>
+			<rho>1</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+	</materials>
+	<initialState>
+		<area type="box" minX="1" maxX="3" minY="-10" maxY="10" minZ="-10" maxZ="10"/>
+		<values vy="1" vz="1" sxy="100" sxz="100" />
+	</initialState>
+</task>
