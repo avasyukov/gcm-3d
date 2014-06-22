@@ -58,9 +58,6 @@ namespace gcm {
         string snapshotWriterType;
         string dumpWriterType;
 
-        // FIXME - do we need it in mesh?
-        float current_time;
-
         /*
          * List of mesh nodes.
          */
@@ -215,9 +212,6 @@ namespace gcm {
          * Returns mesh body.
          */
         IBody* getBody();
-
-        void update_current_time(float time_step);
-        float get_current_time();
 
         virtual void createOutline();
         AABB getOutline();

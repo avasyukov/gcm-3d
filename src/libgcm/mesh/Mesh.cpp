@@ -6,7 +6,6 @@ gcm::Mesh::Mesh()
 {
     INIT_LOGGER("gcm.Mesh");
     calc = false;
-    current_time = 0;
     nodesNumber = 0;
     nodesStorageSize = 0;
     movable = false;
@@ -69,16 +68,6 @@ void gcm::Mesh::setBodyNum(unsigned char id)
 IBody* gcm::Mesh::getBody()
 {
     return body;
-}
-
-void gcm::Mesh::update_current_time(float time_step)
-{
-    current_time += time_step;
-}
-
-float gcm::Mesh::get_current_time()
-{
-    return current_time;
 }
 
 void gcm::Mesh::snapshot(int number)

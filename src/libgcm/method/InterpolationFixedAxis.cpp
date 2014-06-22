@@ -100,7 +100,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
                 // FIXME
                 int borderCondId = cur_node.getBorderConditionId();
                 LOG_TRACE("Using calculator: " << engine->getBorderCondition(borderCondId)->calc->getType());
-                engine->getBorderCondition(borderCondId)->doCalc(mesh->get_current_time(), cur_node,
+                engine->getBorderCondition(borderCondId)->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
                                                                  new_node, cur_node.getRheologyMatrix(), previous_nodes, inner, outer_normal);
             }
             // Contact
@@ -232,7 +232,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
                 //
                 LOG_TRACE("Using calculator: " << engine->getContactCondition(cur_node.getContactConditionId())->calc->getType());
                 LOG_TRACE("Outer normal: " << outer_normal[0] << " " << outer_normal[1] << " " << outer_normal[2]);
-                engine->getContactCondition(cur_node.getContactConditionId())->doCalc(mesh->get_current_time(), cur_node,
+                engine->getContactCondition(cur_node.getContactConditionId())->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
                                                        new_node, virt_node, cur_node.getRheologyMatrix(), previous_nodes, inner,
                                                        virt_node.getRheologyMatrix(), virt_previous_nodes, virt_inner, outer_normal);
             }
@@ -242,7 +242,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
         {
             // FIXME - implement border and contact completely
             LOG_TRACE("Using calculator: " << engine->getBorderCondition(0)->calc->getType());
-            engine->getBorderCondition(0)->doCalc(mesh->get_current_time(), cur_node,
+            engine->getBorderCondition(0)->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
                                                   new_node, cur_node.getRheologyMatrix(), previous_nodes, inner, outer_normal);
             cur_node.setNeighError(stage);
         }
