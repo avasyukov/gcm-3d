@@ -13,7 +13,8 @@ gcm::BasicCubicMesh::BasicCubicMesh()
     dumpWriterType = "VTKCubicSnapshotWriter";
     INIT_LOGGER("gcm.BasicCubicMesh");
     LOG_DEBUG("Creating mesh");
-    interpolator = new LineFirstOrderInterpolator();
+    interpolator1 = new LineFirstOrderInterpolator();
+    interpolator2 = new LineSecondOrderInterpolator();
 }
 
 gcm::BasicCubicMesh::~BasicCubicMesh()
@@ -23,7 +24,8 @@ gcm::BasicCubicMesh::~BasicCubicMesh()
     // TODO - do we need it here?
     nodes.clear();
     new_nodes.clear();
-    delete interpolator;
+    delete interpolator1;
+    delete interpolator2;
     LOG_DEBUG("Mesh destroyed");
 }
 
@@ -178,7 +180,32 @@ bool gcm::BasicCubicMesh::interpolateNode(CalcNode& origin, float dx, float dy, 
     if( neighInd == -1 )
         return false;
 
-    interpolator->interpolate( targetNode, origin, getNode( neighInd ) );
+    CalcNode tmpNode;
+    int secondNeighInd = findNeighbourPoint( origin, -dx, -dy, -dz, debug,
+                                    tmpNode.coords, &isInnerPoint );
+
+    //interpolator1->interpolate( targetNode, origin, getNode( neighInd ) );
+    //return true;
+    
+    if( secondNeighInd == -1 )
+    {
+        interpolator1->interpolate( targetNode, origin, getNode( neighInd ) );
+    }
+    else
+    {
+        int leftInd, rightInd;
+        if( dx + dy + dz > 0 )
+        {
+            leftInd = secondNeighInd;
+            rightInd = neighInd;
+        }
+        else
+        {
+            rightInd = secondNeighInd;
+            leftInd = neighInd;
+        }
+        interpolator2->interpolate( targetNode, getNode( leftInd ), origin, getNode( rightInd ) );
+    }
     return true;
 };
 

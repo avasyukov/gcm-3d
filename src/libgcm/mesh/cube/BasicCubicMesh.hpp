@@ -7,6 +7,7 @@
 #include "libgcm/Exception.hpp"
 
 #include "libgcm/interpolator/LineFirstOrderInterpolator.hpp"
+#include "libgcm/interpolator/LineSecondOrderInterpolator.hpp"
 
 using namespace gcm;
 
@@ -24,7 +25,8 @@ namespace gcm
 */
 
     private:
-        LineFirstOrderInterpolator* interpolator;
+        LineFirstOrderInterpolator* interpolator1;
+		LineSecondOrderInterpolator* interpolator2;
 
     protected:
         void logMeshStats();
