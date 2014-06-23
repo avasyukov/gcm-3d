@@ -625,8 +625,11 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         // FIXME_ASAP: calculators became statefull
         engine.getBorderCalculator(calculator)->setParameters( borderConditionNode );
         
+        float startTime = lexical_cast<gcm_real>(borderConditionNode.getAttributeByName("startTime", "-1"));
+        float duration = lexical_cast<gcm_real>(borderConditionNode.getAttributeByName("duration", "-1"));
+        
         unsigned int conditionId = engine.addBorderCondition(
-                new BorderCondition(NULL, new StepPulseForm(-1, -1), engine.getBorderCalculator(calculator) ) 
+                new BorderCondition(NULL, new StepPulseForm(startTime, duration), engine.getBorderCalculator(calculator) ) 
         );
         LOG_INFO("Border condition created with calculator: " + calculator);
         
@@ -655,8 +658,12 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         {
             THROW_INVALID_INPUT("Unknown border calculator requested: " + calculator);
         }
+        
+        float startTime = lexical_cast<gcm_real>(contactConditionNode.getAttributeByName("startTime", "-1"));
+        float duration = lexical_cast<gcm_real>(contactConditionNode.getAttributeByName("duration", "-1"));
+        
         unsigned int conditionId = engine.addContactCondition(
-                new ContactCondition(NULL, new StepPulseForm(-1, -1), engine.getContactCalculator(calculator) ) 
+                new ContactCondition(NULL, new StepPulseForm(startTime, duration), engine.getContactCalculator(calculator) ) 
         );
         if (calculator == "AdhesionContactDestroyCalculator")
         {
