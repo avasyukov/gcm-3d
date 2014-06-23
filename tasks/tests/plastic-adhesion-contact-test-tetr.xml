@@ -1,0 +1,25 @@
+<task numberOfSnaps="150" stepsPerSnap="1">
+	<system>
+		<meshMovement type="none" />
+		<timeStep multiplier="1.0" />
+		<plasticity type="PrandtlRaussCorrector" />
+		<matrixDecomposition implementation="analytical" />
+		<defaultContactCalculator type="AdhesionContactCalculator" />
+	</system>
+	<bodies>
+		<body id="cube">
+                        <mesh id="cube" type="geo2" file="models/cube.geo" tetrSize="0.5" />
+                        <material id="steel2" />
+			<transform type="scale" x0="0" y0="0" z0="0" scaleX="1" scaleY="5" scaleZ="5" />
+		</body>
+		<body id="cube2">
+                        <mesh id="cube2" type="geo2" file="models/cube.geo" tetrSize="0.5" />
+                        <material id="steel" />
+			<transform type="translate" moveX="10.01" moveY="0" moveZ="0" />
+			<transform type="scale" x0="0" y0="0" z0="0" scaleX="1" scaleY="5" scaleZ="5" />
+		</body>
+	</bodies>
+        <borderCondition calculator="ExternalForceCalculator" normalStress="-2160" tangentialStress="0.0">
+                <area type="box" minX="-5.1" maxX="-4.9" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+        </borderCondition>
+</task>

@@ -20,6 +20,19 @@
 			</plasticity>
         </material>
 
+        <material name="steel2" rheology="isotropic">
+            <la>115000</la>
+            <mu>77000</mu>
+            <rho>2</rho>
+            <crackThreshold>INF</crackThreshold>
+			<plasticity type="PrandtlRauss">
+				<yieldStrength>300</yieldStrength>
+			</plasticity>
+			<plasticity type="PrandtlRaussCorrector">
+				<yieldStrength>300</yieldStrength>
+			</plasticity>
+        </material>
+
 		<material name="monolayer" rheology="anisotropic">
 			<c11>10600</c11>
 			<c12>4600</c12>
