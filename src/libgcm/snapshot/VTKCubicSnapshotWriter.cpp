@@ -144,6 +144,10 @@ void gcm::VTKCubicSnapshotWriter::dumpVTK(string filename, BasicCubicMesh *mesh,
     // Write file
     vtkSmartPointer<vtkXMLStructuredGridWriter> writer = vtkSmartPointer<vtkXMLStructuredGridWriter>::New();
     writer->SetFileName(filename.c_str());
+    #ifdef CONFIG_VTK_5
     writer->SetInput(structuredGrid);
+    #else
+    writer->SetInputData(structuredGrid);
+    #endif
     writer->Write();
 }

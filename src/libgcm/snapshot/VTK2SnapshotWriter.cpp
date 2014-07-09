@@ -197,7 +197,11 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
     tetr2ndOrderNodes->Delete ();
     tetrNumber->Delete ();
 
+    #ifdef CONFIG_VTK_5
     xgw->SetInput(g);
+    #else
+    xgw->SetInputData(g);
+    #endif
     xgw->SetFileName(filename.c_str());
     xgw->Update();
 

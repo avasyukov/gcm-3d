@@ -3,7 +3,11 @@
 
 #include <string>
 
+#ifdef CONFIG_VTK_5
 #include <vtkstd/string>
+#else
+#include <vtkStdString.h>
+#endif
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 #include <vtkUnstructuredGridWriter.h>

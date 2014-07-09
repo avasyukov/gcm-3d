@@ -189,8 +189,12 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     mpiState->Delete();
     nodeErrorFlags->Delete();
     contactDestroyed->Delete();
-
+    
+    #ifdef CONFIG_VTK_5
     xgw->SetInput(g);
+    #else
+    xgw->SetInputData(g);
+    #endif
     xgw->SetFileName(filename.c_str());
     xgw->Update();
 

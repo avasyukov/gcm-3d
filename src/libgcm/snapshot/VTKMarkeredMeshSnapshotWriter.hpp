@@ -8,7 +8,11 @@
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/Logging.hpp"
 
+#ifdef CONFIG_VTK_5
 #include <vtkstd/string>
+#else
+#include <vtkStdString.h>
+#endif
 #include <vtkStructuredGrid.h>
 #include <vtkXMLStructuredGridWriter.h>
 #include <vtkSmartPointer.h>
