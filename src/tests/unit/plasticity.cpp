@@ -46,7 +46,7 @@ TEST(Plasticity, PrandtlRaussElasticTransition)
 				case 2:	elasticSetter.setZ(a1, mat, node); plasticSetter.setZ(a2, mat, node); break;
 			}
 			
-		    ASSERT_TRUE( a1 |= a2 );
+		    ASSERT_TRUE( a1 == a2 );
 		}
 	}
 };
