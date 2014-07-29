@@ -146,12 +146,13 @@ gcm_real gcm::CalcNode::getJ3() const
 
 void gcm::CalcNode::getMainStressComponents(gcm_real& s1, gcm_real& s2, gcm_real& s3) const
 {
-    if (!privateFlags.mainStressCalculated)
+//    if (!privateFlags.mainStressCalculated)
         calcMainStressComponents();
 
     s1 = mainStresses[0];
     s2 = mainStresses[1];
     s3 = mainStresses[2];
+//    if (s1>1000 || s2>1000 || s3>1000) cout <<endl<<"str: "<<s1<<" "<<s2<<" "<<s3<<" ";
 }
 
 // See http://www.toehelp.ru/theory/sopromat/6.html
@@ -178,32 +179,244 @@ void gcm::CalcNode::calcMainStressComponents() const
 
 void gcm::CalcNode::calcMainStressDirectionByComponent(gcm_real s, vector3& vector) const
 {
-    if ((sxy * sxy - (sxx - s)*(syy - s))*(sxy * (szz - s) - sxz * syz)-(sxy * sxz - (sxx - s) * syz)*(sxy * syz - sxz * (syy - s)) == 0)
-        vector[2] = 1;
+    gcm_real zero = 0.0000001, a=0,b=0,c=0,u,v,w,n;
+//    if (sxx > 400000)	printf("s: %f %f %f %f %f %f   %f ",sxx,sxy,sxz,syy,syz,szz,s);
+    if (fabs(sxx-s) <= zero)
+    {
+	if (fabs(sxy) <= zero)
+	{
+		if (fabs(sxz) <= zero)
+		{
+			if (fabs(syy-s) <= zero)
+			{
+				if (fabs(syz) <= zero)
+				{
+					if (fabs(szz-s) <= zero)
+					{
+						a=1.0;
+						b=1.0;
+						c=1.0;
+					}
+					else
+					{                                                
+						a=1.0;
+                                                b=1.0;
+                                                c=0.0;
+					}
+				}
+				else
+				{
+                                                a=1.0;
+                                                b=0.0;
+                                                c=0.0;
+				}
+			}
+			else
+			{
+				if (fabs((szz-s)*(syy-s)-syz*syz) <= zero)
+				{
+                                        a=1.0;
+                                        b=-syz/(syy-s);
+                                        c=1.0;
+				}
+				else
+				{
+                                        a=1.0;
+                                        b=0.0;
+                                        c=0.0;
+				}
+			}
+		}
+		else
+		{
+			if (fabs(syy-s) <= zero)
+			{
+                                a=-syz/sxz;
+                                b=1.0;
+                                c=0.0;
+			}
+			else
+			{
+                                a=0.0;
+                                b=0.0;
+                                c=0.0;
+			}
+		}
+	}
+	else
+	{
+		if (fabs(sxz) <= zero)
+		{
+			if (fabs(szz-s) <= zero)
+			{
+                                a=-syz/sxy;
+                                b=0.0;
+                                c=1.0;
+			}
+			else
+			{
+                                a=0.0;
+                                b=0.0;
+                                c=0.0;
+			}
+		}
+		else
+		{
+			if (fabs(sxz*sxz*(syy-s)-2.0*sxy*syz*sxz+(szz-s)*sxy*sxy) <= zero)
+			{
+				a = sxz*(syy-s)/sxy/sxy - syz/sxy;
+				b = -sxz/sxy;
+				c = 1.0;
+			}
+			else
+			{
+                                a=0.0;
+                                b=0.0;
+                                c=0.0;
+			}
+		}
+	}
+    }
     else
-        vector[2] = 0;
-
-    if (sxy * sxy - (sxx - s)*(syy - s) != 0)
-        vector[1] = vector[2]*(-sxy * sxz + (sxx - s) * sxz) / (sxy * sxy - (sxx - s)*(syy - s));
-    else if (sxy * syz - sxz * (syy - s) != 0)
-        vector[1] = vector[2]*(sxz * syz - sxy * (szz - s)) / (sxy * syz - sxz * (syy - s));
-    else
-        vector[1] = 1;
-
-    if (sxx - s != 0)
-        vector[0] = -vector[1] * sxy / (sxx - s) - vector[2] * sxz / (sxx - s);
-    else if (sxy != 0)
-        vector[0] = -vector[1]*(syy - s) / sxy - vector[2] * syz / sxy;
-    else if (sxz != 0)
-        vector[0] = -vector[1] * syz / sxz - vector[2]*(szz - s) / sxz;
-    else
-        vector[0] = 1;
-
+    {
+	if (fabs(sxy) <= zero)	
+	{
+		if (fabs(sxz) <= zero)
+		{
+			if (fabs(syy-s) <= zero)
+			{
+				if (fabs(syz) <= zero)
+				{
+					if (fabs(szz-s) <= zero)
+					{
+						a=0.0;
+						b=1.0;
+						c=1.0;
+					}
+					else
+					{
+						a=0.0;
+						b=1.0;
+						c=0.0;
+					}
+				}
+				else
+				{
+					a=0.0; 
+					b=0.0;
+					c=0.0;
+				}
+			}
+			else
+			{
+				if (fabs((szz-s)*(syy-s)-syz*syz) <= zero)
+				{
+					a=0.0;
+					b=-syz/(syy-s);
+					c=1.0;
+				}
+				else
+				{
+					a=0.0;
+					b=0.0;
+					c=0.0;
+				}
+			}
+		}
+		else
+		{
+			if (fabs(sxz*sxz*(syy-s)+(sxx-s)*syz*sxz-(sxx-s)*(syy-s)*(szz-s)) <= zero)
+			{
+				a=(syy-s)/(sxx-s);
+				b=1.0;
+				c=-(syy-s)/sxz;
+			}
+			else
+			{
+				a=0.0;
+				b=0.0;
+				c=0.0;
+			}
+		}
+	}
+	else
+	{
+		 u=(sxx-s)*(syy-s)-sxy*sxy;
+			 v=(sxx-s)*syz-sxz*sxy;
+			 w=syz*(sxx-s)-sxz*sxy;
+			 n=(szz-s)*(sxx-s)-sxz*sxz;
+		if (fabs(u) <= zero)
+		{
+			if (fabs(v) <= zero)
+			{
+				if (fabs(w) <= zero)
+				{
+					if (fabs(n) <= zero)
+					{
+						a=-sxy*(sxx-s)-sxz*(sxx-s);
+						b=1.0;
+						c=1.0;
+					}
+					else
+					{
+						a=-sxy/(sxx-s);
+						b=1.0;
+						c=0.0;
+					}
+				}
+				else
+				{
+					a=sxy/(sxx-s)*n/w-sxz/(sxx-s);
+					b=-n/w;
+					c=1.0;
+				}
+			}
+			else
+			{
+				if (fabs(w) <= zero)
+				{
+					a=-sxy/(sxx-s);
+					b=1.0;
+					c=0.0;
+				}
+				else
+				{
+					a=0.0;
+					b=0.0;
+					c=0.0;
+				}
+			}
+		}
+		else
+		{
+//			if (fabs(n*u-w*v) <= zero)
+//			{
+				a=sxy/(sxx-s)*v/u-sxz/(sxx-s);
+				b=-v/u;
+				c=1.0;
+//			}
+//			else
+//			{
+//				a=0.0;
+//				b=0.0;
+//				c=0.0;
+//			}
+		}
+	}
+    }
+    vector[0] = a; vector[1] = b; vector[2] = c;
+//    if (sxx > 400000) printf(" vec: %f %f %f  \n %f %f %f %f  nu-wv %f  det %f\n ms %f %f %f \n",vector[0],vector[1],vector[2], u,v,w,n,n*u-w*v,
+//		2.0*sxy*sxz*syz+(sxx-s)*(syy-s)*(szz-s)-sxz*(syy-s)*sxz-(sxx-s)*syz*syz-(szz-s)*sxy*sxy,
+//		mainStresses[0],mainStresses[1],mainStresses[2]);
     gcm_real norm = sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
-    if (norm > 0.0) {
+    if (norm > zero) {
         vector[0] /= norm;
         vector[1] /= norm;
         vector[2] /= norm;
+    }
+    else 
+    {
+	vector[0] = vector[1] = vector[2] = 0.0;
     }
 }
 
@@ -439,6 +652,11 @@ void gcm::CalcNode::createCrack(const vector3& crack)
     copy(crack, crack + 3, crackDirection);
 }
 
+void gcm::CalcNode::exciseByCrack()
+{
+    if (scalarProduct(crackDirection, crackDirection) != 0.0)
+		cleanStressByDirection(getCrackDirection());
+}
 void gcm::CalcNode::cleanStressByDirection(const vector3& h)
 {
     gcm_real s1 = h[0]*(sxx * h[0] + sxy * h[1] + sxz * h[2]) + h[1]*(sxy * h[0] + syy * h[1] + syz * h[2]) + h[2]*(sxz * h[0] + syz * h[1] + szz * h[2]); //TODO
@@ -448,6 +666,7 @@ void gcm::CalcNode::cleanStressByDirection(const vector3& h)
     syy -= h[1] * h[1] * s1;
     syz -= h[1] * h[2] * s1;
     szz -= h[2] * h[2] * s1;
+//    cout<<endl<<"vec: "<<h[0]<<" "<<h[1]<<" "<<h[2]<<"  "<<s1;
 }
 
 uchar gcm::CalcNode::getPrivateFlags() const
