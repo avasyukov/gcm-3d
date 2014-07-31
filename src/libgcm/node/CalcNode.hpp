@@ -496,6 +496,7 @@ namespace gcm {
          *
          * @param TODO document
          */
+        void exciseByCrack();
         void cleanStressByDirection(const vector3& direction);
 
         /**

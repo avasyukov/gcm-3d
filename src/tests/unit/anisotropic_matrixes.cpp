@@ -2,6 +2,7 @@
 #include <time.h>
 #include <gtest/gtest.h>
 #include <functional>
+#include <algorithm>
 
 #include "libgcm/rheology/Material.hpp"
 #include "libgcm/node/CalcNode.hpp"
@@ -14,124 +15,120 @@
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 
+/*
+ * Constants used in tests
+ */
+
 #define ITERATIONS 1000
 
-#define MAX_ROTATIONS_NUMBER 2
+#define MAX_ROTATIONS_NUMBER 6
 
-// Use these limits if anisotropic rheology parameters tensor should be
-// isotropic one plus smaller random values
-#define LAMBDA_LIMIT 0.0
-#define MU_LIMIT 0.0
-// Random part of anisotropic rheology parameters tensor
-#define RANDOM_LIMIT 1.0e+3
+// Limits for random anisotropic rheology parameters tensor
+#define RANDOM_C_MIN 0.1
+#define RANDOM_C_MAX 1.0
 
-#define RHO_LIMIT 10.0
+// Limits for random density values
+#define RHO_MIN 0.1
+#define RHO_MAX 1.0
 
 // Limits for isotropic transition test
 #define ISOTROPIC_LAMBDA_LIMIT 1e+6
 #define ISOTROPIC_MU_LIMIT 1.0e+5
 #define ISOTROPIC_RHO_LIMIT 10.0
 
-typedef std::function<MaterialPtr (std::string) > MaterialGenerator;
+/*
+ * Helper functions
+ */
+
+typedef std::function<MaterialPtr(std::string) > MaterialGenerator;
 
 MaterialPtr generateRandomMaterial(string name)
 {
-    gcm_real la = LAMBDA_LIMIT * (double) rand() / RAND_MAX;
-    gcm_real mu = MU_LIMIT * (double) rand() / RAND_MAX;
-
+    float matC[6][6];
+    // Generate positively defined symmetric matrix matC[][]]
+    // using http://en.wikipedia.org/wiki/Cholesky_decomposition
     float L[6][6];
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < i; j++)
             L[i][j] = 0;
 
-        L[i][i] = RANDOM_LIMIT * (double) rand() / RAND_MAX;
-        for (int j = i+1; j < 6; j++)
-            L[i][j] = RANDOM_LIMIT * (double) rand() / RAND_MAX;
+        for (int j = i; j < 6; j++)
+            L[i][j] = RANDOM_C_MIN + (RANDOM_C_MAX - RANDOM_C_MIN) * (double) rand() / RAND_MAX;
     }
 
-    float matC[6][6];
-	float max = 0;
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < 6; j++) {
             matC[i][j] = 0;
             for (int k = 0; k < 6; k++)
                 matC[i][j] += L[k][i] * L[k][j];
-			max = fmax( max, matC[i][j] );
-		}
+        }
     }
-	
-	
-//	for (int i = 0; i < 6; i++)
-//        for (int j = 0; j < 6; j++)
-//			matC[i][j] = matC[i][j]/max;
-	
+
     Material::RheologyProperties C;
-    C.c11 = la + 2 * mu + matC[0][0];
-    C.c12 = la + matC[0][1];
-    C.c13 = la + matC[0][2];
+    C.c11 = matC[0][0];
+    C.c12 = matC[0][1];
+    C.c13 = matC[0][2];
     C.c14 = matC[0][3];
     C.c15 = matC[0][4];
     C.c16 = matC[0][5];
-    C.c22 = la + 2 * mu + matC[1][1];
-    C.c23 = la + matC[1][2];
+    C.c22 = matC[1][1];
+    C.c23 = matC[1][2];
     C.c24 = matC[1][3];
     C.c25 = matC[1][4];
     C.c26 = matC[1][5];
-    C.c33 = la + 2 * mu + matC[2][2];
+    C.c33 = matC[2][2];
     C.c34 = matC[2][3];
     C.c35 = matC[2][4];
     C.c36 = matC[2][5];
-    C.c44 = mu + matC[3][3];
+    C.c44 = matC[3][3];
     C.c45 = matC[3][4];
     C.c46 = matC[3][5];
-    C.c55 = mu + matC[4][4];
+    C.c55 = matC[4][4];
     C.c56 = matC[4][5];
-    C.c66 = mu + matC[5][5];
+    C.c66 = matC[5][5];
 
-    float rho = RHO_LIMIT * (double) rand() / RAND_MAX;
+    float rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
     gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
-	
+
     return makeMaterialPtr(name, rho, crackThreshold, C);
 };
 
 MaterialPtr generateOrthotropicMaterial(string name)
 {
-    gcm_real la = ISOTROPIC_LAMBDA_LIMIT * (double) rand() / RAND_MAX;
-    gcm_real mu = ISOTROPIC_MU_LIMIT * (double) rand() / RAND_MAX;
-    float pxxNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
-    float pyyNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
-    float pzzNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
-    float pxyNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
-    float pxzNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
-    float pyzNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
-    float sxyNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
-    float sxzNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
-    float syzNorm = 0.1 + 0.9 * (double) rand() / RAND_MAX;
+    float c11 = RANDOM_C_MIN + (RANDOM_C_MAX - RANDOM_C_MIN) * (double) rand() / RAND_MAX;
+    float c12 = RANDOM_C_MIN + (RANDOM_C_MAX - RANDOM_C_MIN) * (double) rand() / RAND_MAX;
+    float c13 = RANDOM_C_MIN + (RANDOM_C_MAX - RANDOM_C_MIN) * (double) rand() / RAND_MAX;
+    float c22 = RANDOM_C_MIN + (RANDOM_C_MAX - RANDOM_C_MIN) * (double) rand() / RAND_MAX;
+    float c23 = RANDOM_C_MIN + (RANDOM_C_MAX - RANDOM_C_MIN) * (double) rand() / RAND_MAX;
+    float c33 = RANDOM_C_MIN + (RANDOM_C_MAX - RANDOM_C_MIN) * (double) rand() / RAND_MAX;
+    float c44 = RANDOM_C_MIN + (RANDOM_C_MAX - RANDOM_C_MIN) * (double) rand() / RAND_MAX;
+    float c55 = RANDOM_C_MIN + (RANDOM_C_MAX - RANDOM_C_MIN) * (double) rand() / RAND_MAX;
+    float c66 = RANDOM_C_MIN + (RANDOM_C_MAX - RANDOM_C_MIN) * (double) rand() / RAND_MAX;
 
     Material::RheologyProperties C;
-    C.c11 = (la + 2 * mu) * pxxNorm;
-    C.c12 = la * pxyNorm;
-    C.c13 = la * pxzNorm;
+    C.c11 = c11;
+    C.c12 = c12;
+    C.c13 = c13;
     C.c14 = 0;
     C.c15 = 0;
     C.c16 = 0;
-    C.c22 = (la + 2 * mu) * pyyNorm;
-    C.c23 = la * pyzNorm;
+    C.c22 = c22;
+    C.c23 = c23;
     C.c24 = 0;
     C.c25 = 0;
     C.c26 = 0;
-    C.c33 = (la + 2 * mu) * pzzNorm;
+    C.c33 = c33;
     C.c34 = 0;
     C.c35 = 0;
     C.c36 = 0;
-    C.c44 = mu * sxyNorm;
+    C.c44 = c44;
     C.c45 = 0;
     C.c46 = 0;
-    C.c55 = mu * sxzNorm;
+    C.c55 = c55;
     C.c56 = 0;
-    C.c66 = mu * syzNorm;
+    C.c66 = c66;
 
-    float rho = RHO_LIMIT * (double) rand() / RAND_MAX;
+    float rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
     gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
 
     return makeMaterialPtr(name, rho, crackThreshold, C);
@@ -140,6 +137,7 @@ MaterialPtr generateOrthotropicMaterial(string name)
 template<class DecomposerImplementation>
 void testDecomposition(MaterialGenerator generator)
 {
+    srand(0);
     for (int count = 0; count < ITERATIONS; count++) {
         CalcNode anisotropicNode;
 
@@ -148,101 +146,36 @@ void testDecomposition(MaterialGenerator generator)
 
         for (int i = 0; i < 3; i++) {
             switch (i) {
-                case 0: matrix->decomposeX(anisotropicNode); break;
-                case 1: matrix->decomposeY(anisotropicNode); break;
-                case 2: matrix->decomposeZ(anisotropicNode); break;
+            case 0: matrix->decomposeX(anisotropicNode);
+                break;
+            case 1: matrix->decomposeY(anisotropicNode);
+                break;
+            case 2: matrix->decomposeZ(anisotropicNode);
+                break;
             }
 
             // Test decomposition
-            ASSERT_TRUE( matrix->getU1() * matrix->getL() * matrix->getU() |= matrix->getA() );
+            bool decompositionCorrect =
+                    (matrix->getU1() * matrix->getL() * matrix->getU() == matrix->getA());
+
+            if (!decompositionCorrect) {
+                LOG_DEBUG(matrix->getU1() * matrix->getL() * matrix->getU());
+                LOG_DEBUG(matrix->getA());
+            }
+            ASSERT_TRUE(decompositionCorrect);
+
             // Test eigenvalues and eigenvectors
-            ASSERT_TRUE( matrix->getU1() * matrix->getL() |= matrix->getA() * matrix->getU1() );
+            bool eigenvectorsCorrect =
+                    (matrix->getU1() * matrix->getL() == matrix->getA() * matrix->getU1());
 
-        }
-        Engine::getInstance().clear();
-    }
-};
-
-// To build difference between U1 in alalytical and numerical matrixes
-void build_U1_Difference(RheologyMatrixPtr& analyticalMatrix, RheologyMatrixPtr& numericalMatrix) {
-    gcm_matrix diff;
-    diff.clear();
-
-    int j_an, j_num, k, k_max;
-    float eigenvA, max, ratio;
-
-    // Through all eigenvalues
-    for(j_an = 0; j_an < 6; j_an++) {
-        eigenvA = analyticalMatrix->getL(j_an, j_an);
-
-        // Finding the same eigenvalue in numericalMatrix
-        j_num = 0;
-        while(fabs(eigenvA - numericalMatrix->getL(j_num, j_num)) > fmax(fabs(eigenvA), fabs(numericalMatrix->getL(j_num, j_num)))*EQUALITY_TOLERANCE) { j_num++; }
-
-        // Finding the maximum component
-        max = 0.0;
-        k_max = 0;
-        for(k = 0; k < 9; k++)
-            if(max < fabs(analyticalMatrix->getU1(k, j_an))) {
-                max = fabs(analyticalMatrix->getU1(k, j_an));
-                k_max = k;
+            if (!eigenvectorsCorrect) {
+                LOG_DEBUG(matrix->getA());
+                LOG_DEBUG(matrix->getL());
+                LOG_DEBUG(matrix->getU1());
+                LOG_DEBUG(matrix->getU());
             }
-        ratio = analyticalMatrix->getU1(k_max, j_an)/numericalMatrix->getU1(k_max, j_num);
-        // Build the difference between the same eigenvectors
-        for(k = 0; k < 9; k++)
-            diff(k, j_an) = fabs(analyticalMatrix->getU1(k, j_an) - ratio*numericalMatrix->getU1(k, j_num));
-    }
+            ASSERT_TRUE(eigenvectorsCorrect);
 
-    LOG_DEBUG("FIXME: add description here   " << analyticalMatrix->getU1());
-    LOG_DEBUG("FIXME: add description here   " << diff);
-
-};
-
-template<class DecomposerImplementation1, class DecomposerImplementation2>
-void compareDecomposition(MaterialGenerator generator)
-{
-    for (int count = 0; count < ITERATIONS; count++) {
-        CalcNode anisotropicNode;
-
-        auto mat = generator("test");
-
-        auto matrix1 = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter, DecomposerImplementation1>(mat);
-        auto matrix2 = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter, DecomposerImplementation2>(mat);
-
-        for (int i = 0; i < 3; i++) {
-            switch (i) {
-            case 0: matrix1->decomposeX(anisotropicNode); matrix2->decomposeX(anisotropicNode); break;
-            case 1: matrix1->decomposeY(anisotropicNode); matrix2->decomposeY(anisotropicNode); break;
-            case 2: matrix1->decomposeZ(anisotropicNode); matrix2->decomposeZ(anisotropicNode); break;
-            }
-
-            int j_an, j_num, k;
-            float eigenvA, ratio;
-
-            // Through all eigenvalues
-            for(j_an = 0; j_an < 6; j_an++) {
-                eigenvA = matrix1->getL().get(j_an, j_an);
-
-                // Finding the same eigenvalue in numericalMatrix
-                j_num = 0;
-                while(fabs(eigenvA - matrix2->getL().get(j_num, j_num)) > fmax(fabs(eigenvA), fabs(matrix2->getL().get(j_num, j_num)))*10.0*EQUALITY_TOLERANCE) { 
-					j_num++; 
-					//if(j_num > 5) THROW_INVALID_ARG("Remaining quality is inaccessible!");
-				}
-
-                // Finding the first exapmle ratio of components
-                k = -1;
-                do {
-                    k++;
-                    ratio = matrix1->getU1().get(k, j_an)/matrix2->getU1().get(k, j_num);
-                } while(fabs(matrix2->getU1().get(k, j_num)) < 1.0e-8);
-
-                // Comparing this ratio with another ratios
-                for(k = 0; k < 9; k++) {
-                    if(fabs(matrix1->getU1().get(k, j_an)) < 1.0e-8) ASSERT_NEAR(matrix2->getU1().get(k, j_num), 0.0, 1.0e-8);
-                    else ASSERT_NEAR(ratio, matrix1->getU1().get(k, j_an)/matrix2->getU1().get(k, j_num), fmax(fabs(ratio), fabs(matrix1->getU1().get(k, j_an)/matrix2->getU1().get(k, j_num)))*100.0*EQUALITY_TOLERANCE);
-                }
-            }
         }
         Engine::getInstance().clear();
     }
@@ -251,6 +184,7 @@ void compareDecomposition(MaterialGenerator generator)
 template<class DecomposerImplementation>
 void testIsotropicTransition()
 {
+    srand(0);
     for (int count = 0; count < ITERATIONS; count++) {
         gcm_real la = ISOTROPIC_LAMBDA_LIMIT * (double) rand() / RAND_MAX;
         gcm_real mu = ISOTROPIC_MU_LIMIT * (double) rand() / RAND_MAX;
@@ -265,11 +199,16 @@ void testIsotropicTransition()
         auto anisotropicMatrix = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter, DecomposerImplementation>(m);
 
         for (int i = 0; i < 3; i++) {
-            switch (i)
-            {
-                case 0: isotropicMatrix->decomposeX(node); anisotropicMatrix->decomposeX(node); break;
-                case 1: isotropicMatrix->decomposeY(node); anisotropicMatrix->decomposeY(node); break;
-                case 2: isotropicMatrix->decomposeZ(node); anisotropicMatrix->decomposeZ(node); break;
+            switch (i) {
+            case 0: isotropicMatrix->decomposeX(node);
+                anisotropicMatrix->decomposeX(node);
+                break;
+            case 1: isotropicMatrix->decomposeY(node);
+                anisotropicMatrix->decomposeY(node);
+                break;
+            case 2: isotropicMatrix->decomposeZ(node);
+                anisotropicMatrix->decomposeZ(node);
+                break;
             }
 
             for (int j = 0; j < 9; j++)
@@ -280,137 +219,165 @@ void testIsotropicTransition()
     }
 };
 
-TEST(AnisotropicMatrix3D, AnalyticalDecompositionTmp) 
-{	
-	CalcNode anisotropicNode;
-	auto mat = generateRandomMaterial("test");
-	auto matrix1 = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter,
-									AnalyticalRheologyMatrixDecomposer>(mat);
-	auto matrix2 = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter,
-									NumericalRheologyMatrixDecomposer>(mat);
-
-	for (int i = 0; i < 3; i++) {
-		switch (i) {
-			case 0: matrix1->decomposeX(anisotropicNode);
-				matrix2->decomposeX(anisotropicNode);
-				break;
-			case 1: matrix1->decomposeY(anisotropicNode);
-				matrix2->decomposeY(anisotropicNode);
-				break;
-			case 2: matrix1->decomposeZ(anisotropicNode);
-				matrix2->decomposeZ(anisotropicNode);
-				break;
-		}
-//		cout << matrix1->getA() << endl << matrix2->getA() << endl << 
-//				matrix1->getL() << endl << matrix2->getL() << endl;
-	}
-};
-
-
-TEST(AnisotropicMatrix3D, AnalyticalFuzzRandom)
+void compareInitialMatrices(MaterialGenerator generator)
 {
-    srand(time(NULL));
-    testDecomposition<AnalyticalRheologyMatrixDecomposer>(generateRandomMaterial);
-};
-
-TEST(AnisotropicMatrix3D, NumericalFuzzRandom)
-{
-    srand(time(NULL));
-    testDecomposition<NumericalRheologyMatrixDecomposer>(generateRandomMaterial);
-};
-
-TEST(AnisotropicMatrix3D, AnalyticalFuzzOrthotropic)
-{
-    srand(time(NULL));
-    testDecomposition<AnalyticalRheologyMatrixDecomposer>(generateOrthotropicMaterial);
-};
-
-TEST(AnisotropicMatrix3D, NumericalFuzzOrthotropic)
-{
-    srand(time(NULL));
-    testDecomposition<NumericalRheologyMatrixDecomposer>(generateOrthotropicMaterial);
-};
-
-TEST(AnisotropicMatrix3D, AnalyticalIsotropicTransition)
-{
-    srand(time(NULL));
-    testIsotropicTransition<AnalyticalRheologyMatrixDecomposer>();
-};
-
-
-TEST(AnisotropicMatrix3D, NumericalIsotropicTransition)
-{
-    srand(time(NULL));
-    testIsotropicTransition<NumericalRheologyMatrixDecomposer>();
-};
-
-
-TEST(AnisotropicMatrix3D, AnalyticalVSNumericalRandom) 
-{
-    srand(time(NULL));
-    compareDecomposition<AnalyticalRheologyMatrixDecomposer, NumericalRheologyMatrixDecomposer>(generateRandomMaterial);
-};
-
-TEST(AnisotropicMatrix3D, AnalyticalEqNumerical)
-{
-    srand(time(NULL));
+    srand(0);
     for (int count = 0; count < ITERATIONS; count++) {
-        auto mat = generateRandomMaterial("test");
+        CalcNode anisotropicNode;        
+        auto mat = generator("test");
 
         auto analyticalMatrix = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter, AnalyticalRheologyMatrixDecomposer>(mat);
         auto numericalMatrix = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter, NumericalRheologyMatrixDecomposer>(mat);
+
+        for (int i = 0; i < 3; i++) {
+            switch (i) {
+            case 0: analyticalMatrix->decomposeX(anisotropicNode);
+                numericalMatrix->decomposeX(anisotropicNode);
+                break;
+            case 1: analyticalMatrix->decomposeY(anisotropicNode);
+                numericalMatrix->decomposeY(anisotropicNode);
+                break;
+            case 2: analyticalMatrix->decomposeZ(anisotropicNode);
+                numericalMatrix->decomposeZ(anisotropicNode);
+                break;
+            }
+            ASSERT_TRUE(analyticalMatrix->getA() == numericalMatrix->getA());
+        }
+        Engine::getInstance().clear();
+    }
+};
+
+template<class DecomposerImplementation1, class DecomposerImplementation2>
+void compareEigenvalues(MaterialGenerator generator)
+{
+    srand(0);
+    for (int count = 0; count < ITERATIONS; count++) {
         CalcNode anisotropicNode;
+        auto mat = generator("test");
 
-        analyticalMatrix->decomposeX(anisotropicNode);
-        numericalMatrix->decomposeX(anisotropicNode);
-        ASSERT_TRUE( analyticalMatrix->getA() |= numericalMatrix->getA() );
+        auto matrix1 = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter, DecomposerImplementation1>(mat);
+        auto matrix2 = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter, DecomposerImplementation2>(mat);
 
-        analyticalMatrix->decomposeY(anisotropicNode);
-        numericalMatrix->decomposeY(anisotropicNode);
-        ASSERT_TRUE( analyticalMatrix->getA() |= numericalMatrix->getA() );
+        for (int i = 0; i < 3; i++) {
+            switch (i) {
+            case 0: matrix1->decomposeX(anisotropicNode);
+                matrix2->decomposeX(anisotropicNode);
+                break;
+            case 1: matrix1->decomposeY(anisotropicNode);
+                matrix2->decomposeY(anisotropicNode);
+                break;
+            case 2: matrix1->decomposeZ(anisotropicNode);
+                matrix2->decomposeZ(anisotropicNode);
+                break;
+            }
 
-        analyticalMatrix->decomposeZ(anisotropicNode);
-        numericalMatrix->decomposeZ(anisotropicNode);
-        ASSERT_TRUE( analyticalMatrix->getA() |= numericalMatrix->getA() );
-
+            gcm_real values1[9];
+            gcm_real values2[9];
+            for (int i = 0; i < 9; i++) {
+                values1[i] = matrix1->getL().get(i, i);
+                values2[i] = matrix2->getL().get(i, i);
+            }
+            std::sort(std::begin(values1), std::end(values1));
+            std::sort(std::begin(values2), std::end(values2));
+            
+            for (int i = 0; i < 9; i++) {
+                bool equal = 
+                    ( (fabs(values1[i]) < EQUALITY_TOLERANCE && fabs(values2[i]) < EQUALITY_TOLERANCE )
+                            || fabs(values1[i] - values2[i]) < 0.005 * fabs(values1[i] + values2[i]));
+                ASSERT_TRUE( equal );
+            }
+        }
         Engine::getInstance().clear();
     }
 };
 
 void testRotation(int f1, int f2, int f3)
 {
-	srand(time(NULL));
-	for (int count = 0; count < ITERATIONS; count++) {
-
-        double a = 2*M_PI;
-        // TODO: current impl works for MAX_ROTATIONS_NUMBER == 1 only
-		for(int i = 1; i <= MAX_ROTATIONS_NUMBER; i++) {
-
-			auto mat = generateRandomMaterial("testRotationMaterial");
-
+    srand(0);
+    for (int count = 0; count < ITERATIONS; count++) {
+        double a = 2 * M_PI;
+        
+        for (int i = 1; i <= MAX_ROTATIONS_NUMBER; i++) {
+            auto mat = generateRandomMaterial("testRotationMaterial");
             auto p = mat->getRheologyProperties();
-			auto p2 = mat->getRheologyProperties();
+            auto p2 = mat->getRheologyProperties();
 
-			for(int k = 1; k <= i; k++)
-				p2.rotate(f1*a/i, f2*a/i, f3*a/i);
+            for (int k = 1; k <= i; k++)
+                p2.rotate(f1 * a / i, f2 * a / i, f3 * a / i);
 
-			for (int j = 0; j < Material::RHEOLOGY_PROPERTIES_NUMBER; j++)
-				ASSERT_NEAR( p2.values[j], p.values[j], fabs(p.values[j])*EQUALITY_TOLERANCE );
-		}
-	}
-}
+            for (int j = 0; j < Material::RHEOLOGY_PROPERTIES_NUMBER; j++)
+                ASSERT_NEAR(p2.values[j], p.values[j], fabs(p.values[j] + p2.values[j]) * 0.005);
+            
+            Engine::getInstance().clear();
+        }
+    }
+};
+
+/*
+ * Tests implementations
+ */
+
+TEST(AnisotropicMatrix3D, AnalyticalFuzzRandom)
+{
+    testDecomposition<AnalyticalRheologyMatrixDecomposer>(generateRandomMaterial);
+};
+
+TEST(AnisotropicMatrix3D, NumericalFuzzRandom)
+{
+    testDecomposition<NumericalRheologyMatrixDecomposer>(generateRandomMaterial);
+};
+
+TEST(AnisotropicMatrix3D, AnalyticalFuzzOrthotropic)
+{
+    testDecomposition<AnalyticalRheologyMatrixDecomposer>(generateOrthotropicMaterial);
+};
+
+TEST(AnisotropicMatrix3D, NumericalFuzzOrthotropic)
+{
+    testDecomposition<NumericalRheologyMatrixDecomposer>(generateOrthotropicMaterial);
+};
+
+TEST(AnisotropicMatrix3D, AnalyticalIsotropicTransition)
+{
+    testIsotropicTransition<AnalyticalRheologyMatrixDecomposer>();
+};
+
+TEST(AnisotropicMatrix3D, NumericalIsotropicTransition)
+{
+    testIsotropicTransition<NumericalRheologyMatrixDecomposer>();
+};
+
+TEST(AnisotropicMatrix3D, InitialMatricesEqualRandom)
+{
+    compareInitialMatrices(generateRandomMaterial);
+};
+
+TEST(AnisotropicMatrix3D, InitialMatricesEqualOrthotropic)
+{
+    compareInitialMatrices(generateOrthotropicMaterial);
+};
+
+TEST(AnisotropicMatrix3D, EigenvaluesEqualRandom)
+{
+    compareEigenvalues<AnalyticalRheologyMatrixDecomposer, NumericalRheologyMatrixDecomposer>(generateRandomMaterial);
+};
+
+TEST(AnisotropicMatrix3D, EigenvaluesEqualOrthotropic)
+{
+    compareEigenvalues<AnalyticalRheologyMatrixDecomposer, NumericalRheologyMatrixDecomposer>(generateOrthotropicMaterial);
+};
 
 TEST(AnisotropicMatrix3D, rotateA1)
 {
     testRotation(1, 0, 0);
-}
+};
 
 TEST(AnisotropicMatrix3D, rotateA2)
 {
     testRotation(0, 1, 0);
-}
+};
 
 TEST(AnisotropicMatrix3D, rotateA3)
 {
     testRotation(0, 0, 1);
-}
+};
