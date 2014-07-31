@@ -94,7 +94,7 @@ namespace gcm {
 
         // crack direction
         // TODO  document it
-        gcm_real crackDirection[3];
+        vector3 crackDirection;
 
         // rheology matrix
         RheologyMatrixPtr rheologyMatrix;

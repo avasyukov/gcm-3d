@@ -34,7 +34,7 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
 
     copy(src.coords, src.coords + 3, coords);
     copy(src.values, src.values + VALUES_NUMBER, values);
-    copy(src.crackDirection, src.crackDirection + 3, crackDirection);
+    crackDirection = src.crackDirection;
 
     bodyId = src.bodyId;
     rho = src.rho;
@@ -643,18 +643,18 @@ const vector3& gcm::CalcNode::getCrackDirection() const
 
 void gcm::CalcNode::createCrack(int direction)
 {
-    if (scalarProduct(crackDirection, crackDirection) == 0.0)
+    if (crackDirection*crackDirection == 0.0)
         this->calcMainStressDirectionByComponent(mainStresses[direction], crackDirection);
 }
 
 void gcm::CalcNode::createCrack(const vector3& crack)
 {
-    copy(crack, crack + 3, crackDirection);
+    crackDirection = crack;
 }
 
 void gcm::CalcNode::exciseByCrack()
 {
-    if (scalarProduct(crackDirection, crackDirection) != 0.0)
+    if (crackDirection*crackDirection != 0.0)
 		cleanStressByDirection(getCrackDirection());
 }
 void gcm::CalcNode::cleanStressByDirection(const vector3& h)

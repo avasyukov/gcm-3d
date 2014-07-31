@@ -1,4 +1,5 @@
 #include "libgcm/util/AABB.hpp"
+#include "libgcm/Math.hpp"
 
 gcm::AABB::AABB()
 {
@@ -40,10 +41,15 @@ bool gcm::AABB::isInAABB( Node& node )
     return isInAABB(node.coords[0], node.coords[1], node.coords[2]);
 };
 
-bool gcm::AABB::includes(AABB* box)
+bool gcm::AABB::includes(const AABB* box) const
 {
     return ( minX <= box->minX ) && ( minY <= box->minY ) && ( minZ <= box->minZ )
             && ( maxX >= box->maxX ) && ( maxY >= box->maxY ) && ( maxZ >= box->maxZ );
+}
+
+bool gcm::AABB::includes(const AABB& box) const
+{
+    return includes(&box);
 }
 
 bool gcm::AABB::intersects(AABB* box)
@@ -122,4 +128,14 @@ void gcm::AABB::scale(float x0, float y0, float z0,
 float gcm::AABB::getVolume()
 {
     return (maxX - minX) * (maxY - minY) * (maxZ - minZ);
+}
+
+gcm_real gcm::AABB::getDiag() const
+{
+    return distance(min_coords, max_coords);
+}
+
+vector3 gcm::AABB::getCenter() const
+{
+    return vector3((maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2);
 }

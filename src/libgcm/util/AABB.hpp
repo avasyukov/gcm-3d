@@ -28,7 +28,8 @@ namespace gcm {
         bool isInAABB( float x, float y, float z );
         bool isInAABB( Node* node );
         bool isInAABB( Node& node );
-        bool includes( AABB* box );
+        bool includes( const AABB* box ) const;
+        bool includes( const AABB& box ) const;
         //bool intersects( AABB box );
         bool intersects( AABB* box );
         AABB* findIntersection( AABB* box );
@@ -37,6 +38,9 @@ namespace gcm {
 		void scale(float x0, float y0, float z0, 
 				float scaleX, float scaleY, float scaleZ);
         float getVolume();
+
+        gcm_real getDiag() const;
+        vector3 getCenter() const;
     };
 }
 
