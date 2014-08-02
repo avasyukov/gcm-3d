@@ -185,7 +185,7 @@ namespace gcm {
         /*
          * Returns mesh id.
          */
-        string getId();
+        string getId() const;
         /*
          * Returns type of mesh.
          */

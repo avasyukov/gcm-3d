@@ -26,7 +26,7 @@ void gcm::Mesh::setId(string id)
     this->id = id;
 }
 
-string gcm::Mesh::getId()
+string gcm::Mesh::getId() const
 {
     return id;
 }
