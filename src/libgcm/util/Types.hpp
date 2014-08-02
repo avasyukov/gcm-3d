@@ -56,6 +56,13 @@ namespace gcm
             
             return coords[index];
         }
+        
+        vector3<T>& operator+=(const vector3<T> t)
+        {
+            this->x += t.x;
+            this->y += t.y;
+            this->z += t.z;
+        }
 
         T length() const 
         {
@@ -109,7 +116,7 @@ namespace gcm
     }
     
     template<typename T>
-    inline vector3<T> operator*(const vector3<T>& v1, T factor)
+    inline vector3<T> operator*(const vector3<T>& v1, double factor)
     {
         vector3<T> v;
         for (int i = 0; i < 3; i++)
@@ -118,7 +125,7 @@ namespace gcm
     }
     
     template<typename T>
-    inline vector3<T> operator/(const vector3<T>& v1, T factor)
+    inline vector3<T> operator/(const vector3<T>& v1, double factor)
     {
         return v1*(1/factor);
     }
