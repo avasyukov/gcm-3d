@@ -94,7 +94,7 @@ namespace gcm {
 
         // crack direction
         // TODO  document it
-        vector3 crackDirection;
+        vector3r crackDirection;
 
         // rheology matrix
         RheologyMatrixPtr rheologyMatrix;
@@ -243,7 +243,7 @@ namespace gcm {
          * @param stress TODO document
          * @param vector TODO document
          */
-        void calcMainStressDirectionByComponent(gcm_real stress, vector3& vector) const;
+        void calcMainStressDirectionByComponent(gcm_real stress, vector3r& vector) const;
 
         /**
          * Checks if rheology is valid. TODO document
@@ -478,7 +478,7 @@ namespace gcm {
          *
          * @return Crack direction.
          */
-        const vector3& getCrackDirection() const;
+        const vector3r& getCrackDirection() const;
         /**
          * Creates crack in specified direction. TODO document
          *
@@ -490,14 +490,14 @@ namespace gcm {
          *
          * @param direction Crack direction.
          */
-        void createCrack(const vector3& crack);
+        void createCrack(const vector3r& crack);
         /**
          * TODO document
          *
          * @param TODO document
          */
         void exciseByCrack();
-        void cleanStressByDirection(const vector3& direction);
+        void cleanStressByDirection(const vector3r& direction);
 
         /**
          * Constant to access custom flag1 using getCustomFlag / setCustomFlag.

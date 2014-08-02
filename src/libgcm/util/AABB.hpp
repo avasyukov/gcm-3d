@@ -40,7 +40,7 @@ namespace gcm {
         float getVolume();
 
         gcm_real getDiag() const;
-        vector3 getCenter() const;
+        vector3r getCenter() const;
     };
 }
 

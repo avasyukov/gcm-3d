@@ -328,7 +328,7 @@ void gcm::Mesh::processCrackResponse()
         CalcNode& node = getNodeByLocalIndex(i);
         if( node.isLocal() )
         {
-            const vector3& m_s = node.getCrackDirection();
+            const vector3r& m_s = node.getCrackDirection();
             // FIXME WA
             if (scalarProduct(m_s[0], m_s[1], m_s[2], m_s[0], m_s[1], m_s[2])>0.5)
             {

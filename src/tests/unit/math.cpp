@@ -5,10 +5,10 @@
 
 TEST(Math, vectorAdd)
 {
-    vector3 v1 = { 1, 2, 3 };
-    vector3 v2 = { 3, 2, 1 };
+    vector3r v1 = { 1, 2, 3 };
+    vector3r v2 = { 3, 2, 1 };
 
-    vector3 v = v1 + v2;
+    vector3r v = v1 + v2;
 
     ASSERT_FLOAT_EQ(v.x, 4);
     ASSERT_FLOAT_EQ(v.y, 4);
@@ -17,10 +17,10 @@ TEST(Math, vectorAdd)
 
 TEST(Math, vectorSubtract)
 {
-    vector3 v1 = { 1, 2, 3 };
-    vector3 v2 = { 3, 2, 1 };
+    vector3r v1 = { 1, 2, 3 };
+    vector3r v2 = { 3, 2, 1 };
 
-    vector3 v = v1 - v2;
+    vector3r v = v1 - v2;
 
     ASSERT_FLOAT_EQ(v.x, -2);
     ASSERT_FLOAT_EQ(v.y, 0);
@@ -29,10 +29,10 @@ TEST(Math, vectorSubtract)
 
 TEST(Math, vectorScalarProduct)
 {
-    vector3 v1 = {1, 2, 3};
-    vector3 v2 = {3, 2, 1};
+    vector3r v1 = {1, 2, 3};
+    vector3r v2 = {3, 2, 1};
 
-    vector3 v = v1 - v2;
+    vector3r v = v1 - v2;
 
     ASSERT_FLOAT_EQ(v.x, -2);
     ASSERT_FLOAT_EQ(v.y, 0);

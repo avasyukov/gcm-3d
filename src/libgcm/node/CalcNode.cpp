@@ -177,7 +177,7 @@ void gcm::CalcNode::calcMainStressComponents() const
     privateFlags.mainStressCalculated = true;
 }
 
-void gcm::CalcNode::calcMainStressDirectionByComponent(gcm_real s, vector3& vector) const
+void gcm::CalcNode::calcMainStressDirectionByComponent(gcm_real s, vector3r& vector) const
 {
     gcm_real zero = 0.0000001, a=0,b=0,c=0,u,v,w,n;
 //    if (sxx > 400000)	printf("s: %f %f %f %f %f %f   %f ",sxx,sxy,sxz,syy,syz,szz,s);
@@ -636,7 +636,7 @@ gcm_real gcm::CalcNode::getRho0() const
     return Engine::getInstance().getMaterial(materialId)->getRho();
 }
 
-const vector3& gcm::CalcNode::getCrackDirection() const
+const vector3r& gcm::CalcNode::getCrackDirection() const
 {
     return crackDirection;
 }
@@ -647,7 +647,7 @@ void gcm::CalcNode::createCrack(int direction)
         this->calcMainStressDirectionByComponent(mainStresses[direction], crackDirection);
 }
 
-void gcm::CalcNode::createCrack(const vector3& crack)
+void gcm::CalcNode::createCrack(const vector3r& crack)
 {
     crackDirection = crack;
 }
@@ -657,7 +657,7 @@ void gcm::CalcNode::exciseByCrack()
     if (crackDirection*crackDirection != 0.0)
 		cleanStressByDirection(getCrackDirection());
 }
-void gcm::CalcNode::cleanStressByDirection(const vector3& h)
+void gcm::CalcNode::cleanStressByDirection(const vector3r& h)
 {
     gcm_real s1 = h[0]*(sxx * h[0] + sxy * h[1] + sxz * h[2]) + h[1]*(sxy * h[0] + syy * h[1] + syz * h[2]) + h[2]*(sxz * h[0] + syz * h[1] + szz * h[2]); //TODO
     sxx -= h[0] * h[0] * s1;

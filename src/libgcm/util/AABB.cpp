@@ -135,7 +135,7 @@ gcm_real gcm::AABB::getDiag() const
     return distance(min_coords, max_coords);
 }
 
-vector3 gcm::AABB::getCenter() const
+vector3r gcm::AABB::getCenter() const
 {
-    return vector3((maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2);
+    return vector3r((maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2);
 }

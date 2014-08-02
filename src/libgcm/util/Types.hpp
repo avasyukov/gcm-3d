@@ -1,27 +1,35 @@
 #ifndef GCM_TYPES
 #define GCM_TYPES
 
-#ifndef GCM_DOUBLE_PRECISION
-typedef float gcm_real;
-#else
-typedef double gcm_real;
-#endif
+#include "libgcm/util/Assertion.hpp"
 
 #include <cmath>
 
 namespace gcm
 {
+    
+    #ifndef GCM_DOUBLE_PRECISION
+    typedef float gcm_real;
+    #else
+    typedef double gcm_real;
+    #endif    
+    
+    typedef unsigned char uchar;
+    typedef unsigned int uint;
+    typedef unsigned long ulong;
+    
+    template<typename T>
     class vector3
     {
     public:
         union
         {
-            gcm_real coords[3];
+            T coords[3];
             struct
             {
-                gcm_real x;
-                gcm_real y;
-                gcm_real z;
+                T x;
+                T y;
+                T z;
             };
         };
 
@@ -29,21 +37,27 @@ namespace gcm
         {
         }
 
-        vector3(gcm_real x, gcm_real y, gcm_real z): x(x), y(y), z(z)
+        vector3(T x, T y, T z): x(x), y(y), z(z)
         {
         }
 
-        gcm_real operator[](int index) const
+        T operator[](uint index) const
         {
+            assert_ge(index, 0);
+            assert_lt(index, 3);
+            
             return coords[index];
         }
         
-        gcm_real& operator[](int index)
+        T& operator[](uint index)
         {
+            assert_ge(index, 0);
+            assert_lt(index, 3);
+            
             return coords[index];
         }
 
-        gcm_real length() const 
+        T length() const 
         {
             return sqrt(x*x+y*y+z*z);
         }
@@ -59,53 +73,56 @@ namespace gcm
 
     };
 
-    typedef unsigned char uchar;
-    typedef unsigned int uint;
-    typedef unsigned long ulong;
-
-
-    inline vector3 operator-(const vector3& v1, const vector3& v2)
+    template<typename T>
+    inline vector3<T> operator-(const vector3<T>& v1, const vector3<T>& v2)
     {
-        vector3 v;
+        vector3<T> v;
         for (int i = 0; i < 3; i++)
             v[i] = v1[i] - v2[i];
 
         return v;
     }
     
-    inline vector3 operator-(const vector3& v)
+    template<typename T>
+    inline vector3<T> operator-(const vector3<T>& v)
     {
-        return vector3(-v.x, -v.y, -v.z);
+        return vector3<T>(-v.x, -v.y, -v.z);
     }
 
-    inline vector3 operator+(const vector3& v1, const vector3& v2)
+    template<typename T>
+    inline vector3<T> operator+(const vector3<T>& v1, const vector3<T>& v2)
     {
-        vector3 v;
+        vector3<T> v;
         for (int i = 0; i < 3; i++)
             v[i] = v1[i] + v2[i];
 
         return v;
     }
-
-    inline gcm_real operator*(const vector3& v1, const vector3& v2)
+    
+    template<typename T>
+    inline T operator*(const vector3<T>& v1, const vector3<T>& v2)
     {
-        gcm_real res = 0.0;
+        T res = 0.0;
         for (int i = 0; i < 3; i++)
             res += v1[i]*v2[i];
         return res;
     }
     
-    inline vector3 operator*(const vector3& v1, gcm_real factor)
+    template<typename T>
+    inline vector3<T> operator*(const vector3<T>& v1, T factor)
     {
-        vector3 v;
+        vector3<T> v;
         for (int i = 0; i < 3; i++)
             v[i] = v1[i]*factor;
         return v;
     }
     
-    inline vector3 operator/(const vector3& v1, gcm_real factor)
+    template<typename T>
+    inline vector3<T> operator/(const vector3<T>& v1, T factor)
     {
         return v1*(1/factor);
     }
+    
+    typedef vector3<gcm_real> vector3r;
 }
 #endif
