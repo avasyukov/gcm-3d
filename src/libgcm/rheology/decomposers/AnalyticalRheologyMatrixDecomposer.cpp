@@ -16,7 +16,6 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeX(const gcm_matrix& a,
 	ThirdDegreePolynomial tdp (a, 0);
 	double roots[3];
 	tdp.getRoots(roots);
-	MatrixInverter matInv;
 	
 	if ( ! tdp.isMultiple() ) {
 		// Search eigenvalues and filling the diagonal matrix
@@ -33,7 +32,6 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeX(const gcm_matrix& a,
 		for (int i = 0; i < 6; i++) {
 			findEigenVec(eigenVec, sqrt(roots[i/2]) * ( (i%2) ? -1 : 1 ), a, 0);
 			u1.setColumn(eigenVec, i);
-			matInv.setColumn(eigenVec, i);
 		}
 	} else {
 		// Search eigenvalues and filling the diagonal matrix
@@ -49,22 +47,18 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeX(const gcm_matrix& a,
 		for (int i = 0; i < 2; i++) {
 			findEigenVec(eigenVec1, sqrt(roots[0]) * ( (i%2) ? -1 : 1 ), a, 0);
 			u1.setColumn(eigenVec1, i);
-			matInv.setColumn(eigenVec1, i);
 		}
 		for (int i = 2; i < 5; i+=2) {
 			findEigenVec(eigenVec1, eigenVec2, sqrt(roots[1]) * ( ((i/2)%2) ? 1 : -1 ), a, 0);
 			u1.setColumn(eigenVec1, i);
-			matInv.setColumn(eigenVec1, i);
 			u1.setColumn(eigenVec2, i+1);
-			matInv.setColumn(eigenVec2, i+1);
 		}
 	}
 
 	u1(6,6) = u1(7,7) = u1(8,8) = 1;
-	matInv.setUnity(6,6, 7,7, 8,8);
 
 	// Search U = U1^(-1)
-	matInv.inv(u);
+        u = u1.inv();
 };
 
 void gcm::AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
@@ -77,7 +71,6 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
 	ThirdDegreePolynomial tdp (a, 1);
 	double roots[3];
 	tdp.getRoots(roots);
-	MatrixInverter matInv;
 	
 	if ( ! tdp.isMultiple() ) {
 		// Search eigenvalues and filling the diagonal matrix
@@ -93,7 +86,6 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
 		for (int i = 0; i < 6; i++) {
 			findEigenVec (eigenVec, sqrt(roots[i/2]) * ( (i%2) ? -1 : 1 ), a, 1);
 			u1.setColumn(eigenVec, i);
-			matInv.setColumn(eigenVec, i);
 		}
 	} else {
 		// Search eigenvalues and filling the diagonal matrix
@@ -109,22 +101,18 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
 		for (int i = 0; i < 2; i++) {
 			findEigenVec(eigenVec1, sqrt(roots[0]) * ( (i%2) ? -1 : 1 ), a, 1);
 			u1.setColumn(eigenVec1, i);
-			matInv.setColumn(eigenVec1, i);
 		}
 		for (int i = 2; i < 5; i+=2) {
 			findEigenVec(eigenVec1, eigenVec2, sqrt(roots[1]) * ( ((i/2)%2) ? 1 : -1 ), a, 1);
 			u1.setColumn(eigenVec1, i);
-			matInv.setColumn(eigenVec1, i);
 			u1.setColumn(eigenVec2, i+1);
-			matInv.setColumn(eigenVec2, i+1);
 		}
 	}
 
 	u1(3, 6) = u1(5, 7) = u1(8, 8) = 1;
-	matInv.setUnity(3,6, 5,7, 8,8);
 
 	// Search U = U1^(-1)
-	matInv.inv(u);
+        u = u1.inv();
 };
 
 void gcm::AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
@@ -137,7 +125,6 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
 	ThirdDegreePolynomial tdp (a, 2);
 	double roots[3];
 	tdp.getRoots(roots);
-	MatrixInverter matInv;
 	
 	if ( ! tdp.isMultiple() ) {
 		// Search eigenvalues and filling the diagonal matrix
@@ -154,7 +141,6 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
 		for (int i = 0; i < 6; i++) {
 			findEigenVec(eigenVec, sqrt(roots[i/2]) * ( (i%2) ? -1 : 1 ), a, 2);
 			u1.setColumn(eigenVec, i);
-			matInv.setColumn(eigenVec, i);
 		}
 	} else {
 		// Search eigenvalues and filling the diagonal matrix
@@ -170,22 +156,18 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
 		for (int i = 0; i < 2; i++) {
 			findEigenVec(eigenVec1, sqrt(roots[0]) * ( (i%2) ? -1 : 1 ), a, 2);
 			u1.setColumn(eigenVec1, i);
-			matInv.setColumn(eigenVec1, i);
 		}
 		for (int i = 2; i < 5; i+=2) {
 			findEigenVec(eigenVec1, eigenVec2, sqrt(roots[1]) * ( ((i/2)%2) ? 1 : -1 ), a, 2);
 			u1.setColumn(eigenVec1, i);
-			matInv.setColumn(eigenVec1, i);
 			u1.setColumn(eigenVec2, i+1);
-			matInv.setColumn(eigenVec2, i+1);
 		}
 	}
 
 	u1(3,6) = u1(4,7) = u1(6,8) = 1;
-	matInv.setUnity(3,6, 4,7, 6,8);
 
 	// Search U = U1^(-1)
-	matInv.inv(u);
+        u = u1.inv();
 };
 
 void gcm::AnalyticalRheologyMatrixDecomposer::findNonZeroSolution

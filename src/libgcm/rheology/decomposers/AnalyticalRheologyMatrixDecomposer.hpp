@@ -5,7 +5,6 @@
 
 #include "libgcm/util/matrixes.hpp"
 #include "libgcm/util/ThirdDegreePolynomial.hpp"
-#include "libgcm/util/MatrixInverter.hpp"
 #include "libgcm/Exception.hpp"
 #include <assert.h>
 
