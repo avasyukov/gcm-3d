@@ -28,12 +28,13 @@ void gcm::ContactCondition::doCalc(float time, CalcNode& cur_node, CalcNode& new
                     form->calcMagnitudeNorm(time, cur_node.coords, area) );
 };
 
-void gcm::ContactCondition::setConditionParam(gcm_real param)
+void gcm::ContactCondition::setConditionParam(real param)
 {
     conditionParam = param;
 };
 
-gcm_real gcm::ContactCondition::getConditionParam() const
+// FIXME get rid of "using namespace std" in header files
+gcm::real gcm::ContactCondition::getConditionParam() const
 {
     return conditionParam;
 };

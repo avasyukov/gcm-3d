@@ -155,8 +155,8 @@ namespace gcm {
          * Returns 'true' if vector intersects mesh border and target node interpolated successfully.
          * Returns 'false' if vector does not intersect mesh border.
          */
-        virtual bool interpolateBorderNode(gcm_real x, gcm_real y, gcm_real z, 
-                                gcm_real dx, gcm_real dy, gcm_real dz, CalcNode& node) = 0;
+        virtual bool interpolateBorderNode(real x, real y, real z, 
+                                real dx, real dy, real dz, CalcNode& node) = 0;
 
         virtual void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug) = 0;
 

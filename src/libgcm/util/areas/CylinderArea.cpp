@@ -26,21 +26,21 @@ CylinderArea::CylinderArea( float _radius, float _bX, float _bY, float _bZ, floa
 //-----------------------------------------------------------------------------
 bool CylinderArea::isInArea( Node& cur_node )
 {
-    gcm_real dx = end[0] - begin[0];
-    gcm_real dy = end[1] - begin[1];
-    gcm_real dz = end[2] - begin[2];
+    real dx = end[0] - begin[0];
+    real dy = end[1] - begin[1];
+    real dz = end[2] - begin[2];
     
-    gcm_real pdx = cur_node.coords[0] - begin[0];
-    gcm_real pdy = cur_node.coords[1] - begin[1];
-    gcm_real pdz = cur_node.coords[2] - begin[2];
+    real pdx = cur_node.coords[0] - begin[0];
+    real pdy = cur_node.coords[1] - begin[1];
+    real pdz = cur_node.coords[2] - begin[2];
     
-    gcm_real lengthsq = dx * dx + dy * dy + dz * dz;
-    gcm_real radius_sq = radius * radius;
+    real lengthsq = dx * dx + dy * dy + dz * dz;
+    real radius_sq = radius * radius;
 
     // Dot the d and pd vectors to see if point lies behind the 
     // cylinder cap at pt1.x, pt1.y, pt1.z
 
-    gcm_real dot = pdx * dx + pdy * dy + pdz * dz;
+    real dot = pdx * dx + pdy * dy + pdz * dz;
 
     // If dot is less than zero the point is behind the pt1 cap.
     // If greater than the cylinder axis line segment length squared
@@ -65,7 +65,7 @@ bool CylinderArea::isInArea( Node& cur_node )
 
         // distance squared to the cylinder axis:
 
-        gcm_real dsq = (pdx * pdx + pdy * pdy + pdz * pdz) - dot * dot / lengthsq;
+        real dsq = (pdx * pdx + pdy * pdy + pdz * pdz) - dot * dot / lengthsq;
 
         if (dsq > radius_sq) 
         {

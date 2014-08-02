@@ -215,8 +215,8 @@ bool gcm::BasicCubicMesh::interpolateNode(CalcNode& node)
     return false;
 };
 
-bool gcm::BasicCubicMesh::interpolateBorderNode(gcm_real x, gcm_real y, gcm_real z, 
-                                gcm_real dx, gcm_real dy, gcm_real dz, CalcNode& node)
+bool gcm::BasicCubicMesh::interpolateBorderNode(real x, real y, real z, 
+                                real dx, real dy, real dz, CalcNode& node)
 {
     int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
     float coords[3];

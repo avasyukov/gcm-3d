@@ -55,8 +55,8 @@ namespace gcm {
         bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
                                 CalcNode& targetNode, bool& isInnerPoint);
         bool interpolateNode(CalcNode& node);
-        bool interpolateBorderNode(gcm_real x, gcm_real y, gcm_real z, 
-                                gcm_real dx, gcm_real dy, gcm_real dz, CalcNode& node);
+        bool interpolateBorderNode(real x, real y, real z, 
+                                real dx, real dy, real dz, CalcNode& node);
 
 
         void setNumberOfCells(unsigned int num1, unsigned int num2, unsigned int num3);

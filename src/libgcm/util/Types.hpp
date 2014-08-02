@@ -9,9 +9,9 @@ namespace gcm
 {
     
     #ifndef GCM_DOUBLE_PRECISION
-    typedef float gcm_real;
+    typedef float real;
     #else
-    typedef double gcm_real;
+    typedef double real;
     #endif    
     
     typedef unsigned char uchar;
@@ -123,6 +123,6 @@ namespace gcm
         return v1*(1/factor);
     }
     
-    typedef vector3<gcm_real> vector3r;
+    typedef vector3<real> vector3r;
 }
 #endif

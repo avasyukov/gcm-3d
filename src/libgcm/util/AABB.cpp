@@ -130,7 +130,7 @@ float gcm::AABB::getVolume()
     return (maxX - minX) * (maxY - minY) * (maxZ - minZ);
 }
 
-gcm_real gcm::AABB::getDiag() const
+real gcm::AABB::getDiag() const
 {
     return distance(min_coords, max_coords);
 }

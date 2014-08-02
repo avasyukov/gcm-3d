@@ -35,43 +35,43 @@ namespace gcm {
                  * @param la \f$\lambda\f$ Lame parameter
                  * @param mu \f$\mu\f$ Lame parameter
                  */
-                RheologyProperties(gcm_real la, gcm_real mu);
+                RheologyProperties(real la, real mu);
                 /**
                  * Constructor. Fills rheology parameters using anisotropic parameters.
                  *
                  * @param params Anisotropic rheology parameters
                  */
-                RheologyProperties(const gcm_real (&params)[RHEOLOGY_PROPERTIES_NUMBER]);
+                RheologyProperties(const real (&params)[RHEOLOGY_PROPERTIES_NUMBER]);
 
                 union
                 {
                     /**
                     * All parameters in one array.
                     */
-                    gcm_real values[RHEOLOGY_PROPERTIES_NUMBER];
+                    real values[RHEOLOGY_PROPERTIES_NUMBER];
                     struct
                     {
-                        gcm_real c11;
-                        union { gcm_real c12; gcm_real c21; };
-                        union { gcm_real c13; gcm_real c31; };
-                        union { gcm_real c14; gcm_real c41; };
-                        union { gcm_real c15; gcm_real c51; };
-                        union { gcm_real c16; gcm_real c61; };
-                        gcm_real c22;
-                        union { gcm_real c23; gcm_real c32; };
-                        union { gcm_real c24; gcm_real c42; };
-                        union { gcm_real c25; gcm_real c52; };
-                        union { gcm_real c26; gcm_real c62; };
-                        gcm_real c33;
-                        union { gcm_real c34; gcm_real c43; };
-                        union { gcm_real c35; gcm_real c53; };
-                        union { gcm_real c36; gcm_real c63; };
-                        gcm_real c44;
-                        union { gcm_real c45; gcm_real c54; };
-                        union { gcm_real c46; gcm_real c64; };
-                        gcm_real c55;
-                        union { gcm_real c56; gcm_real c65; };
-                        gcm_real c66;
+                        real c11;
+                        union { real c12; real c21; };
+                        union { real c13; real c31; };
+                        union { real c14; real c41; };
+                        union { real c15; real c51; };
+                        union { real c16; real c61; };
+                        real c22;
+                        union { real c23; real c32; };
+                        union { real c24; real c42; };
+                        union { real c25; real c52; };
+                        union { real c26; real c62; };
+                        real c33;
+                        union { real c34; real c43; };
+                        union { real c35; real c53; };
+                        union { real c36; real c63; };
+                        real c44;
+                        union { real c45; real c54; };
+                        union { real c46; real c64; };
+                        real c55;
+                        union { real c56; real c65; };
+                        real c66;
                     };
                 };
                 /**
@@ -79,13 +79,13 @@ namespace gcm {
                  *
                  * @return \f$\mu\f$ parameter value.
                  */
-                gcm_real getMu() const;
+                real getMu() const;
                 /**
                  * Returns \f$\lambda\f$ parameter value in assumption that material is isotropic.
                  *
                  * @return \f$\lambda\f$ parameter value.
                  */
-                gcm_real getLa() const;
+                real getLa() const;
                 /**
                 * Changes rheology parameters assuming it was rotated
                 *
@@ -104,11 +104,11 @@ namespace gcm {
         /**
          * Material density.
          */
-        gcm_real rho;
+        real rho;
         /**
          * Material crack threshold.
          */
-        gcm_real crackThreshold;
+        real crackThreshold;
         /**
          * Rheology properties.
          */
@@ -131,7 +131,7 @@ namespace gcm {
          * @param la \f$\lambda\f$ Lame parameter
          * @param mu \f$\mu\f$ Lame parameter
          */
-        Material(string name, gcm_real rho, gcm_real crackThreshold, gcm_real la, gcm_real mu);
+        Material(string name, real rho, real crackThreshold, real la, real mu);
         /**
          * Constructor. Constructs isotropic material using specified parameters.
          *
@@ -142,7 +142,7 @@ namespace gcm {
          * @param mu \f$\mu\f$ Lame parameter
          * @param plasticityProps Plasticity properties
          */
-        Material(string name, gcm_real rho, gcm_real crackThreshold, gcm_real la, gcm_real mu, PlasticityProperties plasticityProps);
+        Material(string name, real rho, real crackThreshold, real la, real mu, PlasticityProperties plasticityProps);
         /**
          * Constructor. Constructs anisotropic material using specified parameters.
          *
@@ -151,7 +151,7 @@ namespace gcm {
          * @param crackThreshold Material crack threshold
          * @param params Material rheology parameters
          */
-        Material(string name, gcm_real rho, gcm_real crackThreshold, RheologyProperties rheologyProps);
+        Material(string name, real rho, real crackThreshold, RheologyProperties rheologyProps);
         /**
          * Constructor. Constructs anisotropic material using specified parameters.
          *
@@ -161,7 +161,7 @@ namespace gcm {
          * @param params Material rheology parameters
          * @param plasticityProps Plasticity properties
          */
-        Material(string name, gcm_real rho, gcm_real crackThreshold, RheologyProperties rheologyProps, PlasticityProperties plasticityProps);
+        Material(string name, real rho, real crackThreshold, RheologyProperties rheologyProps, PlasticityProperties plasticityProps);
         /**
          * Constructor. Constructs anisotropic material by rotation of passed material.
          *
@@ -183,13 +183,13 @@ namespace gcm {
          *
          * @return Density value.
          */
-        gcm_real getRho() const;
+        real getRho() const;
         /**
          * Returns material crack threshold.
          *
          * @return Crack threshold value.
          */
-        gcm_real getCrackThreshold() const;
+        real getCrackThreshold() const;
         /**
          * Returns isotropic flag value.
          *
@@ -201,13 +201,13 @@ namespace gcm {
          *
          * @return \f$\mu\f$ parameter value.
          */
-        gcm_real getMu() const;
+        real getMu() const;
         /**
          * Shortcut to get \f$\lambda\f$ parameter value.
          *
          * @return \f$\lambda\f$ parameter value.
          */
-        gcm_real getLa() const;
+        real getLa() const;
 
         /**
          * Returns material rheology properties.
