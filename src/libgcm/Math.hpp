@@ -191,7 +191,7 @@ inline bool sameOrientation(float* base1, float* base2, float* check1, float* ch
     return true;
 };
 
-inline void findTriangleFaceNormal(float *p1, float *p2, float *p3, float *x, float *y, float *z)
+inline void findTriangleFaceNormal(const float *p1, const float *p2, const float *p3, float *x, float *y, float *z)
 {
     // Normal vector
     float normal[3];
