@@ -8,7 +8,7 @@ using namespace gcm;
 
 TEST(GcmMatrixes, Equality)
 {
-    srand(time(NULL));
+    srand(0);
 
     gcm_matrix a;
     gcm_matrix b;
@@ -31,7 +31,7 @@ TEST(GcmMatrixes, Equality)
 
 TEST(GcmMatrixes, BasicMath)
 {
-    srand(time(NULL));
+    srand(0);
 
     gcm_matrix a;
     gcm_matrix b;
