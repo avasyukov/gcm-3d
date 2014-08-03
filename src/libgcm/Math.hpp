@@ -588,4 +588,13 @@ int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
+
+inline bool isPointInNormalDirection(const vector3r& planePoint, const vector3r& planeNormal, const vector3r& point)
+{
+    vector3r vec = point - planePoint;
+    real scProd = vec*planeNormal;
+
+    return scProd >= 0.0;
+}
+
 #endif    /* GCM_MATH_H */

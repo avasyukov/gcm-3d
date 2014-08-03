@@ -10,6 +10,7 @@
 #include "launcher/loaders/mesh/Vtu2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
 #include "launcher/loaders/mesh/MarkeredBoxMeshLoader.hpp"
+#include "launcher/loaders/mesh/MarkeredMeshNGGeoLoader.hpp"
 #include "launcher/loaders/mesh/CubicMeshLoader.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
 
@@ -32,6 +33,7 @@
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/correctors/IdealPlasticFlowCorrector.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
+#include "loaders/mesh/MarkeredMeshNGGeoLoader.hpp"
 
 namespace ba = boost::algorithm;
 namespace bfs = boost::filesystem;
@@ -352,6 +354,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 MarkeredBoxMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == CubicMeshLoader::MESH_TYPE)
                 CubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == MarkeredMeshNGGeoLoader::MESH_TYPE)
+                MarkeredMeshNGGeoLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else
                 THROW_UNSUPPORTED("Specified mesh loader is not supported");
 
@@ -479,6 +483,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 mesh = MarkeredBoxMeshLoader::getInstance().load(meshNode, body);
             else if (type == CubicMeshLoader::MESH_TYPE)
                 mesh = CubicMeshLoader::getInstance().load(meshNode, body);
+            else if (type == MarkeredMeshNGGeoLoader::MESH_TYPE)
+                mesh = MarkeredMeshNGGeoLoader::getInstance().load(meshNode, body);            
 
             // attach mesh to body
             body->attachMesh(mesh);

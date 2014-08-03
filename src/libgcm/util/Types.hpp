@@ -57,11 +57,13 @@ namespace gcm
             return coords[index];
         }
         
-        vector3<T>& operator+=(const vector3<T> t)
+        vector3<T>& operator+=(const vector3<T>& t)
         {
             this->x += t.x;
             this->y += t.y;
             this->z += t.z;
+            
+            return *this;
         }
 
         T length() const 

@@ -29,6 +29,7 @@ namespace gcm {
         friend class VTK2SnapshotWriter;
         friend class VTKCubicSnapshotWriter;
         friend class VTKMarkeredMeshSnapshotWriter;
+        friend class VTKMarkeredMeshNGSnapshotWriter;
         friend class Mesh;
 
     protected:

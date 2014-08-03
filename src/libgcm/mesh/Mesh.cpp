@@ -400,6 +400,8 @@ float gcm::Mesh::getMaxEigenvalue()
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
+        if (!node.isUsed())
+            continue;
         RheologyMatrixPtr m = node.getRheologyMatrix();
         m->decomposeX(node);
         auto l1 = m->getMaxEigenvalue();
