@@ -156,23 +156,13 @@ void gcm::CalcNode::getMainStressComponents(gcm_real& s1, gcm_real& s2, gcm_real
 }
 
 // See http://www.toehelp.ru/theory/sopromat/6.html
-//  and http://ru.wikipedia.org/wiki/Тригонометрическая_формула_Виета for algo
-
 void gcm::CalcNode::calcMainStressComponents() const
 {
     gcm_real a = -getJ1();
     gcm_real b = getJ2();
     gcm_real c = -getJ3();
-
-    gcm_real p = b - a * a / 3.0;
-    gcm_real q = 2.0 * a * a * a / 27.0 - a * b / 3.0 + c;
-    gcm_real A = sqrt(-4.0 * p / 3.0);
-    gcm_real c3phi = -4.0 * q / (A * A * A);
-    gcm_real phi = acos(c3phi) / 3.0;
-
-    mainStresses[0] = A * cos(phi) - a / 3.0;
-    mainStresses[1] = A * cos(phi + 2 * M_PI / 3.0) - a / 3.0;
-    mainStresses[2] = A * cos(phi - 2 * M_PI / 3.0) - a / 3.0;
+    
+    solvePolynomialThirdOrder(a, b, c, mainStresses[0], mainStresses[1], mainStresses[2]);
 
     privateFlags.mainStressCalculated = true;
 }
