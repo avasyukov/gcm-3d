@@ -146,31 +146,29 @@ TEST(MaterialLoader, AnisotropicRotation)
         material = loader.load(doc.getRootElement().getChildByName("material"));
     );
 
-    // FIXME
-    // set correct expected values below
     const auto& p = material->getRheologyProperties();
 
-    ASSERT_FLOAT_EQ(p.c11, 0.0);
-    ASSERT_FLOAT_EQ(p.c12, 0.0);
-    ASSERT_FLOAT_EQ(p.c13, 0.0);
-    ASSERT_FLOAT_EQ(p.c14, 0.0);
-    ASSERT_FLOAT_EQ(p.c15, 0.0);
-    ASSERT_FLOAT_EQ(p.c16, 0.0);
-    ASSERT_FLOAT_EQ(p.c22, 0.0);
-    ASSERT_FLOAT_EQ(p.c23, 0.0);
-    ASSERT_FLOAT_EQ(p.c24, 0.0);
-    ASSERT_FLOAT_EQ(p.c25, 0.0);
-    ASSERT_FLOAT_EQ(p.c26, 0.0);
-    ASSERT_FLOAT_EQ(p.c33, 0.0);
-    ASSERT_FLOAT_EQ(p.c34, 0.0);
-    ASSERT_FLOAT_EQ(p.c35, 0.0);
-    ASSERT_FLOAT_EQ(p.c36, 0.0);
-    ASSERT_FLOAT_EQ(p.c44, 0.0);
-    ASSERT_FLOAT_EQ(p.c45, 0.0);
-    ASSERT_FLOAT_EQ(p.c46, 0.0);
-    ASSERT_FLOAT_EQ(p.c55, 0.0);
-    ASSERT_FLOAT_EQ(p.c56, 0.0);
-    ASSERT_FLOAT_EQ(p.c66, 0.0);
+    ASSERT_NEAR(p.c11, props.c33, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c12, props.c32, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c13, props.c31, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c14, -props.c36, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c15, -props.c35, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c16, props.c34, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c22, props.c22, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c23, props.c21, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c24, -props.c26, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c25, -props.c25, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c26, props.c24, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c33, props.c11, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c34, -props.c16, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c35, -props.c15, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c36, props.c14, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c44, props.c66, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c45, props.c56, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c46, -props.c46, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c55, props.c55, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c56, -props.c45, EQUALITY_TOLERANCE);
+    ASSERT_NEAR(p.c66, props.c44, EQUALITY_TOLERANCE);
 }
 
 TEST(MaterialLoader, IsotropicValid)

@@ -39,11 +39,13 @@ def configure(conf):
                 if d.startswith('vtk-'):
                     conf.env.LIBPATH_LIBVTK += [full_path]
 
-    LIBS = [
-        ['vtkCommon', 'vtkFiltering', 'vtkIO']
-    ]
+    LIBS = {
+        '5': ['vtkCommon', 'vtkFiltering', 'vtkIO'],
+        '6': ['vtkCommonCore', 'vtkFiltersCore', 'vtkIOCore', 'vtkIOXML']
+    }
 
-    for libs in LIBS:
+    for v in LIBS:
+        libs = LIBS[v]
         conf.env.LIB_LIBVTK = libs
         try:
             version = conf.run_c_code(
@@ -63,6 +65,7 @@ def configure(conf):
             )
         except:
             continue
+        conf.define('CONFIG_VTK_%s' % v, 1)
         conf.end_msg(version)
         return
     conf.end_msg('not found')

@@ -41,24 +41,24 @@ RheologyMatrix::~RheologyMatrix()
     }
 }
 
-gcm_real RheologyMatrix::getMaxEigenvalue() const
+real RheologyMatrix::getMaxEigenvalue() const
 {
     float res = 0;
     for (unsigned i = 0; i < GCM_MATRIX_SIZE; ++i)
     {
-        gcm_real la = getL(i, i);
+        real la = getL(i, i);
         if(la > res)
             res = la;
     }
     return res;
 }
 
-gcm_real RheologyMatrix::getMinEigenvalue() const
+real RheologyMatrix::getMinEigenvalue() const
 {
-    float res = numeric_limits<gcm_real>::infinity();
+    float res = numeric_limits<real>::infinity();
     for (unsigned i = 0; i < GCM_MATRIX_SIZE; ++i)
     {
-        gcm_real la = getL(i, i);
+        real la = getL(i, i);
         if(la > 0 && la < res)
             res = la;
     }
@@ -71,7 +71,7 @@ const gcm_matrix& RheologyMatrix::getA() const
     return matrices[direction].a[index];
 }
 
-gcm_real RheologyMatrix::getA(unsigned int i, unsigned int j) const
+real RheologyMatrix::getA(unsigned int i, unsigned int j) const
 {
     return getA().get(i, j);
 }
@@ -82,7 +82,7 @@ const gcm_matrix& RheologyMatrix::getL() const
     return matrices[direction].l[index];
 }
 
-gcm_real RheologyMatrix::getL(unsigned int i, unsigned int j) const
+real RheologyMatrix::getL(unsigned int i, unsigned int j) const
 {
     return getL().get(i, j);
 }
@@ -93,7 +93,7 @@ const gcm_matrix& RheologyMatrix::getU() const
     return matrices[direction].u[index];
 }
 
-gcm_real RheologyMatrix::getU(unsigned int i, unsigned int j) const
+real RheologyMatrix::getU(unsigned int i, unsigned int j) const
 {
     return getU().get(i, j);
 }
@@ -104,7 +104,7 @@ const gcm_matrix& RheologyMatrix::getU1() const
     return matrices[direction].u1[index];
 }
 
-gcm_real RheologyMatrix::getU1(unsigned int i, unsigned int j) const
+real RheologyMatrix::getU1(unsigned int i, unsigned int j) const
 {
     return getU1().get(i, j);
 }

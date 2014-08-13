@@ -191,7 +191,7 @@ inline bool sameOrientation(float* base1, float* base2, float* check1, float* ch
     return true;
 };
 
-inline void findTriangleFaceNormal(float *p1, float *p2, float *p3, float *x, float *y, float *z)
+inline void findTriangleFaceNormal(const float *p1, const float *p2, const float *p3, float *x, float *y, float *z)
 {
     // Normal vector
     float normal[3];
@@ -586,6 +586,15 @@ inline int delta(int i, int j)
 template <typename T>
 int sgn(T val) {
     return (T(0) < val) - (val < T(0));
+}
+
+
+inline bool isPointInNormalDirection(const vector3r& planePoint, const vector3r& planeNormal, const vector3r& point)
+{
+    vector3r vec = point - planePoint;
+    real scProd = vec*planeNormal;
+
+    return scProd >= 0.0;
 }
 
 #endif    /* GCM_MATH_H */

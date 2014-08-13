@@ -26,7 +26,7 @@ void gcm::Mesh::setId(string id)
     this->id = id;
 }
 
-string gcm::Mesh::getId()
+string gcm::Mesh::getId() const
 {
     return id;
 }
@@ -305,9 +305,9 @@ void gcm::Mesh::processCrackState()
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
-        if( node.isLocal() )
+        if( node.isLocal() && !node.isBorder())
         {
-            float m_s[3];
+            real m_s[3];
             node.getMainStressComponents(m_s[0], m_s[1], m_s[2]);
             int i_ms=0; if (m_s[1]>m_s[i_ms]) i_ms=1; if (m_s[2]>m_s[i_ms]) i_ms = 2;
             if (m_s[i_ms] > node.getMaterial()->getCrackThreshold())
@@ -315,6 +315,8 @@ void gcm::Mesh::processCrackState()
                 node.createCrack(i_ms);
                 LOG_TRACE("New crack detected at node " << node);
             }
+	    node.exciseByCrack();
+	    //cout <<endl <<node.getMaterial()->getCrackThreshold() <<" " <<m_s[i_ms];
         }
     }
 }
@@ -326,7 +328,7 @@ void gcm::Mesh::processCrackResponse()
         CalcNode& node = getNodeByLocalIndex(i);
         if( node.isLocal() )
         {
-            const vector3& m_s = node.getCrackDirection();
+            const vector3r& m_s = node.getCrackDirection();
             // FIXME WA
             if (scalarProduct(m_s[0], m_s[1], m_s[2], m_s[0], m_s[1], m_s[2])>0.5)
             {
@@ -398,6 +400,8 @@ float gcm::Mesh::getMaxEigenvalue()
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
+        if (!node.isUsed())
+            continue;
         RheologyMatrixPtr m = node.getRheologyMatrix();
         m->decomposeX(node);
         auto l1 = m->getMaxEigenvalue();

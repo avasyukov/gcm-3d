@@ -8,7 +8,7 @@ Material::RheologyProperties::RheologyProperties()
 {
 }
 
-Material::RheologyProperties::RheologyProperties(gcm_real la, gcm_real mu)
+Material::RheologyProperties::RheologyProperties(real la, real mu)
 {
     c11 = c22 = c33 = la + 2 * mu;
     c44 = c55 = c66 = mu;
@@ -19,12 +19,12 @@ Material::RheologyProperties::RheologyProperties(gcm_real la, gcm_real mu)
     c45 = c46 = c56 = 0.0;
 }
 
-gcm_real Material::RheologyProperties::getMu() const
+real Material::RheologyProperties::getMu() const
 {
     return c66;
 }
 
-gcm_real Material::RheologyProperties::getLa() const
+real Material::RheologyProperties::getLa() const
 {
     return c23;
 }
@@ -128,20 +128,20 @@ void Material::RheologyProperties::rotate(double a1, double a2, double a3)
 	c56 = C1[0][1][0][2]; 
 }
 
-Material::Material(string name, gcm_real rho, gcm_real crackThreshold, gcm_real la, gcm_real mu): Material(name, rho, crackThreshold, la, mu, PlasticityProperties())
+Material::Material(string name, real rho, real crackThreshold, real la, real mu): Material(name, rho, crackThreshold, la, mu, PlasticityProperties())
 {
 }
 
-Material::Material(string name, gcm_real rho, gcm_real crackThreshold, gcm_real la, gcm_real mu, PlasticityProperties plasticityProps): Material(name, rho, crackThreshold, RheologyProperties(la, mu), plasticityProps)
+Material::Material(string name, real rho, real crackThreshold, real la, real mu, PlasticityProperties plasticityProps): Material(name, rho, crackThreshold, RheologyProperties(la, mu), plasticityProps)
 {
     isotropic = true;
 }
 
-Material::Material(string name, gcm_real rho, gcm_real crackThreshold, RheologyProperties rheologyProps): Material(name, rho, crackThreshold, rheologyProps, PlasticityProperties())
+Material::Material(string name, real rho, real crackThreshold, RheologyProperties rheologyProps): Material(name, rho, crackThreshold, rheologyProps, PlasticityProperties())
 {
 }
 
-Material::Material(string name, gcm_real rho, gcm_real crackThreshold, RheologyProperties rheologyProps, PlasticityProperties plasticityProps): name(name), rho(rho), crackThreshold(crackThreshold), rheologyProps(rheologyProps), plasticityProps(plasticityProps)
+Material::Material(string name, real rho, real crackThreshold, RheologyProperties rheologyProps, PlasticityProperties plasticityProps): name(name), rho(rho), crackThreshold(crackThreshold), rheologyProps(rheologyProps), plasticityProps(plasticityProps)
 {
 }
         
@@ -155,12 +155,12 @@ const string& Material::getName() const
     return name;
 }
 
-gcm_real Material::getCrackThreshold() const
+real Material::getCrackThreshold() const
 {
     return crackThreshold;
 }
 
-gcm_real Material::getRho() const
+real Material::getRho() const
 {
     return rho;
 }
@@ -170,12 +170,12 @@ bool Material::isIsotropic() const
     return isotropic;
 }
 
-gcm_real Material::getMu() const
+real Material::getMu() const
 {
     return rheologyProps.getMu();
 }
 
-gcm_real Material::getLa() const
+real Material::getLa() const
 {
     return rheologyProps.getLa();
 }

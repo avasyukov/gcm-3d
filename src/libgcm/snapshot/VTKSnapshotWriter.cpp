@@ -59,7 +59,6 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
 
     float v[3];
     int snapNodeCount = 0;
-    float c[3];
     float f[3];
 
     for(int i = 0; i < mesh->getNodesNumber(); i++)
@@ -72,9 +71,8 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
             snapNodeCount++;
             pts->InsertNextPoint( node.coords[0], node.coords[1], node.coords[2] );
             v[0] = node.values[0];    v[1] = node.values[1];    v[2] = node.values[2];
-            memcpy(c, node.getCrackDirection(), 3*sizeof(float));
             vel->InsertNextTuple(v);
-            crack->InsertNextTuple(c);
+            crack->InsertNextTuple(node.getCrackDirection().coords);
             if( node.isBorder() )
             {
                 float n[3];
@@ -189,8 +187,12 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     mpiState->Delete();
     nodeErrorFlags->Delete();
     contactDestroyed->Delete();
-
+    
+    #ifdef CONFIG_VTK_5
     xgw->SetInput(g);
+    #else
+    xgw->SetInputData(g);
+    #endif
     xgw->SetFileName(filename.c_str());
     xgw->Update();
 

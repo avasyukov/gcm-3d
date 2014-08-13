@@ -1,0 +1,13 @@
+<task numberOfSnaps="50" stepsPerSnap="1">
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="markered-mesh-ng-geo" cellsNum="50" file="models/cube.geo" />
+			<material id="testMaterial" />
+		</body>
+	</bodies>
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-3" maxZ="-1"/>
+		<values vz="300" sxx="70000" syy="70000" szz="90000" />
+	</initialState>
+</task>

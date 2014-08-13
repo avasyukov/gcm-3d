@@ -34,8 +34,8 @@ int main()
     cout << "Analytical implementation is expected to be few times faster." << endl;
     
     Material::RheologyProperties C;
-    gcm_real la = 1e8;
-    gcm_real mu = 1e6;
+    gcm::real la = 1e8;
+    gcm::real mu = 1e6;
     C.c12 = C.c13 = C.c23 = la;
     C.c44 = C.c55 = C.c66 = mu;
     C.c11 = C.c22 = C.c33 = la + 2 * mu;
@@ -43,7 +43,7 @@ int main()
     C.c34 = C.c35 = C.c36 = C.c45 = C.c46 = C.c56 = 2e3;
 
     float rho = 1e3;
-    gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+    gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
     auto mat = makeMaterialPtr("test", rho, crackThreshold, C);
 

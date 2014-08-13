@@ -19,13 +19,13 @@ TEST(Plasticity, PrandtlRaussElasticTransition)
 
     for (int k = 0; k < ITERATIONS; k++)
     {
-        gcm_real la = 1.0e+9 * (double) rand() / RAND_MAX;
-        gcm_real mu = 1.0e+8 * (double) rand() / RAND_MAX;
-        gcm_real rho = 1.0e+4 * (double) rand() / RAND_MAX;
-        gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+        gcm::real la = 1.0e+9 * (double) rand() / RAND_MAX;
+        gcm::real mu = 1.0e+8 * (double) rand() / RAND_MAX;
+        gcm::real rho = 1.0e+4 * (double) rand() / RAND_MAX;
+        gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
         
         Material::PlasticityProperties props;
-        props[PLASTICITY_TYPE_PRANDTL_RAUSS][PLASTICITY_PROP_YIELD_STRENGTH] = numeric_limits<gcm_real>::infinity();
+        props[PLASTICITY_TYPE_PRANDTL_RAUSS][PLASTICITY_PROP_YIELD_STRENGTH] = numeric_limits<gcm::real>::infinity();
 
         auto mat = makeMaterialPtr("material", rho, crackThreshold, la, mu, props);
 	
@@ -46,7 +46,7 @@ TEST(Plasticity, PrandtlRaussElasticTransition)
 				case 2:	elasticSetter.setZ(a1, mat, node); plasticSetter.setZ(a2, mat, node); break;
 			}
 			
-		    ASSERT_TRUE( a1 |= a2 );
+		    ASSERT_TRUE( a1 == a2 );
 		}
 	}
 };

@@ -21,10 +21,10 @@ MaterialPtr launcher::MaterialLoader::loadIsotropic(const xml::Node& desc, Mater
 {
     string name = desc["name"];
     
-    gcm_real rho = lexical_cast<gcm_real>(desc.getChildByName("rho").getTextContent());
-    gcm_real crackThreshold = lexical_cast<gcm_real>(desc.getChildByName("crackThreshold").getTextContent());
-    gcm_real la = lexical_cast<gcm_real>(desc.getChildByName("la").getTextContent());
-    gcm_real mu = lexical_cast<gcm_real>(desc.getChildByName("mu").getTextContent());
+    gcm::real rho = lexical_cast<gcm::real>(desc.getChildByName("rho").getTextContent());
+    gcm::real crackThreshold = lexical_cast<gcm::real>(desc.getChildByName("crackThreshold").getTextContent());
+    gcm::real la = lexical_cast<gcm::real>(desc.getChildByName("la").getTextContent());
+    gcm::real mu = lexical_cast<gcm::real>(desc.getChildByName("mu").getTextContent());
 
     if (la <= 0.0 || mu <= 0.0 || rho <= 0.0 || crackThreshold <= 0.0)
         THROW_INVALID_INPUT("Seems xml snippet does not contain valid rheology parameters.");
@@ -56,8 +56,8 @@ MaterialPtr launcher::MaterialLoader::loadAnisotropic(const xml::Node& desc, Mat
     }
     else
     {
-        gcm_real rho = lexical_cast<gcm_real>(desc.getChildByName("rho").getTextContent());
-        gcm_real crackThreshold = lexical_cast<gcm_real>(desc.getChildByName("crackThreshold").getTextContent());
+        gcm::real rho = lexical_cast<gcm::real>(desc.getChildByName("rho").getTextContent());
+        gcm::real crackThreshold = lexical_cast<gcm::real>(desc.getChildByName("crackThreshold").getTextContent());
 
         Material::RheologyProperties props;
 
@@ -66,7 +66,7 @@ MaterialPtr launcher::MaterialLoader::loadAnisotropic(const xml::Node& desc, Mat
             for (int j = i; j <= 6; j++) {
                 stringstream cxx;
                 cxx << "c" << i << j;
-                props.values[k++] = lexical_cast<gcm_real>(desc.getChildByName(cxx.str()).getTextContent());
+                props.values[k++] = lexical_cast<gcm::real>(desc.getChildByName(cxx.str()).getTextContent());
             }
 
         if (rho <= 0.0)

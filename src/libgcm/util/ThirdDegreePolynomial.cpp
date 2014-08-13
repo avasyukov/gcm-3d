@@ -41,8 +41,8 @@ void gcm::ThirdDegreePolynomial::findRoots()
         // Two roots are equal
         isMltpl = true;
         if (R > 0) {
-            roots[0] = - sqrt(Q) - a/3;
-            roots[1] = roots[2] = 2 * sqrt(Q) - a/3;
+            roots[0] = - 2 * sqrt(Q) - a/3;
+            roots[1] = roots[2] = sqrt(Q) - a/3;
         } else {
             roots[0] = 2 * sqrt(Q) - a/3;
             roots[1] = roots[2] = - sqrt(Q) - a/3;

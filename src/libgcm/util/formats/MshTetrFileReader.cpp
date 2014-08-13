@@ -89,13 +89,14 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 
     // FIXME - rewrite it
     LOG_DEBUG("Determine slicing direction");
-    infile.open(file.c_str(), ifstream::in);
+    ifstream tmpfile;
+    tmpfile.open(file.c_str(), ifstream::in);
 
-    infile >> str;
-    infile >> tmp_float >> tmp_int >> tmp_int;
-    infile >> str;
-    infile >> str;
-    infile >> number_of_nodes;
+    tmpfile >> str;
+    tmpfile >> tmp_float >> tmp_int >> tmp_int;
+    tmpfile >> str;
+    tmpfile >> str;
+    tmpfile >> number_of_nodes;
 
     int numberOfSlices = 10;
     int distrX[10];
@@ -116,10 +117,10 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
 
     for(int i = 0; i < number_of_nodes; i++)
     {
-        infile >> tmp_int;
-        infile >> x;
-        infile >> y;
-        infile >> z;
+        tmpfile >> tmp_int;
+        tmpfile >> x;
+        tmpfile >> y;
+        tmpfile >> z;
         int xZoneNum = (int)( (x - scene->minX) / sliceX );
         int yZoneNum = (int)( (y - scene->minY) / sliceY );
         int zZoneNum = (int)( (z - scene->minZ) / sliceZ );
@@ -127,6 +128,7 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
         distrY[yZoneNum]++;
         distrZ[zZoneNum]++;
     }
+    tmpfile.close();
 
     int minDistrX = distrX[0];
     int maxDistrX = distrX[0];
