@@ -6,19 +6,19 @@ using namespace gcm;
 void gcm::IdealPlasticFlowCorrector::correctNodeState(ICalcNode& node, const MaterialPtr& material)
 {
     auto props = material->getPlasticityProperties();
-    gcm_real yieldStrength = props[PLASTICITY_TYPE_PRANDTL_RAUSS_CORRECTOR][PLASTICITY_PROP_YIELD_STRENGTH];
+    real yieldStrength = props[PLASTICITY_TYPE_PRANDTL_RAUSS_CORRECTOR][PLASTICITY_PROP_YIELD_STRENGTH];
     
     // Hydrostatic stress
-	gcm_real p = (node.stress[0] + node.stress[3] + node.stress[5]) / 3;
+	real p = (node.stress[0] + node.stress[3] + node.stress[5]) / 3;
 	
 	// Second stress invariant
-	gcm_real J2 = sqrt((node.stress[0] - node.stress[3])*(node.stress[0] - node.stress[3]) +
+	real J2 = sqrt((node.stress[0] - node.stress[3])*(node.stress[0] - node.stress[3]) +
 					(node.stress[3] - node.stress[5])*(node.stress[3] - node.stress[5]) +
 					(node.stress[0] - node.stress[5])*(node.stress[0] - node.stress[5]) +
 					6 * (node.stress[1]*node.stress[1] + node.stress[2]*node.stress[2] + node.stress[4]*node.stress[4])) / sqrt(6.0);
 	
 	// Correction parameter
-	gcm_real x = yieldStrength / J2;
+	real x = yieldStrength / J2;
 	
 	if(x < 1.0) {
 	// Correct stress components:

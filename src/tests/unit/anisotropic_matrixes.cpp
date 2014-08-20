@@ -89,7 +89,7 @@ MaterialPtr generateRandomMaterial(string name)
     C.c66 = matC[5][5];
 
     float rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
-    gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+    gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
     return makeMaterialPtr(name, rho, crackThreshold, C);
 };
@@ -130,7 +130,7 @@ MaterialPtr generateOrthotropicMaterial(string name)
     C.c66 = c66;
 
     float rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
-    gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+    gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
     return makeMaterialPtr(name, rho, crackThreshold, C);
 };
@@ -272,8 +272,8 @@ void compareEigenvalues(MaterialGenerator generator)
                 break;
             }
 
-            gcm_real values1[9];
-            gcm_real values2[9];
+            gcm::real values1[9];
+            gcm::real values2[9];
             for (int i = 0; i < 9; i++) {
                 values1[i] = matrix1->getL().get(i, i);
                 values2[i] = matrix2->getL().get(i, i);

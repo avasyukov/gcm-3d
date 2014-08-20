@@ -96,12 +96,12 @@ namespace gcm
          * Returns max matrix eigenvalue.
          * @return max eigenvalue.
          */
-        gcm_real getMaxEigenvalue() const;
+        real getMaxEigenvalue() const;
         /**
          * Returns min matrix eigenvalue.
          * @return min eigenvalue.
          */
-        gcm_real getMinEigenvalue() const;
+        real getMinEigenvalue() const;
         /**
          * Returns rheology matrix A.
          * @return A matrix.
@@ -111,7 +111,7 @@ namespace gcm
          * Returns rheology matrix A component.
          * @return A matrix component.
          */
-        gcm_real getA(unsigned int i, unsigned int j) const;
+        real getA(unsigned int i, unsigned int j) const;
         /**
          * Returns \f$\Lambda\f$ matrix (contains eigenvalues).
          * @return \f$\Lambda\f$ matrix.
@@ -121,7 +121,7 @@ namespace gcm
          * Returns \f$\Lambda\f$ matrix component.
          * @return \f$\Lambda\f$ matrix component.
          */
-        gcm_real getL(unsigned int i, unsigned int j) const;
+        real getL(unsigned int i, unsigned int j) const;
         /**
          * Returns U matrix (contains eigenvectors).
          * @return U matrix.
@@ -131,7 +131,7 @@ namespace gcm
          * Returns U matrix component.
          * @return U matrix component.
          */
-        gcm_real getU(unsigned int i, unsigned int j) const;
+        real getU(unsigned int i, unsigned int j) const;
         /**
          * Returns \f$U^{-1}\f$ matrix (inverse U).
          * @return \f$U^{-1}\f$ matrix.
@@ -141,7 +141,7 @@ namespace gcm
          * Returns \f$U^{-1}\f$ matrix component.
          * @return \f$U^{-1}\f$ matrix component.
          */
-        gcm_real getU1(unsigned int i, unsigned int j) const;
+        real getU1(unsigned int i, unsigned int j) const;
         /**
          * Returns material.
          *

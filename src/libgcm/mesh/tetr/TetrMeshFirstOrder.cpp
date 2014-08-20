@@ -1438,15 +1438,15 @@ bool gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& node)
 }
 
 // FIXME_ASAP: rewrite it
-bool gcm::TetrMeshFirstOrder::interpolateBorderNode(gcm_real x, gcm_real y, gcm_real z, 
-                                gcm_real dx, gcm_real dy, gcm_real dz, CalcNode& node)
+bool gcm::TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z, 
+                                real dx, real dy, real dz, CalcNode& node)
 {
-    gcm_real start[3];
+    real start[3];
     start[0] = x;
     start[1] = y;
     start[2] = z;
-    gcm_real direction[3];
-    gcm_real length;
+    real direction[3];
+    real length;
     length = vectorNorm(dx, dy, dz);
     direction[0] = dx / length;
     direction[1] = dy / length;

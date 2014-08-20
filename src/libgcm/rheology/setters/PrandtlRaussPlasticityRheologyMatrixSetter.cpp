@@ -7,7 +7,7 @@
 
 using namespace gcm;
 
-void PrandtlRaussPlasticityRheologyMatrixSetter::getPlasticityProps(MaterialPtr material, gcm_real& yieldStrength)
+void PrandtlRaussPlasticityRheologyMatrixSetter::getPlasticityProps(MaterialPtr material, real& yieldStrength)
 {
     auto props = material->getPlasticityProperties();
     yieldStrength = props[PLASTICITY_TYPE_PRANDTL_RAUSS][PLASTICITY_PROP_YIELD_STRENGTH];
@@ -25,14 +25,14 @@ unsigned int PrandtlRaussPlasticityRheologyMatrixSetter::getStateForNode(const I
 
 void PrandtlRaussPlasticityRheologyMatrixSetter::computeQ(const MaterialPtr& material, const ICalcNode& node)
 {
-    gcm_real yieldStrength;
+    real yieldStrength;
     getPlasticityProps(material, yieldStrength);
 
     auto mu = material->getMu();
     auto la = material->getLa();
 
 	// Taking stress tensor components
-	auto S = [&node](int i, int j) -> gcm_real
+	auto S = [&node](int i, int j) -> real
 	{
 		int _i = min(i, j);
 		int _j = max(i, j);
@@ -43,10 +43,10 @@ void PrandtlRaussPlasticityRheologyMatrixSetter::computeQ(const MaterialPtr& mat
 	};
 	
 	// Figuring out stress deviator tensor components
-	auto D = [&S](int i, int j) -> gcm_real
+	auto D = [&S](int i, int j) -> real
 	{
 		// Hydrostatic stress
-		gcm_real p = (S(0, 0) + S(1, 1) + S(2, 2)) / 3;
+		real p = (S(0, 0) + S(1, 1) + S(2, 2)) / 3;
 			
 		return S(i, j) - p*delta(i, j);
 	};
