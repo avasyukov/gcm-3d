@@ -1,0 +1,81 @@
+<task numberOfSnaps="40" stepsPerSnap="10">
+	<system>
+                <defaultContactCalculator type="AdhesionContactDestroyCalculator" adhesionThreshold="42000000" />
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+<!--                <body id="CCS_matrix">
+                        <rheology type="elastic" />
+                        <mesh id="CCS_matrix" type="geo2" file="models/f_matrixZ.geo" tetrSize="0.25" />
+                        <material id="m_matrix" />
+                </body> -->
+		<body id="CCS_sphere">
+                        <rheology type="elastic" />
+                        <mesh id="CCS_sphere" type="geo2" file="models/sphere.geo" tetrSize="0.34" />
+                        <material id="m_fiber" />
+                        <transform type="translate" moveX="0" moveY="0" moveZ="7.5" />
+                </body>
+                <body id="CCS_fiberZ0">
+                        <rheology type="elastic" />
+                        <mesh id="CCS_fiberZ0" type="geo2" file="models/f_fiberZ.geo" tetrSize="0.34" />
+                        <material id="m_fiber" />
+                        <transform type="translate" moveX="0" moveY="0" moveZ="0" />
+                </body>
+-               <body id="CCS_fiberZ1">
+                        <rheology type="elastic" />
+                        <mesh id="CCS_fiberZ1" type="geo2" file="models/f_fiberZ.geo" tetrSize="0.34" />
+                        <material id="m_fiber" />
+                        <transform type="translate" moveX="5" moveY="0" moveZ="0" />
+                </body>
+                <body id="CCS_fiberZ-1">
+                        <rheology type="elastic" />
+                        <mesh id="CCS_fiberZ-1" type="geo2" file="models/f_fiberZ.geo" tetrSize="0.34" />
+                        <material id="m_fiber" />
+                        <transform type="translate" moveX="-5" moveY="0" moveZ="0" />
+                </body>
+                <body id="CCS_fiberZ2">
+                        <rheology type="elastic" />
+                        <mesh id="CCS_fiberZ2" type="geo2" file="models/f_fiberZ.geo" tetrSize="0.34" />
+                        <material id="m_fiber" />
+                        <transform type="translate" moveX="10" moveY="0" moveZ="0" />
+                </body>
+                <body id="CCS_fiberZ-2">
+                        <rheology type="elastic" />
+                        <mesh id="CCS_fiberZ-2" type="geo2" file="models/f_fiberZ.geo" tetrSize="0.34" />
+                        <material id="m_fiber" />
+                        <transform type="translate" moveX="-10" moveY="0" moveZ="0" />
+                </body>	
+		<body id="CCS_matrix">
+                        <rheology type="elastic" />
+                        <mesh id="CCS_matrix" type="geo2" file="models/f_matrixZ.geo" tetrSize="0.34" />
+                        <material id="m_matrix" />
+                </body>	
+        </bodies>
+	<materials>
+	        <material name="m_fiber" rheology="isotropic">
+	            <la>5720000000</la>
+	            <mu>3220000000</mu>
+	            <rho>0.00158</rho>
+	            <crackThreshold>700000000</crackThreshold>
+	        </material>
+		<material name="m_matrix" rheology="isotropic">
+                    <la>1440000000</la>
+                    <mu>960000000</mu>
+                    <rho>0.00125</rho>
+                    <crackThreshold>42000000</crackThreshold>
+                </material>
+		<material name="m_steel" rheology="isotropic">
+                    <la>99430000000</la>
+                    <mu>78130000000</mu>
+                    <rho>0.0078</rho>
+                    <crackThreshold>1000000000</crackThreshold>
+                </material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-100" maxX="100" minY="-1.499" maxY="50" minZ="-100" maxZ="100"/>
+		<values vy="-5000000"/>
+                <!-- E(J)       45      85      135     205     235     /-->
+                <!-- v(mm/sec)  14500   19900   25100   30900   33100   /-->
+
+	</initialState>
+</task>
