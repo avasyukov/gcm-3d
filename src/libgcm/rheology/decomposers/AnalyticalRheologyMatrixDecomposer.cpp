@@ -13,7 +13,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeX(const gcm_matrix& a,
     u.clear();
     u1.clear();
 
-    gcm_real roots[3];
+    real roots[3];
     bool isMultiple;
     findRoots(a, 0, roots[0], roots[1], roots[2], isMultiple);
 
@@ -69,7 +69,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
     u.clear();
     u1.clear();
 
-    gcm_real roots[3];
+    real roots[3];
     bool isMultiple;
     findRoots(a, 1, roots[0], roots[1], roots[2], isMultiple);
 
@@ -124,7 +124,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
     u.clear();
     u1.clear();
 
-    gcm_real roots[3];
+    real roots[3];
     bool isMultiple;
     findRoots(a, 2, roots[0], roots[1], roots[2], isMultiple);
 
@@ -407,9 +407,9 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findEigenVec (double *eigenVec1,
 };
 
 void gcm::AnalyticalRheologyMatrixDecomposer::findRoots(const gcm_matrix &A, int stage,
-                                            gcm_real& r1, gcm_real& r2, gcm_real& r3, bool& isMultiple) const
+                                            real& r1, real& r2, real& r3, bool& isMultiple) const
 {
-    gcm_real a, b, c;
+    real a, b, c;
 
     if (stage == 0) {
         double r = A.get(0, 3);
@@ -456,7 +456,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findRoots(const gcm_matrix &A, int
     if( fabs(r1 - r2) < 1e-2 * (r1 + r2) * 0.5 )
     {
         isMultiple = true;
-        gcm_real tmp = (r1 + r2) * 0.5;
+        real tmp = (r1 + r2) * 0.5;
         r1 = r3;
         r2 = r3 = tmp;
         return;
@@ -465,7 +465,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findRoots(const gcm_matrix &A, int
     if( fabs(r1 - r3) < 1e-2 * (r1 + r3) * 0.5 )
     {
         isMultiple = true;
-        gcm_real tmp = (r1 + r3) * 0.5;
+        real tmp = (r1 + r3) * 0.5;
         r1 = r2;
         r2 = r3 = tmp;
         return;
@@ -474,7 +474,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findRoots(const gcm_matrix &A, int
     if( fabs(r2 - r3) < 1e-2 * (r2 + r3) * 0.5 )
     {
         isMultiple = true;
-        gcm_real tmp = (r2 + r3) * 0.5;
+        real tmp = (r2 + r3) * 0.5;
         r1 = r1;
         r2 = r3 = tmp;
         return;

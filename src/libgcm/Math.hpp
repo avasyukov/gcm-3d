@@ -582,20 +582,19 @@ inline void shiftArrayLeft( int* arr, int n )
  * All the roots are real
  * See http://ru.wikipedia.org/wiki/Тригонометрическая_формула_Виета for algo
  */
-inline void solvePolynomialThirdOrder(gcm_real a, gcm_real b, gcm_real c,
-										gcm_real& root1, gcm_real& root2, gcm_real& root3)
+inline void solvePolynomialThirdOrder(real a, real b, real c, real& root1, real& root2, real& root3)
 {
-	long double p = b - a * a / 3.0;
-	assert_lt(p, EQUALITY_TOLERANCE);
-	
-	// Special case - all roots are equal
-	if( fabs(p) < EQUALITY_TOLERANCE )
-	{
-		root1 = root2 = root3 = - a / 3.0;
-		return;
-	}
-	
-	// All the other cases are covered with this algo
+    long double p = b - a * a / 3.0;
+    assert_lt(p, EQUALITY_TOLERANCE);
+
+    // Special case - all roots are equal
+    if( fabs(p) < EQUALITY_TOLERANCE )
+    {
+        root1 = root2 = root3 = - a / 3.0;
+        return;
+    }
+
+    // All the other cases are covered with this algo
     long double q = 2.0 * a * a * a / 27.0 - a * b / 3.0 + c;
     long double A = sqrt(-4.0 * p / 3.0);
 	
@@ -612,7 +611,7 @@ inline void solvePolynomialThirdOrder(gcm_real a, gcm_real b, gcm_real c,
 
 inline int delta(int i, int j)
 {
-	return 1 ? i == j : 0;	
+    return 1 ? i == j : 0;	
 };
 
 template <typename T>

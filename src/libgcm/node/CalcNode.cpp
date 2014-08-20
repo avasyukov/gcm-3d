@@ -159,9 +159,9 @@ void gcm::CalcNode::getMainStressComponents(gcm::real& s1, gcm::real& s2, gcm::r
 // See http://www.toehelp.ru/theory/sopromat/6.html
 void gcm::CalcNode::calcMainStressComponents() const
 {
-    gcm_real a = -getJ1();
-    gcm_real b = getJ2();
-    gcm_real c = -getJ3();
+    real a = -getJ1();
+    real b = getJ2();
+    real c = -getJ3();
     
     solvePolynomialThirdOrder(a, b, c, mainStresses[0], mainStresses[1], mainStresses[2]);
 

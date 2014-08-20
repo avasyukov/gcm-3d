@@ -68,7 +68,7 @@ gcm::gcm_matrix gcm::gcm_matrix::operator/(const gcm_matrix &A) const
     return (*this * A.inv());
 };
 
-gcm::gcm_matrix gcm::gcm_matrix::operator*(const gcm_real &a) const
+gcm::gcm_matrix gcm::gcm_matrix::operator*(const real &a) const
 {
     gcm::gcm_matrix res_matrix;
     for (int r = 0; r < GCM_MATRIX_SIZE; r++) {
@@ -79,7 +79,7 @@ gcm::gcm_matrix gcm::gcm_matrix::operator*(const gcm_real &a) const
     return res_matrix;
 };
 
-gcm::gcm_matrix gcm::gcm_matrix::operator/(const gcm_real &a) const
+gcm::gcm_matrix gcm::gcm_matrix::operator/(const real &a) const
 {
     if( a == 0.0 )
         THROW_INVALID_ARG("Can not divide matrix by zero");

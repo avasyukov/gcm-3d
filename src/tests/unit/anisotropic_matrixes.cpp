@@ -4,9 +4,9 @@
 #include <functional>
 #include <algorithm>
 
+#include "libgcm/Math.hpp"
 #include "libgcm/rheology/Material.hpp"
 #include "libgcm/node/CalcNode.hpp"
-#include "libgcm/Math.hpp"
 #include "libgcm/Exception.hpp"
 #include "libgcm/rheology/setters/IsotropicRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/setters/AnisotropicRheologyMatrixSetter.hpp"
@@ -187,10 +187,10 @@ void testIsotropicTransition()
 {
     srand(0);
     for (int count = 0; count < ITERATIONS; count++) {
-        gcm_real la = ISOTROPIC_LAMBDA_MIN + (ISOTROPIC_LAMBDA_MAX - ISOTROPIC_LAMBDA_MIN) * (double) rand() / RAND_MAX;
-        gcm_real mu = ISOTROPIC_MU_MIN + (ISOTROPIC_MU_MAX - ISOTROPIC_MU_MIN) * (double) rand() / RAND_MAX;
-        gcm_real rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
-        gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+        gcm::real la = ISOTROPIC_LAMBDA_MIN + (ISOTROPIC_LAMBDA_MAX - ISOTROPIC_LAMBDA_MIN) * (double) rand() / RAND_MAX;
+        gcm::real mu = ISOTROPIC_MU_MIN + (ISOTROPIC_MU_MAX - ISOTROPIC_MU_MIN) * (double) rand() / RAND_MAX;
+        gcm::real rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
+        gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
         CalcNode node;
 
