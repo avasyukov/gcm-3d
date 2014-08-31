@@ -20,6 +20,12 @@
 #include "libgcm/interpolator/TetrFirstOrderInterpolator.hpp"
 #include "libgcm/interpolator/TetrSecondOrderMinMaxInterpolator.hpp"
 #include "libgcm/interpolator/LineFirstOrderInterpolator.hpp"
+
+#include "libgcm/failure/FailureModel.hpp"
+#include "libgcm/failure/NoFailureModel.hpp"
+#include "libgcm/failure/CrackFailureModel.hpp"
+#include "libgcm/failure/DebugFailureModel.hpp"
+
 //
 #include "libgcm/rheology/Material.hpp"
 #include "libgcm/rheology/RheologyCalculator.hpp"
@@ -80,6 +86,8 @@ namespace gcm
         map<string, ContactCalculator*> contactCalculators;
 
         map<string, RheologyCalculator*> rheologyCalculators;
+		
+		map<string, FailureModel*> failureModels;
 
         // FIXME - tetr-specific is bad
         map<string, TetrInterpolator*> interpolators;
@@ -117,6 +125,7 @@ namespace gcm
         AABB scene;
 
         string defaultRheoCalcType;
+        string defaultFailureModelType;
 
         float gmshVerbosity;
 
@@ -188,6 +197,11 @@ namespace gcm
         void registerInterpolator(TetrInterpolator *interpolator);
 
         void registerRheologyCalculator(RheologyCalculator *rheologyCalculator);
+
+        void registerFailureModel(FailureModel *model);
+		FailureModel* getFailureModel(string modelType);
+        void setDefaultFailureModelType(string modelType);
+        string getDefaultFailureModelType();
 
         unsigned int addBorderCondition(BorderCondition *borderCondition);
         void replaceDefaultBorderCondition(BorderCondition *borderCondition);

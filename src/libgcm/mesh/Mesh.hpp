@@ -10,6 +10,8 @@
 #include "libgcm/Interfaces.hpp"
 #include "libgcm/node/Node.hpp"
 
+#include "libgcm/failure/FailureModel.hpp"
+
 #define STORAGE_OVERCOMMIT_RATIO 1.0
 #define STORAGE_ONDEMAND_GROW_RATE 1.25
 
@@ -232,8 +234,7 @@ namespace gcm {
         void clearContactState();
         void clearNodesState();
         void processStressState();
-        void processCrackState();
-        void processCrackResponse();
+        void processMaterialFailure(FailureModel* failureModel);
         void applyCorrectors();
         void moveCoords(float tau);
 

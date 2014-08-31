@@ -646,7 +646,7 @@ void gcm::CalcNode::createCrack(const vector3r& crack)
 void gcm::CalcNode::exciseByCrack()
 {
     if (crackDirection*crackDirection != 0.0)
-		cleanStressByDirection(getCrackDirection());
+        cleanStressByDirection(getCrackDirection());
 }
 void gcm::CalcNode::cleanStressByDirection(const vector3r& h)
 {

@@ -209,8 +209,20 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         xml::Node defaultRheoCalculator = defaultRheoCalculatorList.front();
         string type = defaultRheoCalculator["type"];
         engine.setDefaultRheologyCalculatorType(type);
+        LOG_INFO("Default rheology calculator set to: " + type);
     }
 
+    NodeList defaultFailureModelList = rootNode.xpath("/task/system/defaultFailureModel");
+    if( defaultFailureModelList.size() > 1 )
+        THROW_INVALID_INPUT("Config file can contain only one <defaultFailureModelList/> element");
+    if( defaultFailureModelList.size() == 1 )
+    {
+        xml::Node defaultFailureModel = defaultFailureModelList.front();
+        string type = defaultFailureModel["type"];
+        engine.setDefaultFailureModelType(type);
+        LOG_INFO("Default failure model set to: " + type);
+    }
+    
     NodeList contactThresholdList = rootNode.xpath("/task/system/contactThreshold");
     if( contactThresholdList.size() > 1 )
         THROW_INVALID_INPUT("Config file can contain only one <contactThreshold/> element");

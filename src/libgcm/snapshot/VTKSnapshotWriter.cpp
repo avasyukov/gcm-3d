@@ -56,6 +56,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     vtkIntArray    *mpiState = vtkIntArray::New();
     vtkIntArray    *nodeErrorFlags = vtkIntArray::New ();
     vtkIntArray    *contactDestroyed = vtkIntArray::New();
+    vtkIntArray    *nodeDestroyed = vtkIntArray::New();
 
     float v[3];
     int snapNodeCount = 0;
@@ -106,6 +107,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
             mpiState->InsertNextValue( node.isRemote() ? 1 : 0 );
             nodeErrorFlags->InsertNextValue (node.getErrorFlags());
             contactDestroyed->InsertNextValue( node.isContactDestroyed() ? 1 : 0 );
+            nodeDestroyed->InsertNextValue( node.isDestroyed() ? 1 : 0 );
         }
     }
     g->SetPoints(pts);
@@ -143,6 +145,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     mpiState->SetName("mpiState");
     nodeErrorFlags->SetName ("errorFlags");
     contactDestroyed->SetName("destroyedContacts");
+    nodeDestroyed->SetName("destroyedNodes");
 
     g->GetPointData()->SetVectors(vel);
     g->GetPointData()->AddArray(crack);
@@ -165,6 +168,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     g->GetPointData()->AddArray(mpiState);
     g->GetPointData()->AddArray(nodeErrorFlags);
     g->GetPointData()->AddArray(contactDestroyed);
+    g->GetPointData()->AddArray(nodeDestroyed);
 
     vel->Delete();
     crack->Delete();
@@ -187,6 +191,7 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     mpiState->Delete();
     nodeErrorFlags->Delete();
     contactDestroyed->Delete();
+    nodeDestroyed->Delete();
     
     #ifdef CONFIG_VTK_5
     xgw->SetInput(g);
