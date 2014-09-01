@@ -47,7 +47,6 @@ void gcm::VTKCubicSnapshotWriter::dumpVTK(string filename, BasicCubicMesh *mesh,
     vtkIntArray       *nodeErrorFlags = vtkIntArray::New ();
 
     float v[3];
-    float c[3];
 
     for(int i = 0; i < mesh->getNodesNumber(); i++)
     {
@@ -55,9 +54,8 @@ void gcm::VTKCubicSnapshotWriter::dumpVTK(string filename, BasicCubicMesh *mesh,
         points->InsertNextPoint( node.coords[0], node.coords[1], node.coords[2] );
 
         v[0] = node.values[0];    v[1] = node.values[1];    v[2] = node.values[2];
-        memcpy(c, node.getCrackDirection(), 3*sizeof(float));
         vel->InsertNextTuple(v);
-        crack->InsertNextTuple(c);
+        crack->InsertNextTuple(node.getCrackDirection().coords);
         sxx->InsertNextValue( node.values[3] );
         sxy->InsertNextValue( node.values[4] );
         sxz->InsertNextValue( node.values[5] );

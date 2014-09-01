@@ -10,6 +10,8 @@
 #include "libgcm/Interfaces.hpp"
 #include "libgcm/node/Node.hpp"
 
+#include "libgcm/failure/FailureModel.hpp"
+
 #define STORAGE_OVERCOMMIT_RATIO 1.0
 #define STORAGE_ONDEMAND_GROW_RATE 1.25
 
@@ -155,8 +157,8 @@ namespace gcm {
          * Returns 'true' if vector intersects mesh border and target node interpolated successfully.
          * Returns 'false' if vector does not intersect mesh border.
          */
-        virtual bool interpolateBorderNode(gcm_real x, gcm_real y, gcm_real z, 
-                                gcm_real dx, gcm_real dy, gcm_real dz, CalcNode& node) = 0;
+        virtual bool interpolateBorderNode(real x, real y, real z, 
+                                real dx, real dy, real dz, CalcNode& node) = 0;
 
         virtual void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug) = 0;
 
@@ -185,7 +187,7 @@ namespace gcm {
         /*
          * Returns mesh id.
          */
-        string getId();
+        string getId() const;
         /*
          * Returns type of mesh.
          */
@@ -232,8 +234,7 @@ namespace gcm {
         void clearContactState();
         void clearNodesState();
         void processStressState();
-        void processCrackState();
-        void processCrackResponse();
+        void processMaterialFailure(FailureModel* failureModel);
         void applyCorrectors();
         void moveCoords(float tau);
 

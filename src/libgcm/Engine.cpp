@@ -16,6 +16,7 @@
 #include "libgcm/snapshot/VTK2SnapshotWriter.hpp"
 #include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
 #include "libgcm/snapshot/VTKMarkeredMeshSnapshotWriter.hpp"
+#include "libgcm/snapshot/VTKMarkeredMeshNGSnapshotWriter.hpp"
 #include "libgcm/rheology/DummyRheologyCalculator.hpp"
 #include "libgcm/BruteforceCollisionDetector.hpp"
 
@@ -37,6 +38,11 @@ gcm::Engine::Engine()
     LOG_DEBUG("Registering default rheology calculators");
     registerRheologyCalculator( new DummyRheologyCalculator() );
     defaultRheoCalcType = "DummyRheologyCalculator";
+    LOG_DEBUG("Registering failure models");
+    registerFailureModel( new NoFailureModel() );
+    registerFailureModel( new CrackFailureModel() );
+    registerFailureModel( new DebugFailureModel() );
+    defaultFailureModelType = "NoFailureModel";
     LOG_DEBUG("Registering default calculators");
     registerVolumeCalculator( new SimpleVolumeCalculator() );
     //registerBorderCalculator( new ExternalVelocityCalculator() );
@@ -65,6 +71,7 @@ gcm::Engine::Engine()
     registerSnapshotWriter( new VTK2SnapshotWriter() );
     registerSnapshotWriter( new VTKCubicSnapshotWriter() );
     registerSnapshotWriter( new VTKMarkeredMeshSnapshotWriter() );
+    registerSnapshotWriter( new VTKMarkeredMeshNGSnapshotWriter() );
     LOG_DEBUG("Creating collision detector");
     colDet = new BruteforceCollisionDetector();
     LOG_INFO("GCM engine initialized");
@@ -205,6 +212,14 @@ void gcm::Engine::registerRheologyCalculator(RheologyCalculator* rheologyCalcula
         THROW_INVALID_ARG("Rheology calculator parameter cannot be NULL");
     rheologyCalculators[rheologyCalculator->getType()] = rheologyCalculator;
     LOG_DEBUG("Registered rheology calculator: " << rheologyCalculator->getType());
+}
+
+void gcm::Engine:: registerFailureModel(FailureModel *model)
+{
+    if (!model)
+        THROW_INVALID_ARG("Failure model parameter cannot be NULL");
+    failureModels[model->getType()] = model;
+    LOG_DEBUG("Registered failure model: " << model->getType());
 }
 
 unsigned char gcm::Engine::addMaterial(MaterialPtr material)
@@ -355,6 +370,11 @@ RheologyCalculator* gcm::Engine::getRheologyCalculator(string type)
     return rheologyCalculators.find(type) != rheologyCalculators.end() ? rheologyCalculators[type] : NULL;
 }
 
+FailureModel* gcm::Engine::getFailureModel(string type)
+{
+    return failureModels.find(type) != failureModels.end() ? failureModels[type] : NULL;
+}
+
 BorderCondition* gcm::Engine::getBorderCondition(unsigned int num)
 {
     assert_lt(num, borderConditions.size() );
@@ -451,9 +471,9 @@ void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actu
         dataBus->syncMissedNodes(mesh, tau);
         LOG_DEBUG("Looking for missed nodes done");
 
-        LOG_DEBUG("Processing response from cracks");
-        mesh->processCrackResponse();
-        LOG_DEBUG("Processing response from cracks done");
+        //LOG_DEBUG("Processing response from cracks");
+        //mesh->processCrackResponse();
+        //LOG_DEBUG("Processing response from cracks done");
     }
 
     // Run collision detector
@@ -505,7 +525,7 @@ void gcm::Engine::doNextStepAfterStages(const float time_step) {
         mesh->processStressState();
         LOG_DEBUG( "Processing stress state done" );
         LOG_DEBUG( "Processing crack state for mesh " << mesh->getId() );
-        mesh->processCrackState();
+        mesh->processMaterialFailure( getFailureModel(getDefaultFailureModelType()) );
         LOG_DEBUG( "Processing crack state done" );
         if( getMeshesMovable() && mesh->getMovable() )
         {
@@ -692,6 +712,16 @@ void gcm::Engine::setDefaultRheologyCalculatorType(string calcType)
 string gcm::Engine::getDefaultRheologyCalculatorType()
 {
     return defaultRheoCalcType;
+}
+
+void gcm::Engine::setDefaultFailureModelType(string modelType)
+{
+    defaultFailureModelType = modelType;
+}
+
+string gcm::Engine::getDefaultFailureModelType()
+{
+    return defaultFailureModelType;
 }
 
 void gcm::Engine::setCollisionDetectorStatic(bool val)

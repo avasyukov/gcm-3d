@@ -8,10 +8,10 @@ gcm::CalcNode::CalcNode(int num) : CalcNode(num, 0.0, 0.0, 0.0)
 {
 }
 
-gcm::CalcNode::CalcNode(int num, gcm_real x, gcm_real y, gcm_real z) : ICalcNode(num, x, y, z)
+gcm::CalcNode::CalcNode(int num, gcm::real x, gcm::real y, gcm::real z) : ICalcNode(num, x, y, z)
 {
     bodyId = -1;
-    memset(values, 0, VALUES_NUMBER * sizeof (gcm_real));
+    memset(values, 0, VALUES_NUMBER * sizeof (gcm::real));
     rho = 0;
     materialId = 0;
     publicFlags.flags = 0;
@@ -34,7 +34,7 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
 
     copy(src.coords, src.coords + 3, coords);
     copy(src.values, src.values + VALUES_NUMBER, values);
-    copy(src.crackDirection, src.crackDirection + 3, crackDirection);
+    crackDirection = src.crackDirection;
 
     bodyId = src.bodyId;
     rho = src.rho;
@@ -71,10 +71,11 @@ void gcm::CalcNode::clearMainStresses()
     privateFlags.mainStressCalculated = false;
 }
 
-gcm_real gcm::CalcNode::getCompression() const
+// FIXME get rid of "using namespace std" in header files
+gcm::real gcm::CalcNode::getCompression() const
 {
-    gcm_real compression = 0;
-    gcm_real s[3];
+    gcm::real compression = 0;
+    gcm::real s[3];
     getMainStressComponents(s[0], s[1], s[2]);
 
     for (int i = 0; i < 3; i++)
@@ -83,11 +84,11 @@ gcm_real gcm::CalcNode::getCompression() const
 
     return fabs(compression);
 }
-
-gcm_real gcm::CalcNode::getTension() const
+// FIXME get rid of "using namespace std" in header files
+gcm::real gcm::CalcNode::getTension() const
 {
-    gcm_real tension = 0;
-    gcm_real s[3];
+    gcm::real tension = 0;
+    gcm::real s[3];
     getMainStressComponents(s[0], s[1], s[2]);
 
     for (int i = 0; i < 3; i++)
@@ -98,12 +99,12 @@ gcm_real gcm::CalcNode::getTension() const
 }
 
 // See http://www.toehelp.ru/theory/sopromat/6.html for details
-
-gcm_real gcm::CalcNode::getShear() const
+// FIXME get rid of "using namespace std" in header files
+gcm::real gcm::CalcNode::getShear() const
 {
-    gcm_real shear = 0;
-    gcm_real s[3];
-    gcm_real t[3];
+    gcm::real shear = 0;
+    gcm::real s[3];
+    gcm::real t[3];
     getMainStressComponents(s[0], s[1], s[2]);
 
     t[0] = 0.5 * fabs(s[1] - s[0]);
@@ -116,35 +117,35 @@ gcm_real gcm::CalcNode::getShear() const
 
     return shear;
 }
-
-gcm_real gcm::CalcNode::getDeviator() const
+// FIXME get rid of "using namespace std" in header files
+gcm::real gcm::CalcNode::getDeviator() const
 {
     return sqrt(((sxx - syy) * (sxx - syy) + (syy - szz) * (syy - szz) + (sxx - szz) * (sxx - szz)
                 + 6 * (sxy * sxy + sxz * sxz + syz * syz)) / 6);
 }
-
-gcm_real gcm::CalcNode::getPressure() const
+// FIXME get rid of "using namespace std" in header files
+gcm::real gcm::CalcNode::getPressure() const
 {
-    gcm_real pressure = -(sxx + syy + szz) / 3;
+    gcm::real pressure = -(sxx + syy + szz) / 3;
     return pressure;
 }
-
-gcm_real gcm::CalcNode::getJ1() const
+// FIXME get rid of "using namespace std" in header files
+gcm::real gcm::CalcNode::getJ1() const
 {
     return sxx + syy + szz;
 }
-
-gcm_real gcm::CalcNode::getJ2() const
+// FIXME get rid of "using namespace std" in header files
+gcm::real gcm::CalcNode::getJ2() const
 {
     return sxx * syy + sxx * szz + syy * szz - (sxy * sxy + sxz * sxz + syz * syz);
 }
-
-gcm_real gcm::CalcNode::getJ3() const
+// FIXME get rid of "using namespace std" in header files
+gcm::real gcm::CalcNode::getJ3() const
 {
     return sxx * syy * szz + 2 * sxy * sxz * syz - sxx * syz * syz - syy * sxz * sxz - szz * sxy*sxy;
 }
 
-void gcm::CalcNode::getMainStressComponents(gcm_real& s1, gcm_real& s2, gcm_real& s3) const
+void gcm::CalcNode::getMainStressComponents(gcm::real& s1, gcm::real& s2, gcm::real& s3) const
 {
 //    if (!privateFlags.mainStressCalculated)
         calcMainStressComponents();
@@ -156,30 +157,20 @@ void gcm::CalcNode::getMainStressComponents(gcm_real& s1, gcm_real& s2, gcm_real
 }
 
 // See http://www.toehelp.ru/theory/sopromat/6.html
-//  and http://ru.wikipedia.org/wiki/Тригонометрическая_формула_Виета for algo
-
 void gcm::CalcNode::calcMainStressComponents() const
 {
-    gcm_real a = -getJ1();
-    gcm_real b = getJ2();
-    gcm_real c = -getJ3();
-
-    gcm_real p = b - a * a / 3.0;
-    gcm_real q = 2.0 * a * a * a / 27.0 - a * b / 3.0 + c;
-    gcm_real A = sqrt(-4.0 * p / 3.0);
-    gcm_real c3phi = -4.0 * q / (A * A * A);
-    gcm_real phi = acos(c3phi) / 3.0;
-
-    mainStresses[0] = A * cos(phi) - a / 3.0;
-    mainStresses[1] = A * cos(phi + 2 * M_PI / 3.0) - a / 3.0;
-    mainStresses[2] = A * cos(phi - 2 * M_PI / 3.0) - a / 3.0;
+    real a = -getJ1();
+    real b = getJ2();
+    real c = -getJ3();
+    
+    solvePolynomialThirdOrder(a, b, c, mainStresses[0], mainStresses[1], mainStresses[2]);
 
     privateFlags.mainStressCalculated = true;
 }
 
-void gcm::CalcNode::calcMainStressDirectionByComponent(gcm_real s, vector3& vector) const
+void gcm::CalcNode::calcMainStressDirectionByComponent(gcm::real s, vector3r& vector) const
 {
-    gcm_real zero = 0.0000001, a=0,b=0,c=0,u,v,w,n;
+    gcm::real zero = 0.0000001, a=0,b=0,c=0,u,v,w,n;
 //    if (sxx > 400000)	printf("s: %f %f %f %f %f %f   %f ",sxx,sxy,sxz,syy,syz,szz,s);
     if (fabs(sxx-s) <= zero)
     {
@@ -408,7 +399,7 @@ void gcm::CalcNode::calcMainStressDirectionByComponent(gcm_real s, vector3& vect
 //    if (sxx > 400000) printf(" vec: %f %f %f  \n %f %f %f %f  nu-wv %f  det %f\n ms %f %f %f \n",vector[0],vector[1],vector[2], u,v,w,n,n*u-w*v,
 //		2.0*sxy*sxz*syz+(sxx-s)*(syy-s)*(szz-s)-sxz*(syy-s)*sxz-(sxx-s)*syz*syz-(szz-s)*sxy*sxy,
 //		mainStresses[0],mainStresses[1],mainStresses[2]);
-    gcm_real norm = sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
+    gcm::real norm = sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
     if (norm > zero) {
         vector[0] /= norm;
         vector[1] /= norm;
@@ -621,45 +612,45 @@ MaterialPtr gcm::CalcNode::getMaterial() const
     return Engine::getInstance().getMaterial(materialId);
 }
 
-void gcm::CalcNode::setRho(gcm_real rho)
+void gcm::CalcNode::setRho(gcm::real rho)
 {
     this->rho = rho;
 }
-
-gcm_real gcm::CalcNode::getRho() const
+// FIXME get rid of "using namespace std" in header files
+gcm::real gcm::CalcNode::getRho() const
 {
     return rho;
 }
-
-gcm_real gcm::CalcNode::getRho0() const
+// FIXME get rid of "using namespace std" in header files
+gcm::real gcm::CalcNode::getRho0() const
 {
     return Engine::getInstance().getMaterial(materialId)->getRho();
 }
 
-const vector3& gcm::CalcNode::getCrackDirection() const
+const vector3r& gcm::CalcNode::getCrackDirection() const
 {
     return crackDirection;
 }
 
 void gcm::CalcNode::createCrack(int direction)
 {
-    if (scalarProduct(crackDirection, crackDirection) == 0.0)
+    if (crackDirection*crackDirection == 0.0)
         this->calcMainStressDirectionByComponent(mainStresses[direction], crackDirection);
 }
 
-void gcm::CalcNode::createCrack(const vector3& crack)
+void gcm::CalcNode::createCrack(const vector3r& crack)
 {
-    copy(crack, crack + 3, crackDirection);
+    crackDirection = crack;
 }
 
 void gcm::CalcNode::exciseByCrack()
 {
-    if (scalarProduct(crackDirection, crackDirection) != 0.0)
-		cleanStressByDirection(getCrackDirection());
+    if (crackDirection*crackDirection != 0.0)
+        cleanStressByDirection(getCrackDirection());
 }
-void gcm::CalcNode::cleanStressByDirection(const vector3& h)
+void gcm::CalcNode::cleanStressByDirection(const vector3r& h)
 {
-    gcm_real s1 = h[0]*(sxx * h[0] + sxy * h[1] + sxz * h[2]) + h[1]*(sxy * h[0] + syy * h[1] + syz * h[2]) + h[2]*(sxz * h[0] + syz * h[1] + szz * h[2]); //TODO
+    gcm::real s1 = h[0]*(sxx * h[0] + sxy * h[1] + sxz * h[2]) + h[1]*(sxy * h[0] + syy * h[1] + syz * h[2]) + h[2]*(sxz * h[0] + syz * h[1] + szz * h[2]); //TODO
     sxx -= h[0] * h[0] * s1;
     sxy -= h[0] * h[1] * s1;
     sxz -= h[0] * h[2] * s1;

@@ -14,7 +14,6 @@
 #include <limits>
 
 #include "libgcm/util/Types.hpp"
-//#include "libgcm/Math.hpp"
 #include "libgcm/Exception.hpp"
 #include "libgcm/Logging.hpp"
 #include "libgcm/util/Assertion.hpp"
@@ -191,7 +190,7 @@ inline bool sameOrientation(float* base1, float* base2, float* check1, float* ch
     return true;
 };
 
-inline void findTriangleFaceNormal(float *p1, float *p2, float *p3, float *x, float *y, float *z)
+inline void findTriangleFaceNormal(const float *p1, const float *p2, const float *p3, float *x, float *y, float *z)
 {
     // Normal vector
     float normal[3];
@@ -578,14 +577,55 @@ inline void shiftArrayLeft( int* arr, int n )
     arr[n-1] = a0;
 };
 
+/*
+ * P(x) = x^3 + a*x^2 + b*x + c
+ * All the roots are real
+ * See http://ru.wikipedia.org/wiki/Тригонометрическая_формула_Виета for algo
+ */
+inline void solvePolynomialThirdOrder(real a, real b, real c, real& root1, real& root2, real& root3)
+{
+    long double p = b - a * a / 3.0;
+    assert_lt(p, EQUALITY_TOLERANCE);
+
+    // Special case - all roots are equal
+    if( fabs(p) < EQUALITY_TOLERANCE )
+    {
+        root1 = root2 = root3 = - a / 3.0;
+        return;
+    }
+
+    // All the other cases are covered with this algo
+    long double q = 2.0 * a * a * a / 27.0 - a * b / 3.0 + c;
+    long double A = sqrt(-4.0 * p / 3.0);
+	
+    long double c3phi = -4.0 * q / (A * A * A);
+	if( fabs(c3phi) > 1 - 1e-10 * EQUALITY_TOLERANCE )
+		c3phi = (c3phi > 0 ? 1.0 : -1.0);
+	
+    long double phi = acos(c3phi) / 3.0;
+
+    root1 = A * cos(phi) - a / 3.0;
+    root2 = A * cos(phi + 2 * M_PI / 3.0) - a / 3.0;
+    root3 = A * cos(phi - 2 * M_PI / 3.0) - a / 3.0;
+};
+
 inline int delta(int i, int j)
 {
-	return 1 ? i == j : 0;	
+    return 1 ? i == j : 0;	
 };
 
 template <typename T>
 int sgn(T val) {
     return (T(0) < val) - (val < T(0));
+}
+
+
+inline bool isPointInNormalDirection(const vector3r& planePoint, const vector3r& planeNormal, const vector3r& point)
+{
+    vector3r vec = point - planePoint;
+    real scProd = vec*planeNormal;
+
+    return scProd >= 0.0;
 }
 
 #endif    /* GCM_MATH_H */

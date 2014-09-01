@@ -16,3 +16,4 @@ share/
 toplev*
 \!testsRun/*
 Makefile
+mkbuild.sh

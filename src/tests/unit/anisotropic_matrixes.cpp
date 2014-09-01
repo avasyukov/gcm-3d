@@ -4,9 +4,9 @@
 #include <functional>
 #include <algorithm>
 
+#include "libgcm/Math.hpp"
 #include "libgcm/rheology/Material.hpp"
 #include "libgcm/node/CalcNode.hpp"
-#include "libgcm/Math.hpp"
 #include "libgcm/Exception.hpp"
 #include "libgcm/rheology/setters/IsotropicRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/setters/AnisotropicRheologyMatrixSetter.hpp"
@@ -32,9 +32,10 @@
 #define RHO_MAX 1.0
 
 // Limits for isotropic transition test
-#define ISOTROPIC_LAMBDA_LIMIT 1e+6
-#define ISOTROPIC_MU_LIMIT 1.0e+5
-#define ISOTROPIC_RHO_LIMIT 10.0
+#define ISOTROPIC_LAMBDA_MIN 0.1
+#define ISOTROPIC_LAMBDA_MAX 1.0
+#define ISOTROPIC_MU_MIN 0.1
+#define ISOTROPIC_MU_MAX 1.0
 
 /*
  * Helper functions
@@ -88,7 +89,7 @@ MaterialPtr generateRandomMaterial(string name)
     C.c66 = matC[5][5];
 
     float rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
-    gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+    gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
     return makeMaterialPtr(name, rho, crackThreshold, C);
 };
@@ -129,7 +130,7 @@ MaterialPtr generateOrthotropicMaterial(string name)
     C.c66 = c66;
 
     float rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
-    gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+    gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
     return makeMaterialPtr(name, rho, crackThreshold, C);
 };
@@ -186,10 +187,10 @@ void testIsotropicTransition()
 {
     srand(0);
     for (int count = 0; count < ITERATIONS; count++) {
-        gcm_real la = ISOTROPIC_LAMBDA_LIMIT * (double) rand() / RAND_MAX;
-        gcm_real mu = ISOTROPIC_MU_LIMIT * (double) rand() / RAND_MAX;
-        gcm_real rho = ISOTROPIC_RHO_LIMIT * (double) rand() / RAND_MAX;
-        gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+        gcm::real la = ISOTROPIC_LAMBDA_MIN + (ISOTROPIC_LAMBDA_MAX - ISOTROPIC_LAMBDA_MIN) * (double) rand() / RAND_MAX;
+        gcm::real mu = ISOTROPIC_MU_MIN + (ISOTROPIC_MU_MAX - ISOTROPIC_MU_MIN) * (double) rand() / RAND_MAX;
+        gcm::real rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
+        gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
         CalcNode node;
 
@@ -197,7 +198,7 @@ void testIsotropicTransition()
 
         auto isotropicMatrix = makeRheologyMatrixPtr<IsotropicRheologyMatrixSetter, IsotropicRheologyMatrixDecomposer>(m);
         auto anisotropicMatrix = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter, DecomposerImplementation>(m);
-
+        
         for (int i = 0; i < 3; i++) {
             switch (i) {
             case 0: isotropicMatrix->decomposeX(node);
@@ -271,8 +272,8 @@ void compareEigenvalues(MaterialGenerator generator)
                 break;
             }
 
-            gcm_real values1[9];
-            gcm_real values2[9];
+            gcm::real values1[9];
+            gcm::real values2[9];
             for (int i = 0; i < 9; i++) {
                 values1[i] = matrix1->getL().get(i, i);
                 values2[i] = matrix2->getL().get(i, i);

@@ -4,8 +4,6 @@
 #include "libgcm/rheology/decomposers/IDecomposer.hpp"
 
 #include "libgcm/util/matrixes.hpp"
-#include "libgcm/util/ThirdDegreePolynomial.hpp"
-#include "libgcm/util/MatrixInverter.hpp"
 #include "libgcm/Exception.hpp"
 #include <assert.h>
 
@@ -20,6 +18,8 @@ namespace gcm
 						double l, const gcm_matrix &A, int stage) const;
 			void findEigenVec(double *eigenVec1, double *eigenVec2,
 						double l, const gcm_matrix &A, int stage) const;
+			void findRoots(const gcm_matrix &A, int stage, 
+						real& r1, real& r2, real& r3, bool& isMultiple) const;
         public:
             /**
              * Constructor.

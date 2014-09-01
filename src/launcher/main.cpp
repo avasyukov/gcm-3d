@@ -13,6 +13,7 @@
 #endif
 
 #include <mpi.h>
+#include <gmsh/Gmsh.h>
 
 #include "launcher/launcher.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
@@ -82,6 +83,7 @@ int main(int argc, char **argv, char **envp)
 
 
         MPI::Init();
+        GmshInitialize();
         #if CONFIG_ENABLE_LOGGING
         char pe[5];
         sprintf(pe, "%d", MPI::COMM_WORLD.Get_rank());
@@ -100,6 +102,7 @@ int main(int argc, char **argv, char **envp)
         launcher.loadSceneFromFile(taskFile);
         engine.calculate();
         engine.cleanUp();
+        GmshFinalize();
         MPI::Finalize();
 
     } catch (Exception &e) {

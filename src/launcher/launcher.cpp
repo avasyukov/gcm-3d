@@ -10,6 +10,7 @@
 #include "launcher/loaders/mesh/Vtu2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
 #include "launcher/loaders/mesh/MarkeredBoxMeshLoader.hpp"
+#include "launcher/loaders/mesh/MarkeredMeshNGGeoLoader.hpp"
 #include "launcher/loaders/mesh/CubicMeshLoader.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
 
@@ -32,6 +33,7 @@
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/correctors/IdealPlasticFlowCorrector.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
+#include "loaders/mesh/MarkeredMeshNGGeoLoader.hpp"
 
 namespace ba = boost::algorithm;
 namespace bfs = boost::filesystem;
@@ -99,12 +101,12 @@ Area* launcher::Launcher::readArea(xml::Node areaNode)
                 
 Area* launcher::Launcher::readBoxArea(xml::Node areaNode)
 {
-    gcm_real minX = lexical_cast<gcm_real>(areaNode["minX"]);
-    gcm_real maxX = lexical_cast<gcm_real>(areaNode["maxX"]);
-    gcm_real minY = lexical_cast<gcm_real>(areaNode["minY"]);
-    gcm_real maxY = lexical_cast<gcm_real>(areaNode["maxY"]);
-    gcm_real minZ = lexical_cast<gcm_real>(areaNode["minZ"]);
-    gcm_real maxZ = lexical_cast<gcm_real>(areaNode["maxZ"]);
+    gcm::real minX = lexical_cast<gcm::real>(areaNode["minX"]);
+    gcm::real maxX = lexical_cast<gcm::real>(areaNode["maxX"]);
+    gcm::real minY = lexical_cast<gcm::real>(areaNode["minY"]);
+    gcm::real maxY = lexical_cast<gcm::real>(areaNode["maxY"]);
+    gcm::real minZ = lexical_cast<gcm::real>(areaNode["minZ"]);
+    gcm::real maxZ = lexical_cast<gcm::real>(areaNode["maxZ"]);
     LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] "
             << "[" << minY << ", " << maxY << "] "
             << "[" << minZ << ", " << maxZ << "]");
@@ -113,23 +115,23 @@ Area* launcher::Launcher::readBoxArea(xml::Node areaNode)
 
 Area* launcher::Launcher::readSphereArea(xml::Node areaNode)
 {
-    gcm_real r = lexical_cast<gcm_real>(areaNode["r"]);
-    gcm_real x = lexical_cast<gcm_real>(areaNode["x"]);
-    gcm_real y = lexical_cast<gcm_real>(areaNode["y"]);
-    gcm_real z = lexical_cast<gcm_real>(areaNode["z"]);
+    gcm::real r = lexical_cast<gcm::real>(areaNode["r"]);
+    gcm::real x = lexical_cast<gcm::real>(areaNode["x"]);
+    gcm::real y = lexical_cast<gcm::real>(areaNode["y"]);
+    gcm::real z = lexical_cast<gcm::real>(areaNode["z"]);
     LOG_DEBUG("Sphere R = " << r << ". Center: (" << x << ", " << y << ", " << z << ").");
     return new SphereArea(r, x, y, z);
 }
 
 Area* launcher::Launcher::readCylinderArea(xml::Node areaNode)
 {
-    gcm_real r = lexical_cast<gcm_real>(areaNode["r"]);
-    gcm_real x1 = lexical_cast<gcm_real>(areaNode["x1"]);
-    gcm_real y1 = lexical_cast<gcm_real>(areaNode["y1"]);
-    gcm_real z1 = lexical_cast<gcm_real>(areaNode["z1"]);
-    gcm_real x2 = lexical_cast<gcm_real>(areaNode["x2"]);
-    gcm_real y2 = lexical_cast<gcm_real>(areaNode["y2"]);
-    gcm_real z2 = lexical_cast<gcm_real>(areaNode["z2"]);
+    gcm::real r = lexical_cast<gcm::real>(areaNode["r"]);
+    gcm::real x1 = lexical_cast<gcm::real>(areaNode["x1"]);
+    gcm::real y1 = lexical_cast<gcm::real>(areaNode["y1"]);
+    gcm::real z1 = lexical_cast<gcm::real>(areaNode["z1"]);
+    gcm::real x2 = lexical_cast<gcm::real>(areaNode["x2"]);
+    gcm::real y2 = lexical_cast<gcm::real>(areaNode["y2"]);
+    gcm::real z2 = lexical_cast<gcm::real>(areaNode["z2"]);
     LOG_DEBUG("Cylinder R = " << r << "." 
             << " Center1: (" << x1 << ", " << y1 << ", " << z1 << ")."
             << " Center2: (" << x2 << ", " << y2 << ", " << z2 << ").");
@@ -177,7 +179,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         LOG_INFO("Default contact calculator set to: " + type);
         if (type == "AdhesionContactDestroyCalculator")
         {
-            gcm_real adhesionThreshold = lexical_cast<gcm_real>(defaultContactCalculator["adhesionThreshold"]);
+            gcm::real adhesionThreshold = lexical_cast<gcm::real>(defaultContactCalculator["adhesionThreshold"]);
             engine.getContactCondition(0)->setConditionParam(adhesionThreshold);
         }
     }
@@ -207,8 +209,20 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         xml::Node defaultRheoCalculator = defaultRheoCalculatorList.front();
         string type = defaultRheoCalculator["type"];
         engine.setDefaultRheologyCalculatorType(type);
+        LOG_INFO("Default rheology calculator set to: " + type);
     }
 
+    NodeList defaultFailureModelList = rootNode.xpath("/task/system/defaultFailureModel");
+    if( defaultFailureModelList.size() > 1 )
+        THROW_INVALID_INPUT("Config file can contain only one <defaultFailureModelList/> element");
+    if( defaultFailureModelList.size() == 1 )
+    {
+        xml::Node defaultFailureModel = defaultFailureModelList.front();
+        string type = defaultFailureModel["type"];
+        engine.setDefaultFailureModelType(type);
+        LOG_INFO("Default failure model set to: " + type);
+    }
+    
     NodeList contactThresholdList = rootNode.xpath("/task/system/contactThreshold");
     if( contactThresholdList.size() > 1 )
         THROW_INVALID_INPUT("Config file can contain only one <contactThreshold/> element");
@@ -216,7 +230,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     {
         xml::Node contactThreshold = contactThresholdList.front();
         string measure = contactThreshold["measure"];
-        gcm_real value = lexical_cast<gcm_real>(contactThreshold["value"]);
+        gcm::real value = lexical_cast<gcm::real>(contactThreshold["value"]);
         if( measure == "avgH" )
         {
             engine.setContactThresholdType(CONTACT_THRESHOLD_BY_AVG_H);
@@ -274,7 +288,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     if( timeStepList.size() == 1 )
     {
         xml::Node timeStep = timeStepList.front();
-        gcm_real value = lexical_cast<gcm_real>(timeStep["multiplier"]);
+        gcm::real value = lexical_cast<gcm::real>(timeStep["multiplier"]);
         engine.setTimeStepMultiplier(value);
         LOG_INFO("Using time step multiplier: " << value);
     }
@@ -352,6 +366,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 MarkeredBoxMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == CubicMeshLoader::MESH_TYPE)
                 CubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == MarkeredMeshNGGeoLoader::MESH_TYPE)
+                MarkeredMeshNGGeoLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else
                 THROW_UNSUPPORTED("Specified mesh loader is not supported");
 
@@ -362,20 +378,20 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 string transformType = transformNode["type"];
                 if ( transformType == "translate" )
                 {
-                    gcm_real x = lexical_cast<gcm_real>(transformNode["moveX"]);
-                    gcm_real y = lexical_cast<gcm_real>(transformNode["moveY"]);
-                    gcm_real z = lexical_cast<gcm_real>(transformNode["moveZ"]);
+                    gcm::real x = lexical_cast<gcm::real>(transformNode["moveX"]);
+                    gcm::real y = lexical_cast<gcm::real>(transformNode["moveY"]);
+                    gcm::real z = lexical_cast<gcm::real>(transformNode["moveZ"]);
                     LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
                     localScene.transfer(x, y, z);
                 } 
                 if ( transformType == "scale" )
                 {
-                    gcm_real x0 = lexical_cast<gcm_real>(transformNode["x0"]);
-                    gcm_real y0 = lexical_cast<gcm_real>(transformNode["y0"]);
-                    gcm_real z0 = lexical_cast<gcm_real>(transformNode["z0"]);
-                    gcm_real scaleX = lexical_cast<gcm_real>(transformNode["scaleX"]);
-                    gcm_real scaleY = lexical_cast<gcm_real>(transformNode["scaleY"]);
-                    gcm_real scaleZ = lexical_cast<gcm_real>(transformNode["scaleZ"]);
+                    gcm::real x0 = lexical_cast<gcm::real>(transformNode["x0"]);
+                    gcm::real y0 = lexical_cast<gcm::real>(transformNode["y0"]);
+                    gcm::real z0 = lexical_cast<gcm::real>(transformNode["z0"]);
+                    gcm::real scaleX = lexical_cast<gcm::real>(transformNode["scaleX"]);
+                    gcm::real scaleY = lexical_cast<gcm::real>(transformNode["scaleY"]);
+                    gcm::real scaleZ = lexical_cast<gcm::real>(transformNode["scaleZ"]);
                     LOG_DEBUG("Scaling body: [" << x0 << "; " << scaleX << "; " 
                                         << y0 << "; " << scaleY << "; " << z0 << "; " << scaleZ << "]");
                     localScene.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
@@ -427,27 +443,27 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         Body* body = engine.getBodyById(id);
 
         // FIXME - WA - we need this to determine isMine() correctly for moved points
-        gcm_real dX = 0;
-        gcm_real dY = 0;
-        gcm_real dZ = 0;
+        gcm::real dX = 0;
+        gcm::real dY = 0;
+        gcm::real dZ = 0;
         NodeList tmpTransformNodes = bodyNode.getChildrenByName("transform");
         for(auto& transformNode: tmpTransformNodes)
         {
             string transformType = transformNode["type"];
             if ( transformType == "translate" )
             {
-                dX += lexical_cast<gcm_real>(transformNode["moveX"]);
-                dY += lexical_cast<gcm_real>(transformNode["moveY"]);
-                dZ += lexical_cast<gcm_real>(transformNode["moveZ"]);
+                dX += lexical_cast<gcm::real>(transformNode["moveX"]);
+                dY += lexical_cast<gcm::real>(transformNode["moveY"]);
+                dZ += lexical_cast<gcm::real>(transformNode["moveZ"]);
             }
             if ( transformType == "scale" )
             {
-                gcm_real x0 = lexical_cast<gcm_real>(transformNode["x0"]);
-                gcm_real y0 = lexical_cast<gcm_real>(transformNode["y0"]);
-                gcm_real z0 = lexical_cast<gcm_real>(transformNode["z0"]);
-                gcm_real scaleX = lexical_cast<gcm_real>(transformNode["scaleX"]);
-                gcm_real scaleY = lexical_cast<gcm_real>(transformNode["scaleY"]);
-                gcm_real scaleZ = lexical_cast<gcm_real>(transformNode["scaleZ"]);
+                gcm::real x0 = lexical_cast<gcm::real>(transformNode["x0"]);
+                gcm::real y0 = lexical_cast<gcm::real>(transformNode["y0"]);
+                gcm::real z0 = lexical_cast<gcm::real>(transformNode["z0"]);
+                gcm::real scaleX = lexical_cast<gcm::real>(transformNode["scaleX"]);
+                gcm::real scaleY = lexical_cast<gcm::real>(transformNode["scaleY"]);
+                gcm::real scaleZ = lexical_cast<gcm::real>(transformNode["scaleZ"]);
                 
                 // !!!!!!!!!!!!!!!!!!!!!!!!
                 // Здесь и в диспатчере надо что-то сделать
@@ -479,6 +495,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 mesh = MarkeredBoxMeshLoader::getInstance().load(meshNode, body);
             else if (type == CubicMeshLoader::MESH_TYPE)
                 mesh = CubicMeshLoader::getInstance().load(meshNode, body);
+            else if (type == MarkeredMeshNGGeoLoader::MESH_TYPE)
+                mesh = MarkeredMeshNGGeoLoader::getInstance().load(meshNode, body);            
 
             // attach mesh to body
             body->attachMesh(mesh);
@@ -494,20 +512,20 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             string transformType = transformNode["type"];
             if( transformType == "translate" )
             {
-                gcm_real x = lexical_cast<gcm_real>(transformNode["moveX"]);
-                gcm_real y = lexical_cast<gcm_real>(transformNode["moveY"]);
-                gcm_real z = lexical_cast<gcm_real>(transformNode["moveZ"]);
+                gcm::real x = lexical_cast<gcm::real>(transformNode["moveX"]);
+                gcm::real y = lexical_cast<gcm::real>(transformNode["moveY"]);
+                gcm::real z = lexical_cast<gcm::real>(transformNode["moveZ"]);
                 LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
                 body->getMeshes()->transfer(x, y, z);
             }
             if ( transformType == "scale" )
             {
-                gcm_real x0 = lexical_cast<gcm_real>(transformNode["x0"]);
-                gcm_real y0 = lexical_cast<gcm_real>(transformNode["y0"]);
-                gcm_real z0 = lexical_cast<gcm_real>(transformNode["z0"]);
-                gcm_real scaleX = lexical_cast<gcm_real>(transformNode["scaleX"]);
-                gcm_real scaleY = lexical_cast<gcm_real>(transformNode["scaleY"]);
-                gcm_real scaleZ = lexical_cast<gcm_real>(transformNode["scaleZ"]);
+                gcm::real x0 = lexical_cast<gcm::real>(transformNode["x0"]);
+                gcm::real y0 = lexical_cast<gcm::real>(transformNode["y0"]);
+                gcm::real z0 = lexical_cast<gcm::real>(transformNode["z0"]);
+                gcm::real scaleX = lexical_cast<gcm::real>(transformNode["scaleX"]);
+                gcm::real scaleY = lexical_cast<gcm::real>(transformNode["scaleY"]);
+                gcm::real scaleZ = lexical_cast<gcm::real>(transformNode["scaleZ"]);
                 LOG_DEBUG("Scaling body: [" << x0 << "; " << scaleX << "; " 
                                 << y0 << "; " << scaleY << "; " << z0 << "; " << scaleZ << "]");
                 body->getMeshes()->scale(x0, y0, z0, scaleX, scaleY, scaleZ);
@@ -564,36 +582,36 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             THROW_INVALID_INPUT("Only one values element allowed for initial state");
         xml::Node valuesNode = valuesNodes.front();
 
-        gcm_real values[9];
+        gcm::real values[9];
         
-        memset(values, 0, 9*sizeof(gcm_real));
+        memset(values, 0, 9*sizeof(gcm::real));
         string vx = valuesNode.getAttributes()["vx"];
         if( !vx.empty() )
-            values[0] = lexical_cast<gcm_real>(vx);
+            values[0] = lexical_cast<gcm::real>(vx);
         string vy = valuesNode.getAttributes()["vy"];
         if( !vy.empty() )
-            values[1] = lexical_cast<gcm_real>(vy);
+            values[1] = lexical_cast<gcm::real>(vy);
         string vz = valuesNode.getAttributes()["vz"];
         if( !vz.empty() )
-            values[2] = lexical_cast<gcm_real>(vz);
+            values[2] = lexical_cast<gcm::real>(vz);
         string sxx = valuesNode.getAttributes()["sxx"];
         if( !sxx.empty() )
-            values[3] = lexical_cast<gcm_real>(sxx);
+            values[3] = lexical_cast<gcm::real>(sxx);
         string sxy = valuesNode.getAttributes()["sxy"];
         if( !sxy.empty() )
-            values[4] = lexical_cast<gcm_real>(sxy);
+            values[4] = lexical_cast<gcm::real>(sxy);
         string sxz = valuesNode.getAttributes()["sxz"];
         if( !sxz.empty() )
-            values[5] = lexical_cast<gcm_real>(sxz);
+            values[5] = lexical_cast<gcm::real>(sxz);
         string syy = valuesNode.getAttributes()["syy"];
         if( !syy.empty() )
-            values[6] = lexical_cast<gcm_real>(syy);
+            values[6] = lexical_cast<gcm::real>(syy);
         string syz = valuesNode.getAttributes()["syz"];
         if( !syz.empty() )
-            values[7] = lexical_cast<gcm_real>(syz);
+            values[7] = lexical_cast<gcm::real>(syz);
         string szz = valuesNode.getAttributes()["szz"];
         if( !szz.empty() )
-            values[8] = lexical_cast<gcm_real>(szz);
+            values[8] = lexical_cast<gcm::real>(szz);
         LOG_DEBUG("Initial state values: "
                         << values[0] << " " << values[1] << " " << values[2] << " "
                         << values[3] << " " << values[4] << " " << values[5] << " "
@@ -625,8 +643,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         // FIXME_ASAP: calculators became statefull
         engine.getBorderCalculator(calculator)->setParameters( borderConditionNode );
         
-        float startTime = lexical_cast<gcm_real>(borderConditionNode.getAttributeByName("startTime", "-1"));
-        float duration = lexical_cast<gcm_real>(borderConditionNode.getAttributeByName("duration", "-1"));
+        float startTime = lexical_cast<gcm::real>(borderConditionNode.getAttributeByName("startTime", "-1"));
+        float duration = lexical_cast<gcm::real>(borderConditionNode.getAttributeByName("duration", "-1"));
         
         unsigned int conditionId = engine.addBorderCondition(
                 new BorderCondition(NULL, new StepPulseForm(startTime, duration), engine.getBorderCalculator(calculator) ) 
@@ -659,15 +677,15 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             THROW_INVALID_INPUT("Unknown border calculator requested: " + calculator);
         }
         
-        float startTime = lexical_cast<gcm_real>(contactConditionNode.getAttributeByName("startTime", "-1"));
-        float duration = lexical_cast<gcm_real>(contactConditionNode.getAttributeByName("duration", "-1"));
+        float startTime = lexical_cast<gcm::real>(contactConditionNode.getAttributeByName("startTime", "-1"));
+        float duration = lexical_cast<gcm::real>(contactConditionNode.getAttributeByName("duration", "-1"));
         
         unsigned int conditionId = engine.addContactCondition(
                 new ContactCondition(NULL, new StepPulseForm(startTime, duration), engine.getContactCalculator(calculator) ) 
         );
         if (calculator == "AdhesionContactDestroyCalculator")
         {
-            gcm_real adhesionThreshold = lexical_cast<gcm_real>(contactConditionNode["adhesionThreshold"]);
+            gcm::real adhesionThreshold = lexical_cast<gcm::real>(contactConditionNode["adhesionThreshold"]);
             engine.getContactCondition(conditionId)->setConditionParam(adhesionThreshold);
         }
         LOG_INFO("Contact condition created with calculator: " + calculator);

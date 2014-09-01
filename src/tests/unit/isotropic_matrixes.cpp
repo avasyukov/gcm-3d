@@ -19,10 +19,10 @@ TEST(IsotropicMatrix3D, FuzzyMultiplication)
     CalcNode isotropicNode;
 
     for (int k = 0; k < ITERATIONS; k++) {
-        gcm_real la = 1.0e+9 * (double) rand() / RAND_MAX;
-        gcm_real mu = 1.0e+8 * (double) rand() / RAND_MAX;
-        gcm_real rho = 1.0e+4 * (double) rand() / RAND_MAX;
-        gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
+        gcm::real la = 1.0e+9 * (double) rand() / RAND_MAX;
+        gcm::real mu = 1.0e+8 * (double) rand() / RAND_MAX;
+        gcm::real rho = 1.0e+4 * (double) rand() / RAND_MAX;
+        gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
         auto mat = makeMaterialPtr("material", rho, crackThreshold, la, mu);
 
@@ -54,12 +54,12 @@ TEST(IsotropicMatrix3D, FuzzyElasticVelocities)
     CalcNode isotropicNode;
 
     for (int k = 0; k < ITERATIONS; k++) {
-        gcm_real la = 1.0e+9 * (double) rand() / RAND_MAX;
-        gcm_real mu = 1.0e+8 * (double) rand() / RAND_MAX;
-        gcm_real rho = 1.0e+4 * (double) rand() / RAND_MAX;
-        gcm_real crackThreshold = numeric_limits<gcm_real>::infinity();
-        gcm_real pVel = sqrt( ( la + 2 * mu ) / rho );
-        gcm_real sVel = sqrt( mu / rho );
+        gcm::real la = 1.0e+9 * (double) rand() / RAND_MAX;
+        gcm::real mu = 1.0e+8 * (double) rand() / RAND_MAX;
+        gcm::real rho = 1.0e+4 * (double) rand() / RAND_MAX;
+        gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
+        gcm::real pVel = sqrt( ( la + 2 * mu ) / rho );
+        gcm::real sVel = sqrt( mu / rho );
 
         auto mat = makeMaterialPtr("material", rho, crackThreshold, la, mu);
 
@@ -78,7 +78,7 @@ TEST(IsotropicMatrix3D, FuzzyElasticVelocities)
             ASSERT_NEAR( isotropicMatrix->getMaxEigenvalue(), pVel, pVel * EQUALITY_TOLERANCE );
             for(int j = 0; j < 9; j++)
             {
-                gcm_real v = fabs(isotropicMatrix->getL(j,j));
+                gcm::real v = fabs(isotropicMatrix->getL(j,j));
                 ASSERT_TRUE( ( fabs(v - pVel) < pVel * EQUALITY_TOLERANCE )
                                 || ( fabs(v - sVel) < sVel * EQUALITY_TOLERANCE )
                                 || ( fabs(v - 0) < EQUALITY_TOLERANCE ) );

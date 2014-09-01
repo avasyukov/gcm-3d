@@ -7,14 +7,12 @@ bool gcm::Geo2MeshLoader::isMshFileCreated(string fileName)
 
 gcm::Geo2MeshLoader::Geo2MeshLoader() {
     INIT_LOGGER("gcm.Geo2MeshLoader");
-    GmshInitialize();
 }
 
 gcm::Geo2MeshLoader::~Geo2MeshLoader() {
 }
 
 void gcm::Geo2MeshLoader::cleanUp() {
-    GmshFinalize();
     for( map<string, bool>::const_iterator itr = createdFiles.begin(); itr != createdFiles.end(); ++itr )
     {
         LOG_DEBUG("Deleting generated file: " << getMshFileName(itr->first));
