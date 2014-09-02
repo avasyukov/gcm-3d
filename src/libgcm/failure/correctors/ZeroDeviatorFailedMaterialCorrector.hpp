@@ -1,5 +1,5 @@
-#ifndef GCM_DummyFailedMaterialCorrector_H
-#define GCM_DummyFailedMaterialCorrector_H
+#ifndef GCM_ZeroDeviatorFailedMaterialCorrector_H
+#define GCM_ZeroDeviatorFailedMaterialCorrector_H
 
 #include "libgcm/failure/correctors/FailedMaterialCorrector.hpp"
 
@@ -8,9 +8,9 @@ using namespace gcm;
 
 namespace gcm {
 
-    class DummyFailedMaterialCorrector : public FailedMaterialCorrector {
+    class ZeroDeviatorFailedMaterialCorrector : public FailedMaterialCorrector {
     public:
-		DummyFailedMaterialCorrector();
+		ZeroDeviatorFailedMaterialCorrector();
 		void applyCorrection(ICalcNode& node);
     private:
         USE_LOGGER;
