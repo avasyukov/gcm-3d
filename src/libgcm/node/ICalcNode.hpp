@@ -91,6 +91,8 @@ namespace gcm
         
         virtual void setDestroyed(bool value) = 0;
         virtual bool isDestroyed() const = 0;
+        virtual void setDamageMeasure(real value) = 0;
+        virtual gcm::real getDamageMeasure() const = 0;
         virtual MaterialPtr getMaterial() const = 0;
         virtual void getMainStressComponents(gcm::real& s1, gcm::real& s2, gcm::real& s3) const = 0;
         virtual void createCrack(int direction) = 0;

@@ -4,7 +4,7 @@ gcm::MaxStressFailureCriterion::MaxStressFailureCriterion() {
     INIT_LOGGER( "gcm.MaxStressFailureCriterion" );
 }
 
-void gcm::MaxStressFailureCriterion::checkFailure(ICalcNode& node) {
+void gcm::MaxStressFailureCriterion::checkFailure(ICalcNode& node, const float tau) {
     if( node.isDestroyed() )
         return;
     real stresses[3];

@@ -11,7 +11,7 @@ namespace gcm {
     class ZeroDeviatorFailedMaterialCorrector : public FailedMaterialCorrector {
     public:
 		ZeroDeviatorFailedMaterialCorrector();
-		void applyCorrection(ICalcNode& node);
+		void applyCorrection(ICalcNode& node, const float tau);
     private:
         USE_LOGGER;
     };

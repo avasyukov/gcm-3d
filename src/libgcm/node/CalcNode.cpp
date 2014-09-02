@@ -21,6 +21,7 @@ gcm::CalcNode::CalcNode(int num, gcm::real x, gcm::real y, gcm::real z) : ICalcN
     borderConditionId = 1;
     contactConditionId = 0;
     crackDirection[0] = crackDirection[1] = crackDirection[2] = 0.0;
+    damageMeasure = 0.0;
 }
 
 gcm::CalcNode::CalcNode(const CalcNode& src): ICalcNode(src)
@@ -35,6 +36,7 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
     copy(src.coords, src.coords + 3, coords);
     copy(src.values, src.values + VALUES_NUMBER, values);
     crackDirection = src.crackDirection;
+    damageMeasure = src.damageMeasure;
 
     bodyId = src.bodyId;
     rho = src.rho;
@@ -625,6 +627,16 @@ gcm::real gcm::CalcNode::getRho() const
 gcm::real gcm::CalcNode::getRho0() const
 {
     return Engine::getInstance().getMaterial(materialId)->getRho();
+}
+
+void gcm::CalcNode::setDamageMeasure(gcm::real value)
+{
+    this->damageMeasure = value;
+}
+
+gcm::real gcm::CalcNode::getDamageMeasure() const
+{
+    return damageMeasure;
 }
 
 const vector3r& gcm::CalcNode::getCrackDirection() const

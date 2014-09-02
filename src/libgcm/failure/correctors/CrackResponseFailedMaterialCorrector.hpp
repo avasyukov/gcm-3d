@@ -11,7 +11,7 @@ namespace gcm {
     class CrackResponseFailedMaterialCorrector : public FailedMaterialCorrector {
     public:
 		CrackResponseFailedMaterialCorrector();
-		void applyCorrection(ICalcNode& node);
+		void applyCorrection(ICalcNode& node, const float tau);
     private:
         USE_LOGGER;
     };

@@ -234,7 +234,7 @@ namespace gcm {
         void clearContactState();
         void clearNodesState();
         void processStressState();
-        void processMaterialFailure(FailureModel* failureModel);
+        void processMaterialFailure(FailureModel* failureModel, const float tau);
         void applyCorrectors();
         void moveCoords(float tau);
 

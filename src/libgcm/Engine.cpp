@@ -525,7 +525,7 @@ void gcm::Engine::doNextStepAfterStages(const float time_step) {
         mesh->processStressState();
         LOG_DEBUG( "Processing stress state done" );
         LOG_DEBUG( "Processing crack state for mesh " << mesh->getId() );
-        mesh->processMaterialFailure( getFailureModel(getDefaultFailureModelType()) );
+        mesh->processMaterialFailure( getFailureModel(getDefaultFailureModelType()), time_step );
         LOG_DEBUG( "Processing crack state done" );
         if( getMeshesMovable() && mesh->getMovable() )
         {

@@ -20,8 +20,8 @@ namespace gcm {
         FailureModel();
         ~FailureModel();
         string getType();
-		void checkFailure(ICalcNode& node);
-		void applyCorrection(ICalcNode& node);
+		void checkFailure(ICalcNode& node, const float tau);
+		void applyCorrection(ICalcNode& node, const float tau);
     protected:
         string type;
 		vector<FailureCriterion*> criteria;

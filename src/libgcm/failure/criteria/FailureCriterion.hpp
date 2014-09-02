@@ -17,7 +17,7 @@ namespace gcm {
     public:
         FailureCriterion();
         ~FailureCriterion();
-		virtual void checkFailure(ICalcNode& node) = 0;
+		virtual void checkFailure(ICalcNode& node, const float tau) = 0;
     private:
         USE_LOGGER;
     };
