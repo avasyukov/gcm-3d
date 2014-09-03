@@ -21,6 +21,7 @@ gcm::CalcNode::CalcNode(int num, gcm::real x, gcm::real y, gcm::real z) : ICalcN
     borderConditionId = 1;
     contactConditionId = 0;
     crackDirection[0] = crackDirection[1] = crackDirection[2] = 0.0;
+    damageMeasure = 0.0;
 }
 
 gcm::CalcNode::CalcNode(const CalcNode& src): ICalcNode(src)
@@ -35,6 +36,7 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
     copy(src.coords, src.coords + 3, coords);
     copy(src.values, src.values + VALUES_NUMBER, values);
     crackDirection = src.crackDirection;
+    damageMeasure = src.damageMeasure;
 
     bodyId = src.bodyId;
     rho = src.rho;
@@ -157,23 +159,13 @@ void gcm::CalcNode::getMainStressComponents(gcm::real& s1, gcm::real& s2, gcm::r
 }
 
 // See http://www.toehelp.ru/theory/sopromat/6.html
-//  and http://ru.wikipedia.org/wiki/Тригонометрическая_формула_Виета for algo
-
 void gcm::CalcNode::calcMainStressComponents() const
 {
-    gcm::real a = -getJ1();
-    gcm::real b = getJ2();
-    gcm::real c = -getJ3();
-
-    gcm::real p = b - a * a / 3.0;
-    gcm::real q = 2.0 * a * a * a / 27.0 - a * b / 3.0 + c;
-    gcm::real A = sqrt(-4.0 * p / 3.0);
-    gcm::real c3phi = -4.0 * q / (A * A * A);
-    gcm::real phi = acos(c3phi) / 3.0;
-
-    mainStresses[0] = A * cos(phi) - a / 3.0;
-    mainStresses[1] = A * cos(phi + 2 * M_PI / 3.0) - a / 3.0;
-    mainStresses[2] = A * cos(phi - 2 * M_PI / 3.0) - a / 3.0;
+    real a = -getJ1();
+    real b = getJ2();
+    real c = -getJ3();
+    
+    solvePolynomialThirdOrder(a, b, c, mainStresses[0], mainStresses[1], mainStresses[2]);
 
     privateFlags.mainStressCalculated = true;
 }
@@ -637,6 +629,16 @@ gcm::real gcm::CalcNode::getRho0() const
     return Engine::getInstance().getMaterial(materialId)->getRho();
 }
 
+void gcm::CalcNode::setDamageMeasure(gcm::real value)
+{
+    this->damageMeasure = value;
+}
+
+gcm::real gcm::CalcNode::getDamageMeasure() const
+{
+    return damageMeasure;
+}
+
 const vector3r& gcm::CalcNode::getCrackDirection() const
 {
     return crackDirection;
@@ -656,7 +658,7 @@ void gcm::CalcNode::createCrack(const vector3r& crack)
 void gcm::CalcNode::exciseByCrack()
 {
     if (crackDirection*crackDirection != 0.0)
-		cleanStressByDirection(getCrackDirection());
+        cleanStressByDirection(getCrackDirection());
 }
 void gcm::CalcNode::cleanStressByDirection(const vector3r& h)
 {

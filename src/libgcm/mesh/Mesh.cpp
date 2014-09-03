@@ -300,41 +300,15 @@ void gcm::Mesh::clearContactState()
     }
 }
 
-void gcm::Mesh::processCrackState()
+void gcm::Mesh::processMaterialFailure(FailureModel* failureModel, const float tau)
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
         if( node.isLocal() && !node.isBorder())
         {
-            real m_s[3];
-            node.getMainStressComponents(m_s[0], m_s[1], m_s[2]);
-            int i_ms=0; if (m_s[1]>m_s[i_ms]) i_ms=1; if (m_s[2]>m_s[i_ms]) i_ms = 2;
-            if (m_s[i_ms] > node.getMaterial()->getCrackThreshold())
-            {
-                node.createCrack(i_ms);
-                LOG_TRACE("New crack detected at node " << node);
-            }
-	    node.exciseByCrack();
-	    //cout <<endl <<node.getMaterial()->getCrackThreshold() <<" " <<m_s[i_ms];
-        }
-    }
-}
-
-void gcm::Mesh::processCrackResponse()
-{
-    for(int i = 0; i < getNodesNumber(); i++)
-    {
-        CalcNode& node = getNodeByLocalIndex(i);
-        if( node.isLocal() )
-        {
-            const vector3r& m_s = node.getCrackDirection();
-            // FIXME WA
-            if (scalarProduct(m_s[0], m_s[1], m_s[2], m_s[0], m_s[1], m_s[2])>0.5)
-            {
-                node.cleanStressByDirection(m_s);
-                LOG_TRACE("Existing crack found at node " << node);
-            }
+            failureModel->checkFailure(node, tau);
+            failureModel->applyCorrection(node, tau);
         }
     }
 }

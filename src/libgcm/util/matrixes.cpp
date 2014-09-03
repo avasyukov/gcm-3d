@@ -26,33 +26,8 @@ void gcm::gcm_matrix::createE()
 {
     for (int i = 0; i < GCM_MATRIX_SIZE; i++)
         for (int j = 0; j < GCM_MATRIX_SIZE; j++)
-            if (i == j)
-                p[i][j] = 1;
-            else
-                p[i][j] = 0;
+            p[i][j] = (i == j ? 1 : 0);
 };
-
-/*bool gcm::gcm_matrix::operator==(const gcm_matrix &A) const
-{
-    float max1 = max_abs_value();
-    float max2 = A.max_abs_value();
-
-    float max = fmax(max1, max2);
-
-    for (int i = 0; i < GCM_MATRIX_SIZE; ++i)
-        for (int j = 0; j < GCM_MATRIX_SIZE; ++j) {
-            float val1 = fabs(p[i][j]);
-            float val2 = fabs(A.p[i][j]);
-            float norm = fmax(val1, val2);
-            // If the element is 'visible' for the matrix in general ...
-            if ((norm / max > 0.001)
-                // ... check for the difference to be less then 1%
-                && (fabs(p[i][j] - A.p[i][j]) > 0.01 * norm)) {
-                return false;
-            }
-        }
-    return true;
-};*/
 
 bool gcm::gcm_matrix::operator==(const gcm_matrix &A) const
 {
@@ -91,6 +66,24 @@ gcm::gcm_matrix gcm::gcm_matrix::operator*(const gcm_matrix &A) const
 gcm::gcm_matrix gcm::gcm_matrix::operator/(const gcm_matrix &A) const
 {
     return (*this * A.inv());
+};
+
+gcm::gcm_matrix gcm::gcm_matrix::operator*(const real &a) const
+{
+    gcm::gcm_matrix res_matrix;
+    for (int r = 0; r < GCM_MATRIX_SIZE; r++) {
+        for (int c = 0; c < GCM_MATRIX_SIZE; c++) {
+            res_matrix.p[r][c] = this->p[r][c] * a;
+        }
+    }
+    return res_matrix;
+};
+
+gcm::gcm_matrix gcm::gcm_matrix::operator/(const real &a) const
+{
+    if( a == 0.0 )
+        THROW_INVALID_ARG("Can not divide matrix by zero");
+    return (*this * (1/a));
 };
 
 gcm::gcm_matrix gcm::gcm_matrix::operator%(const gcm_matrix &A) const

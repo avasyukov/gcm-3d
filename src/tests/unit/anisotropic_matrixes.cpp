@@ -4,9 +4,9 @@
 #include <functional>
 #include <algorithm>
 
+#include "libgcm/Math.hpp"
 #include "libgcm/rheology/Material.hpp"
 #include "libgcm/node/CalcNode.hpp"
-#include "libgcm/Math.hpp"
 #include "libgcm/Exception.hpp"
 #include "libgcm/rheology/setters/IsotropicRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/setters/AnisotropicRheologyMatrixSetter.hpp"
@@ -32,9 +32,10 @@
 #define RHO_MAX 1.0
 
 // Limits for isotropic transition test
-#define ISOTROPIC_LAMBDA_LIMIT 1e+6
-#define ISOTROPIC_MU_LIMIT 1.0e+5
-#define ISOTROPIC_RHO_LIMIT 10.0
+#define ISOTROPIC_LAMBDA_MIN 0.1
+#define ISOTROPIC_LAMBDA_MAX 1.0
+#define ISOTROPIC_MU_MIN 0.1
+#define ISOTROPIC_MU_MAX 1.0
 
 /*
  * Helper functions
@@ -186,9 +187,9 @@ void testIsotropicTransition()
 {
     srand(0);
     for (int count = 0; count < ITERATIONS; count++) {
-        gcm::real la = ISOTROPIC_LAMBDA_LIMIT * (double) rand() / RAND_MAX;
-        gcm::real mu = ISOTROPIC_MU_LIMIT * (double) rand() / RAND_MAX;
-        gcm::real rho = ISOTROPIC_RHO_LIMIT * (double) rand() / RAND_MAX;
+        gcm::real la = ISOTROPIC_LAMBDA_MIN + (ISOTROPIC_LAMBDA_MAX - ISOTROPIC_LAMBDA_MIN) * (double) rand() / RAND_MAX;
+        gcm::real mu = ISOTROPIC_MU_MIN + (ISOTROPIC_MU_MAX - ISOTROPIC_MU_MIN) * (double) rand() / RAND_MAX;
+        gcm::real rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
         gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
         CalcNode node;
@@ -197,7 +198,7 @@ void testIsotropicTransition()
 
         auto isotropicMatrix = makeRheologyMatrixPtr<IsotropicRheologyMatrixSetter, IsotropicRheologyMatrixDecomposer>(m);
         auto anisotropicMatrix = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter, DecomposerImplementation>(m);
-
+        
         for (int i = 0; i < 3; i++) {
             switch (i) {
             case 0: isotropicMatrix->decomposeX(node);

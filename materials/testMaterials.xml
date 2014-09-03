@@ -10,14 +10,26 @@
         <material name="steel" rheology="isotropic">
             <la>115000</la>
             <mu>77000</mu>
-            <rho>8</rho>
-            <crackThreshold>INF</crackThreshold>
+            <rho>7.8</rho>
+            <crackThreshold>1600</crackThreshold>
 			<plasticity type="PrandtlRauss">
 				<yieldStrength>300</yieldStrength>
 			</plasticity>
 			<plasticity type="PrandtlRaussCorrector">
 				<yieldStrength>300</yieldStrength>
 			</plasticity>
+        </material>
+	<material name="glass" rheology="isotropic">
+            <la>40385</la>
+            <mu>28000</mu>
+            <rho>2.3</rho>
+            <crackThreshold>50</crackThreshold>
+                        <plasticity type="PrandtlRauss">
+                                <yieldStrength>INF</yieldStrength>
+                        </plasticity>
+                        <plasticity type="PrandtlRaussCorrector">
+                                <yieldStrength>INF</yieldStrength>
+                        </plasticity>
         </material>
 
         <material name="steel2" rheology="isotropic">
@@ -56,7 +68,7 @@
 			<c56>0</c56>
 			<c66>3000</c66>
 			<rho>1.25</rho>
-			<crackThreshold>INF</crackThreshold>
+			<crackThreshold>70</crackThreshold>
 		</material>
 
 		<material name="testAnisotropicMaterial" rheology="anisotropic">
