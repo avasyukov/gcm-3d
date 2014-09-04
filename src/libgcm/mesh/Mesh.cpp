@@ -300,15 +300,15 @@ void gcm::Mesh::clearContactState()
     }
 }
 
-void gcm::Mesh::processMaterialFailure(FailureModel* failureModel)
+void gcm::Mesh::processMaterialFailure(FailureModel* failureModel, const float tau)
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
         if( node.isLocal() && !node.isBorder())
         {
-            failureModel->checkFailure(node);
-            failureModel->applyCorrection(node);
+            failureModel->checkFailure(node, tau);
+            failureModel->applyCorrection(node, tau);
         }
     }
 }

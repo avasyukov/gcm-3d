@@ -98,6 +98,7 @@ namespace gcm {
         // crack direction
         // TODO  document it
         vector3r crackDirection;
+        gcm::real damageMeasure;
 
         // rheology matrix
         RheologyMatrixPtr rheologyMatrix;
@@ -501,6 +502,8 @@ namespace gcm {
          */
         void exciseByCrack();
         void cleanStressByDirection(const vector3r& direction);
+        void setDamageMeasure(real value);
+        gcm::real getDamageMeasure() const;
 
         /**
          * Constant to access custom flag1 using getCustomFlag / setCustomFlag.

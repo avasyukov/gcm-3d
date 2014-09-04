@@ -585,10 +585,10 @@ inline void shiftArrayLeft( int* arr, int n )
 inline void solvePolynomialThirdOrder(real a, real b, real c, real& root1, real& root2, real& root3)
 {
     long double p = b - a * a / 3.0;
-    assert_lt(p, EQUALITY_TOLERANCE);
+    assert_lt(p, EQUALITY_TOLERANCE * (1 + fabs(b)));
 
     // Special case - all roots are equal
-    if( fabs(p) < EQUALITY_TOLERANCE )
+    if( fabs(p) < EQUALITY_TOLERANCE * (1 + fabs(b)))
     {
         root1 = root2 = root3 = - a / 3.0;
         return;

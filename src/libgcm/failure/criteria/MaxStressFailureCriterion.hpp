@@ -13,7 +13,7 @@ namespace gcm {
     class MaxStressFailureCriterion : public FailureCriterion {
     public:
         MaxStressFailureCriterion();
-		void checkFailure(ICalcNode& node);
+		void checkFailure(ICalcNode& node, const float tau);
     protected:
         string type;
     private:

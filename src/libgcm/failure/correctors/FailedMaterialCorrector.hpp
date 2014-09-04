@@ -17,7 +17,7 @@ namespace gcm {
     public:
         FailedMaterialCorrector();
         ~FailedMaterialCorrector();
-		virtual void applyCorrection(ICalcNode& node) = 0;
+		virtual void applyCorrection(ICalcNode& node, const float tau) = 0;
     private:
         USE_LOGGER;
     };
