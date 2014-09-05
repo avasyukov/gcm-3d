@@ -7,12 +7,12 @@
 	<bodies>
 		<body id="cr_pan_real">
 			<rheology type="elastic" />
-			<mesh id="cr_pan_real" type="geo2" file="models/cr_panel.geo" tetrSize="0.4" />
+			<mesh id="cr_pan_real" type="geo2" file="models/cr_panel.geo" tetrSize="0.2" />
 			<material id="steel" />
 		</body>
                 <body id="cr_osk_real">
                         <rheology type="elastic" />
-                        <mesh id="cr_osk_real" type="geo2" file="models/cr_osk.geo" tetrSize="0.4" />
+                        <mesh id="cr_osk_real" type="geo2" file="models/cr_osk.geo" tetrSize="0.2" />
                         <material id="steel" />
                 </body>
 	</bodies>
