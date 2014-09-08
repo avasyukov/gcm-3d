@@ -9,8 +9,7 @@
 #include "launcher/loaders/mesh/Msh2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Vtu2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
-#include "launcher/loaders/mesh/MarkeredBoxMeshLoader.hpp"
-#include "launcher/loaders/mesh/MarkeredMeshNGGeoLoader.hpp"
+#include "launcher/loaders/mesh/MarkeredMeshGeoLoader.hpp"
 #include "launcher/loaders/mesh/CubicMeshLoader.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
 
@@ -33,7 +32,6 @@
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/correctors/IdealPlasticFlowCorrector.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
-#include "loaders/mesh/MarkeredMeshNGGeoLoader.hpp"
 
 namespace ba = boost::algorithm;
 namespace bfs = boost::filesystem;
@@ -362,12 +360,10 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 Vtu2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == Vtu2MeshZoneLoader::MESH_TYPE)
                 Vtu2MeshZoneLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
-            else if (type == MarkeredBoxMeshLoader::MESH_TYPE)
-                MarkeredBoxMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == CubicMeshLoader::MESH_TYPE)
                 CubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
-            else if (type == MarkeredMeshNGGeoLoader::MESH_TYPE)
-                MarkeredMeshNGGeoLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == MarkeredMeshGeoLoader::MESH_TYPE)
+                MarkeredMeshGeoLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else
                 THROW_UNSUPPORTED("Specified mesh loader is not supported");
 
@@ -491,12 +487,10 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 mesh = Vtu2MeshLoader::getInstance().load(meshNode, body);
             else if (type == Vtu2MeshZoneLoader::MESH_TYPE)
                 mesh = Vtu2MeshZoneLoader::getInstance().load(meshNode, body);
-            else if (type == MarkeredBoxMeshLoader::MESH_TYPE)
-                mesh = MarkeredBoxMeshLoader::getInstance().load(meshNode, body);
             else if (type == CubicMeshLoader::MESH_TYPE)
                 mesh = CubicMeshLoader::getInstance().load(meshNode, body);
-            else if (type == MarkeredMeshNGGeoLoader::MESH_TYPE)
-                mesh = MarkeredMeshNGGeoLoader::getInstance().load(meshNode, body);            
+            else if (type == MarkeredMeshGeoLoader::MESH_TYPE)
+                mesh = MarkeredMeshGeoLoader::getInstance().load(meshNode, body);            
 
             // attach mesh to body
             body->attachMesh(mesh);

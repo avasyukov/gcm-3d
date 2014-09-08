@@ -1,12 +1,12 @@
-#ifndef LAUNCHER_MARKEREDMESHNGGEOLOADER_H
-#define LAUNCHER_MARKEREDMESHNGGEOLOADER_H
+#ifndef LAUNCHER_MARKEREDMESHGEOLOADER_H
+#define LAUNCHER_MARKEREDMESHGEOLOADER_H
 
 #include <string>
 
 #include "libgcm/GCMDispatcher.hpp"
 #include "libgcm/util/AABB.hpp"
 #include "libgcm/util/Singleton.hpp"
-#include "libgcm/mesh/markers/MarkeredMeshNG.hpp"
+#include "libgcm/mesh/markers/MarkeredMesh.hpp"
 
 #include "launcher/util/xml.hpp"
 
@@ -17,11 +17,11 @@ using namespace std;
 
 namespace launcher
 {
-    class MarkeredMeshNGGeoLoader: public Singleton<launcher::MarkeredMeshNGGeoLoader>, public launcher::MeshLoader<MarkeredMeshNG>
+    class MarkeredMeshGeoLoader: public Singleton<launcher::MarkeredMeshGeoLoader>, public launcher::MeshLoader<MarkeredMesh>
     {
         protected:
             void parseDesc(const xml::Node& desc, string& id, int& cellNum, string& file);
-            void loadMesh(const xml::Node& desc, MarkeredMeshNG* mesh) override;
+            void loadMesh(const xml::Node& desc, MarkeredMesh* mesh) override;
         public:
             void preLoadMesh(const xml::Node& desc, AABB& aabb, int& sliceDirection, int& numberOfNodes);
 

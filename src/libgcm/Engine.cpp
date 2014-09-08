@@ -16,7 +16,6 @@
 #include "libgcm/snapshot/VTK2SnapshotWriter.hpp"
 #include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
 #include "libgcm/snapshot/VTKMarkeredMeshSnapshotWriter.hpp"
-#include "libgcm/snapshot/VTKMarkeredMeshNGSnapshotWriter.hpp"
 #include "libgcm/rheology/DummyRheologyCalculator.hpp"
 #include "libgcm/BruteforceCollisionDetector.hpp"
 
@@ -71,7 +70,6 @@ gcm::Engine::Engine()
     registerSnapshotWriter( new VTK2SnapshotWriter() );
     registerSnapshotWriter( new VTKCubicSnapshotWriter() );
     registerSnapshotWriter( new VTKMarkeredMeshSnapshotWriter() );
-    registerSnapshotWriter( new VTKMarkeredMeshNGSnapshotWriter() );
     LOG_DEBUG("Creating collision detector");
     colDet = new BruteforceCollisionDetector();
     LOG_INFO("GCM engine initialized");

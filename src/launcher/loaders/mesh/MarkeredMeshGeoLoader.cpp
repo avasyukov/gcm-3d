@@ -1,4 +1,4 @@
-#include "launcher/loaders/mesh/MarkeredMeshNGGeoLoader.hpp"
+#include "launcher/loaders/mesh/MarkeredMeshGeoLoader.hpp"
 #include "libgcm/mesh/markers/MarkeredSurfaceGeoGenerator.hpp"
 
 #include "libgcm/Engine.hpp"
@@ -7,21 +7,21 @@
 
 using boost::lexical_cast;
 
-const string launcher::MarkeredMeshNGGeoLoader::MESH_TYPE = "markered-mesh-ng-geo";
+const string launcher::MarkeredMeshGeoLoader::MESH_TYPE = "markered-mesh-geo";
 
-void launcher::MarkeredMeshNGGeoLoader::parseDesc(const xml::Node& desc, string& id, int& cellsNum, string& file)
+void launcher::MarkeredMeshGeoLoader::parseDesc(const xml::Node& desc, string& id, int& cellsNum, string& file)
 {
     id = desc["id"];
     cellsNum = lexical_cast<int>(desc["cellsNum"]);
     file = desc["file"];
 }
 
-void launcher::MarkeredMeshNGGeoLoader::preLoadMesh(const xml::Node& desc, AABB& aabb, int& sliceDirection, int& numberOfNodes)
+void launcher::MarkeredMeshGeoLoader::preLoadMesh(const xml::Node& desc, AABB& aabb, int& sliceDirection, int& numberOfNodes)
 {
     // Nothing to do here
 }
 
-void launcher::MarkeredMeshNGGeoLoader::loadMesh(const xml::Node& desc, MarkeredMeshNG* mesh)
+void launcher::MarkeredMeshGeoLoader::loadMesh(const xml::Node& desc, MarkeredMesh* mesh)
 {
     string id, file;
     int cellsNum;
