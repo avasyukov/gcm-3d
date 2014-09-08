@@ -1,12 +1,13 @@
 #include "libgcm/mesh/markers/MarkeredMeshNG.hpp"
 
 #include "libgcm/util/Assertion.hpp"
+#include "libgcm/util/Tribox.hpp"
 
 #include <algorithm>
 #include <queue>
 #include <tuple>
-#include <iostream>
-using namespace std;
+
+using namespace gcm;
 
 
 MarkeredMeshNG::MarkeredMeshNG(const MarkeredSurface& surface, uint meshElems): MarkeredMeshNG()
@@ -67,8 +68,6 @@ void MarkeredMeshNG::generateMesh()
     pivot = center - vector3r(1, 1, 1)*l/2;
     vector3r point  = pivot + vector3r(elemSize, elemSize, elemSize)/2;
     
-    //nodes.resize(meshElems*meshElems*meshElems);
-
     uint idx = 0;
     
     CalcNode node;    
@@ -138,18 +137,9 @@ void MarkeredMeshNG::findBorderCells()
             for (uint j = minJ; j < maxJ; j++)
                 for (uint k = minK; k < maxK; k++)
                 {
-                    int pointsInNormalDirection = 0;
                     auto& cell = getCellByLocalIndex(i, j, k);
 
-                    for (int l = -1; l <= 1; l +=2)
-                        for (int m = -1; m <= 1; m += 2)
-                            for (int n = -1; n <= 1; n += 2)
-                            {
-                                vector3r pt(cell.x + l*elemSize/2, cell.y + m*elemSize/2, cell.z + n*elemSize/2);
-                                if (isPointInNormalDirection(planePoint1, planeNormal, pt) || isPointInNormalDirection(planePoint2, planeNormal, pt) || isPointInNormalDirection(planePoint3, planeNormal, pt))
-                                    pointsInNormalDirection++;
-                            }
-                    if (pointsInNormalDirection != 8 && pointsInNormalDirection != 0)
+                    if (triangleIntersectsCube(cell, elemSize/2, v1, v2, v3))
                     {
                         borderFacesMap[cell.number] = f.number;
                         cell.setIsBorder(true);
@@ -269,13 +259,11 @@ void MarkeredMeshNG::checkTopology(float tau)
 
 void MarkeredMeshNG::findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug)
 {
-    auto idx = getNodeLocalIndex(border_node_index);
+    assert_ge(border_node_index, 0);
+    assert_lt(border_node_index, nodes.size());
+    assert_true(nodes[border_node_index].isBorder());
     
-    assert_ge(idx, 0);
-    assert_lt(idx, nodes.size());
-    assert_true(nodes[idx].isBorder());
-    
-    const auto& face = surface.getMarkerFaces()[borderFacesMap[idx]];
+    const auto& face = surface.getMarkerFaces()[borderFacesMap[border_node_index]];
     const auto& _nodes = surface.getMarkerNodes();
     
     findTriangleFaceNormal(_nodes[face.verts[0]].coords, _nodes[face.verts[1]].coords, _nodes[face.verts[2]].coords, x, y, z);
@@ -308,7 +296,7 @@ bool MarkeredMeshNG::interpolateNode(CalcNode& origin, float dx, float dy, float
         vector3r dir(coords.x-cell.x, coords.y-cell.y, coords.z-cell.z);
         vector3r norm;
         findBorderNodeNormal(cell.number, &norm.x, &norm.y, &norm.z, false);
-        if (norm*dir >= 0)
+        if (norm*dir > 0)
             isInnerPoint = false;
     }
     
