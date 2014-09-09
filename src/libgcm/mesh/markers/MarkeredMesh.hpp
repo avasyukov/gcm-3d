@@ -57,7 +57,7 @@ namespace gcm
             void doNextPartStep(float tau, int stage);
             void checkTopology(float tau);
 
-            void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug);
+            void findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug);
             bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
                                     CalcNode& targetNode, bool& isInnerPoint);
             bool interpolateNode(CalcNode& node);

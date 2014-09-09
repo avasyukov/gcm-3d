@@ -73,11 +73,11 @@ void MarkeredMesh::generateMesh()
     CalcNode node;    
     node.setUsed(false);
     node.setIsBorder(false);    
-    for (int i = 0; i < meshElems; i++)
+    for (unsigned int i = 0; i < meshElems; i++)
     {
-        for (int j = 0; j < meshElems; j++) 
+        for (unsigned int j = 0; j < meshElems; j++) 
         {
-            for (int k = 0; k < meshElems; k++)
+            for (unsigned int k = 0; k < meshElems; k++)
             {
                 node.x = point.x + i*elemSize;
                 node.y = point.y + j*elemSize;
@@ -257,7 +257,7 @@ void MarkeredMesh::checkTopology(float tau)
 {
 }
 
-void MarkeredMesh::findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug)
+void MarkeredMesh::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
 {
     assert_ge(border_node_index, 0);
     assert_lt(border_node_index, nodes.size());

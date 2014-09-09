@@ -60,16 +60,16 @@ void gcm::VTKMarkeredMeshSnapshotWriter::dumpVTK(string filename, const Markered
     
     vector3r coords  = mesh.getPivot();
     
-    for (int i = 0; i <= meshElems; i++)
-        for (int j = 0; j <= meshElems; j++)
-            for (int k = 0; k <= meshElems; k++)
+    for (unsigned int i = 0; i <= meshElems; i++)
+        for (unsigned int j = 0; j <= meshElems; j++)
+            for (unsigned int k = 0; k <= meshElems; k++)
                 points->InsertNextPoint(coords.x+i*elemSize, coords.y+j*elemSize, coords.z+k*elemSize);
     
     auto& _mesh = const_cast<MarkeredMesh&>(mesh);
 
-    for (int i = 0; i < meshElems; i++)
-        for (int j = 0; j < meshElems; j++)
-            for (int k = 0; k < meshElems; k++)
+    for (unsigned int i = 0; i < meshElems; i++)
+        for (unsigned int j = 0; j < meshElems; j++)
+            for (unsigned int k = 0; k < meshElems; k++)
             {
                 auto& cell = _mesh.getCellByLocalIndex(i, j, k);
                 border->InsertNextValue(cell.isBorder() ? 1 : 0);

@@ -160,7 +160,7 @@ namespace gcm {
         virtual bool interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node) = 0;
 
-        virtual void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug) = 0;
+        virtual void findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug) = 0;
 
 
         void snapshot(int number);

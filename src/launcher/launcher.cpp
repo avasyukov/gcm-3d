@@ -454,12 +454,12 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             }
             if ( transformType == "scale" )
             {
-                gcm::real x0 = lexical_cast<gcm::real>(transformNode["x0"]);
-                gcm::real y0 = lexical_cast<gcm::real>(transformNode["y0"]);
-                gcm::real z0 = lexical_cast<gcm::real>(transformNode["z0"]);
-                gcm::real scaleX = lexical_cast<gcm::real>(transformNode["scaleX"]);
-                gcm::real scaleY = lexical_cast<gcm::real>(transformNode["scaleY"]);
-                gcm::real scaleZ = lexical_cast<gcm::real>(transformNode["scaleZ"]);
+                //gcm::real x0 = lexical_cast<gcm::real>(transformNode["x0"]);
+                //gcm::real y0 = lexical_cast<gcm::real>(transformNode["y0"]);
+                //gcm::real z0 = lexical_cast<gcm::real>(transformNode["z0"]);
+                //gcm::real scaleX = lexical_cast<gcm::real>(transformNode["scaleX"]);
+                //gcm::real scaleY = lexical_cast<gcm::real>(transformNode["scaleY"]);
+                //gcm::real scaleZ = lexical_cast<gcm::real>(transformNode["scaleZ"]);
                 
                 // !!!!!!!!!!!!!!!!!!!!!!!!
                 // Здесь и в диспатчере надо что-то сделать
