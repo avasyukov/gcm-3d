@@ -334,8 +334,37 @@ bool MarkeredMesh::interpolateNode(CalcNode& origin, float dx, float dy, float d
 
 bool MarkeredMesh::interpolateNode(CalcNode& node)
 {
-    THROW_UNSUPPORTED("Not implemented");
+    vector3r coords(node.x, node.y, node.z);
+    
+    int i, j, k;
+    getCellCoords(coords, i, j, k);
+
+    assert_ge(i, 0);
+    assert_ge(j, 0);
+    assert_ge(k, 0);
+
+    assert_lt(i, meshElems);
+    assert_lt(j, meshElems);
+    assert_lt(k, meshElems);
+
+    auto& cell = getCellByLocalIndex(i, j, k);
+
+    auto dx = node.x-cell.x;
+    auto dy = node.y-cell.y;
+    auto dz = node.z-cell.z;
+
+    if (fabs(dx) < EQUALITY_TOLERANCE)
+        dx = 0.0;
+    if (fabs(dy) < EQUALITY_TOLERANCE)
+        dy = 0.0;
+    if (fabs(dz) < EQUALITY_TOLERANCE)
+        dz = 0.0;
+    bool isInnerPoint;
+    interpolateNode(cell, dx, dy, dz, false, node, isInnerPoint);
+
+    return true;
 }
+
 bool MarkeredMesh::interpolateBorderNode(gcm::real x, gcm::real y, gcm::real z, 
                         gcm::real dx, gcm::real dy, gcm::real dz, CalcNode& node)
 {

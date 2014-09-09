@@ -62,3 +62,23 @@ TEST(Waves, IsotropicMaterialSWavePropagation)
 
     runTaskAsTest("tasks/tests/s-wave-test.xml", setSWaveAnalytics, STEPS, line, { "vx", "sxz" }, ALLOWED_VALUE_DEVIATION_PERCENT, ALLOWED_NUMBER_OF_BAD_NODES);
 }
+
+TEST(Waves, MarkeredMeshIsotropicMaterialSWavePropagation)
+{
+    // Major test parameters
+
+    // Number of time steps
+    int STEPS = 10;
+
+    // Check values and draw graphs along this line
+    SnapshotLine line;
+    line.startPoint = {0.12, 0.12, -5.0};
+    line.endPoint = {0.12, 0.12, 5.0};
+    line.numberOfPoints = 100;
+
+    // Thresholds
+    float ALLOWED_VALUE_DEVIATION_PERCENT = 0.15;
+    int ALLOWED_NUMBER_OF_BAD_NODES = 16; // 2 fronts x 2 nodes per front x 4 without any reason
+
+    runTaskAsTest("tasks/tests/markered-mesh-s-wave-test.xml", setSWaveAnalytics, STEPS, line, { "vx", "sxz" }, ALLOWED_VALUE_DEVIATION_PERCENT, ALLOWED_NUMBER_OF_BAD_NODES);
+}
