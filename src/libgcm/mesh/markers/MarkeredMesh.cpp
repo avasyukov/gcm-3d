@@ -368,7 +368,29 @@ bool MarkeredMesh::interpolateNode(CalcNode& node)
 bool MarkeredMesh::interpolateBorderNode(gcm::real x, gcm::real y, gcm::real z, 
                         gcm::real dx, gcm::real dy, gcm::real dz, CalcNode& node)
 {
-    THROW_UNSUPPORTED("Not implemented");
+    vector3r coords(x+dx, y+dy, z+dz);
+    int i, j, k;
+    getCellCoords(coords, i, j, k);
+
+    assert_ge(i, 0);
+    assert_ge(j, 0);
+    assert_ge(k, 0);
+
+    assert_lt(i, meshElems);
+    assert_lt(j, meshElems);
+    assert_lt(k, meshElems);
+
+    auto& cell = getCellByLocalIndex(i, j, k);
+    
+    if (cell.isBorder())
+    {
+//        memcpy(node.values, cell.values, sizeof(real)*VALUES_NUMBER);
+//        memcpy(node.coords, cell.coords, sizeof(float)*3);
+        node = cell;
+        return true; 
+    }
+
+    return false;
 }
 
 const vector3r& MarkeredMesh::getPivot() const
