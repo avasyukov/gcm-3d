@@ -67,6 +67,8 @@ namespace gcm
             void setMeshElems(uint meshElems);
 
             void setSurface(MarkeredSurface surface);
+        
+            void transfer(float x, float y, float z) override;
             
     };
 };

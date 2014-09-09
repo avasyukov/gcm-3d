@@ -412,3 +412,9 @@ void MarkeredMesh::setMeshElems(uint meshElems) {
 void MarkeredMesh::setSurface(MarkeredSurface surface) {
     this->surface = surface;
 }
+            
+void MarkeredMesh::transfer(float x, float y, float z)
+{
+    Mesh::transfer(x, y, z);
+    pivot += vector3r(x, y, z);
+}
