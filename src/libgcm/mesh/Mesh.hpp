@@ -227,7 +227,7 @@ namespace gcm {
         void setRheology(unsigned char matId);
         void setRheology(unsigned char matId, Area* area);
 
-        void transfer(float x, float y, float z);
+        virtual void transfer(float x, float y, float z);
 		void scale(float x0, float y0, float z0, 
 				float scaleX, float scaleY, float scaleZ);
         void applyRheology(RheologyCalculator* rc);
