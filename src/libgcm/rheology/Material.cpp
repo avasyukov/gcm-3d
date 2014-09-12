@@ -128,7 +128,15 @@ void Material::RheologyProperties::rotate(double a1, double a2, double a3)
 	c56 = C1[0][1][0][2]; 
 }
 
+Material::Material(string name, real rho, real la, real mu): Material(name, rho, la, mu, PlasticityProperties(), FailureProperties())
+{
+}
+
 Material::Material(string name, real rho, real la, real mu, FailureProperties failureProps): Material(name, rho, la, mu, PlasticityProperties(), failureProps)
+{
+}
+
+Material::Material(string name, real rho, real la, real mu, PlasticityProperties plasticityProps): Material(name, rho, la, mu, plasticityProps, FailureProperties())
 {
 }
 
@@ -137,7 +145,15 @@ Material::Material(string name, real rho, real la, real mu, PlasticityProperties
     isotropic = true;
 }
 
+Material::Material(string name, real rho, RheologyProperties rheologyProps): Material(name, rho, rheologyProps, PlasticityProperties(), FailureProperties())
+{
+}
+
 Material::Material(string name, real rho, RheologyProperties rheologyProps, FailureProperties failureProps): Material(name, rho, rheologyProps, PlasticityProperties(), failureProps)
+{
+}
+
+Material::Material(string name, real rho, RheologyProperties rheologyProps, PlasticityProperties plasticityProps): Material(name, rho, rheologyProps, plasticityProps, FailureProperties())
 {
 }
 

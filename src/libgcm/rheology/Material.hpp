@@ -95,8 +95,10 @@ namespace gcm {
                 */
                 void rotate(double a1, double a2, double a3);
         };
+		// WA: we use 'float' and 'double' to prevent identical constructors
+		// signature for initialization with PlasticityProperties only or with FailureProperties only.
         typedef map<string, map<string, float>> PlasticityProperties;
-        typedef map<string, map<string, float>> FailureProperties;
+        typedef map<string, map<string, double>> FailureProperties;
     protected:
         /**
          * Material name.
@@ -107,10 +109,6 @@ namespace gcm {
          */
         real rho;
         /**
-         * Failure properties.
-         */
-        FailureProperties failureProps;
-        /**
          * Rheology properties.
          */
         RheologyProperties rheologyProps;
@@ -118,6 +116,10 @@ namespace gcm {
          * Plasticity properties.
          */
         PlasticityProperties plasticityProps;
+        /**
+         * Failure properties.
+         */
+        FailureProperties failureProps;
         /**
          * Isotropic flag.
          */
@@ -132,7 +134,27 @@ namespace gcm {
          * @param la \f$\lambda\f$ Lame parameter
          * @param mu \f$\mu\f$ Lame parameter
          */
+        Material(string name, real rho, real la, real mu);
+        /**
+         * Constructor. Constructs isotropic material using specified parameters.
+         *
+         * @param name Material name
+         * @param rho Material density
+         * @param crackThreshold Material crack threshold
+         * @param la \f$\lambda\f$ Lame parameter
+         * @param mu \f$\mu\f$ Lame parameter
+         */
         Material(string name, real rho, real la, real mu, FailureProperties failureProps);
+        /**
+         * Constructor. Constructs isotropic material using specified parameters.
+         *
+         * @param name Material name
+         * @param rho Material density
+         * @param crackThreshold Material crack threshold
+         * @param la \f$\lambda\f$ Lame parameter
+         * @param mu \f$\mu\f$ Lame parameter
+         */
+        Material(string name, real rho, real la, real mu, PlasticityProperties plasticityProps);
         /**
          * Constructor. Constructs isotropic material using specified parameters.
          *
@@ -152,7 +174,25 @@ namespace gcm {
          * @param crackThreshold Material crack threshold
          * @param params Material rheology parameters
          */
+        Material(string name, real rho, RheologyProperties rheologyProps);
+        /**
+         * Constructor. Constructs anisotropic material using specified parameters.
+         *
+         * @param name Material name
+         * @param rho Material density
+         * @param crackThreshold Material crack threshold
+         * @param params Material rheology parameters
+         */
         Material(string name, real rho, RheologyProperties rheologyProps, FailureProperties failureProps);
+        /**
+         * Constructor. Constructs anisotropic material using specified parameters.
+         *
+         * @param name Material name
+         * @param rho Material density
+         * @param crackThreshold Material crack threshold
+         * @param params Material rheology parameters
+         */
+        Material(string name, real rho, RheologyProperties rheologyProps, PlasticityProperties plasticityProps);
         /**
          * Constructor. Constructs anisotropic material using specified parameters.
          *
