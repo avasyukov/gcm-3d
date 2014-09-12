@@ -128,24 +128,24 @@ void Material::RheologyProperties::rotate(double a1, double a2, double a3)
 	c56 = C1[0][1][0][2]; 
 }
 
-Material::Material(string name, real rho, real crackThreshold, real la, real mu): Material(name, rho, crackThreshold, la, mu, PlasticityProperties())
+Material::Material(string name, real rho, real la, real mu, FailureProperties failureProps): Material(name, rho, la, mu, PlasticityProperties(), failureProps)
 {
 }
 
-Material::Material(string name, real rho, real crackThreshold, real la, real mu, PlasticityProperties plasticityProps): Material(name, rho, crackThreshold, RheologyProperties(la, mu), plasticityProps)
+Material::Material(string name, real rho, real la, real mu, PlasticityProperties plasticityProps, FailureProperties failureProps): Material(name, rho, RheologyProperties(la, mu), plasticityProps, failureProps)
 {
     isotropic = true;
 }
 
-Material::Material(string name, real rho, real crackThreshold, RheologyProperties rheologyProps): Material(name, rho, crackThreshold, rheologyProps, PlasticityProperties())
+Material::Material(string name, real rho, RheologyProperties rheologyProps, FailureProperties failureProps): Material(name, rho, rheologyProps, PlasticityProperties(), failureProps)
 {
 }
 
-Material::Material(string name, real rho, real crackThreshold, RheologyProperties rheologyProps, PlasticityProperties plasticityProps): name(name), rho(rho), crackThreshold(crackThreshold), rheologyProps(rheologyProps), plasticityProps(plasticityProps)
+Material::Material(string name, real rho, RheologyProperties rheologyProps, PlasticityProperties plasticityProps, FailureProperties failureProps): name(name), rho(rho), rheologyProps(rheologyProps), plasticityProps(plasticityProps), failureProps(failureProps)
 {
 }
         
-Material::Material(const shared_ptr<Material>& source, string name, double a1, double a2, double a3): Material(name, source->rho, source->crackThreshold, source->rheologyProps, source->plasticityProps)
+Material::Material(const shared_ptr<Material>& source, string name, double a1, double a2, double a3): Material(name, source->rho, source->rheologyProps, source->plasticityProps, source->failureProps)
 {
     rheologyProps.rotate(a1, a2, a3);
 }
@@ -155,10 +155,10 @@ const string& Material::getName() const
     return name;
 }
 
-real Material::getCrackThreshold() const
-{
-    return crackThreshold;
-}
+//real Material::getCrackThreshold() const
+//{
+//    return crackThreshold;
+//}
 
 real Material::getRho() const
 {
@@ -189,3 +189,9 @@ const Material::PlasticityProperties& Material::getPlasticityProperties() const
 {
     return plasticityProps;
 }
+
+const Material::FailureProperties& Material::getFailureProperties() const
+{
+    return failureProps;
+}
+

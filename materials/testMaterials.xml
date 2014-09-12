@@ -4,32 +4,35 @@
             <la>70000</la>
             <mu>10000</mu>
             <rho>1</rho>
-            <crackThreshold>INF</crackThreshold>
         </material>
 
         <material name="steel" rheology="isotropic">
             <la>115000</la>
             <mu>77000</mu>
             <rho>7.8</rho>
-            <crackThreshold>1600</crackThreshold>
 			<plasticity type="PrandtlRauss">
 				<yieldStrength>300</yieldStrength>
 			</plasticity>
 			<plasticity type="PrandtlRaussCorrector">
 				<yieldStrength>300</yieldStrength>
 			</plasticity>
+            <failure type="maxStress">
+            	<threshold>1600</threshold>
+            </failure>
         </material>
 	<material name="glass" rheology="isotropic">
             <la>40385</la>
             <mu>28000</mu>
             <rho>2.3</rho>
-            <crackThreshold>50</crackThreshold>
                         <plasticity type="PrandtlRauss">
                                 <yieldStrength>INF</yieldStrength>
                         </plasticity>
                         <plasticity type="PrandtlRaussCorrector">
                                 <yieldStrength>INF</yieldStrength>
                         </plasticity>
+            <failure type="maxStress">
+                <threshold>50</threshold>
+            </failure>
         </material>
 
 		<material name="monolayer" rheology="anisotropic">
@@ -55,7 +58,19 @@
 			<c56>0</c56>
 			<c66>3000</c66>
 			<rho>1.25</rho>
-			<crackThreshold>70</crackThreshold>
+            <failure type="maxStress">
+                <threshold>70</threshold>
+            </failure>
+            <failure type="hashin">
+                <dir>3</dir>
+                <Xc>153</Xc>
+                <Xt>263</Xt>
+                <Yc>21.3</Yc>
+                <Yt>8.6</Yt>
+                <St>11.2</St>
+                <S>11.2</S>
+            </failure>
+
 		</material>
 
 		<material name="testAnisotropicMaterial" rheology="anisotropic">
@@ -81,7 +96,6 @@
 			<c56>0</c56>
 			<c66>10000</c66>
 			<rho>1</rho>
-			<crackThreshold>INF</crackThreshold>
 		</material>
 																        
 		<material name="testLayer" rheology="anisotropic">
@@ -107,6 +121,5 @@
 			<c56>0</c56>
 			<c66>10000</c66>
 			<rho>1</rho>
-			<crackThreshold>INF</crackThreshold>
 		</material>
 </materials>

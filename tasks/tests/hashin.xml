@@ -1,0 +1,57 @@
+<task numberOfSnaps="50" stepsPerSnap="5">
+        <system>
+                <defaultContactCalculator type="AdhesionContactCalculator" />
+                <defaultFailureModel type="HashinFailureModel" />
+                <meshMovement type="none" />
+        </system>
+	<bodies>
+		<body id="hashin_osk">
+                        <rheology type="elastic" />
+                        <mesh id="hashin_osk" type="geo2" file="models/hashin_osk.geo" tetrSize="0.3" />
+                        <material id="steel" />
+                </body>
+		<body id="hashin_pan">
+			<rheology type="elastic" />
+			<mesh id="hashin_pan" type="geo2" file="models/hashin_pan.geo" tetrSize="0.3" />
+			<material id="monolayer_h" />
+		</body>
+	</bodies>
+	<materials>
+		 <material name="monolayer_h" rheology="anisotropic" hashin="1">
+                        <c11>40000</c11>
+                        <c12>4600</c12>
+                        <c13>4600</c13>
+                        <c14>0</c14>
+                        <c15>0</c15>
+                        <c16>0</c16>
+                        <c22>10600</c22>
+                        <c23>4600</c23>
+                        <c24>0</c24>
+                        <c25>0</c25>
+                        <c26>0</c26>
+                        <c33>10600</c33>
+                        <c34>0</c34>
+                        <c35>0</c35>
+                        <c36>0</c36>
+                        <c44>3000</c44>
+                        <c45>0</c45>
+                        <c46>0</c46>
+                        <c55>3000</c55>
+                        <c56>0</c56>
+                        <c66>3000</c66>
+                        <rho>1.25</rho>
+                        <crackThreshold>70</crackThreshold>
+                        <HashinDir>1</HashinDir>
+                        <HashinXc>153</HashinXc>
+                        <HashinXt>263</HashinXt>
+                        <HashinYc>21.3</HashinYc>
+                        <HashinYt>8.6</HashinYt>
+                        <HashinSt>11.2</HashinSt>
+                        <HashinS>11.2</HashinS>
+                </material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="6.001" maxZ="100.01"/>
+		<values vz="-0.3" />
+	</initialState>
+</task>

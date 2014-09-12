@@ -96,6 +96,7 @@ namespace gcm {
                 void rotate(double a1, double a2, double a3);
         };
         typedef map<string, map<string, float>> PlasticityProperties;
+        typedef map<string, map<string, float>> FailureProperties;
     protected:
         /**
          * Material name.
@@ -106,9 +107,9 @@ namespace gcm {
          */
         real rho;
         /**
-         * Material crack threshold.
+         * Failure properties.
          */
-        real crackThreshold;
+        FailureProperties failureProps;
         /**
          * Rheology properties.
          */
@@ -131,7 +132,7 @@ namespace gcm {
          * @param la \f$\lambda\f$ Lame parameter
          * @param mu \f$\mu\f$ Lame parameter
          */
-        Material(string name, real rho, real crackThreshold, real la, real mu);
+        Material(string name, real rho, real la, real mu, FailureProperties failureProps);
         /**
          * Constructor. Constructs isotropic material using specified parameters.
          *
@@ -142,7 +143,7 @@ namespace gcm {
          * @param mu \f$\mu\f$ Lame parameter
          * @param plasticityProps Plasticity properties
          */
-        Material(string name, real rho, real crackThreshold, real la, real mu, PlasticityProperties plasticityProps);
+        Material(string name, real rho, real la, real mu, PlasticityProperties plasticityProps, FailureProperties failureProps);
         /**
          * Constructor. Constructs anisotropic material using specified parameters.
          *
@@ -151,7 +152,7 @@ namespace gcm {
          * @param crackThreshold Material crack threshold
          * @param params Material rheology parameters
          */
-        Material(string name, real rho, real crackThreshold, RheologyProperties rheologyProps);
+        Material(string name, real rho, RheologyProperties rheologyProps, FailureProperties failureProps);
         /**
          * Constructor. Constructs anisotropic material using specified parameters.
          *
@@ -161,7 +162,7 @@ namespace gcm {
          * @param params Material rheology parameters
          * @param plasticityProps Plasticity properties
          */
-        Material(string name, real rho, real crackThreshold, RheologyProperties rheologyProps, PlasticityProperties plasticityProps);
+        Material(string name, real rho, RheologyProperties rheologyProps, PlasticityProperties plasticityProps, FailureProperties failureProps);
         /**
          * Constructor. Constructs anisotropic material by rotation of passed material.
          *
@@ -185,11 +186,26 @@ namespace gcm {
          */
         real getRho() const;
         /**
+         * Returns failure thresholds
+         * @return failureProps.
+         */
+	const FailureProperties& getFailureProperties() const;
+        /**
          * Returns material crack threshold.
          *
          * @return Crack threshold value.
          */
-        real getCrackThreshold() const;
+//        real getCrackThreshold() const;
+        /**
+         * Returns Hashin failure thresholds
+         */
+//	int getHashinDir() {return Hdir;};
+//	real getHashinXc() {return HXc;};
+//        real getHashinXt() {return HXt;};
+//        real getHashinYc() {return HYc;};
+//        real getHashinYt() {return HYt;};
+//        real getHashinSt() {return HSt;};
+//        real getHashinS() {return HS;};
         /**
          * Returns isotropic flag value.
          *

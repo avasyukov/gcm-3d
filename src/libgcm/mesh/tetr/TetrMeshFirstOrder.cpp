@@ -1460,6 +1460,28 @@ bool gcm::TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
         CalcNode& n3 = getNode(face.verts[2]);
         // FIXME_ASAP - ugly WA 
         node = n1;
+        real xmin = n1.coords[0], ymin = n1.coords[1], zmin = n1.coords[2], xmax = n1.coords[0], ymax = n1.coords[1], zmax = n1.coords[2];
+		if (n2.coords[0] < xmin) xmin = n2.coords[0];
+        if (n2.coords[0] > xmax) xmax = n2.coords[0];
+        if (n3.coords[0] < xmin) xmin = n3.coords[0];
+        if (n3.coords[0] > xmax) xmax = n3.coords[0];
+        if (n2.coords[1] < ymin) ymin = n2.coords[1];
+        if (n2.coords[1] > ymax) ymax = n2.coords[1];
+        if (n3.coords[1] < ymin) ymin = n3.coords[1];
+        if (n3.coords[1] > ymax) ymax = n3.coords[1];
+        if (n2.coords[2] < zmin) zmin = n2.coords[2];
+        if (n2.coords[2] > zmax) zmax = n2.coords[2];
+        if (n3.coords[2] < zmin) zmin = n3.coords[2];
+        if (n3.coords[2] > zmax) zmax = n3.coords[2];
+		xmin -= length;
+        ymin -= length;
+        zmin -= length;
+        xmax += length;
+        ymax += length;
+        zmax += length;
+
+	if (x < xmin || x > xmax || y < ymin || y > ymax || z < zmin || z > zmax)
+		continue;
         
         if(vectorIntersectsTriangle( n1.coords, n2.coords, n3.coords,
                                      start, direction, length, node.coords, false))
