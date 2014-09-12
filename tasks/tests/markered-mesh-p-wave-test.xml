@@ -1,0 +1,13 @@
+<task numberOfSnaps="20" stepsPerSnap="1">
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="markered-mesh-geo" cellsNum="50" file="models/cube.geo" />
+			<material id="testMaterial" />
+		</body>
+	</bodies>
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
+		<values vz="3" sxx="700" syy="700" szz="900" />
+	</initialState>
+</task>

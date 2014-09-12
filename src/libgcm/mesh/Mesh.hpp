@@ -160,7 +160,7 @@ namespace gcm {
         virtual bool interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node) = 0;
 
-        virtual void findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug) = 0;
+        virtual void findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug) = 0;
 
 
         void snapshot(int number);
@@ -227,7 +227,7 @@ namespace gcm {
         void setRheology(unsigned char matId);
         void setRheology(unsigned char matId, Area* area);
 
-        void transfer(float x, float y, float z);
+        virtual void transfer(float x, float y, float z);
 		void scale(float x0, float y0, float z0, 
 				float scaleX, float scaleY, float scaleZ);
         void applyRheology(RheologyCalculator* rc);

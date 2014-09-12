@@ -21,13 +21,15 @@
 #include <vtkDoubleArray.h>
 #include <vtkIntArray.h>
 #include <vtkPointData.h>
+#include <vtkCellData.h>
 
 namespace gcm {
-    class VTKMarkeredMeshSnapshotWriter : public SnapshotWriter {
+    class VTKMarkeredMeshSnapshotWriter : public SnapshotWriter 
+    {
     private:
-        void dumpVTK(string filename, MarkeredMesh* mesh, int step);
-        USE_LOGGER;
     public:
+        void dumpVTK(string filename, const MarkeredMesh& mesh, int step);
+        USE_LOGGER;
         VTKMarkeredMeshSnapshotWriter();
         VTKMarkeredMeshSnapshotWriter(const char *snapName);
         /*

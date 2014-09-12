@@ -148,12 +148,13 @@ void gcm::Mesh::createOutline()
                         outline.min_coords[j] = node.coords[j];
                 }
             }
-            for(int j = 0; j < 3; j++) {
-                if(node.coords[j] > expandedOutline.max_coords[j])
-                    expandedOutline.max_coords[j] = node.coords[j];
-                if(node.coords[j] < expandedOutline.min_coords[j])
-                    expandedOutline.min_coords[j] = node.coords[j];
-            }
+            for(int j = 0; j < 3; j++) 
+                if (node.isUsed()) {
+                    if(node.coords[j] > expandedOutline.max_coords[j])
+                        expandedOutline.max_coords[j] = node.coords[j];
+                    if(node.coords[j] < expandedOutline.min_coords[j])
+                        expandedOutline.min_coords[j] = node.coords[j];
+                }
         }
     } else
     {

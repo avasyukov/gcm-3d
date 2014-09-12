@@ -1,428 +1,327 @@
 #include "libgcm/mesh/markers/MarkeredMesh.hpp"
 
-#include <cmath>
+#include "libgcm/util/Assertion.hpp"
+#include "libgcm/util/Tribox.hpp"
 
-#include "libgcm/Math.hpp"
+#include <algorithm>
+#include <queue>
+#include <tuple>
 
-float gcm::MarkeredMesh::getRecommendedTimeStep() {
-    return getMinH()/getMaxEigenvalue();
+using namespace gcm;
+
+
+MarkeredMesh::MarkeredMesh(const MarkeredSurface& surface, uint meshElems): MarkeredMesh()
+{
+    setSurface(surface);
+    setMeshElems(meshElems);
+    generateMesh();
 }
 
 
-float gcm::MarkeredMesh::getMinH() {
-    return min({h[0], h[1], h[2]});
-}
 
-
-void gcm::MarkeredMesh::doNextPartStep(float tau, int stage) {
-    defaultNextPartStep(tau, stage);
-}
-
-
-void gcm::MarkeredMesh::checkTopology(float tau) {
-}
-
-void gcm::MarkeredMesh::logMeshStats() {
-}
-
-void gcm::MarkeredMesh::preProcessGeometry() {
-    for (int i = 0; i < 3; i++)
-        h[i] = (meshOutline.max_coords[i]-meshOutline.min_coords[i]) / cells_num[i];
-
-    generateMarkers();
-    reconstructBorder();
-    markUnusedNodes();
-}
-
-void gcm::MarkeredMesh::setNumberOfCells(unsigned int num1, unsigned int num2, unsigned int num3) {
-    cells_num[0] = num1;
-    cells_num[1] = num2;
-    cells_num[2] = num3;
-
-    points_num[0] = num1+1;
-    points_num[1] = num2+1;
-    points_num[2] = num3+1;
-
-    cellsInnerFlags.clear();
-    cellsInnerFlags.resize(num1*num2*num3, false);
-}
-
-void gcm::MarkeredMesh::getCellIndexes(unsigned int num, unsigned int &i1, unsigned int &i2, unsigned int &i3) {
-    unsigned int t = num % (cells_num[1]*cells_num[0]);
-
-    i1 = t % cells_num[0];
-    i2 = t / cells_num[0];
-    i3 = num / (cells_num[0]*cells_num[1]);
-}
-
-void gcm::MarkeredMesh::getPointIndexes(unsigned int num, unsigned int &i1, unsigned int &i2, unsigned int &i3) {
-    unsigned int t = num % (points_num[1]*points_num[0]);
-
-    i1 = t % points_num[0];
-    i2 = t / points_num[0];
-    i3 = num / (points_num[0]*points_num[1]);
-}
-
-void gcm::MarkeredMesh::getCellAABB(unsigned int num, AABB& aabb) {
-
-    unsigned int i1, i2, i3;
-    getCellIndexes(num, i1, i2, i3);
-
-
-    aabb.minX = getNodeByLocalIndex(getPointNumber(i1, i2, i3)).x;
-    aabb.maxX = getNodeByLocalIndex(getPointNumber(i1+1, i2, i3)).x;
-
-    aabb.minY = getNodeByLocalIndex(getPointNumber(i1, i2, i3)).y;
-    aabb.maxY = getNodeByLocalIndex(getPointNumber(i1, i2+1, i3)).y;
-
-    aabb.minZ = getNodeByLocalIndex(getPointNumber(i1, i2, i3)).z;
-    aabb.maxZ = getNodeByLocalIndex(getPointNumber(i1, i2, i3+1)).z;
-}
-
-void gcm::MarkeredMesh::getNumberOfCells(int &num1, int &num2, int &num3) {
-    num1 = cells_num[0];
-    num2 = cells_num[1];
-    num3 = cells_num[2];
-}
-
-void gcm::MarkeredMesh::getNumberOfPoints(int &num1, int &num2, int &num3) {
-    num1 = points_num[0];
-    num2 = points_num[1];
-    num3 = points_num[2];
-}
-
-unsigned int gcm::MarkeredMesh::getTotalNumberOfCells() {
-    return cells_num[2]*cells_num[1]*cells_num[0];
-}
-
-int gcm::MarkeredMesh::getPointNumber(unsigned int i, unsigned int j, unsigned int k) {
-    // ensure that point indexes are not out of range
-    assert_lt(i, points_num[0]);
-    assert_lt(j, points_num[1]);
-    assert_lt(k, points_num[2]);
-    return k*points_num[1]*points_num[0]+j*points_num[0]+i;
-}
-
-int gcm::MarkeredMesh::getCellNumber(unsigned int i, unsigned int j, unsigned int k) {
-    // ensure Cell indexes are not out of range
-    assert_lt(i, cells_num[0]);
-    assert_lt(j, cells_num[1]);
-    assert_lt(k, cells_num[2]);
-    return k*cells_num[1]*cells_num[0]+j*cells_num[0]+i;
-}
-
-void gcm::MarkeredMesh::setCellInnerFlag(unsigned int num, bool flag) {
-    cellsInnerFlags[num] = flag;
-}
-
-bool gcm::MarkeredMesh::getCellInnerFlag(unsigned int num) {
-    return cellsInnerFlags[num];
-}
-
-int gcm::MarkeredMesh::generateMarkers() {
-    unsigned int nc = getTotalNumberOfCells();
-    LOG_DEBUG("Generating markers for " << nc << " cells");
-    markers.clear();
-    for (unsigned int i = 0; i < nc; i++)
-        if (!getCellInnerFlag(i)) {
-            NeighbourCells cells;
-            auto n = getCellNeighbours(i, cells);
-            bool flag = false;
-            for (unsigned int j = 0; j < n; j++)
-                if (getCellInnerFlag(cells[j])) {
-                    flag = true;
-                    break;
-                }
-            if (!flag)
-                continue;
-            AABB aabb;
-            getCellAABB(i, aabb);
-
-            CalcNode node;
-            node.x = (aabb.minX + aabb.maxX) / 2;
-            node.y = (aabb.minY + aabb.maxY) / 2;
-            node.z = (aabb.minZ + aabb.maxZ) / 2;
-
-            markers.push_back(node);
-        }
-    return markers.size();
-}
-
-void gcm::MarkeredMesh::reconstructInnerFlags() {
-    LOG_DEBUG("Reconstructing cells inner flags");
-
-    for (auto f: cellsInnerFlags)
-        f = true;
-
-
-    for (auto &m: markers) {
-        long n = getCellForPoint(m.x, m.y, m.z);
-        setCellInnerFlag(n, false);
-    }
-    // FIXME
-    // we need to be sure that reconstructed border is closed
-
-    vector<unsigned int> q;
-    // FIXME
-    // here we always start from 0 cell, but it may lead to incorrect
-    // flags reconstruction object move far away from mesh center
-    unsigned int nc = getTotalNumberOfCells();
-    bool *queued = new bool[nc];
-    memset(queued, 0, sizeof(bool)*nc);
-
-    q.push_back(0);
-    queued[0] = true;
-    while (q.size()) {
-        unsigned int n = q.back();
-        q.pop_back();
-        setCellInnerFlag(n, false);
-        NeighbourCells cells;
-        for (unsigned int i = 0; i < getCellNeighbours(n, cells); i++)
-            if (!queued[cells[i]] && getCellInnerFlag(cells[i])) {
-                q.push_back(cells[i]);
-                queued[cells[i]] = true;
-            }
-    }
-
-    delete[] queued;
-}
-
-long gcm::MarkeredMesh::getCellForPoint(float x, float y, float z) {
-    if (!meshOutline.isInAABB(x, y, z))
-        return -1;
-
-    unsigned int i1 = floor((x-meshOutline.minX)/h[0]);
-    unsigned int i2 = floor((y-meshOutline.minY)/h[1]);
-    unsigned int i3 = floor((z-meshOutline.minZ)/h[2]);
-
-    return getCellNumber(i1, i2, i3);
-}
-
-gcm::MarkeredMesh::MarkeredMesh() {
-    INIT_LOGGER("gcm.MarkeredMesh");
+MarkeredMesh::MarkeredMesh()
+{
     numericalMethodType = "InterpolationFixedAxis";
     snapshotWriterType = "VTKMarkeredMeshSnapshotWriter";
     dumpWriterType = "VTKMarkeredMeshSnapshotWriter";
-    interpolator = new LineFirstOrderInterpolator();
+    
+    INIT_LOGGER("gcm.mesh.markers.MarkeredMesh");
 }
 
-void gcm::MarkeredMesh::createOutline() {
-    LOG_DEBUG("Creating outline");
-    for (int i = 0; i < 3; i++) {
-        outline.min_coords[i] = numeric_limits<float>::infinity();
-        outline.max_coords[i] = -numeric_limits<float>::infinity();
-    }
-    for (unsigned int i = 0; i < getTotalNumberOfCells(); i++)
-        if (getCellInnerFlag(i)) {
-            AABB aabb;
-            getCellAABB(i, aabb);
-            for (int j = 0; j < 3; j++) {
-                if (aabb.min_coords[j] < outline.min_coords[j])
-                    outline.min_coords[j] = aabb.min_coords[j];
-                if (aabb.max_coords[j] > outline.max_coords[j])
-                    outline.max_coords[j] = aabb.max_coords[j];
+MarkeredMesh::~MarkeredMesh()
+{
+}
+
+uint MarkeredMesh::getCellLocalIndex(const uint i, const uint j, const uint k) const
+{
+    return i*meshElems*meshElems + j*meshElems + k;
+}
+
+void MarkeredMesh::getCellIndexes(uint num, uint& i, uint& j, uint &k) const
+{
+    i = num / (meshElems*meshElems);
+    j = (num/meshElems) % meshElems;
+    k = num % meshElems;
+}
+
+CalcNode& MarkeredMesh::getCellByLocalIndex(const uint i, const uint j, const uint k)
+{
+    return getNodeByLocalIndex(getCellLocalIndex(i, j, k));
+}
+
+void MarkeredMesh::generateMesh()
+{  
+    AABB aabb = surface.getAABB();
+
+    auto l1 = aabb.maxX - aabb.minX;
+    auto l2 = aabb.maxY - aabb.minY;
+    auto l3 = aabb.maxZ - aabb.minZ;
+
+    auto l = max({l1, l2, l3})*1.2;
+
+    elemSize = l / meshElems;
+    
+    LOG_INFO("Generating mesh with size " << meshElems << "x" << meshElems << "x" << meshElems << " with element size " << elemSize);
+
+    vector3r center = aabb.getCenter();
+
+    pivot = center - vector3r(1, 1, 1)*l/2;
+    vector3r point  = pivot + vector3r(elemSize, elemSize, elemSize)/2;
+    
+    uint idx = 0;
+    
+    CalcNode node;    
+    node.setUsed(false);
+    node.setIsBorder(false);    
+    for (unsigned int i = 0; i < meshElems; i++)
+    {
+        for (unsigned int j = 0; j < meshElems; j++) 
+        {
+            for (unsigned int k = 0; k < meshElems; k++)
+            {
+                node.x = point.x + i*elemSize;
+                node.y = point.y + j*elemSize;
+                node.z = point.z + k*elemSize;
+                node.number = idx++;
+                addNode(node);                
             }
         }
-    LOG_DEBUG("Creating mesh outline");
-    AABB aabb;
-
-    getCellAABB(0, aabb);
-    memcpy(meshOutline.min_coords, aabb.min_coords, sizeof(aabb.min_coords));
-    getCellAABB(getTotalNumberOfCells()-1, aabb);
-    memcpy(meshOutline.max_coords, aabb.max_coords, sizeof(aabb.max_coords));
-}
-
-unsigned int gcm::MarkeredMesh::getCellNeighbours(unsigned int n, NeighbourCells &cells) {
-    unsigned int idx[3], ci = 0;
-
-    getCellIndexes(n, idx[0], idx[1], idx[2]);
-
-    for (int i3 = -1; i3 <= 1; i3++)
-        for (int i2 = -1; i2 <= 1; i2++)
-            for (int i1 = -1; i1 <= 1; i1++)
-                if (i1 || i2 || i3) {
-                    int _i1 = idx[0] + i1;
-                    int _i2 = idx[1] + i2;
-                    int _i3 = idx[2] + i3;
-                    // FIXME
-                    // is the any way to avoid comparsion between signed and unsigned values?
-                    // it's  safe comparsion, but it should be fixed
-                    if (_i1 >= 0 && _i1 < static_cast<int>(cells_num[0]) &&
-                        _i2 >= 0 && _i2 < static_cast<int>(cells_num[1]) &&
-                        _i3 >= 0 && _i3 < static_cast<int>(cells_num[2]))
-                        cells[ci++] = getCellNumber(_i1, _i2, _i3);
-                }
-
-    return ci;
-}
-
-const vector<CalcNode>& gcm::MarkeredMesh::getMarkers() {
-    return markers;
-}
-
-const AABB& gcm::MarkeredMesh::getMeshOutline() {
-    return meshOutline;
-}
-
-void gcm::MarkeredMesh::reconstructBorder() {
-    LOG_DEBUG("Reconstructing border");
-    NeighbourCells cells;
-    auto nc = getTotalNumberOfCells();
-
-    for (int i = 0; i < getNodesNumber(); i++)
-        getNodeByLocalIndex(i).setIsBorder(false);
-
-    for (unsigned int i = 0; i < nc; i++)
-        if (!getCellInnerFlag(i))
-            for (unsigned int j = 0; j < getCellNeighbours(i, cells); j++) {
-                auto c2 = cells[j];
-                if (getCellInnerFlag(c2)) {
-                    CommonPoints pts;
-                    for (unsigned int k = 0; k < getCellsCommonPoints(i, c2, pts); k++)
-                        getNodeByLocalIndex(pts[k]).setIsBorder(true);
-                }
-            }
-}
-
-unsigned int gcm::MarkeredMesh::getCellsCommonPoints(unsigned int c1,
-        unsigned int c2, CommonPoints& pts) {
-
-    CellPoints pts1, pts2;
-
-    getCellPoints(c1, pts1);
-    getCellPoints(c2, pts2);
-
-    unsigned int ci = 0;
-
-    for (int i = 0; i < 8; i++)
-        for (int j = 0; j < 8; j++)
-            if (pts1[i] == pts2[j]) {
-                pts[ci++] = pts1[i];
-                break;
-            }
-
-    return ci;
-}
-
-void gcm::MarkeredMesh::getCellPoints(unsigned int n, CellPoints& pts) {
-    unsigned int idx[3];
-    unsigned int ci = 0;
-
-    getCellIndexes(n, idx[0], idx[1], idx[2]);
-
-    for (int i = 0; i < 2; i++)
-        for (int j = 0; j < 2; j++)
-            for (int k = 0; k < 2; k++)
-                pts[ci++] = getPointNumber(idx[0]+i, idx[1]+j, idx[2]+k);
-}
-
-void gcm::MarkeredMesh::calcMinH() {
-}
-
-void gcm::MarkeredMesh::markUnusedNodes() {
-    LOG_DEBUG("Setting unused flags for nodes");
-    for (unsigned int i = 0; i < getTotalNumberOfCells(); i++) {
-        CellPoints pts;
-        getCellPoints(i, pts);
-        for (unsigned int j = 0; j < 8; j++)
-            if (getCellInnerFlag(i))
-                getNodeByLocalIndex(pts[j]).setUsed(true);
-            else
-                if (!getNodeByLocalIndex(pts[j]).isBorder())
-                    getNodeByLocalIndex(pts[j]).setUsed(false);
-                else
-                    getNodeByLocalIndex(pts[j]).setUsed(true);
     }
+    
+    preProcessGeometry();
 }
 
-void gcm::MarkeredMesh::findBorderNodeNormal(int border_node_index, float* x,
-        float* y, float* z, bool debug) {
-    *x = *y = *z = 0.0;
+void MarkeredMesh::getCellCoords(vector3r p, int& i, int& j, int&k){
+    vector3r a = (p-pivot)/elemSize;
 
-    CalcNode& node = getNode(border_node_index);
-    assert_true(node.isBorder());
+    i = floor(a.x);
+    j = floor(a.y);
+    k = floor(a.z);
+}
 
-    auto idx = getNodeLocalIndex(border_node_index);
+void MarkeredMesh::findBorderCells()
+{
+    LOG_DEBUG("Searching for border cells");
+    const auto& faces = surface.getMarkerFaces();
+    const auto& nodes = surface.getMarkerNodes();
 
-    unsigned int i1, i2, i3;
-    getPointIndexes(idx, i1, i2, i3);
+    for (auto f: faces)
+    {
+        const auto& v1 = nodes[f.verts[0]];
+        const auto& v2 = nodes[f.verts[1]];
+        const auto& v3 = nodes[f.verts[2]];
 
-    assert_gt(i1, 0);
-    assert_gt(i2, 0);
-    assert_gt(i3, 0);
-    assert_lt(i1, points_num[0]-1);
-    assert_lt(i2, points_num[1]-1);
-    assert_lt(i3, points_num[2]-1);
+        vector3r planePoint1(v1.x, v1.y, v1.z);
+        vector3r planePoint2(v2.x, v2.y, v2.z);
+        vector3r planePoint3(v3.x, v3.y, v3.z);
+        vector3r planeNormal;
 
-    for (int k = 1; k >= 0; k--)
-        for (int j = 1; j >= 0; j-- )
-            for (int i = 1; i >=0; i--)
-                if (getCellInnerFlag(getCellNumber(i1-i, i2-j, i3-k))) {
-                    float dnx = (i-0.5)*h[0];
-                    float dny = (j-0.5)*h[1];
-                    float dnz = (k-0.5)*h[2];
-                    float l = vectorNorm(dnx, dny, dnz);
-                    dnx /= l;
-                    dny /= l;
-                    dnz /= l;
+        findTriangleFaceNormal(v1.coords, v2.coords, v3.coords, &planeNormal.x, &planeNormal.y, &planeNormal.z);
 
-                    *x += dnx;
-                    *y += dny;
-                    *z += dnz;
+        auto minX = min({v1.x, v2.x, v3.x});
+        auto maxX = max({v1.x, v2.x, v3.x});
+        auto minY = min({v1.y, v2.y, v3.y});
+        auto maxY = max({v1.y, v2.y, v3.y});
+        auto minZ = min({v1.z, v2.z, v3.z});
+        auto maxZ = max({v1.z, v2.z, v3.z});
+
+        uint minI = floor((minX-pivot.x) / elemSize);
+        uint minJ = floor((minY-pivot.y) / elemSize);
+        uint minK = floor((minZ-pivot.z) / elemSize);
+
+        uint maxI = ceil((maxX-pivot.x) / elemSize)+1;
+        uint maxJ = ceil((maxY-pivot.y) / elemSize)+1;
+        uint maxK = ceil((maxZ-pivot.z) / elemSize)+1;
+
+        for (uint i = minI; i < maxI; i++)
+            for (uint j = minJ; j < maxJ; j++)
+                for (uint k = minK; k < maxK; k++)
+                {
+                    auto& cell = getCellByLocalIndex(i, j, k);
+
+                    if (triangleIntersectsCube(cell, elemSize/2, v1, v2, v3))
+                    {
+                        borderFacesMap[cell.number] = f.number;
+                        cell.setIsBorder(true);
+                        cell.setPlacement(true);
+                    }
                 }
+    }
+    
+    LOG_DEBUG("Found " << borderFacesMap.size() << " border cells");
 }
 
-bool gcm::MarkeredMesh::interpolateNode(CalcNode& origin, float dx, float dy,
-        float dz, bool debug, CalcNode& targetNode, bool& isInnerPoint) {
+void MarkeredMesh::fillInterior()
+{
+    LOG_DEBUG("Filling mesh interior");
+    
+    for (uint i = 0; i < meshElems; i++)
+        for (uint j = 0; j < meshElems; j++)
+            for (uint k = 0; k < meshElems; k++)
+            {
+                auto& cell = getCellByLocalIndex(i, j, k);
+                if (!cell.isBorder())
+                    cell.setUsed(false);
+            }
+
+    auto index = surface.getRegions()[0]/2;
+    const auto& face = surface.getMarkerFaces()[index];
+    const auto& nodes = surface.getMarkerNodes();
+    const auto& node = nodes[face.verts[0]];
+    vector3r dir;
+    findTriangleFaceNormal(nodes[face.verts[0]].coords, nodes[face.verts[1]].coords, nodes[face.verts[2]].coords, &dir.x, &dir.y, &dir.z);
+    
+    int p, q, s;
+    
+    getCellCoords(vector3r(node.x, node.y, node.z), p, q, s);
+    
+    dir.normalize();
+    
+    p -= sgn(dir.x)*ceil(fabs(dir.x));
+    q -= sgn(dir.y)*ceil(fabs(dir.y));
+    s -= sgn(dir.z)*ceil(fabs(dir.z));
+    
+    queue<tuple<int, int, int>> fill_queue;
+
+    fill_queue.push(make_tuple(p, q, s));
+
+    tuple<int,int,int> neighbs[] = 
+    {
+        make_tuple(-1, 0, 0),
+        make_tuple(1, 0, 0),
+        make_tuple(0, -1, 0),
+        make_tuple(0, 1, 0),
+        make_tuple(0, 0, -1),
+        make_tuple(0, 0, 1),
+    };
+    
+    uint count = 0;
+    
+    while (!fill_queue.empty())
+    {
+        const auto& next = fill_queue.front();
+
+        auto _p = get<0>(next);
+        auto _q = get<1>(next);
+        auto _s = get<2>(next);
+        
+        fill_queue.pop();
+        
+        auto& cell = getCellByLocalIndex(_p, _q, _s);
+
+        if (cell.isUsed())
+            continue;
+        cell.setUsed(true);
+        cell.setPlacement(true);
+        count++;
+        
+        for (auto& neigh: neighbs)
+        {
+
+            int p = _p + get<0>(neigh);
+            int q = _q + get<1>(neigh);
+            int s = _s + get<2>(neigh);
+            
+            assert_gt(p, 0);
+            assert_gt(q, 0);
+            assert_gt(s, 0);
+            
+            assert_lt(p, meshElems-1);
+            assert_lt(q, meshElems-1);
+            assert_lt(s, meshElems-1);
+
+            if (!getCellByLocalIndex(p, q, s).isBorder())
+                fill_queue.push(make_tuple(p, q, s));
+        }
+    }
+    
+    LOG_DEBUG("Found " << count << " inner cells");
+}
+
+float MarkeredMesh::getRecommendedTimeStep()
+{
+    return getMinH()/getMaxEigenvalue();
+}
+
+float MarkeredMesh::getMinH()
+{
+    return elemSize;
+}
+
+void MarkeredMesh::doNextPartStep(float tau, int stage)
+{
+    defaultNextPartStep(tau, stage);
+}
+
+void MarkeredMesh::checkTopology(float tau)
+{
+}
+
+void MarkeredMesh::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
+{
+    assert_ge(border_node_index, 0);
+    assert_lt(border_node_index, nodes.size());
+    assert_true(nodes[border_node_index].isBorder());
+    
+    const auto& face = surface.getMarkerFaces()[borderFacesMap[border_node_index]];
+    const auto& _nodes = surface.getMarkerNodes();
+    
+    findTriangleFaceNormal(_nodes[face.verts[0]].coords, _nodes[face.verts[1]].coords, _nodes[face.verts[2]].coords, x, y, z);
+}
+
+bool MarkeredMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
+                        CalcNode& targetNode, bool& isInnerPoint)
+{
     assert_true(((dx == 0.0) && (dy == 0.0)) || ((dy == 0.0) && (dz == 0.0)) || ((dx == 0.0) && (dz == 0.0)));
+    
+    int i1, i2, i3;
 
-    auto idx = getNodeLocalIndex(origin.number);
-    unsigned int i1, i2, i3;
-
-    getPointIndexes(idx, i1, i2, i3);
-
-    int d;
-    unsigned int *k, l;
-
-    if (dx != 0.0) {
-        d = sgn(dx);
-        k = &i1;
-        l = points_num[0];
-    } else if (dy != 0.0) {
-        d = sgn(dy);
-        k = &i2;
-        l = points_num[1];
-    } else {
-        d = sgn(dz);
-        k = &i3;
-        l = points_num[2];
-    }
-
-    isInnerPoint = true;
-
-    if (d > 0) {
-        if (*k >= l-1)
+    vector3r coords(origin.x+dx, origin.y+dy, origin.z+dz);
+    
+    getCellCoords(coords, i1, i2, i3);
+    
+    assert_ge(i1, 0);
+    assert_ge(i2, 0);
+    assert_ge(i3, 0);
+    
+    assert_lt(i1, meshElems);
+    assert_lt(i2, meshElems);
+    assert_lt(i3, meshElems);    
+    
+    const auto& cell = getCellByLocalIndex(i1, i2, i3);
+    
+    isInnerPoint = cell.isUsed() && cell.isLocal();
+    if (isInnerPoint && cell.isBorder())
+    {
+        vector3r dir(coords.x-cell.x, coords.y-cell.y, coords.z-cell.z);
+        vector3r norm;
+        findBorderNodeNormal(cell.number, &norm.x, &norm.y, &norm.z, false);
+        if (norm*dir > 0)
             isInnerPoint = false;
-        else {
-            *k += 1;
-            if (!getNodeByLocalIndex(getPointNumber(i1, i2, i3)).isUsed())
-                isInnerPoint = false;
-        }
-    } else {
-        if (*k == 0)
-            isInnerPoint = false;
-        else {
-            *k -= 1;
-            if (!getNodeByLocalIndex(getPointNumber(i1, i2, i3)).isUsed())
-                isInnerPoint = false;
-        }
     }
-
+    
     if (isInnerPoint) {
+        auto idx = getNodeLocalIndex(origin.number);
+        
+        uint j1, j2, j3;
+
+        getCellIndexes(idx, j1, j2, j3);
+        
+        assert_lt(j1, meshElems);
+        assert_lt(j2, meshElems);
+        assert_lt(j3, meshElems);            
+    
+        if (dx != 0.0)
+            j1 += sgn(dx);
+        else if (dy != 0.0)
+            j2 += sgn(dy);
+        else
+            j3 += sgn(dz);
+
         targetNode.coords[0] = origin.coords[0]+dx;
         targetNode.coords[1] = origin.coords[1]+dy;
         targetNode.coords[2] = origin.coords[2]+dz;
-        interpolator->interpolate(targetNode, origin, getNodeByLocalIndex(getPointNumber(i1, i2, i3)));
+        interpolator.interpolate(targetNode, origin, getCellByLocalIndex(j1, j2, j3));
         return true;
 
     } else {
@@ -431,41 +330,115 @@ bool gcm::MarkeredMesh::interpolateNode(CalcNode& origin, float dx, float dy,
         targetNode.coords[2] = origin.coords[2];
         return false;
     }
-
-
 }
 
-bool gcm::MarkeredMesh::interpolateNode(CalcNode& node)
+bool MarkeredMesh::interpolateNode(CalcNode& node)
 {
-    // Not implemented
-    return false;
-};
+    vector3r coords(node.x, node.y, node.z);
+    
+    int i, j, k;
+    getCellCoords(coords, i, j, k);
 
-bool gcm::MarkeredMesh::interpolateBorderNode(real x, real y, real z, 
-                                real dx, real dy, real dz, CalcNode& node)
+    assert_ge(i, 0);
+    assert_ge(j, 0);
+    assert_ge(k, 0);
+
+    assert_lt(i, meshElems);
+    assert_lt(j, meshElems);
+    assert_lt(k, meshElems);
+
+    auto& cell = getCellByLocalIndex(i, j, k);
+
+    auto dx = node.x-cell.x;
+    auto dy = node.y-cell.y;
+    auto dz = node.z-cell.z;
+
+    if (fabs(dx) < EQUALITY_TOLERANCE)
+        dx = 0.0;
+    if (fabs(dy) < EQUALITY_TOLERANCE)
+        dy = 0.0;
+    if (fabs(dz) < EQUALITY_TOLERANCE)
+        dz = 0.0;
+    bool isInnerPoint;
+    interpolateNode(cell, dx, dy, dz, false, node, isInnerPoint);
+
+    return true;
+}
+
+bool MarkeredMesh::interpolateBorderNode(gcm::real x, gcm::real y, gcm::real z, 
+                        gcm::real dx, gcm::real dy, gcm::real dz, CalcNode& node)
 {
-    // Not implemented
-    return false;
-};
+    vector3r coords(x+dx, y+dy, z+dz);
+    int i, j, k;
+    getCellCoords(coords, i, j, k);
 
-void gcm::MarkeredMesh::moveMarkers(float dt) {
-    for (auto& m: markers) {
-        CellPoints pts;
-        getCellPoints(getCellForPoint(m.x, m.y, m.z), pts);
-        float v[3] = {0.0, 0.0, 0.0};
-        int n = 0;
-        for (int i = 0; i < 8; i++) {
-            auto node = getNodeByLocalIndex(pts[i]);
-            if (node.isUsed()) {
-                for (int j = 0; j < 3; j++)
-                    v[j] += node.velocity[j];
-                n++;
-            }
-        }
-        for (int i = 0; i < 3; i++)
-            v[i] /= n;
-        m.x += v[0]*dt;
-        m.y += v[1]*dt;
-        m.z += v[2]*dt;
+    assert_ge(i, 0);
+    assert_ge(j, 0);
+    assert_ge(k, 0);
+
+    assert_lt(i, meshElems);
+    assert_lt(j, meshElems);
+    assert_lt(k, meshElems);
+
+    auto& cell = getCellByLocalIndex(i, j, k);
+    
+    if (cell.isBorder())
+    {
+//        memcpy(node.values, cell.values, sizeof(real)*VALUES_NUMBER);
+//        memcpy(node.coords, cell.coords, sizeof(float)*3);
+        node = cell;
+        return true; 
     }
+
+    return false;
+}
+
+const vector3r& MarkeredMesh::getPivot() const
+{
+    return pivot;
+}
+
+gcm::real MarkeredMesh::getElemSize() const
+{
+    return elemSize;
+}
+
+uint MarkeredMesh::getMeshElemes() const
+{
+    return meshElems;
+}
+
+const MarkeredSurface& MarkeredMesh::getMarkeredSurafce() const
+{
+    return surface;
+}
+
+void MarkeredMesh::logMeshStats()
+{
+    
+}
+void MarkeredMesh::calcMinH()
+{
+}
+
+void MarkeredMesh::preProcessGeometry()
+{
+    findBorderCells();
+    fillInterior();
+    // FIXME we do not need to do this two times
+    createOutline();
+}
+
+void MarkeredMesh::setMeshElems(uint meshElems) {
+    this->meshElems = meshElems;
+}
+
+void MarkeredMesh::setSurface(MarkeredSurface surface) {
+    this->surface = surface;
+}
+            
+void MarkeredMesh::transfer(float x, float y, float z)
+{
+    Mesh::transfer(x, y, z);
+    pivot += vector3r(x, y, z);
 }

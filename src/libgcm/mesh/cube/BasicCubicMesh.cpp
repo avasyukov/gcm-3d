@@ -109,7 +109,7 @@ float gcm::BasicCubicMesh::getMinH()
     return meshH;
 };
 
-void gcm::BasicCubicMesh::findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug)
+void gcm::BasicCubicMesh::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
 {
     CalcNode& node = getNode( border_node_index );
     assert_true(node.isBorder() );
@@ -218,7 +218,7 @@ bool gcm::BasicCubicMesh::interpolateNode(CalcNode& node)
 bool gcm::BasicCubicMesh::interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node)
 {
-    int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
+    //int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
     float coords[3];
     float tx = coords[0] = x + dx;
     float ty = coords[1] = y + dy;

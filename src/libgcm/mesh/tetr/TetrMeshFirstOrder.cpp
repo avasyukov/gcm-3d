@@ -835,7 +835,7 @@ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, floa
     return -1;
 }
 
-void gcm::TetrMeshFirstOrder::findBorderNodeNormal(int border_node_index, float* x, float* y, float* z, bool debug)
+void gcm::TetrMeshFirstOrder::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
 {
     CalcNode& node = getNode( border_node_index );
     assert_true(node.isBorder() );

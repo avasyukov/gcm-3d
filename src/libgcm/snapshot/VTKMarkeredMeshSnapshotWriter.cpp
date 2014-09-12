@@ -1,12 +1,12 @@
 #include "libgcm/snapshot/VTKMarkeredMeshSnapshotWriter.hpp"
+#include "libgcm/Math.hpp"
 
-gcm::VTKMarkeredMeshSnapshotWriter::VTKMarkeredMeshSnapshotWriter() {
-    INIT_LOGGER("gcm.VTKMarkeredMeshSnapshotWriter");
-    fname = string ("snap_mesh_%m_cpu_%z_step_%n.vts");
+gcm::VTKMarkeredMeshSnapshotWriter::VTKMarkeredMeshSnapshotWriter():VTKMarkeredMeshSnapshotWriter("snap_mesh_%m_cpu_%z_step_%n.vts")
+{
 }
 
 gcm::VTKMarkeredMeshSnapshotWriter::VTKMarkeredMeshSnapshotWriter(const char* snapName) {
-    INIT_LOGGER("gcm.VTKMarkeredMeshSnapshotWriter");
+    INIT_LOGGER("gcm.snapshot.VTKMarkeredMeshSnapshotWriter");
     fname = string (snapName);
 }
 
@@ -17,14 +17,20 @@ string gcm::VTKMarkeredMeshSnapshotWriter::getType() {
 void gcm::VTKMarkeredMeshSnapshotWriter::dump(Mesh* mesh, int step)
 {
     // TODO - check if the mesh is compatible
-    dumpVTK(getFileName(MPI::COMM_WORLD.Get_rank(), step, mesh->getId()), (MarkeredMesh*)mesh, step);
+    dumpVTK(getFileName(MPI::COMM_WORLD.Get_rank(), step, mesh->getId()), *static_cast<const MarkeredMesh*>(mesh), step);
 }
 
-void gcm::VTKMarkeredMeshSnapshotWriter::dumpVTK(string filename, MarkeredMesh *mesh, int step)
+void gcm::VTKMarkeredMeshSnapshotWriter::dumpVTK(string filename, const MarkeredMesh& mesh, int step)
 {
+    LOG_DEBUG("Writing snapshot for mesh \"" << mesh.getId() << "\" at step " << step << " to file " << filename);
+    
     vtkSmartPointer<vtkStructuredGrid> structuredGrid = vtkSmartPointer<vtkStructuredGrid>::New();
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
 
+    vtkIntArray* border = vtkIntArray::New();
+    vtkIntArray* used = vtkIntArray::New();
+    vtkDoubleArray* norm = vtkDoubleArray::New();
+    norm->SetNumberOfComponents(3);
     vtkDoubleArray *vel = vtkDoubleArray::New();
     vel->SetNumberOfComponents(3);
     vtkDoubleArray *crack = vtkDoubleArray::New();
@@ -44,45 +50,62 @@ void gcm::VTKMarkeredMeshSnapshotWriter::dumpVTK(string filename, MarkeredMesh *
     vtkIntArray    *borderState = vtkIntArray::New();
     vtkIntArray    *contactState = vtkIntArray::New();
     vtkIntArray    *mpiState = vtkIntArray::New();
-    vtkIntArray       *nodeErrorFlags = vtkIntArray::New ();
-    vtkIntArray       *usedFlags = vtkIntArray::New();
+    vtkIntArray    *nodeErrorFlags = vtkIntArray::New ();
+    
 
-    float v[3];
+    float _norm[3];
 
-    for(int i = 0; i < mesh->getNodesNumber(); i++)
-    {
-        CalcNode& node = mesh->getNodeByLocalIndex(i);
-        points->InsertNextPoint( node.coords[0], node.coords[1], node.coords[2] );
+    auto meshElems = mesh.getMeshElemes();
+    auto elemSize = mesh.getElemSize();
+    
+    vector3r coords  = mesh.getPivot();
+    
+    for (unsigned int i = 0; i <= meshElems; i++)
+        for (unsigned int j = 0; j <= meshElems; j++)
+            for (unsigned int k = 0; k <= meshElems; k++)
+                points->InsertNextPoint(coords.x+i*elemSize, coords.y+j*elemSize, coords.z+k*elemSize);
+    
+    auto& _mesh = const_cast<MarkeredMesh&>(mesh);
 
-        v[0] = node.values[0];    v[1] = node.values[1];    v[2] = node.values[2];
-        vel->InsertNextTuple(v);
-        crack->InsertNextTuple(node.getCrackDirection().coords);
-        sxx->InsertNextValue( node.values[3] );
-        sxy->InsertNextValue( node.values[4] );
-        sxz->InsertNextValue( node.values[5] );
-        syy->InsertNextValue( node.values[6] );
-        syz->InsertNextValue( node.values[7] );
-        szz->InsertNextValue( node.values[8] );
-        compression->InsertNextValue( node.getCompression() );
-        tension->InsertNextValue( node.getTension() );
-        shear->InsertNextValue( node.getShear() );
-        deviator->InsertNextValue( node.getDeviator() );
-        matId->InsertNextValue( node.getMaterialId() );
-        rho->InsertNextValue( node.getRho() );
-        borderState->InsertNextValue( node.isBorder() ? ( node.isInContact() ? 2 : 1 ) : 0 );
-        contactState->InsertNextValue(node.getContactConditionId());
-        mpiState->InsertNextValue( node.isRemote() ? 1 : 0 );
-        nodeErrorFlags->InsertNextValue (node.getErrorFlags());
-        usedFlags->InsertNextValue(node.isUsed());
-    }
+    for (unsigned int i = 0; i < meshElems; i++)
+        for (unsigned int j = 0; j < meshElems; j++)
+            for (unsigned int k = 0; k < meshElems; k++)
+            {
+                auto& cell = _mesh.getCellByLocalIndex(i, j, k);
+                border->InsertNextValue(cell.isBorder() ? 1 : 0);
+                used->InsertNextValue(cell.isUsed() ? 1 : 0);
+                if (cell.isBorder())
+                    _mesh.findBorderNodeNormal(cell.number, _norm, _norm+1, _norm+2, false);
+                else
+                    _norm[0] = _norm[1] = _norm[2] = 0.0;
+                norm->InsertNextTuple(_norm);
 
-    int d1, d2, d3;
+                vel->InsertNextTuple(cell.velocity);
+                crack->InsertNextTuple(cell.getCrackDirection().coords);
+                sxx->InsertNextValue(cell.sxx);
+                sxy->InsertNextValue(cell.sxy);
+                sxz->InsertNextValue(cell.sxz);
+                syy->InsertNextValue(cell.syy);
+                syz->InsertNextValue(cell.syz);
+                szz->InsertNextValue(cell.szz);
+                compression->InsertNextValue(cell.getCompression());
+                tension->InsertNextValue(cell.getTension());
+                shear->InsertNextValue(cell.getShear());
+                deviator->InsertNextValue(cell.getDeviator());
+                matId->InsertNextValue(cell.getMaterialId());
+                rho->InsertNextValue(cell.getRho());
+                borderState->InsertNextValue(cell.isBorder() ? ( cell.isInContact() ? 2 : 1 ) : 0);
+                contactState->InsertNextValue(cell.getContactConditionId());
+                mpiState->InsertNextValue(cell.isRemote() ? 1 : 0);
+                nodeErrorFlags->InsertNextValue (cell.getErrorFlags());
+            }
 
-    mesh->getNumberOfPoints(d1, d2, d3);
-
-    structuredGrid->SetDimensions(d1, d2, d3);
+    structuredGrid->SetDimensions(meshElems+1, meshElems+1, meshElems+1);
     structuredGrid->SetPoints(points);
 
+    border->SetName("border");
+    used->SetName("used");
+    norm->SetName("norm");
     vel->SetName("velocity");
     crack->SetName("crack");
     sxx->SetName("sxx");
@@ -101,28 +124,44 @@ void gcm::VTKMarkeredMeshSnapshotWriter::dumpVTK(string filename, MarkeredMesh *
     contactState->SetName("contactState");
     mpiState->SetName("mpiState");
     nodeErrorFlags->SetName ("errorFlags");
-    usedFlags->SetName ("usedFlags");
+    
+    
 
-    structuredGrid->GetPointData()->SetVectors(vel);
-    structuredGrid->GetPointData()->AddArray(crack);
-    structuredGrid->GetPointData()->AddArray(sxx);
-    structuredGrid->GetPointData()->AddArray(sxy);
-    structuredGrid->GetPointData()->AddArray(sxz);
-    structuredGrid->GetPointData()->AddArray(syy);
-    structuredGrid->GetPointData()->AddArray(syz);
-    structuredGrid->GetPointData()->AddArray(szz);
-    structuredGrid->GetPointData()->AddArray(compression);
-    structuredGrid->GetPointData()->AddArray(tension);
-    structuredGrid->GetPointData()->AddArray(shear);
-    structuredGrid->GetPointData()->AddArray(deviator);
-    structuredGrid->GetPointData()->AddArray(matId);
-    structuredGrid->GetPointData()->AddArray(rho);
-    structuredGrid->GetPointData()->AddArray(borderState);
-    structuredGrid->GetPointData()->AddArray(contactState);
-    structuredGrid->GetPointData()->AddArray(mpiState);
-    structuredGrid->GetPointData()->AddArray (nodeErrorFlags);
-    structuredGrid->GetPointData()->AddArray (usedFlags);
+    structuredGrid->GetCellData()->AddArray(border);
+    structuredGrid->GetCellData()->AddArray(used);
+    structuredGrid->GetCellData()->AddArray(norm);
+    structuredGrid->GetCellData()->AddArray(crack);
+    structuredGrid->GetCellData()->AddArray(sxx);
+    structuredGrid->GetCellData()->AddArray(sxy);
+    structuredGrid->GetCellData()->AddArray(sxz);
+    structuredGrid->GetCellData()->AddArray(syy);
+    structuredGrid->GetCellData()->AddArray(syz);
+    structuredGrid->GetCellData()->AddArray(szz);
+    structuredGrid->GetCellData()->AddArray(compression);
+    structuredGrid->GetCellData()->AddArray(tension);
+    structuredGrid->GetCellData()->AddArray(shear);
+    structuredGrid->GetCellData()->AddArray(deviator);
+    structuredGrid->GetCellData()->AddArray(matId);
+    structuredGrid->GetCellData()->AddArray(rho);
+    structuredGrid->GetCellData()->AddArray(borderState);
+    structuredGrid->GetCellData()->AddArray(contactState);
+    structuredGrid->GetCellData()->AddArray(mpiState);
+    structuredGrid->GetCellData()->AddArray (nodeErrorFlags);
+    structuredGrid->GetCellData()->AddArray(vel);
 
+
+    // Write file
+    vtkSmartPointer<vtkXMLStructuredGridWriter> writer = vtkSmartPointer<vtkXMLStructuredGridWriter>::New();
+    writer->SetFileName(filename.c_str());
+    #ifdef CONFIG_VTK_5
+    writer->SetInput(structuredGrid);
+    #else
+    writer->SetInputData(structuredGrid);
+    #endif
+    writer->Write();
+    
+    border->Delete();
+    used->Delete();
     vel->Delete();
     crack->Delete();
     sxx->Delete();
@@ -140,16 +179,5 @@ void gcm::VTKMarkeredMeshSnapshotWriter::dumpVTK(string filename, MarkeredMesh *
     borderState->Delete();
     contactState->Delete();
     mpiState->Delete();
-    nodeErrorFlags->Delete();
-    usedFlags->Delete();
-
-    // Write file
-    vtkSmartPointer<vtkXMLStructuredGridWriter> writer = vtkSmartPointer<vtkXMLStructuredGridWriter>::New();
-    writer->SetFileName(filename.c_str());
-    #ifdef CONFIG_VTK_5
-    writer->SetInput(structuredGrid);
-    #else
-    writer->SetInputData(structuredGrid);
-    #endif
-    writer->Write();
+    nodeErrorFlags->Delete();    
 }
