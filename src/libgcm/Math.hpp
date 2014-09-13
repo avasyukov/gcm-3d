@@ -582,7 +582,7 @@ inline void shiftArrayLeft( int* arr, int n )
  * All the roots are real
  * See http://ru.wikipedia.org/wiki/Тригонометрическая_формула_Виета for algo
  */
-inline void solvePolynomialThirdOrder(real a, real b, real c, real& root1, real& root2, real& root3)
+inline void solvePolynomialThirdOrder(gcm::real a, gcm::real b, gcm::real c, gcm::real& root1, gcm::real& root2, gcm::real& root3)
 {
     long double p = b - a * a / 3.0;
     assert_lt(p, EQUALITY_TOLERANCE * (1 + fabs(b)));
@@ -623,7 +623,7 @@ int sgn(T val) {
 inline bool isPointInNormalDirection(const vector3r& planePoint, const vector3r& planeNormal, const vector3r& point)
 {
     vector3r vec = point - planePoint;
-    real scProd = vec*planeNormal;
+    gcm::real scProd = vec*planeNormal;
 
     return scProd >= 0.0;
 }
