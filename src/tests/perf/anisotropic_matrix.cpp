@@ -43,9 +43,8 @@ int main()
     C.c34 = C.c35 = C.c36 = C.c45 = C.c46 = C.c56 = 2e3;
 
     float rho = 1e3;
-    gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
-    auto mat = makeMaterialPtr("test", rho, crackThreshold, C);
+    auto mat = makeMaterialPtr("test", rho, C);
 
 
     gcm_matrix ax, ay, az, u, l, u1;

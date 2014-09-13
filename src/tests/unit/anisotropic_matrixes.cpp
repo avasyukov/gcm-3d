@@ -89,9 +89,8 @@ MaterialPtr generateRandomMaterial(string name)
     C.c66 = matC[5][5];
 
     float rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
-    gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
-    return makeMaterialPtr(name, rho, crackThreshold, C);
+    return makeMaterialPtr(name, rho, C);
 };
 
 MaterialPtr generateOrthotropicMaterial(string name)
@@ -130,9 +129,8 @@ MaterialPtr generateOrthotropicMaterial(string name)
     C.c66 = c66;
 
     float rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
-    gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
-    return makeMaterialPtr(name, rho, crackThreshold, C);
+    return makeMaterialPtr(name, rho, C);
 };
 
 template<class DecomposerImplementation>
@@ -190,11 +188,10 @@ void testIsotropicTransition()
         gcm::real la = ISOTROPIC_LAMBDA_MIN + (ISOTROPIC_LAMBDA_MAX - ISOTROPIC_LAMBDA_MIN) * (double) rand() / RAND_MAX;
         gcm::real mu = ISOTROPIC_MU_MIN + (ISOTROPIC_MU_MAX - ISOTROPIC_MU_MIN) * (double) rand() / RAND_MAX;
         gcm::real rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
-        gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
         CalcNode node;
 
-        auto m = makeMaterialPtr("AnisotropicMatrix3D_IsotropicTransition", rho, crackThreshold, la, mu);
+        auto m = makeMaterialPtr("AnisotropicMatrix3D_IsotropicTransition", rho, la, mu);
 
         auto isotropicMatrix = makeRheologyMatrixPtr<IsotropicRheologyMatrixSetter, IsotropicRheologyMatrixDecomposer>(m);
         auto anisotropicMatrix = makeRheologyMatrixPtr<AnisotropicRheologyMatrixSetter, DecomposerImplementation>(m);

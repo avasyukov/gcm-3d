@@ -41,6 +41,7 @@ gcm::Engine::Engine()
     registerFailureModel( new NoFailureModel() );
     registerFailureModel( new CrackFailureModel() );
     registerFailureModel( new DebugFailureModel() );
+    registerFailureModel( new HashinFailureModel() );
     defaultFailureModelType = "NoFailureModel";
     LOG_DEBUG("Registering default calculators");
     registerVolumeCalculator( new SimpleVolumeCalculator() );

@@ -22,9 +22,8 @@ TEST(IsotropicMatrix3D, FuzzyMultiplication)
         gcm::real la = 1.0e+9 * (double) rand() / RAND_MAX;
         gcm::real mu = 1.0e+8 * (double) rand() / RAND_MAX;
         gcm::real rho = 1.0e+4 * (double) rand() / RAND_MAX;
-        gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
 
-        auto mat = makeMaterialPtr("material", rho, crackThreshold, la, mu);
+        auto mat = makeMaterialPtr("material", rho, la, mu);
 
         RheologyMatrixPtr isotropicMatrix = makeRheologyMatrixPtr<IsotropicRheologyMatrixSetter, IsotropicRheologyMatrixDecomposer>(mat);
 
@@ -57,11 +56,10 @@ TEST(IsotropicMatrix3D, FuzzyElasticVelocities)
         gcm::real la = 1.0e+9 * (double) rand() / RAND_MAX;
         gcm::real mu = 1.0e+8 * (double) rand() / RAND_MAX;
         gcm::real rho = 1.0e+4 * (double) rand() / RAND_MAX;
-        gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
         gcm::real pVel = sqrt( ( la + 2 * mu ) / rho );
         gcm::real sVel = sqrt( mu / rho );
 
-        auto mat = makeMaterialPtr("material", rho, crackThreshold, la, mu);
+        auto mat = makeMaterialPtr("material", rho, la, mu);
 
         RheologyMatrixPtr isotropicMatrix = makeRheologyMatrixPtr<IsotropicRheologyMatrixSetter, IsotropicRheologyMatrixDecomposer>(mat);
 

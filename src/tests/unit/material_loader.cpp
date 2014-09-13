@@ -16,7 +16,6 @@ TEST(MaterialLoader, ValidAnisotropic)
     auto doc = xml::Doc::fromString("                                 \
     <materials>                                                       \
             <material name=\"testMaterial\" rheology=\"anisotropic\"> \
-                <crackThreshold>1.7</crackThreshold>                  \
                 <c11>1</c11>                                          \
                 <c12>2</c12>                                          \
                 <c13>3</c13>                                          \
@@ -56,7 +55,6 @@ TEST(MaterialLoader, ValidAnisotropic)
 
     ASSERT_FALSE(material->isIsotropic());
 
-    ASSERT_FLOAT_EQ(1.7, material->getCrackThreshold());
     ASSERT_FLOAT_EQ(1, material->getRho());
 
     for (int i = 0; i < Material::RHEOLOGY_PROPERTIES_NUMBER; i++ )
@@ -87,7 +85,6 @@ TEST(MaterialLoader, InvalidAnisotropic)
     auto doc = xml::Doc::fromString("                                 \
     <materials>                                                       \
             <material name=\"testMaterial\" rheology=\"anisotropic\"> \
-                <crackThreshold>1.7</crackThreshold>                  \
                 <c11>1</c11>                                          \
                 <c12>2</c12>                                          \
                 <c13>3</c13>                                          \
@@ -138,7 +135,7 @@ TEST(MaterialLoader, AnisotropicRotation)
     for (int i = 0; i < Material::RHEOLOGY_PROPERTIES_NUMBER; i++)
         props.values[i] = i*3;
 
-    auto sourceMaterial = makeMaterialPtr("sourceMaterial", 1.0, 1.0, props);
+    auto sourceMaterial = makeMaterialPtr("sourceMaterial", 1.0, props);
 
     Engine::getInstance().addMaterial(sourceMaterial);
 
@@ -178,7 +175,6 @@ TEST(MaterialLoader, IsotropicValid)
     auto doc = xml::Doc::fromString("                               \
     <materials>                                                     \
             <material name=\"testMaterial\" rheology=\"isotropic\"> \
-                <crackThreshold>1.5</crackThreshold>                \
                 <la>70000</la>                                      \
                 <mu>10000</mu>                                      \
                 <rho>1</rho>                                        \
@@ -194,7 +190,6 @@ TEST(MaterialLoader, IsotropicValid)
     
     ASSERT_TRUE(material->isIsotropic());
 
-    ASSERT_FLOAT_EQ(1.5, material->getCrackThreshold());
     ASSERT_FLOAT_EQ(1, material->getRho());
     ASSERT_FLOAT_EQ(70000, material->getLa());
     ASSERT_FLOAT_EQ(10000, material->getMu());
@@ -220,7 +215,6 @@ TEST(MaterialLoader, IsotropicInvalid)
     auto doc = xml::Doc::fromString("                               \
     <materials>                                                     \
             <material name=\"testMaterial\" rheology=\"isotropic\"> \
-                <crackThreshold>0</crackThreshold>                  \
                 <la>70000</la>                                      \
                 <mu>XXXX</mu>                                       \
                 <rho>1</rho>                                        \

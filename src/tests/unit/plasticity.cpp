@@ -22,12 +22,11 @@ TEST(Plasticity, PrandtlRaussElasticTransition)
         gcm::real la = 1.0e+9 * (double) rand() / RAND_MAX;
         gcm::real mu = 1.0e+8 * (double) rand() / RAND_MAX;
         gcm::real rho = 1.0e+4 * (double) rand() / RAND_MAX;
-        gcm::real crackThreshold = numeric_limits<gcm::real>::infinity();
         
         Material::PlasticityProperties props;
         props[PLASTICITY_TYPE_PRANDTL_RAUSS][PLASTICITY_PROP_YIELD_STRENGTH] = numeric_limits<gcm::real>::infinity();
 
-        auto mat = makeMaterialPtr("material", rho, crackThreshold, la, mu, props);
+        auto mat = makeMaterialPtr("material", rho, la, mu, props);
 	
 	    gcm_matrix a1, a2;
 		IsotropicRheologyMatrixSetter elasticSetter;

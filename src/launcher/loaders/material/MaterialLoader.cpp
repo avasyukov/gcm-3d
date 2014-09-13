@@ -3,6 +3,8 @@
 #include "libgcm/rheology/Material.hpp"
 #include "libgcm/Exception.hpp"
 #include "libgcm/Engine.hpp"
+#include "libgcm/rheology/Failure.hpp"
+
 
 #include <boost/lexical_cast.hpp>
 
@@ -17,25 +19,23 @@ launcher::MaterialLoader::MaterialLoader()
 {
 }
           
-MaterialPtr launcher::MaterialLoader::loadIsotropic(const xml::Node& desc, Material::PlasticityProperties plasticityProps)
+MaterialPtr launcher::MaterialLoader::loadIsotropic(const xml::Node& desc, Material::PlasticityProperties plasticityProps, Material::FailureProperties fp)
 {
     string name = desc["name"];
     
     gcm::real rho = lexical_cast<gcm::real>(desc.getChildByName("rho").getTextContent());
-    gcm::real crackThreshold = lexical_cast<gcm::real>(desc.getChildByName("crackThreshold").getTextContent());
     gcm::real la = lexical_cast<gcm::real>(desc.getChildByName("la").getTextContent());
     gcm::real mu = lexical_cast<gcm::real>(desc.getChildByName("mu").getTextContent());
 
-    if (la <= 0.0 || mu <= 0.0 || rho <= 0.0 || crackThreshold <= 0.0)
+    if (la <= 0.0 || mu <= 0.0 || rho <= 0.0 )
         THROW_INVALID_INPUT("Seems xml snippet does not contain valid rheology parameters.");
     
-    return makeMaterialPtr(name, rho, crackThreshold, la, mu, plasticityProps);
+    return makeMaterialPtr(name, rho, la, mu, plasticityProps, fp);
 }
 
-MaterialPtr launcher::MaterialLoader::loadAnisotropic(const xml::Node& desc, Material::PlasticityProperties plasticityProps)
+MaterialPtr launcher::MaterialLoader::loadAnisotropic(const xml::Node& desc, Material::PlasticityProperties plasticityProps, Material::FailureProperties fp)
 {
     string name = desc["name"];
-
     if (desc.hasAttribute("source"))
     {
         string source = desc["source"];
@@ -51,14 +51,11 @@ MaterialPtr launcher::MaterialLoader::loadAnisotropic(const xml::Node& desc, Mat
         a1 = d2r(lexical_cast<double>(rotate["a1"]));
         a2 = d2r(lexical_cast<double>(rotate["a2"]));
         a3 = d2r(lexical_cast<double>(rotate["a3"]));
-        
         return makeMaterialPtr(m, name, a1, a2, a3);
     }
     else
     {
         gcm::real rho = lexical_cast<gcm::real>(desc.getChildByName("rho").getTextContent());
-        gcm::real crackThreshold = lexical_cast<gcm::real>(desc.getChildByName("crackThreshold").getTextContent());
-
         Material::RheologyProperties props;
 
         int k = 0;
@@ -76,7 +73,7 @@ MaterialPtr launcher::MaterialLoader::loadAnisotropic(const xml::Node& desc, Mat
             if (v < 0.0)
                 THROW_INVALID_INPUT("Seems xml snippet does not contain valid rheology parameters.");
 
-        return makeMaterialPtr(name, rho, crackThreshold, props, plasticityProps);
+        return makeMaterialPtr(name, rho, props, plasticityProps, fp);
     }
 }
 
@@ -93,10 +90,18 @@ MaterialPtr launcher::MaterialLoader::load(const xml::Node& desc)
             plasticityProps[type][pp.getTagName()] = lexical_cast<float>(pp.getTextContent());
     }
 
+    Material::FailureProperties fp;
+
+    for (auto p: desc.getChildrenByName("failure"))
+    {
+        string type = p["type"];
+        for (auto pp: p.getChildNodes())
+		fp[type][pp.getTagName()] = lexical_cast<float>(pp.getTextContent());
+    }
     if (rheology == MATERIAL_TYPE_ISOTROPIC)
-        return loadIsotropic(desc, plasticityProps);
+        return loadIsotropic(desc, plasticityProps, fp);
     else if (rheology == MATERIAL_TYPE_ANISOTROPIC)
-        return loadAnisotropic(desc, plasticityProps);
+        return loadAnisotropic(desc, plasticityProps, fp);
     else
         THROW_UNSUPPORTED("Material type\"" + rheology + "\" is not supported");
 }

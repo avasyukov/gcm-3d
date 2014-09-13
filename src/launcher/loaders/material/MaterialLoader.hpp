@@ -13,8 +13,8 @@ namespace launcher
     class MaterialLoader: public gcm::Singleton<MaterialLoader>
     {
         protected:
-            gcm::MaterialPtr loadIsotropic(const xml::Node& desc, gcm::Material::PlasticityProperties plasticityProps);
-            gcm::MaterialPtr loadAnisotropic(const xml::Node& desc, gcm::Material::PlasticityProperties plasticityProps);
+            gcm::MaterialPtr loadIsotropic(const xml::Node& desc, gcm::Material::PlasticityProperties plasticityProps, gcm::Material::FailureProperties fp);
+            gcm::MaterialPtr loadAnisotropic(const xml::Node& desc, gcm::Material::PlasticityProperties plasticityProps, gcm::Material::FailureProperties fp);
         public:
             MaterialLoader();
           

@@ -25,6 +25,8 @@
 #include "libgcm/failure/NoFailureModel.hpp"
 #include "libgcm/failure/CrackFailureModel.hpp"
 #include "libgcm/failure/DebugFailureModel.hpp"
+#include "libgcm/failure/HashinFailureModel.hpp"
+
 
 //
 #include "libgcm/rheology/Material.hpp"

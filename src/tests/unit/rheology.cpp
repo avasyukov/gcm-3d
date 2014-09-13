@@ -19,7 +19,7 @@ TEST(Rheology, IsotropicParameters)
 
 TEST(Rheology, IsotropicMaterial)
 {
-    MaterialPtr material = makeMaterialPtr("test", 1, 1e20, 100, 300);
+    MaterialPtr material = makeMaterialPtr("test", 1, 100, 300);
 
     ASSERT_FLOAT_EQ(material->getLa(), 100);
     ASSERT_FLOAT_EQ(material->getMu(), 300);
