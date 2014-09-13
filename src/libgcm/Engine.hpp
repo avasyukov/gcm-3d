@@ -134,6 +134,9 @@ namespace gcm
          */
         USE_LOGGER;
 
+        vector<tuple<unsigned int, string, string>> snapshots;
+        vector<float> snapshotTimestamps;
+
     protected:
         /*
          * Engine is a singletone, so constructors are private
@@ -291,6 +294,9 @@ namespace gcm
         bool interpolateNode(CalcNode& node);
 
         void setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode);
+
+        const vector<tuple<unsigned int, string, string>>& getSnapshotsList() const;
+        const vector<float>& getSnapshotTimestamps() const;
     };
 }
 

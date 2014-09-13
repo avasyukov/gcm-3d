@@ -107,6 +107,7 @@ void gcm::Engine::clear() {
     stepsPerSnap = 1;
     contactThresholdType = CONTACT_THRESHOLD_BY_AVG_H;
     contactThresholdFactor = 1.0;
+    snapshots.clear();
 }
 
 void gcm::Engine::cleanUp()
@@ -567,11 +568,13 @@ void gcm::Engine::calculate()
 
     for( int i = 0; i < numberOfSnaps; i++ )
     {
+        snapshotTimestamps.push_back(getCurrentTime());
         createSnapshot(i);
         for( int j = 0; j < stepsPerSnap; j++ )
             doNextStep();
     }
 
+    snapshotTimestamps.push_back(getCurrentTime());
     createSnapshot(numberOfSnaps);
     createDump(numberOfSnaps);
 }
@@ -631,7 +634,8 @@ void gcm::Engine::createSnapshot(int number)
         if( mesh->getNumberOfLocalNodes() != 0 )
         {
             LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
-            mesh->snapshot(number);
+            auto snapName = mesh->snapshot(number);
+            snapshots.push_back(make_tuple(number, mesh->getId(), snapName));
         }
     }
 }
@@ -771,4 +775,14 @@ void gcm::Engine::setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode
                 if (node.isUsed())
                     node.setRheologyMatrix(getMatrixForNode(node));
             }
+}
+
+const vector<tuple<unsigned int, string, string>>& gcm::Engine::getSnapshotsList() const
+{
+    return snapshots;
+}
+
+const vector<float>& gcm::Engine::getSnapshotTimestamps() const
+{
+	return snapshotTimestamps;
 }

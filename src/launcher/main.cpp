@@ -12,7 +12,13 @@
 #include <log4cxx/mdc.h>
 #endif
 
-#include <mpi.h>
+#include <boost/filesystem.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/mpi.hpp>
+#include <boost/serialization/vector.hpp>
+#include "launcher/util/serialize_tuple.hpp"
+
 #include <gmsh/Gmsh.h>
 
 #include "launcher/launcher.hpp"
@@ -22,6 +28,12 @@
 using namespace std;
 using namespace gcm;
 using namespace launcher;
+using namespace boost::filesystem;
+using boost::property_tree::ptree;
+using boost::property_tree::write_json;
+
+namespace mpi = boost::mpi;
+
 
 
 // This function print usage message
@@ -82,11 +94,13 @@ int main(int argc, char **argv, char **envp)
         fls.addPath("./src/launcher/");
 
 
-        MPI::Init();
+        mpi::environment env;
+        mpi::communicator world;
+
         GmshInitialize();
         #if CONFIG_ENABLE_LOGGING
         char pe[5];
-        sprintf(pe, "%d", MPI::COMM_WORLD.Get_rank());
+        sprintf(pe, "%d", world.rank());
         log4cxx::MDC::put("PE", pe);
         log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
         #endif
@@ -101,10 +115,58 @@ int main(int argc, char **argv, char **envp)
         //launcher.loadMaterialLibrary("materials");
         launcher.loadSceneFromFile(taskFile);
         engine.calculate();
+
+        if (world.rank() == 0)
+        {
+            vector<vector<tuple<unsigned int, string, string>>> snapshots;
+            mpi::gather(world, engine.getSnapshotsList(), snapshots, 0);
+
+            ofstream snapListFile(path(taskFile).filename().string() + ".snapshots");
+            ptree snaps, root;
+
+            const auto& timestamps = engine.getSnapshotTimestamps();
+
+            for (int i = 0; i < timestamps.size(); i++)
+            {
+                ptree stepSnaps, list;
+                stepSnaps.put<int>("index", i);
+                stepSnaps.put<float>("time", timestamps[i]);
+                for (int worker = 0; worker <  snapshots.size(); worker++)
+                {
+                    for (auto snapInfo: snapshots[worker])
+                    {
+                        auto step = get<0>(snapInfo);
+                        auto meshId = get<1>(snapInfo);
+                        auto snapName = get<2>(snapInfo);
+
+                        if (step == i)
+                        {
+                            ptree snap;
+                            snap.put<string>("mesh", meshId);
+                            snap.put<string>("file", snapName);
+                            snap.put<int>("worker", worker);
+                            list.push_back(make_pair("", snap));
+
+                        }
+                        else
+                            if (step > i)
+                                break;
+                    }
+                }
+                stepSnaps.put_child("snaps", list);
+                snaps.push_back(make_pair("", stepSnaps));
+            }
+
+            root.put_child("snapshots", snaps);
+            write_json(snapListFile, root);
+        }
+        else
+            mpi::gather(world, engine.getSnapshotsList(), 0);
+
+
+
         engine.cleanUp();
         GmshFinalize();
-        MPI::Finalize();
-
     } catch (Exception &e) {
         LOG_FATAL("Exception was thrown: " << e.getMessage() << "\n @" << e.getFile() << ":" << e.getLine() << "\nCall stack: \n"<< e.getCallStack());
     }

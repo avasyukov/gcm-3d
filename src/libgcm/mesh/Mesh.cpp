@@ -70,10 +70,11 @@ IBody* gcm::Mesh::getBody()
     return body;
 }
 
-void gcm::Mesh::snapshot(int number)
+string gcm::Mesh::snapshot(int number)
 {
     SnapshotWriter* sw = Engine::getInstance().getSnapshotWriter(snapshotWriterType);
     sw->dump(this, number);
+    return sw->getFileName(Engine::getInstance().getRank(), number, getId());
 }
 
 void gcm::Mesh::dump(int number)

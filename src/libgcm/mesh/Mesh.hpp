@@ -163,7 +163,7 @@ namespace gcm {
         virtual void findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug) = 0;
 
 
-        void snapshot(int number);
+        string snapshot(int number);
         void dump(int number);
 
         // We place all these functions into generic mesh to simplify children classes.
