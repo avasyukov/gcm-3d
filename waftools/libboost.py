@@ -57,7 +57,7 @@ def configure(conf):
                 #include <iostream>
 
                 int main() {
-                    std::cout << BOOST_VERSION / 100000 << "." << BOOST_VERSION / 100 % 1000 << "." << BOOST_VERSION % 100 << std::endl;
+                    std::cout << BOOST_VERSION / 100000 << "." << BOOST_VERSION / 100 % 1000 << "." << BOOST_VERSION % 100;
                     return 0;
                 }
             ''',
