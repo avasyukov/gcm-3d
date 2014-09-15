@@ -240,7 +240,7 @@ void MarkeredMesh::fillInterior()
 
 float MarkeredMesh::getRecommendedTimeStep()
 {
-    return getMinH()/getMaxEigenvalue();
+    return 0.9*getMinH()/getMaxEigenvalue();
 }
 
 float MarkeredMesh::getMinH()
