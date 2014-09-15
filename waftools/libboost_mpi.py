@@ -26,31 +26,35 @@ def configure(conf):
         '/usr/lib64',
     ])
     
+    LIBS = [
+        ['boost_mpi', 'boost_serialization'],
+        ['boost_mpi-mt', 'boost_serialization']
+    ]
 
-    conf.env.LIB_LIBBOOST_MPI.extend(conf.env.LIB_LIBMPI)
-    conf.env.LIB_LIBBOOST_MPI.extend(['boost_mpi', 'boost_serialization'])
-    
-    conf.env.LINKFLAGS_LIBBOOST_MPI.extend(conf.env.LINKFLAGS_LIBMPI)
+    for libs in LIBS:
+        conf.env.LIB_LIBBOOST_MPI = []
+        conf.env.LIB_LIBBOOST_MPI.extend(conf.env.LIB_LIBMPI)
+        conf.env.LIB_LIBBOOST_MPI.extend(libs)
+        try:
+            conf.run_c_code(
+                code='''
+                    #include <boost/mpi.hpp>
 
-    try:
-        conf.run_c_code(
-            code='''
-                #include <boost/mpi.hpp>
-
-                int main() {
-                    boost::mpi::environment env;
-                    boost::mpi::communicator world;
-                    return 0;
-                }
-            ''',
-            compile_filename='libboost_mpi.cpp',
-            use='LIBBOOST_MPI',
-            env=conf.env.derive(),
-            define_ret=True,
-            features=['cxx', 'cxxprogram', 'test_exec']
-        )
-    except:
-        conf.end_msg('not found')
-        conf.fatal('Library boost::mpi not found')
-    conf.end_msg('found')
-
+                    int main() {
+                        boost::mpi::environment env;
+                        boost::mpi::communicator world;
+                        return 0;
+                    }
+                ''',
+                compile_filename='libboost_mpi.cpp',
+                use='LIBBOOST_MPI',
+                env=conf.env.derive(),
+                define_ret=True,
+                features=['cxx', 'cxxprogram', 'test_exec']
+            )
+        except:
+            continue
+        conf.end_msg('found')
+        return
+    conf.end_msg('not found')
+    conf.fatal('Library boost::mpi not found')
