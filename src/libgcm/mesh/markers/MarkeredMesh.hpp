@@ -70,6 +70,9 @@ namespace gcm
         
             void transfer(float x, float y, float z) override;
             
+            virtual const SnapshotWriter& getSnaphotter() const override;
+            virtual const SnapshotWriter& getDumper() const override;
+
     };
 };
 #endif /* MARKEREDMESH_HPP */

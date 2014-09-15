@@ -1,11 +1,16 @@
 #include "libgcm/snapshot/SnapshotWriter.hpp"
 
+#include "libgcm/Engine.hpp"
+
+using std::string;
+using std::to_string;
+
 gcm::SnapshotWriter::~SnapshotWriter() {
 
 }
 
-string gcm::SnapshotWriter::getFileName(int cpuNum, int step, string meshId) {
-    string filename = fname;
+string gcm::SnapshotWriter::getFileName(int step, string meshId) const {
+    string filename = Engine::getInstance().getOption(Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN);
 
     auto replace = [&filename](string from, string to)
     {
@@ -16,12 +21,15 @@ string gcm::SnapshotWriter::getFileName(int cpuNum, int step, string meshId) {
         }
     };
 
-    replace("%z", to_string (cpuNum));
-    replace("%n", to_string (step));
-    replace("%m", meshId);
+    replace("%{RANK}", to_string (Engine::getInstance().getRank()));
+    replace("%{STEP}", to_string (step));
+    replace("%{MESH}", meshId);
+    replace("%{EXT}", extension);
+
     return filename;
 }
 
-void gcm::SnapshotWriter::setFileName(string name) {
-    fname = name;
+string gcm::SnapshotWriter::dump(Mesh* mesh, int step) const
+{
+    return dump(mesh, step, getFileName(step, mesh->getId()));
 }

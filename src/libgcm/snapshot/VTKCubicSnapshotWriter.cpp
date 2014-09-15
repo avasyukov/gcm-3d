@@ -1,26 +1,34 @@
 #include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
 
+#ifdef CONFIG_VTK_5
+#include <vtkstd/string>
+#else
+#include <vtkStdString.h>
+#endif
+#include <vtkStructuredGrid.h>
+#include <vtkXMLStructuredGridWriter.h>
+#include <vtkSmartPointer.h>
+#include <vtkCellArray.h>
+#include <vtkPoints.h>
+#include <vtkDoubleArray.h>
+#include <vtkIntArray.h>
+#include <vtkPointData.h>
+
+#include "libgcm/mesh/cube/BasicCubicMesh.hpp"
+
+using std::string;
+
 gcm::VTKCubicSnapshotWriter::VTKCubicSnapshotWriter() {
     INIT_LOGGER("gcm.VTKCubicSnapshotWriter");
-    fname = string ("snap_mesh_%m_cpu_%z_step_%n.vts");
+    extension = "vts";
 }
 
-gcm::VTKCubicSnapshotWriter::VTKCubicSnapshotWriter(const char* snapName) {
-    INIT_LOGGER("gcm.VTKCubicSnapshotWriter");
-    fname = string (snapName);
-}
-
-string gcm::VTKCubicSnapshotWriter::getType() {
-    return "VTKCubicSnapshotWriter";
-}
-
-void gcm::VTKCubicSnapshotWriter::dump(Mesh* mesh, int step)
+string gcm::VTKCubicSnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
 {
-    // TODO - check if the mesh is compatible
-    dumpVTK(getFileName(MPI::COMM_WORLD.Get_rank(), step, mesh->getId()), (BasicCubicMesh*)mesh, step);
+    return dumpVTK(fileName, dynamic_cast<BasicCubicMesh*>(mesh), step);
 }
 
-void gcm::VTKCubicSnapshotWriter::dumpVTK(string filename, BasicCubicMesh *mesh, int step)
+string gcm::VTKCubicSnapshotWriter::dumpVTK(string filename, BasicCubicMesh *mesh, int step) const
 {
     vtkSmartPointer<vtkStructuredGrid> structuredGrid = vtkSmartPointer<vtkStructuredGrid>::New();
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -148,4 +156,6 @@ void gcm::VTKCubicSnapshotWriter::dumpVTK(string filename, BasicCubicMesh *mesh,
     writer->SetInputData(structuredGrid);
     #endif
     writer->Write();
+
+    return filename;
 }

@@ -1,26 +1,38 @@
 #include "libgcm/snapshot/VTKMarkeredMeshSnapshotWriter.hpp"
+
 #include "libgcm/Math.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/mesh/markers/MarkeredMesh.hpp"
 
-gcm::VTKMarkeredMeshSnapshotWriter::VTKMarkeredMeshSnapshotWriter():VTKMarkeredMeshSnapshotWriter("snap_mesh_%m_cpu_%z_step_%n.vts")
+#ifdef CONFIG_VTK_5
+#include <vtkstd/string>
+#else
+#include <vtkStdString.h>
+#endif
+#include <vtkStructuredGrid.h>
+#include <vtkXMLStructuredGridWriter.h>
+#include <vtkSmartPointer.h>
+#include <vtkCellArray.h>
+#include <vtkPoints.h>
+#include <vtkDoubleArray.h>
+#include <vtkIntArray.h>
+#include <vtkPointData.h>
+#include <vtkCellData.h>
+
+using std::string;
+
+gcm::VTKMarkeredMeshSnapshotWriter::VTKMarkeredMeshSnapshotWriter()
 {
-}
-
-gcm::VTKMarkeredMeshSnapshotWriter::VTKMarkeredMeshSnapshotWriter(const char* snapName) {
     INIT_LOGGER("gcm.snapshot.VTKMarkeredMeshSnapshotWriter");
-    fname = string (snapName);
+    extension = "vts";
 }
 
-string gcm::VTKMarkeredMeshSnapshotWriter::getType() {
-    return "VTKMarkeredMeshSnapshotWriter";
-}
-
-void gcm::VTKMarkeredMeshSnapshotWriter::dump(Mesh* mesh, int step)
+string gcm::VTKMarkeredMeshSnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
 {
-    // TODO - check if the mesh is compatible
-    dumpVTK(getFileName(MPI::COMM_WORLD.Get_rank(), step, mesh->getId()), *static_cast<const MarkeredMesh*>(mesh), step);
+    return dumpVTK(fileName, *dynamic_cast<const MarkeredMesh*>(mesh), step);
 }
 
-void gcm::VTKMarkeredMeshSnapshotWriter::dumpVTK(string filename, const MarkeredMesh& mesh, int step)
+string gcm::VTKMarkeredMeshSnapshotWriter::dumpVTK(string filename, const MarkeredMesh& mesh, int step) const
 {
     LOG_DEBUG("Writing snapshot for mesh \"" << mesh.getId() << "\" at step " << step << " to file " << filename);
     
@@ -179,5 +191,7 @@ void gcm::VTKMarkeredMeshSnapshotWriter::dumpVTK(string filename, const Markered
     borderState->Delete();
     contactState->Delete();
     mpiState->Delete();
-    nodeErrorFlags->Delete();    
+    nodeErrorFlags->Delete();
+
+    return filename;
 }

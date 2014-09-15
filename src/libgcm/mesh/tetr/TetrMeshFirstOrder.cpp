@@ -16,8 +16,6 @@ gcm::TetrMeshFirstOrder::TetrMeshFirstOrder()
     numericalMethodType = "InterpolationFixedAxis";
     // FIXME - hardcoded parameter
     numericalMethodOrder = 1;
-    snapshotWriterType = "VTKSnapshotWriter";
-    dumpWriterType = "VTKSnapshotWriter";
     INIT_LOGGER("gcm.TetrMeshFirstOrder");
     LOG_DEBUG("Creating mesh");
     cacheHits = 0;
@@ -1516,4 +1514,15 @@ vector<int>& gcm::TetrMeshFirstOrder::getBorderElementsForNode(int index)
     if( localIndex >= borderElements.size() )
         borderElements.resize(localIndex + 1);
     return borderElements[localIndex];
+}
+
+
+const SnapshotWriter& gcm::TetrMeshFirstOrder::getSnaphotter() const
+{
+    return VTKSnapshotWriter::getInstance();
+}
+
+const SnapshotWriter& gcm::TetrMeshFirstOrder::getDumper() const
+{
+    getSnaphotter();
 }

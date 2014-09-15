@@ -1,30 +1,37 @@
 #include "libgcm/snapshot/VTK2SnapshotWriter.hpp"
 
+#ifdef CONFIG_VTK_5
+#include <vtkstd/string>
+#else
+#include <vtkStdString.h>
+#endif
+#include <vtkUnstructuredGrid.h>
+#include <vtkXMLUnstructuredGridWriter.h>
+#include <vtkUnstructuredGridWriter.h>
+#include <vtkTetra.h>
+#include <vtkDoubleArray.h>
+#include <vtkIntArray.h>
+#include <vtkPointData.h>
+#include <vtkCellData.h>
+
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.hpp"
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/elem/TetrFirstOrder.hpp"
+
+using std::string;
+
 gcm::VTK2SnapshotWriter::VTK2SnapshotWriter() {
     INIT_LOGGER("gcm.VTK2SnapshotWriter");
-    fname = string ("dump_mesh_%m_cpu_%z_step_%n.vtu");
+    extension = "vtu";
 }
 
-gcm::VTK2SnapshotWriter::VTK2SnapshotWriter(const char* snapName) {
-    INIT_LOGGER("gcm.VTK2SnapshotWriter");
-    fname = string (snapName);
-}
-
-gcm::VTK2SnapshotWriter::~VTK2SnapshotWriter() {
-
-}
-
-string gcm::VTK2SnapshotWriter::getType() {
-    return "VTK2SnapshotWriter";
-}
-
-void gcm::VTK2SnapshotWriter::dump(Mesh* mesh, int step)
+string gcm::VTK2SnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
 {
-    // TODO - check if the mesh is compatible
-    dumpVTK(getFileName(MPI::COMM_WORLD.Get_rank(), step, mesh->getId()), (TetrMeshSecondOrder*)mesh, step);
+    return dumpVTK(fileName, dynamic_cast<TetrMeshSecondOrder*>(mesh), step);
 }
 
-void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh, int step)
+string gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh, int step) const
 {
     map<int, int> snapNodeMap;
 
@@ -209,9 +216,11 @@ void gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh
     g->Delete();
     pts->Delete();
     tetra->Delete();
+
+    return filename;
 }
 
-bool gcm::VTK2SnapshotWriter::shouldSnapshot(CalcNode& node, TetrMeshSecondOrder* mesh)
+bool gcm::VTK2SnapshotWriter::shouldSnapshot(CalcNode& node, TetrMeshSecondOrder* mesh) const
 {
     // Case 1 - unused node
     if( ! node.isUsed() )

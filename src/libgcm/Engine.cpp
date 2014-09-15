@@ -19,6 +19,8 @@
 #include "libgcm/rheology/DummyRheologyCalculator.hpp"
 #include "libgcm/BruteforceCollisionDetector.hpp"
 
+const std::string gcm::Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN = "SNAPSHOT_OUTPUT_PATH_PATTERN";
+
 gcm::Engine::Engine()
 {
     rank = MPI::COMM_WORLD.Get_rank();
@@ -66,11 +68,6 @@ gcm::Engine::Engine()
     LOG_DEBUG("Creating data bus");
     dataBus = new DataBus();
     dataBus->setEngine(this);
-    LOG_DEBUG("Registering snapshot writers");
-    registerSnapshotWriter( new VTKSnapshotWriter() );
-    registerSnapshotWriter( new VTK2SnapshotWriter() );
-    registerSnapshotWriter( new VTKCubicSnapshotWriter() );
-    registerSnapshotWriter( new VTKMarkeredMeshSnapshotWriter() );
     LOG_DEBUG("Creating collision detector");
     colDet = new BruteforceCollisionDetector();
     LOG_INFO("GCM engine initialized");
@@ -85,6 +82,8 @@ gcm::Engine::Engine()
     meshesMovable = true;
 
     gmshVerbosity = 0.0;
+
+    setOption(Options::SNAPSHOT_OUTPUT_PATH_PATTERN, "snap_mesh_%{MESH}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
 }
 
 gcm::Engine::~Engine()
@@ -156,14 +155,6 @@ float gcm::Engine::getTimeStepMultiplier()
 GCMDispatcher* gcm::Engine::getDispatcher()
 {
     return dispatcher;
-}
-
-void gcm::Engine::registerSnapshotWriter(SnapshotWriter* snapshotWriter)
-{
-    if (!snapshotWriter)
-        THROW_INVALID_ARG("Snapshot writer parameter cannot be NULL");
-    snapshotWriters[snapshotWriter->getType()] = snapshotWriter;
-    LOG_DEBUG("Registered snapshot writer: " << snapshotWriter->getType());
 }
 
 void gcm::Engine::registerVolumeCalculator(VolumeCalculator *volumeCalculator)
@@ -323,11 +314,6 @@ int gcm::Engine::getNumberOfBodies()
 int gcm::Engine::getNumberOfMaterials()
 {
     return materials.size();
-}
-
-SnapshotWriter* gcm::Engine::getSnapshotWriter(string type)
-{
-    return snapshotWriters.find(type) != snapshotWriters.end() ? snapshotWriters[type] : NULL;
 }
 
 NumericalMethod* gcm::Engine::getNumericalMethod(string type)
@@ -786,4 +772,21 @@ const vector<tuple<unsigned int, string, string>>& gcm::Engine::getSnapshotsList
 const vector<float>& gcm::Engine::getSnapshotTimestamps() const
 {
 	return snapshotTimestamps;
+}
+
+void gcm::Engine::setOption(string option, string value)
+{
+    options[option] = value;
+}
+
+const string& gcm::Engine::getOption(string option) const
+{
+    if (!hasOption(option))
+        THROW_INVALID_ARG("Option \"" + option + "\" not found");
+    return options.at(option);
+}
+
+bool gcm::Engine::hasOption(string option) const
+{
+    return options.find(option) != options.end();
 }

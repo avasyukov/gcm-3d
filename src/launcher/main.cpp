@@ -40,6 +40,7 @@ int main(int argc, char **argv, char **envp)
 {
     string taskFile;
     string dataDir;
+    string outputDir;
 
     try
     {
@@ -49,12 +50,16 @@ int main(int argc, char **argv, char **envp)
         taskFileOption->value_name("task")->required();
 
         auto dataDirOption = TYPED_VALUE(dataDir);
-        dataDirOption->value_name("dir")->default_value(".");
+        dataDirOption->value_name("data")->default_value(".");
+
+        auto outputDirOption = TYPED_VALUE(outputDir);
+        outputDirOption->value_name("out")->default_value(".");
 
         desc.add_options()
-              ("help,h"    ,                 "show this help message and exit")
-              ("task,t"    , taskFileOption, "xml file with task description")
-              ("data-dir,d", dataDirOption , "directory with models specified in task")
+              ("help,h"      ,                   "show this help message and exit")
+              ("task,t"      , taskFileOption  , "xml file with task description")
+              ("data-dir,d"  , dataDirOption   , "directory with models specified in task")
+              ("output-dir,o", outputDirOption , "directory to write snapshots to")
          ;
 
         po::variables_map vm;
@@ -104,6 +109,11 @@ int main(int argc, char **argv, char **envp)
 
         Engine& engine = Engine::getInstance();
         FileFolderLookupService::getInstance().addPath(dataDir);
+
+        auto outputPathPattern = path(outputDir);
+        outputPathPattern /= path("snap_mesh_%{MESH}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
+        engine.setOption(Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN, outputPathPattern.string());
+
         launcher::Launcher launcher;
         //launcher.loadMaterialLibrary("materials");
         launcher.loadSceneFromFile(taskFile);
@@ -114,7 +124,9 @@ int main(int argc, char **argv, char **envp)
             vector<vector<tuple<unsigned int, string, string>>> snapshots;
             mpi::gather(world, engine.getSnapshotsList(), snapshots, 0);
 
-            ofstream snapListFile(path(taskFile).filename().string() + ".snapshots");
+            auto snapListFilePath = path(outputDir);
+            snapListFilePath /= path(taskFile).filename();
+            ofstream snapListFile(snapListFilePath.string() + ".snapshots");
             ptree snaps, root;
 
             const auto& timestamps = engine.getSnapshotTimestamps();

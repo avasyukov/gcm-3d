@@ -3,25 +3,19 @@
 
 #include <string>
 
-#include "libgcm/mesh/Mesh.hpp"
-
-using namespace std;
-
 namespace gcm {
 
-    class SnapshotWriter {
-    public:
-        virtual ~SnapshotWriter() = 0;
-        /*
-         * Returns snapshot writer type
-         */
-        virtual string getType() = 0;
-        virtual void dump(Mesh* mesh, int step) = 0;
+    class Mesh;
 
-        string getFileName(int cpuNum, int step, string meshId);
-        void setFileName(string name);
-    protected:
-        string fname;
+    class SnapshotWriter {
+     public:
+        virtual ~SnapshotWriter() = 0;
+
+        virtual std::string dump(Mesh* mesh, int step, std::string fileName) const = 0;
+        virtual std::string dump(Mesh* mesh, int step) const;
+     protected:
+        std::string extension;
+        std::string getFileName(int step, std::string meshId) const;
     };
 }
 

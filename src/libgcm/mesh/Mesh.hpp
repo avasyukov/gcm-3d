@@ -9,6 +9,7 @@
 #include "libgcm/util/areas/Area.hpp"
 #include "libgcm/Interfaces.hpp"
 #include "libgcm/node/Node.hpp"
+#include "libgcm/snapshot/SnapshotWriter.hpp"
 
 #include "libgcm/failure/FailureModel.hpp"
 
@@ -57,8 +58,6 @@ namespace gcm {
 
         string numericalMethodType;
         int numericalMethodOrder;
-        string snapshotWriterType;
-        string dumpWriterType;
 
         /*
          * List of mesh nodes.
@@ -74,6 +73,9 @@ namespace gcm {
         void initNewNodes();
 
         USE_LOGGER;
+
+        virtual const SnapshotWriter& getSnaphotter() const = 0;
+        virtual const SnapshotWriter& getDumper() const = 0;
 
     public:
         /*
@@ -163,8 +165,8 @@ namespace gcm {
         virtual void findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug) = 0;
 
 
-        string snapshot(int number);
-        void dump(int number);
+        std::string snapshot(int number);
+        std::string dump(int number);
 
         // We place all these functions into generic mesh to simplify children classes.
         // It allows to remove nodesMap complexity (required by parallel impl) from children classes.

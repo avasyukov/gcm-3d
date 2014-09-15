@@ -2,6 +2,7 @@
 
 #include "libgcm/util/Assertion.hpp"
 #include "libgcm/util/Tribox.hpp"
+#include "libgcm/snapshot/VTKMarkeredMeshSnapshotWriter.hpp"
 
 #include <algorithm>
 #include <queue>
@@ -22,8 +23,6 @@ MarkeredMesh::MarkeredMesh(const MarkeredSurface& surface, uint meshElems): Mark
 MarkeredMesh::MarkeredMesh()
 {
     numericalMethodType = "InterpolationFixedAxis";
-    snapshotWriterType = "VTKMarkeredMeshSnapshotWriter";
-    dumpWriterType = "VTKMarkeredMeshSnapshotWriter";
     
     INIT_LOGGER("gcm.mesh.markers.MarkeredMesh");
 }
@@ -441,4 +440,14 @@ void MarkeredMesh::transfer(float x, float y, float z)
 {
     Mesh::transfer(x, y, z);
     pivot += vector3r(x, y, z);
+}
+
+const SnapshotWriter& MarkeredMesh::getSnaphotter() const
+{
+    return VTKMarkeredMeshSnapshotWriter::getInstance();
+}
+
+const SnapshotWriter& MarkeredMesh::getDumper() const
+{
+    return getSnaphotter();
 }

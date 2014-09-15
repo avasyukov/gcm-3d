@@ -3,43 +3,24 @@
 
 #include <string>
 
-#ifdef CONFIG_VTK_5
-#include <vtkstd/string>
-#else
-#include <vtkStdString.h>
-#endif
-#include <vtkUnstructuredGrid.h>
-#include <vtkXMLUnstructuredGridWriter.h>
-#include <vtkUnstructuredGridWriter.h>
-#include <vtkTetra.h>
-#include <vtkDoubleArray.h>
-#include <vtkIntArray.h>
-#include <vtkPointData.h>
-#include <vtkCellData.h>
-
-#include "libgcm/snapshot/SnapshotWriter.hpp"
-#include "libgcm/mesh/tetr/TetrMeshFirstOrder.hpp"
-#include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
 #include "libgcm/node/CalcNode.hpp"
-#include "libgcm/elem/TetrFirstOrder.hpp"
+#include "libgcm/util/Singleton.hpp"
+#include "libgcm/snapshot/SnapshotWriter.hpp"
 #include "libgcm/Logging.hpp"
 
 namespace gcm {
-    class VTK2SnapshotWriter : public SnapshotWriter {
-    private:
-        void dumpVTK(string filename, TetrMeshSecondOrder* mesh, int step);
-        bool shouldSnapshot(CalcNode& node, TetrMeshSecondOrder* mesh);
+    class TetrMeshSecondOrder;
+
+    class VTK2SnapshotWriter : public SnapshotWriter, public Singleton<VTK2SnapshotWriter> {
+     private:
+        std::string dumpVTK(std::string filename, TetrMeshSecondOrder* mesh, int step) const;
+        bool shouldSnapshot(CalcNode& node, TetrMeshSecondOrder* mesh) const;
 
         USE_LOGGER;
-    public:
+     public:
         VTK2SnapshotWriter();
-        VTK2SnapshotWriter(const char *snapName);
-        virtual ~VTK2SnapshotWriter();
-        /*
-         * Returns snapshot writer type
-         */
-        string getType();
-        void dump(Mesh* mesh, int step);
+
+        std::string dump(Mesh* mesh, int step, std::string fileName) const override;
     };
 }
 

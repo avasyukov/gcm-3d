@@ -15,6 +15,7 @@
 #include "libgcm/Exception.hpp"
 #include "libgcm/Math.hpp"
 #include "libgcm/interpolator/TetrFirstOrderInterpolator.hpp"
+#include "libgcm/snapshot/VTKSnapshotWriter.hpp"
 
 using namespace gcm;
 using namespace std;
@@ -159,6 +160,9 @@ namespace gcm
 		
         bool interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node);
+
+        virtual const SnapshotWriter& getSnaphotter() const override;
+        virtual const SnapshotWriter& getDumper() const override;
     };
 }
 #endif
