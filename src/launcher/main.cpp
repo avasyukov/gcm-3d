@@ -131,12 +131,12 @@ int main(int argc, char **argv, char **envp)
 
             const auto& timestamps = engine.getSnapshotTimestamps();
 
-            for (int i = 0; i < timestamps.size(); i++)
+            for (uint i = 0; i < timestamps.size(); i++)
             {
                 ptree stepSnaps, list;
                 stepSnaps.put<int>("index", i);
                 stepSnaps.put<float>("time", timestamps[i]);
-                for (int worker = 0; worker <  snapshots.size(); worker++)
+                for (uint worker = 0; worker <  snapshots.size(); worker++)
                 {
                     for (auto snapInfo: snapshots[worker])
                     {
