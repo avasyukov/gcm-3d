@@ -70,16 +70,14 @@ IBody* gcm::Mesh::getBody()
     return body;
 }
 
-void gcm::Mesh::snapshot(int number)
+string gcm::Mesh::snapshot(int number)
 {
-    SnapshotWriter* sw = Engine::getInstance().getSnapshotWriter(snapshotWriterType);
-    sw->dump(this, number);
+    return getSnaphotter().dump(this, number);
 }
 
-void gcm::Mesh::dump(int number)
+string gcm::Mesh::dump(int number)
 {
-    SnapshotWriter* sw = Engine::getInstance().getSnapshotWriter(dumpWriterType);
-    sw->dump(this, number);
+    return getDumper().dump(this, number);
 }
 
 // FIXME

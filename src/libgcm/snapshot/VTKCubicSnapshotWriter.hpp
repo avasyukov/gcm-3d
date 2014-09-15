@@ -3,38 +3,22 @@
 
 #include <string>
 
+#include "libgcm/util/Singleton.hpp"
 #include "libgcm/snapshot/SnapshotWriter.hpp"
-#include "libgcm/mesh/cube/BasicCubicMesh.hpp"
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/Logging.hpp"
 
-#ifdef CONFIG_VTK_5
-#include <vtkstd/string>
-#else
-#include <vtkStdString.h>
-#endif
-#include <vtkStructuredGrid.h>
-#include <vtkXMLStructuredGridWriter.h>
-#include <vtkSmartPointer.h>
-#include <vtkCellArray.h>
-#include <vtkPoints.h>
-#include <vtkDoubleArray.h>
-#include <vtkIntArray.h>
-#include <vtkPointData.h>
-
 namespace gcm {
-    class VTKCubicSnapshotWriter : public SnapshotWriter {
-    private:
-        void dumpVTK(string filename, BasicCubicMesh* mesh, int step);
+    class BasicCubicMesh;
+
+    class VTKCubicSnapshotWriter : public SnapshotWriter, public Singleton<VTKCubicSnapshotWriter> {
+     private:
+        std::string dumpVTK(string filename, BasicCubicMesh* mesh, int step) const;
         USE_LOGGER;
     public:
         VTKCubicSnapshotWriter();
-        VTKCubicSnapshotWriter(const char *snapName);
-        /*
-         * Returns snapshot writer type
-         */
-        string getType();
-        void dump(Mesh* mesh, int step);
+
+        std::string dump(Mesh* mesh, int step, std::string fileName) const override;
     };
 }
 

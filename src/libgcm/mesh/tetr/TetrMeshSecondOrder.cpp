@@ -1,12 +1,14 @@
 #include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
 
+#include "libgcm/snapshot/VTK2SnapshotWriter.hpp"
+#include "libgcm/snapshot/VTKSnapshotWriter.hpp"
+
 #include "libgcm/node/CalcNode.hpp"
 
 gcm::TetrMeshSecondOrder::TetrMeshSecondOrder()
 {
     secondOrderNodesAreGenerated = false;
     numericalMethodOrder = 2;
-    dumpWriterType = "VTK2SnapshotWriter";
     INIT_LOGGER("gcm.TetrMeshSecondOrder");
     interpolator = new TetrSecondOrderMinMaxInterpolator();
 }
@@ -661,4 +663,14 @@ bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& node)
     }
 
     return false;
+}
+
+
+const SnapshotWriter& gcm::TetrMeshSecondOrder::getSnaphotter() const
+{
+    return VTKSnapshotWriter::getInstance();
+}
+
+const SnapshotWriter& gcm::TetrMeshSecondOrder::getDumper() const {
+    return VTK2SnapshotWriter::getInstance();
 }

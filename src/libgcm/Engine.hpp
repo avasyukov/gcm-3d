@@ -2,6 +2,7 @@
 #define GCM_ENGINE_H
 
 #include <string>
+#include <map>
 #include <stdexcept>
 #include <vector>
 #include <mpi.h>
@@ -13,7 +14,6 @@
 #include "libgcm/calc/contact/ContactCalculator.hpp"
 #include "libgcm/util/forms/PulseForm.hpp"
 #include "libgcm/util/areas/BoxArea.hpp"
-#include "libgcm/snapshot/SnapshotWriter.hpp"
 #include "libgcm/method/NumericalMethod.hpp"
 // FIXME - do we need it here?
 #include "libgcm/interpolator/TetrInterpolator.hpp"
@@ -52,24 +52,28 @@ using namespace gcm;
 
 namespace gcm
 {
-    class VTKSnapshotWriter;
-    class VTK2SnapshotWriter;
     /*
      * Main class to operate calculation scene.
      */
     class Engine: public IEngine, public  Singleton<Engine>
     {
+     public:
+        class Options
+        {
+         private:
+            Options();
+         public:
+            const static std::string SNAPSHOT_OUTPUT_PATH_PATTERN;
+        };
+
     friend class Singleton;
     protected:
+        map<std::string, std::string> options;
         /*
          * Process rank in MPI communicator.
          */
         int rank;
         int numberOfWorkers;
-        /*
-         * Snapshot writers.
-         */
-        map<string, SnapshotWriter*> snapshotWriters;
         /*
          * Numerical methods
          */
@@ -136,6 +140,9 @@ namespace gcm
          */
         USE_LOGGER;
 
+        vector<tuple<unsigned int, string, string>> snapshots;
+        vector<float> snapshotTimestamps;
+
     protected:
         /*
          * Engine is a singletone, so constructors are private
@@ -169,12 +176,6 @@ namespace gcm
          * then actual time step is determined automatically.
          */
         void doStep(float step = 0.0);
-        /*
-         * Registers new snapshot writer. Out-of-box snapshot writers are
-         * registered automatically at engine creation. Note, that if snapshot
-         * writer with the same type is registered already it will be replaced.
-         */
-        void registerSnapshotWriter(SnapshotWriter *snapshotWriter);
         /*
          * Registers new volume calculator. Out-of-box calculators are
          * registered automatically at engine creation. Note, that if calculator
@@ -215,10 +216,6 @@ namespace gcm
 
         void setDefaultRheologyCalculatorType(string calcType);
         string getDefaultRheologyCalculatorType();
-        /*
-         * Returns snapshot writer by type or NULL if not found.
-         */
-        SnapshotWriter* getSnapshotWriter(string type);
 
         NumericalMethod* getNumericalMethod(string type);
         VolumeCalculator* getVolumeCalculator(string type);
@@ -293,6 +290,13 @@ namespace gcm
         bool interpolateNode(CalcNode& node);
 
         void setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode);
+
+        const vector<tuple<unsigned int, string, string>>& getSnapshotsList() const;
+        const vector<float>& getSnapshotTimestamps() const;
+
+        void setOption(std::string option, std::string value);
+        const std::string& getOption(std::string option) const;
+        bool hasOption(std::string option) const;
     };
 }
 

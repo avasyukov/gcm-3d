@@ -44,8 +44,8 @@ void gcm::Msh2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dis
         soMesh->preProcess();
 
         VTK2SnapshotWriter* sw = new VTK2SnapshotWriter();
-        sw->setFileName(fileName);
-        sw->dump(soMesh, -1);
+        // FIXME are we really about to overwrite this file?
+        sw->dump(soMesh, -1, fileName);
 
         delete sw;
         delete reader;

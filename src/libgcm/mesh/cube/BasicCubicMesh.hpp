@@ -57,6 +57,9 @@ namespace gcm
 
         bool interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node);
+
+        virtual const SnapshotWriter& getSnaphotter() const override;
+        virtual const SnapshotWriter& getDumper() const override;
     };
 }
 #endif

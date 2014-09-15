@@ -1,29 +1,38 @@
 #include "libgcm/snapshot/VTKSnapshotWriter.hpp"
 
+#ifdef CONFIG_VTK_5
+#include <vtkstd/string>
+#else
+#include <vtkStdString.h>
+#endif
+#include <vtkUnstructuredGrid.h>
+#include <vtkXMLUnstructuredGridWriter.h>
+#include <vtkUnstructuredGridWriter.h>
+#include <vtkTetra.h>
+#include <vtkDoubleArray.h>
+#include <vtkIntArray.h>
+#include <vtkPointData.h>
+#include <vtkCellData.h>
+
+#include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.hpp"
+#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/elem/TetrFirstOrder.hpp"
+
+
+using std::string;
+
 gcm::VTKSnapshotWriter::VTKSnapshotWriter() {
     INIT_LOGGER("gcm.VTKSnapshotWriter");
-    fname = string ("snap_mesh_%m_cpu_%z_step_%n.vtu");
+    extension = "vtu";
 }
 
-gcm::VTKSnapshotWriter::~VTKSnapshotWriter() {
-}
-
-gcm::VTKSnapshotWriter::VTKSnapshotWriter(const char* snapName) {
-    INIT_LOGGER("gcm.VTKSnapshotWriter");
-    fname = string (snapName);
-}
-
-string gcm::VTKSnapshotWriter::getType() {
-    return "VTKSnapshotWriter";
-}
-
-void gcm::VTKSnapshotWriter::dump(Mesh* mesh, int step)
+string gcm::VTKSnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
 {
-    // TODO - check if the mesh is compatible
-    dumpVTK(getFileName(MPI::COMM_WORLD.Get_rank(), step, mesh->getId()), (TetrMeshSecondOrder*)mesh, step);
+    return dumpVTK(fileName, dynamic_cast<TetrMeshSecondOrder*>(mesh), step);
 }
 
-void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh, int step)
+string gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh, int step) const
 {
     map<int, int> snapNodeMap;
 
@@ -210,4 +219,6 @@ void gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh,
     g->Delete();
     pts->Delete();
     tetra->Delete();
+
+    return filename;
 }

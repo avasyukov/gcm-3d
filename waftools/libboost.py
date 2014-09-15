@@ -18,7 +18,7 @@ def configure(conf):
         '/usr/lib64'
     ]
 
-    conf.env.LIB_LIBBOOST = ['boost_filesystem', 'boost_system']
+    conf.env.LIB_LIBBOOST = ['boost_filesystem', 'boost_system', 'boost_program_options']
     try:
         conf.run_c_code(
             code='''
@@ -57,7 +57,7 @@ def configure(conf):
                 #include <iostream>
 
                 int main() {
-                    std::cout << BOOST_VERSION / 100000 << "." << BOOST_VERSION / 100 % 1000 << "." << BOOST_VERSION % 100 << std::endl;
+                    std::cout << BOOST_VERSION / 100000 << "." << BOOST_VERSION / 100 % 1000 << "." << BOOST_VERSION % 100;
                     return 0;
                 }
             ''',

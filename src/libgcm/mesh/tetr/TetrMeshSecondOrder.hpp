@@ -18,7 +18,7 @@ namespace gcm {
      */
     class TetrMeshSecondOrder: public TetrMeshFirstOrder {
 
-    friend class VTK2SnapshotWriter;
+    //friend class VTK2SnapshotWriter;
     friend class DataBus;
     friend class CollisionDetector;
     friend class BruteforceCollisionDetector;
@@ -77,6 +77,9 @@ namespace gcm {
                                 CalcNode& targetNode, bool& isInnerPoint);
 
         bool interpolateNode(CalcNode& node);
+
+        virtual const SnapshotWriter& getSnaphotter() const override;
+        virtual const SnapshotWriter& getDumper() const override;
     };
 }
 #endif

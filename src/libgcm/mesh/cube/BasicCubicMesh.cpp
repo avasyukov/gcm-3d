@@ -1,6 +1,7 @@
 #include "libgcm/mesh/cube/BasicCubicMesh.hpp"
 
 #include "libgcm/node/CalcNode.hpp"
+#include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
 
 gcm::BasicCubicMesh::BasicCubicMesh()
 {
@@ -9,8 +10,6 @@ gcm::BasicCubicMesh::BasicCubicMesh()
     numericalMethodType = "InterpolationFixedAxis";
     // FIXME - hardcoded parameter
     numericalMethodOrder = 1;
-    snapshotWriterType = "VTKCubicSnapshotWriter";
-    dumpWriterType = "VTKCubicSnapshotWriter";
     INIT_LOGGER("gcm.BasicCubicMesh");
     LOG_DEBUG("Creating mesh");
     interpolator1 = new LineFirstOrderInterpolator();
@@ -246,3 +245,13 @@ bool gcm::BasicCubicMesh::interpolateBorderNode(real x, real y, real z,
 
     return false;
 };
+
+const SnapshotWriter& gcm::BasicCubicMesh::getSnaphotter() const
+{
+    return VTKCubicSnapshotWriter::getInstance();
+}
+
+const SnapshotWriter& gcm::BasicCubicMesh::getDumper() const
+{
+    return getSnaphotter();
+}

@@ -1,5 +1,7 @@
 #include "libgcm/mesh/tetr/Geo2MeshLoader.hpp"
 
+#include "libgcm/Engine.hpp"
+
 bool gcm::Geo2MeshLoader::isMshFileCreated(string fileName)
 {
     return createdFiles.find(fileName) != createdFiles.end();
@@ -99,8 +101,7 @@ void gcm::Geo2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dis
         soMesh->preProcess();
 
         VTK2SnapshotWriter* sw = new VTK2SnapshotWriter();
-        sw->setFileName(getVtkFileName(fileName));
-        sw->dump(soMesh, -1);
+        sw->dump(soMesh, -1, getVtkFileName(fileName));
 
         delete sw;
         delete reader;

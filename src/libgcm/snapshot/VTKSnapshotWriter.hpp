@@ -3,41 +3,22 @@
 
 #include <string>
 
-#ifdef CONFIG_VTK_5
-#include <vtkstd/string>
-#else
-#include <vtkStdString.h>
-#endif
-#include <vtkUnstructuredGrid.h>
-#include <vtkXMLUnstructuredGridWriter.h>
-#include <vtkUnstructuredGridWriter.h>
-#include <vtkTetra.h>
-#include <vtkDoubleArray.h>
-#include <vtkIntArray.h>
-#include <vtkPointData.h>
-#include <vtkCellData.h>
-
+#include "libgcm/util/Singleton.hpp"
 #include "libgcm/snapshot/SnapshotWriter.hpp"
-#include "libgcm/mesh/tetr/TetrMeshFirstOrder.hpp"
-#include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
-#include "libgcm/node/CalcNode.hpp"
-#include "libgcm/elem/TetrFirstOrder.hpp"
 #include "libgcm/Logging.hpp"
 
+
 namespace gcm {
-    class VTKSnapshotWriter : public SnapshotWriter {
-    private:
-        void dumpVTK(string filename, TetrMeshSecondOrder* mesh, int step);
+    class TetrMeshSecondOrder;
+
+    class VTKSnapshotWriter : public SnapshotWriter, public Singleton<VTKSnapshotWriter> {
+     protected:
+        std::string dumpVTK(std::string filename, TetrMeshSecondOrder* mesh, int step) const;
         USE_LOGGER;
-    public:
+     public:
         VTKSnapshotWriter();
-        ~VTKSnapshotWriter();
-        VTKSnapshotWriter(const char *snapName);
-        /*
-         * Returns snapshot writer type
-         */
-        string getType();
-        void dump(Mesh* mesh, int step);
+
+        std::string dump(Mesh* mesh, int step, std::string fileName) const override;
     };
 }
 

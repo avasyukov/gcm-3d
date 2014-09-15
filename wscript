@@ -198,6 +198,8 @@ def configure(conf):
 
     if not conf.env.without_tests or not conf.env.without_launcher:
         libs.append('libboost')
+    if not conf.env.without_launcher:
+        libs.append('libboost_mpi')
 
     build_variant = []
 
