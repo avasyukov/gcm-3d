@@ -1524,5 +1524,5 @@ const SnapshotWriter& gcm::TetrMeshFirstOrder::getSnaphotter() const
 
 const SnapshotWriter& gcm::TetrMeshFirstOrder::getDumper() const
 {
-    getSnaphotter();
+    return getSnaphotter();
 }
