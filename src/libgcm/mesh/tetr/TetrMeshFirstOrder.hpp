@@ -45,6 +45,8 @@ namespace gcm
         void updateCharactCache(CalcNode& node, float dx, float dy, float dz, int tetrNum);
         int getCharactCacheIndex(CalcNode& node, float dx, float dy, float dz);
         unordered_map<int, int> charactCache[18];
+        // WA for bruteforce collision detector
+        vector<int> facesSpaceMap[10][10][10];
         unsigned long long cacheHits;
         unsigned long long cacheMisses;
 
