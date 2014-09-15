@@ -18,7 +18,7 @@ def configure(conf):
         '/usr/lib64'
     ]
 
-    conf.env.LIB_LIBBOOST = ['boost_filesystem', 'boost_system']
+    conf.env.LIB_LIBBOOST = ['boost_filesystem', 'boost_system', 'boost_program_options']
     try:
         conf.run_c_code(
             code='''
