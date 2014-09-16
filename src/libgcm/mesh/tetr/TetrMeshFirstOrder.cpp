@@ -1449,10 +1449,27 @@ bool gcm::TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
     direction[0] = dx / length;
     direction[1] = dy / length;
     direction[2] = dz / length;
+    
+    // WA for bruteforce collision detector
+    real targetX = x + dx;
+    real targetY = y + dy;
+    real targetZ = z + dz;
+    real xh = (outline.maxX - outline.minX)/10;
+    real yh = (outline.maxY - outline.minY)/10;
+    real zh = (outline.maxZ - outline.minZ)/10;
+    int targetZoneX = floor((targetX - outline.minX)/xh);
+    int targetZoneY = floor((targetY - outline.minY)/yh);
+    int targetZoneZ = floor((targetZ - outline.minZ)/zh);
+    targetZoneX = (targetZoneX >= 0 ? targetZoneX : 0);
+    targetZoneX = (targetZoneX <= 9 ? targetZoneX : 9);
+    targetZoneY = (targetZoneY >= 0 ? targetZoneY : 0);
+    targetZoneY = (targetZoneY <= 9 ? targetZoneY : 9);
+    targetZoneZ = (targetZoneZ >= 0 ? targetZoneZ : 0);
+    targetZoneZ = (targetZoneZ <= 9 ? targetZoneZ : 9);
 
-    for (int i = 0; i < getTriangleNumber(); i++)
+    for (int i = 0; i < facesSpaceMap[targetZoneX][targetZoneY][targetZoneZ].size(); i++)
     {
-        TriangleFirstOrder& face = getTriangle(i);
+        TriangleFirstOrder& face = getTriangle( facesSpaceMap[targetZoneX][targetZoneY][targetZoneZ].at(i) );
         CalcNode& n1 = getNode(face.verts[0]);
         CalcNode& n2 = getNode(face.verts[1]);
         CalcNode& n3 = getNode(face.verts[2]);

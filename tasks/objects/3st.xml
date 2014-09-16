@@ -56,7 +56,7 @@
                         <rheology type="elastic" />
                         <mesh id="3st_striker" type="geo2" file="models/3st_striker.geo" tetrSize="0.2" />
                         <material id="steel" />
-			<transform type="translate" moveX="6.75" moveY="6.75" moveZ="1.8704" />
+			<transform type="translate" moveX="0.0" moveY="1.8701" moveZ="6.75" />
                 </body>
         </bodies>
 	<materials>

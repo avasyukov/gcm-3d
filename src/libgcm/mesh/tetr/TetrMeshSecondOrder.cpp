@@ -305,6 +305,30 @@ void gcm::TetrMeshSecondOrder::build_first_order_border()
             if (isTriangleBorder(getTetr(i).verts)) {
                 getTriangle(number) = createBorderTriangle(getTetr(i).verts, number);
                 number++;
+                // WA for bruteforce collision detector
+                TetrFirstOrder& t = getTetr(i);
+                CalcNode& v1 = getNode( t.verts[0] );
+                CalcNode& v2 = getNode( t.verts[1] );
+                CalcNode& v3 = getNode( t.verts[2] );
+                real minX = std::min({v1.x, v2.x, v3.x});
+                real minY = std::min({v1.y, v2.y, v3.y});
+                real minZ = std::min({v1.z, v2.z, v3.z});
+                real maxX = std::max({v1.x, v2.x, v3.x});
+                real maxY = std::max({v1.y, v2.y, v3.y});
+                real maxZ = std::max({v1.z, v2.z, v3.z});
+                real xh = (outline.maxX - outline.minX)/10;
+                real yh = (outline.maxY - outline.minY)/10;
+                real zh = (outline.maxZ - outline.minZ)/10;
+                int minZoneX = std::max(0, (int)floor((minX - outline.minX)/xh));
+                int minZoneY = std::max(0, (int)floor((minY - outline.minY)/yh));
+                int minZoneZ = std::max(0, (int)floor((minZ - outline.minZ)/zh));
+                int maxZoneX = std::min(9, (int)floor((maxX - outline.minX)/xh));
+                int maxZoneY = std::min(9, (int)floor((maxY - outline.minY)/yh));
+                int maxZoneZ = std::min(9, (int)floor((maxZ - outline.minZ)/zh));
+                for(int xi = minZoneX; xi <= maxZoneX; xi++)
+                    for(int yi = minZoneY; yi <= maxZoneY; yi++)
+                        for(int zi = minZoneZ; zi <= maxZoneZ; zi++)
+                            facesSpaceMap[xi][yi][zi].push_back(number);
             }
             shiftArrayLeft(getTetr(i).verts, 4);
         }
