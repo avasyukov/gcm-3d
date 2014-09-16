@@ -238,7 +238,7 @@ namespace gcm {
         void processStressState();
         void processMaterialFailure(FailureModel* failureModel, const float tau);
         void applyCorrectors();
-        void moveCoords(float tau);
+        virtual void moveCoords(float tau);
 
         float getMaxEigenvalue();
         float getMaxPossibleTimeStep();
