@@ -26,7 +26,9 @@
 #include "libgcm/Exception.hpp"
 
 #include "libgcm/rheology/setters/IsotropicRheologyMatrixSetter.hpp"
+#include "libgcm/rheology/setters/IsotropicDamagedRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/setters/AnisotropicRheologyMatrixSetter.hpp"
+#include "libgcm/rheology/setters/AnisotropicDamagedRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/setters/PrandtlRaussPlasticityRheologyMatrixSetter.hpp"
 #include "libgcm/rheology/decomposers/IsotropicRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer.hpp"
@@ -300,6 +302,15 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     if( plasticityTypeList.size() == 1 )
     {
         plasticityType = plasticityTypeList.front()["type"];
+    }
+    
+    NodeList damageTypeList = rootNode.xpath("/task/system/damage");
+    if( damageTypeList.size() > 1 )
+        THROW_INVALID_INPUT("Config file can contain only one <damage/> element");
+    string damageType = "none";
+    if( damageTypeList.size() == 1 )
+    {
+        damageType = damageTypeList.front()["type"];
     }
 
     string matrixDecompositionImplementation = "numerical";
@@ -758,6 +769,24 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             {
                 THROW_UNSUPPORTED("Plasticity type\"" + plasticityType + "\" is not supported.");
             }
+            
+            if (damageType == DAMAGE_TYPE_NONE)
+            {
+                corrector = nullptr;
+                setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
+                decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
+
+            }
+            else if (damageType == DAMAGE_TYPE_CONTINUAL)
+            {
+                corrector = nullptr;
+                setter = makeSetterPtr<IsotropicDamagedRheologyMatrixSetter>();
+                decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
+            }
+            else
+            {
+                THROW_UNSUPPORTED("Damage type\"" + damageType + "\" is not supported.");
+            }
         } else 
         {
             if(materialUsedInTask)
@@ -766,8 +795,22 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 if (plasticityType != PLASTICITY_TYPE_NONE)
                     LOG_WARN("Plasticity is not supported for anisotropic materials, using elastic instead.");
             }
-            corrector = nullptr;
-            setter = makeSetterPtr<AnisotropicRheologyMatrixSetter>();
+            
+            if (damageType == DAMAGE_TYPE_NONE)
+            {
+                corrector = nullptr;
+                setter = makeSetterPtr<AnisotropicRheologyMatrixSetter>();
+            }
+            else if (damageType == DAMAGE_TYPE_CONTINUAL)
+            {
+                corrector = nullptr;
+                setter = makeSetterPtr<AnisotropicDamagedRheologyMatrixSetter>();
+            }
+            else
+            {
+                THROW_UNSUPPORTED("Damage type\"" + damageType + "\" is not supported.");
+            }          
+            
             if( matrixDecompositionImplementation == "numerical" )
                 decomposer = makeDecomposerPtr<NumericalRheologyMatrixDecomposer>();
             else

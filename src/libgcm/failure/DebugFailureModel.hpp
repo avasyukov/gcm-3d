@@ -2,9 +2,9 @@
 #define GCM_DebugFailureModel_H
 
 #include "libgcm/failure/FailureModel.hpp"
-#include "libgcm/failure/criteria/MaxStressFailureCriterion.hpp"
+#include "libgcm/failure/criteria/ContinualDamageFailureCriterion.hpp"
 #include "libgcm/failure/correctors/ZeroDeviatorFailedMaterialCorrector.hpp"
-
+#include <iostream>
 using namespace std;
 using namespace gcm;
 
