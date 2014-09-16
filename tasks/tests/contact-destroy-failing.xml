@@ -1,0 +1,47 @@
+<task numberOfSnaps="10" stepsPerSnap="10">
+	<system>
+		<defaultContactCalculator type="AdhesionContactDestroyCalculator" adhesionThreshold="1000000000" />
+	</system>
+	<bodies>
+		<body id="plate_up">
+			<rheology type="elastic" />
+			<mesh id="plate_up" type="geo2" file="models/cover-small-failing.geo" tetrSize="0.35" />
+			<material id="testMaterialDebug" />
+		</body>
+		<body id="plate_down">
+			<rheology type="elastic" />
+			<mesh id="plate_down" type="geo2" file="models/cover-small-failing.geo" tetrSize="0.35" />
+			<material id="testMaterialDebug" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-1.01" />
+		</body>
+		<body id="plate_down_1">
+			<rheology type="elastic" />
+			<mesh id="plate_down_1" type="geo2" file="models/cover-small-failing.geo" tetrSize="0.35" />
+			<material id="testMaterialDebug" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-2.02" />
+		</body>
+		<body id="plate_down_2"> 
+			<rheology type="elastic" />
+			<mesh id="plate_down_2" type="geo2" file="models/cover-small-failing.geo" tetrSize="0.35" />
+			<material id="testMaterialDebug" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-3.03" />
+		</body>
+		<body id="plate_down_3"> 
+			<rheology type="elastic" />
+			<mesh id="plate_down_3" type="geo2" file="models/cover-small-failing.geo" tetrSize="0.35" />
+			<material id="testMaterialDebug" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-4.04" />
+		</body> 
+	</bodies>
+	<materials>
+		<material name="testMaterialDebug" rheology="isotropic">
+			<la>7000000000</la>
+			<mu>1000000000</mu>
+			<rho>7800000</rho>
+		</material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-1" maxX="1" minY="-1" maxY="1" minZ="0.9" maxZ="10"/>
+		<values vz="-150" sxx="-350000" syy="-350000" szz="-450000" />
+	</initialState>
+</task>
