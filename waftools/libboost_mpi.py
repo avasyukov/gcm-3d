@@ -12,7 +12,6 @@ def configure(conf):
 
     conf.env.INCLUDES_LIBBOOST_MPI = []
     conf.env.LIBPATH_LIBBOOST_MPI = []
-    conf.env.LIB_LIBBOOST_MPI = []
     conf.env.LINKFLAGS_LIBBOOST_MPI = []
 
     conf.env.INCLUDES_LIBBOOST_MPI.extend(conf.env.INCLUDES_LIBMPI)
@@ -25,6 +24,8 @@ def configure(conf):
         '/usr/lib',
         '/usr/lib64',
     ])
+    
+    conf.env.LINKFLAGS_LIBBOOST_MPI.extend(conf.env.LINKFLAGS_LIBMPI)
     
     LIBS = [
         ['boost_mpi', 'boost_serialization'],

@@ -451,3 +451,29 @@ const SnapshotWriter& MarkeredMesh::getDumper() const
 {
     return getSnaphotter();
 }
+
+void MarkeredMesh::moveCoords(float tau)
+{
+    const auto& markers = surface.getMarkerNodes();
+    for (uint q = 0; q < markers.size(); q++)
+    {
+        const auto& marker = markers[q];
+        int i, j, k;
+        getCellCoords(vector3r(marker.x, marker.y, marker.z), i, j, k);
+
+        assert_ge(i, 0);
+        assert_ge(j, 0);
+        assert_ge(k, 0);
+
+        assert_lt(i, meshElems);
+        assert_lt(j, meshElems);
+        assert_lt(k, meshElems);
+
+        const auto& cell = getCellByLocalIndex(i, j, k);
+        assert_true(cell.isUsed());
+
+        vector3r v = {cell.vx, cell.vy, cell.vz};
+
+        surface.moveMarker(q, v*tau);
+    }
+}

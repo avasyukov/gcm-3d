@@ -92,7 +92,7 @@ int main(int argc, char **argv, char **envp)
         fls.addPath("./src/launcher/");
 
 
-        mpi::environment env;
+        mpi::environment env(argc, argv, false);
         mpi::communicator world;
 
         GmshInitialize();
@@ -102,7 +102,7 @@ int main(int argc, char **argv, char **envp)
         log4cxx::MDC::put("PE", pe);
         log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
         #endif
-    
+
         if( taskFile.empty() )
             THROW_INVALID_ARG("No task file provided");
         LOG_INFO("Starting with taskFile '" << taskFile << "' and dataDir '" << dataDir << "'");
@@ -167,8 +167,6 @@ int main(int argc, char **argv, char **envp)
         }
         else
             mpi::gather(world, engine.getSnapshotsList(), 0);
-
-
 
         engine.cleanUp();
         GmshFinalize();

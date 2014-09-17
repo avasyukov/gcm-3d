@@ -31,6 +31,8 @@ namespace gcm
             const AABB& getAABB() const;
             
             const std::vector<int> getRegions() const;
+
+            void moveMarker(uint index, const vector3r& ds);
     };
 };
 
