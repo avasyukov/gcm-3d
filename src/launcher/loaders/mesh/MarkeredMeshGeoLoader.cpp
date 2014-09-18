@@ -33,4 +33,5 @@ void launcher::MarkeredMeshGeoLoader::loadMesh(const xml::Node& desc, MarkeredMe
     mesh->setMeshElems(cellsNum);
     mesh->setSurface(surface);
     mesh->generateMesh();
+    mesh->preProcess();
 }

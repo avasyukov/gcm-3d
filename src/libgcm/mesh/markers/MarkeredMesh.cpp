@@ -86,8 +86,6 @@ void MarkeredMesh::generateMesh()
             }
         }
     }
-    
-    preProcessGeometry();
 }
 
 void MarkeredMesh::getCellCoords(vector3r p, int& i, int& j, int&k){
@@ -254,6 +252,7 @@ void MarkeredMesh::doNextPartStep(float tau, int stage)
 
 void MarkeredMesh::checkTopology(float tau)
 {
+    preProcessGeometry();
 }
 
 void MarkeredMesh::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
