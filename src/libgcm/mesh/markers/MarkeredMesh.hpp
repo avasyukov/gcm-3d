@@ -73,7 +73,7 @@ namespace gcm
             virtual const SnapshotWriter& getSnaphotter() const override;
             virtual const SnapshotWriter& getDumper() const override;
 
-            virtual void moveCoords(float tau) override;
+            void moveCoords(float tau) override;
 
 
     };
