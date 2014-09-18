@@ -110,13 +110,6 @@ void MarkeredMesh::findBorderCells()
         const auto& v2 = nodes[f.verts[1]];
         const auto& v3 = nodes[f.verts[2]];
 
-        vector3r planePoint1(v1.x, v1.y, v1.z);
-        vector3r planePoint2(v2.x, v2.y, v2.z);
-        vector3r planePoint3(v3.x, v3.y, v3.z);
-        vector3r planeNormal;
-
-        findTriangleFaceNormal(v1.coords, v2.coords, v3.coords, &planeNormal.x, &planeNormal.y, &planeNormal.z);
-
         auto minX = min({v1.x, v2.x, v3.x});
         auto maxX = max({v1.x, v2.x, v3.x});
         auto minY = min({v1.y, v2.y, v3.y});
