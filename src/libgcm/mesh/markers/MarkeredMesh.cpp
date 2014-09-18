@@ -434,6 +434,9 @@ void MarkeredMesh::transfer(float x, float y, float z)
 {
     Mesh::transfer(x, y, z);
     pivot += vector3r(x, y, z);
+
+    for (uint q = 0; q < surface.getNumberOfMarkerNodes(); q++)
+        surface.moveMarker(q, vector3r(x, y, z));
 }
 
 const SnapshotWriter& MarkeredMesh::getSnaphotter() const
