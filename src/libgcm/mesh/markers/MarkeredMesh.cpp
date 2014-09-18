@@ -20,8 +20,9 @@ MarkeredMesh::MarkeredMesh(const MarkeredSurface& surface, uint meshElems): Mark
 
 
 
-MarkeredMesh::MarkeredMesh()
+MarkeredMesh::MarkeredMesh(): Mesh()
 {
+    movable = true;
     numericalMethodType = "InterpolationFixedAxis";
     
     INIT_LOGGER("gcm.mesh.markers.MarkeredMesh");
