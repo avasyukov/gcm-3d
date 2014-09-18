@@ -424,8 +424,6 @@ void MarkeredMesh::preProcessGeometry()
 {
     findBorderCells();
     fillInterior();
-    // FIXME we do not need to do this two times
-    createOutline();
 }
 
 void MarkeredMesh::setMeshElems(uint meshElems) {

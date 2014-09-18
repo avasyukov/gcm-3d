@@ -111,9 +111,9 @@ void gcm::Mesh::preProcess()
 {
     LOG_DEBUG("Preprocessing mesh started.");
     initNewNodes();
-    createOutline();
     calcMinH();
     preProcessGeometry();
+    createOutline();
     LOG_DEBUG("Preprocessing mesh done.");
     logMeshStats();
 }
