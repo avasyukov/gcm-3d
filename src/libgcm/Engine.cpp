@@ -571,8 +571,7 @@ float gcm::Engine::calculateRecommendedTimeStep()
     float timeStep = numeric_limits<float>::infinity();
     for( int j = 0; j < getNumberOfBodies(); j++ )
     {
-        TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
-        float tau = mesh->getRecommendedTimeStep();
+        float tau = getBody(j)->getMeshes()->getRecommendedTimeStep();
         if( tau < timeStep )
             timeStep = tau;
     }
