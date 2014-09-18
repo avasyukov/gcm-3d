@@ -70,8 +70,9 @@ void MarkeredMesh::generateMesh()
     uint idx = 0;
     
     CalcNode node;    
+    node.setPlacement(true);
+    node.setIsBorder(false);
     node.setUsed(false);
-    node.setIsBorder(false);    
     for (unsigned int i = 0; i < meshElems; i++)
     {
         for (unsigned int j = 0; j < meshElems; j++) 

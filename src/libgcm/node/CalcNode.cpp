@@ -449,9 +449,9 @@ void gcm::CalcNode::setContactDestroyed(bool value)
     publicFlags.isContactDestroyed = value;
 }
 
-bool gcm::CalcNode::isLocal() const
+bool gcm::CalcNode::isLocal(bool mustBeUsed) const
 {
-    return isUsed() && privateFlags.local;
+    return (isUsed() || !mustBeUsed) && privateFlags.local;
 }
 
 bool gcm::CalcNode::isRemote() const

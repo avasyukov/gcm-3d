@@ -758,7 +758,7 @@ void gcm::Engine::setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode
             for (int i = 0; i < m->getNodesNumber(); i++)
             {
                 CalcNode& node = m->getNodeByLocalIndex(i);
-                if (node.isUsed())
+                if (node.isUsed() || node.isLocal(false))
                     node.setRheologyMatrix(getMatrixForNode(node));
             }
 }
