@@ -104,6 +104,8 @@ void MarkeredMesh::findBorderCells()
     const auto& faces = surface.getMarkerFaces();
     const auto& nodes = surface.getMarkerNodes();
 
+    borderFacesMap.clear();
+
     for (auto f: faces)
     {
         const auto& v1 = nodes[f.verts[0]];
