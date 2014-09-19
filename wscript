@@ -292,6 +292,8 @@ def build(bld):
             use=['gcm', 'launcher_util', 'loaders', 'launcher'] + libs,
             target='gcm3d'
         )
+        bld.install_as('${PREFIX}/bin/gcm3d_pv_render.py', 'tools/pv_render.py')
+
 
     if not bld.env.without_tests:
         bld(

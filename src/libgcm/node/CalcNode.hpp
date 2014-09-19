@@ -299,7 +299,7 @@ namespace gcm {
          *
          * @return True in case of local node and false otherwise.
          */
-        bool isLocal() const;
+        bool isLocal(bool mustBeUsed = true) const;
         /**
          * Indicates whether node is remote or not.
          *

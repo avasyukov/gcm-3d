@@ -20,8 +20,9 @@ MarkeredMesh::MarkeredMesh(const MarkeredSurface& surface, uint meshElems): Mark
 
 
 
-MarkeredMesh::MarkeredMesh()
+MarkeredMesh::MarkeredMesh(): Mesh()
 {
+    movable = true;
     numericalMethodType = "InterpolationFixedAxis";
     
     INIT_LOGGER("gcm.mesh.markers.MarkeredMesh");
@@ -70,8 +71,9 @@ void MarkeredMesh::generateMesh()
     uint idx = 0;
     
     CalcNode node;    
+    node.setPlacement(true);
+    node.setIsBorder(false);
     node.setUsed(false);
-    node.setIsBorder(false);    
     for (unsigned int i = 0; i < meshElems; i++)
     {
         for (unsigned int j = 0; j < meshElems; j++) 
@@ -86,8 +88,6 @@ void MarkeredMesh::generateMesh()
             }
         }
     }
-    
-    preProcessGeometry();
 }
 
 void MarkeredMesh::getCellCoords(vector3r p, int& i, int& j, int&k){
@@ -104,18 +104,13 @@ void MarkeredMesh::findBorderCells()
     const auto& faces = surface.getMarkerFaces();
     const auto& nodes = surface.getMarkerNodes();
 
+    borderFacesMap.clear();
+
     for (auto f: faces)
     {
         const auto& v1 = nodes[f.verts[0]];
         const auto& v2 = nodes[f.verts[1]];
         const auto& v3 = nodes[f.verts[2]];
-
-        vector3r planePoint1(v1.x, v1.y, v1.z);
-        vector3r planePoint2(v2.x, v2.y, v2.z);
-        vector3r planePoint3(v3.x, v3.y, v3.z);
-        vector3r planeNormal;
-
-        findTriangleFaceNormal(v1.coords, v2.coords, v3.coords, &planeNormal.x, &planeNormal.y, &planeNormal.z);
 
         auto minX = min({v1.x, v2.x, v3.x});
         auto maxX = max({v1.x, v2.x, v3.x});
@@ -254,6 +249,7 @@ void MarkeredMesh::doNextPartStep(float tau, int stage)
 
 void MarkeredMesh::checkTopology(float tau)
 {
+    preProcessGeometry();
 }
 
 void MarkeredMesh::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
@@ -424,8 +420,6 @@ void MarkeredMesh::preProcessGeometry()
 {
     findBorderCells();
     fillInterior();
-    // FIXME we do not need to do this two times
-    createOutline();
 }
 
 void MarkeredMesh::setMeshElems(uint meshElems) {
@@ -440,6 +434,9 @@ void MarkeredMesh::transfer(float x, float y, float z)
 {
     Mesh::transfer(x, y, z);
     pivot += vector3r(x, y, z);
+
+    for (uint q = 0; q < surface.getNumberOfMarkerNodes(); q++)
+        surface.moveMarker(q, vector3r(x, y, z));
 }
 
 const SnapshotWriter& MarkeredMesh::getSnaphotter() const

@@ -571,8 +571,7 @@ float gcm::Engine::calculateRecommendedTimeStep()
     float timeStep = numeric_limits<float>::infinity();
     for( int j = 0; j < getNumberOfBodies(); j++ )
     {
-        TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
-        float tau = mesh->getRecommendedTimeStep();
+        float tau = getBody(j)->getMeshes()->getRecommendedTimeStep();
         if( tau < timeStep )
             timeStep = tau;
     }
@@ -759,7 +758,7 @@ void gcm::Engine::setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode
             for (int i = 0; i < m->getNodesNumber(); i++)
             {
                 CalcNode& node = m->getNodeByLocalIndex(i);
-                if (node.isUsed())
+                if (node.isUsed() || node.isLocal(false))
                     node.setRheologyMatrix(getMatrixForNode(node));
             }
 }

@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <exception>
+#include <unistd.h>
 
 #include "libgcm/config.hpp"
 
@@ -42,6 +43,8 @@ int main(int argc, char **argv, char **envp)
     string dataDir;
     string outputDir;
 
+    bool render = false;
+
     try
     {
         po::options_description desc("Program Usage", 1024, 512);
@@ -60,6 +63,7 @@ int main(int argc, char **argv, char **envp)
               ("task,t"      , taskFileOption  , "xml file with task description")
               ("data-dir,d"  , dataDirOption   , "directory with models specified in task")
               ("output-dir,o", outputDirOption , "directory to write snapshots to")
+              ("render,r"    ,                   "render results using specified in task description")
          ;
 
         po::variables_map vm;
@@ -72,6 +76,9 @@ int main(int argc, char **argv, char **envp)
         }
 
         po::notify(vm);
+
+        if (vm.count("render"))
+            render = true;
     }
     catch(exception& e)
     {
@@ -119,14 +126,15 @@ int main(int argc, char **argv, char **envp)
         launcher.loadSceneFromFile(taskFile);
         engine.calculate();
 
+        auto snapListFilePath = path(outputDir);
+        snapListFilePath /= path(taskFile).filename().string() + ".snapshots";
+
         if (world.rank() == 0)
         {
             vector<vector<tuple<unsigned int, string, string>>> snapshots;
             mpi::gather(world, engine.getSnapshotsList(), snapshots, 0);
 
-            auto snapListFilePath = path(outputDir);
-            snapListFilePath /= path(taskFile).filename();
-            ofstream snapListFile(snapListFilePath.string() + ".snapshots");
+            ofstream snapListFile(snapListFilePath.string());
             ptree snaps, root;
 
             const auto& timestamps = engine.getSnapshotTimestamps();
@@ -170,6 +178,25 @@ int main(int argc, char **argv, char **envp)
 
         engine.cleanUp();
         GmshFinalize();
+
+        if (render)
+        {
+            LOG_DEBUG("Running pv_render");
+            path gcm3d = argv[0];
+            path pv_render = gcm3d.parent_path();
+            pv_render /= "gcm3d_pv_render.py";
+            // FIXME this is not portable
+            execl(
+                "/bin/env", "/bin/env",
+                "pvbatch",
+                "--use-offscreen-rendering",
+                pv_render.string().c_str(),
+                "--task", taskFile.c_str(),
+                "--snap-list", snapListFilePath.string().c_str(),
+                "--output-dir", outputDir.c_str(),
+                NULL
+            );
+        }
     } catch (Exception &e) {
         LOG_FATAL("Exception was thrown: " << e.getMessage() << "\n @" << e.getFile() << ":" << e.getLine() << "\nCall stack: \n"<< e.getCallStack());
     }
