@@ -22,4 +22,24 @@
 		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-3" maxZ="-1"/>
 		<values vz="3" sxx="-700" syy="-700" szz="-900" />
 	</initialState>
+
+	<render>
+		<renderConfig id="cfg1">
+			<meshes>
+				<mesh>cube1</mesh>
+				<mesh>cube2</mesh>
+			</meshes>
+			<plotOverLine from="0;0;-10" to="0;0;10" output="szz_%(step)02d.png">
+                <title>Wave propogation over the contact (along Z axis)</title>
+				<quantities>
+			        <quantity>sxx</quantity>
+					<quantity>szz</quantity>
+				</quantities>
+                <axes>
+                    <left from="-1000" to="1000"/>
+                    <bottom from="-10" to="10"/>
+                </axes>
+			</plotOverLine>
+		</renderConfig>
+	</render>
 </task>
