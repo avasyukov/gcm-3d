@@ -3,7 +3,8 @@
 		<!-- <contactThreshold measure="avgH" value="1.0" /> -->
 		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
 		<!--contactThreshold measure="abs" value="0.5" /-->
-		 <defaultContactCalculator type="AdhesionContactDestroyCalculator" adhesionThreshold="42000000"/>
+		<defaultContactCalculator type="AdhesionContactDestroyCalculator" adhesionThreshold="42000000"/>
+		<collisionDetector static="true" />
 	</system>
 	<bodies>
 		<body id="3st_st_ll">
@@ -11,72 +12,72 @@
 			<mesh id="3st_st_ll" type="geo2" file="models/3st_st_ll.geo" tetrSize="0.1" />
 			<material id="subpacket" />
 		</body>
-                <body id="3st_st_lm">
-                        <rheology type="elastic" />
-                        <mesh id="3st_st_lm" type="geo2" file="models/3st_st_lm.geo" tetrSize="0.1" />
-                        <material id="subpacket" />
-                </body>
-                <body id="3st_st_lr">
-                        <rheology type="elastic" />
-                        <mesh id="3st_st_lr" type="geo2" file="models/3st_st_lr.geo" tetrSize="0.1" />
-                        <material id="subpacket" />
-                </body>
-                <body id="3st_st_rl">
-                        <rheology type="elastic" />
-                        <mesh id="3st_st_rl" type="geo2" file="models/3st_st_rl.geo" tetrSize="0.1" />
-                        <material id="subpacket" />
-                </body>
-                <body id="3st_st_rm">
-                        <rheology type="elastic" />
-                        <mesh id="3st_st_rm" type="geo2" file="models/3st_st_rm.geo" tetrSize="0.1" />
-                        <material id="subpacket" />
-                </body>
-                <body id="3st_st_rr">
-                        <rheology type="elastic" />
-                        <mesh id="3st_st_rr" type="geo2" file="models/3st_st_rr.geo" tetrSize="0.1" />
-                        <material id="subpacket" />
-                </body>
-                <body id="3st_pn_d">
-                        <rheology type="elastic" />
-                        <mesh id="3st_pn_d" type="geo2" file="models/3st_pn_d.geo" tetrSize="0.1" />
-                        <material id="subpacket" />
-                </body>
-                <body id="3st_pn_m">
-                        <rheology type="elastic" />
-                        <mesh id="3st_pn_m" type="geo2" file="models/3st_pn_m.geo" tetrSize="0.1" />
-                        <material id="subpacket" />
-                </body>
-                <body id="3st_pn_u">
-                        <rheology type="elastic" />
-                        <mesh id="3st_pn_u" type="geo2" file="models/3st_pn_u.geo" tetrSize="0.1" />
-                        <material id="subpacket" />
-                </body>
+		<body id="3st_st_lm">
+			<rheology type="elastic" />
+			<mesh id="3st_st_lm" type="geo2" file="models/3st_st_lm.geo" tetrSize="0.1" />
+			<material id="subpacket" />
+		</body>
+		<body id="3st_st_lr">
+			<rheology type="elastic" />
+			<mesh id="3st_st_lr" type="geo2" file="models/3st_st_lr.geo" tetrSize="0.1" />
+			<material id="subpacket" />
+		</body>
+		<body id="3st_st_rl">
+			<rheology type="elastic" />
+			<mesh id="3st_st_rl" type="geo2" file="models/3st_st_rl.geo" tetrSize="0.1" />
+			<material id="subpacket" />
+		</body>
+		<body id="3st_st_rm">
+			<rheology type="elastic" />
+			<mesh id="3st_st_rm" type="geo2" file="models/3st_st_rm.geo" tetrSize="0.1" />
+			<material id="subpacket" />
+		</body>
+		<body id="3st_st_rr">
+			<rheology type="elastic" />
+			<mesh id="3st_st_rr" type="geo2" file="models/3st_st_rr.geo" tetrSize="0.1" />
+			<material id="subpacket" />
+		</body>
+		<body id="3st_pn_d">
+			<rheology type="elastic" />
+			<mesh id="3st_pn_d" type="geo2" file="models/3st_pn_d.geo" tetrSize="0.1" />
+			<material id="subpacket" />
+		</body>
+		<body id="3st_pn_m">
+			<rheology type="elastic" />
+			<mesh id="3st_pn_m" type="geo2" file="models/3st_pn_m.geo" tetrSize="0.1" />
+			<material id="subpacket" />
+		</body>
+		<body id="3st_pn_u">
+			<rheology type="elastic" />
+			<mesh id="3st_pn_u" type="geo2" file="models/3st_pn_u.geo" tetrSize="0.1" />
+			<material id="subpacket" />
+		</body>
 
-                <body id="3st_striker">
-                        <rheology type="elastic" />
-                        <mesh id="3st_striker" type="geo2" file="models/3st_striker.geo" tetrSize="0.2" />
-                        <material id="steel" />
+		<body id="3st_striker">
+			<rheology type="elastic" />
+			<mesh id="3st_striker" type="geo2" file="models/3st_striker.geo" tetrSize="0.2" />
+			<material id="steel" />
 			<transform type="translate" moveX="0.0" moveY="1.8701" moveZ="6.75" />
-                </body>
-        </bodies>
+		</body>
+	</bodies>
 	<materials>
 		<material name="steel" rheology="isotropic">
-            		<la>99430000000</la>
-            		<mu>78130000000</mu>
-            		<rho>0.0078</rho>
-            		<crackThreshold>INF</crackThreshold>
-        	</material>
+			<la>99430000000</la>
+			<mu>78130000000</mu>
+			<rho>0.0078</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
 		<material name="subpacket" rheology="isotropic">
-                        <la>5720000000</la>
-                        <mu>3220000000</mu>
-                        <rho>0.00158</rho>
-                        <crackThreshold>INF</crackThreshold>
-                </material>
+			<la>5720000000</la>
+			<mu>3220000000</mu>
+			<rho>0.00158</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
 	</materials>
 	<initialState>
 		<area type="box" minX="-20" maxX="20" minY="-20" maxY="20" minZ="0.60035" maxZ="100"/>
 		<values vz="25100" />
-                <!-- E(J)       45      85      135     205     235     /-->
-                <!-- v(mm/sec)  14500   19900   25100   30900   33100   /-->
+		<!-- E(J)       45      85      135     205     235     /-->
+		<!-- v(mm/sec)  14500   19900   25100   30900   33100   /-->
 	</initialState>
 </task>
