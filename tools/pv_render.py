@@ -1,16 +1,25 @@
-#!/bin/env pvbatch
+#!/bin/env python2
 
 import sys
 import libxml2
 import json
 import os
-import math
 import argparse
 import logging
 
-from paraview.simple import *
 
-def plotOverLine(desc, step, output_dir):
+def render(step, output_pattern, out_dir):
+    from paraview.simple import WriteImage
+    
+    output_file = os.path.join(out_dir, output_pattern % {'step': step})
+    logger.debug('Saving plot to file: ' + output_file)
+    WriteImage(output_file)
+
+def plotOverLine(gds, desc, step, output_dir):
+    import math
+    from paraview.simple import CreateXYPlotView, SetActiveView
+    from paraview.simple import SetActiveView, GetActiveSource, servermanager
+    from paraview.simple import PlotOverLine, Calculator, GetDisplayProperties
     
     logger = logging.getLogger('gcm.pv_render.plotOverLine')
     
@@ -35,6 +44,7 @@ def plotOverLine(desc, step, output_dir):
     logger.debug('Line: %s -> %s' % (str(line_from), str(line_to)))
 
     view = CreateXYPlotView()
+    view.ViewSize = [1000, 1000]
     view.ChartTitle = title
     SetActiveView(view)        
     
@@ -124,19 +134,185 @@ def plotOverLine(desc, step, output_dir):
         dp.XArrayName = 'xindex'
 
     
-    logger.debug('Rendering')
-    UpdatePipeline()
-    Render()
+    render(step, output, output_dir)
+ 
+def render3d(gds, desc, step, output_dir):
+    from paraview.simple import CreateRenderView, SetActiveView, GetActiveView
+    from paraview.simple import CreateScalarBar, GetLookupTableForArray
+    from paraview.simple import Threshold, Clip, GetDisplayProperties
     
-    output_file = os.path.join(output_dir, output % {'step': step})
-    logger.debug('Saving plot to file: ' + output_file)
-    WriteImage(output_file, view)
+    def MakeCoolToWarmLT(name, min, max):
+        r=0.137255
+        g=0.239216
+        b=0.709804
+        r2=0.67451
+        g2=0.141176
+        b2=0.12549
+        lt = GetLookupTableForArray(name, 1, RGBPoints = [min, r, g, b, max, r2, g2, b2], ColorSpace = "Diverging")
+        lt.VectorMode = "Magnitude"
+        lt.RGBPoints.SetData([min, r, g, b, max, r2, g2, b2])
+        return lt
+    
+    logger = logging.getLogger('gcm.pv_render.render3d')
+    
+    title = desc.xpathEval('title/text()')
+    if len(title) == 1:
+        title = title[0].getContent()
+    else:
+        title = None
+    output = desc.prop('output')
+            
+    logger.debug('Processing plotOverLine section')
+    logger.debug('Title: ' + str(title))
+    logger.debug('Output file name pattern: ' + output)
+    
+    q = desc.xpathEval('quantity')[0]
+    quantity = q.getContent()
+    qmin = float(q.prop('min'))
+    qmax = float(q.prop('max'))
+        
+    camera = desc.xpathEval('camera')
+    if len(camera) == 1:
+        camera = camera[0]
+    else:
+        logger.fatal('Camera settings not provided')
+        
+    cpos = [float(x) for x in camera.prop('position').split(';')]
+    cup = [float(x) for x in camera.prop('up').split(';')]
+    cfocal = [float(x) for x in camera.prop('focal').split(';')]
+    cangle = float(camera.prop('angle'))
+    
+    logger.debug('Camera position: ' + str(cpos))
+    logger.debug('Camera up: ' + str(cup))
+    logger.debug('Camera focal point: ' + str(cfocal))
+    logger.debug('Camera view angle: ' + str(cangle))
+        
+    view = CreateRenderView()
+    
+    view.ViewSize = [1000, 1000]
+    view.Background = [0.3, 0.3, 0.4]
+    view.CenterAxesVisibility = 0
+
+    
+    view.CameraViewUp = cup
+    view.CameraFocalPoint = cfocal
+    view.CameraViewAngle = cangle
+    view.CameraPosition = cpos
+    
+    SetActiveView(view)   
+    
+    logger.debug('Quantity to render: ' + quantity)
+    
+    src = gds
+    
+    logger.debug('Processing thresholds')
+    
+    for thr in desc.xpathEval('thresholds/threshold'):
+        scalar = thr.prop('scalar')
+        tmin = float(thr.prop('min'))
+        tmax = float(thr.prop('max'))
+        
+        logger.debug('Creating threshold on array %s with range [%f, %f]' % (scalar, tmin, tmax))
+        
+        src = Threshold(src)
+        src.Scalars = ['POINTS', scalar]
+        src.ThresholdRange = [tmin, tmax]
+        
+    logger.debug('Processing clips')
+    
+    for cl in desc.xpathEval('clips/clip'):
+        origin = [float(x) for x in cl.prop('origin').split(';')]
+        normal = [float(x) for x in cl.prop('normal').split(';')]
+        
+        logger.debug('Creating clip with origin %s and normal %s' % (origin, normal))
+        
+        src = Clip(src)
+        src.ClipType.Origin = origin
+        src.ClipType.Normal = normal
+        
+    dp = GetDisplayProperties(src)
+    dp.LookupTable = MakeCoolToWarmLT(quantity, qmin, qmax)
+    dp.ColorAttributeType = 'POINT_DATA'
+    dp.ColorArrayName = quantity    
+
+    bar = CreateScalarBar(LookupTable=dp.LookupTable, Title=quantity, TitleFontSize = 10, LabelFontSize = 10)
+    GetActiveView().Representations.append(bar)
+    
+    
+        
+    render(step, output, output_dir)
+        
+        
+def render_all(args, task, snapshotsList):
+    import subprocess
+    
+    logger = logging.getLogger('gcm.pv_render.render_all')    
+    for (idx, rc) in enumerate(task.xpathEval('/task/render/renderConfig')):
+        logger.info('Processing render config (%s)' % rc.prop('id'))
+        for snaps in snapshotsList:
+            cmd = [
+                '/bin/env',
+                'pvbatch', '--use-offscreen-rendering',
+                sys.argv[0],
+                '--task', args.task,
+                '--output-dir', args.output_dir,
+                '--snap-list', args.snap_list
+                ]
+            if args.verbose:
+                cmd.append('--verbose')
+            cmd.extend([
+                'render-one',
+                '--render-config', str(idx+1),
+                '--snap-index', snaps['index']
+            ])
+            
+            logger.debug('Running command: ' + str(cmd))
+            subprocess.call(cmd)       
+
+def render_one(args, task, snapshotsList):
+        from paraview.simple import XMLUnstructuredGridReader, XMLStructuredGridReader
+        from paraview.simple import GroupDatasets 
+    
+        rc = task.xpathEval('/task/render/renderConfig[%s]' % args.render_config)[0]
+        meshes = [x.getContent() for x in rc.xpathEval('meshes/mesh/text()')]
+        logger.debug('List of meshes to load: ' + str(meshes))
+        
+        snaps = snapshotsList[int(args.snap_index)]
+        logger.info('Processing snapshots group #%s (time: %s)' % (snaps['index'], snaps['time']))
+        readers = []
+        for snap in snaps['snaps']:
+            if snap['mesh'] in meshes:
+                snapFileName = snap['file']
+                readerClass = XMLStructuredGridReader if snapFileName.endswith('.vts') else XMLUnstructuredGridReader
+                logger.debug('Reading file: ' + snapFileName)
+                readers.append(readerClass(FileName=[snapFileName]))
+            
+        logger.debug('Creating group data set')
+        gds = GroupDatasets(*readers)
+                  
+        logger.debug('Processing plotOverLine sections')
+        for pol in rc.xpathEval('plotOverLine'):
+            plotOverLine(gds, pol, int(snaps['index']), args.output_dir)
+            
+        logger.debug('Processing render3d sections')
+        for r3d in rc.xpathEval('render3d'):
+            render3d(gds, r3d, int(snaps['index']), args.output_dir)
 
 parser = argparse.ArgumentParser(description='Render calculation results using ParaView')
 parser.add_argument('--task', required=True, help='Task to read render config from')
 parser.add_argument('--snap-list', required=True, help='List of snapshots to render')
 parser.add_argument('--output-dir', required=True, help='Output directory')
 parser.add_argument('--verbose', action="store_true", default=False, help='Be verbose')
+
+subparsers = parser.add_subparsers()
+parser_render_all = subparsers.add_parser('render-all', help='Render all snapshots')
+
+parser_render_one = subparsers.add_parser('render-one', help='Render specified snapshot')
+parser_render_one.add_argument('--render-config', required=True, help='Render config index')
+parser_render_one.add_argument('--snap-index', required=True, help='Snapshot index to render')
+
+parser_render_all.set_defaults(action=render_all)
+parser_render_one.set_defaults(action=render_one)
 
 args = parser.parse_args()
 
@@ -164,25 +340,8 @@ task = libxml2.parseFile(args.task)
 logger.info('Parsing snapshots list file')
 snapshotsList = json.load(open(args.snap_list))['snapshots']
 
-
-for rc in task.xpathEval('/task/render/renderConfig'):
-    logger.info('Processing render config (%s)' % rc.prop('id'))
-    meshes = [x.getContent() for x in rc.xpathEval('meshes/mesh/text()')]
-    logger.debug('List of meshes to load: ' + str(meshes))
-    
-    for snaps in snapshotsList:
-        logger.info('Processing snapshots group #%s (time: %s)' % (snaps['index'], snaps['time']))
-        readers = []
-        for snap in snaps['snaps']:
-            if snap['mesh'] in meshes:
-                snapFileName = snap['file']
-                readerClass = XMLStructuredGridReader if snapFileName.endswith('.vts') else XMLUnstructuredGridReader
-                logger.debug('Reading file: ' + snapFileName)
-                readers.append(readerClass(FileName=[snapFileName]))
-            
-        logger.debug('Creating group data set')
-        gds = GroupDatasets(*readers)
-                  
-        logger.debug('Processing plotOverLine sections')
-        for pol in rc.xpathEval('plotOverLine'):
-            plotOverLine(pol, int(snaps['index']), args.output_dir)
+if not hasattr(args, 'action'):
+    parser.print_usage()
+    sys.exit(-1)
+else:
+    args.action(args, task, snapshotsList)
