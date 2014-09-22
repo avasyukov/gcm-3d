@@ -51,7 +51,7 @@ bool gcm::Mesh::getMovable()
     return movable;
 }
 
-void gcm::Mesh::setBody(IBody* body)
+void gcm::Mesh::setBody(Body* body)
 {
     this->body = body;
 }
@@ -65,7 +65,7 @@ void gcm::Mesh::setBodyNum(unsigned char id)
     }
 }
 
-IBody* gcm::Mesh::getBody()
+Body* gcm::Mesh::getBody()
 {
     return body;
 }

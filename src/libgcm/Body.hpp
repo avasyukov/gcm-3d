@@ -14,7 +14,7 @@ namespace gcm {
     /*
      * Calculation scene body. May contain few meshes of different types.
      */
-    class Body: public IBody {
+    class Body/*: public IBody */{
     private:
         /*
          * All meshes associated with body. Meshes may have different types

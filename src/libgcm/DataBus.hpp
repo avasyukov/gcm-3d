@@ -1,9 +1,10 @@
 #ifndef GCM_DATABUS_H
 #define    GCM_DATABUS_H
 
-#include "libgcm/Interfaces.hpp"
 #include "libgcm/GCMDispatcher.hpp"
 #include "libgcm/Logging.hpp"
+
+#include <mpi.h>
 
 using namespace std;
 using namespace gcm;
@@ -11,6 +12,7 @@ using namespace gcm;
 namespace gcm
 {
     class TetrMeshSecondOrder;
+    class Mesh;
 
     class DataBus {
     public:

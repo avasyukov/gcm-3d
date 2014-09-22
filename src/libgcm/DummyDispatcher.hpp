@@ -3,7 +3,6 @@
 
 #include <stdexcept>
 
-#include "libgcm/Interfaces.hpp"
 #include "libgcm/GCMDispatcher.hpp"
 
 using namespace std;

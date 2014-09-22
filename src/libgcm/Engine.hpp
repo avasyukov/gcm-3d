@@ -40,7 +40,6 @@
 #include "libgcm/CollisionDetector.hpp"
 #include "libgcm/Logging.hpp"
 #include "libgcm/Body.hpp"
-#include "libgcm/Interfaces.hpp"
 #include "libgcm/util/Singleton.hpp"
 
 #define CONTACT_THRESHOLD_BY_AVG_H 0
@@ -55,7 +54,7 @@ namespace gcm
     /*
      * Main class to operate calculation scene.
      */
-    class Engine: public  Singleton<Engine>
+    class Engine: public Singleton<Engine>
     {
      public:
         class Options

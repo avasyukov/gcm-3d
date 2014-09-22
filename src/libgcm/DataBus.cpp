@@ -2,6 +2,7 @@
 
 #include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
 #include "libgcm/node/CalcNode.hpp"
+#include "libgcm/mesh/Mesh.hpp"
 #include "libgcm/Body.hpp"
 
 #define BARRIER(name) \

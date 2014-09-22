@@ -19,7 +19,7 @@ void gcm::Msh2MeshLoader::cleanUp() {
 
 void gcm::Msh2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName)
 {
-    IBody* body = mesh->getBody();
+    auto body = mesh->getBody();
     auto& engine = Engine::getInstance();
     if( engine.getRank() == 0 )
     {

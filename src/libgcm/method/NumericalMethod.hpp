@@ -10,7 +10,6 @@
 
 #include <string>
 
-#include "libgcm/Interfaces.hpp"
 #include "libgcm/mesh/Mesh.hpp"
 
 namespace gcm {
