@@ -1,5 +1,7 @@
 #include "libgcm/mesh/tetr/Vtu2MeshLoader.hpp"
 
+#include "libgcm/Engine.hpp"
+
 gcm::Vtu2MeshLoader::Vtu2MeshLoader() {
     INIT_LOGGER("gcm.Vtu2MeshLoader");
 }
@@ -10,7 +12,7 @@ gcm::Vtu2MeshLoader::~Vtu2MeshLoader() {
 void gcm::Vtu2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName)
 {
     Vtu2TetrFileReader* reader = new Vtu2TetrFileReader();
-    reader->readFile(fileName, mesh, dispatcher, mesh->getBody()->getEngine()->getRank());
+    reader->readFile(fileName, mesh, dispatcher, Engine::getInstance().getRank());
     delete reader;
 
     mesh->preProcess();

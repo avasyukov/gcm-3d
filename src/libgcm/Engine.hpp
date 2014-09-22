@@ -55,7 +55,7 @@ namespace gcm
     /*
      * Main class to operate calculation scene.
      */
-    class Engine: public IEngine, public  Singleton<Engine>
+    class Engine: public  Singleton<Engine>
     {
      public:
         class Options

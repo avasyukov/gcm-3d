@@ -43,14 +43,6 @@ gcm::DataBus::~DataBus() {
     }
 }
 
-void gcm::DataBus::setEngine(IEngine* engine) {
-    this->engine = engine;
-}
-
-IEngine* gcm::DataBus::getEngine() {
-    return engine;
-}
-
 void gcm::DataBus::syncTimeStep(float* tau) {
     BARRIER("gcm::DataBus::syncTimeStep#1");
     MPI::COMM_WORLD.Allreduce(MPI_IN_PLACE, tau, 1, MPI::FLOAT, MPI::MIN);
@@ -58,7 +50,7 @@ void gcm::DataBus::syncTimeStep(float* tau) {
 
 void gcm::DataBus::syncNodes(float tau)
 {
-    for(int i = 0; i < engine->getNumberOfBodies(); i++ )
+    for(int i = 0; i < Engine::getInstance().getNumberOfBodies(); i++ )
         syncNodes(i, tau);
 }
 
@@ -76,7 +68,7 @@ void gcm::DataBus::syncNodes(int bodyNum, float tau)
     BARRIER("gcm::DataBus::syncNodes#1");
     LOG_DEBUG("Starting nodes sync");
 
-    Body* body = engine->getBody(bodyNum);//ById( engine->getDispatcher()->getMyBodyId() );
+    Body* body = Engine::getInstance().getBody(bodyNum);//ById( engine.getDispatcher()->getMyBodyId() );
     TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
 
     for (int i = 0; i < numberOfWorkers; i++)
@@ -116,9 +108,9 @@ void gcm::DataBus::syncNodes(int bodyNum, float tau)
 
     LOG_DEBUG("Nodes sync done");
 
-    /*for(int i = 0; i < engine->getNumberOfBodies(); i++)
+    /*for(int i = 0; i < engine.getNumberOfBodies(); i++)
     {
-        Body* body = engine->getBody(i);
+        Body* body = engine.getBody(i);
         TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
         LOG_DEBUG( "Syncing remote data for mesh " << i );
         float reqH = tau * mesh->getMaxLambda();
@@ -368,8 +360,9 @@ void gcm::DataBus::createStaticTypes()
 void gcm::DataBus::createDynamicTypes(int bodyNum)
 {
     LOG_DEBUG("Building dynamic MPI types for fast node sync");
-    GCMDispatcher* dispatcher = engine->getDispatcher();
-    Body* body = engine->getBody(bodyNum);//ById( engine->getDispatcher()->getMyBodyId() );
+    auto& engine = Engine::getInstance();
+    GCMDispatcher* dispatcher = engine.getDispatcher();
+    Body* body = engine.getBody(bodyNum);//ById( engine.getDispatcher()->getMyBodyId() );
     TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
 
     // TODO add more cleanup code here to prevent memory leaks
@@ -525,7 +518,7 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
 void gcm::DataBus::syncOutlines()
 {
     BARRIER("gcm::DataBus::syncOutlines#1");
-    AABB* outlines = engine->getDispatcher()->getOutline(0);
+    AABB* outlines = Engine::getInstance().getDispatcher()->getOutline(0);
     if( outlines == NULL ) {
         THROW_BAD_METHOD("We can't do this because it will cause all MPI routines to freeze");
         return;
@@ -552,7 +545,8 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
     for ( int i = 0; i < numberOfWorkers; ++i ) {
         reqZones[i] = reqZones_data + (i*numberOfWorkers);
     }
-    GCMDispatcher* dispatcher = engine->getDispatcher();
+    auto& engine = Engine::getInstance();
+    GCMDispatcher* dispatcher = engine.getDispatcher();
 
     // FIXME@avasyukov - workaround for SphProxyDispatcher
     // But we still need this
@@ -563,7 +557,7 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
 
     BARRIER("gcm::DataBus::syncMissedNodes#1");
 
-    //Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
+    //Body* body = engine.getBodyById( engine.getDispatcher()->getMyBodyId() );
     //TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
     TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*) _mesh;
     AABB* areaOfInterest = &(mesh->areaOfInterest);
@@ -614,9 +608,9 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
         //createDynamicTypes();
         LOG_DEBUG("Processing mesh after the sync");
         // Overhead
-        for( int z = 0; z < engine->getNumberOfBodies(); z++ )
+        for( int z = 0; z < engine.getNumberOfBodies(); z++ )
         {
-            TetrMeshSecondOrder* tmpMesh = (TetrMeshSecondOrder*) engine->getBody(z)->getMeshes();
+            TetrMeshSecondOrder* tmpMesh = (TetrMeshSecondOrder*) engine.getBody(z)->getMeshes();
             tmpMesh->preProcess();
             tmpMesh->checkTopology(tau);
         }
@@ -652,7 +646,8 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
                 LOG_DEBUG("CPU " << i << " asks from CPU " << j << " area: " << reqZones[i][j]);
             }
 
-    Body* body = engine->getBodyById( engine->getDispatcher()->getMyBodyId() );
+    auto& engine = Engine::getInstance();
+    Body* body = engine.getBodyById( engine.getDispatcher()->getMyBodyId() );
     TetrMeshSecondOrder* myMesh = (TetrMeshSecondOrder*)body->getMeshes();
 
     int numberOfNodes[numberOfWorkers][numberOfWorkers];
@@ -864,7 +859,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
             {
                 int num = recNodes[i][j].number;
                 unsigned char bodyNum = recNodes[i][j].bodyId;
-                targetMesh = (TetrMeshSecondOrder*) engine->getBody(bodyNum)->getMeshes();
+                targetMesh = (TetrMeshSecondOrder*) engine.getBody(bodyNum)->getMeshes();
                 if( targetMesh->getNodesNumber() == 0 )
                 {
                     targetMesh->createNodes( numberOfNodes[i][rank] );

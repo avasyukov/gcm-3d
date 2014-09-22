@@ -237,7 +237,7 @@ void gcm::Mesh::transfer(float x, float y, float z)
     }
 
     // TODO@avasyukov - think about additional checks
-    body->getEngine()->transferScene(x, y, z);
+    Engine::getInstance().transferScene(x, y, z);
 }
 
 void gcm::Mesh::scale(float x0, float y0, float z0, 
@@ -266,7 +266,7 @@ void gcm::Mesh::scale(float x0, float y0, float z0,
     {
         areaOfInterest.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
     }
-    body->getEngine()->scaleScene(x0, y0, z0, scaleX, scaleY, scaleZ);
+    Engine::getInstance().scaleScene(x0, y0, z0, scaleX, scaleY, scaleZ);
 }
 
 void gcm::Mesh::applyRheology(RheologyCalculator* rc)
@@ -480,10 +480,10 @@ void gcm::Mesh::defaultNextPartStep(float tau, int stage)
         clearNodesState();
     }
 
-    NumericalMethod *method = body->getEngine()->getNumericalMethod(numericalMethodType);
+    NumericalMethod *method = Engine::getInstance().getNumericalMethod(numericalMethodType);
     method->setSpaceOrder(numericalMethodOrder);
 
-    if( body->getEngine()->getNumberOfWorkers() != 1
+    if( Engine::getInstance().getNumberOfWorkers() != 1
             && ! syncedArea.includes( &areaOfInterest ) )
     {
         LOG_ERROR("Area of interest: " << areaOfInterest);

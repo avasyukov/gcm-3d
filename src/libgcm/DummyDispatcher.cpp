@@ -1,10 +1,10 @@
 #include "libgcm/DummyDispatcher.hpp"
+#include "libgcm/Engine.hpp"
 
 #include "libgcm/Body.hpp"
 
 gcm::DummyDispatcher::DummyDispatcher() {
     INIT_LOGGER("gcm.Dispatcher");
-    engine = NULL;
     outlines = NULL;
     outlinesNum = -1;
 }
@@ -14,14 +14,12 @@ gcm::DummyDispatcher::~DummyDispatcher() {
         delete[] outlines;
 }
 
-void gcm::DummyDispatcher::setEngine(IEngine* e) {
-    engine = e;
-}
-
 void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
 {
+    auto& engine = Engine::getInstance();
+
     myNumberOfWorkers =  numberOfWorkers;
-    if( numberOfWorkers > 1 && numberOfWorkers < engine->getNumberOfBodies() )
+    if( numberOfWorkers > 1 && numberOfWorkers < engine.getNumberOfBodies() )
         throw logic_error("You should have either 1 worker OR more workers than bodies. It's crazy stupid internal dispatcher limitation. We are really sorry.");
 
     LOG_DEBUG("Start preparation for " << numberOfWorkers << " workers");
@@ -31,7 +29,7 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
         delete[] outlines;
     outlines = new AABB[numberOfWorkers];
     outlinesNum = numberOfWorkers;
-    rank = engine->getRank();
+    rank = engine.getRank();
 
     if( numberOfWorkers == 1)
     {
@@ -41,15 +39,15 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
         return;
     }
 
-    int numberOfBodies = engine->getNumberOfBodies();
+    int numberOfBodies = engine.getNumberOfBodies();
     LOG_DEBUG("Start preparation for " << numberOfBodies << " bodies");
     workersPerBody = new int[numberOfBodies];
 
     float totalNodes = 0;
     for( int i = 0; i < numberOfBodies; i++ )
     {
-        totalNodes += getBodyNodesNumber(engine->getBody(i)->getId());
-        LOG_DEBUG("NumberOfNodes[" << i <<"]: " << getBodyNodesNumber(engine->getBody(i)->getId()));
+        totalNodes += getBodyNodesNumber(engine.getBody(i)->getId());
+        LOG_DEBUG("NumberOfNodes[" << i <<"]: " << getBodyNodesNumber(engine.getBody(i)->getId()));
     }
     LOG_DEBUG("Total nodes: " << totalNodes);
     float nodesPerProcess = totalNodes / numberOfWorkers;
@@ -57,7 +55,7 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
 
     for( int i = 0; i < numberOfBodies; i++ )
     {
-        workersPerBody[i] = (int)( getBodyNodesNumber(engine->getBody(i)->getId()) / nodesPerProcess );
+        workersPerBody[i] = (int)( getBodyNodesNumber(engine.getBody(i)->getId()) / nodesPerProcess );
         if( workersPerBody[i] == 0 )
             workersPerBody[i] = 1;
     }
@@ -77,7 +75,7 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
         workersPassed += workersPerBody[bodyNum];
         bodyNum++;
     }
-    myBodyId = engine->getBody(bodyNum)->getId();
+    myBodyId = engine.getBody(bodyNum)->getId();
     LOG_DEBUG("Scheduled to work with body: " << myBodyId);
 
     int slicingDirection = getBodySlicingDirection(myBodyId);
@@ -107,7 +105,7 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
 int gcm::DummyDispatcher::distributionIsOk()
 {
     int totalNum = 0;
-    for( int i = 0; i < engine->getNumberOfBodies(); i++ )
+    for( int i = 0; i < Engine::getInstance().getNumberOfBodies(); i++ )
         totalNum += workersPerBody[i];
     if( totalNum > myNumberOfWorkers )
         return 1;
@@ -120,7 +118,7 @@ int gcm::DummyDispatcher::distributionIsOk()
 int gcm::DummyDispatcher::getLeastComputedBody()
 {
     int num = 0;
-    for( int i = 0; i < engine->getNumberOfBodies(); i++ )
+    for( int i = 0; i < Engine::getInstance().getNumberOfBodies(); i++ )
         if( workersPerBody[num] > workersPerBody[i] )
             num = i;
     return num;
@@ -129,7 +127,7 @@ int gcm::DummyDispatcher::getLeastComputedBody()
 int gcm::DummyDispatcher::getMostComputedBody()
 {
     int num = 0;
-    for( int i = 0; i < engine->getNumberOfBodies(); i++ )
+    for( int i = 0; i < Engine::getInstance().getNumberOfBodies(); i++ )
         if( workersPerBody[num] < workersPerBody[i] )
             num = i;
     return num;
@@ -159,7 +157,7 @@ int gcm::DummyDispatcher::getOwner(float coords[3], string bodyId)
 
 int gcm::DummyDispatcher::getOwner(float x, float y, float z, string bodyId)
 {
-    if( engine->getNumberOfWorkers() != 1 && bodyId != myBodyId )
+    if( Engine::getInstance().getNumberOfWorkers() != 1 && bodyId != myBodyId )
         return -1;
     for( int i = 0; i < outlinesNum; i++ )
     {

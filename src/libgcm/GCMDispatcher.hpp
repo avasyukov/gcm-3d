@@ -10,12 +10,9 @@ using namespace std;
 
 namespace gcm {
 
-    class IEngine;
-
     class GCMDispatcher {
     private:
         USE_LOGGER;
-        IEngine* engine;
     protected:
         float dX, dY, dZ;
         string myBodyId;
@@ -25,7 +22,6 @@ namespace gcm {
     public:
         GCMDispatcher();
         virtual ~GCMDispatcher() = 0;
-        virtual void setEngine(IEngine* e) = 0;
         virtual void prepare(int numberOfWorkers, AABB* scene) = 0;
         virtual int getOwner(float x, float y, float z) = 0;
         virtual int getOwner(float coords[3]) = 0;

@@ -1093,10 +1093,10 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
         return;
     }
 
-    IEngine* e = body->getEngine();
-    GCMDispatcher* d = e->getDispatcher();
-    int workers = e->getNumberOfWorkers();
-    //int rank = e->getRank();
+    auto& e = Engine::getInstance();
+    GCMDispatcher* d = e.getDispatcher();
+    int workers = e.getNumberOfWorkers();
+    //int rank = e.getRank();
 
     // FIXME@avasyukov - rethink it
     if( d->getOutline(0) == NULL )
@@ -1221,7 +1221,7 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
     }
 
     LOG_DEBUG("Mesh initial area of interest: " << areaOfInterest);
-    if( e->getNumberOfWorkers() == 1 )
+    if( e.getNumberOfWorkers() == 1 )
     {
         // Everything is local anyway
         for( int i = 0; i < 3; i++ )
@@ -1251,11 +1251,11 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
     else
     {
         bool intersects = false;
-        for(int j = 0; j < e->getNumberOfWorkers(); j++)
+        for(int j = 0; j < e.getNumberOfWorkers(); j++)
         {
-            if( j == e->getRank() )
+            if( j == e.getRank() )
                 continue;
-            AABB box = *(e->getDispatcher()->getOutline(j));
+            AABB box = *(e.getDispatcher()->getOutline(j));
             if( areaOfInterest.intersects(&box) )
                 intersects = true;
         }

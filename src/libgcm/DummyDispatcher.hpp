@@ -14,7 +14,6 @@ namespace gcm {
     class DummyDispatcher : public GCMDispatcher {
     private:
         USE_LOGGER;
-        IEngine* engine;
         AABB* outlines;
         int outlinesNum;
         int myNumberOfWorkers;
@@ -27,7 +26,6 @@ namespace gcm {
     public:
         DummyDispatcher();
         ~DummyDispatcher();
-        void setEngine(IEngine* e);
         void prepare(int numberOfWorkers, AABB* scene);
         int getOwner(float x, float y, float z);
         int getOwner(float coords[3]);

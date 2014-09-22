@@ -16,8 +16,6 @@ namespace gcm
     public:
         DataBus();
         ~DataBus();
-        void setEngine(IEngine* engine);
-        IEngine* getEngine();
 
         void syncTimeStep(float* tau);
         void syncNodes(float tau);
@@ -29,7 +27,6 @@ namespace gcm
         void syncNodes(int bodyNum, float tau);
         void createDynamicTypes(int bodyNum);
         USE_LOGGER;
-        IEngine* engine;
         MPI::Datatype **MPI_NODE_TYPES;
         vector<int> **local_numbers;
         int numberOfWorkers;
