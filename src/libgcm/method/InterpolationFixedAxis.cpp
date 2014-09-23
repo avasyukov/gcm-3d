@@ -160,8 +160,13 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
 
                 // TODO - merge this condition with the next ones
                 if (virt_outer_count != 3) {
+                    LOG_DEBUG("Calc contact failed. Mesh: " << mesh->getId()
+                          << " Virt mesh: " << virtMesh->getId()
+                          << "\nReal node: " << cur_node << "\nVirt node: " << virt_node);
                     LOG_DEBUG("There are " << virt_outer_count << " 'outer' characteristics for virt node.");
                     LOG_DEBUG("Origin node: " << virtMesh->getNode(virt_node.number));
+                    real dist = distance(virt_node.coords, virtMesh->getNode(virt_node.number).coords);
+                    LOG_DEBUG("Dist from origin to virt: " << dist);
                     for (int z = 0; z < 9; z++) {
                         LOG_DEBUG("Dksi[" << z << "]: " << virt_dksi[z]);
                         LOG_DEBUG("Inner[" << z << "]: " << virt_inner[z]);
@@ -240,6 +245,14 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
         }
         else
         {
+            //LOG_WARN("Outer count: " << outer_count);
+            //LOG_WARN("Node: " << cur_node);
+            //for (int z = 0; z < 9; z++) {
+            //    LOG_WARN("Dksi[" << z << "]: " << dksi[z]);
+            //    LOG_WARN("Inner[" << z << "]: " << inner[z]);
+            //    LOG_WARN("PrNodes[" << z << "]: " << previous_nodes[z]);
+            //}
+            //THROW_BAD_METHOD("Illegal number of outer characteristics");
             // FIXME - implement border and contact completely
             LOG_TRACE("Using calculator: " << engine->getBorderCondition(0)->calc->getType());
             engine->getBorderCondition(0)->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
