@@ -91,7 +91,6 @@ void gcm::Geo2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dis
         int sd, nn;
         AABB scene;
         GCMDispatcher* myDispatcher = new DummyDispatcher();
-        myDispatcher->setEngine(&Engine::getInstance());
         preLoadMesh(&scene, sd, nn, fileName, tetrSize);
         myDispatcher->prepare(1, &scene);
 

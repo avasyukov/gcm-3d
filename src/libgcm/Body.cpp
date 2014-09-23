@@ -33,14 +33,6 @@ Mesh* gcm::Body::getMesh(string id) {
     return NULL;
 }
 
-void gcm::Body::setEngine(IEngine& engine) {
-    this->engine = &engine;
-}
-
-IEngine* gcm::Body::getEngine() {
-    return engine;
-}
-
 void gcm::Body::setInitialState(Area* area, float values[9]) {
     for( unsigned int i = 0; i < meshes.size(); i++ )
         meshes[i]->setInitialState(area, values);

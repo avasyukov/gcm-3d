@@ -188,12 +188,12 @@ int main(int argc, char **argv, char **envp)
             // FIXME this is not portable
             execl(
                 "/bin/env", "/bin/env",
-                "pvbatch",
-                "--use-offscreen-rendering",
+                "python2",
                 pv_render.string().c_str(),
                 "--task", taskFile.c_str(),
                 "--snap-list", snapListFilePath.string().c_str(),
                 "--output-dir", outputDir.c_str(),
+                "render-all",
                 NULL
             );
         }

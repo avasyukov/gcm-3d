@@ -8,6 +8,7 @@
 #include "libgcm/Exception.hpp"
 #include "libgcm/Logging.hpp"
 #include "libgcm/util/Singleton.hpp"
+#include "libgcm/GCMDispatcher.hpp"
 
 using namespace gcm;
 using namespace std;

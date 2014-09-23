@@ -7,7 +7,7 @@
 
 #include "libgcm/util/AABB.hpp"
 #include "libgcm/util/areas/Area.hpp"
-#include "libgcm/Interfaces.hpp"
+#include "libgcm/rheology/RheologyCalculator.hpp"
 #include "libgcm/node/Node.hpp"
 #include "libgcm/snapshot/SnapshotWriter.hpp"
 
@@ -23,6 +23,7 @@ typedef unordered_map<int, int>::const_iterator MapIter;
 
 namespace gcm {
     class CalcNode;
+    class Body;
     /*
      * Base class for all meshes
      */
@@ -45,7 +46,7 @@ namespace gcm {
         /*
          * Body
          */
-        IBody* body;
+        Body* body;
 
         /*
          * You need to maintain these outlines
@@ -209,13 +210,13 @@ namespace gcm {
         /*
          * Sets body mesh belongs to.
          */
-        void setBody(IBody *body);
+        void setBody(Body *body);
 
         void setBodyNum(unsigned char id);
         /*
          * Returns mesh body.
          */
-        IBody* getBody();
+        Body* getBody();
 
         virtual void createOutline();
         AABB getOutline();

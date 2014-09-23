@@ -14,12 +14,8 @@ namespace gcm {
     /*
      * Calculation scene body. May contain few meshes of different types.
      */
-    class Body: public IBody {
+    class Body/*: public IBody */{
     private:
-        /*
-         * Engine instance.
-         */
-        IEngine* engine;
         /*
          * All meshes associated with body. Meshes may have different types
          * like calculation, visualization etc.
@@ -62,9 +58,6 @@ namespace gcm {
          * Returns body id.
          */
         string getId();
-
-        void setEngine(IEngine& engine);
-        IEngine* getEngine();
 
         void setInitialState(Area* area, float values[9]);
 		void setBorderCondition(Area* area, unsigned int num);

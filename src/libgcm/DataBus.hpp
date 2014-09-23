@@ -1,9 +1,10 @@
 #ifndef GCM_DATABUS_H
 #define    GCM_DATABUS_H
 
-#include "libgcm/Interfaces.hpp"
 #include "libgcm/GCMDispatcher.hpp"
 #include "libgcm/Logging.hpp"
+
+#include <mpi.h>
 
 using namespace std;
 using namespace gcm;
@@ -11,13 +12,12 @@ using namespace gcm;
 namespace gcm
 {
     class TetrMeshSecondOrder;
+    class Mesh;
 
     class DataBus {
     public:
         DataBus();
         ~DataBus();
-        void setEngine(IEngine* engine);
-        IEngine* getEngine();
 
         void syncTimeStep(float* tau);
         void syncNodes(float tau);
@@ -29,7 +29,6 @@ namespace gcm
         void syncNodes(int bodyNum, float tau);
         void createDynamicTypes(int bodyNum);
         USE_LOGGER;
-        IEngine* engine;
         MPI::Datatype **MPI_NODE_TYPES;
         vector<int> **local_numbers;
         int numberOfWorkers;

@@ -64,10 +64,8 @@ gcm::Engine::Engine()
     addContactCondition( new ContactCondition( NULL, new StepPulseForm(-1, -1), getContactCalculator("SlidingContactCalculator") ) );
     LOG_DEBUG("Creating dispatcher");
     dispatcher = new DummyDispatcher();
-    dispatcher->setEngine(this);
     LOG_DEBUG("Creating data bus");
     dataBus = new DataBus();
-    dataBus->setEngine(this);
     LOG_DEBUG("Creating collision detector");
     colDet = new BruteforceCollisionDetector();
     LOG_INFO("GCM engine initialized");

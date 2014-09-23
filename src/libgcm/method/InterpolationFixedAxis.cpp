@@ -30,7 +30,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
     assert_ge(stage, 0);
     assert_le(stage, 2);
 
-    IEngine* engine = mesh->getBody()->getEngine();
+    auto& engine = Engine::getInstance();
 
     LOG_TRACE("Start node prepare for node " << cur_node.number);
     LOG_TRACE("Node: " << cur_node);
@@ -69,7 +69,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
         LOG_TRACE("Start inner node calc");
         if (outer_count == 0)
             // FIXME - hardcoded name
-            engine->getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
+            engine.getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
                                                                           new_node, cur_node.getRheologyMatrix(), previous_nodes);
         else
             THROW_BAD_MESH("Outer characteristic for internal node detected");
@@ -89,7 +89,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
         if (outer_count == 0)
         {
             // FIXME - hardcoded name
-            engine->getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
+            engine.getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
                                                                           new_node, cur_node.getRheologyMatrix(), previous_nodes);
         }
             // If there are 3 'outer' omegas - we should use border or contact algorithm
@@ -99,17 +99,17 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
             if (!cur_node.isInContact() || cur_node.contactDirection != stage) {
                 // FIXME
                 int borderCondId = cur_node.getBorderConditionId();
-                LOG_TRACE("Using calculator: " << engine->getBorderCondition(borderCondId)->calc->getType());
-                engine->getBorderCondition(borderCondId)->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
+                LOG_TRACE("Using calculator: " << engine.getBorderCondition(borderCondId)->calc->getType());
+                engine.getBorderCondition(borderCondId)->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
                                                                  new_node, cur_node.getRheologyMatrix(), previous_nodes, inner, outer_normal);
             }
             // Contact
             else
             {
-                CalcNode& virt_node = engine->getVirtNode(cur_node.contactNodeNum);
+                CalcNode& virt_node = engine.getVirtNode(cur_node.contactNodeNum);
 
                 // FIXME - WA
-                Mesh* virtMesh = (Mesh*) engine->getBody(virt_node.contactNodeNum)->getMeshes();
+                Mesh* virtMesh = (Mesh*) engine.getBody(virt_node.contactNodeNum)->getMeshes();
 
                 LOG_TRACE("We are going to calc contact. Target virt node: "
                           << cur_node.contactNodeNum << " Target mesh: " << virt_node.contactNodeNum);
@@ -235,9 +235,9 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
                 //                    }*/
                 ////                }
                 //
-                LOG_TRACE("Using calculator: " << engine->getContactCondition(cur_node.getContactConditionId())->calc->getType());
+                LOG_TRACE("Using calculator: " << engine.getContactCondition(cur_node.getContactConditionId())->calc->getType());
                 LOG_TRACE("Outer normal: " << outer_normal[0] << " " << outer_normal[1] << " " << outer_normal[2]);
-                engine->getContactCondition(cur_node.getContactConditionId())->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
+                engine.getContactCondition(cur_node.getContactConditionId())->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
                                                        new_node, virt_node, cur_node.getRheologyMatrix(), previous_nodes, inner,
                                                        virt_node.getRheologyMatrix(), virt_previous_nodes, virt_inner, outer_normal);
             }
@@ -254,8 +254,8 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
             //}
             //THROW_BAD_METHOD("Illegal number of outer characteristics");
             // FIXME - implement border and contact completely
-            LOG_TRACE("Using calculator: " << engine->getBorderCondition(0)->calc->getType());
-            engine->getBorderCondition(0)->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
+            LOG_TRACE("Using calculator: " << engine.getBorderCondition(0)->calc->getType());
+            engine.getBorderCondition(0)->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
                                                   new_node, cur_node.getRheologyMatrix(), previous_nodes, inner, outer_normal);
             cur_node.setNeighError(stage);
         }

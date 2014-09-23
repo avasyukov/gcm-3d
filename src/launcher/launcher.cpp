@@ -331,7 +331,6 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         // create body instance
         Body* body = new Body(id);
         body->setRheologyCalculatorType(engine.getDefaultRheologyCalculatorType());
-        body->setEngine(engine);
         // set rheology
         NodeList rheologyNodes = bodyNode.getChildrenByName("rheology");
         if (rheologyNodes.size() > 1)
