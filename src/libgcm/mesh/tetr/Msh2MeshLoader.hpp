@@ -12,21 +12,19 @@
 #include "libgcm/util/Singleton.hpp"
 #include "libgcm/DummyDispatcher.hpp"
 
-using namespace gcm;
-using namespace std;
 
 namespace gcm {
     class Msh2MeshLoader: public Singleton<Msh2MeshLoader>
     {
     protected:
          USE_LOGGER;
-         string getVtkFileName(string mshFile);
+         std::string getVtkFileName(std::string mshFile);
     public:
         Msh2MeshLoader();
         ~Msh2MeshLoader();
          
-        void loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName);
-        void preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const string& fileName);
+        void loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const std::string& fileName);
+        void preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const std::string& fileName);
        
        void cleanUp();
     };

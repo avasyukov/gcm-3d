@@ -12,20 +12,18 @@
 
 #include "launcher/loaders/mesh/MeshLoader.hpp"
 
-using namespace gcm;
-using namespace std;
 
 namespace launcher
 {
-    class CubicMeshLoader: public Singleton<launcher::CubicMeshLoader>, public launcher::MeshLoader<BasicCubicMesh>
+    class CubicMeshLoader: public gcm::Singleton<launcher::CubicMeshLoader>, public launcher::MeshLoader<gcm::BasicCubicMesh>
     {
         protected:
-            void parseDesc(const xml::Node& desc, string& id, float& h, int& num);
-            void loadMesh(const xml::Node& desc, BasicCubicMesh* mesh) override;
+            void parseDesc(const xml::Node& desc, std::string& id, float& h, int& num);
+            void loadMesh(const xml::Node& desc, gcm::BasicCubicMesh* mesh) override;
         public:
-            void preLoadMesh(const xml::Node& desc, AABB& aabb, int& sliceDirection, int& numberOfNodes);
+            void preLoadMesh(const xml::Node& desc, gcm::AABB& aabb, int& sliceDirection, int& numberOfNodes);
 
-            const static string MESH_TYPE;
+            const static std::string MESH_TYPE;
     };
 }
         

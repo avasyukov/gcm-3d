@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <sstream>
 
-using namespace std;
 
 template<typename key_type, typename value_type>
 class FastMap {
@@ -24,18 +23,18 @@ class FastMap {
             key_type bb = *((key_type*)b);
             #ifndef NDEBUG
             if (aa == bb) {
-                stringstream ss;
-                ss << "Equal map keys are not allowed."
+                std::stringstream ss;
+                ss << "Equal std::map keys are not allowed."
                    << " key: " << aa
                    << " value1: " << ((map_struct*)a)->value
                    << " value2: " << ((map_struct*)b)->value;
-                throw invalid_argument(ss.str());
+                throw std::invalid_argument(ss.str());
             }
             #endif
             return aa < bb ? -1 : 1;
         }
 
-        vector<map_struct> data;
+        std::vector<map_struct> data;
         bool modified=false;
 
 /*
@@ -54,10 +53,10 @@ class FastMap {
         if (start == stop) {
             #ifndef NDEBUG
             if (data[start].key != key) {
-                stringstream ss;
-                ss << "Key was not found. Seems map does not contain it."
+                std::stringstream ss;
+                ss << "Key was not found. Seems std::map does not contain it."
                    << " key: " << key;
-                throw invalid_argument(ss.str());
+                throw std::invalid_argument(ss.str());
             }
             #endif
             return data[start].value;

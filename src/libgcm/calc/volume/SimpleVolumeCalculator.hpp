@@ -5,19 +5,23 @@
 #include "libgcm/rheology/RheologyMatrix.hpp"
 #include "libgcm/Logging.hpp"
 
-class SimpleVolumeCalculator : public VolumeCalculator
+
+namespace gcm
 {
-public:
-    SimpleVolumeCalculator();
-    void doCalc(CalcNode& new_node, RheologyMatrixPtr matrix,
-                                    vector<CalcNode>& previousNodes);
-    inline string getType() {
-        return "SimpleVolumeCalculator";
-    }
+    class SimpleVolumeCalculator : public VolumeCalculator
+    {
+    public:
+        SimpleVolumeCalculator();
+        void doCalc(CalcNode& new_node, RheologyMatrixPtr matrix,
+                                        std::vector<CalcNode>& previousNodes);
+        inline std::string getType() {
+            return "SimpleVolumeCalculator";
+        }
 
-protected:
-    USE_LOGGER;
+    protected:
+        USE_LOGGER;
 
-};
+    };
+}
 
 #endif

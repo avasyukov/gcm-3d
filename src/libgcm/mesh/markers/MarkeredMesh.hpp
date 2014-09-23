@@ -17,7 +17,7 @@ namespace gcm
             LineFirstOrderInterpolator interpolator;
             MarkeredSurface surface;            
             uint meshElems;
-            gcm::real elemSize;
+            real elemSize;
 
             vector3r pivot;
             std::unordered_map<uint, uint> borderFacesMap;
@@ -45,7 +45,7 @@ namespace gcm
             CalcNode& getCellByLocalIndex(const uint i, const uint j, const uint k);
             
             const vector3r& getPivot() const;
-            gcm::real getElemSize() const;
+            real getElemSize() const;
             uint getMeshElemes() const;
             
             const MarkeredSurface& getMarkeredSurafce() const;
@@ -61,8 +61,8 @@ namespace gcm
             bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
                                     CalcNode& targetNode, bool& isInnerPoint);
             bool interpolateNode(CalcNode& node);
-            bool interpolateBorderNode(gcm::real x, gcm::real y, gcm::real z, 
-                                    gcm::real dx, gcm::real dy, gcm::real dz, CalcNode& node);
+            bool interpolateBorderNode(real x, real y, real z, 
+                                    real dx, real dy, real dz, CalcNode& node);
 
             void setMeshElems(uint meshElems);
 

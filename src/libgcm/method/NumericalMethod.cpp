@@ -8,26 +8,28 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::NumericalMethod::NumericalMethod() {
+using namespace gcm;
+
+NumericalMethod::NumericalMethod() {
     spaceOrder = 1;
     timeOrder = 1;
 }
 
-gcm::NumericalMethod::~NumericalMethod() {
+NumericalMethod::~NumericalMethod() {
 }
 
-void gcm::NumericalMethod::setSpaceOrder(int order) {
+void NumericalMethod::setSpaceOrder(int order) {
     spaceOrder = order;
 }
 
-void gcm::NumericalMethod::setTimeOrder(int order) {
+void NumericalMethod::setTimeOrder(int order) {
     timeOrder = order;
 }
 
-int gcm::NumericalMethod::getSpaceOrder() {
+int NumericalMethod::getSpaceOrder() {
     return spaceOrder;
 }
 
-int gcm::NumericalMethod::getTimeOrder() {
+int NumericalMethod::getTimeOrder() {
     return timeOrder;
 }

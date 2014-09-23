@@ -19,9 +19,16 @@
 #include "libgcm/rheology/DummyRheologyCalculator.hpp"
 #include "libgcm/BruteforceCollisionDetector.hpp"
 
-const std::string gcm::Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN = "SNAPSHOT_OUTPUT_PATH_PATTERN";
+using namespace gcm;
+using std::string;
+using std::vector;
+using std::tuple;
+using std::numeric_limits;
+using std::function;
 
-gcm::Engine::Engine()
+const std::string Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN = "SNAPSHOT_OUTPUT_PATH_PATTERN";
+
+Engine::Engine()
 {
     rank = MPI::COMM_WORLD.Get_rank();
     numberOfWorkers = MPI::COMM_WORLD.Get_size();
@@ -84,13 +91,13 @@ gcm::Engine::Engine()
     setOption(Options::SNAPSHOT_OUTPUT_PATH_PATTERN, "snap_mesh_%{MESH}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
 }
 
-gcm::Engine::~Engine()
+Engine::~Engine()
 {
     cleanUp();
     LOG_INFO("GCM engine destroyed");
 }
 
-void gcm::Engine::clear() {
+void Engine::clear() {
     // clear memory
     for(auto& b: bodies)
         delete b;
@@ -108,7 +115,7 @@ void gcm::Engine::clear() {
     snapshots.clear();
 }
 
-void gcm::Engine::cleanUp()
+void Engine::cleanUp()
 {
     clear();
     delete dataBus;
@@ -118,44 +125,44 @@ void gcm::Engine::cleanUp()
     LOG_INFO("Clean up done");
 }
 
-int gcm::Engine::getRank()
+int Engine::getRank()
 {
     return rank;
 }
 
-int gcm::Engine::getNumberOfWorkers()
+int Engine::getNumberOfWorkers()
 {
     return numberOfWorkers;
 }
 
-void gcm::Engine::setTimeStep(float dt)
+void Engine::setTimeStep(float dt)
 {
     if(dt > 0)
         fixedTimeStep = dt;
 }
 
-float gcm::Engine::getTimeStep()
+float Engine::getTimeStep()
 {
     return fixedTimeStep;
 }
 
-void gcm::Engine::setTimeStepMultiplier(float m)
+void Engine::setTimeStepMultiplier(float m)
 {
     if(m > 0)
         timeStepMultiplier = m;
 }
 
-float gcm::Engine::getTimeStepMultiplier()
+float Engine::getTimeStepMultiplier()
 {
     return timeStepMultiplier;
 }
 
-GCMDispatcher* gcm::Engine::getDispatcher()
+GCMDispatcher* Engine::getDispatcher()
 {
     return dispatcher;
 }
 
-void gcm::Engine::registerVolumeCalculator(VolumeCalculator *volumeCalculator)
+void Engine::registerVolumeCalculator(VolumeCalculator *volumeCalculator)
 {
     if (!volumeCalculator)
         THROW_INVALID_ARG("Volume calculator parameter cannot be NULL");
@@ -163,7 +170,7 @@ void gcm::Engine::registerVolumeCalculator(VolumeCalculator *volumeCalculator)
     LOG_DEBUG("Registered volume calculator: " << volumeCalculator->getType());
 }
 
-void gcm::Engine::registerBorderCalculator(BorderCalculator *borderCalculator)
+void Engine::registerBorderCalculator(BorderCalculator *borderCalculator)
 {
     if (!borderCalculator)
         THROW_INVALID_ARG("Border calculator parameter cannot be NULL");
@@ -171,7 +178,7 @@ void gcm::Engine::registerBorderCalculator(BorderCalculator *borderCalculator)
     LOG_DEBUG("Registered border calculator: " << borderCalculator->getType());
 }
 
-void gcm::Engine::registerContactCalculator(ContactCalculator *contactCalculator)
+void Engine::registerContactCalculator(ContactCalculator *contactCalculator)
 {
     if (!contactCalculator)
         THROW_INVALID_ARG("Contact calculator parameter cannot be NULL");
@@ -179,7 +186,7 @@ void gcm::Engine::registerContactCalculator(ContactCalculator *contactCalculator
     LOG_DEBUG("Registered contact calculator: " << contactCalculator->getType());
 }
 
-void gcm::Engine::registerNumericalMethod(NumericalMethod *numericalMethod)
+void Engine::registerNumericalMethod(NumericalMethod *numericalMethod)
 {
     if (!numericalMethod)
         THROW_INVALID_ARG("Numerical method parameter cannot be NULL");
@@ -187,7 +194,7 @@ void gcm::Engine::registerNumericalMethod(NumericalMethod *numericalMethod)
     LOG_DEBUG("Registered numerical method: " << numericalMethod->getType());
 }
 
-void gcm::Engine::registerInterpolator(TetrInterpolator* interpolator)
+void Engine::registerInterpolator(TetrInterpolator* interpolator)
 {
     if (!interpolator)
         THROW_INVALID_ARG("Interpolator parameter cannot be NULL");
@@ -195,7 +202,7 @@ void gcm::Engine::registerInterpolator(TetrInterpolator* interpolator)
     LOG_DEBUG("Registered interpolator: " << interpolator->getType());
 }
 
-void gcm::Engine::registerRheologyCalculator(RheologyCalculator* rheologyCalculator)
+void Engine::registerRheologyCalculator(RheologyCalculator* rheologyCalculator)
 {
     if (!rheologyCalculator)
         THROW_INVALID_ARG("Rheology calculator parameter cannot be NULL");
@@ -203,7 +210,7 @@ void gcm::Engine::registerRheologyCalculator(RheologyCalculator* rheologyCalcula
     LOG_DEBUG("Registered rheology calculator: " << rheologyCalculator->getType());
 }
 
-void gcm::Engine:: registerFailureModel(FailureModel *model)
+void Engine:: registerFailureModel(FailureModel *model)
 {
     if (!model)
         THROW_INVALID_ARG("Failure model parameter cannot be NULL");
@@ -211,7 +218,7 @@ void gcm::Engine:: registerFailureModel(FailureModel *model)
     LOG_DEBUG("Registered failure model: " << model->getType());
 }
 
-unsigned char gcm::Engine::addMaterial(MaterialPtr material)
+unsigned char Engine::addMaterial(MaterialPtr material)
 {
     if( !material )
         THROW_INVALID_ARG("Material parameter cannot be NULL");
@@ -221,7 +228,7 @@ unsigned char gcm::Engine::addMaterial(MaterialPtr material)
     return index;
 }
 
-unsigned int gcm::Engine::addBorderCondition(BorderCondition *borderCondition)
+unsigned int Engine::addBorderCondition(BorderCondition *borderCondition)
 {
     if (!borderCondition)
         THROW_INVALID_ARG("Border condition parameter cannot be NULL");
@@ -230,7 +237,7 @@ unsigned int gcm::Engine::addBorderCondition(BorderCondition *borderCondition)
     return borderConditions.size () - 1;
 }
 
-void gcm::Engine::replaceDefaultBorderCondition(BorderCondition *borderCondition)
+void Engine::replaceDefaultBorderCondition(BorderCondition *borderCondition)
 {
     assert_gt(borderConditions.size(), 1 );
     if (!borderCondition)
@@ -239,7 +246,7 @@ void gcm::Engine::replaceDefaultBorderCondition(BorderCondition *borderCondition
     LOG_DEBUG("Default border condition set");
 }
 
-unsigned int gcm::Engine::addContactCondition(ContactCondition *contactCondition)
+unsigned int Engine::addContactCondition(ContactCondition *contactCondition)
 {
     if (!contactCondition)
         THROW_INVALID_ARG("Contact condition parameter cannot be NULL");
@@ -248,7 +255,7 @@ unsigned int gcm::Engine::addContactCondition(ContactCondition *contactCondition
     return contactConditions.size () - 1;
 }
 
-void gcm::Engine::replaceDefaultContactCondition(ContactCondition *contactCondition)
+void Engine::replaceDefaultContactCondition(ContactCondition *contactCondition)
 {
     assert_gt(contactConditions.size(), 0 );
     if (!contactCondition)
@@ -257,7 +264,7 @@ void gcm::Engine::replaceDefaultContactCondition(ContactCondition *contactCondit
     LOG_DEBUG("Default contact condition set");
 }
 
-unsigned char gcm::Engine::getMaterialIndex(string name)
+unsigned char Engine::getMaterialIndex(string name)
 {
     for (unsigned char i = 0; i < materials.size(); i++)
         if (materials[i]->getName() == name)
@@ -265,7 +272,7 @@ unsigned char gcm::Engine::getMaterialIndex(string name)
     THROW_INVALID_ARG("Material was not found");
 }
 
-const MaterialPtr& gcm::Engine::getMaterial(string name)
+const MaterialPtr& Engine::getMaterial(string name)
 {
     for (unsigned char i = 0; i < materials.size(); i++)
         if (materials[i]->getName() == name)
@@ -273,14 +280,14 @@ const MaterialPtr& gcm::Engine::getMaterial(string name)
     THROW_INVALID_ARG("Material was not found");
 }
 
-const MaterialPtr& gcm::Engine::getMaterial(unsigned char index)
+const MaterialPtr& Engine::getMaterial(unsigned char index)
 {
     assert_ge(index, 0);
     assert_lt(index, materials.size());
     return materials[index];
 }
 
-Body* gcm::Engine::getBodyById(string id)
+Body* Engine::getBodyById(string id)
 {
     for (size_t i = 0; i < bodies.size(); i++)
         if (bodies[i]->getId() == id)
@@ -289,7 +296,7 @@ Body* gcm::Engine::getBodyById(string id)
     return NULL;
 }
 
-int gcm::Engine::getBodyNum(string id)
+int Engine::getBodyNum(string id)
 {
     for (size_t i = 0; i < bodies.size(); i++)
         if (bodies[i]->getId() == id)
@@ -298,92 +305,92 @@ int gcm::Engine::getBodyNum(string id)
     return -1;
 }
 
-Body* gcm::Engine::getBody(unsigned int num)
+Body* Engine::getBody(unsigned int num)
 {
     assert_lt(num, bodies.size() );
     return bodies[num];
 }
 
-int gcm::Engine::getNumberOfBodies()
+int Engine::getNumberOfBodies()
 {
     return bodies.size();
 }
 
-int gcm::Engine::getNumberOfMaterials()
+int Engine::getNumberOfMaterials()
 {
     return materials.size();
 }
 
-NumericalMethod* gcm::Engine::getNumericalMethod(string type)
+NumericalMethod* Engine::getNumericalMethod(string type)
 {
     return numericalMethods.find(type) != numericalMethods.end() ? numericalMethods[type] : NULL;
 }
 
-VolumeCalculator* gcm::Engine::getVolumeCalculator(string type)
+VolumeCalculator* Engine::getVolumeCalculator(string type)
 {
     return volumeCalculators.find(type) != volumeCalculators.end() ? volumeCalculators[type] : NULL;
 }
 
-BorderCalculator* gcm::Engine::getBorderCalculator(string type)
+BorderCalculator* Engine::getBorderCalculator(string type)
 {
     return borderCalculators.find(type) != borderCalculators.end() ? borderCalculators[type] : NULL;
 }
 
-ContactCalculator* gcm::Engine::getContactCalculator(string type)
+ContactCalculator* Engine::getContactCalculator(string type)
 {
     return contactCalculators.find(type) != contactCalculators.end() ? contactCalculators[type] : NULL;
 }
 
-LineFirstOrderInterpolator* gcm::Engine::getFirstOrderLineInterpolator(string type)
+LineFirstOrderInterpolator* Engine::getFirstOrderLineInterpolator(string type)
 {
     return interpolators.find(type) != interpolators.end() ? (LineFirstOrderInterpolator*) interpolators[type] : NULL;
 }
 
-TetrFirstOrderInterpolator* gcm::Engine::getFirstOrderInterpolator(string type)
+TetrFirstOrderInterpolator* Engine::getFirstOrderInterpolator(string type)
 {
     return interpolators.find(type) != interpolators.end() ? (TetrFirstOrderInterpolator*) interpolators[type] : NULL;
 }
 
-TetrSecondOrderMinMaxInterpolator* gcm::Engine::getSecondOrderInterpolator(string type)
+TetrSecondOrderMinMaxInterpolator* Engine::getSecondOrderInterpolator(string type)
 {
     return interpolators.find(type) != interpolators.end() ? (TetrSecondOrderMinMaxInterpolator*) interpolators[type] : NULL;
 }
 
-RheologyCalculator* gcm::Engine::getRheologyCalculator(string type)
+RheologyCalculator* Engine::getRheologyCalculator(string type)
 {
     return rheologyCalculators.find(type) != rheologyCalculators.end() ? rheologyCalculators[type] : NULL;
 }
 
-FailureModel* gcm::Engine::getFailureModel(string type)
+FailureModel* Engine::getFailureModel(string type)
 {
     return failureModels.find(type) != failureModels.end() ? failureModels[type] : NULL;
 }
 
-BorderCondition* gcm::Engine::getBorderCondition(unsigned int num)
+BorderCondition* Engine::getBorderCondition(unsigned int num)
 {
     assert_lt(num, borderConditions.size() );
     return borderConditions[num];
 }
 
-ContactCondition* gcm::Engine::getContactCondition(unsigned int num)
+ContactCondition* Engine::getContactCondition(unsigned int num)
 {
     assert_lt(num, contactConditions.size() );
     return contactConditions[num];
 }
 
-void gcm::Engine::addBody(Body* body)
+void Engine::addBody(Body* body)
 {
     bodies.push_back(body);
 }
 
-CalcNode& gcm::Engine::getVirtNode(unsigned int i)
+CalcNode& Engine::getVirtNode(unsigned int i)
 {
     assert_ge(i, 0);
     assert_lt(i, virtNodes.size());
     return virtNodes[i];
 }
 
-void gcm::Engine::doNextStep()
+void Engine::doNextStep()
 {
     float step;
     doNextStepBeforeStages(numeric_limits<float>::infinity(), step);
@@ -392,7 +399,7 @@ void gcm::Engine::doNextStep()
     currentTimeStep++;
 }
 
-void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actualTimeStep)
+void Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actualTimeStep)
 {
     if( ! colDet->is_static() )
     {
@@ -471,7 +478,7 @@ void gcm::Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actu
     }
 }
 
-void gcm::Engine::doNextStepStages(const float time_step)
+void Engine::doNextStepStages(const float time_step)
 {
     // FIXME - hardcoded name
     NumericalMethod *method = getNumericalMethod("InterpolationFixedAxis");
@@ -497,7 +504,7 @@ void gcm::Engine::doNextStepStages(const float time_step)
     LOG_DEBUG("Step done");
 }
 
-void gcm::Engine::doNextStepAfterStages(const float time_step) {
+void Engine::doNextStepAfterStages(const float time_step) {
     for( unsigned int i = 0; i < bodies.size(); i++ )
     {
         RheologyCalculator* rc = getRheologyCalculator( bodies[i]->getRheologyCalculatorType() );
@@ -525,27 +532,27 @@ void gcm::Engine::doNextStepAfterStages(const float time_step) {
     currentTime += time_step;
 }
 
-float gcm::Engine::getCurrentTime() {
+float Engine::getCurrentTime() {
     return currentTime;
 }
 
-void gcm::Engine::setCurrentTime(float time) {
+void Engine::setCurrentTime(float time) {
     currentTime = time;
 }
 
-void gcm::Engine::syncNodes() {
+void Engine::syncNodes() {
     LOG_DEBUG("Syncing remote nodes");
     dataBus->syncNodes(-1);
     LOG_DEBUG("Syncing remote nodes done");
 }
 
-void gcm::Engine::syncOutlines() {
+void Engine::syncOutlines() {
     LOG_DEBUG("Syncing outlines");
     dataBus->syncOutlines();
     LOG_DEBUG("Syncing outlines");
 }
 
-void gcm::Engine::calculate()
+void Engine::calculate()
 {
     // We set time step once and do not change it during calculation
     // float tau = calculateRecommendedTimeStep();
@@ -564,7 +571,7 @@ void gcm::Engine::calculate()
     createDump(numberOfSnaps);
 }
 
-float gcm::Engine::calculateRecommendedTimeStep()
+float Engine::calculateRecommendedTimeStep()
 {
     float timeStep = numeric_limits<float>::infinity();
     for( int j = 0; j < getNumberOfBodies(); j++ )
@@ -576,7 +583,7 @@ float gcm::Engine::calculateRecommendedTimeStep()
     return timeStep;
 }
 
-float gcm::Engine::calculateRecommendedContactTreshold(float tau)
+float Engine::calculateRecommendedContactTreshold(float tau)
 {
     float threshold = numeric_limits<float>::infinity();
     // Threshold depends on mesh avg h
@@ -610,7 +617,7 @@ float gcm::Engine::calculateRecommendedContactTreshold(float tau)
     return threshold * contactThresholdFactor;
 }
 
-void gcm::Engine::createSnapshot(int number)
+void Engine::createSnapshot(int number)
 {
     for( int j = 0; j < getNumberOfBodies(); j++ )
     {
@@ -624,7 +631,7 @@ void gcm::Engine::createSnapshot(int number)
     }
 }
 
-void gcm::Engine::createDump(int number)
+void Engine::createDump(int number)
 {
     for( int j = 0; j < getNumberOfBodies(); j++ )
     {
@@ -637,36 +644,36 @@ void gcm::Engine::createDump(int number)
     }
 }
 
-void gcm::Engine::setNumberOfSnaps(int number) {
+void Engine::setNumberOfSnaps(int number) {
     numberOfSnaps = number;
 }
 
-void gcm::Engine::setStepsPerSnap(int number) {
+void Engine::setStepsPerSnap(int number) {
     stepsPerSnap = number;
 }
 
-DataBus* gcm::Engine::getDataBus() {
+DataBus* Engine::getDataBus() {
     return dataBus;
 }
 
-AABB gcm::Engine::getScene() {
+AABB Engine::getScene() {
     return scene;
 }
 
-void gcm::Engine::setScene(AABB src) {
+void Engine::setScene(AABB src) {
     scene = src;
 }
 
-void gcm::Engine::transferScene(float x, float y, float z) {
+void Engine::transferScene(float x, float y, float z) {
     scene.transfer(x, y, z);
 }
 
-void gcm::Engine::scaleScene(float x0, float y0, float z0, 
+void Engine::scaleScene(float x0, float y0, float z0, 
 		float scaleX, float scaleY, float scaleZ) {
     scene.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
 }
 
-void gcm::Engine::setContactThresholdType(unsigned char type)
+void Engine::setContactThresholdType(unsigned char type)
 {
     assert_true( type == CONTACT_THRESHOLD_BY_AVG_H
             || type == CONTACT_THRESHOLD_BY_MAX_LT
@@ -674,71 +681,71 @@ void gcm::Engine::setContactThresholdType(unsigned char type)
     contactThresholdType = type;
 }
 
-unsigned char gcm::Engine::getContactThresholdType()
+unsigned char Engine::getContactThresholdType()
 {
     return contactThresholdType;
 }
 
-void gcm::Engine::setContactThresholdFactor(float val)
+void Engine::setContactThresholdFactor(float val)
 {
     assert_gt(val, 0 );
     contactThresholdFactor = val;
 }
 
-float gcm::Engine::getContactThresholdFactor()
+float Engine::getContactThresholdFactor()
 {
     return contactThresholdFactor;
 }
 
-void gcm::Engine::setDefaultRheologyCalculatorType(string calcType)
+void Engine::setDefaultRheologyCalculatorType(string calcType)
 {
     defaultRheoCalcType = calcType;
 }
 
-string gcm::Engine::getDefaultRheologyCalculatorType()
+string Engine::getDefaultRheologyCalculatorType()
 {
     return defaultRheoCalcType;
 }
 
-void gcm::Engine::setDefaultFailureModelType(string modelType)
+void Engine::setDefaultFailureModelType(string modelType)
 {
     defaultFailureModelType = modelType;
 }
 
-string gcm::Engine::getDefaultFailureModelType()
+string Engine::getDefaultFailureModelType()
 {
     return defaultFailureModelType;
 }
 
-void gcm::Engine::setCollisionDetectorStatic(bool val)
+void Engine::setCollisionDetectorStatic(bool val)
 {
     colDet->set_static(val);
 }
 
-bool gcm::Engine::isCollisionDetectorStatic()
+bool Engine::isCollisionDetectorStatic()
 {
     return colDet->is_static();
 }
 
-void gcm::Engine::setMeshesMovable(bool val)
+void Engine::setMeshesMovable(bool val)
 {
     meshesMovable = val;
 }
 
-bool gcm::Engine::getMeshesMovable()
+bool Engine::getMeshesMovable()
 {
     return meshesMovable;
 }
 
-float gcm::Engine::getGmshVerbosity() {
+float Engine::getGmshVerbosity() {
     return gmshVerbosity;
 }
 
-void gcm::Engine::setGmshVerbosity(float verbosity) {
+void Engine::setGmshVerbosity(float verbosity) {
     gmshVerbosity = verbosity;
 }
 
-bool gcm::Engine::interpolateNode(CalcNode& node)
+bool Engine::interpolateNode(CalcNode& node)
 {
     for( unsigned int i = 0; i < bodies.size(); i++ )
     {
@@ -749,7 +756,7 @@ bool gcm::Engine::interpolateNode(CalcNode& node)
     return false;
 }
         
-void gcm::Engine::setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode)
+void Engine::setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode)
 {
     for (auto& b: bodies)
         for (auto& m: b->getMeshesVector())
@@ -761,29 +768,29 @@ void gcm::Engine::setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode
             }
 }
 
-const vector<tuple<unsigned int, string, string>>& gcm::Engine::getSnapshotsList() const
+const vector<tuple<unsigned int, string, string>>& Engine::getSnapshotsList() const
 {
     return snapshots;
 }
 
-const vector<float>& gcm::Engine::getSnapshotTimestamps() const
+const vector<float>& Engine::getSnapshotTimestamps() const
 {
 	return snapshotTimestamps;
 }
 
-void gcm::Engine::setOption(string option, string value)
+void Engine::setOption(string option, string value)
 {
     options[option] = value;
 }
 
-const string& gcm::Engine::getOption(string option) const
+const string& Engine::getOption(string option) const
 {
     if (!hasOption(option))
         THROW_INVALID_ARG("Option \"" + option + "\" not found");
     return options.at(option);
 }
 
-bool gcm::Engine::hasOption(string option) const
+bool Engine::hasOption(string option) const
 {
     return options.find(option) != options.end();
 }

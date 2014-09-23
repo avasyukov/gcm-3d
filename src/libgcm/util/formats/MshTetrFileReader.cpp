@@ -5,17 +5,24 @@
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/GCMDispatcher.hpp"
 
-gcm::MshTetrFileReader::MshTetrFileReader()
+using namespace gcm;
+using std::string;
+using std::vector;
+using std::map;
+using std::numeric_limits;
+using std::ifstream;
+
+MshTetrFileReader::MshTetrFileReader()
 {
     INIT_LOGGER("gcm.MshTetrFileReader");
 }
 
-gcm::MshTetrFileReader::~MshTetrFileReader()
+MshTetrFileReader::~MshTetrFileReader()
 {
 
 }
 
-void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes)
+void MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes)
 {
     scene->minX = numeric_limits<float>::infinity();
     scene->minY = numeric_limits<float>::infinity();
@@ -183,7 +190,7 @@ void gcm::MshTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
     numberOfNodes = number_of_nodes;
 }
 
-void gcm::MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher)
+void MshTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher)
 {
     assert_true(mesh);
     assert_true(dispatcher);

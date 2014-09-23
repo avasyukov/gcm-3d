@@ -2,6 +2,9 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
+using namespace gcm;
+using std::vector;
+
 AdhesionContactCalculator::AdhesionContactCalculator()
 {
     U_gsl = gsl_matrix_alloc (18, 18);

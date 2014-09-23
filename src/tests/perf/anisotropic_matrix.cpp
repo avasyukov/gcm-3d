@@ -20,7 +20,8 @@
 #define ITERATIONS 1000
 
 using namespace gcm;
-using namespace std;
+using std::cout;
+using std::endl;
 
 int main()
 {
@@ -34,8 +35,8 @@ int main()
     cout << "Analytical implementation is expected to be few times faster." << endl;
     
     Material::RheologyProperties C;
-    gcm::real la = 1e8;
-    gcm::real mu = 1e6;
+    real la = 1e8;
+    real mu = 1e6;
     C.c12 = C.c13 = C.c23 = la;
     C.c44 = C.c55 = C.c66 = mu;
     C.c11 = C.c22 = C.c33 = la + 2 * mu;

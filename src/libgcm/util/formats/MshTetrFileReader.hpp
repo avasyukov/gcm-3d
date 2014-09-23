@@ -14,7 +14,6 @@
 
 #include "libgcm/Logging.hpp"
 
-using namespace std;
 
 namespace gcm {
     class TetrMeshFirstOrder;
@@ -28,8 +27,8 @@ namespace gcm {
     public:
         MshTetrFileReader();
         ~MshTetrFileReader();
-        void readFile( string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher);
-        void preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes);
+        void readFile( std::string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher);
+        void preReadFile(std::string file, AABB* scene, int& sliceDirection, int& numberOfNodes);
     };
 }
 

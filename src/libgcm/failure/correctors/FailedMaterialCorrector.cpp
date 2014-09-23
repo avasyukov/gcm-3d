@@ -1,8 +1,10 @@
 #include "libgcm/failure/correctors/FailedMaterialCorrector.hpp"
 
-gcm::FailedMaterialCorrector::FailedMaterialCorrector() {
+using namespace gcm;
+
+FailedMaterialCorrector::FailedMaterialCorrector() {
     INIT_LOGGER( "gcm.FailedMaterialCorrector" );
 }
 
-gcm::FailedMaterialCorrector::~FailedMaterialCorrector() {
+FailedMaterialCorrector::~FailedMaterialCorrector() {
 }

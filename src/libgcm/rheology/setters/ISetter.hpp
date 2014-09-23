@@ -62,12 +62,12 @@ namespace gcm
 
     };
 
-    typedef shared_ptr<ISetter> SetterPtr;
+    typedef std::shared_ptr<ISetter> SetterPtr;
     
     template<typename T, typename...Args>
-    shared_ptr<T> makeSetterPtr(Args...args)
+    std::shared_ptr<T> makeSetterPtr(Args...args)
     {
-        return make_shared<T>(args...);
+        return std::make_shared<T>(args...);
     }
 }
 #endif /* ISETTER_HPP */

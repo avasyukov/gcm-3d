@@ -1,15 +1,17 @@
 #include "libgcm/util/matrixes.hpp"
 
-gcm::gcm_matrix::gcm_matrix()
+using namespace gcm;
+
+gcm_matrix::gcm_matrix()
 {
     INIT_LOGGER("gcm.matrixes");
 };
 
-gcm::gcm_matrix::~gcm_matrix()
+gcm_matrix::~gcm_matrix()
 {
 };
 
-gcm::gcm_matrix& gcm::gcm_matrix::operator=(const gcm_matrix &A)
+gcm_matrix& gcm_matrix::operator=(const gcm_matrix &A)
 {
     for (int i = 0; i < GCM_MATRIX_SIZE; i++)
         for (int j = 0; j < GCM_MATRIX_SIZE; j++)
@@ -17,19 +19,19 @@ gcm::gcm_matrix& gcm::gcm_matrix::operator=(const gcm_matrix &A)
     return *this;
 };
 
-float& gcm::gcm_matrix::operator()(int i, int j)
+float& gcm_matrix::operator()(int i, int j)
 {
     return p[i][j];
 };
 
-void gcm::gcm_matrix::createE()
+void gcm_matrix::createE()
 {
     for (int i = 0; i < GCM_MATRIX_SIZE; i++)
         for (int j = 0; j < GCM_MATRIX_SIZE; j++)
             p[i][j] = (i == j ? 1 : 0);
 };
 
-bool gcm::gcm_matrix::operator==(const gcm_matrix &A) const
+bool gcm_matrix::operator==(const gcm_matrix &A) const
 {
     for (int i = 0; i < GCM_MATRIX_SIZE; ++i)
         for (int j = 0; j < GCM_MATRIX_SIZE; ++j)
@@ -44,14 +46,14 @@ bool gcm::gcm_matrix::operator==(const gcm_matrix &A) const
     return true;
 };
 
-bool gcm::gcm_matrix::operator!=(const gcm_matrix &A) const
+bool gcm_matrix::operator!=(const gcm_matrix &A) const
 {
     return !(*this == A);
 };
 
-gcm::gcm_matrix gcm::gcm_matrix::operator*(const gcm_matrix &A) const
+gcm_matrix gcm_matrix::operator*(const gcm_matrix &A) const
 {
-    gcm::gcm_matrix res_matrix;
+    gcm_matrix res_matrix;
     for (int r = 0; r < GCM_MATRIX_SIZE; r++) {
         for (int c = 0; c < GCM_MATRIX_SIZE; c++) {
             res_matrix.p[r][c] = 0;
@@ -63,14 +65,14 @@ gcm::gcm_matrix gcm::gcm_matrix::operator*(const gcm_matrix &A) const
     return res_matrix;
 };
 
-gcm::gcm_matrix gcm::gcm_matrix::operator/(const gcm_matrix &A) const
+gcm_matrix gcm_matrix::operator/(const gcm_matrix &A) const
 {
     return (*this * A.inv());
 };
 
-gcm::gcm_matrix gcm::gcm_matrix::operator*(const real &a) const
+gcm_matrix gcm_matrix::operator*(const real &a) const
 {
-    gcm::gcm_matrix res_matrix;
+    gcm_matrix res_matrix;
     for (int r = 0; r < GCM_MATRIX_SIZE; r++) {
         for (int c = 0; c < GCM_MATRIX_SIZE; c++) {
             res_matrix.p[r][c] = this->p[r][c] * a;
@@ -79,16 +81,16 @@ gcm::gcm_matrix gcm::gcm_matrix::operator*(const real &a) const
     return res_matrix;
 };
 
-gcm::gcm_matrix gcm::gcm_matrix::operator/(const real &a) const
+gcm_matrix gcm_matrix::operator/(const real &a) const
 {
     if( a == 0.0 )
         THROW_INVALID_ARG("Can not divide matrix by zero");
     return (*this * (1/a));
 };
 
-gcm::gcm_matrix gcm::gcm_matrix::operator%(const gcm_matrix &A) const
+gcm_matrix gcm_matrix::operator%(const gcm_matrix &A) const
 {
-    gcm::gcm_matrix res_matrix;
+    gcm_matrix res_matrix;
     for (int r = 0; r < GCM_MATRIX_SIZE; r++) {
         for (int c = 0; c < GCM_MATRIX_SIZE; c++) {
             res_matrix.p[r][c] = this->p[r][c] / A.p[r][c];
@@ -97,16 +99,16 @@ gcm::gcm_matrix gcm::gcm_matrix::operator%(const gcm_matrix &A) const
     return res_matrix;
 };
 
-gcm::gcm_matrix gcm::gcm_matrix::operator+(const gcm_matrix &A) const
+gcm_matrix gcm_matrix::operator+(const gcm_matrix &A) const
 {
-    gcm::gcm_matrix res_matrix;
+    gcm_matrix res_matrix;
     for (int r = 0; r < GCM_MATRIX_SIZE; r++)
         for (int c = 0; c < GCM_MATRIX_SIZE; c++)
             res_matrix.p[r][c] = this->p[r][c] + A.p[r][c];
     return res_matrix;
 };
 
-gcm::gcm_matrix gcm::gcm_matrix::operator-(const gcm_matrix &A) const
+gcm_matrix gcm_matrix::operator-(const gcm_matrix &A) const
 {
     gcm_matrix res_matrix;
     for (int r = 0; r < GCM_MATRIX_SIZE; r++)
@@ -115,7 +117,7 @@ gcm::gcm_matrix gcm::gcm_matrix::operator-(const gcm_matrix &A) const
     return res_matrix;
 };
 
-float gcm::gcm_matrix::max_abs_value() const
+float gcm_matrix::max_abs_value() const
 {
     float res = 0;
     for (int r = 0; r < GCM_MATRIX_SIZE; r++)
@@ -125,23 +127,23 @@ float gcm::gcm_matrix::max_abs_value() const
     return res;
 };
 
-void gcm::gcm_matrix::clear()
+void gcm_matrix::clear()
 {
     memset(p, 0, 81 * sizeof (float));
 };
 
-void gcm::gcm_matrix::setColumn(double *Clmn, int num)
+void gcm_matrix::setColumn(double *Clmn, int num)
 {
     for (int i = 0; i < GCM_MATRIX_SIZE; i++)
         p[i][num] = Clmn[i];
 };
 
-float gcm::gcm_matrix::get(unsigned int i, unsigned int j) const
+float gcm_matrix::get(unsigned int i, unsigned int j) const
 {
     return p[i][j];
 };
 
-gcm_matrix gcm::gcm_matrix::inv() const
+gcm_matrix gcm_matrix::inv() const
 {
     gcm_matrix res_matrix;
     // Invert the matrix using gsl library

@@ -8,5 +8,7 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::VolumeCalculator::~VolumeCalculator() {
+using namespace gcm;
+
+VolumeCalculator::~VolumeCalculator() {
 }

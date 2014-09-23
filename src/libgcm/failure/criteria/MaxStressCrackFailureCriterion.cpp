@@ -1,12 +1,14 @@
 #include "libgcm/failure/criteria/MaxStressCrackFailureCriterion.hpp"
 #include "libgcm/rheology/Failure.hpp"
 
+using namespace gcm;
 
-gcm::MaxStressCrackFailureCriterion::MaxStressCrackFailureCriterion() {
+
+MaxStressCrackFailureCriterion::MaxStressCrackFailureCriterion() {
     INIT_LOGGER( "gcm.MaxStressCrackFailureCriterion" );
 }
 
-void gcm::MaxStressCrackFailureCriterion::checkFailure(ICalcNode& node, const float tau) {
+void MaxStressCrackFailureCriterion::checkFailure(ICalcNode& node, const float tau) {
     
     real m_s[3];
     node.getMainStressComponents(m_s[0], m_s[1], m_s[2]);

@@ -12,20 +12,18 @@
 
 #include "launcher/loaders/mesh/MeshLoader.hpp"
 
-using namespace gcm;
-using namespace std;
 
 namespace launcher
 {
-    class MarkeredMeshGeoLoader: public Singleton<launcher::MarkeredMeshGeoLoader>, public launcher::MeshLoader<MarkeredMesh>
+    class MarkeredMeshGeoLoader: public gcm::Singleton<launcher::MarkeredMeshGeoLoader>, public launcher::MeshLoader<gcm::MarkeredMesh>
     {
         protected:
-            void parseDesc(const xml::Node& desc, string& id, int& cellNum, string& file);
-            void loadMesh(const xml::Node& desc, MarkeredMesh* mesh) override;
+            void parseDesc(const xml::Node& desc, std::string& id, int& cellNum, std::string& file);
+            void loadMesh(const xml::Node& desc, gcm::MarkeredMesh* mesh) override;
         public:
-            void preLoadMesh(const xml::Node& desc, AABB& aabb, int& sliceDirection, int& numberOfNodes);
+            void preLoadMesh(const xml::Node& desc, gcm::AABB& aabb, int& sliceDirection, int& numberOfNodes);
 
-            const static string MESH_TYPE;
+            const static std::string MESH_TYPE;
     };
 }
         

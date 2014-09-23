@@ -2,6 +2,9 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
+using namespace gcm;
+using std::vector;
+
 AdhesionContactDestroyCalculator::AdhesionContactDestroyCalculator()
 {
     scc = new SlidingContactCalculator();

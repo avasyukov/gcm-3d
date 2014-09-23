@@ -4,7 +4,6 @@
 #include "libgcm/CollisionDetector.hpp"
 #include "libgcm/Math.hpp"
 
-using namespace std;
 
 namespace gcm {
 
@@ -13,8 +12,8 @@ namespace gcm {
     public:
         BruteforceCollisionDetector();
         ~BruteforceCollisionDetector();
-        string getType () const;
-        void find_collisions(vector<CalcNode> &virt_nodes);
+        std::string getType () const;
+        void find_collisions(std::vector<CalcNode> &virt_nodes);
     };
 
 }

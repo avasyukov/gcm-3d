@@ -5,8 +5,6 @@
 #include "libgcm/failure/criteria/HashinFailureCriterion.hpp"
 #include "libgcm/failure/correctors/ZeroDeviatorFailedMaterialCorrector.hpp"
 
-using namespace std;
-using namespace gcm;
 
 namespace gcm {
 

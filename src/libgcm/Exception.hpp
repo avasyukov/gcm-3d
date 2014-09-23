@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <cxxabi.h>
 
-using namespace std;
 
 namespace gcm {
     /**
@@ -28,15 +27,15 @@ namespace gcm {
             /**
              * Exception message
              */
-            string message;
+            std::string message;
             /**
              * File name where exception was thrown.
              */
-            string file;
+            std::string file;
             /**
              * Call stack as at the moment when exception was thrown.
              */
-            string callStack;
+            std::string callStack;
         public:
             /**
              * Constructor.
@@ -46,7 +45,7 @@ namespace gcm {
              * @param file Name of the file where exception was thrown.
              * @param line Number of line in the file where exception was thrown.
              */
-            Exception(int code, const string& message, const string& file, int line);
+            Exception(int code, const std::string& message, const std::string& file, int line);
             /**
              * Getter for exception code.
              *
@@ -58,13 +57,13 @@ namespace gcm {
              *
              * @return Exception message.
              */
-            const string& getMessage() const;
+            const std::string& getMessage() const;
             /**
              * Getter for exception file name.
              *
              * @return File name where exception was thrown.
              */
-            const string& getFile() const;
+            const std::string& getFile() const;
             /**
              * Getter for line number.
              *
@@ -74,9 +73,9 @@ namespace gcm {
             /**
              * Getter for call stack.
              *
-             * @return String representation of call stack as at the moment when exception was thrown.
+             * @return std::string representation of call stack as at the moment when exception was thrown.
              */
-            const string& getCallStack() const;
+            const std::string& getCallStack() const;
             /**
              * Unsopported exception code.
              */

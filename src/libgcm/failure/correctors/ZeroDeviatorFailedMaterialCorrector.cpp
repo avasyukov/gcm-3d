@@ -1,10 +1,12 @@
 #include "libgcm/failure/correctors/ZeroDeviatorFailedMaterialCorrector.hpp"
 
-gcm::ZeroDeviatorFailedMaterialCorrector::ZeroDeviatorFailedMaterialCorrector() {
+using namespace gcm;
+
+ZeroDeviatorFailedMaterialCorrector::ZeroDeviatorFailedMaterialCorrector() {
     INIT_LOGGER( "gcm.ZeroDeviatorFailedMaterialCorrector" );
 }
 
-void gcm::ZeroDeviatorFailedMaterialCorrector::applyCorrection(ICalcNode& node, const float tau) {
+void ZeroDeviatorFailedMaterialCorrector::applyCorrection(ICalcNode& node, const float tau) {
     if( node.isDestroyed() )
     {
         real p = (node.sxx + node.syy + node.szz) / 3;

@@ -8,7 +8,9 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
+using namespace gcm;
 
-gcm::BorderCalculator::~BorderCalculator() {
+
+BorderCalculator::~BorderCalculator() {
 }
 

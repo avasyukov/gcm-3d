@@ -18,7 +18,7 @@ namespace gcm
         public:
             MarkeredSurfaceGeoGenerator();
 
-            MarkeredSurface generate(std::string fileName, gcm::real size=0.0);
+            MarkeredSurface generate(std::string fileName, real size=0.0);
 
     };
 };

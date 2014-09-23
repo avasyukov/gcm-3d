@@ -1,5 +1,7 @@
 #include "libgcm/util/forms/StepPulseForm.hpp"
 
+using namespace gcm;
+
 float StepPulseForm::calcMagnitudeNorm( float time, float coords[3], Area* area )
 {
     if( time < startTime )

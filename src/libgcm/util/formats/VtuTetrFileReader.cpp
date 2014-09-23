@@ -4,18 +4,24 @@
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/GCMDispatcher.hpp"
 
+using namespace gcm;
+using std::string;
+using std::numeric_limits;
+using std::vector;
+using std::map;
 
-gcm::VtuTetrFileReader::VtuTetrFileReader()
+
+VtuTetrFileReader::VtuTetrFileReader()
 {
     INIT_LOGGER("gcm.VtuTetrFileReader");
 }
 
-gcm::VtuTetrFileReader::~VtuTetrFileReader()
+VtuTetrFileReader::~VtuTetrFileReader()
 {
 
 }
 
-void gcm::VtuTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes)
+void VtuTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes)
 {
     scene->minX = numeric_limits<float>::infinity();
     scene->minY = numeric_limits<float>::infinity();
@@ -60,7 +66,7 @@ void gcm::VtuTetrFileReader::preReadFile(string file, AABB* scene, int& sliceDir
     numberOfNodes = g->GetNumberOfPoints();
 }
 
-void gcm::VtuTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank)
+void VtuTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispatcher* dispatcher, int rank)
 {
     vtkXMLUnstructuredGridReader *xgr = vtkXMLUnstructuredGridReader::New();
     vtkUnstructuredGrid *g = vtkUnstructuredGrid::New();

@@ -5,7 +5,6 @@
 
 #include "libgcm/Body.hpp"
 
-using namespace gcm;
 
 namespace launcher
 {
@@ -15,7 +14,7 @@ namespace launcher
         protected:
             virtual void loadMesh(const xml::Node& desc, MeshType* mesh) = 0;
         public:
-            MeshType* load(const xml::Node& desc, Body* body)
+            MeshType* load(const xml::Node& desc, gcm::Body* body)
             {
                 MeshType* mesh = new MeshType();
                 mesh->setId(desc["id"]);

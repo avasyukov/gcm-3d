@@ -1,8 +1,6 @@
 #ifndef _GCM_BORDER_CONDITION_H
 #define _GCM_BORDER_CONDITION_H 1
 
-#include <string.h>
-
 #include "libgcm/util/areas/Area.hpp"
 #include "libgcm/calc/border/BorderCalculator.hpp"
 
@@ -21,7 +19,7 @@ namespace gcm {
         PulseForm* form;
         BorderCalculator* calc;
         void doCalc(float time, CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
-                            vector<CalcNode>& previousNodes, bool inner[], float outer_normal[]);
+                            std::vector<CalcNode>& previousNodes, bool inner[], float outer_normal[]);
     };
 }
 

@@ -10,8 +10,6 @@
 #include "libgcm/util/Singleton.hpp"
 #include "libgcm/Logging.hpp"
 
-using namespace gcm;
-using namespace std;
 
 namespace gcm {
     class Vtu2MeshLoader: public Singleton<Vtu2MeshLoader>
@@ -21,8 +19,8 @@ namespace gcm {
     public:
         Vtu2MeshLoader();
         ~Vtu2MeshLoader();
-        void loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName);
-        void preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const string& fileName);
+        void loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const std::string& fileName);
+        void preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const std::string& fileName);
     };
 }
 

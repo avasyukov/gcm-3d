@@ -10,8 +10,6 @@
 #include "libgcm/failure/criteria/FailureCriterion.hpp"
 #include "libgcm/failure/correctors/FailedMaterialCorrector.hpp"
 
-using namespace std;
-using namespace gcm;
 
 namespace gcm {
 
@@ -19,13 +17,13 @@ namespace gcm {
     public:
         FailureModel();
         ~FailureModel();
-        string getType();
+        std::string getType();
 		void checkFailure(ICalcNode& node, const float tau);
 		void applyCorrection(ICalcNode& node, const float tau);
     protected:
-        string type;
-		vector<FailureCriterion*> criteria;
-		vector<FailedMaterialCorrector*> correctors;
+        std::string type;
+		std::vector<FailureCriterion*> criteria;
+		std::vector<FailedMaterialCorrector*> correctors;
     private:
         USE_LOGGER;
     };

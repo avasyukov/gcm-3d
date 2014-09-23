@@ -1,10 +1,12 @@
 #include "libgcm/mesh/tetr/TetrMesh.hpp"
 
-gcm::TetrMesh::TetrMesh()
+using namespace gcm;
+
+TetrMesh::TetrMesh()
 {
     movable = true;
 }
 
-gcm::TetrMesh::~TetrMesh()
+TetrMesh::~TetrMesh()
 {
 }

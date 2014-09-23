@@ -2,14 +2,16 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::BasicCubicMeshGenerator::BasicCubicMeshGenerator() {
+using namespace gcm;
+
+BasicCubicMeshGenerator::BasicCubicMeshGenerator() {
     INIT_LOGGER("gcm.BasicCubicMeshGenerator");
 }
 
-gcm::BasicCubicMeshGenerator::~BasicCubicMeshGenerator() {
+BasicCubicMeshGenerator::~BasicCubicMeshGenerator() {
 }
 
-void gcm::BasicCubicMeshGenerator::loadMesh(BasicCubicMesh* mesh, GCMDispatcher* dispatcher, float h, int num)
+void BasicCubicMeshGenerator::loadMesh(BasicCubicMesh* mesh, GCMDispatcher* dispatcher, float h, int num)
 {
     for( int k = 0; k <= num; k++ )
         for( int j = 0; j <= num; j++ )
@@ -30,7 +32,7 @@ void gcm::BasicCubicMeshGenerator::loadMesh(BasicCubicMesh* mesh, GCMDispatcher*
     mesh->preProcess();
 }
 
-void gcm::BasicCubicMeshGenerator::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, float h, int num)
+void BasicCubicMeshGenerator::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, float h, int num)
 {
     sliceDirection = 0;
     numberOfNodes = (num + 1) * (num + 1) * (num + 1);

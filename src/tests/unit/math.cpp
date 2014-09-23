@@ -13,18 +13,18 @@ using namespace gcm;
 #define MIN_ROOT 0.1
 #define MAX_ROOT 1000
 
-bool solveThirdOrderTest(gcm::real a1, gcm::real a2, gcm::real a3)
+bool solveThirdOrderTest(real a1, real a2, real a3)
 {
-    gcm::real e[3];
+    real e[3];
     e[0] = a1;
     e[1] = a2;
     e[2] = a3;
     
-    gcm::real a = - (e[0] + e[1] + e[2]);
-    gcm::real b = e[0]*e[1] + e[0]*e[2] + e[1]*e[2];
-    gcm::real c = - e[0] * e[1] * e[2];
+    real a = - (e[0] + e[1] + e[2]);
+    real b = e[0]*e[1] + e[0]*e[2] + e[1]*e[2];
+    real c = - e[0] * e[1] * e[2];
     
-    gcm::real r[3];
+    real r[3];
     solvePolynomialThirdOrder(a, b, c, r[0], r[1], r[2]);
     
     std::sort(std::begin(e), std::end(e));
@@ -40,7 +40,7 @@ TEST(Math, solvePolynomialThirdOrderThreeRoots)
 {
     srand(0);
 
-    gcm::real e[3];
+    real e[3];
     
     for (int k = 0; k < ITERATIONS; k++)
     {
@@ -56,7 +56,7 @@ TEST(Math, solvePolynomialThirdOrderTwoRoots)
 {
     srand(0);
 
-    gcm::real e[3];
+    real e[3];
     
     for (int k = 0; k < ITERATIONS; k++)
     {
@@ -72,7 +72,7 @@ TEST(Math, solvePolynomialThirdOrderOneRoot)
 {
     srand(0);
 
-    gcm::real e[3];
+    real e[3];
     
     for (int k = 0; k < ITERATIONS; k++)
     {
@@ -92,15 +92,15 @@ TEST(Math, solvePolynomialThirdOrderHydrostaticStress)
     
     for (int k = 0; k < ITERATIONS; k++)
     {
-        gcm::real p = MIN_ROOT + (MAX_ROOT-MIN_ROOT) * (double) rand() / RAND_MAX;
+        real p = MIN_ROOT + (MAX_ROOT-MIN_ROOT) * (double) rand() / RAND_MAX;
         node.sxx = node.syy = node.szz = p;
         node.sxy = node.sxz = node.syz = 0;
         
-        gcm::real a = - node.getJ1();
-        gcm::real b = node.getJ2();
-        gcm::real c = - node.getJ3();
+        real a = - node.getJ1();
+        real b = node.getJ2();
+        real c = - node.getJ3();
         
-        gcm::real r[3];
+        real r[3];
         solvePolynomialThirdOrder(a, b, c, r[0], r[1], r[2]);
 
         bool match = true;

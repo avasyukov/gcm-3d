@@ -2,19 +2,24 @@
 
 #include "libgcm/Engine.hpp"
 
-bool gcm::Geo2MeshLoader::isMshFileCreated(string fileName)
+using namespace gcm;
+using std::string;
+using std::find;
+using std::map;
+
+bool Geo2MeshLoader::isMshFileCreated(string fileName)
 {
     return createdFiles.find(fileName) != createdFiles.end();
 }
 
-gcm::Geo2MeshLoader::Geo2MeshLoader() {
+Geo2MeshLoader::Geo2MeshLoader() {
     INIT_LOGGER("gcm.Geo2MeshLoader");
 }
 
-gcm::Geo2MeshLoader::~Geo2MeshLoader() {
+Geo2MeshLoader::~Geo2MeshLoader() {
 }
 
-void gcm::Geo2MeshLoader::cleanUp() {
+void Geo2MeshLoader::cleanUp() {
     for( map<string, bool>::const_iterator itr = createdFiles.begin(); itr != createdFiles.end(); ++itr )
     {
         LOG_DEBUG("Deleting generated file: " << getMshFileName(itr->first));
@@ -25,17 +30,17 @@ void gcm::Geo2MeshLoader::cleanUp() {
     createdFiles.clear();
 }
 
-string gcm::Geo2MeshLoader::getMshFileName(string geoFile)
+string Geo2MeshLoader::getMshFileName(string geoFile)
 {
     return geoFile + ".tmp.msh";
 }
 
-string gcm::Geo2MeshLoader::getVtkFileName(string geoFile)
+string Geo2MeshLoader::getVtkFileName(string geoFile)
 {
     return geoFile + ".tmp.vtu";
 }
 
-void gcm::Geo2MeshLoader::createMshFile(string fileName, float tetrSize)
+void Geo2MeshLoader::createMshFile(string fileName, float tetrSize)
 {
     Engine& engine = Engine::getInstance();
 
@@ -72,7 +77,7 @@ void gcm::Geo2MeshLoader::createMshFile(string fileName, float tetrSize)
         MPI::COMM_WORLD.Barrier();
 }
 
-void gcm::Geo2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, string fileName, float tetrSize)
+void Geo2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, string fileName, float tetrSize)
 {
     if (!isMshFileCreated(fileName))
         createMshFile(fileName, tetrSize);
@@ -119,7 +124,7 @@ void gcm::Geo2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dis
     mesh->preProcess();
 }
 
-void gcm::Geo2MeshLoader::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, string fileName, float tetrSize) {
+void Geo2MeshLoader::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, string fileName, float tetrSize) {
     if (!isMshFileCreated(fileName))
         createMshFile(fileName, tetrSize);
     MshTetrFileReader* reader = new MshTetrFileReader();

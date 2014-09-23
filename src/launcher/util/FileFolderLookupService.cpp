@@ -4,6 +4,8 @@
 #include <boost/filesystem.hpp>
 
 namespace bfs = boost::filesystem;
+using std::string;
+using std::ifstream;
 
 void launcher::FileFolderLookupService::addPath(string path) {
     paths.push_back(path);

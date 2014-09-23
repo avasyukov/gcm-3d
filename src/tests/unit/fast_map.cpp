@@ -7,6 +7,8 @@
 
 #define MAP_SIZE 100000
 
+using std::invalid_argument;
+
 TEST(FastMap, Fuzzy) {
     std::map<int, int> sm;
     FastMap<int, int> fm(MAP_SIZE);

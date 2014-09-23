@@ -8,24 +8,26 @@
 #include "libgcm/calc/contact/SlidingContactCalculator.hpp"
 
 
-class AdhesionContactDestroyCalculator : public ContactCalculator
+namespace gcm
 {
-public:
-    AdhesionContactDestroyCalculator();
-    ~AdhesionContactDestroyCalculator();
-    void doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node,
-                            RheologyMatrixPtr matrix, vector<CalcNode>& previousNodes, bool inner[],
-                            RheologyMatrixPtr virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
-                            float outer_normal[], float scale);
-    inline string getType() {
-        return "AdhesionContactDestroyCalculator";
-    }
+    class AdhesionContactDestroyCalculator : public ContactCalculator
+    {
+    public:
+        AdhesionContactDestroyCalculator();
+        ~AdhesionContactDestroyCalculator();
+        void doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node,
+                                RheologyMatrixPtr matrix, std::vector<CalcNode>& previousNodes, bool inner[],
+                                RheologyMatrixPtr virt_matrix, std::vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
+                                float outer_normal[], float scale);
+        inline std::string getType() {
+            return "AdhesionContactDestroyCalculator";
+        }
 
-protected:
+    protected:
 
-private:
-    SlidingContactCalculator* scc;
-    AdhesionContactCalculator* acc;
-};
-
+    private:
+        SlidingContactCalculator* scc;
+        AdhesionContactCalculator* acc;
+    };
+}
 #endif

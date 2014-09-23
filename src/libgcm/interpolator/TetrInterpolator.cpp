@@ -1,13 +1,16 @@
 #include "libgcm/interpolator/TetrInterpolator.hpp"
 
-gcm::TetrInterpolator::TetrInterpolator() {
+using namespace gcm;
+using std::string;
+
+TetrInterpolator::TetrInterpolator() {
     type = "Interpolator";
     INIT_LOGGER( "gcm.Interpolator" );
 }
 
-gcm::TetrInterpolator::~TetrInterpolator() {
+TetrInterpolator::~TetrInterpolator() {
 }
 
-string gcm::TetrInterpolator::getType() {
+string TetrInterpolator::getType() {
     return type;
 }

@@ -4,6 +4,8 @@
 
 #include <memory.h>
 
+using namespace gcm;
+
 bool gcm::triangleIntersectsBox(const Node& boxCenter, const vector3r& boxHalfEdges, const Node& v1, const Node& v2, const Node& v3)
 {
     float triverts[3][3];

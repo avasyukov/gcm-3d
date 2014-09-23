@@ -1,6 +1,8 @@
 #include "libgcm/failure/CrackFailureModel.hpp"
 
-gcm::CrackFailureModel::CrackFailureModel() {
+using namespace gcm;
+
+CrackFailureModel::CrackFailureModel() {
     type = "CrackFailureModel";
     INIT_LOGGER( "gcm.CrackFailureModel" );
     criteria.push_back(new MaxStressCrackFailureCriterion());

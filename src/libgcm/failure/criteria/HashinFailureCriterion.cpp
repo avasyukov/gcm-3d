@@ -1,12 +1,14 @@
 #include "libgcm/failure/criteria/HashinFailureCriterion.hpp"
 #include "libgcm/rheology/Failure.hpp"
 
+using namespace gcm;
 
-gcm::HashinFailureCriterion::HashinFailureCriterion() {
+
+HashinFailureCriterion::HashinFailureCriterion() {
     INIT_LOGGER( "gcm.HashinFailureCriterion" );
 }
 
-void gcm::HashinFailureCriterion::checkFailure(ICalcNode& node, const float tau) {
+void HashinFailureCriterion::checkFailure(ICalcNode& node, const float tau) {
     if( node.isDestroyed() )
         return;
     MaterialPtr mat = node.getMaterial();
@@ -18,7 +20,7 @@ void gcm::HashinFailureCriterion::checkFailure(ICalcNode& node, const float tau)
     real Yt = props[FAILURE_TYPE_HASHIN][FAILURE_TYPE_HASHIN_YT];
     real St = props[FAILURE_TYPE_HASHIN][FAILURE_TYPE_HASHIN_ST];
     real S  = props[FAILURE_TYPE_HASHIN][FAILURE_TYPE_HASHIN_S];
-    gcm::real s11, s12, s13, s22, s23, s33;
+    real s11, s12, s13, s22, s23, s33;
     switch (dir)
     {
     case 1:

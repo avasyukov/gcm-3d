@@ -8,9 +8,10 @@
 
 #include <boost/lexical_cast.hpp>
 
-using namespace std;
 using namespace gcm;
 using boost::lexical_cast;
+using std::string;
+using std::stringstream;
 
 const string launcher::MaterialLoader::MATERIAL_TYPE_ISOTROPIC = "isotropic";
 const string launcher::MaterialLoader::MATERIAL_TYPE_ANISOTROPIC = "anisotropic";
@@ -23,9 +24,9 @@ MaterialPtr launcher::MaterialLoader::loadIsotropic(const xml::Node& desc, Mater
 {
     string name = desc["name"];
     
-    gcm::real rho = lexical_cast<gcm::real>(desc.getChildByName("rho").getTextContent());
-    gcm::real la = lexical_cast<gcm::real>(desc.getChildByName("la").getTextContent());
-    gcm::real mu = lexical_cast<gcm::real>(desc.getChildByName("mu").getTextContent());
+    real rho = lexical_cast<real>(desc.getChildByName("rho").getTextContent());
+    real la = lexical_cast<real>(desc.getChildByName("la").getTextContent());
+    real mu = lexical_cast<real>(desc.getChildByName("mu").getTextContent());
 
     if (la <= 0.0 || mu <= 0.0 || rho <= 0.0 )
         THROW_INVALID_INPUT("Seems xml snippet does not contain valid rheology parameters.");
@@ -55,7 +56,7 @@ MaterialPtr launcher::MaterialLoader::loadAnisotropic(const xml::Node& desc, Mat
     }
     else
     {
-        gcm::real rho = lexical_cast<gcm::real>(desc.getChildByName("rho").getTextContent());
+        real rho = lexical_cast<real>(desc.getChildByName("rho").getTextContent());
         Material::RheologyProperties props;
 
         int k = 0;
@@ -63,7 +64,7 @@ MaterialPtr launcher::MaterialLoader::loadAnisotropic(const xml::Node& desc, Mat
             for (int j = i; j <= 6; j++) {
                 stringstream cxx;
                 cxx << "c" << i << j;
-                props.values[k++] = lexical_cast<gcm::real>(desc.getChildByName(cxx.str()).getTextContent());
+                props.values[k++] = lexical_cast<real>(desc.getChildByName(cxx.str()).getTextContent());
             }
 
         if (rho <= 0.0)

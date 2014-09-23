@@ -37,7 +37,10 @@ namespace ba = boost::algorithm;
 namespace bfs = boost::filesystem;
 
 using namespace xml;
+using namespace gcm;
 using boost::lexical_cast;
+using std::string;
+using std::vector;
 
 
 launcher::Launcher::Launcher()
@@ -47,7 +50,7 @@ launcher::Launcher::Launcher()
 
 void launcher::Launcher::loadMaterialsFromXml(NodeList matNodes)
 {
-    gcm::Engine& engine = gcm::Engine::getInstance();
+    Engine& engine = Engine::getInstance();
     for(auto& matNode: matNodes)
     {
         MaterialPtr mat = MaterialLoader::getInstance().load(matNode);
@@ -56,7 +59,7 @@ void launcher::Launcher::loadMaterialsFromXml(NodeList matNodes)
             engine.getMaterial(mat->getName());
             LOG_WARN("Material \"" << mat->getName() << "\" already loaded. Ignoring duplicate.");
         }
-        catch (gcm::Exception& e)
+        catch (Exception& e)
         {
             engine.addMaterial(mat);
         }
@@ -99,12 +102,12 @@ Area* launcher::Launcher::readArea(xml::Node areaNode)
                 
 Area* launcher::Launcher::readBoxArea(xml::Node areaNode)
 {
-    gcm::real minX = lexical_cast<gcm::real>(areaNode["minX"]);
-    gcm::real maxX = lexical_cast<gcm::real>(areaNode["maxX"]);
-    gcm::real minY = lexical_cast<gcm::real>(areaNode["minY"]);
-    gcm::real maxY = lexical_cast<gcm::real>(areaNode["maxY"]);
-    gcm::real minZ = lexical_cast<gcm::real>(areaNode["minZ"]);
-    gcm::real maxZ = lexical_cast<gcm::real>(areaNode["maxZ"]);
+    real minX = lexical_cast<real>(areaNode["minX"]);
+    real maxX = lexical_cast<real>(areaNode["maxX"]);
+    real minY = lexical_cast<real>(areaNode["minY"]);
+    real maxY = lexical_cast<real>(areaNode["maxY"]);
+    real minZ = lexical_cast<real>(areaNode["minZ"]);
+    real maxZ = lexical_cast<real>(areaNode["maxZ"]);
     LOG_DEBUG("Box size: [" << minX << ", " << maxX << "] "
             << "[" << minY << ", " << maxY << "] "
             << "[" << minZ << ", " << maxZ << "]");
@@ -113,23 +116,23 @@ Area* launcher::Launcher::readBoxArea(xml::Node areaNode)
 
 Area* launcher::Launcher::readSphereArea(xml::Node areaNode)
 {
-    gcm::real r = lexical_cast<gcm::real>(areaNode["r"]);
-    gcm::real x = lexical_cast<gcm::real>(areaNode["x"]);
-    gcm::real y = lexical_cast<gcm::real>(areaNode["y"]);
-    gcm::real z = lexical_cast<gcm::real>(areaNode["z"]);
+    real r = lexical_cast<real>(areaNode["r"]);
+    real x = lexical_cast<real>(areaNode["x"]);
+    real y = lexical_cast<real>(areaNode["y"]);
+    real z = lexical_cast<real>(areaNode["z"]);
     LOG_DEBUG("Sphere R = " << r << ". Center: (" << x << ", " << y << ", " << z << ").");
     return new SphereArea(r, x, y, z);
 }
 
 Area* launcher::Launcher::readCylinderArea(xml::Node areaNode)
 {
-    gcm::real r = lexical_cast<gcm::real>(areaNode["r"]);
-    gcm::real x1 = lexical_cast<gcm::real>(areaNode["x1"]);
-    gcm::real y1 = lexical_cast<gcm::real>(areaNode["y1"]);
-    gcm::real z1 = lexical_cast<gcm::real>(areaNode["z1"]);
-    gcm::real x2 = lexical_cast<gcm::real>(areaNode["x2"]);
-    gcm::real y2 = lexical_cast<gcm::real>(areaNode["y2"]);
-    gcm::real z2 = lexical_cast<gcm::real>(areaNode["z2"]);
+    real r = lexical_cast<real>(areaNode["r"]);
+    real x1 = lexical_cast<real>(areaNode["x1"]);
+    real y1 = lexical_cast<real>(areaNode["y1"]);
+    real z1 = lexical_cast<real>(areaNode["z1"]);
+    real x2 = lexical_cast<real>(areaNode["x2"]);
+    real y2 = lexical_cast<real>(areaNode["y2"]);
+    real z2 = lexical_cast<real>(areaNode["z2"]);
     LOG_DEBUG("Cylinder R = " << r << "." 
             << " Center1: (" << x1 << ", " << y1 << ", " << z1 << ")."
             << " Center2: (" << x2 << ", " << y2 << ", " << z2 << ").");
@@ -138,7 +141,7 @@ Area* launcher::Launcher::readCylinderArea(xml::Node areaNode)
 
 void launcher::Launcher::loadSceneFromFile(string fileName)
 {
-    Engine& engine = gcm::Engine::getInstance();
+    Engine& engine = Engine::getInstance();
 
     // FIXME should we validate task file against xml schema?
     auto& ffls = FileFolderLookupService::getInstance();
@@ -177,7 +180,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         LOG_INFO("Default contact calculator set to: " + type);
         if (type == "AdhesionContactDestroyCalculator")
         {
-            gcm::real adhesionThreshold = lexical_cast<gcm::real>(defaultContactCalculator["adhesionThreshold"]);
+            real adhesionThreshold = lexical_cast<real>(defaultContactCalculator["adhesionThreshold"]);
             engine.getContactCondition(0)->setConditionParam(adhesionThreshold);
         }
     }
@@ -228,7 +231,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     {
         xml::Node contactThreshold = contactThresholdList.front();
         string measure = contactThreshold["measure"];
-        gcm::real value = lexical_cast<gcm::real>(contactThreshold["value"]);
+        real value = lexical_cast<real>(contactThreshold["value"]);
         if( measure == "avgH" )
         {
             engine.setContactThresholdType(CONTACT_THRESHOLD_BY_AVG_H);
@@ -286,7 +289,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     if( timeStepList.size() == 1 )
     {
         xml::Node timeStep = timeStepList.front();
-        gcm::real value = lexical_cast<gcm::real>(timeStep["multiplier"]);
+        real value = lexical_cast<real>(timeStep["multiplier"]);
         engine.setTimeStepMultiplier(value);
         LOG_INFO("Using time step multiplier: " << value);
     }
@@ -373,20 +376,20 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 string transformType = transformNode["type"];
                 if ( transformType == "translate" )
                 {
-                    gcm::real x = lexical_cast<gcm::real>(transformNode["moveX"]);
-                    gcm::real y = lexical_cast<gcm::real>(transformNode["moveY"]);
-                    gcm::real z = lexical_cast<gcm::real>(transformNode["moveZ"]);
+                    real x = lexical_cast<real>(transformNode["moveX"]);
+                    real y = lexical_cast<real>(transformNode["moveY"]);
+                    real z = lexical_cast<real>(transformNode["moveZ"]);
                     LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
                     localScene.transfer(x, y, z);
                 } 
                 if ( transformType == "scale" )
                 {
-                    gcm::real x0 = lexical_cast<gcm::real>(transformNode["x0"]);
-                    gcm::real y0 = lexical_cast<gcm::real>(transformNode["y0"]);
-                    gcm::real z0 = lexical_cast<gcm::real>(transformNode["z0"]);
-                    gcm::real scaleX = lexical_cast<gcm::real>(transformNode["scaleX"]);
-                    gcm::real scaleY = lexical_cast<gcm::real>(transformNode["scaleY"]);
-                    gcm::real scaleZ = lexical_cast<gcm::real>(transformNode["scaleZ"]);
+                    real x0 = lexical_cast<real>(transformNode["x0"]);
+                    real y0 = lexical_cast<real>(transformNode["y0"]);
+                    real z0 = lexical_cast<real>(transformNode["z0"]);
+                    real scaleX = lexical_cast<real>(transformNode["scaleX"]);
+                    real scaleY = lexical_cast<real>(transformNode["scaleY"]);
+                    real scaleZ = lexical_cast<real>(transformNode["scaleZ"]);
                     LOG_DEBUG("Scaling body: [" << x0 << "; " << scaleX << "; " 
                                         << y0 << "; " << scaleY << "; " << z0 << "; " << scaleZ << "]");
                     localScene.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
@@ -438,27 +441,27 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         Body* body = engine.getBodyById(id);
 
         // FIXME - WA - we need this to determine isMine() correctly for moved points
-        gcm::real dX = 0;
-        gcm::real dY = 0;
-        gcm::real dZ = 0;
+        real dX = 0;
+        real dY = 0;
+        real dZ = 0;
         NodeList tmpTransformNodes = bodyNode.getChildrenByName("transform");
         for(auto& transformNode: tmpTransformNodes)
         {
             string transformType = transformNode["type"];
             if ( transformType == "translate" )
             {
-                dX += lexical_cast<gcm::real>(transformNode["moveX"]);
-                dY += lexical_cast<gcm::real>(transformNode["moveY"]);
-                dZ += lexical_cast<gcm::real>(transformNode["moveZ"]);
+                dX += lexical_cast<real>(transformNode["moveX"]);
+                dY += lexical_cast<real>(transformNode["moveY"]);
+                dZ += lexical_cast<real>(transformNode["moveZ"]);
             }
             if ( transformType == "scale" )
             {
-                //gcm::real x0 = lexical_cast<gcm::real>(transformNode["x0"]);
-                //gcm::real y0 = lexical_cast<gcm::real>(transformNode["y0"]);
-                //gcm::real z0 = lexical_cast<gcm::real>(transformNode["z0"]);
-                //gcm::real scaleX = lexical_cast<gcm::real>(transformNode["scaleX"]);
-                //gcm::real scaleY = lexical_cast<gcm::real>(transformNode["scaleY"]);
-                //gcm::real scaleZ = lexical_cast<gcm::real>(transformNode["scaleZ"]);
+                //real x0 = lexical_cast<real>(transformNode["x0"]);
+                //real y0 = lexical_cast<real>(transformNode["y0"]);
+                //real z0 = lexical_cast<real>(transformNode["z0"]);
+                //real scaleX = lexical_cast<real>(transformNode["scaleX"]);
+                //real scaleY = lexical_cast<real>(transformNode["scaleY"]);
+                //real scaleZ = lexical_cast<real>(transformNode["scaleZ"]);
                 
                 // !!!!!!!!!!!!!!!!!!!!!!!!
                 // Здесь и в диспатчере надо что-то сделать
@@ -505,20 +508,20 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             string transformType = transformNode["type"];
             if( transformType == "translate" )
             {
-                gcm::real x = lexical_cast<gcm::real>(transformNode["moveX"]);
-                gcm::real y = lexical_cast<gcm::real>(transformNode["moveY"]);
-                gcm::real z = lexical_cast<gcm::real>(transformNode["moveZ"]);
+                real x = lexical_cast<real>(transformNode["moveX"]);
+                real y = lexical_cast<real>(transformNode["moveY"]);
+                real z = lexical_cast<real>(transformNode["moveZ"]);
                 LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
                 body->getMeshes()->transfer(x, y, z);
             }
             if ( transformType == "scale" )
             {
-                gcm::real x0 = lexical_cast<gcm::real>(transformNode["x0"]);
-                gcm::real y0 = lexical_cast<gcm::real>(transformNode["y0"]);
-                gcm::real z0 = lexical_cast<gcm::real>(transformNode["z0"]);
-                gcm::real scaleX = lexical_cast<gcm::real>(transformNode["scaleX"]);
-                gcm::real scaleY = lexical_cast<gcm::real>(transformNode["scaleY"]);
-                gcm::real scaleZ = lexical_cast<gcm::real>(transformNode["scaleZ"]);
+                real x0 = lexical_cast<real>(transformNode["x0"]);
+                real y0 = lexical_cast<real>(transformNode["y0"]);
+                real z0 = lexical_cast<real>(transformNode["z0"]);
+                real scaleX = lexical_cast<real>(transformNode["scaleX"]);
+                real scaleY = lexical_cast<real>(transformNode["scaleY"]);
+                real scaleZ = lexical_cast<real>(transformNode["scaleZ"]);
                 LOG_DEBUG("Scaling body: [" << x0 << "; " << scaleX << "; " 
                                 << y0 << "; " << scaleY << "; " << z0 << "; " << scaleZ << "]");
                 body->getMeshes()->scale(x0, y0, z0, scaleX, scaleY, scaleZ);
@@ -575,36 +578,36 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             THROW_INVALID_INPUT("Only one values element allowed for initial state");
         xml::Node valuesNode = valuesNodes.front();
 
-        gcm::real values[9];
+        real values[9];
         
-        memset(values, 0, 9*sizeof(gcm::real));
+        memset(values, 0, 9*sizeof(real));
         string vx = valuesNode.getAttributes()["vx"];
         if( !vx.empty() )
-            values[0] = lexical_cast<gcm::real>(vx);
+            values[0] = lexical_cast<real>(vx);
         string vy = valuesNode.getAttributes()["vy"];
         if( !vy.empty() )
-            values[1] = lexical_cast<gcm::real>(vy);
+            values[1] = lexical_cast<real>(vy);
         string vz = valuesNode.getAttributes()["vz"];
         if( !vz.empty() )
-            values[2] = lexical_cast<gcm::real>(vz);
+            values[2] = lexical_cast<real>(vz);
         string sxx = valuesNode.getAttributes()["sxx"];
         if( !sxx.empty() )
-            values[3] = lexical_cast<gcm::real>(sxx);
+            values[3] = lexical_cast<real>(sxx);
         string sxy = valuesNode.getAttributes()["sxy"];
         if( !sxy.empty() )
-            values[4] = lexical_cast<gcm::real>(sxy);
+            values[4] = lexical_cast<real>(sxy);
         string sxz = valuesNode.getAttributes()["sxz"];
         if( !sxz.empty() )
-            values[5] = lexical_cast<gcm::real>(sxz);
+            values[5] = lexical_cast<real>(sxz);
         string syy = valuesNode.getAttributes()["syy"];
         if( !syy.empty() )
-            values[6] = lexical_cast<gcm::real>(syy);
+            values[6] = lexical_cast<real>(syy);
         string syz = valuesNode.getAttributes()["syz"];
         if( !syz.empty() )
-            values[7] = lexical_cast<gcm::real>(syz);
+            values[7] = lexical_cast<real>(syz);
         string szz = valuesNode.getAttributes()["szz"];
         if( !szz.empty() )
-            values[8] = lexical_cast<gcm::real>(szz);
+            values[8] = lexical_cast<real>(szz);
         LOG_DEBUG("Initial state values: "
                         << values[0] << " " << values[1] << " " << values[2] << " "
                         << values[3] << " " << values[4] << " " << values[5] << " "
@@ -636,8 +639,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         // FIXME_ASAP: calculators became statefull
         engine.getBorderCalculator(calculator)->setParameters( borderConditionNode );
         
-        float startTime = lexical_cast<gcm::real>(borderConditionNode.getAttributeByName("startTime", "-1"));
-        float duration = lexical_cast<gcm::real>(borderConditionNode.getAttributeByName("duration", "-1"));
+        float startTime = lexical_cast<real>(borderConditionNode.getAttributeByName("startTime", "-1"));
+        float duration = lexical_cast<real>(borderConditionNode.getAttributeByName("duration", "-1"));
         
         unsigned int conditionId = engine.addBorderCondition(
                 new BorderCondition(NULL, new StepPulseForm(startTime, duration), engine.getBorderCalculator(calculator) ) 
@@ -670,15 +673,15 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             THROW_INVALID_INPUT("Unknown border calculator requested: " + calculator);
         }
         
-        float startTime = lexical_cast<gcm::real>(contactConditionNode.getAttributeByName("startTime", "-1"));
-        float duration = lexical_cast<gcm::real>(contactConditionNode.getAttributeByName("duration", "-1"));
+        float startTime = lexical_cast<real>(contactConditionNode.getAttributeByName("startTime", "-1"));
+        float duration = lexical_cast<real>(contactConditionNode.getAttributeByName("duration", "-1"));
         
         unsigned int conditionId = engine.addContactCondition(
                 new ContactCondition(NULL, new StepPulseForm(startTime, duration), engine.getContactCalculator(calculator) ) 
         );
         if (calculator == "AdhesionContactDestroyCalculator")
         {
-            gcm::real adhesionThreshold = lexical_cast<gcm::real>(contactConditionNode["adhesionThreshold"]);
+            real adhesionThreshold = lexical_cast<real>(contactConditionNode["adhesionThreshold"]);
             engine.getContactCondition(conditionId)->setConditionParam(adhesionThreshold);
         }
         LOG_INFO("Contact condition created with calculator: " + calculator);

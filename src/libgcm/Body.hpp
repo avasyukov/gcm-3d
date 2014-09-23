@@ -7,8 +7,6 @@
 #include "libgcm/mesh/Mesh.hpp"
 #include "libgcm/Logging.hpp"
 
-using namespace std;
-using namespace gcm;
 
 namespace gcm {
     /*
@@ -20,13 +18,13 @@ namespace gcm {
          * All meshes associated with body. Meshes may have different types
          * like calculation, visualization etc.
          */
-        vector<Mesh*> meshes;
+        std::vector<Mesh*> meshes;
         /*
          * Body id. May be empty or non-unique, but it's not recommended.
          */
-        string id;
+        std::string id;
 
-        string rheoCalcType;
+        std::string rheoCalcType;
         /*
          * Logger.
          */
@@ -35,7 +33,7 @@ namespace gcm {
         /*
          * Constructor.
          */
-        Body(string id = "");
+        Body(std::string id = "");
         /*
          * Destructor.
          */
@@ -45,11 +43,11 @@ namespace gcm {
          */
         Mesh* getMeshes();
         // FIXME merge with method above
-        const vector<Mesh*>& getMeshesVector();
+        const std::vector<Mesh*>& getMeshesVector();
         /*
          * Returns mesh by id.
          */
-        Mesh* getMesh(string id);
+        Mesh* getMesh(std::string id);
         /*
          * Attaches new mesh to body.
          */
@@ -57,14 +55,14 @@ namespace gcm {
         /*
          * Returns body id.
          */
-        string getId();
+        std::string getId();
 
         void setInitialState(Area* area, float values[9]);
 		void setBorderCondition(Area* area, unsigned int num);
 		void setContactCondition(Area* area, unsigned int num);
 
-        string getRheologyCalculatorType();
-        void setRheologyCalculatorType(string calcType);
+        std::string getRheologyCalculatorType();
+        void setRheologyCalculatorType(std::string calcType);
     };
 }
 

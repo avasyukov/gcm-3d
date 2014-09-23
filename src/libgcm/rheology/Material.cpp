@@ -4,6 +4,9 @@
 
 using namespace gcm;
 
+using std::string;
+using std::shared_ptr;
+
 Material::RheologyProperties::RheologyProperties()
 {
 }

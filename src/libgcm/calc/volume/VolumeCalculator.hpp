@@ -13,7 +13,6 @@
 
 #include "libgcm/rheology/RheologyMatrix.hpp"
 
-using namespace std;
 
 namespace gcm
 {
@@ -31,11 +30,11 @@ namespace gcm
          * Calculate next state for the given node
          */
         virtual void doCalc(CalcNode& new_node, RheologyMatrixPtr matrix,
-                                                vector<CalcNode>& previousNodes) = 0;
+                                                std::vector<CalcNode>& previousNodes) = 0;
         /*
          * Returns type of the calculator
          */
-        virtual string getType() = 0;
+        virtual std::string getType() = 0;
 
     private:
 

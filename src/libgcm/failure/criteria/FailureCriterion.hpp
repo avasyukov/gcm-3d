@@ -8,8 +8,6 @@
 
 #include "libgcm/node/ICalcNode.hpp"
 
-using namespace std;
-using namespace gcm;
 
 namespace gcm {
 

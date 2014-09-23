@@ -25,12 +25,21 @@
 #include "launcher/util/FileFolderLookupService.hpp"
 #include "libgcm/Engine.hpp"
 
-using namespace std;
 using namespace gcm;
 using namespace launcher;
 using namespace boost::filesystem;
 using boost::property_tree::ptree;
 using boost::property_tree::write_json;
+
+using std::string;
+using std::vector;
+using std::tuple;
+using std::ofstream;
+using std::cout;
+using std::endl;
+using std::exception;
+using std::cerr;
+using std::get;
 
 namespace mpi = boost::mpi;
 namespace po = boost::program_options;

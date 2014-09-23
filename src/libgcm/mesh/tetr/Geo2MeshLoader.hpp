@@ -23,8 +23,6 @@
 #include <gmsh/MTriangle.h>
 #include <gmsh/MTetrahedron.h>
 
-using namespace gcm;
-using namespace std;
 
 namespace gcm {
     class Geo2MeshLoader: public Singleton<Geo2MeshLoader>
@@ -34,16 +32,16 @@ namespace gcm {
          * Loads mesh from using passed configuration
          */
          USE_LOGGER;
-         bool isMshFileCreated(string fileName);
-         string getMshFileName(string geoFile);
-         string getVtkFileName(string geoFile);
-         void createMshFile(string fileName, float tetrSize);
-         map<string,bool> createdFiles;
+         bool isMshFileCreated(std::string fileName);
+         std::string getMshFileName(std::string geoFile);
+         std::string getVtkFileName(std::string geoFile);
+         void createMshFile(std::string fileName, float tetrSize);
+         std::map<std::string,bool> createdFiles;
     public:
         Geo2MeshLoader();
         ~Geo2MeshLoader();
-        void preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, string fileName, float tetrSize);
-        void loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, string fileName, float tetrSize);
+        void preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, std::string fileName, float tetrSize);
+        void loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, std::string fileName, float tetrSize);
         void cleanUp();
     };
 }

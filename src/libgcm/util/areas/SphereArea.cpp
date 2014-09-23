@@ -1,5 +1,7 @@
 #include "libgcm/util/areas/SphereArea.hpp"
 
+using namespace gcm;
+
 SphereArea::SphereArea( float _radius, float x, float y, float z )
 {
     radius = _radius;

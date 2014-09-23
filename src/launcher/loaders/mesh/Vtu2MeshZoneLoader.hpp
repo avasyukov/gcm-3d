@@ -12,20 +12,18 @@
 
 #include "launcher/loaders/mesh/MeshLoader.hpp"
 
-using namespace gcm;
-using namespace std;
 
 namespace launcher
 {
-    class Vtu2MeshZoneLoader: public Singleton<launcher::Vtu2MeshZoneLoader>, public launcher::MeshLoader<TetrMeshSecondOrder>
+    class Vtu2MeshZoneLoader: public gcm::Singleton<launcher::Vtu2MeshZoneLoader>, public launcher::MeshLoader<gcm::TetrMeshSecondOrder>
     {
         protected:
-            void parseDesc(const xml::Node& desc, string& id, string& fileName);
-            void loadMesh(const xml::Node& desc, TetrMeshSecondOrder* mesh) override;
+            void parseDesc(const xml::Node& desc, std::string& id, std::string& fileName);
+            void loadMesh(const xml::Node& desc, gcm::TetrMeshSecondOrder* mesh) override;
         public:
-            void preLoadMesh(const xml::Node& desc, AABB& aabb, int& sliceDirection, int& numberOfNodes);
+            void preLoadMesh(const xml::Node& desc, gcm::AABB& aabb, int& sliceDirection, int& numberOfNodes);
 
-            const static string MESH_TYPE;
+            const static std::string MESH_TYPE;
     };
 }
         

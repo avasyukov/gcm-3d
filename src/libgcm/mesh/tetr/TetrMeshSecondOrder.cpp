@@ -5,7 +5,12 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::TetrMeshSecondOrder::TetrMeshSecondOrder()
+using namespace gcm;
+using std::unordered_map;
+using std::make_pair;
+using std::vector;
+
+TetrMeshSecondOrder::TetrMeshSecondOrder()
 {
     secondOrderNodesAreGenerated = false;
     numericalMethodOrder = 2;
@@ -13,19 +18,19 @@ gcm::TetrMeshSecondOrder::TetrMeshSecondOrder()
     interpolator = new TetrSecondOrderMinMaxInterpolator();
 }
 
-gcm::TetrMeshSecondOrder::~TetrMeshSecondOrder()
+TetrMeshSecondOrder::~TetrMeshSecondOrder()
 {
     delete interpolator;
 }
 
-void gcm::TetrMeshSecondOrder::createTetrs(int number)
+void TetrMeshSecondOrder::createTetrs(int number)
 {
     LOG_DEBUG("Creating second order tetrs storage, size: " << (int) (number * STORAGE_OVERCOMMIT_RATIO));
     tetrs2.resize(number * STORAGE_OVERCOMMIT_RATIO);
     tetrsStorageSize = number*STORAGE_OVERCOMMIT_RATIO;
 }
 
-void gcm::TetrMeshSecondOrder::createTriangles(int number)
+void TetrMeshSecondOrder::createTriangles(int number)
 {
     LOG_DEBUG("Creating second order border storage, size: " << number);
     // TODO - make border working through addTriangle() / faceNumber++ / etc
@@ -34,7 +39,7 @@ void gcm::TetrMeshSecondOrder::createTriangles(int number)
     faceStorageSize = number;
 }
 
-TetrFirstOrder& gcm::TetrMeshSecondOrder::getTetr(unsigned int index)
+TetrFirstOrder& TetrMeshSecondOrder::getTetr(unsigned int index)
 {
     assert_ge(index, 0);
     unordered_map<int, int>::const_iterator itr;
@@ -43,7 +48,7 @@ TetrFirstOrder& gcm::TetrMeshSecondOrder::getTetr(unsigned int index)
     return tetrs2[itr->second];
 }
 
-TetrSecondOrder& gcm::TetrMeshSecondOrder::getTetr2(int index)
+TetrSecondOrder& TetrMeshSecondOrder::getTetr2(int index)
 {
     assert_ge(index, 0);
     unordered_map<int, int>::const_iterator itr;
@@ -52,19 +57,19 @@ TetrSecondOrder& gcm::TetrMeshSecondOrder::getTetr2(int index)
     return tetrs2[itr->second];
 }
 
-TetrFirstOrder& gcm::TetrMeshSecondOrder::getTetrByLocalIndex(unsigned int index)
+TetrFirstOrder& TetrMeshSecondOrder::getTetrByLocalIndex(unsigned int index)
 {
     assert_ge(index, 0);
     return tetrs2[index];
 }
 
-TetrSecondOrder& gcm::TetrMeshSecondOrder::getTetr2ByLocalIndex(int index)
+TetrSecondOrder& TetrMeshSecondOrder::getTetr2ByLocalIndex(int index)
 {
     assert_ge(index, 0);
     return tetrs2[index];
 }
 
-void gcm::TetrMeshSecondOrder::rebuildMaps()
+void TetrMeshSecondOrder::rebuildMaps()
 {
     nodesMap.clear();
     for (int i = 0; i < nodesNumber; i++)
@@ -74,7 +79,7 @@ void gcm::TetrMeshSecondOrder::rebuildMaps()
         tetrsMap[getTetr2ByLocalIndex(i).number] = i;
 }
 
-void gcm::TetrMeshSecondOrder::addTetr(TetrFirstOrder& tetr)
+void TetrMeshSecondOrder::addTetr(TetrFirstOrder& tetr)
 {
     if (tetrsNumber == tetrsStorageSize)
         createTetrs(tetrsStorageSize * STORAGE_ONDEMAND_GROW_RATE);
@@ -85,7 +90,7 @@ void gcm::TetrMeshSecondOrder::addTetr(TetrFirstOrder& tetr)
     tetrsNumber++;
 }
 
-void gcm::TetrMeshSecondOrder::addTetr2(TetrSecondOrder& tetr)
+void TetrMeshSecondOrder::addTetr2(TetrSecondOrder& tetr)
 {
     if (tetrsNumber == tetrsStorageSize)
         createTetrs(tetrsStorageSize * STORAGE_ONDEMAND_GROW_RATE);
@@ -95,19 +100,19 @@ void gcm::TetrMeshSecondOrder::addTetr2(TetrSecondOrder& tetr)
     tetrsNumber++;
 }
 
-TriangleFirstOrder& gcm::TetrMeshSecondOrder::getTriangle(int index)
+TriangleFirstOrder& TetrMeshSecondOrder::getTriangle(int index)
 {
     assert_ge(index, 0);
     return border2[index];
 }
 
-TriangleSecondOrder& gcm::TetrMeshSecondOrder::getTriangle2(int index)
+TriangleSecondOrder& TetrMeshSecondOrder::getTriangle2(int index)
 {
     assert_ge(index, 0);
     return border2[index];
 }
 
-void gcm::TetrMeshSecondOrder::copyMesh(TetrMeshFirstOrder* src)
+void TetrMeshSecondOrder::copyMesh(TetrMeshFirstOrder* src)
 {
     LOG_DEBUG("Creating mesh using copy");
     firstOrderNodesNumber = src->getNodesNumber();
@@ -135,7 +140,7 @@ void gcm::TetrMeshSecondOrder::copyMesh(TetrMeshFirstOrder* src)
     generateSecondOrderNodes();
 }
 
-void gcm::TetrMeshSecondOrder::copyMesh2(TetrMeshSecondOrder* src)
+void TetrMeshSecondOrder::copyMesh2(TetrMeshSecondOrder* src)
 {
     LOG_DEBUG("Creating second order mesh using copy");
 
@@ -156,7 +161,7 @@ void gcm::TetrMeshSecondOrder::copyMesh2(TetrMeshSecondOrder* src)
     }
 }
 
-void gcm::TetrMeshSecondOrder::preProcessGeometry()
+void TetrMeshSecondOrder::preProcessGeometry()
 {
     LOG_DEBUG("Preprocessing second order mesh started");
 
@@ -179,7 +184,7 @@ void gcm::TetrMeshSecondOrder::preProcessGeometry()
     LOG_DEBUG("Preprocessing mesh done.");
 }
 
-void gcm::TetrMeshSecondOrder::verifyTetrahedraVertices()
+void TetrMeshSecondOrder::verifyTetrahedraVertices()
 {
     LOG_DEBUG("Verifying second order tetrahedra vertices");
     for (int tetrInd = 0; tetrInd < tetrsNumber; tetrInd++) {
@@ -198,7 +203,7 @@ void gcm::TetrMeshSecondOrder::verifyTetrahedraVertices()
     }
 }
 
-void gcm::TetrMeshSecondOrder::build_volume_reverse_lookups()
+void TetrMeshSecondOrder::build_volume_reverse_lookups()
 {
     LOG_DEBUG("Building volume reverse lookups for second order mesh");
 
@@ -238,7 +243,7 @@ void gcm::TetrMeshSecondOrder::build_volume_reverse_lookups()
     }
 }
 
-void gcm::TetrMeshSecondOrder::build_first_order_border()
+void TetrMeshSecondOrder::build_first_order_border()
 {
     // Prepare border data
 
@@ -340,7 +345,7 @@ void gcm::TetrMeshSecondOrder::build_first_order_border()
     LOG_DEBUG("Created " << faceNumber << " triangles");
 }
 
-void gcm::TetrMeshSecondOrder::generateSecondOrderBorder()
+void TetrMeshSecondOrder::generateSecondOrderBorder()
 {
     LOG_DEBUG("Faces: " << faceNumber);
     bool debug = false;
@@ -412,7 +417,7 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderBorder()
     LOG_DEBUG("Second order border generated");
 }
 
-void gcm::TetrMeshSecondOrder::build_surface_reverse_lookups()
+void TetrMeshSecondOrder::build_surface_reverse_lookups()
 {
     LOG_DEBUG("Building surface reverse lookups for second order mesh");
 
@@ -445,10 +450,10 @@ void gcm::TetrMeshSecondOrder::build_surface_reverse_lookups()
     }
 }
 
-void gcm::TetrMeshSecondOrder::moveCoords(float tau)
+void TetrMeshSecondOrder::moveCoords(float tau)
 {
     // Move first order nodes
-    gcm::TetrMeshFirstOrder::moveCoords(tau);
+    TetrMeshFirstOrder::moveCoords(tau);
     mesh_min_h *= 0.5;
 
     // Move second order nodes
@@ -472,7 +477,7 @@ void gcm::TetrMeshSecondOrder::moveCoords(float tau)
     }
 }
 
-void gcm::TetrMeshSecondOrder::moveSecondOrderNode(int nodeIdx, int nodeIdx1, int nodeIdx2)
+void TetrMeshSecondOrder::moveSecondOrderNode(int nodeIdx, int nodeIdx1, int nodeIdx2)
 {
     CalcNode& node = getNode(nodeIdx);
     CalcNode& newNode = getNewNode(nodeIdx);
@@ -485,7 +490,7 @@ void gcm::TetrMeshSecondOrder::moveSecondOrderNode(int nodeIdx, int nodeIdx1, in
     }
 }
 
-void gcm::TetrMeshSecondOrder::fillSecondOrderNode(CalcNode& newNode, int nodeIdx1, int nodeIdx2)
+void TetrMeshSecondOrder::fillSecondOrderNode(CalcNode& newNode, int nodeIdx1, int nodeIdx2)
 {
     CalcNode& node1 = getNode(nodeIdx1);
     CalcNode& node2 = getNode(nodeIdx2);
@@ -503,7 +508,7 @@ void gcm::TetrMeshSecondOrder::fillSecondOrderNode(CalcNode& newNode, int nodeId
     newNode.setOrder(2);
 }
 
-int gcm::TetrMeshSecondOrder::countSecondOrderNodes(TetrMeshFirstOrder* src)
+int TetrMeshSecondOrder::countSecondOrderNodes(TetrMeshFirstOrder* src)
 {
     assert_true(src);
     LOG_DEBUG("Counting additional nodes");
@@ -573,7 +578,7 @@ int gcm::TetrMeshSecondOrder::countSecondOrderNodes(TetrMeshFirstOrder* src)
     return secondOrderNodesCount;
 }
 
-void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
+void TetrMeshSecondOrder::generateSecondOrderNodes()
 {
     CalcNode node;
 
@@ -647,7 +652,7 @@ void gcm::TetrMeshSecondOrder::generateSecondOrderNodes()
     secondOrderNodesAreGenerated = true;
 }
 
-bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
+bool TetrMeshSecondOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
                                                CalcNode& targetNode, bool& isInnerPoint)
 {
     int tetrInd = findOwnerTetr(origin, dx, dy, dz, debug,
@@ -667,7 +672,7 @@ bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& origin, float dx, float
 }
 
 // FIXME_ASAP: rewrite it
-bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& node)
+bool TetrMeshSecondOrder::interpolateNode(CalcNode& node)
 {
     for (int i = 0; i < getTetrsNumber(); i++)
     {
@@ -690,11 +695,11 @@ bool gcm::TetrMeshSecondOrder::interpolateNode(CalcNode& node)
 }
 
 
-const SnapshotWriter& gcm::TetrMeshSecondOrder::getSnaphotter() const
+const SnapshotWriter& TetrMeshSecondOrder::getSnaphotter() const
 {
     return VTKSnapshotWriter::getInstance();
 }
 
-const SnapshotWriter& gcm::TetrMeshSecondOrder::getDumper() const {
+const SnapshotWriter& TetrMeshSecondOrder::getDumper() const {
     return VTK2SnapshotWriter::getInstance();
 }

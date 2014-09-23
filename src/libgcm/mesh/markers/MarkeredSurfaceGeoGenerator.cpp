@@ -12,14 +12,15 @@
 #include <vector>
 
 using namespace gcm;
-using namespace std;
+using std::vector;
+using std::string;
 
 MarkeredSurfaceGeoGenerator::MarkeredSurfaceGeoGenerator()
 {
     INIT_LOGGER("gcm.mesh.markers.MarkeredSurfaceGeoGenerator");
 }
 
-MarkeredSurface MarkeredSurfaceGeoGenerator::generate(string fileName, gcm::real size)
+MarkeredSurface MarkeredSurfaceGeoGenerator::generate(string fileName, real size)
 {
     Engine& engine = Engine::getInstance();
 

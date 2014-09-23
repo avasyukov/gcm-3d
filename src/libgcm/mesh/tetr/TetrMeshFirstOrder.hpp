@@ -17,8 +17,6 @@
 #include "libgcm/interpolator/TetrFirstOrderInterpolator.hpp"
 #include "libgcm/snapshot/VTKSnapshotWriter.hpp"
 
-using namespace gcm;
-using namespace std;
 
 namespace gcm
 {
@@ -37,34 +35,34 @@ namespace gcm
         TetrFirstOrderInterpolator* interpolator;
 
     protected:
-        unordered_map<int, int> tetrsMap;
+        std::unordered_map<int, int> tetrsMap;
 
         // Cache for characteristics hits
         bool charactCacheAvailable();
         bool checkCharactCache(CalcNode& node, float dx, float dy, float dz, int& tetrNum);
         void updateCharactCache(CalcNode& node, float dx, float dy, float dz, int tetrNum);
         int getCharactCacheIndex(CalcNode& node, float dx, float dy, float dz);
-        unordered_map<int, int> charactCache[18];
+        std::unordered_map<int, int> charactCache[18];
         // WA for bruteforce collision detector
-        vector<int> facesSpaceMap[10][10][10];
+        std::vector<int> facesSpaceMap[10][10][10];
         unsigned long long cacheHits;
         unsigned long long cacheMisses;
 
         /*
          * List of mesh tetrahedrons.
          */
-        vector<TetrFirstOrder> tetrs1;
-        vector<TriangleFirstOrder> border1;
+        std::vector<TetrFirstOrder> tetrs1;
+        std::vector<TriangleFirstOrder> border1;
 
         int tetrsNumber;
         int tetrsStorageSize;
         int faceNumber;
         int faceStorageSize;
 
-        vector< vector<int> > volumeElements;
-        vector< vector<int> > borderElements;
-        vector<int>& getVolumeElementsForNode(int index);
-        vector<int>& getBorderElementsForNode(int index);
+        std::vector< std::vector<int> > volumeElements;
+        std::vector< std::vector<int> > borderElements;
+        std::vector<int>& getVolumeElementsForNode(int index);
+        std::vector<int>& getBorderElementsForNode(int index);
 
         void build_surface_reverse_lookups();
         void build_volume_reverse_lookups();

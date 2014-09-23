@@ -5,6 +5,9 @@
 
 using boost::lexical_cast;
 
+using namespace gcm;
+using std::vector;
+
 ExternalForceCalculator::ExternalForceCalculator()
 {
     U_gsl = gsl_matrix_alloc (9, 9);
@@ -21,12 +24,11 @@ ExternalForceCalculator::~ExternalForceCalculator()
     gsl_permutation_free(p_gsl);
 };
 
-// FIXME get rid of "using namespace std" in header files
 void ExternalForceCalculator::setParameters(const xml::Node& params)
 {
-    gcm::real normalStress = lexical_cast<gcm::real>(params["normalStress"]);
-    gcm::real tangentialStress = lexical_cast<gcm::real>(params["tangentialStress"]);
-    gcm::real tangentialDirection[3];
+    real normalStress = lexical_cast<real>(params["normalStress"]);
+    real tangentialStress = lexical_cast<real>(params["tangentialStress"]);
+    real tangentialDirection[3];
     if(tangentialStress == 0.0)
     {
         tangentialDirection[0] = 1.0;
@@ -35,9 +37,9 @@ void ExternalForceCalculator::setParameters(const xml::Node& params)
     }
     else
     {
-        tangentialDirection[0] = lexical_cast<gcm::real>(params["tangentialX"]);
-        tangentialDirection[1] = lexical_cast<gcm::real>(params["tangentialY"]);
-        tangentialDirection[2] = lexical_cast<gcm::real>(params["tangentialZ"]);
+        tangentialDirection[0] = lexical_cast<real>(params["tangentialX"]);
+        tangentialDirection[1] = lexical_cast<real>(params["tangentialY"]);
+        tangentialDirection[2] = lexical_cast<real>(params["tangentialZ"]);
     }
     
     normal_stress = normalStress;

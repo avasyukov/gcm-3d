@@ -6,7 +6,7 @@
 #include <limits>
 
 #ifdef CONFIG_VTK_5
-#include <vtkstd/string>
+#include <vtkstd/std::string>
 #else
 #include <vtkStdString.h>
 #endif
@@ -22,7 +22,6 @@
 #include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
 #include "libgcm/Logging.hpp"
 
-using namespace std;
 
 namespace gcm {
     class GCMDispatcher;
@@ -35,9 +34,9 @@ namespace gcm {
     public:
         Vtu2TetrFileReader();
         ~Vtu2TetrFileReader();
-        void readFile( string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank);
-        void readFile( string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher);
-        void preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes);
+        void readFile( std::string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank);
+        void readFile( std::string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher);
+        void preReadFile(std::string file, AABB* scene, int& sliceDirection, int& numberOfNodes);
     };
 }
 

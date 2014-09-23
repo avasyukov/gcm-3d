@@ -6,26 +6,30 @@
  */
 #include "libgcm/method/InterpolationFixedAxis.hpp"
 
-string gcm::InterpolationFixedAxis::getType()
+using namespace gcm;
+using std::string;
+using std::vector;
+
+string InterpolationFixedAxis::getType()
 {
     return "InterpolationFixedAxis";
 }
 
-gcm::InterpolationFixedAxis::InterpolationFixedAxis()
+InterpolationFixedAxis::InterpolationFixedAxis()
 {
     INIT_LOGGER("gcm.method.InterpolationFixedAxis");
 }
 
-gcm::InterpolationFixedAxis::~InterpolationFixedAxis()
+InterpolationFixedAxis::~InterpolationFixedAxis()
 {
 }
 
-int gcm::InterpolationFixedAxis::getNumberOfStages()
+int InterpolationFixedAxis::getNumberOfStages()
 {
     return 3;
 }
 
-void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh)
+void InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh)
 {
     assert_ge(stage, 0);
     assert_le(stage, 2);
@@ -250,7 +254,7 @@ void gcm::InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& n
     }
 }
 
-int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrixPtr rheologyMatrix,
+int InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrixPtr rheologyMatrix,
                                               float time_step, int stage, Mesh* mesh,
                                               float* dksi, bool* inner, vector<CalcNode>& previous_nodes,
                                               float* outer_normal)
@@ -282,7 +286,7 @@ int gcm::InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrix
     return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal);
 }
 
-int gcm::InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node, int stage, Mesh* mesh,
+int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node, int stage, Mesh* mesh,
                                                                    float dksi[], bool inner[], vector<CalcNode>& previous_nodes,
                                                                    float outer_normal[])
 {

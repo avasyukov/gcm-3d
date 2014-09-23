@@ -7,8 +7,6 @@
 
 #include "libgcm/interpolator/TetrSecondOrderMinMaxInterpolator.hpp"
 
-using namespace std;
-using namespace gcm;
 
 typedef std::pair <int, int> IntPair;
 
@@ -27,8 +25,8 @@ namespace gcm {
         /*
          * List of mesh tetrahedrons.
          */
-        vector<TetrSecondOrder> tetrs2;
-        vector<TriangleSecondOrder> border2;
+        std::vector<TetrSecondOrder> tetrs2;
+        std::vector<TriangleSecondOrder> border2;
         bool secondOrderNodesAreGenerated;
         int firstOrderNodesNumber;
         int secondOrderNodesNumber;

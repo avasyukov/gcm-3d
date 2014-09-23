@@ -3,18 +3,22 @@
 
 #include "libgcm/Body.hpp"
 
-gcm::DummyDispatcher::DummyDispatcher() {
+using namespace gcm;
+using std::logic_error;
+using std::string;
+
+DummyDispatcher::DummyDispatcher() {
     INIT_LOGGER("gcm.Dispatcher");
     outlines = NULL;
     outlinesNum = -1;
 }
 
-gcm::DummyDispatcher::~DummyDispatcher() {
+DummyDispatcher::~DummyDispatcher() {
     if( outlines != NULL )
         delete[] outlines;
 }
 
-void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
+void DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
 {
     auto& engine = Engine::getInstance();
 
@@ -102,7 +106,7 @@ void gcm::DummyDispatcher::prepare(int numberOfWorkers, AABB* scene)
     delete[] workersPerBody;
 }
 
-int gcm::DummyDispatcher::distributionIsOk()
+int DummyDispatcher::distributionIsOk()
 {
     int totalNum = 0;
     for( int i = 0; i < Engine::getInstance().getNumberOfBodies(); i++ )
@@ -115,7 +119,7 @@ int gcm::DummyDispatcher::distributionIsOk()
         return 0;
 }
 
-int gcm::DummyDispatcher::getLeastComputedBody()
+int DummyDispatcher::getLeastComputedBody()
 {
     int num = 0;
     for( int i = 0; i < Engine::getInstance().getNumberOfBodies(); i++ )
@@ -124,7 +128,7 @@ int gcm::DummyDispatcher::getLeastComputedBody()
     return num;
 }
 
-int gcm::DummyDispatcher::getMostComputedBody()
+int DummyDispatcher::getMostComputedBody()
 {
     int num = 0;
     for( int i = 0; i < Engine::getInstance().getNumberOfBodies(); i++ )
@@ -133,7 +137,7 @@ int gcm::DummyDispatcher::getMostComputedBody()
     return num;
 }
 
-void gcm::DummyDispatcher::adjustDistribution()
+void DummyDispatcher::adjustDistribution()
 {
     int res = distributionIsOk();
     if( res > 0 )
@@ -142,20 +146,20 @@ void gcm::DummyDispatcher::adjustDistribution()
         workersPerBody[ getLeastComputedBody() ]++;
 }
 
-bool gcm::DummyDispatcher::isMine(float coords[3], string bodyId) {
+bool DummyDispatcher::isMine(float coords[3], string bodyId) {
     return ( getOwner( coords[0], coords[1], coords[2], bodyId ) == rank );
 }
 
-bool gcm::DummyDispatcher::isMine(double coords[3], string bodyId) {
+bool DummyDispatcher::isMine(double coords[3], string bodyId) {
     return ( getOwner( coords[0], coords[1], coords[2], bodyId ) == rank );
 }
 
-int gcm::DummyDispatcher::getOwner(float coords[3], string bodyId)
+int DummyDispatcher::getOwner(float coords[3], string bodyId)
 {
     return getOwner( coords[0], coords[1], coords[2], bodyId );
 }
 
-int gcm::DummyDispatcher::getOwner(float x, float y, float z, string bodyId)
+int DummyDispatcher::getOwner(float x, float y, float z, string bodyId)
 {
     if( Engine::getInstance().getNumberOfWorkers() != 1 && bodyId != myBodyId )
         return -1;
@@ -167,12 +171,12 @@ int gcm::DummyDispatcher::getOwner(float x, float y, float z, string bodyId)
     return -1;
 }
 
-int gcm::DummyDispatcher::getOwner(float coords[3])
+int DummyDispatcher::getOwner(float coords[3])
 {
     return getOwner( coords[0], coords[1], coords[2] );
 }
 
-int gcm::DummyDispatcher::getOwner(float x, float y, float z)
+int DummyDispatcher::getOwner(float x, float y, float z)
 {
     for( int i = 0; i < outlinesNum; i++ )
     {
@@ -182,14 +186,14 @@ int gcm::DummyDispatcher::getOwner(float x, float y, float z)
     return -1;
 }
 
-AABB* gcm::DummyDispatcher::getOutline(int index)
+AABB* DummyDispatcher::getOutline(int index)
 {
     assert_ge(index, 0);
     assert_lt(index, outlinesNum);
     return outlines + index;
 }
 
-void gcm::DummyDispatcher::printZones()
+void DummyDispatcher::printZones()
 {
     for( int i = 0; i < outlinesNum; i++ )
         LOG_DEBUG("Zone " << i << ": " << outlines[i]);

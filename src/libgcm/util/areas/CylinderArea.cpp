@@ -1,5 +1,7 @@
 #include "libgcm/util/areas/CylinderArea.hpp"
 
+using namespace gcm;
+
 CylinderArea::CylinderArea( float _radius, float _bX, float _bY, float _bZ, float _eX, float _eY, float _eZ )
 {
     radius = _radius;

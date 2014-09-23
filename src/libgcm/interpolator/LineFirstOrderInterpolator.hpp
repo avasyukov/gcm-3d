@@ -7,8 +7,6 @@
 #include "libgcm/Logging.hpp"
 #include "libgcm/interpolator/TetrInterpolator.hpp"
 
-using namespace std;
-using namespace gcm;
 
 namespace gcm {
     class CalcNode;

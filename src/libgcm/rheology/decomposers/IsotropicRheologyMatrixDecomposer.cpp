@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+using namespace gcm;
+
 void IsotropicRheologyMatrixDecomposer::decomposeX(const gcm_matrix& a, gcm_matrix& u, gcm_matrix& l, gcm_matrix& u1) const
 {
     l.clear();

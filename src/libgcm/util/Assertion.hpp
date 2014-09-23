@@ -10,7 +10,7 @@
 
 namespace std
 {
-    inline string to_string(const string& s)
+    inline std::string to_string(const std::string& s)
     {
         return s;
     }

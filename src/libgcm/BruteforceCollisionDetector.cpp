@@ -3,19 +3,23 @@
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/Engine.hpp"
 
-gcm::BruteforceCollisionDetector::BruteforceCollisionDetector() {
+using namespace gcm;
+using std::string;
+using std::vector;
+
+BruteforceCollisionDetector::BruteforceCollisionDetector() {
     INIT_LOGGER("gcm.BruteforceCollisionDetector");
 }
 
-gcm::BruteforceCollisionDetector::~BruteforceCollisionDetector() {
+BruteforceCollisionDetector::~BruteforceCollisionDetector() {
 }
 
-string gcm::BruteforceCollisionDetector::getType () const
+string BruteforceCollisionDetector::getType () const
 {
     return "BruteforceCollisionDetector";
 }
 
-void gcm::BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
+void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
 {
     Engine& e = Engine::getInstance();
     AABB intersection;

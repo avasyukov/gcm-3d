@@ -10,8 +10,6 @@
 #include "libgcm/util/Singleton.hpp"
 #include "libgcm/GCMDispatcher.hpp"
 
-using namespace gcm;
-using namespace std;
 
 namespace gcm {
     class BasicCubicMeshGenerator: public Singleton<BasicCubicMeshGenerator>

@@ -3,23 +3,26 @@
 #include "libgcm/util/forms/PulseForm.hpp"
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::BorderCondition::BorderCondition() {
+using namespace gcm;
+using std::vector;
+
+BorderCondition::BorderCondition() {
     area = NULL;
     form = NULL;
     calc = NULL;
 }
 
-gcm::BorderCondition::BorderCondition(Area* _area, PulseForm* _form, BorderCalculator* _calc) {
+BorderCondition::BorderCondition(Area* _area, PulseForm* _form, BorderCalculator* _calc) {
     area = _area;
     form = _form;
     calc = _calc;
 }
 
-gcm::BorderCondition::~BorderCondition() {
+BorderCondition::~BorderCondition() {
 
 }
 
-void gcm::BorderCondition::doCalc(float time, CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
+void BorderCondition::doCalc(float time, CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[], float outer_normal[])
 {
     calc->doCalc(cur_node, new_node, matrix, previousNodes, inner, outer_normal,

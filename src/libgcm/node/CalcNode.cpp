@@ -1,17 +1,20 @@
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::CalcNode::CalcNode() : CalcNode(-1)
+using namespace gcm;
+using std::copy;
+
+CalcNode::CalcNode() : CalcNode(-1)
 {
 }
 
-gcm::CalcNode::CalcNode(int num) : CalcNode(num, 0.0, 0.0, 0.0)
+CalcNode::CalcNode(int num) : CalcNode(num, 0.0, 0.0, 0.0)
 {
 }
 
-gcm::CalcNode::CalcNode(int num, gcm::real x, gcm::real y, gcm::real z) : ICalcNode(num, x, y, z)
+CalcNode::CalcNode(int num, real x, real y, real z) : ICalcNode(num, x, y, z)
 {
     bodyId = -1;
-    memset(values, 0, VALUES_NUMBER * sizeof (gcm::real));
+    memset(values, 0, VALUES_NUMBER * sizeof (real));
     rho = 0;
     materialId = 0;
     publicFlags.flags = 0;
@@ -24,12 +27,12 @@ gcm::CalcNode::CalcNode(int num, gcm::real x, gcm::real y, gcm::real z) : ICalcN
     damageMeasure = 0.0;
 }
 
-gcm::CalcNode::CalcNode(const CalcNode& src): ICalcNode(src)
+CalcNode::CalcNode(const CalcNode& src): ICalcNode(src)
 {
     *this = src;
 }
 
-CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
+CalcNode& CalcNode::operator=(const CalcNode &src)
 {
     number = src.number;
 
@@ -53,31 +56,30 @@ CalcNode& gcm::CalcNode::operator=(const CalcNode &src)
     return *this;
 }
 
-gcm::CalcNode::~CalcNode()
+CalcNode::~CalcNode()
 {
 }
 
-void gcm::CalcNode::clearState()
+void CalcNode::clearState()
 {
     clearErrorFlags();
     clearMainStresses();
 }
 
-void gcm::CalcNode::clearErrorFlags()
+void CalcNode::clearErrorFlags()
 {
     errorFlags.flags = 0;
 }
 
-void gcm::CalcNode::clearMainStresses()
+void CalcNode::clearMainStresses()
 {
     privateFlags.mainStressCalculated = false;
 }
 
-// FIXME get rid of "using namespace std" in header files
-gcm::real gcm::CalcNode::getCompression() const
+real CalcNode::getCompression() const
 {
-    gcm::real compression = 0;
-    gcm::real s[3];
+    real compression = 0;
+    real s[3];
     getMainStressComponents(s[0], s[1], s[2]);
 
     for (int i = 0; i < 3; i++)
@@ -86,11 +88,12 @@ gcm::real gcm::CalcNode::getCompression() const
 
     return fabs(compression);
 }
-// FIXME get rid of "using namespace std" in header files
-gcm::real gcm::CalcNode::getTension() const
+
+
+real CalcNode::getTension() const
 {
-    gcm::real tension = 0;
-    gcm::real s[3];
+    real tension = 0;
+    real s[3];
     getMainStressComponents(s[0], s[1], s[2]);
 
     for (int i = 0; i < 3; i++)
@@ -101,12 +104,11 @@ gcm::real gcm::CalcNode::getTension() const
 }
 
 // See http://www.toehelp.ru/theory/sopromat/6.html for details
-// FIXME get rid of "using namespace std" in header files
-gcm::real gcm::CalcNode::getShear() const
+real CalcNode::getShear() const
 {
-    gcm::real shear = 0;
-    gcm::real s[3];
-    gcm::real t[3];
+    real shear = 0;
+    real s[3];
+    real t[3];
     getMainStressComponents(s[0], s[1], s[2]);
 
     t[0] = 0.5 * fabs(s[1] - s[0]);
@@ -119,35 +121,34 @@ gcm::real gcm::CalcNode::getShear() const
 
     return shear;
 }
-// FIXME get rid of "using namespace std" in header files
-gcm::real gcm::CalcNode::getDeviator() const
+real CalcNode::getDeviator() const
 {
     return sqrt(((sxx - syy) * (sxx - syy) + (syy - szz) * (syy - szz) + (sxx - szz) * (sxx - szz)
                 + 6 * (sxy * sxy + sxz * sxz + syz * syz)) / 6);
 }
-// FIXME get rid of "using namespace std" in header files
-gcm::real gcm::CalcNode::getPressure() const
+
+real CalcNode::getPressure() const
 {
-    gcm::real pressure = -(sxx + syy + szz) / 3;
+    real pressure = -(sxx + syy + szz) / 3;
     return pressure;
 }
-// FIXME get rid of "using namespace std" in header files
-gcm::real gcm::CalcNode::getJ1() const
+
+real CalcNode::getJ1() const
 {
     return sxx + syy + szz;
 }
-// FIXME get rid of "using namespace std" in header files
-gcm::real gcm::CalcNode::getJ2() const
+
+real CalcNode::getJ2() const
 {
     return sxx * syy + sxx * szz + syy * szz - (sxy * sxy + sxz * sxz + syz * syz);
 }
-// FIXME get rid of "using namespace std" in header files
-gcm::real gcm::CalcNode::getJ3() const
+
+real CalcNode::getJ3() const
 {
     return sxx * syy * szz + 2 * sxy * sxz * syz - sxx * syz * syz - syy * sxz * sxz - szz * sxy*sxy;
 }
 
-void gcm::CalcNode::getMainStressComponents(gcm::real& s1, gcm::real& s2, gcm::real& s3) const
+void CalcNode::getMainStressComponents(real& s1, real& s2, real& s3) const
 {
 //    if (!privateFlags.mainStressCalculated)
         calcMainStressComponents();
@@ -159,7 +160,7 @@ void gcm::CalcNode::getMainStressComponents(gcm::real& s1, gcm::real& s2, gcm::r
 }
 
 // See http://www.toehelp.ru/theory/sopromat/6.html
-void gcm::CalcNode::calcMainStressComponents() const
+void CalcNode::calcMainStressComponents() const
 {
     real a = -getJ1();
     real b = getJ2();
@@ -170,9 +171,9 @@ void gcm::CalcNode::calcMainStressComponents() const
     privateFlags.mainStressCalculated = true;
 }
 
-void gcm::CalcNode::calcMainStressDirectionByComponent(gcm::real s, vector3r& vector) const
+void CalcNode::calcMainStressDirectionByComponent(real s, vector3r& vector) const
 {
-    gcm::real zero = 0.0000001, a=0,b=0,c=0,u,v,w,n;
+    real zero = 0.0000001, a=0,b=0,c=0,u,v,w,n;
 //    if (sxx > 400000)	printf("s: %f %f %f %f %f %f   %f ",sxx,sxy,sxz,syy,syz,szz,s);
     if (fabs(sxx-s) <= zero)
     {
@@ -401,7 +402,7 @@ void gcm::CalcNode::calcMainStressDirectionByComponent(gcm::real s, vector3r& ve
 //    if (sxx > 400000) printf(" vec: %f %f %f  \n %f %f %f %f  nu-wv %f  det %f\n ms %f %f %f \n",vector[0],vector[1],vector[2], u,v,w,n,n*u-w*v,
 //		2.0*sxy*sxz*syz+(sxx-s)*(syy-s)*(szz-s)-sxz*(syy-s)*sxz-(sxx-s)*syz*syz-(szz-s)*sxy*sxy,
 //		mainStresses[0],mainStresses[1],mainStresses[2]);
-    gcm::real norm = sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
+    real norm = sqrt(vector[0] * vector[0] + vector[1] * vector[1] + vector[2] * vector[2]);
     if (norm > zero) {
         vector[0] /= norm;
         vector[1] /= norm;
@@ -413,79 +414,79 @@ void gcm::CalcNode::calcMainStressDirectionByComponent(gcm::real s, vector3r& ve
     }
 }
 
-bool gcm::CalcNode::rheologyIsValid() const
+bool CalcNode::rheologyIsValid() const
 {
     // FIXME there is no need to check materialId >= 0 since it's uint
     return materialId >= 0 && rho > 0;
 }
 
-bool gcm::CalcNode::isInContact() const
+bool CalcNode::isInContact() const
 {
     return publicFlags.contact;
 }
 
-void gcm::CalcNode::setInContact(bool value)
+void CalcNode::setInContact(bool value)
 {
     publicFlags.contact = value;
 }
 
-bool gcm::CalcNode::isDestroyed() const
+bool CalcNode::isDestroyed() const
 {
     return publicFlags.isDestroyed;
 }
 
-void gcm::CalcNode::setDestroyed(bool value)
+void CalcNode::setDestroyed(bool value)
 {
     publicFlags.isDestroyed = value;
 }
 
-bool gcm::CalcNode::isContactDestroyed() const
+bool CalcNode::isContactDestroyed() const
 {
     return publicFlags.isContactDestroyed;
 }
 
-void gcm::CalcNode::setContactDestroyed(bool value)
+void CalcNode::setContactDestroyed(bool value)
 {
     publicFlags.isContactDestroyed = value;
 }
 
-bool gcm::CalcNode::isLocal(bool mustBeUsed) const
+bool CalcNode::isLocal(bool mustBeUsed) const
 {
     return (isUsed() || !mustBeUsed) && privateFlags.local;
 }
 
-bool gcm::CalcNode::isRemote() const
+bool CalcNode::isRemote() const
 {
     return isUsed() && !isLocal();
 }
 
-void gcm::CalcNode::setPlacement(bool local)
+void CalcNode::setPlacement(bool local)
 {
     setUsed(true);
     privateFlags.local = local;
 }
 
-bool gcm::CalcNode::isUsed() const
+bool CalcNode::isUsed() const
 {
     return privateFlags.used;
 }
 
-void gcm::CalcNode::setUsed(bool used)
+void CalcNode::setUsed(bool used)
 {
     privateFlags.used = used;
 }
 
-bool gcm::CalcNode::isFirstOrder() const
+bool CalcNode::isFirstOrder() const
 {
     return publicFlags.order == 0;
 }
 
-bool gcm::CalcNode::isSecondOrder() const
+bool CalcNode::isSecondOrder() const
 {
     return publicFlags.order == 1;
 }
 
-void gcm::CalcNode::setOrder(uchar order)
+void CalcNode::setOrder(uchar order)
 {
     switch (order) {
     case 1: publicFlags.order = 0;
@@ -497,42 +498,42 @@ void gcm::CalcNode::setOrder(uchar order)
     }
 }
 
-void gcm::CalcNode::setIsBorder(bool border)
+void CalcNode::setIsBorder(bool border)
 {
     privateFlags.border = border;
 }
 
-bool gcm::CalcNode::isBorder() const
+bool CalcNode::isBorder() const
 {
     return privateFlags.border;
 }
 
-bool gcm::CalcNode::isInner() const
+bool CalcNode::isInner() const
 {
     return !isBorder();
 }
 
-void gcm::CalcNode::setXNeighError()
+void CalcNode::setXNeighError()
 {
     errorFlags.xNeigh = true;
 }
 
-void gcm::CalcNode::setYNeighError()
+void CalcNode::setYNeighError()
 {
     errorFlags.yNeigh = true;
 }
 
-void gcm::CalcNode::setZNeighError()
+void CalcNode::setZNeighError()
 {
     errorFlags.zNeigh = true;
 }
 
-void gcm::CalcNode::setNormalError()
+void CalcNode::setNormalError()
 {
     errorFlags.outerNormal = true;
 }
 
-void gcm::CalcNode::setNeighError(unsigned int axisNum)
+void CalcNode::setNeighError(unsigned int axisNum)
 {
     switch (axisNum) {
     case 0: setXNeighError();
@@ -545,7 +546,7 @@ void gcm::CalcNode::setNeighError(unsigned int axisNum)
     }
 }
 
-bool gcm::CalcNode::getCustomFlag(uchar flag) const
+bool CalcNode::getCustomFlag(uchar flag) const
 {
     switch (flag) {
     case FLAG_1: return publicFlags.flag1;
@@ -556,7 +557,7 @@ bool gcm::CalcNode::getCustomFlag(uchar flag) const
     }
 }
 
-void gcm::CalcNode::setCustomFlag(uchar flag, bool value)
+void CalcNode::setCustomFlag(uchar flag, bool value)
 {
     switch (flag) {
     case FLAG_1: publicFlags.flag1 = value;
@@ -567,102 +568,102 @@ void gcm::CalcNode::setCustomFlag(uchar flag, bool value)
     }
 }
 
-void gcm::CalcNode::setBorderConditionId(uchar newBorderCondId)
+void CalcNode::setBorderConditionId(uchar newBorderCondId)
 {
     borderConditionId = newBorderCondId;
 }
 
-uchar gcm::CalcNode::getBorderConditionId() const
+uchar CalcNode::getBorderConditionId() const
 {
     return borderConditionId;
 }
 
-void gcm::CalcNode::setContactConditionId(uchar newContactConditionId)
+void CalcNode::setContactConditionId(uchar newContactConditionId)
 {
     contactConditionId = newContactConditionId;
 }
 
-uchar gcm::CalcNode::getContactConditionId() const
+uchar CalcNode::getContactConditionId() const
 {
     return contactConditionId;
 }
 
-void gcm::CalcNode::setMaterialId(uchar id)
+void CalcNode::setMaterialId(uchar id)
 {
     materialId = id;
     rho = Engine::getInstance().getMaterial(id)->getRho();
 }
 
-uchar gcm::CalcNode::getMaterialId() const
+uchar CalcNode::getMaterialId() const
 {
     return materialId;
 }
 
-void gcm::CalcNode::setRheologyMatrix(RheologyMatrixPtr matrix)
+void CalcNode::setRheologyMatrix(RheologyMatrixPtr matrix)
 {
     assert_true(matrix.get());
     rheologyMatrix = matrix;
 }
 
-RheologyMatrixPtr gcm::CalcNode::getRheologyMatrix() const
+RheologyMatrixPtr CalcNode::getRheologyMatrix() const
 {
     return rheologyMatrix;
 }
 
-MaterialPtr gcm::CalcNode::getMaterial() const
+MaterialPtr CalcNode::getMaterial() const
 {
     return Engine::getInstance().getMaterial(materialId);
 }
 
-void gcm::CalcNode::setRho(gcm::real rho)
+void CalcNode::setRho(real rho)
 {
     this->rho = rho;
 }
-// FIXME get rid of "using namespace std" in header files
-gcm::real gcm::CalcNode::getRho() const
+
+real CalcNode::getRho() const
 {
     return rho;
 }
-// FIXME get rid of "using namespace std" in header files
-gcm::real gcm::CalcNode::getRho0() const
+
+real CalcNode::getRho0() const
 {
     return Engine::getInstance().getMaterial(materialId)->getRho();
 }
 
-void gcm::CalcNode::setDamageMeasure(gcm::real value)
+void CalcNode::setDamageMeasure(real value)
 {
     this->damageMeasure = value;
 }
 
-gcm::real gcm::CalcNode::getDamageMeasure() const
+real CalcNode::getDamageMeasure() const
 {
     return damageMeasure;
 }
 
-const vector3r& gcm::CalcNode::getCrackDirection() const
+const vector3r& CalcNode::getCrackDirection() const
 {
     return crackDirection;
 }
 
-void gcm::CalcNode::createCrack(int direction)
+void CalcNode::createCrack(int direction)
 {
     if (crackDirection*crackDirection == 0.0)
         this->calcMainStressDirectionByComponent(mainStresses[direction], crackDirection);
 }
 
-void gcm::CalcNode::createCrack(const vector3r& crack)
+void CalcNode::createCrack(const vector3r& crack)
 {
     crackDirection = crack;
 }
 
-void gcm::CalcNode::exciseByCrack()
+void CalcNode::exciseByCrack()
 {
     if (crackDirection*crackDirection != 0.0)
         cleanStressByDirection(getCrackDirection());
 }
-void gcm::CalcNode::cleanStressByDirection(const vector3r& h)
+void CalcNode::cleanStressByDirection(const vector3r& h)
 {
-    gcm::real s1 = h[0]*(sxx * h[0] + sxy * h[1] + sxz * h[2]) + h[1]*(sxy * h[0] + syy * h[1] + syz * h[2]) + h[2]*(sxz * h[0] + syz * h[1] + szz * h[2]); //TODO
+    real s1 = h[0]*(sxx * h[0] + sxy * h[1] + sxz * h[2]) + h[1]*(sxy * h[0] + syy * h[1] + syz * h[2]) + h[2]*(sxz * h[0] + syz * h[1] + szz * h[2]); //TODO
     sxx -= h[0] * h[0] * s1;
     sxy -= h[0] * h[1] * s1;
     sxz -= h[0] * h[2] * s1;
@@ -672,32 +673,32 @@ void gcm::CalcNode::cleanStressByDirection(const vector3r& h)
 //    cout<<endl<<"vec: "<<h[0]<<" "<<h[1]<<" "<<h[2]<<"  "<<s1;
 }
 
-uchar gcm::CalcNode::getPrivateFlags() const
+uchar CalcNode::getPrivateFlags() const
 {
     return privateFlags.flags;
 }
 
-void gcm::CalcNode::setPrivateFlags(uchar flags)
+void CalcNode::setPrivateFlags(uchar flags)
 {
     privateFlags.flags = flags;
 }
 
-uchar gcm::CalcNode::getPublicFlags() const
+uchar CalcNode::getPublicFlags() const
 {
     return publicFlags.flags;
 }
 
-void gcm::CalcNode::setPublicFlags(uchar flags)
+void CalcNode::setPublicFlags(uchar flags)
 {
     publicFlags.flags = flags;
 }
 
-uchar gcm::CalcNode::getErrorFlags() const
+uchar CalcNode::getErrorFlags() const
 {
     return errorFlags.flags;
 }
 
-void gcm::CalcNode::setErrorFlags(uchar flags)
+void CalcNode::setErrorFlags(uchar flags)
 {
     errorFlags.flags = flags;
 }

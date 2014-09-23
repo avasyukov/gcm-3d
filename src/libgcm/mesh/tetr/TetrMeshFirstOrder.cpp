@@ -4,7 +4,12 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::TetrMeshFirstOrder::TetrMeshFirstOrder()
+using namespace gcm;
+using std::numeric_limits;
+using std::unordered_map;
+using std::vector;
+
+TetrMeshFirstOrder::TetrMeshFirstOrder()
 {
     tetrsNumber = 0;
     tetrsStorageSize = 0;
@@ -23,7 +28,7 @@ gcm::TetrMeshFirstOrder::TetrMeshFirstOrder()
     interpolator = new TetrFirstOrderInterpolator();
 }
 
-gcm::TetrMeshFirstOrder::~TetrMeshFirstOrder()
+TetrMeshFirstOrder::~TetrMeshFirstOrder()
 {
     if( cacheHits > 0 || cacheMisses > 0 )
         LOG_DEBUG("CharactCache stats for mesh '" << getId() << "': "
@@ -39,45 +44,45 @@ gcm::TetrMeshFirstOrder::~TetrMeshFirstOrder()
     LOG_DEBUG("Mesh destroyed");
 }
 
-int gcm::TetrMeshFirstOrder::getTetrsNumber()
+int TetrMeshFirstOrder::getTetrsNumber()
 {
     return tetrsNumber;
 }
 
-int gcm::TetrMeshFirstOrder::getTriangleNumber()
+int TetrMeshFirstOrder::getTriangleNumber()
 {
     return faceNumber;
 }
 
-TetrFirstOrder& gcm::TetrMeshFirstOrder::getTetr(unsigned int index) {
+TetrFirstOrder& TetrMeshFirstOrder::getTetr(unsigned int index) {
     unordered_map<int, int>::const_iterator itr;
     itr = tetrsMap.find(index);
     assert_true(itr != tetrsMap.end() );
     return tetrs1[itr->second];
 }
 
-bool gcm::TetrMeshFirstOrder::hasTetr(unsigned int index) {
+bool TetrMeshFirstOrder::hasTetr(unsigned int index) {
     unordered_map<int, int>::const_iterator itr;
     itr = tetrsMap.find(index);
     return itr != tetrsMap.end();
 }
 
-TetrFirstOrder& gcm::TetrMeshFirstOrder::getTetrByLocalIndex(unsigned int index) {
+TetrFirstOrder& TetrMeshFirstOrder::getTetrByLocalIndex(unsigned int index) {
     return tetrs1[index];
 }
 
-TriangleFirstOrder& gcm::TetrMeshFirstOrder::getTriangle(int index) {
+TriangleFirstOrder& TetrMeshFirstOrder::getTriangle(int index) {
     assert_ge(index, 0 );
     return border1[index];
 }
 
-void gcm::TetrMeshFirstOrder::createTetrs(int number) {
+void TetrMeshFirstOrder::createTetrs(int number) {
     LOG_DEBUG("Creating first order tetrs storage, size: " << (int)(number*STORAGE_OVERCOMMIT_RATIO));
     tetrs1.resize((int)(number*STORAGE_OVERCOMMIT_RATIO));
     tetrsStorageSize = number*STORAGE_OVERCOMMIT_RATIO;
 }
 
-void gcm::TetrMeshFirstOrder::createTriangles(int number) {
+void TetrMeshFirstOrder::createTriangles(int number) {
     LOG_DEBUG("Creating first order border storage, size: " << number);
     // TODO - make border working through addTriangle() / faceNumber++ / etc
     border1.resize(number);
@@ -85,7 +90,7 @@ void gcm::TetrMeshFirstOrder::createTriangles(int number) {
     faceStorageSize = number;
 }
 
-void gcm::TetrMeshFirstOrder::addTetr(TetrFirstOrder& tetr) {
+void TetrMeshFirstOrder::addTetr(TetrFirstOrder& tetr) {
     if( tetrsNumber == tetrsStorageSize )
         createTetrs(tetrsStorageSize*STORAGE_ONDEMAND_GROW_RATE);
     assert_lt(tetrsNumber, tetrsStorageSize );
@@ -94,7 +99,7 @@ void gcm::TetrMeshFirstOrder::addTetr(TetrFirstOrder& tetr) {
     tetrsNumber++;
 }
 
-/*void gcm::TetrMeshFirstOrder::copyMesh(TetrMeshFirstOrder* src)
+/*void TetrMeshFirstOrder::copyMesh(TetrMeshFirstOrder* src)
 {
     LOG_DEBUG("Creating mesh using copy");
     int firstOrderNodesNumber = src->getNodesNumber();
@@ -111,7 +116,7 @@ void gcm::TetrMeshFirstOrder::addTetr(TetrFirstOrder& tetr) {
     }
 }*/
 
-void gcm::TetrMeshFirstOrder::preProcessGeometry()
+void TetrMeshFirstOrder::preProcessGeometry()
 {
     LOG_DEBUG("Preprocessing mesh geometry started.");
 
@@ -130,7 +135,7 @@ void gcm::TetrMeshFirstOrder::preProcessGeometry()
     LOG_DEBUG("Preprocessing mesh geometry done.");
 }
 
-void gcm::TetrMeshFirstOrder::build_volume_reverse_lookups()
+void TetrMeshFirstOrder::build_volume_reverse_lookups()
 {
     LOG_DEBUG("Building volume reverse lookups");
 
@@ -157,7 +162,7 @@ void gcm::TetrMeshFirstOrder::build_volume_reverse_lookups()
     }
 }
 
-void gcm::TetrMeshFirstOrder::check_numbering()
+void TetrMeshFirstOrder::check_numbering()
 {
     LOG_DEBUG("Checking numbering");
 
@@ -182,7 +187,7 @@ void gcm::TetrMeshFirstOrder::check_numbering()
     }
 }
 
-void gcm::TetrMeshFirstOrder::build_border()
+void TetrMeshFirstOrder::build_border()
 {
     // Prepare border data
 
@@ -261,7 +266,7 @@ void gcm::TetrMeshFirstOrder::build_border()
     LOG_DEBUG("Created " << faceNumber << " triangles");
 }
 
-void gcm::TetrMeshFirstOrder::build_surface_reverse_lookups()
+void TetrMeshFirstOrder::build_surface_reverse_lookups()
 {
     LOG_DEBUG("Building surface reverse lookups");
 
@@ -285,7 +290,7 @@ void gcm::TetrMeshFirstOrder::build_surface_reverse_lookups()
     }
 }
 
-void gcm::TetrMeshFirstOrder::check_unused_nodes()
+void TetrMeshFirstOrder::check_unused_nodes()
 {
     LOG_DEBUG("Looking for unused nodes");
 
@@ -330,7 +335,7 @@ void gcm::TetrMeshFirstOrder::check_unused_nodes()
     }*/
 }
 
-void gcm::TetrMeshFirstOrder::check_outer_normals()
+void TetrMeshFirstOrder::check_outer_normals()
 {
     LOG_DEBUG("Checking nodes outer normals");
 
@@ -373,7 +378,7 @@ void gcm::TetrMeshFirstOrder::check_outer_normals()
     LOG_DEBUG("Checking nodes outer normals done");
 }
 
-void gcm::TetrMeshFirstOrder::verifyTetrahedraVertices ()
+void TetrMeshFirstOrder::verifyTetrahedraVertices ()
 {
     LOG_DEBUG ("Verifying tetrahedra vertices");
     for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
@@ -386,7 +391,7 @@ void gcm::TetrMeshFirstOrder::verifyTetrahedraVertices ()
     }
 }
 
-TriangleFirstOrder gcm::TetrMeshFirstOrder::createBorderTriangle(int v[4], int number)
+TriangleFirstOrder TetrMeshFirstOrder::createBorderTriangle(int v[4], int number)
 {
     bool needSwap;
     bool isBorder;
@@ -408,24 +413,24 @@ TriangleFirstOrder gcm::TetrMeshFirstOrder::createBorderTriangle(int v[4], int n
     return tri;
 }
 
-bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4])
+bool TetrMeshFirstOrder::isTriangleBorder(int v[4])
 {
     bool needSwap;
     return isTriangleBorder( v, &needSwap, false );
 }
 
-bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool debug)
+bool TetrMeshFirstOrder::isTriangleBorder(int v[4], bool debug)
 {
     bool needSwap;
     return isTriangleBorder( v, &needSwap, debug );
 }
 
-bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap)
+bool TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap)
 {
     return isTriangleBorder( v, needSwap, false );
 }
 
-bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool debug)
+bool TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool debug)
 {
     *needSwap = false;
     CalcNode& v1 = getNode( v[0] );
@@ -523,7 +528,7 @@ bool gcm::TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool de
     return true;
 };
 
-int gcm::TetrMeshFirstOrder::findOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+int TetrMeshFirstOrder::findOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
     int tetr;
     if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h * (1 + EQUALITY_TOLERANCE) )
@@ -542,7 +547,7 @@ int gcm::TetrMeshFirstOrder::findOwnerTetr(CalcNode& node, float dx, float dy, f
     }
 }
 
-bool gcm::TetrMeshFirstOrder::isInnerPoint(CalcNode& node, float dx, float dy, float dz, bool debug)
+bool TetrMeshFirstOrder::isInnerPoint(CalcNode& node, float dx, float dy, float dz, bool debug)
 {
     bool innerPoint;
     float coords[3];
@@ -550,7 +555,7 @@ bool gcm::TetrMeshFirstOrder::isInnerPoint(CalcNode& node, float dx, float dy, f
     return innerPoint;
 }
 
-int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug)
+int TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug)
 {
     if( debug )
         LOG_TRACE("Fast scan - debug ON (however, consider !inAABB condition)");
@@ -599,7 +604,7 @@ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, floa
     return -1;
 }
 
-/*TetrFirstOrder*/ int gcm::TetrMeshFirstOrder::expandingScanForOwnerTetr (CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+/*TetrFirstOrder*/ int TetrMeshFirstOrder::expandingScanForOwnerTetr (CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
     if( debug )
         LOG_TRACE("Expanding scan - debug ON");
@@ -833,7 +838,7 @@ int gcm::TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, floa
     return -1;
 }
 
-void gcm::TetrMeshFirstOrder::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
+void TetrMeshFirstOrder::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
 {
     CalcNode& node = getNode( border_node_index );
     assert_true(node.isBorder() );
@@ -901,7 +906,7 @@ void gcm::TetrMeshFirstOrder::findBorderNodeNormal(unsigned int border_node_inde
     }
 }
 
-float gcm::TetrMeshFirstOrder::get_solid_angle(int node_index, int tetr_index)
+float TetrMeshFirstOrder::get_solid_angle(int node_index, int tetr_index)
 {
     TetrFirstOrder& tetr = getTetr(tetr_index);
     CalcNode& node = getNode(node_index);
@@ -949,7 +954,7 @@ float gcm::TetrMeshFirstOrder::get_solid_angle(int node_index, int tetr_index)
     );
 };
 
-void gcm::TetrMeshFirstOrder::find_border_elem_normal(int border_element_index,
+void TetrMeshFirstOrder::find_border_elem_normal(int border_element_index,
                                                         float* x, float* y, float* z)
 {
     TriangleFirstOrder& tri = getTriangle(border_element_index);
@@ -959,7 +964,7 @@ void gcm::TetrMeshFirstOrder::find_border_elem_normal(int border_element_index,
                             x, y, z );
 };
 
-void gcm::TetrMeshFirstOrder::calcMinH()
+void TetrMeshFirstOrder::calcMinH()
 {
     //assert_gt(tetrsNumber, 0 );
     if( tetrsNumber == 0 )
@@ -994,7 +999,7 @@ void gcm::TetrMeshFirstOrder::calcMinH()
     }
 };
 
-void gcm::TetrMeshFirstOrder::calcMaxH()
+void TetrMeshFirstOrder::calcMaxH()
 {
     //assert_gt(tetrsNumber, 0 );
     if( tetrsNumber == 0 )
@@ -1023,7 +1028,7 @@ void gcm::TetrMeshFirstOrder::calcMaxH()
     mesh_max_h = max_h;
 };
 
-void gcm::TetrMeshFirstOrder::calcAvgH()
+void TetrMeshFirstOrder::calcAvgH()
 {
     //assert_gt(tetrsNumber, 0 );
     if( tetrsNumber == 0 )
@@ -1051,19 +1056,19 @@ void gcm::TetrMeshFirstOrder::calcAvgH()
     mesh_avg_h = avg_h / tetrsNumber;
 };
 
-float gcm::TetrMeshFirstOrder::tetr_h(int i)
+float TetrMeshFirstOrder::tetr_h(int i)
 {
     TetrFirstOrder& tetr = getTetr(i);
     return tetrHeight( getNode(tetr.verts[0]).coords, getNode(tetr.verts[1]).coords,
                         getNode(tetr.verts[2]).coords, getNode(tetr.verts[3]).coords );
 };
 
-void gcm::TetrMeshFirstOrder::doNextPartStep(float tau, int stage)
+void TetrMeshFirstOrder::doNextPartStep(float tau, int stage)
 {
     defaultNextPartStep(tau, stage);
 };
 
-void gcm::TetrMeshFirstOrder::logMeshStats()
+void TetrMeshFirstOrder::logMeshStats()
 {
     if( isinf( getMaxH() ) )
     {
@@ -1083,7 +1088,7 @@ void gcm::TetrMeshFirstOrder::logMeshStats()
     LOG_DEBUG("Avg H = " << getAvgH());
 };
 
-void gcm::TetrMeshFirstOrder::checkTopology(float tau)
+void TetrMeshFirstOrder::checkTopology(float tau)
 {
     LOG_DEBUG("Checking mesh topology");
 
@@ -1275,33 +1280,33 @@ void gcm::TetrMeshFirstOrder::checkTopology(float tau)
     LOG_DEBUG("Mesh synced area: " << syncedArea);
 }
 
-float gcm::TetrMeshFirstOrder::getRecommendedTimeStep()
+float TetrMeshFirstOrder::getRecommendedTimeStep()
 {
     return getAvgH() / getMaxEigenvalue();
 };
 
-float gcm::TetrMeshFirstOrder::getMinH()
+float TetrMeshFirstOrder::getMinH()
 {
     if( isinf( mesh_min_h ) )
         calcMinH();
     return mesh_min_h;
 }
 
-float gcm::TetrMeshFirstOrder::getMaxH()
+float TetrMeshFirstOrder::getMaxH()
 {
     if( isinf( mesh_max_h ) )
         calcMaxH();
     return mesh_max_h;
 }
 
-float gcm::TetrMeshFirstOrder::getAvgH()
+float TetrMeshFirstOrder::getAvgH()
 {
     if( isinf( mesh_avg_h ) )
         calcAvgH();
     return mesh_avg_h;
 }
 
-bool gcm::TetrMeshFirstOrder::checkCharactCache(CalcNode& node, float dx, float dy, float dz, int& tetrNum)
+bool TetrMeshFirstOrder::checkCharactCache(CalcNode& node, float dx, float dy, float dz, int& tetrNum)
 {
     int cacheIndex = getCharactCacheIndex(node, dx, dy, dz);
     unordered_map<int, int>::const_iterator itr;
@@ -1321,7 +1326,7 @@ bool gcm::TetrMeshFirstOrder::checkCharactCache(CalcNode& node, float dx, float 
                 false);
 }
 
-void gcm::TetrMeshFirstOrder::updateCharactCache(CalcNode& node, float dx, float dy, float dz, int tetrNum)
+void TetrMeshFirstOrder::updateCharactCache(CalcNode& node, float dx, float dy, float dz, int tetrNum)
 {
     if( !charactCacheAvailable() )
         return;
@@ -1329,7 +1334,7 @@ void gcm::TetrMeshFirstOrder::updateCharactCache(CalcNode& node, float dx, float
     charactCache[cacheIndex][node.number] = tetrNum;
 }
 
-int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, float dy, float dz)
+int TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, float dy, float dz)
 {
     float fdx = fabs(dx);
     float fdy = fabs(dy);
@@ -1368,7 +1373,7 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, floa
         }
 
     float l2 = dx*dx + dy*dy + dz*dz;
-    float tau = gcm::Engine::getInstance().getTimeStep();
+    float tau = Engine::getInstance().getTimeStep();
 
 
     float maxV = m->getMaxEigenvalue();
@@ -1391,15 +1396,15 @@ int gcm::TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, floa
     return (direction - 1)*6 + (sign-1)*3 + (scale-1);
 }
 
-bool gcm::TetrMeshFirstOrder::charactCacheAvailable()
+bool TetrMeshFirstOrder::charactCacheAvailable()
 {
     return ( nodesNumber > 0
-            && gcm::Engine::getInstance().getTimeStep() > 0
+            && Engine::getInstance().getTimeStep() > 0
             && getNodeByLocalIndex(0).getMaterialId() >= 0
-            && getNodeByLocalIndex(0).getMaterialId() < gcm::Engine::getInstance().getNumberOfMaterials() );
+            && getNodeByLocalIndex(0).getMaterialId() < Engine::getInstance().getNumberOfMaterials() );
 }
 
-bool gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
+bool TetrMeshFirstOrder::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
                                                 CalcNode& targetNode, bool& isInnerPoint)
 {
     int tetrInd = findOwnerTetr( origin, dx, dy, dz, debug,
@@ -1416,7 +1421,7 @@ bool gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& origin, float dx, float 
 }
 
 // FIXME_ASAP: rewrite it
-bool gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& node)
+bool TetrMeshFirstOrder::interpolateNode(CalcNode& node)
 {
     for (int i = 0; i < getTetrsNumber(); i++)
     {
@@ -1436,7 +1441,7 @@ bool gcm::TetrMeshFirstOrder::interpolateNode(CalcNode& node)
 }
 
 // FIXME_ASAP: rewrite it
-bool gcm::TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z, 
+bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node)
 {
     real start[3];
@@ -1513,7 +1518,7 @@ bool gcm::TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
     return false;
 }
 
-vector<int>& gcm::TetrMeshFirstOrder::getVolumeElementsForNode(int index)
+vector<int>& TetrMeshFirstOrder::getVolumeElementsForNode(int index)
 {
     // Get local index
     unsigned int localIndex = getNodeLocalIndex(index);
@@ -1523,7 +1528,7 @@ vector<int>& gcm::TetrMeshFirstOrder::getVolumeElementsForNode(int index)
     return volumeElements[localIndex];
 }
 
-vector<int>& gcm::TetrMeshFirstOrder::getBorderElementsForNode(int index)
+vector<int>& TetrMeshFirstOrder::getBorderElementsForNode(int index)
 {
     // Get local index
     unsigned int localIndex = getNodeLocalIndex(index);
@@ -1534,12 +1539,12 @@ vector<int>& gcm::TetrMeshFirstOrder::getBorderElementsForNode(int index)
 }
 
 
-const SnapshotWriter& gcm::TetrMeshFirstOrder::getSnaphotter() const
+const SnapshotWriter& TetrMeshFirstOrder::getSnaphotter() const
 {
     return VTKSnapshotWriter::getInstance();
 }
 
-const SnapshotWriter& gcm::TetrMeshFirstOrder::getDumper() const
+const SnapshotWriter& TetrMeshFirstOrder::getDumper() const
 {
     return getSnaphotter();
 }

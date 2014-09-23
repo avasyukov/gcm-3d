@@ -19,7 +19,8 @@
 #include <vtkCellData.h>
 
 using namespace gcm;
-using namespace std;
+using std::vector;
+using std::move;
 
 MarkeredSurface::MarkeredSurface()
 {

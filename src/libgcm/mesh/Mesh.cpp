@@ -2,7 +2,16 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::Mesh::Mesh()
+using namespace gcm;
+using std::string;
+using std::copy;
+using std::numeric_limits;
+using std::min;
+using std::max;
+using std::unordered_map;
+using std::function;
+
+Mesh::Mesh()
 {
     INIT_LOGGER("gcm.Mesh");
     calc = false;
@@ -11,52 +20,52 @@ gcm::Mesh::Mesh()
     movable = false;
 }
 
-gcm::Mesh::~Mesh()
+Mesh::~Mesh()
 {
 
 }
 
-string gcm::Mesh::getType()
+string Mesh::getType()
 {
     return type;
 }
 
-void gcm::Mesh::setId(string id)
+void Mesh::setId(string id)
 {
     this->id = id;
 }
 
-string gcm::Mesh::getId() const
+string Mesh::getId() const
 {
     return id;
 }
 
-void gcm::Mesh::setCalc(bool calc)
+void Mesh::setCalc(bool calc)
 {
     this->calc = calc;
 }
 
-bool gcm::Mesh::getCalc()
+bool Mesh::getCalc()
 {
     return calc;
 }
 
-void gcm::Mesh::setMovable(bool movable)
+void Mesh::setMovable(bool movable)
 {
     this->movable = movable;
 }
 
-bool gcm::Mesh::getMovable()
+bool Mesh::getMovable()
 {
     return movable;
 }
 
-void gcm::Mesh::setBody(Body* body)
+void Mesh::setBody(Body* body)
 {
     this->body = body;
 }
 
-void gcm::Mesh::setBodyNum(unsigned char id)
+void Mesh::setBodyNum(unsigned char id)
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
@@ -65,34 +74,34 @@ void gcm::Mesh::setBodyNum(unsigned char id)
     }
 }
 
-Body* gcm::Mesh::getBody()
+Body* Mesh::getBody()
 {
     return body;
 }
 
-string gcm::Mesh::snapshot(int number)
+string Mesh::snapshot(int number)
 {
     return getSnaphotter().dump(this, number);
 }
 
-string gcm::Mesh::dump(int number)
+string Mesh::dump(int number)
 {
     return getDumper().dump(this, number);
 }
 
 // FIXME
 // should it be const reference instead of copy?
-AABB gcm::Mesh::getOutline()
+AABB Mesh::getOutline()
 {
     return outline;
 }
 
-AABB gcm::Mesh::getExpandedOutline()
+AABB Mesh::getExpandedOutline()
 {
     return expandedOutline;
 }
 
-void gcm::Mesh::initNewNodes()
+void Mesh::initNewNodes()
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
@@ -107,7 +116,7 @@ void gcm::Mesh::initNewNodes()
     }
 }
 
-void gcm::Mesh::preProcess()
+void Mesh::preProcess()
 {
     LOG_DEBUG("Preprocessing mesh started.");
     initNewNodes();
@@ -118,7 +127,7 @@ void gcm::Mesh::preProcess()
     logMeshStats();
 }
 
-void gcm::Mesh::createOutline()
+void Mesh::createOutline()
 {
     int nodesNumber = getNodesNumber();
     if (nodesNumber > 0)
@@ -160,7 +169,7 @@ void gcm::Mesh::createOutline()
     }
 }
 
-void gcm::Mesh::setInitialState(Area* area, float* values)
+void Mesh::setInitialState(Area* area, float* values)
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
@@ -171,7 +180,7 @@ void gcm::Mesh::setInitialState(Area* area, float* values)
     }
 }
 
-void gcm::Mesh::setBorderCondition(Area* area, unsigned int num)
+void Mesh::setBorderCondition(Area* area, unsigned int num)
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
@@ -181,7 +190,7 @@ void gcm::Mesh::setBorderCondition(Area* area, unsigned int num)
     }
 }
 
-void gcm::Mesh::setContactCondition(Area* area, unsigned int num)
+void Mesh::setContactCondition(Area* area, unsigned int num)
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
@@ -191,7 +200,7 @@ void gcm::Mesh::setContactCondition(Area* area, unsigned int num)
     }
 }
 
-void gcm::Mesh::setRheology(unsigned char matId) {
+void Mesh::setRheology(unsigned char matId) {
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
@@ -199,7 +208,7 @@ void gcm::Mesh::setRheology(unsigned char matId) {
     }
 }
 
-void gcm::Mesh::setRheology(unsigned char matId, Area* area) {
+void Mesh::setRheology(unsigned char matId, Area* area) {
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
@@ -210,7 +219,7 @@ void gcm::Mesh::setRheology(unsigned char matId, Area* area) {
     }
 }
 
-void gcm::Mesh::transfer(float x, float y, float z)
+void Mesh::transfer(float x, float y, float z)
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
@@ -240,7 +249,7 @@ void gcm::Mesh::transfer(float x, float y, float z)
     Engine::getInstance().transferScene(x, y, z);
 }
 
-void gcm::Mesh::scale(float x0, float y0, float z0, 
+void Mesh::scale(float x0, float y0, float z0, 
 		float scaleX, float scaleY, float scaleZ)
 {
     for(int i = 0; i < getNodesNumber(); i++)
@@ -269,7 +278,7 @@ void gcm::Mesh::scale(float x0, float y0, float z0,
     Engine::getInstance().scaleScene(x0, y0, z0, scaleX, scaleY, scaleZ);
 }
 
-void gcm::Mesh::applyRheology(RheologyCalculator* rc)
+void Mesh::applyRheology(RheologyCalculator* rc)
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
@@ -279,7 +288,7 @@ void gcm::Mesh::applyRheology(RheologyCalculator* rc)
     }
 }
 
-void gcm::Mesh::clearNodesState()
+void Mesh::clearNodesState()
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
@@ -289,7 +298,7 @@ void gcm::Mesh::clearNodesState()
     }
 };
 
-void gcm::Mesh::clearContactState()
+void Mesh::clearContactState()
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
@@ -299,7 +308,7 @@ void gcm::Mesh::clearContactState()
     }
 }
 
-void gcm::Mesh::processMaterialFailure(FailureModel* failureModel, const float tau)
+void Mesh::processMaterialFailure(FailureModel* failureModel, const float tau)
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
@@ -312,7 +321,7 @@ void gcm::Mesh::processMaterialFailure(FailureModel* failureModel, const float t
     }
 }
 
-void gcm::Mesh::applyCorrectors()
+void Mesh::applyCorrectors()
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
@@ -324,7 +333,7 @@ void gcm::Mesh::applyCorrectors()
     }
 }
 
-void gcm::Mesh::processStressState()
+void Mesh::processStressState()
 {
     // FIXME  remove these obsolete code since there is no necessary to recalculate
     // stresses components because now corresponding getter has lazy init stuff
@@ -336,7 +345,7 @@ void gcm::Mesh::processStressState()
     }
 }
 
-void gcm::Mesh::moveCoords(float tau)
+void Mesh::moveCoords(float tau)
 {
     LOG_DEBUG("Moving mesh coords");
     for(int i = 0; i < getNodesNumber(); i++)
@@ -367,7 +376,7 @@ void gcm::Mesh::moveCoords(float tau)
     LOG_DEBUG("New outline: " << outline);
 };
 
-float gcm::Mesh::getMaxEigenvalue()
+float Mesh::getMaxEigenvalue()
 {
     float maxLambda = 0;
     for(int i = 0; i < getNodesNumber(); i++)
@@ -387,7 +396,7 @@ float gcm::Mesh::getMaxEigenvalue()
     return maxLambda;
 }
 
-float gcm::Mesh::getMaxPossibleTimeStep()
+float Mesh::getMaxPossibleTimeStep()
 {
     auto maxLambda = getMaxEigenvalue();
     LOG_DEBUG( "Min H over mesh is " << getMinH() );
@@ -396,12 +405,12 @@ float gcm::Mesh::getMaxPossibleTimeStep()
     return getMinH() / maxLambda;
 }
 
-int gcm::Mesh::getNodesNumber()
+int Mesh::getNodesNumber()
 {
     return nodesNumber;
 }
 
-int gcm::Mesh::getNumberOfLocalNodes()
+int Mesh::getNumberOfLocalNodes()
 {
     int num = 0;
     for(int i = 0; i < getNodesNumber(); i++)
@@ -414,14 +423,14 @@ int gcm::Mesh::getNumberOfLocalNodes()
     return num;
 }
 
-void gcm::Mesh::createNodes(int number) {
+void Mesh::createNodes(int number) {
     LOG_DEBUG("Creating nodes storage, size: " << (int)(number*STORAGE_OVERCOMMIT_RATIO));
     nodes.resize((int)(number*STORAGE_OVERCOMMIT_RATIO));
     new_nodes.resize((int)(number*STORAGE_OVERCOMMIT_RATIO));
     nodesStorageSize = number*STORAGE_OVERCOMMIT_RATIO;
 }
 
-bool gcm::Mesh::hasNode(int index)
+bool Mesh::hasNode(int index)
 {
     assert_ge(index, 0 );
     unordered_map<int, int>::const_iterator itr;
@@ -429,7 +438,7 @@ bool gcm::Mesh::hasNode(int index)
     return itr != nodesMap.end();
 }
 
-CalcNode& gcm::Mesh::getNode(int index)
+CalcNode& Mesh::getNode(int index)
 {
     assert_ge(index, 0 );
     unordered_map<int, int>::const_iterator itr;
@@ -438,7 +447,7 @@ CalcNode& gcm::Mesh::getNode(int index)
     return nodes[itr->second];
 }
 
-CalcNode& gcm::Mesh::getNewNode(int index) {
+CalcNode& Mesh::getNewNode(int index) {
     assert_ge(index, 0 );
     unordered_map<int, int>::const_iterator itr;
     itr = nodesMap.find(index);
@@ -446,20 +455,20 @@ CalcNode& gcm::Mesh::getNewNode(int index) {
     return new_nodes[itr->second];
 }
 
-CalcNode& gcm::Mesh::getNodeByLocalIndex(unsigned int index) {
+CalcNode& Mesh::getNodeByLocalIndex(unsigned int index) {
     assert_ge(index, 0);
     assert_lt(index, nodes.size());
     return nodes[index];
 }
 
-int gcm::Mesh::getNodeLocalIndex(int index) {
+int Mesh::getNodeLocalIndex(int index) {
     assert_ge(index, 0 );
     unordered_map<int, int>::const_iterator itr;
     itr = nodesMap.find(index);
     return ( itr != nodesMap.end() ? itr->second : -1 );
 }
 
-void gcm::Mesh::addNode(CalcNode& node) {
+void Mesh::addNode(CalcNode& node) {
     if( nodesNumber == nodesStorageSize )
         // FIXME what is this?
         // why not to use a propper allocator for container?
@@ -470,7 +479,7 @@ void gcm::Mesh::addNode(CalcNode& node) {
     nodesNumber++;
 }
 
-void gcm::Mesh::defaultNextPartStep(float tau, int stage)
+void Mesh::defaultNextPartStep(float tau, int stage)
 {
     LOG_DEBUG("Nodes: " << nodesNumber);
 

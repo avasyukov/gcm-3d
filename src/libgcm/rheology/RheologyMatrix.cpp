@@ -55,7 +55,7 @@ real RheologyMatrix::getMaxEigenvalue() const
 
 real RheologyMatrix::getMinEigenvalue() const
 {
-    float res = numeric_limits<real>::infinity();
+    float res = std::numeric_limits<real>::infinity();
     for (unsigned i = 0; i < GCM_MATRIX_SIZE; ++i)
     {
         real la = getL(i, i);
