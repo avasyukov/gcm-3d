@@ -1,8 +1,9 @@
 <task numberOfSnaps="15" stepsPerSnap="5">
 	<system>
-                <defaultContactCalculator type="AdhesionContactCalculator" />
-		<defaultFailureModel type="CrackFailureModel" />
+        <defaultContactCalculator type="AdhesionContactCalculator" />
+		<defaultFailureModel type="DebugFailureModel" />
 		<meshMovement type="none" />
+        <damage type="ContinualDamage" />
 	</system>
 	<bodies>
 		<body id="cr_pan_real">
@@ -10,20 +11,12 @@
 			<mesh id="cr_pan_real" type="geo2" file="models/cr_panel.geo" tetrSize="0.4" />
 			<material id="steel" />
 		</body>
-                <body id="cr_osk_real">
-                        <rheology type="elastic" />
-                        <mesh id="cr_osk_real" type="geo2" file="models/cr_osk.geo" tetrSize="0.4" />
-                        <material id="steel" />
-                </body>
+        <body id="cr_osk_real">
+            <rheology type="elastic" />
+            <mesh id="cr_osk_real" type="geo2" file="models/cr_osk.geo" tetrSize="0.4" />
+            <material id="steel" />
+        </body>
 	</bodies>
-<!--	<materials>
-		<material name="tM" rheology="isotropic">
-			<la>7000000</la>
-			<mu>1000000</mu>
-			<rho>1</rho>
-			<crackThreshold>40000</crackThreshold>
-		</material>
-	</materials> -->
 	<initialState>
 		<area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="6.00001" maxZ="30"/>
 		<values vz="-3.0"/>
