@@ -42,6 +42,8 @@ gcm::Engine::Engine()
     LOG_DEBUG("Registering failure models");
     registerFailureModel( new NoFailureModel() );
     registerFailureModel( new CrackFailureModel() );
+    registerFailureModel( new ScalarFailureModel() );
+    registerFailureModel( new ContinualFailureModel() );
     registerFailureModel( new DebugFailureModel() );
     registerFailureModel( new HashinFailureModel() );
     defaultFailureModelType = "NoFailureModel";
@@ -508,9 +510,10 @@ void gcm::Engine::doNextStepAfterStages(const float time_step) {
         LOG_DEBUG( "Processing stress state for mesh " << mesh->getId() );
         mesh->processStressState();
         LOG_DEBUG( "Processing stress state done" );
-        LOG_DEBUG( "Processing crack state for mesh " << mesh->getId() );
-        mesh->processMaterialFailure( getFailureModel(getDefaultFailureModelType()), time_step );
-        LOG_DEBUG( "Processing crack state done" );
+        string failureType = getDefaultFailureModelType();
+        LOG_DEBUG( "Processing failure for mesh " << mesh->getId() << " using " << failureType << " model" );
+        mesh->processMaterialFailure( getFailureModel(failureType), time_step );
+        LOG_DEBUG( "Processing failure done" );
         if( getMeshesMovable() && mesh->getMovable() )
         {
             LOG_DEBUG( "Moving mesh " << mesh->getId() );

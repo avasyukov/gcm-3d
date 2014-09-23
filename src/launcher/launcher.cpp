@@ -34,6 +34,7 @@
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/correctors/IdealPlasticFlowCorrector.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
+#include "libgcm/rheology/Failure.hpp"
 
 namespace ba = boost::algorithm;
 namespace bfs = boost::filesystem;
@@ -296,19 +297,19 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     NodeList plasticityTypeList = rootNode.xpath("/task/system/plasticity");
     if( plasticityTypeList.size() > 1 )
         THROW_INVALID_INPUT("Config file can contain only one <plasticity/> element");
-    string plasticityType = "none";
+    string plasticityType = PLASTICITY_TYPE_NONE;
     if( plasticityTypeList.size() == 1 )
     {
         plasticityType = plasticityTypeList.front()["type"];
     }
     
-    NodeList damageTypeList = rootNode.xpath("/task/system/damage");
-    if( damageTypeList.size() > 1 )
-        THROW_INVALID_INPUT("Config file can contain only one <damage/> element");
-    string damageType = "none";
-    if( damageTypeList.size() == 1 )
+    NodeList failureModeList = rootNode.xpath("/task/system/failure");
+    if( failureModeList.size() > 1 )
+        THROW_INVALID_INPUT("Config file can contain only one <failure/> element");
+    string failureMode = FAILURE_MODE_DISCRETE;
+    if( failureModeList.size() == 1 )
     {
-        damageType = damageTypeList.front()["type"];
+        failureMode = failureModeList.front()["mode"];
     }
 
     string matrixDecompositionImplementation = "numerical";
@@ -732,7 +733,9 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
         {
             if(materialUsedInTask)
             {
-                LOG_INFO("Using \"" << plasticityType << "\" plasticity model for isotropic material \"" << material->getName() << "\".");
+                LOG_INFO("Using \"" << plasticityType << "\" plasticity model " 
+                        << "and \""  + failureMode + "\" failure mode "
+                        << "for isotropic material \"" << material->getName() << "\".");
                 if( !plasticityPropsPresent )
                     THROW_UNSUPPORTED("Required plasticity properties were not found.");
             }
@@ -763,14 +766,13 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                 THROW_UNSUPPORTED("Plasticity type\"" + plasticityType + "\" is not supported.");
             }
             
-            if (damageType == DAMAGE_TYPE_NONE)
+            if (failureMode == FAILURE_MODE_DISCRETE)
             {
                 corrector = nullptr;
                 setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
                 decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
-
             }
-            else if (damageType == DAMAGE_TYPE_CONTINUAL)
+            else if (failureMode == FAILURE_MODE_CONTINUAL)
             {
                 corrector = nullptr;
                 setter = makeSetterPtr<IsotropicDamagedRheologyMatrixSetter>();
@@ -778,7 +780,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
             }
             else
             {
-                THROW_UNSUPPORTED("Damage type\"" + damageType + "\" is not supported.");
+                THROW_UNSUPPORTED("Failure mode \"" + failureMode + "\" is not supported.");
             }
         } else 
         {
@@ -789,19 +791,19 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
                     LOG_WARN("Plasticity is not supported for anisotropic materials, using elastic instead.");
             }
             
-            if (damageType == DAMAGE_TYPE_NONE)
+            if (failureMode == FAILURE_MODE_DISCRETE)
             {
                 corrector = nullptr;
                 setter = makeSetterPtr<AnisotropicRheologyMatrixSetter>();
             }
-            else if (damageType == DAMAGE_TYPE_CONTINUAL)
+            else if (failureMode == FAILURE_MODE_CONTINUAL)
             {
                 corrector = nullptr;
                 setter = makeSetterPtr<AnisotropicDamagedRheologyMatrixSetter>();
             }
             else
             {
-                THROW_UNSUPPORTED("Damage type\"" + damageType + "\" is not supported.");
+                THROW_UNSUPPORTED("Failure mode \"" + failureMode + "\" is not supported.");
             }          
             
             if( matrixDecompositionImplementation == "numerical" )

@@ -24,6 +24,8 @@
 #include "libgcm/failure/FailureModel.hpp"
 #include "libgcm/failure/NoFailureModel.hpp"
 #include "libgcm/failure/CrackFailureModel.hpp"
+#include "libgcm/failure/ScalarFailureModel.hpp"
+#include "libgcm/failure/ContinualFailureModel.hpp"
 #include "libgcm/failure/DebugFailureModel.hpp"
 #include "libgcm/failure/HashinFailureModel.hpp"
 

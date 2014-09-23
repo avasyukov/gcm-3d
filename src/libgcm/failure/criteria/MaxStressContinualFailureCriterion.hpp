@@ -1,5 +1,5 @@
-#ifndef CONTINUALDAMAGEFAILURECRITERION_HPP
-#define	CONTINUALDAMAGEFAILURECRITERION_HPP
+#ifndef MaxStressContinualFailureCriterion_HPP
+#define	MaxStressContinualFailureCriterion_HPP
  
 #include <string>
 #include <iostream>
@@ -11,9 +11,9 @@ using namespace gcm;
 
 namespace gcm {
 
-    class ContinualDamageFailureCriterion : public FailureCriterion {
+    class MaxStressContinualFailureCriterion : public FailureCriterion {
     public:
-        ContinualDamageFailureCriterion();
+        MaxStressContinualFailureCriterion();
 		void checkFailure(ICalcNode& node, const float tau);
     protected:
         string type;

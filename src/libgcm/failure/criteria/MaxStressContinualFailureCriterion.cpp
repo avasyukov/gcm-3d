@@ -1,10 +1,11 @@
-#include "ContinualDamageFailureCriterion.hpp"
+#include "MaxStressContinualFailureCriterion.hpp"
+#include "libgcm/rheology/Failure.hpp"
 
-gcm::ContinualDamageFailureCriterion::ContinualDamageFailureCriterion() {
-    INIT_LOGGER( "gcm.ContinualDamageFailureCriterion" );
+gcm::MaxStressContinualFailureCriterion::MaxStressContinualFailureCriterion() {
+    INIT_LOGGER( "gcm.MaxStressContinualFailureCriterion" );
 }
 
-void gcm::ContinualDamageFailureCriterion::checkFailure(ICalcNode& node, const float tau) {
+void gcm::MaxStressContinualFailureCriterion::checkFailure(ICalcNode& node, const float tau) {
     if ( node.isDestroyed() ) return;
     else {
         real m_s[3];
@@ -12,7 +13,10 @@ void gcm::ContinualDamageFailureCriterion::checkFailure(ICalcNode& node, const f
         int i_ms=0; 
         if (fabs(m_s[1])>fabs(m_s[i_ms])) i_ms = 1; 
         if (fabs(m_s[2])>fabs(m_s[i_ms])) i_ms = 2;
-        real s_rel = fabs(m_s[i_ms])/node.getMaterial()->getCrackThreshold();
+        MaterialPtr mat = node.getMaterial();
+        auto props = mat->getFailureProperties();
+        real limit = props[FAILURE_TYPE_MAX_STRESS][FAILURE_TYPE_MAX_STRESS_THRESHOLD];
+        real s_rel = fabs(m_s[i_ms])/limit;
         real damage = node.getDamageMeasure();
         if ( ( s_rel > 1 ) && (m_s[i_ms] > 0) ) {
             // Parameters of damage evolution

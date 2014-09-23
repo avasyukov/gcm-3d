@@ -18,6 +18,9 @@ namespace gcm
 
     const std::string FAILURE_TYPE_MAX_STRESS = "maxStress";
     const std::string FAILURE_TYPE_MAX_STRESS_THRESHOLD = "threshold";
+    
+    const std::string FAILURE_MODE_DISCRETE = "discreteFailure";
+    const std::string FAILURE_MODE_CONTINUAL = "continualFailure";
 }
 #endif /* PLASTICITY_HPP */
 
