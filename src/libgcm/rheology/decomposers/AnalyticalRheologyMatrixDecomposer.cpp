@@ -1,12 +1,14 @@
 #include "AnalyticalRheologyMatrixDecomposer.hpp"
 
-gcm::AnalyticalRheologyMatrixDecomposer::AnalyticalRheologyMatrixDecomposer() {
+using namespace gcm;
+
+AnalyticalRheologyMatrixDecomposer::AnalyticalRheologyMatrixDecomposer() {
 }
 
-gcm::AnalyticalRheologyMatrixDecomposer::~AnalyticalRheologyMatrixDecomposer() {
+AnalyticalRheologyMatrixDecomposer::~AnalyticalRheologyMatrixDecomposer() {
 }
 
-void gcm::AnalyticalRheologyMatrixDecomposer::decomposeX(const gcm_matrix& a,
+void AnalyticalRheologyMatrixDecomposer::decomposeX(const gcm_matrix& a,
                                                 gcm_matrix& u, gcm_matrix& l, gcm_matrix& u1) const
 {
     l.clear();
@@ -62,7 +64,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeX(const gcm_matrix& a,
     u = u1.inv();
 };
 
-void gcm::AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
+void AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
                                                 gcm_matrix& u, gcm_matrix& l, gcm_matrix& u1) const
 {
     l.clear();
@@ -117,7 +119,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeY(const gcm_matrix& a,
     u = u1.inv();
 };
 
-void gcm::AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
+void AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
                                                 gcm_matrix& u, gcm_matrix& l, gcm_matrix& u1) const
 {
     l.clear();
@@ -173,7 +175,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
     u = u1.inv();
 };
 
-void gcm::AnalyticalRheologyMatrixDecomposer::findNonZeroSolution(double **M, double *x) const
+void AnalyticalRheologyMatrixDecomposer::findNonZeroSolution(double **M, double *x) const
 {
     // Range ( M ) = 2, one of x[i] is random
 
@@ -197,7 +199,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findNonZeroSolution(double **M, do
     x[J] = (-M[P][I]*M[Q][unity] + M[Q][I]*M[P][unity]) / det;
 };
 
-void gcm::AnalyticalRheologyMatrixDecomposer::findEigenVec(double *eigenVec,
+void AnalyticalRheologyMatrixDecomposer::findEigenVec(double *eigenVec,
                                                     double l, const gcm_matrix &A, int stage) const
 {
     // Analitycal search eigenvectors
@@ -279,7 +281,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findEigenVec(double *eigenVec,
     delete M;
 };
 
-void gcm::AnalyticalRheologyMatrixDecomposer::findNonZeroSolution(double **M, double *x, double *y) const
+void AnalyticalRheologyMatrixDecomposer::findNonZeroSolution(double **M, double *x, double *y) const
 {
     // Range ( M ) = 1, two of x[i] are random
 
@@ -303,7 +305,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findNonZeroSolution(double **M, do
 };
 
 
-void gcm::AnalyticalRheologyMatrixDecomposer::findEigenVec (double *eigenVec1,
+void AnalyticalRheologyMatrixDecomposer::findEigenVec (double *eigenVec1,
                                 double *eigenVec2, double l, const gcm_matrix &A, int stage) const
 {
     // Analitycal search eigenvectors
@@ -406,7 +408,7 @@ void gcm::AnalyticalRheologyMatrixDecomposer::findEigenVec (double *eigenVec1,
     delete M;
 };
 
-void gcm::AnalyticalRheologyMatrixDecomposer::findRoots(const gcm_matrix &A, int stage,
+void AnalyticalRheologyMatrixDecomposer::findRoots(const gcm_matrix &A, int stage,
                                             real& r1, real& r2, real& r3, bool& isMultiple) const
 {
     real a, b, c;

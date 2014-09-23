@@ -21,8 +21,6 @@
 
 #define EQUALITY_TOLERANCE 0.00001
 
-using namespace std;
-using namespace gcm;
 
 #if CONFIG_ENABLE_LOGGING
 extern USE_LOGGER;
@@ -47,7 +45,7 @@ inline float scalarProduct(float x1, float y1, float z1, float x2, float y2, flo
     return x1*x2 + y1*y2 + z1*z2;
 };
 
-inline float distance(float* a, float* b)
+inline float distance(const float* a, const float* b)
 {
     return sqrt( (a[0] - b[0])*(a[0] - b[0]) + (a[1] - b[1])*(a[1] - b[1]) +(a[2] - b[2])*(a[2] - b[2]) );
 };
@@ -620,9 +618,9 @@ int sgn(T val) {
 }
 
 
-inline bool isPointInNormalDirection(const vector3r& planePoint, const vector3r& planeNormal, const vector3r& point)
+inline bool isPointInNormalDirection(const gcm::vector3r& planePoint, const gcm::vector3r& planeNormal, const gcm::vector3r& point)
 {
-    vector3r vec = point - planePoint;
+    auto vec = point - planePoint;
     gcm::real scProd = vec*planeNormal;
 
     return scProd >= 0.0;

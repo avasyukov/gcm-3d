@@ -10,6 +10,7 @@
 #define ITERATIONS 1000
 
 using namespace gcm;
+using std::numeric_limits;
 
 TEST(Plasticity, PrandtlRaussElasticTransition)
 {
@@ -19,12 +20,12 @@ TEST(Plasticity, PrandtlRaussElasticTransition)
 
     for (int k = 0; k < ITERATIONS; k++)
     {
-        gcm::real la = 1.0e+9 * (double) rand() / RAND_MAX;
-        gcm::real mu = 1.0e+8 * (double) rand() / RAND_MAX;
-        gcm::real rho = 1.0e+4 * (double) rand() / RAND_MAX;
+        real la = 1.0e+9 * (double) rand() / RAND_MAX;
+        real mu = 1.0e+8 * (double) rand() / RAND_MAX;
+        real rho = 1.0e+4 * (double) rand() / RAND_MAX;
         
         Material::PlasticityProperties props;
-        props[PLASTICITY_TYPE_PRANDTL_RAUSS][PLASTICITY_PROP_YIELD_STRENGTH] = numeric_limits<gcm::real>::infinity();
+        props[PLASTICITY_TYPE_PRANDTL_RAUSS][PLASTICITY_PROP_YIELD_STRENGTH] = numeric_limits<real>::infinity();
 
         auto mat = makeMaterialPtr("material", rho, la, mu, props);
 	

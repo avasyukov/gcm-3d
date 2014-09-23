@@ -2,36 +2,39 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::CollisionDetector::CollisionDetector() {
+using namespace gcm;
+using std::vector;
+
+CollisionDetector::CollisionDetector() {
     INIT_LOGGER("gcm.CollisionDetector");
     static_operation = false;
 }
 
-gcm::CollisionDetector::~CollisionDetector() {
+CollisionDetector::~CollisionDetector() {
 }
 
-void gcm::CollisionDetector::set_static(bool state)
+void CollisionDetector::set_static(bool state)
 {
     static_operation = state;
 }
 
-bool gcm::CollisionDetector::is_static()
+bool CollisionDetector::is_static()
 {
     return static_operation;
 }
 
-void gcm::CollisionDetector::set_threshold(float value)
+void CollisionDetector::set_threshold(float value)
 {
     threshold = value;
     LOG_DEBUG("Current threshold value: " << threshold);
 }
 
-float gcm::CollisionDetector::get_threshold()
+float CollisionDetector::get_threshold()
 {
     return threshold;
 }
 
-bool gcm::CollisionDetector::find_intersection(AABB &outline1, AABB &outline2, AABB &intersection)
+bool CollisionDetector::find_intersection(AABB &outline1, AABB &outline2, AABB &intersection)
 {
     // check for intersection
     for(int j = 0; j < 3; j++) {
@@ -44,7 +47,7 @@ bool gcm::CollisionDetector::find_intersection(AABB &outline1, AABB &outline2, A
     return true;
 }
 
-void gcm::CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersection, vector<CalcNode>& result)
+void CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersection, vector<CalcNode>& result)
 {
     for(int i = 0; i < mesh->getNodesNumber(); i++)
     {
@@ -59,7 +62,7 @@ void gcm::CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& inters
     }
 }
 
-void gcm::CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersection, vector<int>& result)
+void CollisionDetector::find_nodes_in_intersection(Mesh* mesh, AABB& intersection, vector<int>& result)
 {
     for(int i = 0; i < mesh->getNodesNumber(); i++)
     {

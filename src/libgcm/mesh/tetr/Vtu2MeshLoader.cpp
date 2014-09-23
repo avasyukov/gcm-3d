@@ -2,14 +2,17 @@
 
 #include "libgcm/Engine.hpp"
 
-gcm::Vtu2MeshLoader::Vtu2MeshLoader() {
+using namespace gcm;
+using std::string;
+
+Vtu2MeshLoader::Vtu2MeshLoader() {
     INIT_LOGGER("gcm.Vtu2MeshLoader");
 }
 
-gcm::Vtu2MeshLoader::~Vtu2MeshLoader() {
+Vtu2MeshLoader::~Vtu2MeshLoader() {
 }
 
-void gcm::Vtu2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName)
+void Vtu2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName)
 {
     Vtu2TetrFileReader* reader = new Vtu2TetrFileReader();
     reader->readFile(fileName, mesh, dispatcher, Engine::getInstance().getRank());
@@ -18,7 +21,7 @@ void gcm::Vtu2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dis
     mesh->preProcess();
 }
 
-void gcm::Vtu2MeshLoader::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const string& fileName) {
+void Vtu2MeshLoader::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const string& fileName) {
     Vtu2TetrFileReader* reader = new Vtu2TetrFileReader();
     reader->preReadFile(fileName, scene, sliceDirection, numberOfNodes);
     delete reader;

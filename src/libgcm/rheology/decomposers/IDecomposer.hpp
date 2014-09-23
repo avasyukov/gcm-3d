@@ -43,12 +43,12 @@ namespace gcm
             virtual void decomposeZ(const gcm_matrix& a, gcm_matrix& u, gcm_matrix& l, gcm_matrix& u1) const = 0;
     };
 
-    typedef shared_ptr<IDecomposer> DecomposerPtr;
+    typedef std::shared_ptr<IDecomposer> DecomposerPtr;
     
     template<typename T, typename...Args>
-    shared_ptr<T> makeDecomposerPtr(Args...args)
+    std::shared_ptr<T> makeDecomposerPtr(Args...args)
     {
-        return make_shared<T>(args...);
+        return std::make_shared<T>(args...);
     }
 };
 

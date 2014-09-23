@@ -6,7 +6,6 @@
 #include "libgcm/rheology/Material.hpp"
 
 using namespace launcher;
-using namespace std;
 using namespace gcm;
 
 TEST(MaterialLoader, ValidAnisotropic)

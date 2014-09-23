@@ -5,27 +5,29 @@
 
 #include "libgcm/calc/contact/ContactCalculator.hpp"
 
-class AdhesionContactCalculator : public ContactCalculator
+namespace gcm
 {
-public:
-    AdhesionContactCalculator();
-    ~AdhesionContactCalculator();
-    void doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node,
-                            RheologyMatrixPtr matrix, vector<CalcNode>& previousNodes, bool inner[],
-                            RheologyMatrixPtr virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
-                            float outer_normal[], float scale);
-    inline string getType() {
-        return "AdhesionContactCalculator";
-    }
+    class AdhesionContactCalculator : public ContactCalculator
+    {
+    public:
+        AdhesionContactCalculator();
+        ~AdhesionContactCalculator();
+        void doCalc(CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node,
+                                RheologyMatrixPtr matrix, std::vector<CalcNode>& previousNodes, bool inner[],
+                                RheologyMatrixPtr virt_matrix, std::vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
+                                float outer_normal[], float scale);
+        inline std::string getType() {
+            return "AdhesionContactCalculator";
+        }
 
-protected:
+    protected:
 
-private:
-    // Used for border calculation
-    gsl_matrix *U_gsl;
-    gsl_vector *om_gsl;
-    gsl_vector *x_gsl;
-    gsl_permutation *p_gsl;
-};
-
+    private:
+        // Used for border calculation
+        gsl_matrix *U_gsl;
+        gsl_vector *om_gsl;
+        gsl_vector *x_gsl;
+        gsl_permutation *p_gsl;
+    };
+}
 #endif

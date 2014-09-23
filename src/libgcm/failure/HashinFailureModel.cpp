@@ -1,6 +1,8 @@
 #include "libgcm/failure/HashinFailureModel.hpp"
 
-gcm::HashinFailureModel::HashinFailureModel() {
+using namespace gcm;
+
+HashinFailureModel::HashinFailureModel() {
     type = "HashinFailureModel";
     INIT_LOGGER( "gcm.HashinFailureModel" );
     criteria.push_back(new HashinFailureCriterion());

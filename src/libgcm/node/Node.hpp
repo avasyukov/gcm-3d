@@ -3,7 +3,6 @@
 
 #include <log4cxx/logger.h>
 
-using namespace std;
 
 namespace gcm {
 
@@ -25,15 +24,15 @@ namespace gcm {
 
             struct {
                 /**
-                 * Position vector x component.
+                 * Position std::vector x component.
                  */
                 float x;
                 /**
-                 * Position vector y component.
+                 * Position std::vector y component.
                  */
                 float y;
                 /**
-                 * Position vector z component.
+                 * Position std::vector z component.
                  */
                 float z;
             };

@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+using namespace gcm;
+
 NumericalRheologyMatrixDecomposer::NumericalRheologyMatrixDecomposer()
 {
     _a = gsl_matrix_alloc(9, 9);

@@ -1,11 +1,15 @@
 #include "libgcm/Exception.hpp"
 
-const string& gcm::Exception::getCallStack() const
+using namespace gcm;
+
+using std::string;
+
+const string& Exception::getCallStack() const
 {
     return callStack;
 }
 
-gcm::Exception::Exception(int code, const string& message, const string& file, int line)
+Exception::Exception(int code, const string& message, const string& file, int line)
 {
     this->code = code;
     this->line = line;
@@ -51,22 +55,22 @@ gcm::Exception::Exception(int code, const string& message, const string& file, i
     delete[] buffer;
 }
 
-int gcm::Exception::getCode() const
+int Exception::getCode() const
 {
     return code;
 }
 
-const string& gcm::Exception::getMessage() const
+const string& Exception::getMessage() const
 {
     return message;
 }
 
-const string& gcm::Exception::getFile() const
+const string& Exception::getFile() const
 {
     return file;
 }
 
-int gcm::Exception::getLine() const
+int Exception::getLine() const
 {
     return line;
 }

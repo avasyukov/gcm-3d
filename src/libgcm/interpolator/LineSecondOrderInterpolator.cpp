@@ -2,17 +2,19 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::LineSecondOrderInterpolator::LineSecondOrderInterpolator()
+using namespace gcm;
+
+LineSecondOrderInterpolator::LineSecondOrderInterpolator()
 {
     type = "LineSecondOrderInterpolator";
     INIT_LOGGER("gcm.LineSecondOrderInterpolator");
 }
 
-gcm::LineSecondOrderInterpolator::~LineSecondOrderInterpolator()
+LineSecondOrderInterpolator::~LineSecondOrderInterpolator()
 {
 }
 
-void gcm::LineSecondOrderInterpolator::interpolate(CalcNode& node, CalcNode& nodeLeft, CalcNode& nodeCur, CalcNode& nodeRight)
+void LineSecondOrderInterpolator::interpolate(CalcNode& node, CalcNode& nodeLeft, CalcNode& nodeCur, CalcNode& nodeRight)
 {
     LOG_TRACE("Start interpolation");
 

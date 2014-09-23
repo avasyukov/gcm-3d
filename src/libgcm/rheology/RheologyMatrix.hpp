@@ -13,7 +13,6 @@
 #include "libgcm/rheology/decomposers/IDecomposer.hpp"
 #include "libgcm/rheology/correctors/ICorrector.hpp"
 
-using namespace std;
 
 namespace gcm
 {
@@ -123,7 +122,7 @@ namespace gcm
          */
         real getL(unsigned int i, unsigned int j) const;
         /**
-         * Returns U matrix (contains eigenvectors).
+         * Returns U matrix (contains eigenstd::vectors).
          * @return U matrix.
          */
         const gcm_matrix& getU() const;
@@ -177,12 +176,12 @@ namespace gcm
         void applyCorrector(ICalcNode& node);
     };
 
-    typedef shared_ptr<RheologyMatrix> RheologyMatrixPtr;
+    typedef std::shared_ptr<RheologyMatrix> RheologyMatrixPtr;
 
     template<typename...Args>
     RheologyMatrixPtr makeRheologyMatrixPtr(Args...args)
     {
-        return make_shared<RheologyMatrix>(args...);
+        return std::make_shared<RheologyMatrix>(args...);
     }
 
     template<typename SetterType, typename DecomposerType>

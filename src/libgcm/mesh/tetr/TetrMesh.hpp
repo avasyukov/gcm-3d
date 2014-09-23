@@ -5,7 +5,6 @@
 #include "libgcm/elem/TetrFirstOrder.hpp"
 #include "libgcm/elem/TriangleFirstOrder.hpp"
 
-using namespace gcm;
 
 namespace gcm
 {

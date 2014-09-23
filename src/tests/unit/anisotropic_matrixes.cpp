@@ -15,6 +15,9 @@
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 
+using namespace gcm;
+using std::string;
+
 /*
  * Constants used in tests
  */
@@ -41,7 +44,7 @@
  * Helper functions
  */
 
-typedef std::function<MaterialPtr(std::string) > MaterialGenerator;
+typedef std::function<MaterialPtr(std::string)> MaterialGenerator;
 
 MaterialPtr generateRandomMaterial(string name)
 {
@@ -185,9 +188,9 @@ void testIsotropicTransition()
 {
     srand(0);
     for (int count = 0; count < ITERATIONS; count++) {
-        gcm::real la = ISOTROPIC_LAMBDA_MIN + (ISOTROPIC_LAMBDA_MAX - ISOTROPIC_LAMBDA_MIN) * (double) rand() / RAND_MAX;
-        gcm::real mu = ISOTROPIC_MU_MIN + (ISOTROPIC_MU_MAX - ISOTROPIC_MU_MIN) * (double) rand() / RAND_MAX;
-        gcm::real rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
+        real la = ISOTROPIC_LAMBDA_MIN + (ISOTROPIC_LAMBDA_MAX - ISOTROPIC_LAMBDA_MIN) * (double) rand() / RAND_MAX;
+        real mu = ISOTROPIC_MU_MIN + (ISOTROPIC_MU_MAX - ISOTROPIC_MU_MIN) * (double) rand() / RAND_MAX;
+        real rho = RHO_MIN + (RHO_MAX - RHO_MIN) * (double) rand() / RAND_MAX;
 
         CalcNode node;
 
@@ -269,8 +272,8 @@ void compareEigenvalues(MaterialGenerator generator)
                 break;
             }
 
-            gcm::real values1[9];
-            gcm::real values2[9];
+            real values1[9];
+            real values2[9];
             for (int i = 0; i < 9; i++) {
                 values1[i] = matrix1->getL().get(i, i);
                 values2[i] = matrix2->getL().get(i, i);

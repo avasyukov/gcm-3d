@@ -7,9 +7,11 @@
 
 #include "libgcm/snapshot/VTKMarkeredMeshSnapshotWriter.hpp"
 
+using namespace gcm;
+
 TEST(MarkeredSurfaceGeoGenerator, Sphere)
 {
-    auto& gen = gcm::MarkeredSurfaceGeoGenerator::getInstance();
+    auto& gen = MarkeredSurfaceGeoGenerator::getInstance();
     auto surface = gen.generate("models/sphere.geo");
 
     float dh = 1e-4;
@@ -21,7 +23,7 @@ TEST(MarkeredSurfaceGeoGenerator, Sphere)
     ASSERT_TRUE(surface.getAABB().includes(inner));
 
 
-    gcm::real center[] = {0, 0, 0};
+    real center[] = {0, 0, 0};
 
     const auto& nodes = surface.getMarkerNodes();
     
@@ -44,7 +46,7 @@ TEST(MarkeredSurfaceGeoGenerator, Sphere)
 
 TEST(MarkeredSurfaceGeoGenerator, Cube)
 {
-    auto& gen = gcm::MarkeredSurfaceGeoGenerator::getInstance();
+    auto& gen = MarkeredSurfaceGeoGenerator::getInstance();
     auto surface = gen.generate("models/cube.geo");
 
 
@@ -92,9 +94,9 @@ TEST(MarkeredSurfaceGeoGenerator, Cube)
     {
         findTriangleFaceNormal(nodes[f.verts[0]].coords, nodes[f.verts[1]].coords, nodes[f.verts[2]].coords, &norm.x, &norm.y, &norm.z);
         
-        gcm::real _x = (nodes[f.verts[0]].x + nodes[f.verts[1]].x + nodes[f.verts[2]].x) / 3;
-        gcm::real _y = (nodes[f.verts[0]].y + nodes[f.verts[1]].y + nodes[f.verts[2]].y) / 3;
-        gcm::real _z = (nodes[f.verts[0]].z + nodes[f.verts[1]].z + nodes[f.verts[2]].z) / 3;
+        real _x = (nodes[f.verts[0]].x + nodes[f.verts[1]].x + nodes[f.verts[2]].x) / 3;
+        real _y = (nodes[f.verts[0]].y + nodes[f.verts[1]].y + nodes[f.verts[2]].y) / 3;
+        real _z = (nodes[f.verts[0]].z + nodes[f.verts[1]].z + nodes[f.verts[2]].z) / 3;
         
         if (fabs(fabs(_z)-5) < EQUALITY_TOLERANCE)
         {
@@ -121,7 +123,7 @@ TEST(MarkeredSurfaceGeoGenerator, Cube)
 
 TEST(MarkeredMeshGeometry, Sphere)
 {
-    auto& gen = gcm::MarkeredSurfaceGeoGenerator::getInstance();
+    auto& gen = MarkeredSurfaceGeoGenerator::getInstance();
     auto surface = gen.generate("models/sphere.geo");
 
     ASSERT_NO_THROW(
@@ -133,7 +135,7 @@ TEST(MarkeredMeshGeometry, Sphere)
 
 TEST(MarkeredMeshGeometry, Cube)
 {
-    auto& gen = gcm::MarkeredSurfaceGeoGenerator::getInstance();
+    auto& gen = MarkeredSurfaceGeoGenerator::getInstance();
     auto surface = gen.generate("models/cube.geo");
 
     ASSERT_NO_THROW(
@@ -144,7 +146,7 @@ TEST(MarkeredMeshGeometry, Cube)
 
 TEST(MarkeredMesh, getCellIndexes)
 {
-    auto& gen = gcm::MarkeredSurfaceGeoGenerator::getInstance();
+    auto& gen = MarkeredSurfaceGeoGenerator::getInstance();
     auto surface = gen.generate("models/cube.geo");
     MarkeredMesh mesh(surface, 100);
     

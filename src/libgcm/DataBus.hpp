@@ -6,8 +6,6 @@
 
 #include <mpi.h>
 
-using namespace std;
-using namespace gcm;
 
 namespace gcm
 {
@@ -23,14 +21,14 @@ namespace gcm
         void syncNodes(float tau);
         void syncOutlines();
         void syncMissedNodes(Mesh* _mesh, float tau);
-        void transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZones);
+        void transferNodes(TetrMeshSecondOrder* mesh, std::vector<AABB>* _reqZones);
     private:
         void createStaticTypes();
         void syncNodes(int bodyNum, float tau);
         void createDynamicTypes(int bodyNum);
         USE_LOGGER;
         MPI::Datatype **MPI_NODE_TYPES;
-        vector<int> **local_numbers;
+        std::vector<int> **local_numbers;
         int numberOfWorkers;
         int rank;
 

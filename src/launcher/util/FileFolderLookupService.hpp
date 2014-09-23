@@ -8,28 +8,27 @@
 #include "libgcm/util/Singleton.hpp"
 #include "libgcm/Exception.hpp"
 
-using namespace std;
 
 namespace launcher
 {
     class FileFolderLookupService: public gcm::Singleton<FileFolderLookupService>
     {
         private:
-            vector<string> paths;
+            std::vector<std::string> paths;
         public:
             /*
              * Adds path to lookup list
              */
-            void addPath(string path);
+            void addPath(std::string path);
             /*
              * Looks up file by relative name
              */
-            string lookupFile(string fname);
+            std::string lookupFile(std::string fname);
             /**
              * Searches for folder by relative path
              * @param fname Folder name
              */
-            string lookupFolder(string fname);
+            std::string lookupFolder(std::string fname);
     };
 }
 

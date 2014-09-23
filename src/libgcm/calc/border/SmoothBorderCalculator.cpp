@@ -2,6 +2,9 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
+using namespace gcm;
+using std::vector;
+
 SmoothBorderCalculator::SmoothBorderCalculator()
 {
     INIT_LOGGER( "gcm.SmoothBorderCalculator" );

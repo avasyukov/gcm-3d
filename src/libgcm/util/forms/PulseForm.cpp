@@ -1,6 +1,7 @@
 #include "libgcm/util/forms/PulseForm.hpp"
 
-using namespace std;
+using namespace gcm;
+
 
 PulseForm::PulseForm(float _startTime, float _duration)
 {

@@ -3,7 +3,10 @@
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
 
-gcm::BasicCubicMesh::BasicCubicMesh()
+using namespace gcm;
+using std::numeric_limits;
+
+BasicCubicMesh::BasicCubicMesh()
 {
     meshH = numeric_limits<float>::infinity();
     // FIXME - hardcoded name
@@ -16,7 +19,7 @@ gcm::BasicCubicMesh::BasicCubicMesh()
     interpolator2 = new LineSecondOrderInterpolator();
 }
 
-gcm::BasicCubicMesh::~BasicCubicMesh()
+BasicCubicMesh::~BasicCubicMesh()
 {
     LOG_DEBUG("Destroying mesh '" << getId() << "'");
     // TODO - does it really trigger destructors?
@@ -28,7 +31,7 @@ gcm::BasicCubicMesh::~BasicCubicMesh()
     LOG_DEBUG("Mesh destroyed");
 }
 
-void gcm::BasicCubicMesh::preProcessGeometry()
+void BasicCubicMesh::preProcessGeometry()
 {
     LOG_DEBUG("Preprocessing mesh geometry started.");
     for(int i = 0; i < getNodesNumber(); i++)
@@ -46,12 +49,12 @@ void gcm::BasicCubicMesh::preProcessGeometry()
     LOG_DEBUG("Preprocessing mesh geometry done.");
 }
 
-void gcm::BasicCubicMesh::doNextPartStep(float tau, int stage)
+void BasicCubicMesh::doNextPartStep(float tau, int stage)
 {
     defaultNextPartStep(tau, stage);
 };
 
-void gcm::BasicCubicMesh::logMeshStats()
+void BasicCubicMesh::logMeshStats()
 {
     if( isinf( getMinH() ) )
     {
@@ -65,17 +68,17 @@ void gcm::BasicCubicMesh::logMeshStats()
     LOG_DEBUG("Mesh expanded outline:" << expandedOutline);
 };
 
-void gcm::BasicCubicMesh::checkTopology(float tau)
+void BasicCubicMesh::checkTopology(float tau)
 {
     // We do not need it for this mesh type
 }
 
-float gcm::BasicCubicMesh::getRecommendedTimeStep()
+float BasicCubicMesh::getRecommendedTimeStep()
 {
     return getMinH() / getMaxEigenvalue();
 };
 
-void gcm::BasicCubicMesh::calcMinH()
+void BasicCubicMesh::calcMinH()
 {
     if( getNodesNumber() < 2)
         return;
@@ -101,14 +104,14 @@ void gcm::BasicCubicMesh::calcMinH()
     }
 };
 
-float gcm::BasicCubicMesh::getMinH()
+float BasicCubicMesh::getMinH()
 {
     if( isinf( meshH ) )
         calcMinH();
     return meshH;
 };
 
-void gcm::BasicCubicMesh::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
+void BasicCubicMesh::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
 {
     CalcNode& node = getNode( border_node_index );
     assert_true(node.isBorder() );
@@ -132,7 +135,7 @@ void gcm::BasicCubicMesh::findBorderNodeNormal(unsigned int border_node_index, f
     *z = normal[2];
 };
 
-int gcm::BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+int BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
     int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
 
@@ -170,7 +173,7 @@ int gcm::BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, 
     return neighNum;
 };
 
-bool gcm::BasicCubicMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
+bool BasicCubicMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
                                 CalcNode& targetNode, bool& isInnerPoint)
 {
     int neighInd = findNeighbourPoint( origin, dx, dy, dz, debug,
@@ -208,13 +211,13 @@ bool gcm::BasicCubicMesh::interpolateNode(CalcNode& origin, float dx, float dy, 
     return true;
 };
 
-bool gcm::BasicCubicMesh::interpolateNode(CalcNode& node)
+bool BasicCubicMesh::interpolateNode(CalcNode& node)
 {
     // Not implemented
     return false;
 };
 
-bool gcm::BasicCubicMesh::interpolateBorderNode(real x, real y, real z, 
+bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node)
 {
     //int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
@@ -246,12 +249,12 @@ bool gcm::BasicCubicMesh::interpolateBorderNode(real x, real y, real z,
     return false;
 };
 
-const SnapshotWriter& gcm::BasicCubicMesh::getSnaphotter() const
+const SnapshotWriter& BasicCubicMesh::getSnaphotter() const
 {
     return VTKCubicSnapshotWriter::getInstance();
 }
 
-const SnapshotWriter& gcm::BasicCubicMesh::getDumper() const
+const SnapshotWriter& BasicCubicMesh::getDumper() const
 {
     return getSnaphotter();
 }

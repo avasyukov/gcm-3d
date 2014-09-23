@@ -8,6 +8,8 @@
 #include "libgcm/rheology/Material.hpp"
 #include "libgcm/node/CalcNode.hpp"
 
+using namespace gcm;
+
 /*
  * Analytics for the test described in tasks/tests/s-wave-test.xml
  * Sets analytical values for CalcNode object provided

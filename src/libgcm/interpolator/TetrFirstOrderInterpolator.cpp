@@ -8,17 +8,19 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::TetrFirstOrderInterpolator::TetrFirstOrderInterpolator()
+using namespace gcm;
+
+TetrFirstOrderInterpolator::TetrFirstOrderInterpolator()
 {
     type = "TetrFirstOrderInterpolator";
     INIT_LOGGER("gcm.TetrFirstOrderInterpolator");
 }
 
-gcm::TetrFirstOrderInterpolator::~TetrFirstOrderInterpolator()
+TetrFirstOrderInterpolator::~TetrFirstOrderInterpolator()
 {
 }
 
-void gcm::TetrFirstOrderInterpolator::interpolate(CalcNode& node, CalcNode& node0, CalcNode& node1, CalcNode& node2, CalcNode& node3)
+void TetrFirstOrderInterpolator::interpolate(CalcNode& node, CalcNode& node0, CalcNode& node1, CalcNode& node2, CalcNode& node3)
 {
     LOG_TRACE("Start interpolation");
 

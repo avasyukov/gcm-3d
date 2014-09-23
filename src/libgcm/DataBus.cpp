@@ -12,7 +12,11 @@ do { \
     LOG_DEBUG("Barrier passed: " << name); \
 } while(0)
 
-gcm::DataBus::DataBus() {
+using namespace gcm;
+using std::vector;
+using std::map;
+
+DataBus::DataBus() {
     INIT_LOGGER("gcm.DataBus");
     MPI_NODE_TYPES = NULL;
     local_numbers = NULL;
@@ -21,7 +25,7 @@ gcm::DataBus::DataBus() {
     createStaticTypes();
 }
 
-gcm::DataBus::~DataBus() {
+DataBus::~DataBus() {
     if (MPI_NODE_TYPES != NULL) {
         LOG_TRACE("Cleaning old types");
         for (int i = 0; i < numberOfWorkers; i++)
@@ -44,18 +48,18 @@ gcm::DataBus::~DataBus() {
     }
 }
 
-void gcm::DataBus::syncTimeStep(float* tau) {
-    BARRIER("gcm::DataBus::syncTimeStep#1");
+void DataBus::syncTimeStep(float* tau) {
+    BARRIER("DataBus::syncTimeStep#1");
     MPI::COMM_WORLD.Allreduce(MPI_IN_PLACE, tau, 1, MPI::FLOAT, MPI::MIN);
 }
 
-void gcm::DataBus::syncNodes(float tau)
+void DataBus::syncNodes(float tau)
 {
     for(int i = 0; i < Engine::getInstance().getNumberOfBodies(); i++ )
         syncNodes(i, tau);
 }
 
-void gcm::DataBus::syncNodes(int bodyNum, float tau)
+void DataBus::syncNodes(int bodyNum, float tau)
 {
     if( numberOfWorkers == 1 )
         return;
@@ -66,7 +70,7 @@ void gcm::DataBus::syncNodes(int bodyNum, float tau)
     LOG_DEBUG("Creating dynamic types done");
 
     vector<MPI::Request> reqs;
-    BARRIER("gcm::DataBus::syncNodes#1");
+    BARRIER("DataBus::syncNodes#1");
     LOG_DEBUG("Starting nodes sync");
 
     Body* body = Engine::getInstance().getBody(bodyNum);//ById( engine.getDispatcher()->getMyBodyId() );
@@ -105,7 +109,7 @@ void gcm::DataBus::syncNodes(int bodyNum, float tau)
             }
 
     MPI::Request::Waitall(reqs.size(), &reqs[0]);
-    BARRIER("gcm::DataBus::syncNodes#2");
+    BARRIER("DataBus::syncNodes#2");
 
     LOG_DEBUG("Nodes sync done");
 
@@ -120,7 +124,7 @@ void gcm::DataBus::syncNodes(int bodyNum, float tau)
     }*/
 }
 
-void gcm::DataBus::createStaticTypes()
+void DataBus::createStaticTypes()
 {
     AABB outlines[2];
     TetrMeshSecondOrder meshes[2];
@@ -358,7 +362,7 @@ void gcm::DataBus::createStaticTypes()
     MPI_OUTLINE.Commit();
 }
 
-void gcm::DataBus::createDynamicTypes(int bodyNum)
+void DataBus::createDynamicTypes(int bodyNum)
 {
     LOG_DEBUG("Building dynamic MPI types for fast node sync");
     auto& engine = Engine::getInstance();
@@ -400,7 +404,7 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
         MPI_NODE_TYPES[i] = new MPI::Datatype[numberOfWorkers];
     }
 
-    BARRIER("gcm::DataBus::createDynamicTypes#0");
+    BARRIER("DataBus::createDynamicTypes#0");
 
     // find all remote nodes
     for (int j = 0; j < mesh->getNodesNumber(); j++)
@@ -418,7 +422,7 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
         }
     }
 
-    BARRIER("gcm::DataBus::createDynamicTypes#1");
+    BARRIER("DataBus::createDynamicTypes#1");
 
     LOG_DEBUG("Requests prepared:");
     for (int i = 0; i < numberOfWorkers; i++)
@@ -473,7 +477,7 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
                 );
             }
 
-    BARRIER("gcm::DataBus::createDynamicTypes#2");
+    BARRIER("DataBus::createDynamicTypes#2");
 
     MPI::Status status;
 
@@ -508,7 +512,7 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
     }
 
     MPI::Request::Waitall(reqs.size(), &reqs[0]);
-    BARRIER("gcm::DataBus::createDynamicTypes#3");
+    BARRIER("DataBus::createDynamicTypes#3");
 
     for (int i = 0 ; i < numberOfWorkers; i++)
         delete[] remote_numbers[i];
@@ -516,9 +520,9 @@ void gcm::DataBus::createDynamicTypes(int bodyNum)
     LOG_DEBUG("Building dynamic MPI types for fast node sync done");
 }
 
-void gcm::DataBus::syncOutlines()
+void DataBus::syncOutlines()
 {
-    BARRIER("gcm::DataBus::syncOutlines#1");
+    BARRIER("DataBus::syncOutlines#1");
     AABB* outlines = Engine::getInstance().getDispatcher()->getOutline(0);
     if( outlines == NULL ) {
         THROW_BAD_METHOD("We can't do this because it will cause all MPI routines to freeze");
@@ -534,7 +538,7 @@ void gcm::DataBus::syncOutlines()
     LOG_DEBUG("Outlines synced");
 }
 
-void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
+void DataBus::syncMissedNodes(Mesh* _mesh, float tau)
 {
     if( numberOfWorkers == 1 )
         return;
@@ -556,7 +560,7 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
         return;
     }
 
-    BARRIER("gcm::DataBus::syncMissedNodes#1");
+    BARRIER("DataBus::syncMissedNodes#1");
 
     //Body* body = engine.getBodyById( engine.getDispatcher()->getMyBodyId() );
     //TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)body->getMeshes();
@@ -579,7 +583,7 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
         }
     }
 
-    BARRIER("gcm::DataBus::syncMissedNodes#2");
+    BARRIER("DataBus::syncMissedNodes#2");
 
     MPI::COMM_WORLD.Allgather(
         MPI_IN_PLACE,
@@ -588,7 +592,7 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
         numberOfWorkers, MPI_OUTLINE
     );
 
-    BARRIER("gcm::DataBus::syncMissedNodes#3");
+    BARRIER("DataBus::syncMissedNodes#3");
 
     vector<AABB> *_reqZones = new vector<AABB>[numberOfWorkers];
     for (int i = 0 ; i < numberOfWorkers; i++)
@@ -604,7 +608,7 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
     if(transferRequired)
     {
         transferNodes(mesh, _reqZones);
-        BARRIER("gcm::DataBus::syncMissedNodes#3");
+        BARRIER("DataBus::syncMissedNodes#3");
         //LOG_DEBUG("Rebuilding data types");
         //createDynamicTypes();
         LOG_DEBUG("Processing mesh after the sync");
@@ -631,7 +635,7 @@ void gcm::DataBus::syncMissedNodes(Mesh* _mesh, float tau)
     delete[] reqZones;
 }
 
-void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZones)
+void DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZones)
 {
     AABB **reqZones = new AABB*[numberOfWorkers];
     AABB *reqZones_data = new AABB[numberOfWorkers*numberOfWorkers];
@@ -717,7 +721,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
         }
     }
 
-    BARRIER("gcm::DataBus::transferNodes#1");
+    BARRIER("DataBus::transferNodes#1");
     MPI::COMM_WORLD.Allgather(
         MPI_IN_PLACE,
         numberOfWorkers, MPI_INT,
@@ -725,7 +729,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
         numberOfWorkers, MPI_INT
     );
 
-    BARRIER("gcm::DataBus::transferNodes#2");
+    BARRIER("DataBus::transferNodes#2");
 
     MPI::COMM_WORLD.Allgather(
         MPI_IN_PLACE,
@@ -734,7 +738,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
         numberOfWorkers, MPI_INT
     );
 
-    BARRIER("gcm::DataBus::transferNodes#3");
+    BARRIER("DataBus::transferNodes#3");
 
     for (int i = 0 ; i < numberOfWorkers; i++)
         for (int j = 0 ; j < numberOfWorkers; j++)
@@ -846,7 +850,7 @@ void gcm::DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZo
     // FIXME - we suppose here that one process will send nodes for one mesh only (!)
     TetrMeshSecondOrder* targetMesh = NULL;
     MPI::Request::Waitall(reqs.size(), &reqs[0]);
-    BARRIER("gcm::DataBus::transferNodes#4");
+    BARRIER("DataBus::transferNodes#4");
     LOG_DEBUG("Processing received data");
     for( int i = 0; i < numberOfWorkers; i++ )
     {

@@ -6,6 +6,8 @@
 #include <algorithm>
 
 using namespace gcm;
+using std::min;
+using std::max;
 
 void PrandtlRaussPlasticityRheologyMatrixSetter::getPlasticityProps(MaterialPtr material, real& yieldStrength)
 {

@@ -12,6 +12,9 @@
 #include <string>
 #include <stdlib.h>
 
+using namespace gcm;
+using namespace std;
+
 bfs::path getTestDataDirName()
 {
     const ::testing::TestInfo* const testInfo = ::testing::UnitTest::GetInstance()->current_test_info();

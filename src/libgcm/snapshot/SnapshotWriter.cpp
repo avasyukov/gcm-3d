@@ -2,14 +2,15 @@
 
 #include "libgcm/Engine.hpp"
 
+using namespace gcm;
 using std::string;
 using std::to_string;
 
-gcm::SnapshotWriter::~SnapshotWriter() {
+SnapshotWriter::~SnapshotWriter() {
 
 }
 
-string gcm::SnapshotWriter::getFileName(int step, string meshId) const {
+string SnapshotWriter::getFileName(int step, string meshId) const {
     string filename = Engine::getInstance().getOption(Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN);
 
     auto replace = [&filename](string from, string to)
@@ -29,7 +30,7 @@ string gcm::SnapshotWriter::getFileName(int step, string meshId) const {
     return filename;
 }
 
-string gcm::SnapshotWriter::dump(Mesh* mesh, int step) const
+string SnapshotWriter::dump(Mesh* mesh, int step) const
 {
     return dump(mesh, step, getFileName(step, mesh->getId()));
 }

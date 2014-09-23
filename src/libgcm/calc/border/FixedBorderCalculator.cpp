@@ -2,6 +2,9 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
+using namespace gcm;
+using std::vector;
+
 FixedBorderCalculator::FixedBorderCalculator()
 {
     U_gsl = gsl_matrix_alloc (9, 9);

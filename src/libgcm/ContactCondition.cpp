@@ -2,23 +2,26 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::ContactCondition::ContactCondition() {
+using namespace gcm;
+using std::vector;
+
+ContactCondition::ContactCondition() {
     area = NULL;
     form = NULL;
     calc = NULL;
 }
 
-gcm::ContactCondition::ContactCondition(Area* _area, PulseForm* _form, ContactCalculator* _calc) {
+ContactCondition::ContactCondition(Area* _area, PulseForm* _form, ContactCalculator* _calc) {
     area = _area;
     form = _form;
     calc = _calc;
 }
 
-gcm::ContactCondition::~ContactCondition() {
+ContactCondition::~ContactCondition() {
 
 }
 
-void gcm::ContactCondition::doCalc(float time, CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node,
+void ContactCondition::doCalc(float time, CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node,
                             RheologyMatrixPtr matrix, vector<CalcNode>& previousNodes, bool inner[],
                             RheologyMatrixPtr virt_matrix, vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
                             float outer_normal[])
@@ -28,13 +31,12 @@ void gcm::ContactCondition::doCalc(float time, CalcNode& cur_node, CalcNode& new
                     form->calcMagnitudeNorm(time, cur_node.coords, area) );
 };
 
-void gcm::ContactCondition::setConditionParam(real param)
+void ContactCondition::setConditionParam(real param)
 {
     conditionParam = param;
 };
 
-// FIXME get rid of "using namespace std" in header files
-gcm::real gcm::ContactCondition::getConditionParam() const
+real ContactCondition::getConditionParam() const
 {
     return conditionParam;
 };

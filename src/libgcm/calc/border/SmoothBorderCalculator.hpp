@@ -5,26 +5,29 @@
 
 #include "libgcm/calc/border/BorderCalculator.hpp"
 
-
-class SmoothBorderCalculator : public BorderCalculator
+namespace gcm
 {
-public:
-    SmoothBorderCalculator();
-    ~SmoothBorderCalculator();
-    void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
-                            vector<CalcNode>& previousNodes, bool inner[],
-                            float outer_normal[], float scale);
 
-    inline string getType() {
-        return "SmoothBorderCalculator";
-    }
-	
-	void setParameters(const xml::Node& params);
+    class SmoothBorderCalculator : public BorderCalculator
+    {
+    public:
+        SmoothBorderCalculator();
+        ~SmoothBorderCalculator();
+        void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
+                                std::vector<CalcNode>& previousNodes, bool inner[],
+                                float outer_normal[], float scale);
 
-protected:
+        inline std::string getType() {
+            return "SmoothBorderCalculator";
+        }
 
-private:
-    USE_LOGGER;
-};
+        void setParameters(const xml::Node& params);
+
+    protected:
+
+    private:
+        USE_LOGGER;
+    };
+}
 
 #endif

@@ -1,5 +1,7 @@
 #include "libgcm/rheology/RheologyCalculator.hpp"
 
-gcm::RheologyCalculator::~RheologyCalculator() {
+using namespace gcm;
+
+RheologyCalculator::~RheologyCalculator() {
 
 }

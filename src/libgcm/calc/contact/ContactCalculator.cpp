@@ -8,5 +8,7 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-gcm::ContactCalculator::~ContactCalculator() {
+using namespace gcm;
+
+ContactCalculator::~ContactCalculator() {
 }

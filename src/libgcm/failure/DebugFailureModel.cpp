@@ -1,6 +1,8 @@
 #include "libgcm/failure/DebugFailureModel.hpp"
 
-gcm::DebugFailureModel::DebugFailureModel() {
+using namespace gcm;
+
+DebugFailureModel::DebugFailureModel() {
     type = "DebugFailureModel";
     INIT_LOGGER( "gcm.DebugFailureModel" );
     criteria.push_back(new MaxStressContinualFailureCriterion());

@@ -2,22 +2,25 @@
 
 #include "libgcm/util/formats/MshTetrFileReader.hpp"
 
-gcm::Msh2MeshLoader::Msh2MeshLoader() {
+using namespace gcm;
+using std::string;
+
+Msh2MeshLoader::Msh2MeshLoader() {
     INIT_LOGGER("gcm.Msh2MeshLoader");
 }
 
-gcm::Msh2MeshLoader::~Msh2MeshLoader() {
+Msh2MeshLoader::~Msh2MeshLoader() {
 }
 
-string gcm::Msh2MeshLoader::getVtkFileName(string mshFile)
+string Msh2MeshLoader::getVtkFileName(string mshFile)
 {
     return mshFile + ".tmp.vtu";
 }
 
-void gcm::Msh2MeshLoader::cleanUp() {
+void Msh2MeshLoader::cleanUp() {
 }
 
-void gcm::Msh2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName)
+void Msh2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName)
 {
     auto body = mesh->getBody();
     auto& engine = Engine::getInstance();
@@ -65,7 +68,7 @@ void gcm::Msh2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dis
     mesh->preProcess();
 }
 
-void gcm::Msh2MeshLoader::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const string& fileName) {
+void Msh2MeshLoader::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const string& fileName) {
     MshTetrFileReader* reader = new MshTetrFileReader();
     reader->preReadFile(fileName, scene, sliceDirection, numberOfNodes);
     delete reader;

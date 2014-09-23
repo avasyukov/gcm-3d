@@ -2,6 +2,9 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
+using namespace gcm;
+using std::vector;
+
 SimpleVolumeCalculator::SimpleVolumeCalculator() {
     INIT_LOGGER("gcm.SimpleVolumeCalculator");
 };

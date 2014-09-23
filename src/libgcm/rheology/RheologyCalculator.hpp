@@ -3,7 +3,6 @@
 
 #include <string>
 
-using namespace std;
 
 namespace gcm {
     class CalcNode;
@@ -14,7 +13,7 @@ namespace gcm {
         /*
          * Returns snapshot writer type
          */
-        virtual string getType() = 0;
+        virtual std::string getType() = 0;
         virtual void doCalc(CalcNode& src, CalcNode& dst) = 0;
     };
 }

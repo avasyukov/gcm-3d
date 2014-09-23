@@ -7,7 +7,6 @@
 
 #include "libgcm/util/Types.hpp"
 
-using namespace std;
 
 namespace gcm {
     /**
@@ -97,13 +96,13 @@ namespace gcm {
         };
 		// WA: we use 'float' and 'double' to prevent identical constructors
 		// signature for initialization with PlasticityProperties only or with FailureProperties only.
-        typedef map<string, map<string, float>> PlasticityProperties;
-        typedef map<string, map<string, double>> FailureProperties;
+        typedef std::map<std::string, std::map<std::string, float>> PlasticityProperties;
+        typedef std::map<std::string, std::map<std::string, double>> FailureProperties;
     protected:
         /**
          * Material name.
          */
-        string name;
+        std::string name;
         /**
          * Material density.
          */
@@ -134,7 +133,7 @@ namespace gcm {
          * @param la \f$\lambda\f$ Lame parameter
          * @param mu \f$\mu\f$ Lame parameter
          */
-        Material(string name, real rho, real la, real mu);
+        Material(std::string name, real rho, real la, real mu);
         /**
          * Constructor. Constructs isotropic material using specified parameters.
          *
@@ -144,7 +143,7 @@ namespace gcm {
          * @param la \f$\lambda\f$ Lame parameter
          * @param mu \f$\mu\f$ Lame parameter
          */
-        Material(string name, real rho, real la, real mu, FailureProperties failureProps);
+        Material(std::string name, real rho, real la, real mu, FailureProperties failureProps);
         /**
          * Constructor. Constructs isotropic material using specified parameters.
          *
@@ -154,7 +153,7 @@ namespace gcm {
          * @param la \f$\lambda\f$ Lame parameter
          * @param mu \f$\mu\f$ Lame parameter
          */
-        Material(string name, real rho, real la, real mu, PlasticityProperties plasticityProps);
+        Material(std::string name, real rho, real la, real mu, PlasticityProperties plasticityProps);
         /**
          * Constructor. Constructs isotropic material using specified parameters.
          *
@@ -165,7 +164,7 @@ namespace gcm {
          * @param mu \f$\mu\f$ Lame parameter
          * @param plasticityProps Plasticity properties
          */
-        Material(string name, real rho, real la, real mu, PlasticityProperties plasticityProps, FailureProperties failureProps);
+        Material(std::string name, real rho, real la, real mu, PlasticityProperties plasticityProps, FailureProperties failureProps);
         /**
          * Constructor. Constructs anisotropic material using specified parameters.
          *
@@ -174,7 +173,7 @@ namespace gcm {
          * @param crackThreshold Material crack threshold
          * @param params Material rheology parameters
          */
-        Material(string name, real rho, RheologyProperties rheologyProps);
+        Material(std::string name, real rho, RheologyProperties rheologyProps);
         /**
          * Constructor. Constructs anisotropic material using specified parameters.
          *
@@ -183,7 +182,7 @@ namespace gcm {
          * @param crackThreshold Material crack threshold
          * @param params Material rheology parameters
          */
-        Material(string name, real rho, RheologyProperties rheologyProps, FailureProperties failureProps);
+        Material(std::string name, real rho, RheologyProperties rheologyProps, FailureProperties failureProps);
         /**
          * Constructor. Constructs anisotropic material using specified parameters.
          *
@@ -192,7 +191,7 @@ namespace gcm {
          * @param crackThreshold Material crack threshold
          * @param params Material rheology parameters
          */
-        Material(string name, real rho, RheologyProperties rheologyProps, PlasticityProperties plasticityProps);
+        Material(std::string name, real rho, RheologyProperties rheologyProps, PlasticityProperties plasticityProps);
         /**
          * Constructor. Constructs anisotropic material using specified parameters.
          *
@@ -202,7 +201,7 @@ namespace gcm {
          * @param params Material rheology parameters
          * @param plasticityProps Plasticity properties
          */
-        Material(string name, real rho, RheologyProperties rheologyProps, PlasticityProperties plasticityProps, FailureProperties failureProps);
+        Material(std::string name, real rho, RheologyProperties rheologyProps, PlasticityProperties plasticityProps, FailureProperties failureProps);
         /**
          * Constructor. Constructs anisotropic material by rotation of passed material.
          *
@@ -212,13 +211,13 @@ namespace gcm {
          * @param a2 a2 rotation angle
          * @param a3 a3 rotation angle
          */
-        Material(const shared_ptr<Material>& source, string name, double a1, double a2, double a3);
+        Material(const std::shared_ptr<Material>& source, std::string name, double a1, double a2, double a3);
         /**
          * Returns material name.
          *
          * @return Material name.
          */
-        const string& getName() const;
+        const std::string& getName() const;
         /**
          * Returns material density.
          *
@@ -279,12 +278,12 @@ namespace gcm {
         const PlasticityProperties& getPlasticityProperties() const;
     };
 
-    typedef shared_ptr<Material> MaterialPtr;
+    typedef std::shared_ptr<Material> MaterialPtr;
     
     template<typename...Args>
     MaterialPtr makeMaterialPtr(Args...args)
     {
-        return make_shared<Material>(args...);
+        return std::make_shared<Material>(args...);
     }
 
 }

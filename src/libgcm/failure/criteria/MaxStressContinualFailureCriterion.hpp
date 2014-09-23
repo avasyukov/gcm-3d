@@ -6,7 +6,6 @@
 
 #include "libgcm/failure/criteria/FailureCriterion.hpp"
 
-using namespace std;
 using namespace gcm;
 
 namespace gcm {
@@ -16,7 +15,7 @@ namespace gcm {
         MaxStressContinualFailureCriterion();
 		void checkFailure(ICalcNode& node, const float tau);
     protected:
-        string type;
+        std::string type;
     private:
         USE_LOGGER;
     };

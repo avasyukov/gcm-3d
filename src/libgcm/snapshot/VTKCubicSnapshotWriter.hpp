@@ -13,7 +13,7 @@ namespace gcm {
 
     class VTKCubicSnapshotWriter : public SnapshotWriter, public Singleton<VTKCubicSnapshotWriter> {
      private:
-        std::string dumpVTK(string filename, BasicCubicMesh* mesh, int step) const;
+        std::string dumpVTK(std::string filename, BasicCubicMesh* mesh, int step) const;
         USE_LOGGER;
     public:
         VTKCubicSnapshotWriter();

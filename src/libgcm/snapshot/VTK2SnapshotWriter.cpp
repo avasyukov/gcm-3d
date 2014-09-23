@@ -19,19 +19,21 @@
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/elem/TetrFirstOrder.hpp"
 
+using namespace gcm;
 using std::string;
+using std::map;
 
-gcm::VTK2SnapshotWriter::VTK2SnapshotWriter() {
+VTK2SnapshotWriter::VTK2SnapshotWriter() {
     INIT_LOGGER("gcm.VTK2SnapshotWriter");
     extension = "vtu";
 }
 
-string gcm::VTK2SnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
+string VTK2SnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
 {
     return dumpVTK(fileName, dynamic_cast<TetrMeshSecondOrder*>(mesh), step);
 }
 
-string gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh, int step) const
+string VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh, int step) const
 {
     map<int, int> snapNodeMap;
 
@@ -220,7 +222,7 @@ string gcm::VTK2SnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *me
     return filename;
 }
 
-bool gcm::VTK2SnapshotWriter::shouldSnapshot(CalcNode& node, TetrMeshSecondOrder* mesh) const
+bool VTK2SnapshotWriter::shouldSnapshot(CalcNode& node, TetrMeshSecondOrder* mesh) const
 {
     // Case 1 - unused node
     if( ! node.isUsed() )

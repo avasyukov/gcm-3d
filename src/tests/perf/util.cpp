@@ -7,8 +7,9 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace std;
 using namespace std::chrono;
+
+using namespace std;
 
 exec_time measure_time(std::function<void (void)> do_before, std::function<void (void)> func, int n)
 {

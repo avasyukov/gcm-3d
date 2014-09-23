@@ -11,8 +11,6 @@
 #include "libgcm/Logging.hpp"
 
 
-using namespace gcm;
-using namespace std;
 
 namespace gcm {
     class Vtu2MeshZoneLoader: public Singleton<Vtu2MeshZoneLoader>
@@ -22,8 +20,8 @@ namespace gcm {
     public:
         Vtu2MeshZoneLoader();
         ~Vtu2MeshZoneLoader();
-         void loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const string& fileName);
-         void preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const string& fileName);
+         void loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, const std::string& fileName);
+         void preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, const std::string& fileName);
     };
 }
 

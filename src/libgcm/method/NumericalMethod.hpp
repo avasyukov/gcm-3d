@@ -41,7 +41,7 @@ namespace gcm {
          */
 //        virtual real getMaxEigenvalue(CalcNode& node) const = 0; //(CalcNode& node, TetrMesh* mesh)
 
-        virtual string getType() = 0;
+        virtual std::string getType() = 0;
 
         void setSpaceOrder(int order);
         void setTimeOrder(int order);

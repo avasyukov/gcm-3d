@@ -10,10 +10,7 @@
 #include "libgcm/Engine.hpp"
 
 #define VALUES_NUMBER 9
-using namespace std;
-using namespace gcm;
 
-// FIXME get rid of "using namespace std" in header files
 
 namespace gcm {
 
@@ -87,17 +84,17 @@ namespace gcm {
         uchar borderConditionId;
         uchar contactConditionId;
         // main stress components
-        mutable gcm::real mainStresses[3];
+        mutable real mainStresses[3];
 
         // current material density
-        gcm::real rho;
+        real rho;
         // node material id
         uchar materialId;
 
         // crack direction
         // TODO  document it
         vector3r crackDirection;
-        gcm::real damageMeasure;
+        real damageMeasure;
 
         // rheology matrix
         RheologyMatrixPtr rheologyMatrix;
@@ -150,7 +147,7 @@ namespace gcm {
          * @param y Y coordinate of the node
          * @param z Z coordinate of the node
          */
-        CalcNode(int num, gcm::real x, gcm::real y, gcm::real z);
+        CalcNode(int num, real x, real y, real z);
         /**
          * Constructor. Constructs copy of the passed object.
          *
@@ -188,50 +185,50 @@ namespace gcm {
          *
          * @return Compression value.
          */
-        gcm::real getCompression() const;
+        real getCompression() const;
         /**
          * Returns compression.
          *
          * @return Compression value.
          */
-        gcm::real getTension() const;
+        real getTension() const;
         /**
          * Returns shear.
          *
          * @return Shear value.
          */
-        gcm::real getShear() const;
+        real getShear() const;
         /**
          * Returns deviator.
          *
          * @return Deviator value.
          */
-        gcm::real getDeviator() const;
+        real getDeviator() const;
         /**
          * Returns pressure.
          *
          * @return Pressure value.
          */
-        gcm::real getPressure() const;
+        real getPressure() const;
 
         /**
          * Returns tensor J1 invariant. TODO document
          *
          * @return J1 value.
          */
-        gcm::real getJ1() const;
+        real getJ1() const;
         /**
          * Returns tensor J2 invariant. TODO document
          *
          * @return J2 value.
          */
-        gcm::real getJ2() const;
+        real getJ2() const;
         /**
          * Returns tensor J3 invariant. TODO document
          *
          * @return J3 value.
          */
-        gcm::real getJ3() const;
+        real getJ3() const;
         /**
          * Returns main stress components. TODO document
          *
@@ -239,14 +236,14 @@ namespace gcm {
          * @param s2 Variable to put second main stress component in.
          * @param s3 Variable to put third main stress component in.
          */
-        void getMainStressComponents(gcm::real& s1, gcm::real& s2, gcm::real& s3) const;
+        void getMainStressComponents(real& s1, real& s2, real& s3) const;
         /**
          * TODO document.
          *
          * @param stress TODO document
-         * @param vector TODO document
+         * @param std::vector TODO document
          */
-        void calcMainStressDirectionByComponent(gcm::real stress, vector3r& vector) const;
+        void calcMainStressDirectionByComponent(real stress, vector3r& vector) const;
 
         /**
          * Checks if rheology is valid. TODO document
@@ -462,19 +459,19 @@ namespace gcm {
          *
          * @param rho Density value
          */
-        void setRho(gcm::real rho);
+        void setRho(real rho);
         /**
          * Returns density value for node.
          * @return Density value.
          */
-        gcm::real getRho() const override;
+        real getRho() const override;
         /**
          * Returns density value for the material. Returns node-independent
          * density value (material-specific).
          *
          * @return Density value.
          */
-        gcm::real getRho0() const;
+        real getRho0() const;
 
         /**
          * Returns crack direction. TODO document
@@ -502,7 +499,7 @@ namespace gcm {
         void exciseByCrack();
         void cleanStressByDirection(const vector3r& direction);
         void setDamageMeasure(real value);
-        gcm::real getDamageMeasure() const;
+        real getDamageMeasure() const;
 
         /**
          * Constant to access custom flag1 using getCustomFlag / setCustomFlag.

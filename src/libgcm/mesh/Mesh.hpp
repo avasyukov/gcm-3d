@@ -16,10 +16,8 @@
 #define STORAGE_OVERCOMMIT_RATIO 1.0
 #define STORAGE_ONDEMAND_GROW_RATE 1.25
 
-using namespace std;
-using namespace gcm;
 
-typedef unordered_map<int, int>::const_iterator MapIter;
+typedef std::unordered_map<int, int>::const_iterator MapIter;
 
 namespace gcm {
     class CalcNode;
@@ -32,7 +30,7 @@ namespace gcm {
         /*
          * Mesh type. Used in runtime to determine mesh type.
          */
-        string type;
+        std::string type;
         /*
          * Calculatable flag.
          */
@@ -40,7 +38,7 @@ namespace gcm {
         /*
          * Mesh id.
          */
-        string id;
+        std::string id;
 
     protected:
         /*
@@ -57,15 +55,15 @@ namespace gcm {
         AABB syncedArea;
         AABB areaOfInterest;
 
-        string numericalMethodType;
+        std::string numericalMethodType;
         int numericalMethodOrder;
 
         /*
          * List of mesh nodes.
          */
-        vector<CalcNode> nodes;
-        vector<CalcNode> new_nodes;
-        unordered_map<int, int> nodesMap;
+        std::vector<CalcNode> nodes;
+        std::vector<CalcNode> new_nodes;
+        std::unordered_map<int, int> nodesMap;
         int nodesNumber;
         int nodesStorageSize;
 
@@ -153,12 +151,12 @@ namespace gcm {
         virtual bool interpolateNode(CalcNode& node) = 0;
         
         /*
-         * Takes vector from (x; y; z) with length (dx; dy; dz) and
+         * Takes std::vector from (x; y; z) with length (dx; dy; dz) and
          * finds its intersection with mesh border.
          * It's a separate function since (x; y; z) is outside of the mesh, 
          * and we neither have 'origin' node nor exact 'target' node position.
-         * Returns 'true' if vector intersects mesh border and target node interpolated successfully.
-         * Returns 'false' if vector does not intersect mesh border.
+         * Returns 'true' if std::vector intersects mesh border and target node interpolated successfully.
+         * Returns 'false' if std::vector does not intersect mesh border.
          */
         virtual bool interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node) = 0;
@@ -186,15 +184,15 @@ namespace gcm {
         /*
          * Sets mesh id.
          */
-        void setId(string id);
+        void setId(std::string id);
         /*
          * Returns mesh id.
          */
-        string getId() const;
+        std::string getId() const;
         /*
          * Returns type of mesh.
          */
-        string getType();
+        std::string getType();
         /*
          * Sets calc flag.
          */

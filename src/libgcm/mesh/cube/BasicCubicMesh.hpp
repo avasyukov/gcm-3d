@@ -9,7 +9,6 @@
 #include "libgcm/interpolator/LineFirstOrderInterpolator.hpp"
 #include "libgcm/interpolator/LineSecondOrderInterpolator.hpp"
 
-using namespace gcm;
 
 namespace gcm
 {

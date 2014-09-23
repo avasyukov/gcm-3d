@@ -4,9 +4,6 @@
 #include "libgcm/failure/FailureModel.hpp"
 #include "libgcm/failure/criteria/MaxStressContinualFailureCriterion.hpp"
 #include "libgcm/failure/correctors/ZeroDeviatorFailedMaterialCorrector.hpp"
-#include <iostream>
-using namespace std;
-using namespace gcm;
 
 namespace gcm {
 

@@ -19,20 +19,21 @@
 #include <vtkPointData.h>
 #include <vtkCellData.h>
 
+using namespace gcm;
 using std::string;
 
-gcm::VTKMarkeredMeshSnapshotWriter::VTKMarkeredMeshSnapshotWriter()
+VTKMarkeredMeshSnapshotWriter::VTKMarkeredMeshSnapshotWriter()
 {
     INIT_LOGGER("gcm.snapshot.VTKMarkeredMeshSnapshotWriter");
     extension = "vts";
 }
 
-string gcm::VTKMarkeredMeshSnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
+string VTKMarkeredMeshSnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
 {
     return dumpVTK(fileName, *dynamic_cast<const MarkeredMesh*>(mesh), step);
 }
 
-string gcm::VTKMarkeredMeshSnapshotWriter::dumpVTK(string filename, const MarkeredMesh& mesh, int step) const
+string VTKMarkeredMeshSnapshotWriter::dumpVTK(string filename, const MarkeredMesh& mesh, int step) const
 {
     LOG_DEBUG("Writing snapshot for mesh \"" << mesh.getId() << "\" at step " << step << " to file " << filename);
     

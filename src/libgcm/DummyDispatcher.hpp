@@ -5,8 +5,6 @@
 
 #include "libgcm/GCMDispatcher.hpp"
 
-using namespace std;
-using namespace gcm;
 
 namespace gcm {
 
@@ -28,10 +26,10 @@ namespace gcm {
         void prepare(int numberOfWorkers, AABB* scene);
         int getOwner(float x, float y, float z);
         int getOwner(float coords[3]);
-        int getOwner(float x, float y, float z, string bodyId);
-        int getOwner(float coords[3], string bodyId);
-        bool isMine(float coords[3], string bodyId);
-        bool isMine(double coords[3], string bodyId);
+        int getOwner(float x, float y, float z, std::string bodyId);
+        int getOwner(float coords[3], std::string bodyId);
+        bool isMine(float coords[3], std::string bodyId);
+        bool isMine(double coords[3], std::string bodyId);
         AABB* getOutline(int index);
         void printZones();
     };

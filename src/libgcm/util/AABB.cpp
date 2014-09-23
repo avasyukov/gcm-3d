@@ -1,13 +1,16 @@
 #include "libgcm/util/AABB.hpp"
 #include "libgcm/Math.hpp"
 
-gcm::AABB::AABB()
+using namespace gcm;
+using std::numeric_limits;
+
+AABB::AABB()
 {
     minX = minY = minZ = numeric_limits<float>::infinity();
     maxX = maxY = maxZ = - numeric_limits<float>::infinity();
 }
 
-gcm::AABB::AABB(float _minX, float _maxX, float _minY, float _maxY, float _minZ, float _maxZ)
+AABB::AABB(float _minX, float _maxX, float _minY, float _maxY, float _minZ, float _maxZ)
 {
     minX = _minX;
     minY = _minY;
@@ -17,7 +20,7 @@ gcm::AABB::AABB(float _minX, float _maxX, float _minY, float _maxY, float _minZ,
     maxZ = _maxZ;
 }
 
-bool gcm::AABB::isInAABB( float x, float y, float z )
+bool AABB::isInAABB( float x, float y, float z )
 {
     // FIXME do we really have to check our state all the time?
     assert_ne(minX, maxX);
@@ -31,28 +34,28 @@ bool gcm::AABB::isInAABB( float x, float y, float z )
                 && z > minZ - EQUALITY_TOLERANCE );
 };
 
-bool gcm::AABB::isInAABB( Node* node )
+bool AABB::isInAABB( Node* node )
 {
     return isInAABB(node->coords[0], node->coords[1], node->coords[2]);
 };
 
-bool gcm::AABB::isInAABB( Node& node )
+bool AABB::isInAABB( Node& node )
 {
     return isInAABB(node.coords[0], node.coords[1], node.coords[2]);
 };
 
-bool gcm::AABB::includes(const AABB* box) const
+bool AABB::includes(const AABB* box) const
 {
     return ( minX <= box->minX ) && ( minY <= box->minY ) && ( minZ <= box->minZ )
             && ( maxX >= box->maxX ) && ( maxY >= box->maxY ) && ( maxZ >= box->maxZ );
 }
 
-bool gcm::AABB::includes(const AABB& box) const
+bool AABB::includes(const AABB& box) const
 {
     return includes(&box);
 }
 
-bool gcm::AABB::intersects(AABB* box)
+bool AABB::intersects(AABB* box)
 {
     float int_min_coords[3];
     float int_max_coords[3];
@@ -68,7 +71,7 @@ bool gcm::AABB::intersects(AABB* box)
     return true;
 }
 
-/*bool gcm::AABB::intersects(AABB box)
+/*bool AABB::intersects(AABB box)
 {
     AABB* inters = findIntersection(&box);
     if(inters == NULL)
@@ -77,7 +80,7 @@ bool gcm::AABB::intersects(AABB* box)
     return true;
 }*/
 
-AABB* gcm::AABB::findIntersection(AABB* box)
+AABB* AABB::findIntersection(AABB* box)
 {
     float int_min_coords[3];
     float int_max_coords[3];
@@ -95,7 +98,7 @@ AABB* gcm::AABB::findIntersection(AABB* box)
                         int_min_coords[2], int_max_coords[2] );
 }
 
-void gcm::AABB::findIntersection(AABB* box, AABB* intersection)
+void AABB::findIntersection(AABB* box, AABB* intersection)
 {
     AABB* created = findIntersection(box);
     if( created == NULL )
@@ -104,7 +107,7 @@ void gcm::AABB::findIntersection(AABB* box, AABB* intersection)
     delete created;
 }
 
-void gcm::AABB::transfer(float x, float y, float z)
+void AABB::transfer(float x, float y, float z)
 {
     min_coords[0] += x;
     min_coords[1] += y;
@@ -114,7 +117,7 @@ void gcm::AABB::transfer(float x, float y, float z)
     max_coords[2] += z;
 }
 
-void gcm::AABB::scale(float x0, float y0, float z0, 
+void AABB::scale(float x0, float y0, float z0, 
 		float scaleX, float scaleY, float scaleZ)
 {
     min_coords[0] = (min_coords[0] - x0)*scaleX + x0;
@@ -125,17 +128,17 @@ void gcm::AABB::scale(float x0, float y0, float z0,
     max_coords[2] = (max_coords[2] - z0)*scaleZ + z0;
 }
 
-float gcm::AABB::getVolume()
+float AABB::getVolume()
 {
     return (maxX - minX) * (maxY - minY) * (maxZ - minZ);
 }
 
-real gcm::AABB::getDiag() const
+real AABB::getDiag() const
 {
-    return distance(min_coords, max_coords);
+    return distance(&min_coords[0], &max_coords[0]);
 }
 
-vector3r gcm::AABB::getCenter() const
+vector3r AABB::getCenter() const
 {
     return vector3r((maxX+minX)/2, (maxY+minY)/2, (maxZ+minZ)/2);
 }

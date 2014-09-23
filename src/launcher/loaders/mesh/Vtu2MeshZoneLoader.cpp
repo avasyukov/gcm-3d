@@ -5,7 +5,9 @@
 
 #include <boost/lexical_cast.hpp>
 
+using namespace gcm;
 using boost::lexical_cast;
+using std::string;
 
 const string launcher::Vtu2MeshZoneLoader::MESH_TYPE = "vtu2zone";
 

@@ -22,7 +22,7 @@ namespace gcm {
          */
         void doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh);
 
-        string getType();
+        std::string getType();
 
     protected:
         USE_LOGGER;

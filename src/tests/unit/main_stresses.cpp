@@ -6,6 +6,9 @@
 
 #define ITERATIONS 1000
 
+using namespace gcm;
+
+
 TEST(MainStresses, FuzzCalculate) {
     srand(time(NULL));
 

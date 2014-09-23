@@ -22,12 +22,12 @@ namespace gcm
             virtual void correctNodeState(ICalcNode& node, const MaterialPtr& material) = 0;
     };
 
-    typedef shared_ptr<ICorrector> CorrectorPtr;
+    typedef std::shared_ptr<ICorrector> CorrectorPtr;
     
     template<typename T, typename...Args>
-    shared_ptr<T> makeCorrectorPtr(Args...args)
+    std::shared_ptr<T> makeCorrectorPtr(Args...args)
     {
-        return make_shared<T>(args...);
+        return std::make_shared<T>(args...);
     }
 };
 

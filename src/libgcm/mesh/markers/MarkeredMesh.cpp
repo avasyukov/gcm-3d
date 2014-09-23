@@ -9,6 +9,12 @@
 #include <tuple>
 
 using namespace gcm;
+using std::queue;
+using std::tuple;
+using std::make_tuple;
+using std::min;
+using std::max;
+using std::get;
 
 
 MarkeredMesh::MarkeredMesh(const MarkeredSurface& surface, uint meshElems): MarkeredMesh()
@@ -360,8 +366,8 @@ bool MarkeredMesh::interpolateNode(CalcNode& node)
     return true;
 }
 
-bool MarkeredMesh::interpolateBorderNode(gcm::real x, gcm::real y, gcm::real z, 
-                        gcm::real dx, gcm::real dy, gcm::real dz, CalcNode& node)
+bool MarkeredMesh::interpolateBorderNode(real x, real y, real z, 
+                        real dx, real dy, real dz, CalcNode& node)
 {
     vector3r coords(x+dx, y+dy, z+dz);
     int i, j, k;
@@ -393,7 +399,7 @@ const vector3r& MarkeredMesh::getPivot() const
     return pivot;
 }
 
-gcm::real MarkeredMesh::getElemSize() const
+real MarkeredMesh::getElemSize() const
 {
     return elemSize;
 }

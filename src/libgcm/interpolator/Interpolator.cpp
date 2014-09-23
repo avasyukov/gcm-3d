@@ -1,13 +1,16 @@
 #include "libgcm/interpolator/Interpolator.hpp"
 
-gcm::Interpolator::Interpolator() {
+using std::string;
+using namespace gcm;
+
+Interpolator::Interpolator() {
     type = "Interpolator";
     INIT_LOGGER( "gcm.Interpolator" );
 }
 
-gcm::Interpolator::~Interpolator() {
+Interpolator::~Interpolator() {
 }
 
-string gcm::Interpolator::getType() {
+string Interpolator::getType() {
     return type;
 }

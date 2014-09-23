@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <tuple>
 #include <stdexcept>
 #include <vector>
 #include <mpi.h>
@@ -48,9 +49,6 @@
 #define CONTACT_THRESHOLD_BY_MAX_LT 1
 #define CONTACT_THRESHOLD_FIXED 2
 
-using namespace std;
-using namespace gcm;
-
 namespace gcm
 {
     /*
@@ -69,7 +67,7 @@ namespace gcm
 
     friend class Singleton;
     protected:
-        map<std::string, std::string> options;
+        std::map<std::string, std::string> options;
         /*
          * Process rank in MPI communicator.
          */
@@ -78,41 +76,41 @@ namespace gcm
         /*
          * Numerical methods
          */
-        map<string, NumericalMethod*> numericalMethods;
+        std::map<std::string, NumericalMethod*> numericalMethods;
         /*
          * Volume calculators
          */
-        map<string, VolumeCalculator*> volumeCalculators;
+        std::map<std::string, VolumeCalculator*> volumeCalculators;
         /*
          * Border calculators
          */
-        map<string, BorderCalculator*> borderCalculators;
+        std::map<std::string, BorderCalculator*> borderCalculators;
         /*
          * Contact calculators
          */
-        map<string, ContactCalculator*> contactCalculators;
+        std::map<std::string, ContactCalculator*> contactCalculators;
 
-        map<string, RheologyCalculator*> rheologyCalculators;
+        std::map<std::string, RheologyCalculator*> rheologyCalculators;
 		
-		map<string, FailureModel*> failureModels;
+		std::map<std::string, FailureModel*> failureModels;
 
         // FIXME - tetr-specific is bad
-        map<string, TetrInterpolator*> interpolators;
+        std::map<std::string, TetrInterpolator*> interpolators;
 
-        vector<BorderCondition*> borderConditions;
-        vector<ContactCondition*> contactConditions;
+        std::vector<BorderCondition*> borderConditions;
+        std::vector<ContactCondition*> contactConditions;
 
-        vector<MaterialPtr> materials;
+        std::vector<MaterialPtr> materials;
         /*
          * Scene bodies.
          */
-        vector<Body*> bodies;
+        std::vector<Body*> bodies;
 
         gcm::GCMDispatcher* dispatcher;
 
         DataBus* dataBus;
         CollisionDetector* colDet;
-        vector<CalcNode> virtNodes;
+        std::vector<CalcNode> virtNodes;
 
         //VTKSnapshotWriter* vtkSnapshotWriter;
         //VTK2SnapshotWriter* vtkDumpWriter;
@@ -131,8 +129,8 @@ namespace gcm
 
         AABB scene;
 
-        string defaultRheoCalcType;
-        string defaultFailureModelType;
+        std::string defaultRheoCalcType;
+        std::string defaultFailureModelType;
 
         float gmshVerbosity;
 
@@ -141,8 +139,8 @@ namespace gcm
          */
         USE_LOGGER;
 
-        vector<tuple<unsigned int, string, string>> snapshots;
-        vector<float> snapshotTimestamps;
+        std::vector<std::tuple<unsigned int, std::string, std::string>> snapshots;
+        std::vector<float> snapshotTimestamps;
 
     protected:
         /*
@@ -203,9 +201,9 @@ namespace gcm
         void registerRheologyCalculator(RheologyCalculator *rheologyCalculator);
 
         void registerFailureModel(FailureModel *model);
-		FailureModel* getFailureModel(string modelType);
-        void setDefaultFailureModelType(string modelType);
-        string getDefaultFailureModelType();
+		FailureModel* getFailureModel(std::string modelType);
+        void setDefaultFailureModelType(std::string modelType);
+        std::string getDefaultFailureModelType();
 
         unsigned int addBorderCondition(BorderCondition *borderCondition);
         void replaceDefaultBorderCondition(BorderCondition *borderCondition);
@@ -215,29 +213,29 @@ namespace gcm
 
         unsigned char addMaterial(MaterialPtr material);
 
-        void setDefaultRheologyCalculatorType(string calcType);
-        string getDefaultRheologyCalculatorType();
+        void setDefaultRheologyCalculatorType(std::string calcType);
+        std::string getDefaultRheologyCalculatorType();
 
-        NumericalMethod* getNumericalMethod(string type);
-        VolumeCalculator* getVolumeCalculator(string type);
-        BorderCalculator* getBorderCalculator(string type);
-        ContactCalculator* getContactCalculator(string type);
+        NumericalMethod* getNumericalMethod(std::string type);
+        VolumeCalculator* getVolumeCalculator(std::string type);
+        BorderCalculator* getBorderCalculator(std::string type);
+        ContactCalculator* getContactCalculator(std::string type);
         BorderCondition* getBorderCondition(unsigned int num);
         ContactCondition* getContactCondition(unsigned int num);
-        TetrFirstOrderInterpolator* getFirstOrderInterpolator(string type);
-        TetrSecondOrderMinMaxInterpolator* getSecondOrderInterpolator(string type);
-        LineFirstOrderInterpolator* getFirstOrderLineInterpolator(string type);
-        RheologyCalculator* getRheologyCalculator(string type);
+        TetrFirstOrderInterpolator* getFirstOrderInterpolator(std::string type);
+        TetrSecondOrderMinMaxInterpolator* getSecondOrderInterpolator(std::string type);
+        LineFirstOrderInterpolator* getFirstOrderLineInterpolator(std::string type);
+        RheologyCalculator* getRheologyCalculator(std::string type);
         GCMDispatcher* getDispatcher();
 
         /*
          * Returns body object by its id or NULL if not found
          */
-        Body* getBodyById(string id);
-        int getBodyNum(string id);
+        Body* getBodyById(std::string id);
+        int getBodyNum(std::string id);
 
-        unsigned char getMaterialIndex(string name);
-        const MaterialPtr& getMaterial(string name);
+        unsigned char getMaterialIndex(std::string name);
+        const MaterialPtr& getMaterial(std::string name);
         const MaterialPtr& getMaterial(unsigned char index);
 
         Body* getBody(unsigned int num);
@@ -290,10 +288,10 @@ namespace gcm
 
         bool interpolateNode(CalcNode& node);
 
-        void setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode);
+        void setRheologyMatrices(std::function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode);
 
-        const vector<tuple<unsigned int, string, string>>& getSnapshotsList() const;
-        const vector<float>& getSnapshotTimestamps() const;
+        const std::vector<std::tuple<unsigned int, std::string, std::string>>& getSnapshotsList() const;
+        const std::vector<float>& getSnapshotTimestamps() const;
 
         void setOption(std::string option, std::string value);
         const std::string& getOption(std::string option) const;

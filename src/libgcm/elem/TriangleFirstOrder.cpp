@@ -6,15 +6,17 @@
  */
 #include "libgcm/elem/TriangleFirstOrder.hpp"
 
-gcm::TriangleFirstOrder::TriangleFirstOrder(): TriangleFirstOrder(-1, -1, -1, -1)
+using namespace gcm;
+
+TriangleFirstOrder::TriangleFirstOrder(): TriangleFirstOrder(-1, -1, -1, -1)
 {
 }
 
-gcm::TriangleFirstOrder::TriangleFirstOrder(int n, int v[3]): TriangleFirstOrder(n, v[0], v[1], v[2])
+TriangleFirstOrder::TriangleFirstOrder(int n, int v[3]): TriangleFirstOrder(n, v[0], v[1], v[2])
 {
 }
 
-gcm::TriangleFirstOrder::TriangleFirstOrder(int n, int v1, int v2, int v3)
+TriangleFirstOrder::TriangleFirstOrder(int n, int v1, int v2, int v3)
 {
     number = n;
     verts[0] = v1;

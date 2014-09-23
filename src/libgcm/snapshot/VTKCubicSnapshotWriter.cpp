@@ -16,19 +16,20 @@
 
 #include "libgcm/mesh/cube/BasicCubicMesh.hpp"
 
+using namespace gcm;
 using std::string;
 
-gcm::VTKCubicSnapshotWriter::VTKCubicSnapshotWriter() {
+VTKCubicSnapshotWriter::VTKCubicSnapshotWriter() {
     INIT_LOGGER("gcm.VTKCubicSnapshotWriter");
     extension = "vts";
 }
 
-string gcm::VTKCubicSnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
+string VTKCubicSnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
 {
     return dumpVTK(fileName, dynamic_cast<BasicCubicMesh*>(mesh), step);
 }
 
-string gcm::VTKCubicSnapshotWriter::dumpVTK(string filename, BasicCubicMesh *mesh, int step) const
+string VTKCubicSnapshotWriter::dumpVTK(string filename, BasicCubicMesh *mesh, int step) const
 {
     vtkSmartPointer<vtkStructuredGrid> structuredGrid = vtkSmartPointer<vtkStructuredGrid>::New();
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();

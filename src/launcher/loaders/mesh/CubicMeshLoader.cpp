@@ -5,7 +5,10 @@
 
 #include <boost/lexical_cast.hpp>
 
+using namespace gcm;
+
 using boost::lexical_cast;
+using std::string;
 
 const string launcher::CubicMeshLoader::MESH_TYPE = "cube";
 

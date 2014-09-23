@@ -4,17 +4,23 @@
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/GCMDispatcher.hpp"
 
-gcm::Vtu2TetrFileReader::Vtu2TetrFileReader()
+using namespace gcm;
+using std::string;
+using std::map;
+using std::vector;
+using std::numeric_limits;
+
+Vtu2TetrFileReader::Vtu2TetrFileReader()
 {
     INIT_LOGGER("gcm.Vtu2TetrFileReader");
 }
 
-gcm::Vtu2TetrFileReader::~Vtu2TetrFileReader()
+Vtu2TetrFileReader::~Vtu2TetrFileReader()
 {
 
 }
 
-void gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes)
+void Vtu2TetrFileReader::preReadFile(string file, AABB* scene, int& sliceDirection, int& numberOfNodes)
 {
     scene->minX = numeric_limits<float>::infinity();
     scene->minY = numeric_limits<float>::infinity();
@@ -61,12 +67,12 @@ void gcm::Vtu2TetrFileReader::preReadFile(string file, AABB* scene, int& sliceDi
     numberOfNodes = g->GetNumberOfPoints();
 }
 
-void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank)
+void Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank)
 {
     readFile(file, mesh, dispatcher, rank, false);
 }
 
-void gcm::Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher)
+void Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDispatcher* dispatcher, int rank, bool ignoreDispatcher)
 {
     vtkXMLUnstructuredGridReader *xgr = vtkXMLUnstructuredGridReader::New();
     vtkUnstructuredGrid *g = vtkUnstructuredGrid::New();

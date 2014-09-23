@@ -8,8 +8,8 @@
 
 #define ITERATIONS 1000000
 
-using namespace std;
 using namespace std::chrono;
+using namespace std;
 
 class A
 {

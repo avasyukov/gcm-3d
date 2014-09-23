@@ -6,7 +6,6 @@
 #include "libgcm/rheology/RheologyCalculator.hpp"
 #include "libgcm/Logging.hpp"
 
-using namespace std;
 
 namespace gcm {
     class CalcNode;
@@ -17,7 +16,7 @@ namespace gcm {
         /*
          * Returns rheology calculator type
          */
-        inline string getType() {
+        inline std::string getType() {
             return "DummyRheologyCalculator";
         }
         void doCalc(CalcNode& src, CalcNode& dst);

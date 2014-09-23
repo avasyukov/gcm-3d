@@ -6,8 +6,6 @@
 #include "libgcm/Math.hpp"
 #include "libgcm/Logging.hpp"
 
-using namespace std;
-using namespace gcm;
 
 namespace gcm {
 
@@ -15,9 +13,9 @@ namespace gcm {
     public:
         TetrInterpolator();
         ~TetrInterpolator();
-        string getType();
+        std::string getType();
     protected:
-        string type;
+        std::string type;
     private:
         USE_LOGGER;
     };

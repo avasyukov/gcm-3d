@@ -3,7 +3,7 @@
 
 using namespace gcm;
 
-void gcm::IdealPlasticFlowCorrector::correctNodeState(ICalcNode& node, const MaterialPtr& material)
+void IdealPlasticFlowCorrector::correctNodeState(ICalcNode& node, const MaterialPtr& material)
 {
     auto props = material->getPlasticityProperties();
     real yieldStrength = props[PLASTICITY_TYPE_PRANDTL_RAUSS_CORRECTOR][PLASTICITY_PROP_YIELD_STRENGTH];

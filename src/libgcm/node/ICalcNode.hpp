@@ -6,8 +6,6 @@
 #include "libgcm/util/Types.hpp"
 
 #define VALUES_NUMBER 9
-using namespace std;
-using namespace gcm;
 
 namespace gcm
 {
@@ -34,15 +32,15 @@ namespace gcm
                     struct
                     {
                         /**
-                         * Velocity vector x component.
+                         * Velocity std::vector x component.
                          */
                         real vx;
                         /**
-                         * Velocity vector y component.
+                         * Velocity std::vector y component.
                          */
                         real vy;
                         /**
-                         * Velocity vector z component.
+                         * Velocity std::vector z component.
                          */
                         real vz;
                     };
@@ -92,9 +90,9 @@ namespace gcm
         virtual void setDestroyed(bool value) = 0;
         virtual bool isDestroyed() const = 0;
         virtual void setDamageMeasure(real value) = 0;
-        virtual gcm::real getDamageMeasure() const = 0;
+        virtual real getDamageMeasure() const = 0;
         virtual MaterialPtr getMaterial() const = 0;
-        virtual void getMainStressComponents(gcm::real& s1, gcm::real& s2, gcm::real& s3) const = 0;
+        virtual void getMainStressComponents(real& s1, real& s2, real& s3) const = 0;
         virtual void createCrack(int direction) = 0;
         virtual void exciseByCrack() = 0;
     };

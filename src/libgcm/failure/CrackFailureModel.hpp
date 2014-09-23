@@ -5,8 +5,6 @@
 #include "libgcm/failure/criteria/MaxStressCrackFailureCriterion.hpp"
 #include "libgcm/failure/correctors/CrackResponseFailedMaterialCorrector.hpp"
 
-using namespace std;
-using namespace gcm;
 
 namespace gcm {
 

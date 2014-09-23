@@ -18,7 +18,6 @@
 #include <boost/lexical_cast.hpp>
 #include "launcher/util/xml.hpp"
 
-using namespace std;
 
 namespace gcm
 {
@@ -36,12 +35,12 @@ namespace gcm
          * Calculate next state for the given node
          */
         virtual void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
-                            vector<CalcNode>& previousNodes, bool inner[],
+                            std::vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale) = 0;
         /*
          * Returns type of the calculator
          */
-        virtual string getType() = 0;
+        virtual std::string getType() = 0;
 		
 		// TODO: we should either 'officially approve' using xml:Node here or implement loaders
 		/*

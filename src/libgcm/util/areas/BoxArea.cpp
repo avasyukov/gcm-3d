@@ -1,5 +1,7 @@
 #include "libgcm/util/areas/BoxArea.hpp"
 
+using namespace gcm;
+
 BoxArea::BoxArea( float _minX, float _maxX, float _minY, float _maxY, float _minZ, float _maxZ )
 {
     minX = _minX;

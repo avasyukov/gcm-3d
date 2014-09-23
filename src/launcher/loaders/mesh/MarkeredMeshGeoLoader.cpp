@@ -5,7 +5,10 @@
 
 #include <boost/lexical_cast.hpp>
 
+using namespace gcm;
+
 using boost::lexical_cast;
+using std::string;
 
 const string launcher::MarkeredMeshGeoLoader::MESH_TYPE = "markered-mesh-geo";
 
@@ -28,7 +31,7 @@ void launcher::MarkeredMeshGeoLoader::loadMesh(const xml::Node& desc, MarkeredMe
 
     parseDesc(desc, id, cellsNum, file);
 
-    auto surface = gcm::MarkeredSurfaceGeoGenerator::getInstance().generate(file);
+    auto surface = MarkeredSurfaceGeoGenerator::getInstance().generate(file);
     
     mesh->setMeshElems(cellsNum);
     mesh->setSurface(surface);

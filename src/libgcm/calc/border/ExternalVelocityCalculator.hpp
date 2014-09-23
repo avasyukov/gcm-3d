@@ -6,32 +6,35 @@
 #include "libgcm/calc/border/BorderCalculator.hpp"
 #include "libgcm/Math.hpp"
 
-class ExternalVelocityCalculator : public BorderCalculator
+namespace gcm
 {
-public:
-    ExternalVelocityCalculator();
-    ~ExternalVelocityCalculator();
-    void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr& matrix,
-                            vector<CalcNode>& previousNodes, bool inner[],
-                            float outer_normal[], float scale);
-    inline string getType() {
-        return "ExternalVelocityCalculator";
-    }
-	void setParameters(const xml::Node& params);
-    void set_parameters(float vn, float vt, float xv, float yv, float zv);
+    class ExternalVelocityCalculator : public BorderCalculator
+    {
+    public:
+        ExternalVelocityCalculator();
+        ~ExternalVelocityCalculator();
+        void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr& matrix,
+                                std::vector<CalcNode>& previousNodes, bool inner[],
+                                float outer_normal[], float scale);
+        inline std::string getType() {
+            return "ExternalVelocityCalculator";
+        }
+        void setParameters(const xml::Node& params);
+        void set_parameters(float vn, float vt, float xv, float yv, float zv);
 
-protected:
+    protected:
 
-private:
-    float normal_v;
-    float tangential_v;
-    float tangential_direction[3];
+    private:
+        float normal_v;
+        float tangential_v;
+        float tangential_direction[3];
 
-    // Used for border calculation
-    gsl_matrix *U_gsl;
-    gsl_vector *om_gsl;
-    gsl_vector *x_gsl;
-    gsl_permutation *p_gsl;
-};
+        // Used for border calculation
+        gsl_matrix *U_gsl;
+        gsl_vector *om_gsl;
+        gsl_vector *x_gsl;
+        gsl_permutation *p_gsl;
+    };
+}
 
 #endif

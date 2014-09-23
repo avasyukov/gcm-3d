@@ -3,7 +3,9 @@
 
 #include <boost/lexical_cast.hpp>
 
+using namespace gcm;
 using boost::lexical_cast;
+using std::string;
 
 const string launcher::Geo2MeshLoader::MESH_TYPE = "geo2";
 

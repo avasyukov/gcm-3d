@@ -20,19 +20,21 @@
 #include "libgcm/elem/TetrFirstOrder.hpp"
 
 
+using namespace gcm;
 using std::string;
+using std::map;
 
-gcm::VTKSnapshotWriter::VTKSnapshotWriter() {
+VTKSnapshotWriter::VTKSnapshotWriter() {
     INIT_LOGGER("gcm.VTKSnapshotWriter");
     extension = "vtu";
 }
 
-string gcm::VTKSnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
+string VTKSnapshotWriter::dump(Mesh* mesh, int step, std::string fileName) const
 {
     return dumpVTK(fileName, dynamic_cast<TetrMeshSecondOrder*>(mesh), step);
 }
 
-string gcm::VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh, int step) const
+string VTKSnapshotWriter::dumpVTK(string filename, TetrMeshSecondOrder *mesh, int step) const
 {
     map<int, int> snapNodeMap;
 

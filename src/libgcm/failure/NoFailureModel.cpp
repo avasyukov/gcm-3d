@@ -1,6 +1,8 @@
 #include "libgcm/failure/NoFailureModel.hpp"
 
-gcm::NoFailureModel::NoFailureModel() {
+using namespace gcm;
+
+NoFailureModel::NoFailureModel() {
     type = "NoFailureModel";
     INIT_LOGGER( "gcm.NoFailureModel" );
 }
