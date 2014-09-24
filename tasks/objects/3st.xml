@@ -55,12 +55,12 @@
 			<material id="subpacket" />
 		</body>
 
-		<!--body id="3st_striker">
+		<body id="3st_striker">
 			<rheology type="elastic" />
 			<mesh id="3st_striker" type="geo2" file="models/3st_striker.geo" tetrSize="0.2" />
 			<material id="steel" />
 			<transform type="translate" moveX="0.0" moveY="1.8704" moveZ="6.75" />
-		</body-->
+		</body>
 	</bodies>
 	<materials>
 		<material name="steel" rheology="isotropic">
