@@ -302,6 +302,9 @@ void TetrMeshSecondOrder::build_first_order_border()
     createTriangles(faceCount);
 
     LOG_DEBUG("Triangles storage allocated");
+    
+    // WA for bruteforce collision detector
+    createOutline();
 
     //for(int i = 0; i < tetrsNumber; i++) {
     for (MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr) {
@@ -321,24 +324,37 @@ void TetrMeshSecondOrder::build_first_order_border()
                 real maxX = std::max({v1.x, v2.x, v3.x});
                 real maxY = std::max({v1.y, v2.y, v3.y});
                 real maxZ = std::max({v1.z, v2.z, v3.z});
-                real xh = (outline.maxX - outline.minX)/10;
-                real yh = (outline.maxY - outline.minY)/10;
-                real zh = (outline.maxZ - outline.minZ)/10;
-                int minZoneX = std::max(0, (int)floor((minX - outline.minX)/xh));
-                int minZoneY = std::max(0, (int)floor((minY - outline.minY)/yh));
-                int minZoneZ = std::max(0, (int)floor((minZ - outline.minZ)/zh));
-                int maxZoneX = std::min(9, (int)floor((maxX - outline.minX)/xh));
-                int maxZoneY = std::min(9, (int)floor((maxY - outline.minY)/yh));
-                int maxZoneZ = std::min(9, (int)floor((maxZ - outline.minZ)/zh));
+                real xh = (outline.maxX - outline.minX)/FACES_SPACE_MAP_SIZE;
+                real yh = (outline.maxY - outline.minY)/FACES_SPACE_MAP_SIZE;
+                real zh = (outline.maxZ - outline.minZ)/FACES_SPACE_MAP_SIZE;
+                int minZoneX = std::min(0, (int)floor((minX - outline.minX)/xh));
+                int minZoneY = std::min(0, (int)floor((minY - outline.minY)/yh));
+                int minZoneZ = std::min(0, (int)floor((minZ - outline.minZ)/zh));
+                int maxZoneX = std::max(FACES_SPACE_MAP_SIZE-1, (int)floor((maxX - outline.minX)/xh));
+                int maxZoneY = std::max(FACES_SPACE_MAP_SIZE-1, (int)floor((maxY - outline.minY)/yh));
+                int maxZoneZ = std::max(FACES_SPACE_MAP_SIZE-1, (int)floor((maxZ - outline.minZ)/zh));
+                minZoneX = (minZoneX >= 0 ? minZoneX : 0);
+                minZoneX = (minZoneX <= FACES_SPACE_MAP_SIZE-1 ? minZoneX : FACES_SPACE_MAP_SIZE-1);
+                minZoneY = (minZoneY >= 0 ? minZoneY : 0);
+                minZoneY = (minZoneY <= FACES_SPACE_MAP_SIZE-1 ? minZoneY : FACES_SPACE_MAP_SIZE-1);
+                minZoneZ = (minZoneZ >= 0 ? minZoneZ : 0);
+                minZoneZ = (minZoneZ <= FACES_SPACE_MAP_SIZE-1 ? minZoneZ : FACES_SPACE_MAP_SIZE-1);
+                maxZoneX = (maxZoneX >= 0 ? maxZoneX : 0);
+                maxZoneX = (maxZoneX <= FACES_SPACE_MAP_SIZE-1 ? maxZoneX : FACES_SPACE_MAP_SIZE-1);
+                maxZoneY = (maxZoneY >= 0 ? maxZoneY : 0);
+                maxZoneY = (maxZoneY <= FACES_SPACE_MAP_SIZE-1 ? maxZoneY : FACES_SPACE_MAP_SIZE-1);
+                maxZoneZ = (maxZoneZ >= 0 ? maxZoneZ : 0);
+                maxZoneZ = (maxZoneZ <= FACES_SPACE_MAP_SIZE-1 ? maxZoneZ : FACES_SPACE_MAP_SIZE-1);
                 for(int xi = minZoneX; xi <= maxZoneX; xi++)
                     for(int yi = minZoneY; yi <= maxZoneY; yi++)
                         for(int zi = minZoneZ; zi <= maxZoneZ; zi++)
-                            facesSpaceMap[xi][yi][zi].push_back(number);
+                            facesSpaceMap[xi][yi][zi].push_back(number-1);
+                assert_eq(number, facesSpaceMap[0][0][0].size());
             }
             shiftArrayLeft(getTetr(i).verts, 4);
         }
     }
-
+    
     //if( number != faceCount )
     //    LOG_WARN("Number: " << number << " FaceCount: " << faceCount);
     assert_eq(number, faceCount);
