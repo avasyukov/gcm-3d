@@ -3,24 +3,21 @@
 
 #include <string>
 
-#include "libgcm/node/CalcNode.hpp"
 #include "libgcm/util/Singleton.hpp"
-#include "libgcm/snapshot/SnapshotWriter.hpp"
-#include "libgcm/Logging.hpp"
+#include "libgcm/snapshot/AbstractVTKSnapshotWriter.hpp"
 
 namespace gcm {
     class TetrMeshSecondOrder;
 
-    class VTK2SnapshotWriter : public SnapshotWriter, public Singleton<VTK2SnapshotWriter> {
-     private:
-        std::string dumpVTK(std::string filename, TetrMeshSecondOrder* mesh, int step) const;
-        bool shouldSnapshot(CalcNode& node, TetrMeshSecondOrder* mesh) const;
+    template <>
+    MeshNodeIterator<TetrMeshSecondOrder, SNAPSHOTTER_ID_VTK2>& MeshNodeIterator<TetrMeshSecondOrder, SNAPSHOTTER_ID_VTK2>::operator++();
 
+    class VTK2SnapshotWriter : public UnstructuredVTKSnapshotWriter<TetrMeshSecondOrder, false, SNAPSHOTTER_ID_VTK2>, public Singleton<VTK2SnapshotWriter> {
+     protected:
         USE_LOGGER;
+        void dumpMeshSpecificData(TetrMeshSecondOrder* mesh, vtkSmartPointer<vtkUnstructuredGrid>& grid, vtkSmartPointer<vtkPoints>& points) const override;
      public:
         VTK2SnapshotWriter();
-
-        std::string dump(Mesh* mesh, int step, std::string fileName) const override;
     };
 }
 

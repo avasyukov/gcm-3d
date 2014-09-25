@@ -22,10 +22,6 @@ namespace gcm {
         friend class DataBus;
         friend class VtuTetrFileReader;
         friend class Vtu2TetrFileReader;
-        friend class VTKSnapshotWriter;
-        friend class VTK2SnapshotWriter;
-        friend class VTKCubicSnapshotWriter;
-        friend class VTKMarkeredMeshSnapshotWriter;
         friend class Mesh;
 
     protected:
@@ -102,16 +98,10 @@ namespace gcm {
         // calculates main stress components
         void calcMainStressComponents() const;
 
-        // returns private flags
-        uchar getPrivateFlags() const;
         // sets private flags
         void setPrivateFlags(uchar flags);
-        // returns public flags
-        uchar getPublicFlags() const;
         // sets public flags
         void setPublicFlags(uchar flags);
-        // returns error flags
-        uchar getErrorFlags() const;
         // sets error flags
         void setErrorFlags(uchar flags);
     public:
@@ -398,7 +388,24 @@ namespace gcm {
          * @param value New flag value
          */
         void setCustomFlag(uchar flag, bool value);
-
+        /**
+         * Returns private flags for node.
+         *
+         * @return Private flags
+         */
+        uchar getPrivateFlags() const;
+        /**
+         * Returns public flags for node.
+         *
+         * @return Public flags
+         */
+        uchar getPublicFlags() const;
+        /**
+         * Returns error flags for node.
+         *
+         * @return Error flags
+         */
+        uchar getErrorFlags() const;
         /**
          * Sets border condition id. TODO document
          *
