@@ -1459,19 +1459,19 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
     real targetX = x + dx;
     real targetY = y + dy;
     real targetZ = z + dz;
-    real xh = (outline.maxX - outline.minX)/10;
-    real yh = (outline.maxY - outline.minY)/10;
-    real zh = (outline.maxZ - outline.minZ)/10;
+    real xh = (outline.maxX - outline.minX)/FACES_SPACE_MAP_SIZE;
+    real yh = (outline.maxY - outline.minY)/FACES_SPACE_MAP_SIZE;
+    real zh = (outline.maxZ - outline.minZ)/FACES_SPACE_MAP_SIZE;
     int targetZoneX = floor((targetX - outline.minX)/xh);
     int targetZoneY = floor((targetY - outline.minY)/yh);
     int targetZoneZ = floor((targetZ - outline.minZ)/zh);
     targetZoneX = (targetZoneX >= 0 ? targetZoneX : 0);
-    targetZoneX = (targetZoneX <= 9 ? targetZoneX : 9);
+    targetZoneX = (targetZoneX <= FACES_SPACE_MAP_SIZE-1 ? targetZoneX : FACES_SPACE_MAP_SIZE-1);
     targetZoneY = (targetZoneY >= 0 ? targetZoneY : 0);
-    targetZoneY = (targetZoneY <= 9 ? targetZoneY : 9);
+    targetZoneY = (targetZoneY <= FACES_SPACE_MAP_SIZE-1 ? targetZoneY : FACES_SPACE_MAP_SIZE-1);
     targetZoneZ = (targetZoneZ >= 0 ? targetZoneZ : 0);
-    targetZoneZ = (targetZoneZ <= 9 ? targetZoneZ : 9);
-
+    targetZoneZ = (targetZoneZ <= FACES_SPACE_MAP_SIZE-1 ? targetZoneZ : FACES_SPACE_MAP_SIZE-1);
+    
     for (int i = 0; i < facesSpaceMap[targetZoneX][targetZoneY][targetZoneZ].size(); i++)
     {
         TriangleFirstOrder& face = getTriangle( facesSpaceMap[targetZoneX][targetZoneY][targetZoneZ].at(i) );
