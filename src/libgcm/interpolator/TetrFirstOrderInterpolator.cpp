@@ -104,8 +104,8 @@ void TetrFirstOrderInterpolator::interpolate(CalcNode& node, CalcNode& node0, Ca
             /*            *logger << "\tTetrVol = " < Vol;
              *logger << "\tfactor[0]=" << factor[0] << " factor[1]=" << factor[1] << " factor[2]=" << factor[2]     << " factor[3]=" << factor[3] << " Sum: " < factor[0] + factor[1] + factor[2] + factor[3];
 
-             *logger << "\tnode.x[0]=" << node.coords[0] << " node.x[1]=" << node.coords[1]
-                                            << " node.x[2]=" < node.coords[2];
+             *logger << "\tnode.coords.x[0]=" << node.coords[0] << " node.coords.x[1]=" << node.coords[1]
+                                            << " node.coords.x[2]=" < node.coords[2];
                                     if( node.isFirstOrder() )
              *logger < "First order node";
                                     else if( node.isSecondOrder() )

@@ -318,12 +318,12 @@ void TetrMeshSecondOrder::build_first_order_border()
                 CalcNode& v1 = getNode( t.verts[0] );
                 CalcNode& v2 = getNode( t.verts[1] );
                 CalcNode& v3 = getNode( t.verts[2] );
-                real minX = std::min({v1.x, v2.x, v3.x});
-                real minY = std::min({v1.y, v2.y, v3.y});
-                real minZ = std::min({v1.z, v2.z, v3.z});
-                real maxX = std::max({v1.x, v2.x, v3.x});
-                real maxY = std::max({v1.y, v2.y, v3.y});
-                real maxZ = std::max({v1.z, v2.z, v3.z});
+                real minX = std::min({v1.coords.x, v2.coords.x, v3.coords.x});
+                real minY = std::min({v1.coords.y, v2.coords.y, v3.coords.y});
+                real minZ = std::min({v1.coords.z, v2.coords.z, v3.coords.z});
+                real maxX = std::max({v1.coords.x, v2.coords.x, v3.coords.x});
+                real maxY = std::max({v1.coords.y, v2.coords.y, v3.coords.y});
+                real maxZ = std::max({v1.coords.z, v2.coords.z, v3.coords.z});
                 real xh = (outline.maxX - outline.minX)/FACES_SPACE_MAP_SIZE;
                 real yh = (outline.maxY - outline.minY)/FACES_SPACE_MAP_SIZE;
                 real zh = (outline.maxZ - outline.minZ)/FACES_SPACE_MAP_SIZE;
@@ -693,7 +693,7 @@ bool TetrMeshSecondOrder::interpolateNode(CalcNode& node)
     for (int i = 0; i < getTetrsNumber(); i++)
     {
         TetrSecondOrder& t = getTetr2ByLocalIndex(i);
-        if ( pointInTetr(node.x, node.y, node.z,
+        if ( pointInTetr(node.coords.x, node.coords.y, node.coords.z,
                 getNode(t.verts[0]).coords, getNode(t.verts[1]).coords,
                 getNode(t.verts[2]).coords, getNode(t.verts[3]).coords, false) )
         {

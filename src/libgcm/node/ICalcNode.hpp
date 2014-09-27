@@ -15,7 +15,7 @@ namespace gcm
     class ICalcNode : public Node
     {
     public:
-        ICalcNode(int num, float x, float y, float z);
+        ICalcNode(int num, const vector3r& coords);
         ICalcNode(const ICalcNode& src);
 
         union

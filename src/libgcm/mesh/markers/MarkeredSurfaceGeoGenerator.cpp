@@ -95,7 +95,7 @@ MarkeredSurface MarkeredSurfaceGeoGenerator::generate(string fileName, real size
                     if (newVertNums[verts[j]->getNum()] == -1)
                     {
                         newVertNums[verts[j]->getNum()] = nv;
-                        markers.push_back(CalcNode(nv, verts[j]->x(), verts[j]->y(), verts[j]->z()));
+                        markers.push_back(CalcNode(nv, vector3r(verts[j]->x(), verts[j]->y(), verts[j]->z())));
                         nv++;
                     }
                     v[j] = newVertNums[verts[j]->getNum()];

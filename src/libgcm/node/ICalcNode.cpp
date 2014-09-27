@@ -2,7 +2,7 @@
 
 using namespace gcm;
 
-ICalcNode::ICalcNode(int num, float x, float y, float z): Node(num, x, y, z)
+ICalcNode::ICalcNode(int num, const vector3r& coords): Node(num, coords)
 {
 
 }

@@ -1,8 +1,7 @@
 #ifndef GCM_NODE_H_
 #define GCM_NODE_H_
 
-#include <log4cxx/logger.h>
-
+#include "libgcm/util/Types.hpp"
 
 namespace gcm {
 
@@ -18,25 +17,10 @@ namespace gcm {
          * Number of the node.
          */
         int number;
-
-        union {
-            float coords[3];
-
-            struct {
-                /**
-                 * Position std::vector x component.
-                 */
-                float x;
-                /**
-                 * Position std::vector y component.
-                 */
-                float y;
-                /**
-                 * Position std::vector z component.
-                 */
-                float z;
-            };
-        };
+        /**
+         * Node coords.
+         */
+        vector3r coords;
         /**
          * Default node constructor. Creates new node with all members
          * set to default values;
@@ -57,11 +41,9 @@ namespace gcm {
          * and set coordinates.
          *
          * @param num Number of the node
-         * @param x X coordinate of the node
-         * @param y Y coordinate of the node
-         * @param z Z coordinate of the node
+         * @param coords Node coords
          */
-        Node(int num, float x, float y, float z);
+        Node(int num, const vector3r& coords);
         /**
          * Destructor
          */

@@ -133,11 +133,9 @@ namespace gcm {
          * coordinates.
          *
          * @param num Number of the node
-         * @param x X coordinate of the node
-         * @param y Y coordinate of the node
-         * @param z Z coordinate of the node
+         * @param coords Node coords
          */
-        CalcNode(int num, real x, real y, real z);
+        CalcNode(int num, const vector3r& coords);
         /**
          * Constructor. Constructs copy of the passed object.
          *

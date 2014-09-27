@@ -41,6 +41,18 @@ namespace gcm
         {
         }
 
+        // FIXME this operator is WA to ease migration from union to vector in CalcNode
+        // This code should be removed immediately after refactoring is done
+        operator T*()
+        {
+            return coords;
+        }
+        operator const T*() const
+        {
+            return coords;
+        }
+        //--
+
         T operator[](uint index) const
         {
             assert_ge(index, 0);
@@ -82,8 +94,8 @@ namespace gcm
 
     };
 
-    template<typename T>
-    inline vector3<T> operator-(const vector3<T>& v1, const vector3<T>& v2)
+    template<typename T, typename U>
+    inline vector3<T> operator-(const vector3<T>& v1, const vector3<U>& v2)
     {
         vector3<T> v;
         for (int i = 0; i < 3; i++)
@@ -98,8 +110,8 @@ namespace gcm
         return vector3<T>(-v.x, -v.y, -v.z);
     }
 
-    template<typename T>
-    inline vector3<T> operator+(const vector3<T>& v1, const vector3<T>& v2)
+    template<typename T, typename U>
+    inline vector3<T> operator+(const vector3<T>& v1, const vector3<U>& v2)
     {
         vector3<T> v;
         for (int i = 0; i < 3; i++)
@@ -108,8 +120,8 @@ namespace gcm
         return v;
     }
     
-    template<typename T>
-    inline T operator*(const vector3<T>& v1, const vector3<T>& v2)
+    template<typename T, typename U>
+    inline T operator*(const vector3<T>& v1, const vector3<U>& v2)
     {
         T res = 0.0;
         for (int i = 0; i < 3; i++)
@@ -127,11 +139,25 @@ namespace gcm
     }
     
     template<typename T>
+    inline vector3<T> operator*( double factor, const vector3<T>& v1)
+    {
+        return v1*factor;
+    }
+
+    template<typename T>
     inline vector3<T> operator/(const vector3<T>& v1, double factor)
     {
         return v1*(1/factor);
     }
     
     typedef vector3<real> vector3r;
+    typedef vector3<uint> vector3u;
+
+    template<typename T>
+    inline std::ostream& operator<<(std::ostream &os, const vector3<T>& v) {
+        os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+        return os;
+    }
+
 }
 #endif

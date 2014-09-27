@@ -6,11 +6,11 @@ Node::Node() : Node(-1)
 {
 }
 
-Node::Node(int num) : Node(num, 0.0, 0.0, 0.0)
+Node::Node(int num) : Node(num, vector3r())
 {
 }
 
-Node::Node(int num, float x, float y, float z) : number(num), x(x), y(y), z(z)
+Node::Node(int num, const vector3r& coords) : number(num), coords(coords)
 {
 }
 

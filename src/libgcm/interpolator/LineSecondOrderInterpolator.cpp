@@ -25,7 +25,7 @@ void LineSecondOrderInterpolator::interpolate(CalcNode& node, CalcNode& nodeLeft
     
     float h = (lenLeft + lenRight) * 0.5;
     // FIXME_ASAP
-    float x = (node.x - nodeCur.x) + (node.y - nodeCur.y) + (node.z - nodeCur.z);
+    float x = (node.coords.x - nodeCur.coords.x) + (node.coords.y - nodeCur.coords.y) + (node.coords.z - nodeCur.coords.z);
 
     for (int i = 0; i < 9; i++) {
         float rVal = nodeRight.values[i];
