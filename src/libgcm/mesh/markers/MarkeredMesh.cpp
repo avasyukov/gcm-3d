@@ -86,9 +86,9 @@ void MarkeredMesh::generateMesh()
         {
             for (unsigned int k = 0; k < meshElems; k++)
             {
-                node.x = point.x + i*elemSize;
-                node.y = point.y + j*elemSize;
-                node.z = point.z + k*elemSize;
+                node.coords.x = point.x + i*elemSize;
+                node.coords.y = point.y + j*elemSize;
+                node.coords.z = point.z + k*elemSize;
                 node.number = idx++;
                 addNode(node);                
             }
@@ -118,12 +118,12 @@ void MarkeredMesh::findBorderCells()
         const auto& v2 = nodes[f.verts[1]];
         const auto& v3 = nodes[f.verts[2]];
 
-        auto minX = min({v1.x, v2.x, v3.x});
-        auto maxX = max({v1.x, v2.x, v3.x});
-        auto minY = min({v1.y, v2.y, v3.y});
-        auto maxY = max({v1.y, v2.y, v3.y});
-        auto minZ = min({v1.z, v2.z, v3.z});
-        auto maxZ = max({v1.z, v2.z, v3.z});
+        auto minX = min({v1.coords.x, v2.coords.x, v3.coords.x});
+        auto maxX = max({v1.coords.x, v2.coords.x, v3.coords.x});
+        auto minY = min({v1.coords.y, v2.coords.y, v3.coords.y});
+        auto maxY = max({v1.coords.y, v2.coords.y, v3.coords.y});
+        auto minZ = min({v1.coords.z, v2.coords.z, v3.coords.z});
+        auto maxZ = max({v1.coords.z, v2.coords.z, v3.coords.z});
 
         uint minI = floor((minX-pivot.x) / elemSize);
         uint minJ = floor((minY-pivot.y) / elemSize);
@@ -173,7 +173,7 @@ void MarkeredMesh::fillInterior()
     
     int p, q, s;
     
-    getCellCoords(vector3r(node.x, node.y, node.z), p, q, s);
+    getCellCoords(vector3r(node.coords.x, node.coords.y, node.coords.z), p, q, s);
     
     dir.normalize();
     
@@ -277,7 +277,7 @@ bool MarkeredMesh::interpolateNode(CalcNode& origin, float dx, float dy, float d
     
     int i1, i2, i3;
 
-    vector3r coords(origin.x+dx, origin.y+dy, origin.z+dz);
+    vector3r coords(origin.coords.x+dx, origin.coords.y+dy, origin.coords.z+dz);
     
     getCellCoords(coords, i1, i2, i3);
     
@@ -294,7 +294,7 @@ bool MarkeredMesh::interpolateNode(CalcNode& origin, float dx, float dy, float d
     isInnerPoint = cell.isUsed() && cell.isLocal();
     if (isInnerPoint && cell.isBorder())
     {
-        vector3r dir(coords.x-cell.x, coords.y-cell.y, coords.z-cell.z);
+        vector3r dir(coords.x-cell.coords.x, coords.y-cell.coords.y, coords.z-cell.coords.z);
         vector3r norm;
         findBorderNodeNormal(cell.number, &norm.x, &norm.y, &norm.z, false);
         if (norm*dir > 0)
@@ -335,7 +335,7 @@ bool MarkeredMesh::interpolateNode(CalcNode& origin, float dx, float dy, float d
 
 bool MarkeredMesh::interpolateNode(CalcNode& node)
 {
-    vector3r coords(node.x, node.y, node.z);
+    vector3r coords(node.coords.x, node.coords.y, node.coords.z);
     
     int i, j, k;
     getCellCoords(coords, i, j, k);
@@ -350,9 +350,9 @@ bool MarkeredMesh::interpolateNode(CalcNode& node)
 
     auto& cell = getCellByLocalIndex(i, j, k);
 
-    auto dx = node.x-cell.x;
-    auto dy = node.y-cell.y;
-    auto dz = node.z-cell.z;
+    auto dx = node.coords.x-cell.coords.x;
+    auto dy = node.coords.y-cell.coords.y;
+    auto dz = node.coords.z-cell.coords.z;
 
     if (fabs(dx) < EQUALITY_TOLERANCE)
         dx = 0.0;
@@ -462,7 +462,7 @@ void MarkeredMesh::moveCoords(float tau)
     {
         const auto& marker = markers[q];
         int i, j, k;
-        getCellCoords(vector3r(marker.x, marker.y, marker.z), i, j, k);
+        getCellCoords(vector3r(marker.coords.x, marker.coords.y, marker.coords.z), i, j, k);
 
         assert_ge(i, 0);
         assert_ge(j, 0);

@@ -144,7 +144,7 @@ void TetrMeshFirstOrder::initSpatialIndex()
     for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
         int i = itr->first;
         CalcNode& node = getNode(i);
-        kd_insert3( kdtree, node.x, node.y, node.z, &node );
+        kd_insert3( kdtree, node.coords.x, node.coords.y, node.coords.z, &node );
     }
 }
 
@@ -1443,7 +1443,7 @@ bool TetrMeshFirstOrder::interpolateNode(CalcNode& node)
     for (int i = 0; i < getTetrsNumber(); i++)
     {
         TetrFirstOrder& t = getTetrByLocalIndex(i);
-        if ( pointInTetr(node.x, node.y, node.z,
+        if ( pointInTetr(node.coords.x, node.coords.y, node.coords.z,
                 getNode(t.verts[0]).coords, getNode(t.verts[1]).coords,
                 getNode(t.verts[2]).coords, getNode(t.verts[3]).coords, false) )
         {
@@ -1525,8 +1525,8 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
         if(vectorIntersectsTriangle( n1.coords, n2.coords, n3.coords,
                                      start, direction, length, tmpNode.coords, false))
         {
-            double d = vectorNorm(x - tmpNode.x, y - tmpNode.y, z - tmpNode.z);
-            if( (tmpNode.x - x) * dx + (tmpNode.y - y) * dy + (tmpNode.z - z) * dz < 0 
+            double d = vectorNorm(x - tmpNode.coords.x, y - tmpNode.coords.y, z - tmpNode.coords.z);
+            if( (tmpNode.coords.x - x) * dx + (tmpNode.coords.y - y) * dy + (tmpNode.coords.z - z) * dz < 0 
                || d > length )
             {
                 LOG_DEBUG("Proposed point: " << tmpNode);
@@ -1585,7 +1585,7 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
                 node.setRho((getNode(face.verts[0])).getRho());
                 node.setMaterialId((getNode(face.verts[0])).getMaterialId());
 
-                double d = vectorNorm(node.x - tmpNode.x, node.y - tmpNode.y, node.z - tmpNode.z);
+                double d = vectorNorm(node.coords.x - tmpNode.coords.x, node.coords.y - tmpNode.coords.y, node.coords.z - tmpNode.coords.z);
                 if(!tmpRes || d > length * 0.1) {
                     LOG_DEBUG("KD_RES: " << tmpRes);
                     LOG_DEBUG("NODE: " << x << " " << y << " " << z);

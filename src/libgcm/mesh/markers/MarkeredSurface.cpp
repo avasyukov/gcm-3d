@@ -133,7 +133,5 @@ void MarkeredSurface::moveMarker(uint index, const vector3r& ds)
     assert_lt(index, markers.size());
     auto& marker = markers[index];
 
-    marker.x += ds.x;
-    marker.y += ds.y;
-    marker.z += ds.z;
+    marker.coords += ds;
 }

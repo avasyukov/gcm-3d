@@ -656,7 +656,7 @@ bool TetrMeshSecondOrder::interpolateNode(CalcNode& node)
     for (int i = 0; i < getTetrsNumber(); i++)
     {
         TetrSecondOrder& t = getTetr2ByLocalIndex(i);
-        if ( pointInTetr(node.x, node.y, node.z,
+        if ( pointInTetr(node.coords.x, node.coords.y, node.coords.z,
                 getNode(t.verts[0]).coords, getNode(t.verts[1]).coords,
                 getNode(t.verts[2]).coords, getNode(t.verts[3]).coords, false) )
         {

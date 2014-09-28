@@ -107,7 +107,7 @@ void Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDis
     vtkIntArray *nodeNumber = (vtkIntArray*) g->GetPointData ()->GetArray("nodeNumber");
     vtkIntArray *publicFlags = (vtkIntArray*) g->GetPointData ()->GetArray("publicFlags");
     vtkIntArray *privateFlags = (vtkIntArray*) g->GetPointData ()->GetArray("privateFlags");
-    vtkIntArray *nodeBorderCalcId = (vtkIntArray*) g->GetPointData ()->GetArray("borderCalcId");
+    vtkIntArray *nodeBorderConditionId = (vtkIntArray*) g->GetPointData ()->GetArray("borderConditionId");
 
     vector<CalcNode*>* nodes = new vector<CalcNode*>;
     for( int i = 0; i < g->GetNumberOfPoints(); i++ )
@@ -134,7 +134,7 @@ void Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDis
             node->setRho( rho->GetValue(i) );
             node->setPublicFlags( publicFlags->GetValue(i) );
             node->setPrivateFlags( privateFlags->GetValue(i) );
-            node->setBorderConditionId( nodeBorderCalcId->GetValue(i) );
+            node->setBorderConditionId( nodeBorderConditionId->GetValue(i) );
             if( !ignoreDispatcher )
                 node->setPlacement(true);
             nodes->push_back( node );
@@ -237,7 +237,7 @@ void Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDis
             tmpNode.setRho( rho->GetValue(i) );
             tmpNode.setPublicFlags( publicFlags->GetValue(i) );
             tmpNode.setPrivateFlags( privateFlags->GetValue(i) );
-            tmpNode.setBorderConditionId( nodeBorderCalcId->GetValue(i) );
+            tmpNode.setBorderConditionId( nodeBorderConditionId->GetValue(i) );
             tmpNode.setPlacement(false);
             mesh->addNode(tmpNode);
             remoteNodesCount++;

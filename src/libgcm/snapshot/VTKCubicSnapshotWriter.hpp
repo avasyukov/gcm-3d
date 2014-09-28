@@ -4,23 +4,20 @@
 #include <string>
 
 #include "libgcm/util/Singleton.hpp"
-#include "libgcm/snapshot/SnapshotWriter.hpp"
+#include "libgcm/snapshot/AbstractVTKSnapshotWriter.hpp"
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/Logging.hpp"
 
 namespace gcm {
     class BasicCubicMesh;
 
-    class VTKCubicSnapshotWriter : public SnapshotWriter, public Singleton<VTKCubicSnapshotWriter> {
-     private:
-        std::string dumpVTK(std::string filename, BasicCubicMesh* mesh, int step) const;
+    class VTKCubicSnapshotWriter : public StructuredVTKSnapshotWriter<BasicCubicMesh>, public Singleton<VTKCubicSnapshotWriter> {
+    protected:
         USE_LOGGER;
+        void dumpMeshSpecificData(BasicCubicMesh* mesh, vtkSmartPointer<vtkStructuredGrid>& grid, vtkSmartPointer<vtkPoints>& points) const override;
     public:
         VTKCubicSnapshotWriter();
-
-        std::string dump(Mesh* mesh, int step, std::string fileName) const override;
     };
 }
-
 
 #endif

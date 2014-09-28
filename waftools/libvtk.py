@@ -41,7 +41,7 @@ def configure(conf):
 
     LIBS = {
         '5': ['vtkCommon', 'vtkFiltering', 'vtkIO'],
-        '6': ['vtkCommonCore', 'vtkCommonDataModel', 'vtkFiltersCore', 'vtkIOCore', 'vtkIOXML']
+        '6': ['vtkCommonCore', 'vtkCommonDataModel', 'vtkCommonExecutionModel', 'vtkFiltersCore', 'vtkIOCore', 'vtkIOXML']
     }
 
     for v in LIBS:

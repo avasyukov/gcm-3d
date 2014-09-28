@@ -26,7 +26,7 @@ void setPWaveAlongXAnalytics(CalcNode& node, float t, Engine& engine)
     auto p = mat->getRheologyProperties();
     float rho = mat->getRho();
 
-    if (node.x < -5 || node.x > 5)
+    if (node.coords.x < -5 || node.coords.x > 5)
         THROW_INVALID_INPUT("X is out of acceptable range");
     if (t < 0 || t > 0.02)
         THROW_INVALID_INPUT("T is out of acceptable range");
@@ -38,7 +38,7 @@ void setPWaveAlongXAnalytics(CalcNode& node, float t, Engine& engine)
     node.vx = node.vy = node.vz = 0;
     node.sxx = node.sxy = node.sxz = node.syy = node.syz = node.szz = 0;
 
-    if (node.x >= leftMark && node.x <= rightMark) {
+    if (node.coords.x >= leftMark && node.coords.x <= rightMark) {
         node.vx = pWaveVelocity * WAVE_AMPLITUDE_SCALE;
         node.sxx = p.c11 * WAVE_AMPLITUDE_SCALE;
         node.syy = p.c12 * WAVE_AMPLITUDE_SCALE;

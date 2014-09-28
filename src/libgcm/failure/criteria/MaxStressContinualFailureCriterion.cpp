@@ -1,11 +1,13 @@
 #include "MaxStressContinualFailureCriterion.hpp"
 #include "libgcm/rheology/Failure.hpp"
 
-gcm::MaxStressContinualFailureCriterion::MaxStressContinualFailureCriterion() {
+using namespace gcm;
+
+MaxStressContinualFailureCriterion::MaxStressContinualFailureCriterion() {
     INIT_LOGGER( "gcm.MaxStressContinualFailureCriterion" );
 }
 
-void gcm::MaxStressContinualFailureCriterion::checkFailure(ICalcNode& node, const float tau) {
+void MaxStressContinualFailureCriterion::checkFailure(ICalcNode& node, const float tau) {
     if ( node.isDestroyed() ) return;
     else {
         real m_s[3];

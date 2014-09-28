@@ -107,7 +107,7 @@ void Mesh::initNewNodes()
     {
         CalcNode& node = getNodeByLocalIndex(i);
         CalcNode& newNode = getNewNode( node.number );
-        copy(node.coords, node.coords + 3, newNode.coords);
+        newNode.coords = node.coords;
         copy(node.values, node.values + VALUES_NUMBER, newNode.values);
         newNode.setRho(node.getRho());
         newNode.setMaterialId(node.getMaterialId());

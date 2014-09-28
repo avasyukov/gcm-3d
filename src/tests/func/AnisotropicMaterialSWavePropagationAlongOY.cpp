@@ -27,7 +27,7 @@ void setSWaveAlongYAnalytics(CalcNode& node, float t, Engine& engine)
     auto p = mat->getRheologyProperties();
     float rho = mat->getRho();
 
-    if (node.y < -5 || node.y > 5)
+    if (node.coords.y < -5 || node.coords.y > 5)
         THROW_INVALID_INPUT("Y is out of acceptable range");
     if (t < 0 || t > 0.02)
         THROW_INVALID_INPUT("T is out of acceptable range");
@@ -43,12 +43,12 @@ void setSWaveAlongYAnalytics(CalcNode& node, float t, Engine& engine)
     node.vx = node.vy = node.vz = 0;
     node.sxx = node.sxy = node.sxz = node.syy = node.syz = node.szz = 0;
 
-    if (node.y >= leftMarkX && node.y <= rightMarkX) {
+    if (node.coords.y >= leftMarkX && node.coords.y <= rightMarkX) {
         node.vx = sWaveXvelocity * WAVE_AMPLITUDE_SCALE;
         node.sxy = p.c66 * WAVE_AMPLITUDE_SCALE;
     }
     
-    if (node.y >= leftMarkZ && node.y <= rightMarkZ) {
+    if (node.coords.y >= leftMarkZ && node.coords.y <= rightMarkZ) {
 		node.vz = sWaveZvelocity * WAVE_AMPLITUDE_SCALE;
 		node.syz = p.c44 * WAVE_AMPLITUDE_SCALE;
     }

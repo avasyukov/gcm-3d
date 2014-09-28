@@ -38,9 +38,8 @@ TEST(MarkeredSurfaceGeoGenerator, Sphere)
     for (auto f: surface.getMarkerFaces())
     {
         findTriangleFaceNormal(nodes[f.verts[0]].coords, nodes[f.verts[1]].coords, nodes[f.verts[2]].coords, &norm.x, &norm.y, &norm.z);
-        vector3r r(nodes[f.verts[0]].x, nodes[f.verts[0]].y, nodes[f.verts[0]].z);
-        
-        EXPECT_NEAR(norm*r, 1.0, 1e-2);
+
+        EXPECT_NEAR(norm*nodes[f.verts[0]].coords, 1.0, 1e-2);
     }
 }
 
@@ -62,26 +61,26 @@ TEST(MarkeredSurfaceGeoGenerator, Cube)
 
     for (auto m: nodes)
     {
-        if (fabs(fabs(m.z)-5) < EQUALITY_TOLERANCE)
+        if (fabs(fabs(m.coords.z)-5) < EQUALITY_TOLERANCE)
         {
-            EXPECT_LT(m.x, 5.0+EQUALITY_TOLERANCE);
-            EXPECT_GT(m.x, -5.0-EQUALITY_TOLERANCE);
-            EXPECT_LT(m.y, 5.0+EQUALITY_TOLERANCE);
-            EXPECT_GT(m.y, -5.0-EQUALITY_TOLERANCE);
+            EXPECT_LT(m.coords.x, 5.0+EQUALITY_TOLERANCE);
+            EXPECT_GT(m.coords.x, -5.0-EQUALITY_TOLERANCE);
+            EXPECT_LT(m.coords.y, 5.0+EQUALITY_TOLERANCE);
+            EXPECT_GT(m.coords.y, -5.0-EQUALITY_TOLERANCE);
         }
-        else if (fabs(fabs(m.y)-5) < EQUALITY_TOLERANCE)
+        else if (fabs(fabs(m.coords.y)-5) < EQUALITY_TOLERANCE)
         {
-            EXPECT_LT(m.x, 5.0+EQUALITY_TOLERANCE);
-            EXPECT_GT(m.x, -5.0-EQUALITY_TOLERANCE);
-            EXPECT_LT(m.z, 5.0+EQUALITY_TOLERANCE);
-            EXPECT_GT(m.z, -5.0-EQUALITY_TOLERANCE);
+            EXPECT_LT(m.coords.x, 5.0+EQUALITY_TOLERANCE);
+            EXPECT_GT(m.coords.x, -5.0-EQUALITY_TOLERANCE);
+            EXPECT_LT(m.coords.z, 5.0+EQUALITY_TOLERANCE);
+            EXPECT_GT(m.coords.z, -5.0-EQUALITY_TOLERANCE);
         }
-        else if (fabs(fabs(m.x)-5) < EQUALITY_TOLERANCE)
+        else if (fabs(fabs(m.coords.x)-5) < EQUALITY_TOLERANCE)
         {
-            EXPECT_LT(m.y, 5.0+EQUALITY_TOLERANCE);
-            EXPECT_GT(m.y, -5.0-EQUALITY_TOLERANCE);
-            EXPECT_LT(m.z, 5.0+EQUALITY_TOLERANCE);
-            EXPECT_GT(m.z, -5.0-EQUALITY_TOLERANCE);
+            EXPECT_LT(m.coords.y, 5.0+EQUALITY_TOLERANCE);
+            EXPECT_GT(m.coords.y, -5.0-EQUALITY_TOLERANCE);
+            EXPECT_LT(m.coords.z, 5.0+EQUALITY_TOLERANCE);
+            EXPECT_GT(m.coords.z, -5.0-EQUALITY_TOLERANCE);
         }
         else
             ASSERT_TRUE(false);
@@ -94,24 +93,22 @@ TEST(MarkeredSurfaceGeoGenerator, Cube)
     {
         findTriangleFaceNormal(nodes[f.verts[0]].coords, nodes[f.verts[1]].coords, nodes[f.verts[2]].coords, &norm.x, &norm.y, &norm.z);
         
-        real _x = (nodes[f.verts[0]].x + nodes[f.verts[1]].x + nodes[f.verts[2]].x) / 3;
-        real _y = (nodes[f.verts[0]].y + nodes[f.verts[1]].y + nodes[f.verts[2]].y) / 3;
-        real _z = (nodes[f.verts[0]].z + nodes[f.verts[1]].z + nodes[f.verts[2]].z) / 3;
+        auto r = (nodes[f.verts[0]].coords + nodes[f.verts[1]].coords + nodes[f.verts[2]].coords)/3;
         
-        if (fabs(fabs(_z)-5) < EQUALITY_TOLERANCE)
+        if (fabs(fabs(r.z)-5) < EQUALITY_TOLERANCE)
         {
             _norm.x = _norm.y = 0;
-            _norm.z = sgn(_z);
+            _norm.z = sgn(r.z);
         }
-        else if (fabs(fabs(_y)-5) < EQUALITY_TOLERANCE)
+        else if (fabs(fabs(r.y)-5) < EQUALITY_TOLERANCE)
         {
             _norm.x = _norm.z = 0;
-            _norm.y = sgn(_y);            
+            _norm.y = sgn(r.y);
         }
-        else if (fabs(fabs(_x)-5) < EQUALITY_TOLERANCE)
+        else if (fabs(fabs(r.x)-5) < EQUALITY_TOLERANCE)
         {
             _norm.y = _norm.z = 0;
-            _norm.x = sgn(_x);            
+            _norm.x = sgn(r.x);
         }
         else
             ASSERT_TRUE(false);

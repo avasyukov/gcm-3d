@@ -1,6 +1,8 @@
 #include "libgcm/failure/ScalarFailureModel.hpp"
 
-gcm::ScalarFailureModel::ScalarFailureModel() {
+using namespace gcm;
+
+ScalarFailureModel::ScalarFailureModel() {
     type = "ScalarFailureModel";
     INIT_LOGGER( "gcm.ScalarFailureModel" );
     criteria.push_back(new MaxStressFailureCriterion());
