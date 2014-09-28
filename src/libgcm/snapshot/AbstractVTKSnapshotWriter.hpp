@@ -83,6 +83,9 @@ namespace gcm
             auto grid = vtkSmartPointer<GridType>::New();
             auto points = vtkSmartPointer<vtkPoints>::New();
 
+            auto contact = vtkSmartPointer<vtkIntArray>::New();
+            contact->SetName("contact");
+
             auto border = vtkSmartPointer<vtkIntArray>::New();
             border->SetName("border");
 
@@ -137,12 +140,6 @@ namespace gcm
             auto rho = vtkSmartPointer<vtkDoubleArray>::New();
             rho->SetName("rho");
 
-            auto borderState = vtkSmartPointer<vtkIntArray>::New();
-            borderState->SetName("borderState");
-
-            auto contactState = vtkSmartPointer<vtkIntArray>::New();
-            contactState->SetName("contactState");
-
             auto mpiState = vtkSmartPointer<vtkIntArray>::New();
             mpiState->SetName("mpiState");
 
@@ -161,6 +158,18 @@ namespace gcm
             auto nodeBorderConditionId = vtkSmartPointer<vtkIntArray>::New ();
             nodeBorderConditionId->SetName ("borderConditionId");
 
+            auto nodeContactConditionId = vtkSmartPointer<vtkIntArray>::New();
+            nodeContactConditionId->SetName("contactState");
+
+            auto contactDestroyed = vtkSmartPointer<vtkIntArray>::New();
+            contactDestroyed->SetName("failedContacts");
+
+            auto nodeDestroyed = vtkSmartPointer<vtkIntArray>::New();
+            nodeDestroyed->SetName("failedNodes");
+
+            auto nodeFailureMeasure = vtkSmartPointer<vtkDoubleArray>::New();
+            nodeFailureMeasure->SetName("failureMeasure");
+
             float _norm[3];
 
             dumpMeshSpecificData(_mesh, grid, points);
@@ -171,6 +180,7 @@ namespace gcm
 
                 border->InsertNextValue(node.isBorder() ? 1 : 0);
                 used->InsertNextValue(node.isUsed() ? 1 : 0);
+                contact->InsertNextValue(node.isInContact() ? 1 : 0);
 
                 if (node.isBorder())
                     _mesh->findBorderNodeNormal(node.number, _norm, _norm+1, _norm+2, false);
@@ -192,14 +202,16 @@ namespace gcm
                 deviator->InsertNextValue(node.getDeviator());
                 matId->InsertNextValue(node.getMaterialId());
                 rho->InsertNextValue(node.getRho());
-                borderState->InsertNextValue(node.isBorder() ? ( node.isInContact() ? 2 : 1 ) : 0);
-                contactState->InsertNextValue(node.getContactConditionId());
                 mpiState->InsertNextValue(node.isRemote() ? 1 : 0);
                 nodePrivateFlags->InsertNextValue (node.getPrivateFlags());
                 nodePublicFlags->InsertNextValue (node.getPublicFlags());
                 nodeErrorFlags->InsertNextValue (node.getErrorFlags());
                 nodeBorderConditionId->InsertNextValue (node.getBorderConditionId());
+				nodeContactConditionId->InsertNextValue(node.getContactConditionId());
                 nodeNumber->InsertNextValue(node.number);
+                contactDestroyed->InsertNextValue(node.isContactDestroyed() ? 1 : 0);
+                nodeDestroyed->InsertNextValue(node.isDestroyed() ? 1 : 0);
+                nodeFailureMeasure->InsertNextValue(node.getDamageMeasure());
             }
 
            vtkFieldData* fd;
@@ -211,6 +223,7 @@ namespace gcm
 
            grid->SetPoints(points);
 
+           fd->AddArray(contact);
            fd->AddArray(border);
            fd->AddArray(used);
            fd->AddArray(norm);
@@ -227,16 +240,17 @@ namespace gcm
            fd->AddArray(deviator);
            fd->AddArray(matId);
            fd->AddArray(rho);
-           fd->AddArray(borderState);
-           fd->AddArray(contactState);
            fd->AddArray(mpiState);
            fd->AddArray (nodePrivateFlags);
            fd->AddArray (nodePublicFlags);
            fd->AddArray (nodeErrorFlags);
            fd->AddArray (nodeBorderConditionId);
+           fd->AddArray (nodeContactConditionId);
            fd->AddArray(vel);
            fd->AddArray(nodeNumber);
-
+           fd->AddArray(contactDestroyed);
+           fd->AddArray(nodeDestroyed);
+           fd->AddArray(nodeFailureMeasure);
 
            // Write file
            auto writer = vtkSmartPointer<GridWriterType>::New();
