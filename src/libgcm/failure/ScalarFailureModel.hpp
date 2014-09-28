@@ -5,8 +5,6 @@
 #include "libgcm/failure/criteria/MaxStressFailureCriterion.hpp"
 #include "libgcm/failure/correctors/ZeroDeviatorFailedMaterialCorrector.hpp"
 
-using namespace gcm;
-
 namespace gcm {
 
     class ScalarFailureModel : public FailureModel {

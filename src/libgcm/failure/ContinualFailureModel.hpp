@@ -4,8 +4,6 @@
 #include "libgcm/failure/FailureModel.hpp"
 #include "libgcm/failure/criteria/MaxStressContinualFailureCriterion.hpp"
 
-using namespace gcm;
-
 namespace gcm {
 
     class ContinualFailureModel : public FailureModel {
