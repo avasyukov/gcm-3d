@@ -20,7 +20,7 @@ AABB::AABB(float _minX, float _maxX, float _minY, float _maxY, float _minZ, floa
     maxZ = _maxZ;
 }
 
-bool AABB::isInAABB( float x, float y, float z )
+bool AABB::isInAABB( float x, float y, float z ) const
 {
     // FIXME do we really have to check our state all the time?
     assert_ne(minX, maxX);
@@ -34,14 +34,14 @@ bool AABB::isInAABB( float x, float y, float z )
                 && z > minZ - EQUALITY_TOLERANCE );
 };
 
-bool AABB::isInAABB( Node* node )
+bool AABB::isInAABB(const Node* node) const
 {
-    return isInAABB(node->coords[0], node->coords[1], node->coords[2]);
+    return isInAABB(node->coords.x, node->coords.y, node->coords.z);
 };
 
-bool AABB::isInAABB( Node& node )
+bool AABB::isInAABB(const Node& node) const
 {
-    return isInAABB(node.coords[0], node.coords[1], node.coords[2]);
+    return isInAABB(node.coords.x, node.coords.y, node.coords.z);
 };
 
 bool AABB::includes(const AABB* box) const
