@@ -316,7 +316,7 @@ inline bool vectorIntersectsTriangle(float *p1, float *p2, float *p3, float *p0,
     areas[2] = fabs( triArea(p3[0] - p[0], p3[1] - p[1], p3[2] - p[2],
                                 p1[0] - p[0], p1[1] - p[1], p1[2] - p[2]) );
 
-    if( fabs(areas[0] + areas[1] + areas[2] - area) > area * 1000 * EQUALITY_TOLERANCE )
+    if( fabs(areas[0] + areas[1] + areas[2] - area) > area * EQUALITY_TOLERANCE )
         resultArea = false;
 
     if( debug )

@@ -57,7 +57,7 @@ void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
                 float direction[3];
                 for (unsigned int k = 0; k < local_nodes.size(); k++) 
                 {
-                    if (k % 1000 == 0)
+                    if (k % 10000 == 0)
                         LOG_DEBUG("Nodes processed: " << k);
 
                     // Check axis directions

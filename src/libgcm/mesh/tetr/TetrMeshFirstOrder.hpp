@@ -17,7 +17,7 @@
 #include "libgcm/interpolator/TetrFirstOrderInterpolator.hpp"
 #include "libgcm/snapshot/VTKSnapshotWriter.hpp"
 
-#define FACES_SPACE_MAP_SIZE 10
+#include "libgcm/util/KDTree.hpp"
 
 namespace gcm
 {
@@ -44,8 +44,9 @@ namespace gcm
         void updateCharactCache(CalcNode& node, float dx, float dy, float dz, int tetrNum);
         int getCharactCacheIndex(CalcNode& node, float dx, float dy, float dz);
         std::unordered_map<int, int> charactCache[18];
-        // WA for bruteforce collision detector
-        std::vector<int> facesSpaceMap[FACES_SPACE_MAP_SIZE][FACES_SPACE_MAP_SIZE][FACES_SPACE_MAP_SIZE];
+        // Spatial index based on KD-Tree
+        struct kdtree* kdtree;
+        void initSpatialIndex();
         unsigned long long cacheHits;
         unsigned long long cacheMisses;
 

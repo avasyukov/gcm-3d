@@ -26,6 +26,7 @@ TetrMeshFirstOrder::TetrMeshFirstOrder()
     cacheHits = 0;
     cacheMisses = 0;
     interpolator = new TetrFirstOrderInterpolator();
+    kdtree = NULL;
 }
 
 TetrMeshFirstOrder::~TetrMeshFirstOrder()
@@ -133,6 +134,18 @@ void TetrMeshFirstOrder::preProcessGeometry()
     check_numbering();
     // check_outer_normals();
     LOG_DEBUG("Preprocessing mesh geometry done.");
+}
+
+void TetrMeshFirstOrder::initSpatialIndex()
+{
+    if(kdtree != NULL)
+        kd_free( kdtree );
+    kdtree = kd_create(3);
+    for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+        int i = itr->first;
+        CalcNode& node = getNode(i);
+        kd_insert3( kdtree, node.x, node.y, node.z, &node );
+    }
 }
 
 void TetrMeshFirstOrder::build_volume_reverse_lookups()
@@ -1091,6 +1104,10 @@ void TetrMeshFirstOrder::logMeshStats()
 void TetrMeshFirstOrder::checkTopology(float tau)
 {
     LOG_DEBUG("Checking mesh topology");
+    
+    LOG_DEBUG("Creating spatial index");
+    initSpatialIndex();
+    LOG_DEBUG("Creating spatial index done");
 
     if( isinf( getMaxH() ) )
     {
@@ -1455,26 +1472,83 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
     direction[1] = dy / length;
     direction[2] = dz / length;
     
-    // WA for bruteforce collision detector
-    real targetX = x + dx;
-    real targetY = y + dy;
-    real targetZ = z + dz;
-    real xh = (outline.maxX - outline.minX)/FACES_SPACE_MAP_SIZE;
-    real yh = (outline.maxY - outline.minY)/FACES_SPACE_MAP_SIZE;
-    real zh = (outline.maxZ - outline.minZ)/FACES_SPACE_MAP_SIZE;
-    int targetZoneX = floor((targetX - outline.minX)/xh);
-    int targetZoneY = floor((targetY - outline.minY)/yh);
-    int targetZoneZ = floor((targetZ - outline.minZ)/zh);
-    targetZoneX = (targetZoneX >= 0 ? targetZoneX : 0);
-    targetZoneX = (targetZoneX <= FACES_SPACE_MAP_SIZE-1 ? targetZoneX : FACES_SPACE_MAP_SIZE-1);
-    targetZoneY = (targetZoneY >= 0 ? targetZoneY : 0);
-    targetZoneY = (targetZoneY <= FACES_SPACE_MAP_SIZE-1 ? targetZoneY : FACES_SPACE_MAP_SIZE-1);
-    targetZoneZ = (targetZoneZ >= 0 ? targetZoneZ : 0);
-    targetZoneZ = (targetZoneZ <= FACES_SPACE_MAP_SIZE-1 ? targetZoneZ : FACES_SPACE_MAP_SIZE-1);
+    vector<int> targetFaces;
+    double pt[3] = { x + dx * 0.5, y + dy * 0.5, z + dz * 0.5 };
+    double pos[3];
+    CalcNode* pNode;
+    struct kdres *presults = kd_nearest_range(kdtree, pt, length * 0.5 + getMaxH());
+    while (!kd_res_end(presults)) {
+        /* get the data and position of the current result item */
+        pNode = (CalcNode*) kd_res_item(presults, pos);
+        vector<int> cf = getBorderElementsForNode(pNode->number);
+        targetFaces.insert(targetFaces.end(), cf.begin(), cf.end());
+        /* go to the next entry */
+        kd_res_next(presults);
+    }
+    kd_res_free( presults );
     
-    for (int i = 0; i < facesSpaceMap[targetZoneX][targetZoneY][targetZoneZ].size(); i++)
+    std::sort(targetFaces.begin(), targetFaces.end());
+    
+    bool tmpRes = false;
+    CalcNode tmpNode;
+    for (unsigned int i = 0; i < targetFaces.size(); i++)
     {
-        TriangleFirstOrder& face = getTriangle( facesSpaceMap[targetZoneX][targetZoneY][targetZoneZ].at(i) );
+        TriangleFirstOrder& face = getTriangle(targetFaces[i]);
+        CalcNode& n1 = getNode(face.verts[0]);
+        CalcNode& n2 = getNode(face.verts[1]);
+        CalcNode& n3 = getNode(face.verts[2]);
+        // FIXME_ASAP - ugly WA 
+        tmpNode = n1;
+        real xmin = n1.coords[0], ymin = n1.coords[1], zmin = n1.coords[2], xmax = n1.coords[0], ymax = n1.coords[1], zmax = n1.coords[2];
+		if (n2.coords[0] < xmin) xmin = n2.coords[0];
+        if (n2.coords[0] > xmax) xmax = n2.coords[0];
+        if (n3.coords[0] < xmin) xmin = n3.coords[0];
+        if (n3.coords[0] > xmax) xmax = n3.coords[0];
+        if (n2.coords[1] < ymin) ymin = n2.coords[1];
+        if (n2.coords[1] > ymax) ymax = n2.coords[1];
+        if (n3.coords[1] < ymin) ymin = n3.coords[1];
+        if (n3.coords[1] > ymax) ymax = n3.coords[1];
+        if (n2.coords[2] < zmin) zmin = n2.coords[2];
+        if (n2.coords[2] > zmax) zmax = n2.coords[2];
+        if (n3.coords[2] < zmin) zmin = n3.coords[2];
+        if (n3.coords[2] > zmax) zmax = n3.coords[2];
+		xmin -= length;
+        ymin -= length;
+        zmin -= length;
+        xmax += length;
+        ymax += length;
+        zmax += length;
+
+	if (x < xmin || x > xmax || y < ymin || y > ymax || z < zmin || z > zmax)
+		continue;
+        
+        if(vectorIntersectsTriangle( n1.coords, n2.coords, n3.coords,
+                                     start, direction, length, tmpNode.coords, false))
+        {
+            double d = vectorNorm(x - tmpNode.x, y - tmpNode.y, z - tmpNode.z);
+            if( (tmpNode.x - x) * dx + (tmpNode.y - y) * dy + (tmpNode.z - z) * dz < 0 
+               || d > length )
+            {
+                LOG_DEBUG("Proposed point: " << tmpNode);
+                THROW_BAD_MESH("interpolateBorderNode did smth really bad");
+            }
+            
+            interpolateTriangle( n1.coords, n2.coords, n3.coords, tmpNode.coords,
+                                n1.values, n2.values, n3.values, tmpNode.values, 9);
+            tmpNode.setRho((getNode(face.verts[0])).getRho());
+            tmpNode.setMaterialId((getNode(face.verts[0])).getMaterialId());
+
+            //tmpRes = true;
+            //break;
+            node = tmpNode;
+            return true;
+        }
+    }
+    return false;
+    
+    for (int i = 0; i < faceNumber; i++)
+    {
+        TriangleFirstOrder& face = getTriangle(i);
         CalcNode& n1 = getNode(face.verts[0]);
         CalcNode& n2 = getNode(face.verts[1]);
         CalcNode& n3 = getNode(face.verts[2]);
@@ -1511,10 +1585,19 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
                 node.setRho((getNode(face.verts[0])).getRho());
                 node.setMaterialId((getNode(face.verts[0])).getMaterialId());
 
+                double d = vectorNorm(node.x - tmpNode.x, node.y - tmpNode.y, node.z - tmpNode.z);
+                if(!tmpRes || d > length * 0.1) {
+                    LOG_DEBUG("KD_RES: " << tmpRes);
+                    LOG_DEBUG("NODE: " << x << " " << y << " " << z);
+                    LOG_DEBUG("MOVE: " << dx << " " << dy << " " << dz);
+                    LOG_DEBUG("R_ORIG: " << node);
+                    LOG_DEBUG("R_KD: " << tmpNode);
+                }
                 return true;
         }
     }
 
+    assert_false(tmpRes);
     return false;
 }
 
