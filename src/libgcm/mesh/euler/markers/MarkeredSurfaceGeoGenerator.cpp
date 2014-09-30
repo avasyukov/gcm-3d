@@ -1,4 +1,4 @@
-#include "libgcm/mesh/markers/MarkeredSurfaceGeoGenerator.hpp"
+#include "libgcm/mesh/euler/markers/MarkeredSurfaceGeoGenerator.hpp"
 
 #include "libgcm/Engine.hpp"
 #include "libgcm/elem/TriangleFirstOrder.hpp"

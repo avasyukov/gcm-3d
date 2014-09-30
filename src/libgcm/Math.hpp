@@ -618,12 +618,45 @@ int sgn(T val) {
 }
 
 
-inline bool isPointInNormalDirection(const gcm::vector3r& planePoint, const gcm::vector3r& planeNormal, const gcm::vector3r& point)
+/*
+ * Bilinear interpolation in rectangle. See http://en.wikipedia.org/wiki/Bilinear_interpolation.
+ */
+inline void interpolateRectangle(gcm::real x1, gcm::real y1, gcm::real x2, gcm::real y2, gcm::real x, gcm::real y, const gcm::real* q11, const gcm::real* q12, const gcm::real* q21, const gcm::real* q22, gcm::real* out, uint n)
 {
-    auto vec = point - planePoint;
-    gcm::real scProd = vec*planeNormal;
+    auto c1 = (x2-x)*(y2-y);
+    auto c2 = (x-x1)*(y2-y);
+    auto c3 = (x2-x)*(y-y1);
+    auto c4 = (x-x1)*(y-y1);
+    auto c5 = (x2-x1)*(y2-y1);
 
-    return scProd >= 0.0;
+    for (uint i = 0; i < n; i++)
+        out[i] = (q11[i]*c1+q21[i]*c2+q12[i]*c3+q22[i]*c4)/c5;
+}
+
+/*
+ * Trilinear interpolation in cube. See http://en.wikipedia.org/wiki/Trilinear_interpolation.
+ */
+inline void interpolateBox(gcm::real x0, gcm::real y0, gcm::real z0, gcm::real x1, gcm::real y1, gcm::real z1, gcm::real x, gcm::real y, gcm::real z, const gcm::real* q000, const gcm::real* q001, const gcm::real* q010, const gcm::real* q011, const gcm::real* q100, const gcm::real* q101, const gcm::real* q110, const gcm::real* q111, gcm::real* out, uint n)
+{
+    auto xd = (x-x0)/(x1-x0);
+    auto _xd = 1-xd;
+    auto yd = (y-y0)/(y1-y0);
+    auto _yd = 1-yd;
+    auto zd = (z-z0)/(z1-z0);
+    auto _zd = 1-zd;
+
+    for (uint i = 0; i < n; i++)
+    {
+        auto c00 = q000[i]*_xd + q100[i]*xd;
+        auto c10 = q010[i]*_xd + q110[i]*xd;
+        auto c01 = q001[i]*_xd + q101[i]*xd;
+        auto c11 = q011[i]*_xd + q111[i]*xd;
+
+        auto c0 = c00*_yd+c10*yd;
+        auto c1 = c01*_yd+c11*yd;
+
+        out[i] = c0*_zd+c1*zd;
+    }
 }
 
 #endif    /* GCM_MATH_H */

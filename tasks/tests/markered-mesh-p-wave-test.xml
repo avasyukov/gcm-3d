@@ -1,8 +1,11 @@
 <task numberOfSnaps="20" stepsPerSnap="1">
+	<system>
+		<meshMovement type="none"/>
+	</system>
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />
-			<mesh id="main" type="markered-mesh-geo" cellsNum="50" file="models/cube.geo" />
+			<mesh id="main" type="markered-mesh-geo" cellSize="0.2;0.2;0.2" cellsNum="60;60;60" file="models/cube.geo" />
 			<material id="testMaterial" />
 		</body>
 	</bodies>

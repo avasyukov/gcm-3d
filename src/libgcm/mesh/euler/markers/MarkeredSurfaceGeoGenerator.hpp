@@ -7,7 +7,7 @@
 #include "libgcm/util/Types.hpp"
 #include "libgcm/Logging.hpp"
 
-#include "libgcm/mesh/markers/MarkeredSurface.hpp"
+#include "libgcm/mesh/euler/markers/MarkeredSurface.hpp"
 
 namespace gcm
 {

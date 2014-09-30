@@ -96,7 +96,7 @@ AABB Mesh::getOutline()
     return outline;
 }
 
-AABB Mesh::getExpandedOutline()
+const AABB& Mesh::getExpandedOutline() const
 {
     return expandedOutline;
 }
@@ -461,7 +461,7 @@ CalcNode& Mesh::getNodeByLocalIndex(unsigned int index) {
     return nodes[index];
 }
 
-int Mesh::getNodeLocalIndex(int index) {
+int Mesh::getNodeLocalIndex(int index) const{
     assert_ge(index, 0 );
     unordered_map<int, int>::const_iterator itr;
     itr = nodesMap.find(index);

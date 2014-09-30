@@ -78,18 +78,29 @@ namespace gcm
             return *this;
         }
 
+        vector3<T>& operator/=(T val)
+        {
+            this->x /= val;
+            this->y /= val;
+            this->z /= val;
+
+            return *this;
+        }
+
         T length() const 
         {
             return sqrt(x*x+y*y+z*z);
         }
 
-        void normalize()
+        T normalize()
         {
             auto l = length();
 
             x /= l;
             y /= l;
             z /= l;
+
+            return l;
         }
 
     };
@@ -138,6 +149,24 @@ namespace gcm
         return v;
     }
     
+    template<typename T, typename U>
+    inline vector3<T> operator%(const vector3<T>& v1, vector3<U> v2)
+    {
+        vector3<T> v;
+        for (int i = 0; i < 3; i++)
+            v[i] = v1[i]*v2[i];
+        return v;
+    }
+
+    template<typename T, typename U>
+    inline vector3<T> operator/(const vector3<T>& v1, vector3<U> v2)
+    {
+        vector3<T> v;
+        for (int i = 0; i < 3; i++)
+            v[i] = v1[i]/v2[i];
+        return v;
+    }
+
     template<typename T>
     inline vector3<T> operator*( double factor, const vector3<T>& v1)
     {
@@ -150,8 +179,64 @@ namespace gcm
         return v1*(1/factor);
     }
     
+    template<typename T>
+    inline bool operator>(const vector3<T>& v1, const vector3<T>& v2)
+    {
+        for (int i = 0; i < 3; i++)
+            if (v1.coords[i] > v2.coords[i])
+                return true;
+        return false;
+    }
+
+    template<typename T>
+    inline bool operator<(const vector3<T>& v1, const vector3<T>& v2)
+    {
+        return v2 > v1;
+    }
+
+    template<typename T>
+    inline bool operator>=(const vector3<T>& v1, const vector3<T>& v2)
+    {
+        for (int i = 0; i < 3; i++)
+            if (v1.coords[i] >= v2.coords[i])
+                return true;
+        return false;
+    }
+
+    template<typename T>
+    inline bool operator<=(const vector3<T>& v1, const vector3<T>& v2)
+    {
+        return v2 >= v1;
+    }
+
+    template<typename T>
+    inline vector3<T> vmin(const vector3<T>& v1, const vector3<T>& v2)
+    {
+        return vector3<T>(std::min(v1.x, v2.x), std::min(v1.y, v2.y), std::min(v1.z, v2.z));
+    }
+
+    template<typename T>
+    inline vector3<T> vmin(const vector3<T>& v1, const vector3<T>& v2, const vector3<T>& v3)
+    {
+        return vmin(v1, vmin(v2, v3));
+    }
+
+    template<typename T>
+    inline vector3<T> vmax(const vector3<T>& v1, const vector3<T>& v2)
+    {
+        return vector3<T>(std::max(v1.x, v2.x), std::max(v1.y, v2.y), std::max(v1.z, v2.z));
+    }
+
+    template<typename T>
+    inline vector3<T> vmax(const vector3<T>& v1, const vector3<T>& v2, const vector3<T>& v3)
+    {
+        return vmax(v1, vmax(v2, v3));
+    }
+
+
     typedef vector3<real> vector3r;
     typedef vector3<uint> vector3u;
+    typedef vector3<int> vector3i;
 
     template<typename T>
     inline std::ostream& operator<<(std::ostream &os, const vector3<T>& v) {
