@@ -509,19 +509,19 @@ namespace gcm {
         /**
          * Constant to access custom flag1 using getCustomFlag / setCustomFlag.
          */
-        static const int FLAG_1 = 1;
+        static const uchar FLAG_1 = 1;
         /**
          * Constant to access custom flag2 using getCustomFlag / setCustomFlag.
          */
-        static const int FLAG_2 = 2;
+        static const uchar FLAG_2 = 2;
         /**
          * Constant to access custom flag3 using getCustomFlag / setCustomFlag.
          */
-        static const int FLAG_3 = 3;
+        static const uchar FLAG_3 = 3;
         /**
          * Constant to access custom flag4 using getCustomFlag / setCustomFlag.
          */
-        static const int FLAG_4 = 4;
+        static const uchar FLAG_4 = 4;
     };
 }
 
