@@ -189,10 +189,7 @@ void MarkeredMesh::reconstructBorder()
                             if (cellStatus[i-p][j-q][k-s])
                                 usedCells++;
                 if (usedCells)
-                {
                     node.setUsed(true);
-                    node.setPlacement(true);
-                }
                 if (usedCells != 0 && usedCells != 8)
                 {
                     node.setIsBorder(true);

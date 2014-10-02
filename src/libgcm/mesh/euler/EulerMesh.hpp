@@ -34,10 +34,6 @@ protected:
 	 */
 	float minH = 0.0;
 	/**
-	 * Interpolator.
-	 */
-	LineFirstOrderInterpolator interpolator;
-	/**
 	 * Logger.
 	 */
 	USE_LOGGER;
@@ -49,6 +45,11 @@ protected:
      * Map containing border node normals.
      */
     std::unordered_map<uint, vector3r> borderNormals;
+
+    static const uchar VIRT_FLAG;
+    static const uchar VIRT_CELL_AXIS_X_FLAG;
+    static const uchar VIRT_CELL_AXIS_Y_FLAG;
+    static const uchar VIRT_CELL_AXIS_Z_FLAG;
 public:
 	/**
 	 * Constructor.
@@ -125,6 +126,7 @@ public:
      * @return True if interpolated and false otherwise
      */
     bool interpolateNode(CalcNode& node) override;
+    bool interpolateNode(CalcNode& node, const vector3u& index);
     /**
      * Returns normal for border node.
      * @param border_node_index Border node index.
