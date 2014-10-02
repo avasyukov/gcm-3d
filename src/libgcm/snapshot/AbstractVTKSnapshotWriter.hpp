@@ -182,7 +182,7 @@ namespace gcm
                 used->InsertNextValue(node.isUsed() ? 1 : 0);
                 contact->InsertNextValue(node.isInContact() ? 1 : 0);
 
-                if (node.isBorder())
+                if (node.isUsed() && node.isBorder())
                     _mesh->findBorderNodeNormal(node.number, _norm, _norm+1, _norm+2, false);
                 else
                     _norm[0] = _norm[1] = _norm[2] = 0.0;
