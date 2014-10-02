@@ -12,10 +12,6 @@
 #include "libgcm/calc/contact/AdhesionContactCalculator.hpp"
 #include "libgcm/calc/contact/AdhesionContactDestroyCalculator.hpp"
 #include "libgcm/util/forms/StepPulseForm.hpp"
-#include "libgcm/snapshot/VTKSnapshotWriter.hpp"
-#include "libgcm/snapshot/VTK2SnapshotWriter.hpp"
-#include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
-#include "libgcm/snapshot/VTKMarkeredMeshSnapshotWriter.hpp"
 #include "libgcm/rheology/DummyRheologyCalculator.hpp"
 #include "libgcm/BruteforceCollisionDetector.hpp"
 

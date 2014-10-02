@@ -9,11 +9,6 @@ using namespace gcm;
 #if CONFIG_ENABLE_ASSERTIONS
 #define FAILED(statement) ASSERT_THROW(statement, Exception)
 #define PASSED(statement) ASSERT_NO_THROW(statement)
-#else
-#define FAILED(statement) ASSERT_NO_THROW(statement)
-#define PASSED(statement) ASSERT_NO_THROW(statement)
-#endif
-
 
 TEST(Assertions, AssertTrue) {
     PASSED(
@@ -110,3 +105,4 @@ TEST(Assertions, AssertLE) {
         assert_le(2+3, 1+3)
     );
 }
+#endif

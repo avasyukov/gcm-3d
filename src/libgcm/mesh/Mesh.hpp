@@ -151,12 +151,12 @@ namespace gcm {
         virtual bool interpolateNode(CalcNode& node) = 0;
         
         /*
-         * Takes std::vector from (x; y; z) with length (dx; dy; dz) and
+         * Takes vector from (x; y; z) with length (dx; dy; dz) and
          * finds its intersection with mesh border.
          * It's a separate function since (x; y; z) is outside of the mesh, 
          * and we neither have 'origin' node nor exact 'target' node position.
-         * Returns 'true' if std::vector intersects mesh border and target node interpolated successfully.
-         * Returns 'false' if std::vector does not intersect mesh border.
+         * Returns 'true' if vector intersects mesh border and target node interpolated successfully.
+         * Returns 'false' if vector does not intersect mesh border.
          */
         virtual bool interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node) = 0;
@@ -177,7 +177,7 @@ namespace gcm {
         bool hasNode(int index);
         CalcNode& getNode(int index);
         CalcNode& getNewNode(int index);
-        int getNodeLocalIndex(int index);
+        int getNodeLocalIndex(int index) const;
         CalcNode& getNodeByLocalIndex(unsigned int index);
         void addNode(CalcNode& node);
 
@@ -218,7 +218,7 @@ namespace gcm {
 
         virtual void createOutline();
         AABB getOutline();
-        AABB getExpandedOutline();
+        const AABB& getExpandedOutline() const;
 
         void preProcess();
 

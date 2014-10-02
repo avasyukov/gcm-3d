@@ -560,10 +560,10 @@ bool CalcNode::getCustomFlag(uchar flag) const
 void CalcNode::setCustomFlag(uchar flag, bool value)
 {
     switch (flag) {
-    case FLAG_1: publicFlags.flag1 = value;
-    case FLAG_2: publicFlags.flag2 = value;
-    case FLAG_3: publicFlags.flag3 = value;
-    case FLAG_4: publicFlags.flag4 = value;
+    case FLAG_1: publicFlags.flag1 = value; break;
+    case FLAG_2: publicFlags.flag2 = value; break;
+    case FLAG_3: publicFlags.flag3 = value; break;
+    case FLAG_4: publicFlags.flag4 = value; break;
     default: THROW_INVALID_ARG("Invalid flag specified");
     }
 }

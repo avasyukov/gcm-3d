@@ -6,7 +6,6 @@
 
 namespace gcm
 {
-    bool triangleIntersectsBox(const Node& boxCenter, const vector3r& boxEdges, const Node& v1, const Node& v2, const Node& v3);
-    bool triangleIntersectsCube(const Node& cubeCenter, real cubeEdge, const Node& v1, const Node& v2, const Node& v3);
+    bool triangleIntersectsBox(const vector3r& boxCenter, const vector3r& boxEdges, const Node& v1, const Node& v2, const Node& v3);
 }
 #endif /* TRIBOX_HPP */

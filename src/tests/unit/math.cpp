@@ -148,13 +148,70 @@ TEST(Math, vectorScalarProduct)
     ASSERT_FLOAT_EQ(v.z, 2);
 }
 
-TEST(Math, isPointInNormalDirection)
+TEST(Math, interpolateRectangle)
 {
-    ASSERT_TRUE(isPointInNormalDirection({0, 0, 0}, {0, 0, 1}, {0, 0, 0.5}));
-    ASSERT_FALSE(isPointInNormalDirection({0, 0, 0}, {0, 0, 1}, {0, 0, -0.5}));
-    
-    ASSERT_TRUE(isPointInNormalDirection({1, 0, 0}, {1, 1, 1}, {3, 2, 1}));
-    ASSERT_FALSE(isPointInNormalDirection({1, 0, 0}, {1, 1, 1}, {-3, -2, -1}));
-    
-    ASSERT_TRUE(isPointInNormalDirection({1, 1, 1}, {0, 0, 1}, {1, 1, 1}));
+    real x1 = 0;
+    real x2 = 5;
+    real y1 = 0;
+    real y2 = 3;
+
+    real q11 = x1;
+    real q12 = x1;
+    real q21 = x2;
+    real q22 = x2;
+
+    real r;
+
+    for (real x = x1; x < x2; x += 0.1)
+        for (real y = y1; y < y2; y += 0.1)
+        {
+            interpolateRectangle(x1, y1, x2, y2, x, y, &q11, &q12, &q21, &q22, &r, 1);
+            ASSERT_FLOAT_EQ(r, x);
+        }
+
+    q11 = y1;
+    q12 = y2;
+    q21 = y1;
+    q22 = y2;
+
+    for (real x = x1; x <= x2; x += 0.1)
+        for (real y = y1; y <= y2; y += 0.1)
+        {
+            interpolateRectangle(x1, y1, x2, y2, x, y, &q11, &q12, &q21, &q22, &r, 1);
+            ASSERT_FLOAT_EQ(r, y);
+        }
+
+}
+
+TEST(Math, interpolateBox)
+{
+    real x0 = 0;
+    real x1 = 3;
+    real y0 = 0;
+    real y1 = 5;
+    real z0 = 0;
+    real z1 = 7;
+
+
+    real q000 = 1;
+    real q010 = 2;
+    real q110 = 3;
+    real q100 = 4;
+
+    real q001 = q000;
+    real q011 = q010;
+    real q111 = q110;
+    real q101 = q100;
+
+    real r1, r2;
+
+    for (real x = x0; x <= x1; x += 0.1)
+        for (real y = y0; y <= y1; y += 0.1)
+            for (real z = z0; z <= z1; z += 0.1)
+            {
+                interpolateBox(x0, y0, z0, x1, y1, z1, x, y, z, &q000, &q001, &q010, &q011, &q100, &q101, &q110, &q111, &r1, 1);
+                interpolateRectangle(x0, y0, x1, y1, x, y, &q000, &q010, &q100, &q110, &r2, 1);
+                ASSERT_FLOAT_EQ(r1, r2);
+            }
+
 }

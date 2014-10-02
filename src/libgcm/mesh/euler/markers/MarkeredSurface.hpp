@@ -18,8 +18,9 @@ namespace gcm
             std::vector<int> regions;
             AABB aabb;
             
-            void updateAABB();
+            
         public:
+			void updateAABB();
             MarkeredSurface();
             MarkeredSurface(std::vector<CalcNode>& markers, std::vector<TriangleFirstOrder>& faces, std::vector<int>& regions);
 
