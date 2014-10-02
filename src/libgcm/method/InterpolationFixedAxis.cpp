@@ -330,12 +330,21 @@ int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node
 
             // ... Find vectors ...
             float dx[3];
+            dx[0] = dx[1] = dx[2] = 0.0;
             // WA:
             //     origin == cur_node for real nodes
             //     origin != cure_node for virt nodes
             CalcNode& origin = mesh->getNode(cur_node.number);
-            for (int z = 0; z < 3; z++) {
-                dx[z] = cur_node.coords[z] - origin.coords[z];
+            // These flags operations are WA for ugly method impl
+            // WA exists only to separate further EulerMesh debug and necessary method rework
+            origin.setCustomFlag(CalcNode::FLAG_1, cur_node.getCustomFlag(CalcNode::FLAG_1));
+            origin.setCustomFlag(CalcNode::FLAG_2, cur_node.getCustomFlag(CalcNode::FLAG_2));
+            origin.setCustomFlag(CalcNode::FLAG_3, cur_node.getCustomFlag(CalcNode::FLAG_3));
+            origin.setCustomFlag(CalcNode::FLAG_4, cur_node.getCustomFlag(CalcNode::FLAG_4));
+            if(!cur_node.getCustomFlag(CalcNode::FLAG_1)) {
+                for (int z = 0; z < 3; z++) {
+                        dx[z] += cur_node.coords[z] - origin.coords[z];
+                    }
             }
             dx[stage] += dksi[i];
 
