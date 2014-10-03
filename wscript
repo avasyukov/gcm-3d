@@ -45,14 +45,14 @@ def options(opt):
     )
 
     pcog.add_option(
-        '--without-logging',
-        action='store_true',
-        default=False,
+        '--logging-level',
+        action='store',
+        default='trace',
         help='Disable libgcm logging routines'
     )
     
     pcog.add_option(
-        '--without-assertions',
+        '--disable-assertions',
         action='store_true',
         default=False,
         help='Disable libgcm assert routines'
@@ -144,11 +144,15 @@ def configure(conf):
     def yes_no(b):
         return 'yes' if b else 'no'
 
+    logging_levels = ['none', 'fatal', 'error', 'warn', 'info', 'debug', 'trace'] 
+    if not conf.options.logging_level in logging_levels:
+        conf.fatal('Unknown logging level specified. Valid levels are ' + ', '.join(logging_levels))
+
     conf.msg('Prefix', conf.options.prefix)
     conf.msg('Build static lib', yes_no(conf.options.static))
     conf.msg('Build launcher', yes_no(not conf.options.without_launcher))
-    conf.msg('Enable logging', yes_no(not conf.options.without_logging))
-    conf.msg('Enable assertions', yes_no(not conf.options.without_assertions))
+    conf.msg('Logging level', conf.options.logging_level)
+    conf.msg('Enable assertions', yes_no(not conf.options.disable_assertions))
     conf.msg('Execute tests', yes_no(not conf.options.without_tests))
     conf.msg('Install headers', yes_no(conf.options.with_headers))
     conf.msg('Install resources', yes_no(conf.options.with_resources))
@@ -166,8 +170,8 @@ def configure(conf):
     ]
 
     conf.env.without_launcher = conf.options.without_launcher
-    conf.env.without_logging = conf.options.without_logging
-    conf.env.without_assertions = conf.options.without_assertions
+    conf.env.logging_level = conf.options.logging_level
+    conf.env.disable_assertions = conf.options.disable_assertions
     conf.env.without_tests = conf.options.without_tests
     conf.env.with_headers = conf.options.with_headers
     conf.env.with_resources = conf.options.with_resources
@@ -186,11 +190,15 @@ def configure(conf):
 
     conf.define('CONFIG_INSTALL_PREFIX', os.path.abspath(conf.options.prefix))
     conf.define('CONFIG_SHARE_GCM', os.path.join(os.path.abspath(conf.options.prefix), 'share', 'gcm3d'))
-    conf.define('CONFIG_ENABLE_LOGGING', int(not conf.env.without_logging))
-    conf.define('CONFIG_ENABLE_ASSERTIONS', int(not conf.env.assertions_logging))
+    
+    idx = logging_levels.index(conf.env.logging_level)
+    conf.define('CONFIG_ENABLE_LOGGING', int(idx != 0))
+    for (i, l) in enumerate(logging_levels[1:]):
+        conf.define('CONFIG_ENABLE_LOGGING_' + l.upper(), int(i < idx))
 
+    conf.define('CONFIG_ENABLE_ASSERTIONS', int(not conf.env.disable_assertions))
 
-    if not conf.env.without_logging:
+    if conf.env.logging_level != 'none':
         libs.append('liblog4cxx')
 
     if not conf.env.without_tests:
