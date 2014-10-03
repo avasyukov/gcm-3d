@@ -50,9 +50,6 @@ void VTK2SnapshotWriter::dumpMeshSpecificData(TetrMeshSecondOrder* mesh, vtkSmar
     for(int i = 0; i < mesh->getNodesNumber(); i++) {
         CalcNode& node = mesh->getNodeByLocalIndex(i);
 
-        if(!node.isUsed())
-            continue;
-
         snapNodeMap[node.number] = snapNodeCount++;
 
         points->InsertNextPoint( node.coords[0], node.coords[1], node.coords[2] );
