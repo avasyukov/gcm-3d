@@ -29,8 +29,9 @@ MeshNodeIterator<TetrMeshSecondOrder, SNAPSHOTTER_ID_VTK2>& MeshNodeIterator<Tet
     index++;
     if (!hasNext())
         return *this;
-    if (!mesh->getNodeByLocalIndex(index).isUsed())
-        return ++(*this);
+    // We should snapshot unused nodes as well
+    //if (!mesh->getNodeByLocalIndex(index).isUsed())
+    //    return ++(*this);
 
     return *this;
 }
