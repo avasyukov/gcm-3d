@@ -175,7 +175,7 @@ void AnalyticalRheologyMatrixDecomposer::decomposeZ(const gcm_matrix& a,
     u = u1.inv();
 };
 
-void AnalyticalRheologyMatrixDecomposer::findNonZeroSolution(double **M, double *x) const
+void AnalyticalRheologyMatrixDecomposer::findNonZeroSolution(const double (&M)[3][3], double *x) const
 {
     // Range ( M ) = 2, one of x[i] is random
 
@@ -205,9 +205,7 @@ void AnalyticalRheologyMatrixDecomposer::findEigenVec(double *eigenVec,
     // Analitycal search eigenvectors
     // M * x = 0, x = (x1, x2, x3)
     // then x[4-9] <= x[1-3]
-    double** M = new double* [3];
-    for (int i = 0; i < 3; i++)
-        M[i] = new double [3];
+    double M[3][3];
 
     switch ( stage ) {
         case 0 :
@@ -275,13 +273,9 @@ void AnalyticalRheologyMatrixDecomposer::findEigenVec(double *eigenVec,
             break;
         }
     }
-    
-    for (int i = 0; i < 3; i++)
-        delete M[i];
-    delete M;
 };
 
-void AnalyticalRheologyMatrixDecomposer::findNonZeroSolution(double **M, double *x, double *y) const
+void AnalyticalRheologyMatrixDecomposer::findNonZeroSolution(const double (&M)[3][3], double *x, double *y) const
 {
     // Range ( M ) = 1, two of x[i] are random
 
@@ -311,9 +305,7 @@ void AnalyticalRheologyMatrixDecomposer::findEigenVec (double *eigenVec1,
     // Analitycal search eigenvectors
     // M * x = 0, x = (x1, x2, x3)
     // then x[4-9] <= x[1-3]
-    double** M = new double* [3];
-    for (int i = 0; i < 3; i++)
-        M[i] = new double [3];
+    double M[3][3];
 
     switch ( stage ) {
         case 0 :
@@ -402,10 +394,6 @@ void AnalyticalRheologyMatrixDecomposer::findEigenVec (double *eigenVec1,
             break;
         }
     }
-    
-    for (int i = 0; i < 3; i++)
-        delete M[i];
-    delete M;
 };
 
 void AnalyticalRheologyMatrixDecomposer::findRoots(const gcm_matrix &A, int stage,
