@@ -3,6 +3,8 @@
 #include "libgcm/mesh/euler/EulerMesh.hpp"
 #include "libgcm/mesh/euler/markers/MarkeredMesh.hpp"
 #include "libgcm/mesh/euler/markers/MarkeredSurfaceGeoGenerator.hpp"
+#include "libgcm/rheology/decomposers/IsotropicRheologyMatrixDecomposer.hpp"
+#include "libgcm/rheology/setters/IsotropicRheologyMatrixSetter.hpp"
 #include "libgcm/node/CalcNode.hpp"
 
 class EulerMesh: public ::testing::Test
@@ -21,6 +23,10 @@ using gcm::vector3r;
 using gcm::real;
 using gcm::CalcNode;
 using gcm::Exception;
+using gcm::Engine;
+using gcm::RheologyMatrixPtr;
+using gcm::IsotropicRheologyMatrixDecomposer;
+using gcm::IsotropicRheologyMatrixSetter;
 
 
 class EulerMeshImpl: public gcm::EulerMesh
@@ -121,9 +127,15 @@ TEST_F(EulerMesh, interpolateNode)
 {
     EulerMeshImpl mesh({10, 10, 10}, {0.1, 0.1, 0.1});
 
+    auto& engine = Engine::getInstance();
+    auto mat = engine.getMaterial("default");
+    auto setter = gcm::makeSetterPtr<IsotropicRheologyMatrixSetter>();
+    auto decomposer = gcm::makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
+    auto rm = makeRheologyMatrixPtr(mat, setter, decomposer);
 
     for (int i = 0; i < mesh.getNodesNumber(); i++) {
         auto& node = mesh.getNodeByLocalIndex(i);
+        node.setRheologyMatrix(rm);
         node.sxx = node.coords.x;
         node.syy = node.coords.y;
         node.szz = node.coords.z;
@@ -133,7 +145,9 @@ TEST_F(EulerMesh, interpolateNode)
     CalcNode r;
     bool inner;
 
-    static_cast<gcm::EulerMesh&>(mesh).interpolateNode(n1, 0.05, 0.0, 0.0, false, r, inner);
+    ASSERT_TRUE(
+        static_cast<gcm::EulerMesh&>(mesh).interpolateNode(n1, 0.05, 0.0, 0.0, false, r, inner)
+    );
 
     ASSERT_NEAR(r.coords.x, -0.45, EQUALITY_TOLERANCE);
     ASSERT_NEAR(r.coords.y, -0.50, EQUALITY_TOLERANCE);
@@ -158,6 +172,18 @@ TEST_F(EulerMesh, interpolateBorderNode)
     auto surface = gen.generate("models/cube.geo");
 
     gcm::MarkeredMesh mesh(surface, {100, 100, 100}, {0.12, 0.12, 0.12});
+
+    auto& engine = Engine::getInstance();
+    auto mat = engine.getMaterial("default");
+    auto setter = gcm::makeSetterPtr<IsotropicRheologyMatrixSetter>();
+    auto decomposer = gcm::makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
+    auto rm = makeRheologyMatrixPtr(mat, setter, decomposer);
+
+    for (int i = 0; i < mesh.getNodesNumber(); i++) {
+        auto& node = mesh.getNodeByLocalIndex(i);
+        node.setRheologyMatrix(rm);
+    }
+
     mesh.reconstructBorder();
 
     CalcNode node;
@@ -200,7 +226,6 @@ TEST_F(EulerMesh, interpolateBorderNode)
     ASSERT_FALSE(
         mesh.interpolateBorderNode(-4.75, -4.75, 5.1, 0.0, 0.0, -0.03, node)
     );
-
 }
 
 TEST_F(EulerMesh, getCellEulerIndexByCoords)
