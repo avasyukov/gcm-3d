@@ -12,9 +12,9 @@ namespace gcm
     public:
         ExternalValuesCalculator();
         ~ExternalValuesCalculator();
-        void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr& matrix,
+        void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                                 std::vector<CalcNode>& previousNodes, bool inner[],
-                                float outer_normal[], float scale);
+                                float outer_normal[], float scale) override;
         inline std::string getType() {
             return "ExternalValuesCalculator";
         }

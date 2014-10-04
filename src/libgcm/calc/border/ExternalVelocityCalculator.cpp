@@ -36,7 +36,7 @@ void ExternalVelocityCalculator::set_parameters(float vn, float vt, float xv, fl
     tangential_direction[2] = zv / dtmp;
 };
 
-void ExternalVelocityCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr& matrix,
+void ExternalVelocityCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)
 {
