@@ -179,7 +179,6 @@ def configure(conf):
     conf.env.static = conf.options.static
 
     conf.env.CXXFLAGS += ['-Wall']
-    conf.env.CXXFLAGS += ['-Wno-deprecated']
     conf.env.CXXFLAGS += ['-std=c++11']
 
     conf.env.LINKFLAGS += ['-lpthread', '-lrt', '-lstdc++']
