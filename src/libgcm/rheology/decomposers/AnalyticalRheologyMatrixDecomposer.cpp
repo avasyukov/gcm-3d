@@ -477,7 +477,9 @@ void AnalyticalRheologyMatrixDecomposer::findRoots(const gcm_matrix &A, int stag
     {
         isMultiple = true;
         real tmp = (r2 + r3) * 0.5;
-        r1 = r1;
+        // FIXME
+        // Commented out next explicit assignment to get rid of compiler complaints
+        // r1 = r1;
         r2 = r3 = tmp;
         return;
     }
