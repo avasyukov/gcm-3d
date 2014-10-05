@@ -371,7 +371,7 @@ void TetrMeshFirstOrder::check_outer_normals()
         CalcNode& node = getNode(i);
         if(node.isBorder() && node.isUsed()) {
 
-            findBorderNodeNormal(i, &normal[0], &normal[1], &normal[2], false);
+            findBorderNodeNormal(node, &normal[0], &normal[1], &normal[2], false);
 
             // Displacement along normal
             //dx[0] = step_h * normal[0];
@@ -545,7 +545,7 @@ bool TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool debug)
     return true;
 };
 
-int TetrMeshFirstOrder::findOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+int TetrMeshFirstOrder::findOwnerTetr(const CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
     // Handle virt nodes
     if(node.getCustomFlag(CalcNode::FLAG_1))
@@ -573,7 +573,7 @@ int TetrMeshFirstOrder::findOwnerTetr(CalcNode& node, float dx, float dy, float 
     }
 }
 
-bool TetrMeshFirstOrder::isInnerPoint(CalcNode& node, float dx, float dy, float dz, bool debug)
+bool TetrMeshFirstOrder::isInnerPoint(const CalcNode& node, float dx, float dy, float dz, bool debug)
 {
     bool innerPoint;
     float coords[3];
@@ -581,7 +581,7 @@ bool TetrMeshFirstOrder::isInnerPoint(CalcNode& node, float dx, float dy, float 
     return innerPoint;
 }
 
-int TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug)
+int TetrMeshFirstOrder::fastScanForOwnerTetr(const CalcNode& node, float dx, float dy, float dz, bool debug)
 {
     if( debug )
         LOG_TRACE("Fast scan - debug ON (however, consider !inAABB condition)");
@@ -1385,9 +1385,9 @@ int TetrMeshFirstOrder::testExpandingScanForOwnerTetr (const CalcNode& _node, fl
     return -1;
 }
 
-void TetrMeshFirstOrder::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
+void TetrMeshFirstOrder::findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug)
 {
-    CalcNode& node = getNode( border_node_index );
+    //CalcNode& node = getNode( border_node_index );
     assert_true(node.isBorder() );
 
     float final_normal[3];
@@ -1407,7 +1407,7 @@ void TetrMeshFirstOrder::findBorderNodeNormal(unsigned int border_node_index, fl
     {
         LOG_WARN("Border node does not belong to any face");
         LOG_WARN("Can not find normal for the node " << node);
-        node.setNormalError();
+        //node.setNormalError();
     }
 
     for(int i = 0; i < count; i++)
@@ -1448,7 +1448,7 @@ void TetrMeshFirstOrder::findBorderNodeNormal(unsigned int border_node_index, fl
             LOG_TRACE("Sharp border - can not create normal for node: " << node );
             LOG_TRACE("Normal: " << final_normal[0] << " " << final_normal[1] << " " << final_normal[2]);
             LOG_TRACE("Re-running search with debug on");
-            findBorderNodeNormal(border_node_index, x, y, z, true);
+            findBorderNodeNormal(node, x, y, z, true);
         }
     }
 }

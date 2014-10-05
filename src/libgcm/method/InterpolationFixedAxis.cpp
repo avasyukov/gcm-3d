@@ -285,7 +285,7 @@ int InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrixPtr r
     assert_le(stage, 2);
 
     if (cur_node.isBorder())
-        mesh->findBorderNodeNormal(cur_node.number, &outer_normal[0], &outer_normal[1], &outer_normal[2], false);
+        mesh->findBorderNodeNormal(cur_node, &outer_normal[0], &outer_normal[1], &outer_normal[2], false);
 
     LOG_TRACE("Preparing elastic matrix");
     //  Prepare matrixes  A, Lambda, Omega, Omega^(-1)

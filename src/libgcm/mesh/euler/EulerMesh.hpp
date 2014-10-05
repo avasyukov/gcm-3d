@@ -135,7 +135,7 @@ public:
      * @param z Z normal component.
      * @param debug Debug flag.
      */
-    void findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug) override;
+    void findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug) override;
     /**
      * Returns node local indexes.
      *

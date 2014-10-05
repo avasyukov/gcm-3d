@@ -89,8 +89,9 @@ const SnapshotWriter& EulerMesh::getDumper() const
     return VTKEulerMeshSnapshotWriter::getInstance();
 }
 
-void EulerMesh::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
+void EulerMesh::findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug)
 {
+    unsigned int border_node_index = node.number;
     assert_true(borderNormals.find(border_node_index) != borderNormals.end());
 
     auto norm = borderNormals[border_node_index];

@@ -111,9 +111,9 @@ float BasicCubicMesh::getMinH()
     return meshH;
 };
 
-void BasicCubicMesh::findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug)
+void BasicCubicMesh::findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug)
 {
-    CalcNode& node = getNode( border_node_index );
+    //CalcNode& node = getNode( border_node_index );
     assert_true(node.isBorder() );
     float normal[3];
     normal[0] = normal[1] = normal[2] = 0.0;

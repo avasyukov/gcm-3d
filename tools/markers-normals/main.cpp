@@ -134,7 +134,7 @@ public:
     }
 
     void updateNormal() {
-    	m.findBorderNodeNormal(13, &nx, &ny, &nz, false);
+    	m.findBorderNodeNormal(m.getNode(13), &nx, &ny, &nz, false);
     }
 };
 

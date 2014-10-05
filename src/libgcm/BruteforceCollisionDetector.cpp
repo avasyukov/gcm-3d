@@ -63,7 +63,7 @@ void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
                     // Check axis directions
                     for (int m = 0; m < 3; m++) 
                     {
-                        mesh1->findBorderNodeNormal(local_nodes[k].number,
+                        mesh1->findBorderNodeNormal(local_nodes[k],
                                         &direction[0], &direction[1], &direction[2], false);
 
                         if (direction[m] > 0)

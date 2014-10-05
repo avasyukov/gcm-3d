@@ -106,9 +106,9 @@ namespace gcm
 		int testExpandingScanForOwnerTetr(const CalcNode& _node, float _dx, float _dy, float _dz, bool debug, float* coords, bool* innerPoint);
         int newExpandingScanForOwnerTetr(const CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
 		void getPotentialOwnerTetrs(float x, float y, float z, std::vector<int>& tetrs);
-        int fastScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug);
-        int findOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
-        bool isInnerPoint(CalcNode& node, float dx, float dy, float dz, bool debug);
+        int fastScanForOwnerTetr(const CalcNode& node, float dx, float dy, float dz, bool debug);
+        int findOwnerTetr(const CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+        bool isInnerPoint(const CalcNode& node, float dx, float dy, float dz, bool debug);
 
         gsl_matrix *T;
         gsl_matrix *S;
@@ -159,7 +159,7 @@ namespace gcm
 
         void doNextPartStep(float tau, int stage);
 
-        void findBorderNodeNormal(unsigned int border_node_index, float* x, float* y, float* z, bool debug);
+        void findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug);
         void checkTopology(float tau);
 
         bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
