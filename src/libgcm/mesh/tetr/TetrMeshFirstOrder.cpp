@@ -1,12 +1,14 @@
 #include "libgcm/mesh/tetr/TetrMeshFirstOrder.hpp"
 
 #include <unordered_map>
+#include <unordered_set>
 
 #include "libgcm/node/CalcNode.hpp"
 
 using namespace gcm;
 using std::numeric_limits;
 using std::unordered_map;
+using std::make_pair;
 using std::vector;
 
 TetrMeshFirstOrder::TetrMeshFirstOrder()
@@ -17,6 +19,7 @@ TetrMeshFirstOrder::TetrMeshFirstOrder()
     mesh_min_h = numeric_limits<float>::infinity();
     mesh_max_h = numeric_limits<float>::infinity();
     mesh_avg_h = numeric_limits<float>::infinity();
+    mesh_max_edge = numeric_limits<float>::infinity();
     // FIXME - hardcoded name
     numericalMethodType = "InterpolationFixedAxis";
     // FIXME - hardcoded parameter
@@ -123,6 +126,7 @@ void TetrMeshFirstOrder::preProcessGeometry()
 
     calcMaxH();
     calcAvgH();
+    calcMaxEdge();
 
     verifyTetrahedraVertices ();
     build_volume_reverse_lookups();
@@ -543,11 +547,16 @@ bool TetrMeshFirstOrder::isTriangleBorder(int v[4], bool* needSwap, bool debug)
 
 int TetrMeshFirstOrder::findOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
-    int tetr;
-    if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h * (1 + EQUALITY_TOLERANCE) )
+    // Handle virt nodes
+    if(node.getCustomFlag(CalcNode::FLAG_1))
     {
-        tetr = fastScanForOwnerTetr (node, dx, dy, dz, debug);
-        // TODO - what happens if (tetr == -1)? What coords should we return this case?
+        int testRes = testExpandingScanForOwnerTetr(node, dx, dy, dz, debug, coords, innerPoint);
+        return testRes;
+    }
+    // Handle real nodes
+    if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h * (1 - EQUALITY_TOLERANCE) )
+    {
+        int tetr = fastScanForOwnerTetr (node, dx, dy, dz, debug);
         coords[0] = node.coords[0] + dx;
         coords[1] = node.coords[1] + dy;
         coords[2] = node.coords[2] + dz;
@@ -556,7 +565,11 @@ int TetrMeshFirstOrder::findOwnerTetr(CalcNode& node, float dx, float dy, float 
     }
     else
     {
-        return expandingScanForOwnerTetr(node, dx, dy, dz, debug, coords, innerPoint);
+        //int newRes = newExpandingScanForOwnerTetr(node, dx, dy, dz, debug, coords, innerPoint);
+        int oldRes = expandingScanForOwnerTetr(node, dx, dy, dz, debug, coords, innerPoint);
+        //int testRes = testExpandingScanForOwnerTetr(node, dx, dy, dz, debug, coords, innerPoint);
+        //assert_eq(newRes, oldRes);
+        return oldRes;
     }
 }
 
@@ -617,20 +630,210 @@ int TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy,
     return -1;
 }
 
-/*TetrFirstOrder*/ int TetrMeshFirstOrder::expandingScanForOwnerTetr (CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+void TetrMeshFirstOrder::getPotentialOwnerTetrs(float x, float y, float z, vector<int>& tetrs)
 {
-    if( debug )
-        LOG_TRACE("Expanding scan - debug ON");
+    std::unordered_set<int> _nodes;
+    std::unordered_set<int> _tetrs;
+    double pt[3] = {x, y, z};
+    double pos[3];
+    CalcNode* pNode;
+    struct kdres *presults = kd_nearest_range(kdtree, pt, getMaxEdge()*1.01);
+    while (!kd_res_end(presults)) {
+        /* get the data and position of the current result item */
+        pNode = (CalcNode*) kd_res_item(presults, pos);
+        _nodes.insert(pNode->number);
+        /* go to the next entry */
+        kd_res_next(presults);
+    }
+    kd_res_free( presults );
+    for(int nodeNum : _nodes)
+    {
+        vector<int> volEls = getVolumeElementsForNode(nodeNum);
+        for(int el : volEls) {
+            TetrFirstOrder& t = getTetr(el);
+            bool localN1 = (_nodes.find(t.verts[0]) != _nodes.end());
+            bool localN2 = (_nodes.find(t.verts[1]) != _nodes.end());
+            bool localN3 = (_nodes.find(t.verts[2]) != _nodes.end());
+            bool localN4 = (_nodes.find(t.verts[3]) != _nodes.end());
+            if(localN1 && localN2 && localN3 && localN4)
+                _tetrs.insert(el);
+        }
+    }
+    for(int t: _tetrs)
+        tetrs.push_back(t);
+}
 
+int TetrMeshFirstOrder::newExpandingScanForOwnerTetr (const CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+{
     float x = node.coords[0] + dx;
     float y = node.coords[1] + dy;
     float z = node.coords[2] + dz;
 
+    if( debug ) {
+        LOG_DEBUG("New expanding scan - debug ON");
+        LOG_DEBUG("Base node: " << node);
+        LOG_DEBUG("Move: " << dx << " " << dy << " " << dz);
+        LOG_DEBUG("Target point: " << x << " " << y << " " << z);
+    }
+    
     int res;
     if( charactCacheAvailable() )
     {
         if( checkCharactCache(node, dx, dy, dz, res) )
         {
+            if( debug )
+                LOG_DEBUG("Done using cache");
+            cacheHits++;
+            // Tell that point found is inner and set coords
+            coords[0] = x;    coords[1] = y;    coords[2] = z;
+            *innerPoint = true;
+            return res;
+        }
+        cacheMisses++;
+    }
+
+    // A square of distance between point in question and local node
+    // Will be used to check if it is worth to continue search or point in question is out of body
+    float dist = vectorNorm(dx, dy, dz);
+    float direction[3];
+    direction[0] = dx / dist;
+    direction[1] = dy / dist;
+    direction[2] = dz / dist;
+    
+    if( debug ) {
+        LOG_DEBUG("Dist: " << dist);
+        LOG_DEBUG("Direction: " << direction[0] << " " << direction[1] << " " << direction[2]);
+    }
+    
+    vector<int> tetrsToCheck;
+    
+    getPotentialOwnerTetrs(x, y, z, tetrsToCheck);
+
+    // Check current tetrs
+    for(unsigned i = 0; i < tetrsToCheck.size(); i++)
+    {
+        TetrFirstOrder& curTetr = getTetr(tetrsToCheck[i]);
+        assert_eq(curTetr.number, tetrsToCheck[i] );
+        CalcNode& n1 = getNode( curTetr.verts[0] );
+        CalcNode& n2 = getNode( curTetr.verts[1] );
+        CalcNode& n3 = getNode( curTetr.verts[2] );
+        CalcNode& n4 = getNode( curTetr.verts[3] );
+            
+        if( debug ) {
+            LOG_DEBUG("Checking tetr: " << curTetr);
+            LOG_DEBUG("V1: " << n1);
+            LOG_DEBUG("V2: " << n2);
+            LOG_DEBUG("V3: " << n3);
+            LOG_DEBUG("V4: " << n4);
+        }
+
+        // Check inside points of current tetr
+        if( pointInTetr(x, y, z, n1.coords, n2.coords, n3.coords, n4.coords, debug) ) {
+            // Tell that point found is inner and set coords
+            coords[0] = x;    coords[1] = y;    coords[2] = z;
+            *innerPoint = true;
+            if( debug ) {
+                LOG_DEBUG("Point is inner for tetr " << curTetr.number);
+                LOG_DEBUG("Expanding scan done");
+            }
+            updateCharactCache(node, dx, dy, dz, curTetr.number);
+            return curTetr.number;
+        }
+            
+        if( debug )
+            LOG_DEBUG("Point is not in tetr");
+
+        // Check faces of current tetr
+        for(int j = 0; j < 4; j++) {
+            int i1 = (0+j) % 4;
+            int i2 = (1+j) % 4;
+            int i3 = (2+j) % 4;
+
+            CalcNode& n1 = getNode( curTetr.verts[i1] );
+            CalcNode& n2 = getNode( curTetr.verts[i2] );
+            CalcNode& n3 = getNode( curTetr.verts[i3] );
+
+            if( debug ) {
+                LOG_DEBUG("Checking face");
+                LOG_DEBUG("V1: " << n1);
+                LOG_DEBUG("V2: " << n2);
+                LOG_DEBUG("V3: " << n3);
+            }
+
+            if( pointInTriangle( node.coords[0], node.coords[1], node.coords[2],
+                                    n1.coords, n2.coords, n3.coords, debug ) ) {
+                if( debug )
+                    LOG_DEBUG("Skipping");
+                continue;
+            }
+
+            bool intersectionCheckRequired = ( n1.isBorder() && n2.isBorder() && n3.isBorder() );
+                
+            if( debug )
+                LOG_DEBUG("Intersection check: " << intersectionCheckRequired);
+
+            float tmpCoords[3];
+            tmpCoords[0] = coords[0];
+            tmpCoords[1] = coords[1];
+            tmpCoords[2] = coords[2];
+            float nodeCoords[3];
+            nodeCoords[0] = node.coords.x;
+            nodeCoords[1] = node.coords.y;
+            nodeCoords[2] = node.coords.z;
+            if( intersectionCheckRequired 
+               && vectorIntersectsTriangle( n1.coords, n2.coords, n3.coords,
+               nodeCoords, direction, dist, tmpCoords, debug))
+            {
+                if( debug )
+                    LOG_DEBUG("Intersects");
+                // Tell that point found is border,
+                // coords are already set by vectorIntersectsTriangle()
+                coords[0] = tmpCoords[0];
+                coords[1] = tmpCoords[1];
+                coords[2] = tmpCoords[2];
+                *innerPoint = false;
+                if( debug ) {
+                    LOG_DEBUG("Intersection node: " << coords[0] << " " << coords[1] << " " << coords[2] );
+                    LOG_DEBUG("Expanding scan done");
+                }
+                updateCharactCache(node, dx, dy, dz, -1);
+                return curTetr.number;
+            }
+        }
+    }
+
+    coords[0] = x;    coords[1] = y;    coords[2] = z;
+    *innerPoint = false;
+    if( debug )
+        LOG_DEBUG("Point not found");
+    
+    updateCharactCache(node, dx, dy, dz, -1);
+    return -1;
+}
+
+// Older implementation based on 'real' expanding scan.
+// The idea is nice, but implementation was still not good after few years of never-ending debug.
+// (a) Clean impl was too slow. (b) Tricky impl missed nodes sometimes.
+int TetrMeshFirstOrder::expandingScanForOwnerTetr (const CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+{
+    float x = node.coords[0] + dx;
+    float y = node.coords[1] + dy;
+    float z = node.coords[2] + dz;
+
+    if( debug ) {
+        LOG_DEBUG("Expanding scan - debug ON");
+        LOG_DEBUG("Base node: " << node);
+        LOG_DEBUG("Move: " << dx << " " << dy << " " << dz);
+        LOG_DEBUG("Target point: " << x << " " << y << " " << z);
+    }
+    
+    int res;
+    if( charactCacheAvailable() )
+    {
+        if( checkCharactCache(node, dx, dy, dz, res) )
+        {
+            if( debug )
+                LOG_DEBUG("Done using cache");
             cacheHits++;
             // Tell that point found is inner and set coords
             coords[0] = x;    coords[1] = y;    coords[2] = z;
@@ -657,6 +860,12 @@ int TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy,
     direction[0] = dx / dist;
     direction[1] = dy / dist;
     direction[2] = dz / dist;
+    
+    if( debug ) {
+        LOG_DEBUG("Dist: " << dist);
+        LOG_DEBUG("Direction: " << direction[0] << " " << direction[1] << " " << direction[2]);
+        LOG_DEBUG("R2: " << R2);
+    }
 
     // if( ! outline.isInAABB(x, y, z) )
     //    return NULL;
@@ -681,7 +890,7 @@ int TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy,
     while(inside_R)
     {
         if( debug )
-            LOG_TRACE("Starting next stage of scan");
+            LOG_DEBUG("Starting next stage of scan");
 
         inside_R = last_inside_R;
         last_inside_R = false;
@@ -692,27 +901,36 @@ int TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy,
         {
             TetrFirstOrder& curTetr = getTetr(tetrsToCheck[i]);
             assert_eq(curTetr.number, tetrsToCheck[i] );
+            CalcNode& n1 = getNode( curTetr.verts[0] );
+            CalcNode& n2 = getNode( curTetr.verts[1] );
+            CalcNode& n3 = getNode( curTetr.verts[2] );
+            CalcNode& n4 = getNode( curTetr.verts[3] );
+            
+            if( debug ) {
+                LOG_DEBUG("Checking tetr: " << curTetr);
+                LOG_DEBUG("V1: " << n1);
+                LOG_DEBUG("V2: " << n2);
+                LOG_DEBUG("V3: " << n3);
+                LOG_DEBUG("V4: " << n4);
+            }
 
             // Check inside points of current tetr
-            if( pointInTetr(x, y, z,
-                    getNode( curTetr.verts[0] ).coords,
-                    getNode( curTetr.verts[1] ).coords,
-                    getNode( curTetr.verts[2] ).coords,
-                    getNode( curTetr.verts[3] ).coords,
-                    debug) )
-            {
+            if( pointInTetr(x, y, z, n1.coords, n2.coords, n3.coords, n4.coords, debug) ) {
                 // Tell that point found is inner and set coords
                 coords[0] = x;    coords[1] = y;    coords[2] = z;
                 *innerPoint = true;
                 if( debug )
                 {
-                    LOG_TRACE("Point is inner for tetr " << curTetr.number);
-                    LOG_TRACE("Expanding scan done");
+                    LOG_DEBUG("Point is inner for tetr " << curTetr.number);
+                    LOG_DEBUG("Expanding scan done");
                 }
                 //return curTetr;
                 updateCharactCache(node, dx, dy, dz, curTetr.number);
                 return curTetr.number;
             }
+            
+            if( debug )
+                LOG_DEBUG("Point is not in tetr");
 
             // Check faces of current tetr
             for(int j = 0; j < 4; j++)
@@ -720,39 +938,62 @@ int TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy,
                 int i1 = (0+j) % 4;
                 int i2 = (1+j) % 4;
                 int i3 = (2+j) % 4;
-                /*if( curTetr.verts[i1] == node.number
-                        || curTetr.verts[i2] == node.number
-                        || curTetr.verts[i3] == node.number )
-                    continue;*/
 
                 CalcNode& n1 = getNode( curTetr.verts[i1] );
                 CalcNode& n2 = getNode( curTetr.verts[i2] );
                 CalcNode& n3 = getNode( curTetr.verts[i3] );
+                
+                if( debug ) {
+                    LOG_DEBUG("Checking face");
+                    LOG_DEBUG("V1: " << n1);
+                    LOG_DEBUG("V2: " << n2);
+                    LOG_DEBUG("V3: " << n3);
+                }
 
                 if( pointInTriangle( node.coords[0], node.coords[1], node.coords[2],
-                                        n1.coords, n2.coords, n3.coords, false )
-                )
+                                        n1.coords, n2.coords, n3.coords, debug ) )
+                {
+                    triangleIntersectionFound = true; 
+                    if( debug )
+                        LOG_DEBUG("Skipping");
                     continue;
+                }
 
                 bool intersectionCheckRequired = (
                     ( n1.isBorder() && n2.isBorder() && n3.isBorder() )
                     || !triangleIntersectionFound
                 );
+                
+                if( debug )
+                    LOG_DEBUG("Intersection check: " << intersectionCheckRequired);
 
+                float tmpCoords[3];
+                tmpCoords[0] = coords[0];
+                tmpCoords[1] = coords[1];
+                tmpCoords[2] = coords[2];
+                float nodeCoords[3];
+                nodeCoords[0] = node.coords.x;
+                nodeCoords[1] = node.coords.y;
+                nodeCoords[2] = node.coords.z;
                 if( intersectionCheckRequired
                         && vectorIntersectsTriangle( n1.coords, n2.coords, n3.coords,
-                                                    node.coords, direction, dist, coords, debug)
+                                                    nodeCoords, direction, dist, tmpCoords, debug)
                 )
                 {
+                    if( debug )
+                        LOG_DEBUG("Intersects");
                     if ( n1.isBorder() && n2.isBorder() && n3.isBorder() )
                     {
                         // Tell that point found is border,
                         // coords are already set by vectorIntersectsTriangle()
+                        coords[0] = tmpCoords[0];
+                        coords[1] = tmpCoords[1];
+                        coords[2] = tmpCoords[2];
                         *innerPoint = false;
                         if( debug )
                         {
-                            LOG_TRACE("Intersection node: " << coords[0] << " " << coords[1] << " " << coords[2] );
-                            LOG_TRACE("Expanding scan done");
+                            LOG_DEBUG("Intersection node: " << coords[0] << " " << coords[1] << " " << coords[2] );
+                            LOG_DEBUG("Expanding scan done");
                         }
                         //return curTetr;
                         updateCharactCache(node, dx, dy, dz, -1);
@@ -771,6 +1012,8 @@ int TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy,
             // If we have already found at least one tetr in the sphere - skip check
             if(!last_inside_R)
             {
+                if( debug )
+                    LOG_DEBUG("Checking if we are inside R2 sphere");
                 // For all verticles of current tetr
                 for(int j = 0; j < 4; j++)
                 {
@@ -793,19 +1036,18 @@ int TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy,
                     // It can be wrong on turbo bad tetrs. It fails if
                     // sphere goes 'through' tetr to next layer but does not include its verticles.
                 }
+                if( debug )
+                    LOG_DEBUG("Check result: " << last_inside_R);
             }
         }
 
         // If current layer is not in sphere - there is no need to create next layer - just return NULL
         if( !inside_R || ( node.isBorder() && !triangleIntersectionFound ) )
         {
+            coords[0] = x;    coords[1] = y;    coords[2] = z;
             *innerPoint = false;
             if( debug )
-            {
-                LOG_TRACE("Point not found");
-                LOG_TRACE("Expanding scan done");
-            }
-            //return NULL;
+                LOG_DEBUG("Point not found");
             updateCharactCache(node, dx, dy, dz, -1);
             return -1;
         }
@@ -840,13 +1082,305 @@ int TetrMeshFirstOrder::fastScanForOwnerTetr(CalcNode& node, float dx, float dy,
         }
     }
 
+    coords[0] = x;    coords[1] = y;    coords[2] = z;
     *innerPoint = false;
     if( debug )
-    {
-        LOG_TRACE("Point not found");
-        LOG_TRACE("Expanding scan done");
+        LOG_DEBUG("Point not found");
+    
+    updateCharactCache(node, dx, dy, dz, -1);
+    return -1;
+}
+
+int TetrMeshFirstOrder::testExpandingScanForOwnerTetr (const CalcNode& _node, float _dx, float _dy, float _dz, bool debug, float* coords, bool* innerPoint)
+{
+    float x = _node.coords[0] + _dx;
+    float y = _node.coords[1] + _dy;
+    float z = _node.coords[2] + _dz;
+
+    if( debug ) {
+        LOG_DEBUG("Expanding scan - debug ON");
+        LOG_DEBUG("Node: " << _node);
+        LOG_DEBUG("Move: " << _dx << " " << _dy << " " << _dz);
+        LOG_DEBUG("Target point: " << x << " " << y << " " << z);
     }
-    //return NULL;
+    
+    double pt[3] = {x, y, z};
+    double pos[3];
+    CalcNode* pNode;
+    struct kdres *presults = kd_nearest(kdtree, pt);
+    pNode = (CalcNode*) kd_res_item(presults, pos);
+    kd_res_free( presults );
+    
+    CalcNode& node = getNode(pNode->number);
+    float dx = _node.coords.x - node.coords.x + _dx;
+    float dy = _node.coords.y - node.coords.y + _dy;
+    float dz = _node.coords.z - node.coords.z + _dz;
+
+    if( debug ) {
+        LOG_DEBUG("Determined base node: " << node);
+        LOG_DEBUG("New move: " << dx << " " << dy << " " << dz);
+    }
+    
+    int res;
+    if( charactCacheAvailable() )
+    {
+        if( checkCharactCache(node, dx, dy, dz, res) )
+        {
+            if( debug )
+                LOG_DEBUG("Done using cache");
+            cacheHits++;
+            // Tell that point found is inner and set coords
+            coords[0] = x;    coords[1] = y;    coords[2] = z;
+            *innerPoint = true;
+            return res;
+        }
+        cacheMisses++;
+    }
+
+    // A square of distance between point in question and local node
+    // Will be used to check if it is worth to continue search or point in question is out of body
+    float R2 = vectorSquareNorm(dx, dy, dz);
+
+    if( R2 <= mesh_min_h * mesh_min_h )
+    {
+        //LOG_WARN("Base node: " << *node);
+        //LOG_WARN("Direction: " << dx << " " << dy << " " << dz);
+        //LOG_WARN("Expanding scan started for small distance: most probably, smth is wrong with normals");
+        //THROW_BAD_MESH("Expanding scan started for small distance: most probably, smth is wrong with normals");
+    }
+
+    float dist = sqrt(R2);
+    float direction[3];
+    direction[0] = dx / dist;
+    direction[1] = dy / dist;
+    direction[2] = dz / dist;
+    
+    if( debug ) {
+        LOG_DEBUG("Dist: " << dist);
+        LOG_DEBUG("Direction: " << direction[0] << " " << direction[1] << " " << direction[2]);
+        LOG_DEBUG("R2: " << R2);
+    }
+
+    // if( ! outline.isInAABB(x, y, z) )
+    //    return NULL;
+
+    vector<int> tetrsToCheck;
+    unordered_map<int, bool> checkedWithNeigh;
+    unordered_map<int, bool>::const_iterator itr;
+
+    // If current tetrs are inside sphere of radius R or not. If not - we should stop search and return NULL
+    bool inside_R = true;
+    bool last_inside_R = true;
+
+    bool triangleIntersectionFound;
+
+    float local_x, local_y, local_z;
+
+    vector<int>& elements = getVolumeElementsForNode(node.number);
+
+    for(unsigned i = 0; i < elements.size(); i++)
+        tetrsToCheck.push_back( elements[i] );
+
+    while(inside_R)
+    {
+        if( debug )
+            LOG_DEBUG("Starting next stage of scan");
+
+        inside_R = last_inside_R;
+        last_inside_R = false;
+        triangleIntersectionFound = false;
+
+        // Check current tetrs
+        for(unsigned i = 0; i < tetrsToCheck.size(); i++)
+        {
+            TetrFirstOrder& curTetr = getTetr(tetrsToCheck[i]);
+            assert_eq(curTetr.number, tetrsToCheck[i] );
+            CalcNode& n1 = getNode( curTetr.verts[0] );
+            CalcNode& n2 = getNode( curTetr.verts[1] );
+            CalcNode& n3 = getNode( curTetr.verts[2] );
+            CalcNode& n4 = getNode( curTetr.verts[3] );
+            
+            if( debug ) {
+                LOG_DEBUG("Checking tetr: " << curTetr);
+                LOG_DEBUG("V1: " << n1);
+                LOG_DEBUG("V2: " << n2);
+                LOG_DEBUG("V3: " << n3);
+                LOG_DEBUG("V4: " << n4);
+            }
+
+            // Check inside points of current tetr
+            if( pointInTetr(x, y, z, n1.coords, n2.coords, n3.coords, n4.coords, debug) ) {
+                // Tell that point found is inner and set coords
+                coords[0] = x;    coords[1] = y;    coords[2] = z;
+                *innerPoint = true;
+                if( debug )
+                {
+                    LOG_DEBUG("Point is inner for tetr " << curTetr.number);
+                    LOG_DEBUG("Expanding scan done");
+                }
+                //return curTetr;
+                updateCharactCache(node, dx, dy, dz, curTetr.number);
+                return curTetr.number;
+            }
+            
+            if( debug )
+                LOG_DEBUG("Point is not in tetr");
+
+            // Check faces of current tetr
+            for(int j = 0; j < 4; j++)
+            {
+                int i1 = (0+j) % 4;
+                int i2 = (1+j) % 4;
+                int i3 = (2+j) % 4;
+
+                CalcNode& n1 = getNode( curTetr.verts[i1] );
+                CalcNode& n2 = getNode( curTetr.verts[i2] );
+                CalcNode& n3 = getNode( curTetr.verts[i3] );
+                
+                if( debug ) {
+                    LOG_DEBUG("Checking face");
+                    LOG_DEBUG("V1: " << n1);
+                    LOG_DEBUG("V2: " << n2);
+                    LOG_DEBUG("V3: " << n3);
+                }
+
+                if( pointInTriangle( node.coords[0], node.coords[1], node.coords[2],
+                                        n1.coords, n2.coords, n3.coords, debug ) )
+                {
+                    triangleIntersectionFound = true; 
+                    if( debug )
+                        LOG_DEBUG("Skipping");
+                    continue;
+                }
+
+                bool intersectionCheckRequired = (
+                    ( n1.isBorder() && n2.isBorder() && n3.isBorder() )
+                    || !triangleIntersectionFound
+                );
+                
+                if( debug )
+                    LOG_DEBUG("Intersection check: " << intersectionCheckRequired);
+
+                float tmpCoords[3];
+                tmpCoords[0] = coords[0];
+                tmpCoords[1] = coords[1];
+                tmpCoords[2] = coords[2];
+                float nodeCoords[3];
+                nodeCoords[0] = node.coords.x;
+                nodeCoords[1] = node.coords.y;
+                nodeCoords[2] = node.coords.z;
+                if( intersectionCheckRequired
+                        && vectorIntersectsTriangle( n1.coords, n2.coords, n3.coords,
+                                                    nodeCoords, direction, dist, tmpCoords, debug)
+                )
+                {
+                    if( debug )
+                        LOG_DEBUG("Intersects");
+                    if ( n1.isBorder() && n2.isBorder() && n3.isBorder() )
+                    {
+                        // Tell that point found is border,
+                        // coords are already set by vectorIntersectsTriangle()
+                        coords[0] = tmpCoords[0];
+                        coords[1] = tmpCoords[1];
+                        coords[2] = tmpCoords[2];
+                        *innerPoint = false;
+                        if( debug )
+                        {
+                            LOG_DEBUG("Intersection node: " << coords[0] << " " << coords[1] << " " << coords[2] );
+                            LOG_DEBUG("Expanding scan done");
+                        }
+                        //return curTetr;
+                        updateCharactCache(node, dx, dy, dz, -1);
+                        return curTetr.number;
+                    }
+                    else
+                    {
+                        triangleIntersectionFound = true;
+                    }
+                }
+            }
+
+            checkedWithNeigh[ tetrsToCheck[i] ] = false;
+
+            // Check if this tetr is still inside sphere of radius R
+            // If we have already found at least one tetr in the sphere - skip check
+            if(!last_inside_R)
+            {
+                if( debug )
+                    LOG_DEBUG("Checking if we are inside R2 sphere");
+                // For all verticles of current tetr
+                for(int j = 0; j < 4; j++)
+                {
+                    CalcNode& vertJ = getNode( curTetr.verts[j] );
+                    // Skip base node. Otherwise we'll get false positive insideR for the 1st and 2nd layers
+                    if( vertJ.number == node.number )
+                        continue;
+
+                    local_x = vertJ.coords[0];
+                    local_y = vertJ.coords[1];
+                    local_z = vertJ.coords[2];
+                    // If its distance smaller than R
+                    if( vectorSquareNorm( node.coords[0] - local_x,
+                            node.coords[1] - local_y, node.coords[2] - local_z) < R2 )
+                    {
+                            last_inside_R = true;
+                    }
+                    // FIXME In theory we whould check if sphere and tetr intersect.
+                    // Current check - if at least one vert is in sphere.
+                    // It can be wrong on turbo bad tetrs. It fails if
+                    // sphere goes 'through' tetr to next layer but does not include its verticles.
+                }
+                if( debug )
+                    LOG_DEBUG("Check result: " << last_inside_R);
+            }
+        }
+
+        // If current layer is not in sphere - there is no need to create next layer - just return NULL
+        if( !inside_R || ( node.isBorder() && !triangleIntersectionFound ) )
+        {
+            coords[0] = x;    coords[1] = y;    coords[2] = z;
+            *innerPoint = false;
+            if( debug )
+                LOG_DEBUG("Point not found");
+            updateCharactCache(node, dx, dy, dz, -1);
+            return -1;
+        }
+
+        // If not found in current tetrs - create new list for checking
+        int checkedTetrNum;
+        bool isCompletelyChecked;
+        int nextTetrNum;
+
+        tetrsToCheck.clear();
+
+        for( itr = checkedWithNeigh.begin(); itr != checkedWithNeigh.end(); ++itr )
+        {
+            checkedTetrNum = itr->first;
+            isCompletelyChecked = itr->second;
+            if( isCompletelyChecked )
+                continue;
+
+            TetrFirstOrder& checkedTetr = getTetr(checkedTetrNum);
+            for(int j = 0; j < 4; j++)
+            {
+                CalcNode& vertJ = getNode( checkedTetr.verts[j] );
+                vector<int>& elements = getVolumeElementsForNode(vertJ.number);
+                for(unsigned k = 0; k < elements.size(); k++)
+                {
+                    nextTetrNum = elements[k];
+                    if( checkedWithNeigh.find(nextTetrNum) == checkedWithNeigh.end() )
+                        tetrsToCheck.push_back(nextTetrNum);
+                }
+            }
+            checkedWithNeigh[checkedTetrNum] = true;
+        }
+    }
+
+    coords[0] = x;    coords[1] = y;    coords[2] = z;
+    *innerPoint = false;
+    if( debug )
+        LOG_DEBUG("Point not found");
+    
     updateCharactCache(node, dx, dy, dz, -1);
     return -1;
 }
@@ -1041,6 +1575,41 @@ void TetrMeshFirstOrder::calcMaxH()
     mesh_max_h = max_h;
 };
 
+void TetrMeshFirstOrder::calcMaxEdge()
+{
+    if( tetrsNumber == 0 )
+        return;
+    float max_edge = - numeric_limits<float>::infinity();
+    
+    std::pair <int, int> combinations[6];
+    combinations[0] = make_pair(0, 1);
+    combinations[1] = make_pair(0, 2);
+    combinations[2] = make_pair(0, 3);
+    combinations[3] = make_pair(1, 2);
+    combinations[4] = make_pair(1, 3);
+    combinations[5] = make_pair(2, 3);
+    
+    float edge;
+    // Go through tetrahedrons
+    for( MapIter itr = tetrsMap.begin(); itr != tetrsMap.end(); ++itr ) {
+        int i = itr->first;
+        TetrFirstOrder& tetr = getTetr(i);
+        
+        for (int j = 0; j < 6; j++) {
+            CalcNode& n1 = getNode(tetr.verts[ combinations[j].first ]);
+            CalcNode& n2 = getNode(tetr.verts[ combinations[j].second ]);
+            
+            // Calc current edge
+            edge = vectorNorm(n1.coords.x - n2.coords.x, n1.coords.y - n2.coords.y, n1.coords.z - n2.coords.z);
+            assert_gt(edge, 0 );
+            // Otherwise - just find minimum
+            if(edge > max_edge) { max_edge = edge; }
+        }
+    }
+    
+    mesh_max_edge = max_edge;
+};
+
 void TetrMeshFirstOrder::calcAvgH()
 {
     //assert_gt(tetrsNumber, 0 );
@@ -1099,6 +1668,7 @@ void TetrMeshFirstOrder::logMeshStats()
     LOG_DEBUG("Max H = " << getMaxH());
     LOG_DEBUG("Min H = " << getMinH());
     LOG_DEBUG("Avg H = " << getAvgH());
+    LOG_DEBUG("Max Edge = " << getMaxEdge());
 };
 
 void TetrMeshFirstOrder::checkTopology(float tau)
@@ -1316,6 +1886,13 @@ float TetrMeshFirstOrder::getMaxH()
     return mesh_max_h;
 }
 
+float TetrMeshFirstOrder::getMaxEdge()
+{
+    if( isinf( mesh_max_edge ) )
+        calcMaxEdge();
+    return mesh_max_edge;
+}
+
 float TetrMeshFirstOrder::getAvgH()
 {
     if( isinf( mesh_avg_h ) )
@@ -1323,7 +1900,7 @@ float TetrMeshFirstOrder::getAvgH()
     return mesh_avg_h;
 }
 
-bool TetrMeshFirstOrder::checkCharactCache(CalcNode& node, float dx, float dy, float dz, int& tetrNum)
+bool TetrMeshFirstOrder::checkCharactCache(const CalcNode& node, float dx, float dy, float dz, int& tetrNum)
 {
     int cacheIndex = getCharactCacheIndex(node, dx, dy, dz);
     unordered_map<int, int>::const_iterator itr;
@@ -1343,7 +1920,7 @@ bool TetrMeshFirstOrder::checkCharactCache(CalcNode& node, float dx, float dy, f
                 false);
 }
 
-void TetrMeshFirstOrder::updateCharactCache(CalcNode& node, float dx, float dy, float dz, int tetrNum)
+void TetrMeshFirstOrder::updateCharactCache(const CalcNode& node, float dx, float dy, float dz, int tetrNum)
 {
     if( !charactCacheAvailable() )
         return;
@@ -1351,7 +1928,7 @@ void TetrMeshFirstOrder::updateCharactCache(CalcNode& node, float dx, float dy, 
     charactCache[cacheIndex][node.number] = tetrNum;
 }
 
-int TetrMeshFirstOrder::getCharactCacheIndex(CalcNode& node, float dx, float dy, float dz)
+int TetrMeshFirstOrder::getCharactCacheIndex(const CalcNode& node, float dx, float dy, float dz)
 {
     float fdx = fabs(dx);
     float fdy = fabs(dy);

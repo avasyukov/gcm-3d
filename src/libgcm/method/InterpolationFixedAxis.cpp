@@ -164,13 +164,14 @@ void InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& new_no
 
                 // TODO - merge this condition with the next ones
                 if (virt_outer_count != 3) {
+                    LOG_DEBUG("EXTENDED DEBUG INFO BEGINS");
+                    prepare_node(virt_node, virt_node.getRheologyMatrix(), time_step, stage, virtMesh, 
+                                 virt_dksi, virt_inner, virt_previous_nodes, virt_outer_normal, true);
+                    LOG_DEBUG("EXTENDED DEBUG INFO ENDS");
                     LOG_DEBUG("Calc contact failed. Mesh: " << mesh->getId()
                           << " Virt mesh: " << virtMesh->getId()
                           << "\nReal node: " << cur_node << "\nVirt node: " << virt_node);
                     LOG_DEBUG("There are " << virt_outer_count << " 'outer' characteristics for virt node.");
-                    LOG_DEBUG("Origin node: " << virtMesh->getNode(virt_node.number));
-                    real dist = distance(virt_node.coords, virtMesh->getNode(virt_node.number).coords);
-                    LOG_DEBUG("Dist from origin to virt: " << dist);
                     for (int z = 0; z < 9; z++) {
                         LOG_DEBUG("Dksi[" << z << "]: " << virt_dksi[z]);
                         LOG_DEBUG("Inner[" << z << "]: " << virt_inner[z]);
@@ -272,6 +273,14 @@ int InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrixPtr r
                                               float* dksi, bool* inner, vector<CalcNode>& previous_nodes,
                                               float* outer_normal)
 {
+    return prepare_node(cur_node, rheologyMatrix, time_step, stage, mesh, dksi, inner, previous_nodes, outer_normal, false);
+}
+
+int InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrixPtr rheologyMatrix,
+                                              float time_step, int stage, Mesh* mesh,
+                                              float* dksi, bool* inner, vector<CalcNode>& previous_nodes,
+                                              float* outer_normal, bool debug)
+{
     assert_ge(stage, 0);
     assert_le(stage, 2);
 
@@ -296,15 +305,22 @@ int InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrixPtr r
     for (int i = 0; i < 9; i++)
         dksi[i] = -rheologyMatrix->getL(i, i) * time_step;
 
-    return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal);
+    return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal, debug);
 }
 
 int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node, int stage, Mesh* mesh,
                                                                    float dksi[], bool inner[], vector<CalcNode>& previous_nodes,
                                                                    float outer_normal[])
 {
-    LOG_TRACE("Start looking for nodes on previous time layer");
+    return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal, false);
+}
 
+int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node, int stage, Mesh* mesh,
+                                                                   float dksi[], bool inner[], vector<CalcNode>& previous_nodes,
+                                                                   float outer_normal[], bool debug)
+{
+    LOG_TRACE("Start looking for nodes on previous time layer");
+    
     // For all omegas
     for (int i = 0; i < 9; i++) {
         LOG_TRACE("Looking for characteristic " << i);
@@ -331,21 +347,6 @@ int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node
             // ... Find vectors ...
             float dx[3];
             dx[0] = dx[1] = dx[2] = 0.0;
-            // WA:
-            //     origin == cur_node for real nodes
-            //     origin != cure_node for virt nodes
-            CalcNode& origin = mesh->getNode(cur_node.number);
-            // These flags operations are WA for ugly method impl
-            // WA exists only to separate further EulerMesh debug and necessary method rework
-            origin.setCustomFlag(CalcNode::FLAG_1, cur_node.getCustomFlag(CalcNode::FLAG_1));
-            origin.setCustomFlag(CalcNode::FLAG_2, cur_node.getCustomFlag(CalcNode::FLAG_2));
-            origin.setCustomFlag(CalcNode::FLAG_3, cur_node.getCustomFlag(CalcNode::FLAG_3));
-            origin.setCustomFlag(CalcNode::FLAG_4, cur_node.getCustomFlag(CalcNode::FLAG_4));
-            if(!cur_node.getCustomFlag(CalcNode::FLAG_1)) {
-                for (int z = 0; z < 3; z++) {
-                        dx[z] += cur_node.coords[z] - origin.coords[z];
-                    }
-            }
             dx[stage] += dksi[i];
 
             // For dksi = 0 we can skip check and just copy everything
@@ -358,16 +359,17 @@ int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node
                 LOG_TRACE("Checking inner node");
                 // ... Find owner tetrahedron ...
                 bool isInnerPoint;
-                mesh->interpolateNode(origin, dx[0], dx[1], dx[2], false,
+                mesh->interpolateNode(cur_node, dx[0], dx[1], dx[2], debug,
                                       previous_nodes[i], isInnerPoint);
 
                 if (!isInnerPoint) {
                     LOG_TRACE("Inner node: we need new method here!");
                     LOG_TRACE("Node:\n" << cur_node);
                     LOG_TRACE("Move: " << dx[0] << " " << dx[1] << " " << dx[2]);
+                    // TODO: return it back later
                     // Re-run search with debug on
-                    mesh->interpolateNode(origin, dx[0], dx[1], dx[2], true,
-                                          previous_nodes[i], isInnerPoint);
+                    //mesh->interpolateNode(origin, dx[0], dx[1], dx[2], true,
+                    //                      previous_nodes[i], isInnerPoint);
                 }
 
                 inner[i] = true;
@@ -377,7 +379,7 @@ int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node
                 LOG_TRACE("Checking border node");
                 // ... Find owner tetrahedron ...
                 bool isInnerPoint;
-                bool interpolated = mesh->interpolateNode(origin, dx[0], dx[1], dx[2], false,
+                bool interpolated = mesh->interpolateNode(cur_node, dx[0], dx[1], dx[2], debug,
                                                           previous_nodes[i], isInnerPoint);
 
                 // If we found inner point, it means

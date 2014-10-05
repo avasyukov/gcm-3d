@@ -40,9 +40,9 @@ namespace gcm
 
         // Cache for characteristics hits
         bool charactCacheAvailable();
-        bool checkCharactCache(CalcNode& node, float dx, float dy, float dz, int& tetrNum);
-        void updateCharactCache(CalcNode& node, float dx, float dy, float dz, int tetrNum);
-        int getCharactCacheIndex(CalcNode& node, float dx, float dy, float dz);
+        bool checkCharactCache(const CalcNode& node, float dx, float dy, float dz, int& tetrNum);
+        void updateCharactCache(const CalcNode& node, float dx, float dy, float dz, int tetrNum);
+        int getCharactCacheIndex(const CalcNode& node, float dx, float dy, float dz);
         std::unordered_map<int, int> charactCache[18];
         // Spatial index based on KD-Tree
         struct kdtree* kdtree;
@@ -92,15 +92,20 @@ namespace gcm
         void calcMinH();
         void calcAvgH();
         void calcMaxH();
+        void calcMaxEdge();
         // It MUST take into account mesh topology.
         // So, if the mesh will be second order, h = h / 2, etc
         float mesh_min_h;
         float mesh_avg_h;
         float mesh_max_h;
+        float mesh_max_edge;
 
         USE_LOGGER;
 
-        int expandingScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+        int expandingScanForOwnerTetr(const CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+		int testExpandingScanForOwnerTetr(const CalcNode& _node, float _dx, float _dy, float _dz, bool debug, float* coords, bool* innerPoint);
+        int newExpandingScanForOwnerTetr(const CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+		void getPotentialOwnerTetrs(float x, float y, float z, std::vector<int>& tetrs);
         int fastScanForOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug);
         int findOwnerTetr(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
         bool isInnerPoint(CalcNode& node, float dx, float dy, float dz, bool debug);
@@ -149,6 +154,8 @@ namespace gcm
         float getMaxH();
 
         float getAvgH();
+
+        float getMaxEdge();
 
         void doNextPartStep(float tau, int stage);
 

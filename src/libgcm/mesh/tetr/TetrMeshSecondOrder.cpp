@@ -167,6 +167,7 @@ void TetrMeshSecondOrder::preProcessGeometry()
 
     calcMaxH();
     calcAvgH();
+    calcMaxEdge();
     mesh_min_h *= 0.5;
     mesh_max_h *= 0.5;
     mesh_avg_h *= 0.5;
