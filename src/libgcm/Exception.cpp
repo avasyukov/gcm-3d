@@ -52,6 +52,7 @@ Exception::Exception(int code, const string& message, const string& file, int li
     for (int i = 1; i < callStackLen; i++)
         callStack += demangle(cs[i]) + "\n";
 
+    free(cs);
     delete[] buffer;
 }
 

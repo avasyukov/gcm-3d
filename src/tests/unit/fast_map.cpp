@@ -35,6 +35,8 @@ TEST(FastMap, Fuzzy) {
         fm.put(k, v);
     }
 
+    delete[] data;
+
     fm.sort();
 
     for (auto &i: sm) {
