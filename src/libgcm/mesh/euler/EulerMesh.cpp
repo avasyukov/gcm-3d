@@ -43,6 +43,20 @@ EulerMesh::EulerMesh(vector3u dimensions, vector3r cellSize, vector3r center): E
     setCellSize(cellSize);
     setCenter(center);
     generateMesh();
+
+    for (int i = 0; i < dimensions.x; i++)
+        for (int j = 0; j < dimensions.y; j++)
+            for (int k = 0; k < dimensions.z; k++)
+                cellStatus[i][j][k] = true;
+
+    auto& n1 = getNodeByEulerMeshIndex(vector3u(0, 0, 0));
+    auto& n2 = getNodeByEulerMeshIndex(dimensions-vector3u(1, 1, 1));
+    outline.minX = n1.coords.x;
+    outline.minY = n1.coords.y;
+    outline.minZ = n1.coords.z;
+    outline.maxX = n2.coords.x;
+	outline.maxY = n2.coords.y;
+	outline.maxZ = n2.coords.z;
 }
 
 void EulerMesh::calcMinH()
@@ -392,6 +406,8 @@ bool EulerMesh::getCellStatus(const vector3u& index) const
 }
 
 bool EulerMesh::interpolateNode(CalcNode& node) {
+	if (!outline.isInAABB(node))
+		return false;
     auto index = getCellEulerIndexByCoords(node.coords);
 
     return interpolateNode(node, index);

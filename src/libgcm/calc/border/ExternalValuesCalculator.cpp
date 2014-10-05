@@ -34,7 +34,7 @@ void ExternalValuesCalculator::set_parameters(int vars[], float vals[])
     }
 };
 
-void ExternalValuesCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr& matrix,
+void ExternalValuesCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                             vector<CalcNode>& previousNodes, bool inner[],
                             float outer_normal[], float scale)
 {

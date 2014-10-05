@@ -12,8 +12,8 @@ namespace gcm
     class AnalyticalRheologyMatrixDecomposer : public IDecomposer
     {
 		private:
-			void findNonZeroSolution(double **M, double *x) const;
-			void findNonZeroSolution(double **M, double *x, double *y) const;
+			void findNonZeroSolution(const double (&M)[3][3], double *x) const;
+			void findNonZeroSolution(const double (&M)[3][3], double *x, double *y) const;
 			void findEigenVec(double *eigenVec,
 						double l, const gcm_matrix &A, int stage) const;
 			void findEigenVec(double *eigenVec1, double *eigenVec2,
