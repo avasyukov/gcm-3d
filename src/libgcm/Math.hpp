@@ -257,8 +257,11 @@ inline bool vectorIntersectsTriangle(float *p1, float *p2, float *p3, float *p0,
 
     // If vector is parallel to face - no intersection
     float vn = scalarProduct(n[0], n[1], n[2], v[0], v[1], v[2]);
-    if (vn * vn < EQUALITY_TOLERANCE * vectorSquareNorm (n[0], n[1], n[2]) * vectorSquareNorm (v[0], v[1], v[2]))
+    if (vn * vn < EQUALITY_TOLERANCE * vectorSquareNorm (n[0], n[1], n[2]) * vectorSquareNorm (v[0], v[1], v[2])) {
+        if( debug )
+            LOG_DEBUG("No intersection - parallel");
         result = false;
+    }
 
     // find plane parameter
     d = - scalarProduct(n[0], n[1], n[2], p1[0], p1[1], p1[2]);
@@ -266,23 +269,24 @@ inline bool vectorIntersectsTriangle(float *p1, float *p2, float *p3, float *p0,
     // find distance to the plane
     t = - (scalarProduct(n[0], n[1], n[2], p0[0], p0[1], p0[2]) + d) / vn;
 
-    if( debug )
-    {
-        LOG_TRACE("Parameter: t = " << t);
+    if( debug ) {
+        LOG_DEBUG("Parameter: t = " << t);
     }
 
     // If distance is too big - no intersection
     // If we need opposite direction - no intersection as well
-    if( (t < -EQUALITY_TOLERANCE) || (t > l+EQUALITY_TOLERANCE) )
+    if( (t < -EQUALITY_TOLERANCE) || (t > l+EQUALITY_TOLERANCE) ) {
+        if( debug )
+            LOG_DEBUG("No intersection - distance");
         result = false;
+    }
 
     // find point of intersection with the plane
     for(int i = 0; i < 3; i++)
         p[i] = p0[i] + t * v[i];
 
-    if( debug )
-    {
-        LOG_TRACE("Intersection: " << p[0] << " " << p[1] << " "<< p[2]);
+    if( debug ) {
+        LOG_DEBUG("Intersection: " << p[0] << " " << p[1] << " "<< p[2]);
     }
 
     /*
@@ -297,8 +301,11 @@ inline bool vectorIntersectsTriangle(float *p1, float *p2, float *p3, float *p0,
         result = false;
      */
     // Small workaround
-    if( !result )
+    if( !result ) {
+        if( debug )
+            LOG_DEBUG("Done");
         return false;
+    }
 
     // According with original algo we have all tests passed.
     // So, it should really intersect.
@@ -319,10 +326,10 @@ inline bool vectorIntersectsTriangle(float *p1, float *p2, float *p3, float *p0,
     if( fabs(areas[0] + areas[1] + areas[2] - area) > area * EQUALITY_TOLERANCE )
         resultArea = false;
 
-    if( debug )
-    {
-        LOG_TRACE("Areas: " << area << " " << areas[0] << " " << areas[1] << " " << areas[2]);
-        LOG_TRACE("Factor: " << (areas[0] + areas[1] + areas[2]) / area);
+    if( debug ) {
+        LOG_DEBUG("Areas: " << area << " " << areas[0] << " " << areas[1] << " " << areas[2]);
+        LOG_DEBUG("Factor: " << (areas[0] + areas[1] + areas[2]) / area);
+        LOG_DEBUG("Result: " << resultArea);
     }
 
     // assert_ne(result, resultArea);
@@ -386,8 +393,11 @@ inline bool pointInTriangle(float x, float y, float z,
     // If not - just return false
     if( fabs( tetrVolume( v0[0], v0[1], v0[2],
                           v1[0], v1[1], v1[2],
-                          v2[0], v2[1], v2[2]) ) > EQUALITY_TOLERANCE * l * l * l )
+                          v2[0], v2[1], v2[2]) ) > EQUALITY_TOLERANCE * l * l * l ) {
+        if( debug ) 
+            LOG_DEBUG("Point in tri result: " << false << ". Done with volumes.");
         return false;
+    }
 
     // Otherwise use this algorithm - http://www.blackpawn.com/texts/pointinpoly/default.html
 
@@ -401,16 +411,17 @@ inline bool pointInTriangle(float x, float y, float z,
     float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
     float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
-    if( debug )
-    {
+    bool res = (u >= -EQUALITY_TOLERANCE) && (v >= -EQUALITY_TOLERANCE) && (u + v <= 1 + EQUALITY_TOLERANCE);
+    if( debug ) {
         LOG_TRACE("Point: " << x << " " << y << " " << z);
         LOG_TRACE("Verticle #1: " << coordsP0[0] << " " << coordsP0[1] << " " << coordsP0[2]);
         LOG_TRACE("Verticle #2: " << coordsP1[0] << " " << coordsP1[1] << " " << coordsP1[2]);
         LOG_TRACE("Verticle #3: " << coordsP2[0] << " " << coordsP2[1] << " " << coordsP2[2]);
-        LOG_TRACE("u = " << u << "; v = " << v << "; u+v = " << u + v);
+        LOG_DEBUG("u = " << u << "; v = " << v << "; u+v = " << u + v);
+        LOG_DEBUG("Point in tri result: " << res);
     }
-
-    return (u >= -EQUALITY_TOLERANCE) && (v >= -EQUALITY_TOLERANCE) && (u + v <= 1 + EQUALITY_TOLERANCE);
+    
+    return res;
 };
 
 inline bool pointInTetr(float x, float y, float z,
@@ -460,15 +471,15 @@ inline bool pointInTetr(float x, float y, float z,
 
     if( debug )
     {
-        LOG_TRACE("Volumes: " << vol << " " << vols[0] << " " << vols[1] << " " << vols[2] << " " << vols[3]);
-        LOG_TRACE("Factor: " << (vols[0] + vols[1] + vols[2] + vols[3]) / vol );
+        LOG_DEBUG("Volumes: " << vol << " " << vols[0] << " " << vols[1] << " " << vols[2] << " " << vols[3]);
+        LOG_DEBUG("Factor: " << (vols[0] + vols[1] + vols[2] + vols[3]) / vol );
     }
 
     if( vols[0] + vols[1] + vols[2] + vols[3] < vol * (1 + 10 * EQUALITY_TOLERANCE) ) {
-        if(debug) { LOG_TRACE("IN"); }
+        if(debug) { LOG_DEBUG("IN"); }
         return true;
     } else {
-        if(debug) { LOG_TRACE("OUT"); }
+        if(debug) { LOG_DEBUG("OUT"); }
         return false;
     }
 

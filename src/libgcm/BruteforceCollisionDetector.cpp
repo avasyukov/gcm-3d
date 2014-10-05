@@ -82,6 +82,7 @@ void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
                         {
                             new_node.setInContact(true);
                             new_node.contactNodeNum = j;
+                            new_node.setCustomFlag(CalcNode::FLAG_1, 1);
                             (mesh1->getNode(local_nodes[k].number)).setInContact(true);
                             (mesh1->getNode(local_nodes[k].number)).contactNodeNum = virt_nodes.size();
                             (mesh1->getNode(local_nodes[k].number)).contactDirection = m;
