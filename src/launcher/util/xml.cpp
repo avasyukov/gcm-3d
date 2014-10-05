@@ -124,7 +124,11 @@ xml::NodeList xml::Node::xpath(const std::string& expr) const
 
 std::string xml::Node::getTextContent() const
 {
-    return std::string((char*)xmlNodeGetContent(node));
+	auto content = (char*)xmlNodeGetContent(node);
+    std::string res(content);
+    free(content);
+
+    return res;
 }
 
 std::string xml::Node::operator[](const std::string& name) const

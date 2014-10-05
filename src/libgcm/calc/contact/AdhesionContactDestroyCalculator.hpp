@@ -19,12 +19,6 @@ namespace gcm
                                 RheologyMatrixPtr matrix, std::vector<CalcNode>& previousNodes, bool inner[],
                                 RheologyMatrixPtr virt_matrix, std::vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
                                 float outer_normal[], float scale);
-        inline std::string getType() {
-            return "AdhesionContactDestroyCalculator";
-        }
-
-    protected:
-
     private:
         SlidingContactCalculator* scc;
         AdhesionContactCalculator* acc;

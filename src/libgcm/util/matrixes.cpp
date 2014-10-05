@@ -173,5 +173,9 @@ gcm_matrix gcm_matrix::inv() const
         for (int j = 0; j < GCM_MATRIX_SIZE; j++)
             res_matrix.p[i][j] = gsl_matrix_get(Z, i, j);
 
+    gsl_permutation_free(perm);
+    gsl_matrix_free(Z);
+    gsl_matrix_free(Z1);
+
     return res_matrix;
 };
