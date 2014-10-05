@@ -16,12 +16,6 @@ namespace gcm
                                 RheologyMatrixPtr matrix, std::vector<CalcNode>& previousNodes, bool inner[],
                                 RheologyMatrixPtr virt_matrix, std::vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
                                 float outer_normal[], float scale);
-        inline std::string getType() {
-            return "AdhesionContactCalculator";
-        }
-
-    protected:
-
     private:
         // Used for border calculation
         gsl_matrix *U_gsl;

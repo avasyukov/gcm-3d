@@ -7,6 +7,8 @@ using std::vector;
 
 AdhesionContactCalculator::AdhesionContactCalculator()
 {
+	type = "AdhesionContactCalculator";
+
     U_gsl = gsl_matrix_alloc (18, 18);
     om_gsl = gsl_vector_alloc (18);
     x_gsl = gsl_vector_alloc (18);

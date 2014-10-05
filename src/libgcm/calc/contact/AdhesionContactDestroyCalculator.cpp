@@ -7,6 +7,8 @@ using std::vector;
 
 AdhesionContactDestroyCalculator::AdhesionContactDestroyCalculator()
 {
+	type = "AdhesionContactDestroyCalculator";
+
     scc = new SlidingContactCalculator();
     acc = new AdhesionContactCalculator();
 };

@@ -9,6 +9,12 @@
 #include "libgcm/node/CalcNode.hpp"
 
 using namespace gcm;
+using std::string;
 
 ContactCalculator::~ContactCalculator() {
+}
+
+string ContactCalculator::getType()
+{
+	return type;
 }

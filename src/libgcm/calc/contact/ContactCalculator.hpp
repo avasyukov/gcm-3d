@@ -21,6 +21,8 @@ namespace gcm
      * Base class for inner points calculators
      */
     class ContactCalculator {
+    protected:
+    	std::string type;
     public:
         /*
          * Destructor
@@ -36,7 +38,7 @@ namespace gcm
         /*
          * Returns type of the calculator
          */
-        virtual std::string getType() = 0;
+        std::string getType();
 
     };
 

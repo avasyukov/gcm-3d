@@ -7,6 +7,8 @@ using std::vector;
 
 SlidingContactCalculator::SlidingContactCalculator()
 {
+	type = "SlidingContactCalculator";
+
     fbc = new FreeBorderCalculator();
     U_gsl = gsl_matrix_alloc (18, 18);
     om_gsl = gsl_vector_alloc (18);
