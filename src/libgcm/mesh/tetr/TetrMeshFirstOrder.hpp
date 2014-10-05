@@ -159,7 +159,7 @@ namespace gcm
 
         void doNextPartStep(float tau, int stage);
 
-        void findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug);
+        void findBorderNodeNormal(const CalcNode& _node, float* x, float* y, float* z, bool debug);
         void checkTopology(float tau);
 
         bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
