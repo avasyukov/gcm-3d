@@ -49,6 +49,9 @@ Engine::Engine()
     registerFailureModel( new ContinualFailureModel() );
     registerFailureModel( new DebugFailureModel() );
     registerFailureModel( new HashinFailureModel() );
+    registerFailureModel( new TsaiHillFailureModel() );
+    registerFailureModel( new TsaiWuFailureModel() );
+    registerFailureModel( new DruckerPragerFailureModel() );
     defaultFailureModelType = "NoFailureModel";
     LOG_DEBUG("Registering default calculators");
     registerVolumeCalculator( new SimpleVolumeCalculator() );
