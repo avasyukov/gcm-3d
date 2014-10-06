@@ -2,13 +2,13 @@
 	<system>
 		<!-- <contactThreshold measure="avgH" value="1.0" /> -->
 		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
-		<!--contactThreshold measure="abs" value="0.5" /-->
-		<defaultContactCalculator type="AdhesionContactDestroyCalculator" adhesionThreshold="42000000"/>
+		<contactThreshold measure="abs" value="0.1" />
 		<collisionDetector static="true" />
 		<meshMovement type="none" />
+		<defaultContactCalculator type="AdhesionContactDestroyCalculator" adhesionThreshold="42000000"/>
 	</system>
 	<bodies>
-
+<!--
 		<body id="3st_st_ll">
 			<rheology type="elastic" />
 			<mesh id="3st_st_ll" type="geo2" file="models/3st_st_ll.geo" tetrSize="0.1" />
@@ -24,8 +24,6 @@
 			<mesh id="3st_st_lr" type="geo2" file="models/3st_st_lr.geo" tetrSize="0.1" />
 			<material id="subpacket" />
 		</body>
-
-
 		<body id="3st_st_rl">
 			<rheology type="elastic" />
 			<mesh id="3st_st_rl" type="geo2" file="models/3st_st_rl.geo" tetrSize="0.1" />
@@ -41,24 +39,23 @@
 			<mesh id="3st_st_rr" type="geo2" file="models/3st_st_rr.geo" tetrSize="0.1" />
 			<material id="subpacket" />
 		</body>
-
-
+-->	
+<!--	
 		<body id="3st_pn_d">
 			<rheology type="elastic" />
 			<mesh id="3st_pn_d" type="geo2" file="models/3st_pn_d.geo" tetrSize="0.1" />
 			<material id="subpacket" />
-		</body>
+		</body>-->
 		<body id="3st_pn_m">
 			<rheology type="elastic" />
-			<mesh id="3st_pn_m" type="geo2" file="models/3st_pn_m.geo" tetrSize="0.1" />
+			<mesh id="3st_pn_m" type="geo2" file="models/3st_pn_m_small.geo" tetrSize="0.1" />
 			<material id="subpacket" />
 		</body>
 		<body id="3st_pn_u">
 			<rheology type="elastic" />
-			<mesh id="3st_pn_u" type="geo2" file="models/3st_pn_u.geo" tetrSize="0.1" />
+			<mesh id="3st_pn_u" type="geo2" file="models/3st_pn_u_small.geo" tetrSize="0.1" />
 			<material id="subpacket" />
 		</body>
-
 
 		<body id="3st_striker">
 			<rheology type="elastic" />
@@ -66,7 +63,6 @@
 			<material id="steelA" />
 			<transform type="translate" moveX="0.0" moveY="1.8704" moveZ="6.75" />
 		</body>
-
 	</bodies>
 	<materials>
 		<material name="steelA" rheology="isotropic">

@@ -80,6 +80,8 @@ void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
                                 local_nodes[k].coords[0], local_nodes[k].coords[1], local_nodes[k].coords[2],
                                 direction[0] * get_threshold(), direction[1] * get_threshold(), direction[2] * get_threshold(), new_node) )
                         {
+                            new_node.number = -1;
+                            new_node.setIsBorder(true);
                             new_node.setInContact(true);
                             new_node.contactNodeNum = j;
                             new_node.setCustomFlag(CalcNode::FLAG_1, 1);

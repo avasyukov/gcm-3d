@@ -550,9 +550,11 @@ int TetrMeshFirstOrder::findOwnerTetr(const CalcNode& node, float dx, float dy, 
     // Handle virt nodes
     if(node.getCustomFlag(CalcNode::FLAG_1))
     {
+        assert_lt(node.number, 0);
         int testRes = testExpandingScanForOwnerTetr(node, dx, dy, dz, debug, coords, innerPoint);
         return testRes;
     }
+    assert_ge(node.number, 0);
     // Handle real nodes
     if( vectorSquareNorm(dx, dy, dz) < mesh_min_h * mesh_min_h * (1 - EQUALITY_TOLERANCE) )
     {
@@ -1385,11 +1387,46 @@ int TetrMeshFirstOrder::testExpandingScanForOwnerTetr (const CalcNode& _node, fl
     return -1;
 }
 
-void TetrMeshFirstOrder::findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug)
+void TetrMeshFirstOrder::findBorderNodeNormal(const CalcNode& _node, float* x, float* y, float* z, bool debug)
 {
-    //CalcNode& node = getNode( border_node_index );
+    assert_true(_node.isBorder() );
+    int nodeNumber;
+    // Virt nodes
+    if(_node.getCustomFlag(CalcNode::FLAG_1)) {
+        assert_lt(_node.number, 0);
+        double pt[3] = {_node.coords.x, _node.coords.y, _node.coords.z};
+        double pos[3];
+        CalcNode* pNode;
+        struct kdres *presults = kd_nearest(kdtree, pt);
+        pNode = (CalcNode*) kd_res_item(presults, pos);
+        kd_res_free( presults );
+        nodeNumber = pNode->number;
+        // Reasonable WA. Experiment shows it is used for ~ N * 10^-4 nodes
+        if(!pNode->isBorder()) {
+            kdres *presults = kd_nearest_range(kdtree, pt, getMaxEdge());
+            while (!kd_res_end(presults)) {
+                /* get the data and position of the current result item */
+                pNode = (CalcNode*) kd_res_item(presults, pos);
+                if(pNode->isBorder()) {
+                    nodeNumber = pNode->number;
+                    break;
+                }
+                /* go to the next entry */
+                kd_res_next(presults);
+            }
+            kd_res_free( presults );
+        }
+    // real nodes
+    } else {
+        nodeNumber = _node.number;
+    }
+    
+    CalcNode& node = getNode(nodeNumber);
+    
+    assert_ge(node.number, 0);
+    
     assert_true(node.isBorder() );
-
+    
     float final_normal[3];
     final_normal[0] = 0;
     final_normal[1] = 0;

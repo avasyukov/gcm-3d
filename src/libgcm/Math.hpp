@@ -396,7 +396,7 @@ inline bool pointInTriangle(float x, float y, float z,
                           v2[0], v2[1], v2[2]) ) > EQUALITY_TOLERANCE * l * l * l ) {
         if( debug ) 
             LOG_DEBUG("Point in tri result: " << false << ". Done with volumes.");
-        return false;
+        //return false;
     }
 
     // Otherwise use this algorithm - http://www.blackpawn.com/texts/pointinpoly/default.html
@@ -411,7 +411,7 @@ inline bool pointInTriangle(float x, float y, float z,
     float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
     float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
-    bool res = (u >= -EQUALITY_TOLERANCE) && (v >= -EQUALITY_TOLERANCE) && (u + v <= 1 + EQUALITY_TOLERANCE);
+    bool res = (u >= - 10 * EQUALITY_TOLERANCE) && (v >= - 10 * EQUALITY_TOLERANCE) && (u + v <= 1 + 20 * EQUALITY_TOLERANCE);
     if( debug ) {
         LOG_TRACE("Point: " << x << " " << y << " " << z);
         LOG_TRACE("Verticle #1: " << coordsP0[0] << " " << coordsP0[1] << " " << coordsP0[2]);
