@@ -74,7 +74,6 @@ void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
                             if (z != m)
                                 direction[z] = 0;
 
-                        bool found = false;
                         CalcNode new_node;
                         if( mesh2->interpolateBorderNode(
                                 local_nodes[k].coords[0], local_nodes[k].coords[1], local_nodes[k].coords[2],
@@ -88,10 +87,8 @@ void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
                             (mesh1->getNode(local_nodes[k].number)).contactNodeNum = virt_nodes.size();
                             (mesh1->getNode(local_nodes[k].number)).contactDirection = m;
                             virt_nodes.push_back(new_node);
-                            found = true;
-                        }
-                        if(found)
                             break;
+                        }
                     }
                 }
             }
