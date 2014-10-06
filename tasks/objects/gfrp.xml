@@ -1,0 +1,102 @@
+<task numberOfSnaps="50" stepsPerSnap="5">
+        <system>
+                <defaultContactCalculator type="AdhesionContactDestroyCalculator" adhesionThreshold="20000"/>
+                <defaultFailureModel type="HashinFailureModel" />
+                <meshMovement type="none" />
+        </system>
+	<bodies>
+		<body id="gfrp_sph_osk">
+                        <rheology type="elastic" />
+                        <mesh id="gfrp_sph_osk" type="geo2" file="models/gfrp_sph.geo" tetrSize="0.13" />
+                        <material id="steel" />
+                        <transform type="translate" moveX="0.0" moveY="1.935" moveZ="0.0" />
+                </body>
+		<body id="gfrp_sph_pan_u">
+			<rheology type="elastic" />
+			<mesh id="gfrp_sph_pan_u" type="geo2" file="models/gfrp_pn_u.geo" tetrSize="0.06" />
+			<material id="monolayer_u" />
+		</body>
+		<body id="gfrp_sph_pan_m">
+                        <rheology type="elastic" />
+                        <mesh id="gfrp_sph_pan_m" type="geo2" file="models/gfrp_pn_m.geo" tetrSize="0.06" />
+                        <material id="monolayer_m" />
+                </body>
+		<body id="gfrp_sph_pan_d">
+                        <rheology type="elastic" />
+                        <mesh id="gfrp_sph_pan_d" type="geo2" file="models/gfrp_pn_d.geo" tetrSize="0.06" />
+                        <material id="monolayer_u" />
+                </body>
+	</bodies>
+	<materials>
+		 <material name="monolayer_u" rheology="anisotropic" failure="hashin">
+                        <c11>416450000</c11>
+                        <c12>40000000</c12>
+                        <c13>40000000</c13>
+                        <c14>0</c14>
+                        <c15>0</c15>
+                        <c16>0</c16>
+                        <c22>107420000</c22>
+                        <c23>40000000</c23>
+                        <c24>0</c24>
+                        <c25>0</c25>
+                        <c26>0</c26>
+                        <c33>107420000</c33>
+                        <c34>0</c34>
+                        <c35>0</c35>
+                        <c36>0</c36>
+                        <c44>37200000</c44>
+                        <c45>0</c45>
+                        <c46>0</c46>
+                        <c55>37200000</c55>
+                        <c56>0</c56>
+                        <c66>37200000</c66>
+                        <rho>0.001620</rho>
+	            <failure type="hashin">
+	                <dir>1</dir>
+	                <Xc>900000</Xc>
+	                <Xt>900000</Xt>
+	                <Yc>237000</Yc>
+	                <Yt>74000</Yt>
+	                <St>190000</St>
+	                <S>64000</S>
+	            </failure>
+                </material>
+		<material name="monolayer_m" rheology="anisotropic" failure="hashin">
+                        <c11>107420000</c11>
+                        <c12>40000000</c12>
+                        <c13>40000000</c13>
+                        <c14>0</c14>
+                        <c15>0</c15>
+                        <c16>0</c16>
+                        <c22>107420000</c22>
+                        <c23>40000000</c23>
+                        <c24>0</c24>
+                        <c25>0</c25>
+                        <c26>0</c26>
+                        <c33>416450000</c33>
+                        <c34>0</c34>
+                        <c35>0</c35>
+                        <c36>0</c36>
+                        <c44>37200000</c44>
+                        <c45>0</c45>
+                        <c46>0</c46>
+                        <c55>37200000</c55>
+                        <c56>0</c56>
+                        <c66>37200000</c66>
+                        <rho>0.001620</rho>
+                    <failure type="hashin">
+                        <dir>3</dir>
+                        <Xc>900000</Xc>
+                        <Xt>900000</Xt>
+                        <Yc>237000</Yc>
+                        <Yt>74000</Yt>
+                        <St>190000</St>
+                        <S>64000</S>
+                    </failure>
+                </material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="0.431" maxY="10" minZ="-10" maxZ="10"/>
+		<values vy="-0.1" />
+	</initialState>
+</task>
