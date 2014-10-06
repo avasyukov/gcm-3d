@@ -12,13 +12,11 @@ void launcher::FileFolderLookupService::addPath(string path) {
 }
 
 string launcher::FileFolderLookupService::lookupFile(string fname) {
-    for(auto& path: paths) {
-        // FIXME should we use different separators for different
-        // target platforms? Windows is ok with /-sep
-        string fullName = path + "/" + fname;
-        ifstream ifile(fullName.c_str());
-        if (ifile)
-            return fullName;
+    for(auto path: paths) {
+        bfs::path p(path);
+        p /= fname;
+        if (bfs::is_regular_file(p))
+            return p.string();
     }
     THROW_INVALID_ARG("File not found: " + fname);
 }
