@@ -188,44 +188,48 @@ TEST_F(EulerMesh, interpolateBorderNode)
 
     CalcNode node;
 
-    ASSERT_TRUE(
-        mesh.interpolateBorderNode(-5.1, -4.75, -4.75, 0.3, 0.0, 0.0, node)
-    );
-    ASSERT_TRUE(
-        mesh.interpolateBorderNode(5.1, -4.75, -4.75, -0.3, 0.0, 0.0, node)
-    );
-    ASSERT_FALSE(
-        mesh.interpolateBorderNode(-5.1, -4.75, -4.75, 0.03, 0.0, 0.0, node)
-    );
-    ASSERT_FALSE(
-        mesh.interpolateBorderNode(5.1, -4.75, -4.75, -0.03, 0.0, 0.0, node)
-    );
+    for (int i = 0; i <= 1; i++)
+    {
+    	float d = 100.0*i;
+		ASSERT_TRUE(
+			mesh.interpolateBorderNode(-5.1-d, -4.75, -4.75, 0.3+d, 0.0, 0.0, node)
+		);
+		ASSERT_TRUE(
+			mesh.interpolateBorderNode(5.1+d, -4.75, -4.75, -0.3-d, 0.0, 0.0, node)
+		);
+		ASSERT_FALSE(
+			mesh.interpolateBorderNode(-5.1-d, -4.75, -4.75, 0.03+d, 0.0, 0.0, node)
+		);
+		ASSERT_FALSE(
+			mesh.interpolateBorderNode(5.1+d, -4.75, -4.75, -0.03-d, 0.0, 0.0, node)
+		);
 
-    ASSERT_TRUE(
-        mesh.interpolateBorderNode(-4.75, -5.1, -4.75, 0.0, 0.3, 0.0, node)
-    );
-    ASSERT_TRUE(
-        mesh.interpolateBorderNode(-4.75, 5.1, -4.75, 0.0, -0.3, 0.0, node)
-    );
-    ASSERT_FALSE(
-        mesh.interpolateBorderNode(-4.75, -5.1, -4.75, 0.0, 0.03, 0.0, node)
-    );
-    ASSERT_FALSE(
-        mesh.interpolateBorderNode(-4.75, 5.1, -4.75, 0.0, -0.03, 0.0, node)
-    );
+		ASSERT_TRUE(
+			mesh.interpolateBorderNode(-4.75, -5.1-d, -4.75, 0.0, 0.3+d, 0.0, node)
+		);
+		ASSERT_TRUE(
+			mesh.interpolateBorderNode(-4.75, 5.1+d, -4.75, 0.0, -0.3-d, 0.0, node)
+		);
+		ASSERT_FALSE(
+			mesh.interpolateBorderNode(-4.75, -5.1-d, -4.75, 0.0, 0.03+d, 0.0, node)
+		);
+		ASSERT_FALSE(
+			mesh.interpolateBorderNode(-4.75, 5.1+d, -4.75, 0.0, -0.03-d, 0.0, node)
+		);
 
-    ASSERT_TRUE(
-        mesh.interpolateBorderNode(-4.75, -4.75, -5.1, 0.0, 0.0, 0.3, node)
-    );
-    ASSERT_TRUE(
-            mesh.interpolateBorderNode(-4.75, -4.75, 5.1, 0.0, 0.0, -0.3, node)
-    );
-    ASSERT_FALSE(
-        mesh.interpolateBorderNode(-4.75, -4.75, -5.1, 0.0, 0.0, 0.03, node)
-    );
-    ASSERT_FALSE(
-        mesh.interpolateBorderNode(-4.75, -4.75, 5.1, 0.0, 0.0, -0.03, node)
-    );
+		ASSERT_TRUE(
+			mesh.interpolateBorderNode(-4.75, -4.75, -5.1-d, 0.0, 0.0, 0.3+d, node)
+		);
+		ASSERT_TRUE(
+				mesh.interpolateBorderNode(-4.75, -4.75, 5.1+d, 0.0, 0.0, -0.3-d, node)
+		);
+		ASSERT_FALSE(
+			mesh.interpolateBorderNode(-4.75, -4.75, -5.1-d, 0.0, 0.0, 0.03+d, node)
+		);
+		ASSERT_FALSE(
+			mesh.interpolateBorderNode(-4.75, -4.75, 5.1+d, 0.0, 0.0, -0.03-d, node)
+		);
+    }
 }
 
 TEST_F(EulerMesh, getCellEulerIndexByCoords)
