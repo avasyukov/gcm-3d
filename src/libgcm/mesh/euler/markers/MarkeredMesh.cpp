@@ -9,6 +9,7 @@ using namespace gcm;
 using std::queue;
 using std::vector;
 using std::unordered_map;
+using std::numeric_limits;
 
 MarkeredMesh::MarkeredMesh()
 {
@@ -176,6 +177,14 @@ void MarkeredMesh::reconstructBorder()
     }
 
     LOG_DEBUG("Found " << innerCells << " inner cells");
+
+    outline.minX = numeric_limits<float>::infinity();
+    outline.minY = numeric_limits<float>::infinity();
+    outline.minZ = numeric_limits<float>::infinity();
+
+    outline.maxX = -outline.minX;
+    outline.maxY = -outline.minY;
+    outline.maxZ = -outline.minZ;
 
     for (int i = 1; i < nodeDimensions.x-1; i++)
         for (int j = 1; j < nodeDimensions.y-1; j++)

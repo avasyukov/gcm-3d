@@ -168,6 +168,7 @@ public:
     void generateMesh();
 
     vector3u getCellEulerIndexByCoords(const vector3r& coords) const;
+    vector3i getCellEulerIndexByCoordsUnsafe(const vector3r& coords) const;
     uint getCellLocalIndexByEulerIndex(const vector3u& index) const;
     vector3r getCellCenter(const vector3u& index) const;
 
