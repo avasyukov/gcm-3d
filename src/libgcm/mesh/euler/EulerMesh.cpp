@@ -91,10 +91,13 @@ const SnapshotWriter& EulerMesh::getDumper() const
 
 void EulerMesh::findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug)
 {
-    unsigned int border_node_index = node.number;
-    assert_true(borderNormals.find(border_node_index) != borderNormals.end());
+    assert_true(borderNormals.find(node.number) != borderNormals.end(),
+		{
+			LOG_DEBUG(node);
+		}
+    );
 
-    auto norm = borderNormals[border_node_index];
+    auto norm = borderNormals[node.number];
     *x = norm.x;
     *y = norm.y;
     *z = norm.z;
