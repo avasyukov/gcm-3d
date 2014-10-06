@@ -96,6 +96,9 @@ namespace gcm
         {
             auto l = length();
 
+            if (l == T(0.0))
+            	return l;
+
             x /= l;
             y /= l;
             z /= l;
@@ -178,7 +181,19 @@ namespace gcm
     {
         return v1*(1/factor);
     }
+
+    template<typename T>
+    inline bool operator==(const vector3<T>& v1, const vector3<T>& v2)
+    {
+    	return v1.x == v2.x && v1.y == v2.y && v1.z == v2.z;
+    }
     
+    template<typename T>
+    inline bool operator!=(const vector3<T>& v1, const vector3<T>& v2)
+    {
+    	return !(v1 == v2);
+    }
+
     template<typename T>
     inline bool operator>(const vector3<T>& v1, const vector3<T>& v2)
     {
@@ -208,6 +223,36 @@ namespace gcm
     {
         return v2 >= v1;
     }
+
+    template<typename T>
+	inline bool operator>>(const vector3<T>& v1, const vector3<T>& v2)
+	{
+		for (int i = 0; i < 3; i++)
+			if (v1.coords[i] <= v2.coords[i])
+				return false;
+		return true;
+	}
+
+    template<typename T>
+	inline bool operator>>=(const vector3<T>& v1, const vector3<T>& v2)
+	{
+		for (int i = 0; i < 3; i++)
+			if (v1.coords[i] < v2.coords[i])
+				return false;
+		return true;
+	}
+
+    template<typename T>
+	inline bool operator<<(const vector3<T>& v1, const vector3<T>& v2)
+    {
+    	return v2 >> v1;
+    }
+
+    template<typename T>
+	inline bool operator<<=(const vector3<T>& v1, const vector3<T>& v2)
+	{
+		return v2 >>= v1;
+	}
 
     template<typename T>
     inline vector3<T> vmin(const vector3<T>& v1, const vector3<T>& v2)
