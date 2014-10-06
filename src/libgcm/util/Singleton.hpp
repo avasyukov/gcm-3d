@@ -40,6 +40,10 @@ namespace gcm
         {
         }
         Singleton(const Singleton& s);
+        virtual ~Singleton()
+		{
+
+		}
         void operator=(const Singleton& s);
     };
 }
