@@ -136,6 +136,157 @@ TEST(Math, vectorSubtract)
     ASSERT_FLOAT_EQ(v.z, 2);
 }
 
+TEST(Math, vectorGreater)
+{
+	vector3r v1 = {0, 1, 0};
+	vector3r v2 = {0, 0, 0};
+
+	ASSERT_TRUE(v1 > v2);
+
+	v1 = {-1, 0, 1};
+
+	ASSERT_TRUE(v1 > v2);
+
+	v1 = v2;
+
+	ASSERT_FALSE(v1 > v2);
+
+}
+
+TEST(Math, vectorGreaterOrEqual)
+{
+	vector3r v1 = {0, 1, 0};
+	vector3r v2 = {0, 1, 0};
+
+	ASSERT_TRUE(v1 >= v2);
+
+	v1 = {-1, 1, 0};
+
+	ASSERT_TRUE(v1 >= v2);
+
+	v1 = {-1, 0, -1};
+
+	ASSERT_FALSE(v1 >= v2);
+
+}
+
+TEST(Math, vectorLess)
+{
+	vector3r v1 = {0, -1, 0};
+	vector3r v2 = {0, 0, 0};
+
+	ASSERT_TRUE(v1 < v2);
+
+	v1 = {-1, 0, 1};
+
+	ASSERT_TRUE(v1 < v2);
+
+	v1 = v2;
+
+	ASSERT_FALSE(v1 < v2);
+
+}
+
+TEST(Math, vectorLessOrEqual)
+{
+	vector3r v1 = {0, 1, 0};
+	vector3r v2 = {0, 1, 0};
+
+	ASSERT_TRUE(v1 <= v2);
+
+	v1 = {-1, 1, 0};
+
+	ASSERT_TRUE(v1 <= v2);
+
+	v1 = {1, 2, 1};
+
+	ASSERT_FALSE(v1 <= v2);
+
+}
+
+TEST(Math, vectorEqual)
+{
+	vector3r v1 = {0, 1, 0};
+	vector3r v2 = {0, 1, 0};
+
+	ASSERT_TRUE(v1 == v2);
+
+	v1.x = -1;
+
+	ASSERT_FALSE(v1 == v2);
+}
+
+TEST(Math, vectorNotEqual)
+{
+	vector3r v1 = {0, 1, 0};
+	vector3r v2 = {0, 1, 0};
+
+	ASSERT_FALSE(v1 != v2);
+
+	v1.x = -1;
+
+	ASSERT_TRUE(v1 != v2);
+}
+
+TEST(Math, vectorStrictlyGreater)
+{
+	vector3r v1 = {1, 1, 1};
+	vector3r v2 = {0, 0, 0};
+
+	ASSERT_TRUE(v1 >> v2);
+
+	v1 = {0, 0, 1};
+
+	ASSERT_FALSE(v1 >> v2);
+}
+
+TEST(Math, vectorStrictlyGreaterOrEqual)
+{
+	vector3r v1 = {0, 1, 0};
+	vector3r v2 = {0, 1, 0};
+
+	ASSERT_TRUE(v1 >>= v2);
+
+	v1 = {1, 1, 1};
+
+	ASSERT_TRUE(v1 >>= v2);
+
+	v1 = {-1, 0, 1};
+
+	ASSERT_FALSE(v1 >>= v2);
+
+}
+
+TEST(Math, vectorStrictlyLess)
+{
+	vector3r v1 = {-1, -1, -1};
+	vector3r v2 = {0, 0, 0};
+
+	ASSERT_TRUE(v1 << v2);
+
+	v1 = v2;
+
+	ASSERT_FALSE(v1 << v2);
+
+}
+
+TEST(Math, vectorStrictlyLessOrEqual)
+{
+	vector3r v1 = {0, 1, 0};
+	vector3r v2 = {0, 1, 0};
+
+	ASSERT_TRUE(v1 <<= v2);
+
+	v1 = {-1, 1, 0};
+
+	ASSERT_TRUE(v1 <<= v2);
+
+	v1 = {1, 1, 0};
+
+	ASSERT_FALSE(v1 <<= v2);
+
+}
+
 TEST(Math, vectorScalarProduct)
 {
     vector3r v1 = {1, 2, 3};

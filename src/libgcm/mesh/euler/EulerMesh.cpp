@@ -91,10 +91,13 @@ const SnapshotWriter& EulerMesh::getDumper() const
 
 void EulerMesh::findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug)
 {
-    unsigned int border_node_index = node.number;
-    assert_true(borderNormals.find(border_node_index) != borderNormals.end());
+    assert_true(borderNormals.find(node.number) != borderNormals.end(),
+        {
+            LOG_DEBUG(node);
+        }
+    );
 
-    auto norm = borderNormals[border_node_index];
+    auto norm = borderNormals[node.number];
     *x = norm.x;
     *y = norm.y;
     *z = norm.z;
@@ -109,15 +112,35 @@ bool EulerMesh::interpolateBorderNode(real x, real y, real z, real dx, real dy, 
     );
 
     vector3r coords(x, y, z);
-    auto index = getCellEulerIndexByCoords(coords);
-    assert_false(cellStatus[index.x][index.y][index.z]);
 
+    auto index0 = getCellEulerIndexByCoordsUnsafe(coords);
 
     coords += vector3r(dx, dy, dz);
-    index = getCellEulerIndexByCoords(coords);
+    auto index = getCellEulerIndexByCoordsUnsafe(coords);
 
-    if (!cellStatus[index.x][index.y][index.z])
-        return false;
+
+    auto dindex = index - index0;
+    int l = dindex.normalize();
+
+
+    bool found = false;
+    vector3i cmin(0, 0, 0);
+    vector3i cmax(dimensions.x-1, dimensions.y-1, dimensions.z-1);
+    for (int i = 0; i <= l; i++)
+    {
+    	if ((index0 >>= cmin) && (index0 <<= cmax))
+			if (cellStatus[index0.x][index0.y][index0.z])
+			{
+				found = true;
+				break;
+			}
+    	index0 += dindex;
+    }
+
+    if (!found)
+    	return false;
+
+    index = index0;
 
     real x1, x2, y1, y2, _x, _y;
     real* q11;
@@ -131,6 +154,7 @@ bool EulerMesh::interpolateBorderNode(real x, real y, real z, real dx, real dy, 
     {
         d = dx > 0.0 ? 0 : 1;
         auto& _node = getNodeByEulerMeshIndex(vector3u(index.x+d, index.y, index.z));
+        assert_true(_node.isBorder());
 
         x1 = _node.coords.y;
         y1 = _node.coords.z;
@@ -157,6 +181,7 @@ bool EulerMesh::interpolateBorderNode(real x, real y, real z, real dx, real dy, 
     {
         d = dy > 0.0 ? 0 : 1;
         auto& _node = getNodeByEulerMeshIndex(vector3u(index.x, index.y+d, index.z));
+        assert_true(_node.isBorder());
 
         x1 = _node.coords.x;
         y1 = _node.coords.z;
@@ -183,6 +208,7 @@ bool EulerMesh::interpolateBorderNode(real x, real y, real z, real dx, real dy, 
     {
         d = dz > 0.0 ? 0 : 1;
         auto& _node = getNodeByEulerMeshIndex(vector3u(index.x, index.y, index.z+d));
+        assert_true(_node.isBorder());
 
         x1 = _node.coords.x;
         y1 = _node.coords.y;
@@ -209,7 +235,6 @@ bool EulerMesh::interpolateBorderNode(real x, real y, real z, real dx, real dy, 
 
     interpolateRectangle(x1, y1, x2, y2, _x, _y, q11, q12, q22, q21, node.values, VALUES_NUMBER);
     node.setIsBorder(true);
-    node.setCustomFlag(VIRT_FLAG, 1);
 
     return true;
 }
@@ -353,9 +378,7 @@ void EulerMesh::generateMesh() {
 
 vector3u EulerMesh::getCellEulerIndexByCoords(const vector3r& coords) const
 {
-    const vector3r& p = const_cast<EulerMesh*>(this)->getNodeByEulerMeshIndex(vector3u(0, 0, 0)).coords;
-
-    vector3r index = (coords-p)/cellSize;
+    vector3i index = getCellEulerIndexByCoordsUnsafe(coords);
 
     assert_ge(index.x, 0);
     assert_ge(index.y, 0);
@@ -365,7 +388,7 @@ vector3u EulerMesh::getCellEulerIndexByCoords(const vector3r& coords) const
     assert_lt(index.y, dimensions.y);
     assert_lt(index.z, dimensions.z);
 
-    return vector3u(floor(index.x), floor(index.y), floor(index.z));
+    return vector3u(index.x, index.y, index.z);
 }
 
 vector3r EulerMesh::getCellCenter(const vector3u& index) const {
@@ -395,6 +418,15 @@ const vector3u& EulerMesh::getDimensions() const
 const vector3u& EulerMesh::getNodeDimensions() const
 {
     return nodeDimensions;
+}
+
+vector3i EulerMesh::getCellEulerIndexByCoordsUnsafe(const vector3r& coords) const
+{
+    const vector3r& p = const_cast<EulerMesh*>(this)->getNodeByEulerMeshIndex(vector3u(0, 0, 0)).coords;
+
+    vector3r index = (coords-p)/cellSize;
+
+    return vector3i(floor(index.x), floor(index.y), floor(index.z));
 }
 
 bool EulerMesh::getCellStatus(const vector3u& index) const
