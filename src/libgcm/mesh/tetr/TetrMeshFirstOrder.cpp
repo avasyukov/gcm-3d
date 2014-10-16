@@ -2524,7 +2524,6 @@ bool TetrMeshFirstOrder::interpolateNode(CalcNode& node)
     return false;
 }
 
-// FIXME_ASAP: rewrite it
 bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node)
 {
@@ -2556,8 +2555,8 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
     
     std::sort(targetFaces.begin(), targetFaces.end());
     
-    bool tmpRes = false;
-    CalcNode tmpNode;
+    //bool tmpRes = false;
+    //CalcNode tmpNode;
     for (unsigned int i = 0; i < targetFaces.size(); i++)
     {
         TriangleFirstOrder& face = getTriangle(targetFaces[i]);
@@ -2565,7 +2564,7 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
         CalcNode& n2 = getNode(face.verts[1]);
         CalcNode& n3 = getNode(face.verts[2]);
         // FIXME_ASAP - ugly WA 
-        tmpNode = n1;
+        node = n1;
         real xmin = n1.coords[0], ymin = n1.coords[1], zmin = n1.coords[2], xmax = n1.coords[0], ymax = n1.coords[1], zmax = n1.coords[2];
 		if (n2.coords[0] < xmin) xmin = n2.coords[0];
         if (n2.coords[0] > xmax) xmax = n2.coords[0];
@@ -2590,29 +2589,31 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
 		continue;
         
         if(vectorIntersectsTriangle( n1.coords, n2.coords, n3.coords,
-                                     start, direction, length, tmpNode.coords, false))
+                                     start, direction, length, node.coords, false))
         {
-            double d = vectorNorm(x - tmpNode.coords.x, y - tmpNode.coords.y, z - tmpNode.coords.z);
-            if( (tmpNode.coords.x - x) * dx + (tmpNode.coords.y - y) * dy + (tmpNode.coords.z - z) * dz < 0 
+            double d = vectorNorm(x - node.coords.x, y - node.coords.y, z - node.coords.z);
+            if( (node.coords.x - x) * dx + (node.coords.y - y) * dy + (node.coords.z - z) * dz < 0 
                || d > length )
             {
-                LOG_DEBUG("Proposed point: " << tmpNode);
+                LOG_DEBUG("Proposed point: " << node);
                 THROW_BAD_MESH("interpolateBorderNode did smth really bad");
             }
             
-            interpolateTriangle( n1.coords, n2.coords, n3.coords, tmpNode.coords,
-                                n1.values, n2.values, n3.values, tmpNode.values, 9);
-            tmpNode.setRho((getNode(face.verts[0])).getRho());
-            tmpNode.setMaterialId((getNode(face.verts[0])).getMaterialId());
+            interpolateTriangle( n1.coords, n2.coords, n3.coords, node.coords,
+                                n1.values, n2.values, n3.values, node.values, 9);
+            node.setRho((getNode(face.verts[0])).getRho());
+            node.setMaterialId((getNode(face.verts[0])).getMaterialId());
 
             //tmpRes = true;
             //break;
-            node = tmpNode;
+            //node = tmpNode;
+            node.number = -1;
             return true;
         }
     }
     return false;
     
+    /*
     for (int i = 0; i < faceNumber; i++)
     {
         TriangleFirstOrder& face = getTriangle(i);
@@ -2666,6 +2667,7 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
 
     assert_false(tmpRes);
     return false;
+     */
 }
 
 vector<int>& TetrMeshFirstOrder::getVolumeElementsForNode(int index)
