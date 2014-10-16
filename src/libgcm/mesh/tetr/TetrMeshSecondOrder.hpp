@@ -75,6 +75,8 @@ namespace gcm {
                                 CalcNode& targetNode, bool& isInnerPoint);
 
         bool interpolateNode(CalcNode& node);
+		
+		bool belongsToTetr(int nodeNum, int tetrNum, int faceNum);
 
         virtual const SnapshotWriter& getSnaphotter() const override;
         virtual const SnapshotWriter& getDumper() const override;

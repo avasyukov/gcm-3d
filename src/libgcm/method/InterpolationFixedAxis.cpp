@@ -161,6 +161,22 @@ void InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& new_no
                 case 2: virt_node.getRheologyMatrix()->decomposeZ(virt_node);
                     break;
                 }
+                
+                // WA for sharp edges
+                if(virt_outer_count == 0) {
+                    RheologyMatrixPtr curM = cur_node.getRheologyMatrix();
+                    RheologyMatrixPtr virtM = virt_node.getRheologyMatrix();
+                    int sign = 0;
+                    for(int i = 0; i < 9; i++) {
+                        if(!inner[i])
+                            sign = (curM->getL(i,i) > 0 ? 1 : -1);
+                    }
+                    for(int i = 0; i < 9; i++) {
+                        if( virtM->getL(i,i) * sign < 0 )
+                            virt_inner[i] = false;
+                    }
+                    virt_outer_count = 3;
+                }
 
                 // TODO - merge this condition with the next ones
                 if (virt_outer_count != 3) {

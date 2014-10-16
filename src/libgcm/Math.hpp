@@ -268,16 +268,24 @@ inline bool vectorIntersectsTriangle(float *p1, float *p2, float *p3, float *p0,
 
     // find distance to the plane
     t = - (scalarProduct(n[0], n[1], n[2], p0[0], p0[1], p0[2]) + d) / vn;
+	
+    // TODO: Filter out this case more carefully
+    // It is IN tri, instead of intersection
+    if( fabs(t) < EQUALITY_TOLERANCE ) {
+        if( debug )
+            LOG_DEBUG("No intersection - is in plane");
+        result = false;
+    }
 
     if( debug ) {
-        LOG_DEBUG("Parameter: t = " << t);
+        LOG_DEBUG("Parameter: t = " << t << " (l = " << l << ")");
     }
 
     // If distance is too big - no intersection
     // If we need opposite direction - no intersection as well
     if( (t < -EQUALITY_TOLERANCE) || (t > l+EQUALITY_TOLERANCE) ) {
         if( debug )
-            LOG_DEBUG("No intersection - distance");
+            LOG_DEBUG("No intersection. Distance from plane: " << t << " Length: " << l);
         result = false;
     }
 
@@ -303,7 +311,7 @@ inline bool vectorIntersectsTriangle(float *p1, float *p2, float *p3, float *p0,
     // Small workaround
     if( !result ) {
         if( debug )
-            LOG_DEBUG("Done");
+            LOG_DEBUG("Does not intersect");
         return false;
     }
 
@@ -323,6 +331,7 @@ inline bool vectorIntersectsTriangle(float *p1, float *p2, float *p3, float *p0,
     areas[2] = fabs( triArea(p3[0] - p[0], p3[1] - p[1], p3[2] - p[2],
                                 p1[0] - p[0], p1[1] - p[1], p1[2] - p[2]) );
 
+    // TODO REVIEW CONSTANT
     if( fabs(areas[0] + areas[1] + areas[2] - area) > area * EQUALITY_TOLERANCE )
         resultArea = false;
 
@@ -391,13 +400,16 @@ inline bool pointInTriangle(float x, float y, float z,
             + fabs (v2[0]) + fabs (v2[1]) + fabs (v2[2])) / 9;
     // Check if point is in plane defined by triangle
     // If not - just return false
-    if( fabs( tetrVolume( v0[0], v0[1], v0[2],
+    float vol = fabs(tetrVolume( v0[0], v0[1], v0[2],
                           v1[0], v1[1], v1[2],
-                          v2[0], v2[1], v2[2]) ) > EQUALITY_TOLERANCE * l * l * l ) {
-        if( debug ) 
-            LOG_DEBUG("Point in tri result: " << false << ". Done with volumes.");
-        //return false;
-    }
+                          v2[0], v2[1], v2[2]));
+    bool volRes = (vol > EQUALITY_TOLERANCE * l * l * l);
+	if( debug ) {
+		LOG_DEBUG("Point in tri volume result: " << volRes);
+		LOG_DEBUG("Volume: " << vol << " L: " << l);
+	}
+	if(!volRes)
+		return false;
 
     // Otherwise use this algorithm - http://www.blackpawn.com/texts/pointinpoly/default.html
 
@@ -475,6 +487,7 @@ inline bool pointInTetr(float x, float y, float z,
         LOG_DEBUG("Factor: " << (vols[0] + vols[1] + vols[2] + vols[3]) / vol );
     }
 
+    // TODO REVIEW CONSTANT
     if( vols[0] + vols[1] + vols[2] + vols[3] < vol * (1 + 10 * EQUALITY_TOLERANCE) ) {
         if(debug) { LOG_DEBUG("IN"); }
         return true;

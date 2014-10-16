@@ -539,6 +539,7 @@ namespace std {
         for (int i = 3; i < VALUES_NUMBER; i++)
             os << " " << node.values[i];
         os << "\n\tRho: " << node.getRho();
+		os << "\n\tIsBorder: " << node.isBorder();
         return os;
     }
 }

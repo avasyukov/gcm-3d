@@ -91,10 +91,10 @@ void TetrFirstOrderInterpolator::interpolate(CalcNode& node, CalcNode& node0, Ca
         // If it is small - treat instability as minor and just 'smooth' it
         // TODO - think about it more carefully
         //if( point_in_tetr(node.local_num, node.coords[0], node.coords[1], node.coords[2], tetr) )
-        if (factor[0] + factor[1] + factor[2] + factor[3] < 10) // FIXME@avasyukov
+        if (factor[0] + factor[1] + factor[2] + factor[3] < 1.05) // FIXME@avasyukov
         {
-            if (factor[0] + factor[1] + factor[2] + factor[3] > 5.0)
-                LOG_ERROR("Factor: " << factor[0] + factor[1] + factor[2] + factor[3]);
+            //if (factor[0] + factor[1] + factor[2] + factor[3] > 5.0)
+            //    LOG_ERROR("Factor: " << factor[0] + factor[1] + factor[2] + factor[3]);
             float sum = factor[0] + factor[1] + factor[2] + factor[3];
             for (int i = 0; i < 4; i++)
                 factor[i] = factor[i] / sum;

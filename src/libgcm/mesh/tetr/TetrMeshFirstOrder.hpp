@@ -103,7 +103,8 @@ namespace gcm
         USE_LOGGER;
 
         int expandingScanForOwnerTetr(const CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
-		int testExpandingScanForOwnerTetr(const CalcNode& _node, float _dx, float _dy, float _dz, bool debug, float* coords, bool* innerPoint);
+		int orientedExpandingScanForOwnerTetr (const CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+		int virtExpandingScanForOwnerTetr(const CalcNode& _node, float _dx, float _dy, float _dz, bool debug, float* coords, bool* innerPoint);
         int newExpandingScanForOwnerTetr(const CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
 		void getPotentialOwnerTetrs(float x, float y, float z, std::vector<int>& tetrs);
         int fastScanForOwnerTetr(const CalcNode& node, float dx, float dy, float dz, bool debug);
@@ -169,6 +170,8 @@ namespace gcm
 		
         bool interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node);
+		
+		bool belongsToTetr(int nodeNum, int tetrNum, int faceNum);
 
         virtual const SnapshotWriter& getSnaphotter() const override;
         virtual const SnapshotWriter& getDumper() const override;

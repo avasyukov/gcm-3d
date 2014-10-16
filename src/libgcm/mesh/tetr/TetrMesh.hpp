@@ -30,6 +30,8 @@ namespace gcm
         virtual void createTetrs(int number) = 0;
 
         virtual void createTriangles(int number) = 0;
+		
+		virtual bool belongsToTetr(int nodeNum, int tetrNum, int faceNum) = 0;
 
         /*void preProcessGeometry();
 

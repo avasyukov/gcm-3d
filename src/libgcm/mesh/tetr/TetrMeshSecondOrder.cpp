@@ -112,6 +112,49 @@ TriangleSecondOrder& TetrMeshSecondOrder::getTriangle2(int index)
     return border2[index];
 }
 
+bool TetrMeshSecondOrder::belongsToTetr(int nodeNum, int tetrNum, int faceNum)
+{
+    // Move second order nodes
+    IntPair combinations[6];
+    combinations[0] = make_pair(0, 1);
+    combinations[1] = make_pair(0, 2);
+    combinations[2] = make_pair(0, 3);
+    combinations[3] = make_pair(1, 2);
+    combinations[4] = make_pair(1, 3);
+    combinations[5] = make_pair(2, 3);
+
+    int i1 = (0+faceNum) % 4;
+    int i2 = (1+faceNum) % 4;
+    int i3 = (2+faceNum) % 4;
+    
+    int ai1, ai2, ai3;
+    for(int j = 0; j < 6; j++) {
+        int a = combinations[j].first;
+        int b = combinations[j].second;
+        if( ( (a == i1) && (b == i2) ) || ( (a == i2) && (b == i1) ) )
+            ai1 = j;
+    }
+    for(int j = 0; j < 6; j++) {
+        int a = combinations[j].first;
+        int b = combinations[j].second;
+        if( ( (a == i1) && (b == i3) ) || ( (a == i3) && (b == i1) ) )
+            ai2 = j;
+    }
+    for(int j = 0; j < 6; j++) {
+        int a = combinations[j].first;
+        int b = combinations[j].second;
+        if( ( (a == i2) && (b == i3) ) || ( (a == i3) && (b == i2) ) )
+            ai3 = j;
+    }
+    
+    TetrSecondOrder& tetr = getTetr2(tetrNum);
+    if( (nodeNum == tetr.verts[i1]) || (nodeNum == tetr.verts[i2]) || (nodeNum == tetr.verts[i3])
+                || (nodeNum == tetr.addVerts[ai1]) || (nodeNum == tetr.addVerts[ai2]) || (nodeNum == tetr.addVerts[ai3]))
+        return true;
+    else
+        return false;
+}
+
 void TetrMeshSecondOrder::copyMesh(TetrMeshFirstOrder* src)
 {
     LOG_DEBUG("Creating mesh using copy");
