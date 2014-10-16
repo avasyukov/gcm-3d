@@ -2,14 +2,16 @@
         <system>
                 <defaultContactCalculator type="AdhesionContactDestroyCalculator" adhesionThreshold="20000"/>
                 <defaultFailureModel type="HashinFailureModel" />
+                <contactThreshold measure="abs" value="0.05" />
                 <meshMovement type="none" />
+                <collisionDetector static="true" />
         </system>
 	<bodies>
 		<body id="gfrp_sph_osk">
                         <rheology type="elastic" />
                         <mesh id="gfrp_sph_osk" type="geo2" file="models/gfrp_sph.geo" tetrSize="0.13" />
-                        <material id="steel" />
-                        <transform type="translate" moveX="0.0" moveY="1.935" moveZ="0.0" />
+                        <material id="steelB" />
+                        <transform type="translate" moveX="0.0" moveY="1.93" moveZ="0.0" />
                 </body>
 		<body id="gfrp_sph_pan_u">
 			<rheology type="elastic" />
@@ -93,6 +95,12 @@
                         <St>190000</St>
                         <S>64000</S>
                     </failure>
+                </material>
+                <material name="steelB" rheology="isotropic">
+                        <la>99430000000</la>
+                        <mu>78130000000</mu>
+                        <rho>0.0078</rho>
+                        <crackThreshold>INF</crackThreshold>
                 </material>
 	</materials>
 	<initialState>
