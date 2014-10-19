@@ -94,6 +94,7 @@ namespace gcm
         virtual MaterialPtr getMaterial() const = 0;
         virtual void getMainStressComponents(real& s1, real& s2, real& s3) const = 0;
         virtual void createCrack(int direction) = 0;
+	virtual void createCrack(real x, real y, real z) = 0;
         virtual void exciseByCrack() = 0;
     };
 }

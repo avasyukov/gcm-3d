@@ -496,6 +496,7 @@ namespace gcm {
          * @param direction Crack direction.
          */
         void createCrack(const vector3r& crack);
+	void createCrack(real x, real y, real z);
         /**
          * TODO document
          *
