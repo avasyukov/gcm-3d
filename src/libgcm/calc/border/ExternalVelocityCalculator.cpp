@@ -2,6 +2,8 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
+using boost::lexical_cast;
+
 using namespace gcm;
 using std::vector;
 
@@ -23,17 +25,28 @@ ExternalVelocityCalculator::~ExternalVelocityCalculator()
 
 void ExternalVelocityCalculator::setParameters(const xml::Node& params)
 {
+    real normalVelocity = lexical_cast<real>(params["normalVelocity"]);
+    real tangentialVelocity = lexical_cast<real>(params["tangentialVelocity"]);
+    real tangentialDirection[3];
+    if(tangentialVelocity == 0.0)
+    {
+        tangentialDirection[0] = 1.0;
+        tangentialDirection[1] = 0.0;
+        tangentialDirection[2] = 0.0;
+    }
+    else
+    {
+        tangentialDirection[0] = lexical_cast<real>(params["tangentialX"]);
+        tangentialDirection[1] = lexical_cast<real>(params["tangentialY"]);
+        tangentialDirection[2] = lexical_cast<real>(params["tangentialZ"]);
+    }
     
-};
-
-void ExternalVelocityCalculator::set_parameters(float vn, float vt, float xv, float yv, float zv)
-{
-    normal_v = vn;
-    tangential_v = vt;
-    float dtmp = vectorNorm(xv, yv, zv);
-    tangential_direction[0] = xv / dtmp;
-    tangential_direction[1] = yv / dtmp;
-    tangential_direction[2] = zv / dtmp;
+    normal_v = normalVelocity;
+    tangential_v = tangentialVelocity;
+    float dtmp = vectorNorm(tangentialDirection[0], tangentialDirection[1], tangentialDirection[2]);
+    tangential_direction[0] = tangentialDirection[0] / dtmp;
+    tangential_direction[1] = tangentialDirection[1] / dtmp;
+    tangential_direction[2] = tangentialDirection[2] / dtmp;
 };
 
 void ExternalVelocityCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
