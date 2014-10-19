@@ -656,6 +656,13 @@ void CalcNode::createCrack(const vector3r& crack)
     crackDirection = crack;
 }
 
+void CalcNode::createCrack(real x, real y, real z)
+{
+    crackDirection[0] = x;
+    crackDirection[1] = y;
+    crackDirection[2] = z;
+}
+
 void CalcNode::exciseByCrack()
 {
     if (crackDirection*crackDirection != 0.0)
@@ -664,6 +671,7 @@ void CalcNode::exciseByCrack()
 void CalcNode::cleanStressByDirection(const vector3r& h)
 {
     real s1 = h[0]*(sxx * h[0] + sxy * h[1] + sxz * h[2]) + h[1]*(sxy * h[0] + syy * h[1] + syz * h[2]) + h[2]*(sxz * h[0] + syz * h[1] + szz * h[2]); //TODO
+    if (s1 < 0) return;
     sxx -= h[0] * h[0] * s1;
     sxy -= h[0] * h[1] * s1;
     sxz -= h[0] * h[2] * s1;

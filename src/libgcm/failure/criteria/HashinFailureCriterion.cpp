@@ -38,6 +38,7 @@ void HashinFailureCriterion::checkFailure(ICalcNode& node, const float tau) {
         s22 = node.sxx;
         s23 = node.sxz;
         s33 = node.szz;
+	break;
     case 3:
         s11 = node.szz;
         s12 = node.sxz;

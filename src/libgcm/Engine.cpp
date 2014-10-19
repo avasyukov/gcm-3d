@@ -52,6 +52,7 @@ Engine::Engine()
     registerFailureModel( new TsaiHillFailureModel() );
     registerFailureModel( new TsaiWuFailureModel() );
     registerFailureModel( new DruckerPragerFailureModel() );
+    registerFailureModel( new PuckFailureModel() );
     defaultFailureModelType = "NoFailureModel";
     LOG_DEBUG("Registering default calculators");
     registerVolumeCalculator( new SimpleVolumeCalculator() );

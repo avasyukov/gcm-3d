@@ -32,6 +32,7 @@
 #include "libgcm/failure/TsaiHillFailureModel.hpp"
 #include "libgcm/failure/TsaiWuFailureModel.hpp"
 #include "libgcm/failure/DruckerPragerFailureModel.hpp"
+#include "libgcm/failure/PuckFailureModel.hpp"
 
 //
 #include "libgcm/rheology/Material.hpp"
