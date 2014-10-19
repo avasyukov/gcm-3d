@@ -54,7 +54,7 @@
                         <c66>37200000</c66>
                         <rho>0.001620</rho>
 	            <failure type="hashin">
-	                <dir>1</dir>
+	                <dir>2</dir>
 	                <Xc>900000</Xc>
 	                <Xt>900000</Xt>
 	                <Yc>237000</Yc>
