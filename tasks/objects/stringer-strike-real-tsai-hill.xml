@@ -11,7 +11,7 @@
 		<collisionDetector static="true" />
 		<contactThreshold measure="avgH" value="2.0" />
 		<defaultContactCalculator type="SlidingContactCalculator" />
-		<defaultFailureModel type="HashinFailureModel" />
+		<defaultFailureModel type="TsaiHillFailureModel" />
 		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
 		<!--contactThreshold measure="abs" value="0.5" /-->
 		<anisotropicMatrix implementation="analytical" />
@@ -19,7 +19,7 @@
 	<bodies>
 		<body id="target">
 			<rheology type="elastic" />
-			<mesh id="target" type="geo2" file="models/cover-sample.geo" tetrSize="1.5" />
+			<mesh id="target" type="geo2" file="models/stringer-sample.geo" tetrSize="1.5" />
 			<material id="subpacketS" />
 		</body>
 		<!--body id="striker">

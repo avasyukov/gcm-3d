@@ -11,7 +11,7 @@
 		<collisionDetector static="true" />
 		<contactThreshold measure="avgH" value="2.0" />
 		<defaultContactCalculator type="SlidingContactCalculator" />
-		<defaultFailureModel type="DruckerPragerFailureModel" />
+		<defaultFailureModel type="HashinFailureModel" />
 		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
 		<!--contactThreshold measure="abs" value="0.5" /-->
 		<anisotropicMatrix implementation="analytical" />
@@ -19,7 +19,7 @@
 	<bodies>
 		<body id="target">
 			<rheology type="elastic" />
-			<mesh id="target" type="geo2" file="models/cover-sample.geo" tetrSize="1.5" />
+			<mesh id="target" type="geo2" file="models/stringer-sample.geo" tetrSize="1.5" />
 			<material id="subpacketS" />
 		</body>
 		<!--body id="striker">
@@ -95,11 +95,11 @@
 	</materials>
 	<initialState>
 		<area type="box" minX="-20" maxX="20" minY="-20" maxY="20" minZ="-120" maxZ="-0.00001"/>
-		<values vz="0.0042" />
+		<values vz="0.0052" />
 		<!-- E(J)	45	85	135	205	235	/-->
 		<!-- v(mm/sec)	14500	19900	25100	30900	33100	/-->
 	</initialState>
-	<borderCondition calculator="ExternalVelocityCalculator" normalVelocity="-0.0042" tangentialVelocity="0.0">
+	<borderCondition calculator="ExternalVelocityCalculator" normalVelocity="-0.0052" tangentialVelocity="0.0">
 		<area type="sphere" r="12.7" x="0" y="0" z="-12"/>
 	</borderCondition>
 </task>

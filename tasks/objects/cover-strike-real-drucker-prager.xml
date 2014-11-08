@@ -11,7 +11,7 @@
 		<collisionDetector static="true" />
 		<contactThreshold measure="avgH" value="2.0" />
 		<defaultContactCalculator type="SlidingContactCalculator" />
-		<defaultFailureModel type="HashinFailureModel" />
+		<defaultFailureModel type="DruckerPragerFailureModel" />
 		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
 		<!--contactThreshold measure="abs" value="0.5" /-->
 		<anisotropicMatrix implementation="analytical" />
