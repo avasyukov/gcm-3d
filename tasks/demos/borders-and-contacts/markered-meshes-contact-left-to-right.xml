@@ -1,8 +1,8 @@
 <task numberOfSnaps="50" stepsPerSnap="1">
     <system>
-        <defaultContactCalculator type="AdhesionContactCalculator" />
-        <contactThreshold measure="abs" value="0.25"/>
-        <collisionDetector static="true" />
+        <defaultContactCalculator type="SlidingContactCalculator" />
+        <contactThreshold measure="abs" value="0.8"/>
+        <timeStep multiplier="0.99"/>
     </system>
     <bodies>
         <body id="cube1">
