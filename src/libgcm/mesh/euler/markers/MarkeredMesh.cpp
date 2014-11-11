@@ -43,6 +43,7 @@ const MarkeredSurface& MarkeredMesh::getSurface() {
 
 void MarkeredMesh::setSurface(const MarkeredSurface& surface) {
     this->surface = surface;
+    markersOffset.resize(surface.getNumberOfMarkerNodes());
 }
 
 void MarkeredMesh::reconstructBorder()
@@ -277,7 +278,14 @@ void MarkeredMesh::moveCoords(float tau) {
 
         interpolateBox(n000.coords.x, n000.coords.y, n000.coords.z, n111.coords.x, n111.coords.y, n111.coords.z, marker.coords.x, marker.coords.y, marker.coords.z, n000.velocity, n001.velocity, n010.velocity, n011.velocity, n100.velocity, n101.velocity, n110.velocity, n111.velocity, v, 3);
 
-        surface.moveMarker(q, v*tau);
+        auto& offset = markersOffset[q];
+        offset += v*tau;
+        if (offset.length() > /*cellSize.length()/2*/ 0.0)
+        {
+        	surface.moveMarker(q, offset);
+        	offset = vector3r(0, 0, 0);
+//        	assert_true(false);
+        }
     }
     surface.updateAABB();
 
