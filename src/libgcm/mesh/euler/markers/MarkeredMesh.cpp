@@ -48,13 +48,13 @@ void MarkeredMesh::setSurface(const MarkeredSurface& surface) {
 
 void MarkeredMesh::reconstructBorder()
 {
-    // mark all mesh nodes as unused
-    for (uint i = 0; i < getNodesNumber(); i++)
-    {
-        auto& node = getNodeByLocalIndex(i);
-        node.setUsed(false);
-        node.setIsBorder(false);
-    }
+//    // mark all mesh nodes as unused
+//    for (uint i = 0; i < getNodesNumber(); i++)
+//    {
+//        auto& node = getNodeByLocalIndex(i);
+//        node.setUsed(false);
+//        node.setIsBorder(false);
+//    }
 
     const auto& faces = surface.getMarkerFaces();
     const auto& nodes = surface.getMarkerNodes();
@@ -193,11 +193,21 @@ void MarkeredMesh::reconstructBorder()
     outline.maxY = -outline.minY;
     outline.maxZ = -outline.minZ;
 
+    vector<int> nodesToFix;
+
+    unordered_map<int, bool> wasUsed;
+
     for (int i = 1; i < nodeDimensions.x-1; i++)
         for (int j = 1; j < nodeDimensions.y-1; j++)
             for (int k = 1; k < nodeDimensions.z-1; k++)
             {
                 auto& node = getNodeByEulerMeshIndex(vector3u(i, j, k));
+                auto _used = node.isUsed();
+                wasUsed[node.number] = _used;
+
+                node.setUsed(false);
+                node.setIsBorder(false);
+
                 uint usedCells = 0;
                 for (uint p = 0; p <= 1; p++)
                     for (uint q = 0; q <= 1; q++)
@@ -205,7 +215,11 @@ void MarkeredMesh::reconstructBorder()
                             if (cellStatus[i-p][j-q][k-s])
                                 usedCells++;
                 if (usedCells)
+                {
                     node.setUsed(true);
+                    if (!_used && initialized)
+                        nodesToFix.push_back(node.number);
+                }
                 if (usedCells != 0 && usedCells != 8)
                 {
                     node.setIsBorder(true);
@@ -240,10 +254,66 @@ void MarkeredMesh::reconstructBorder()
                             }
                     assert_gt(cnt, 0);
                     norm /= cnt;
+                    norm.normalize();
                     borderNormals[node.number] = norm;
                 }
 
             }
+    LOG_DEBUG("Fixing values at " << nodesToFix.size() << " nodes");
+
+    auto findNeighb = [this, &wasUsed](const vector3u& index) -> const CalcNode&
+    {
+        int x = index.x;
+        int y = index.y;
+        int z = index.z;
+
+        for (int i = -1; i <= 1; i+=2)
+            for (int j = -1; j <= 1; j+=2)
+                for (int k = -1; k <= 1; k+=2)
+                {
+                    int _x = x + i;
+                    int _y = y + j;
+                    int _z = z + k;
+
+                    assert_ge(_x, 0);
+                    assert_ge(_y, 0);
+                    assert_ge(_z, 0);
+
+                    assert_lt(_x, nodeDimensions.x);
+                    assert_lt(_y, nodeDimensions.y);
+                    assert_lt(_z, nodeDimensions.z);
+
+                    const auto& node  = this->getNodeByEulerMeshIndex(vector3u(_x, _y, _z));
+
+                    if (wasUsed[node.number])
+                        return node;
+                }
+
+        THROW_BAD_MESH("Can't find used neighbour node ");
+    };
+
+    for (auto idx: nodesToFix)
+    {
+        auto& node = getNode(idx);
+        vector3u index;
+
+        auto result = getNodeEulerMeshIndex(node, index);
+        assert_true(result);
+
+        const auto& neighb = findNeighb(index);
+
+        node.sxx = neighb.sxx;
+        node.sxy = neighb.sxy;
+        node.sxz = neighb.sxz;
+        node.syy = neighb.syy;
+        node.syz = neighb.syz;
+        node.szz = neighb.szz;
+
+        node.vx = neighb.vx;
+        node.vy = neighb.vy;
+        node.vz = neighb.vz;
+    }
+    initialized = true;
 }
 
 void MarkeredMesh::transfer(float x, float y, float z)
