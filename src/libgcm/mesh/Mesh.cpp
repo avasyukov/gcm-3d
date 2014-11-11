@@ -81,6 +81,12 @@ Body* Mesh::getBody()
 
 string Mesh::snapshot(int number)
 {
+    try {
+        getSnapshotter2().dump(this, number);
+    } catch (Exception &e)
+    {
+    }
+
     return getSnaphotter().dump(this, number);
 }
 
@@ -477,6 +483,10 @@ void Mesh::addNode(CalcNode& node) {
     nodes[nodesNumber] = node;
     nodesMap[node.number] = nodesNumber;
     nodesNumber++;
+}
+
+const SnapshotWriter& Mesh::getSnapshotter2() const {
+    THROW_UNSUPPORTED("Not implemented");
 }
 
 void Mesh::defaultNextPartStep(float tau, int stage)

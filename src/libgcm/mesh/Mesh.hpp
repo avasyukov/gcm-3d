@@ -74,6 +74,7 @@ namespace gcm {
         USE_LOGGER;
 
         virtual const SnapshotWriter& getSnaphotter() const = 0;
+        virtual const SnapshotWriter& getSnapshotter2() const;
         virtual const SnapshotWriter& getDumper() const = 0;
 
     public:

@@ -1,4 +1,5 @@
 #include "libgcm/mesh/euler/markers/MarkeredMesh.hpp"
+#include "libgcm/snapshot/MarkeredSurfaceSnapshotWriter.hpp"
 #include "libgcm/util/Tribox.hpp"
 
 #include <queue>
@@ -34,6 +35,10 @@ void MarkeredMesh::checkTopology(float tau) {
 }
 
 void MarkeredMesh::logMeshStats() {
+}
+
+const MarkeredSurface& MarkeredMesh::getSurface() {
+    return surface;
 }
 
 void MarkeredMesh::setSurface(const MarkeredSurface& surface) {
@@ -276,4 +281,8 @@ void MarkeredMesh::moveCoords(float tau) {
     }
     surface.updateAABB();
 
+}
+
+const SnapshotWriter& MarkeredMesh::getSnapshotter2() const {
+    return MarkeredSurfaceSnapshotWriter::getInstance();
 }

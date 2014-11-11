@@ -127,7 +127,7 @@ int main(int argc, char **argv, char **envp)
         FileFolderLookupService::getInstance().addPath(dataDir);
 
         auto outputPathPattern = path(outputDir);
-        outputPathPattern /= path("snap_mesh_%{MESH}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
+        outputPathPattern /= path("snap_mesh_%{MESH}%{SUFFIX}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
         engine.setOption(Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN, outputPathPattern.string());
 
         launcher::Launcher launcher;

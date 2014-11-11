@@ -15,6 +15,7 @@ namespace gcm {
         virtual std::string dump(Mesh* mesh, int step) const;
      protected:
         std::string extension;
+        std::string suffix;
         std::string getFileName(int step, std::string meshId) const;
     };
 }

@@ -90,7 +90,7 @@ Engine::Engine()
 
     gmshVerbosity = 0.0;
 
-    setOption(Options::SNAPSHOT_OUTPUT_PATH_PATTERN, "snap_mesh_%{MESH}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
+    setOption(Options::SNAPSHOT_OUTPUT_PATH_PATTERN, "snap_mesh_%{MESH}%{SUFFIX}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
 }
 
 Engine::~Engine()

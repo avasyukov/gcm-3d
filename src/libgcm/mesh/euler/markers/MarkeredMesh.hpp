@@ -17,6 +17,10 @@ namespace gcm
          * Markered surface.
          */
         MarkeredSurface surface;
+        std::vector<vector3r> markersOffset;
+        bool initialized = false;
+
+        const SnapshotWriter& getSnapshotter2() const override;
      public:
         MarkeredMesh();
         MarkeredMesh(MarkeredSurface surface, vector3u dimensions, vector3r cellSize, vector3r center = {0, 0, 0});
@@ -24,6 +28,7 @@ namespace gcm
         void checkTopology(float tau) override;
         void logMeshStats() override;
 
+        const MarkeredSurface& getSurface();
         void setSurface(const MarkeredSurface& surface);
         void reconstructBorder();
 

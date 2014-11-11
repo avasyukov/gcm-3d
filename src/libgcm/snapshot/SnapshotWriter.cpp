@@ -25,6 +25,7 @@ string SnapshotWriter::getFileName(int step, string meshId) const {
     replace("%{RANK}", to_string (Engine::getInstance().getRank()));
     replace("%{STEP}", to_string (step));
     replace("%{MESH}", meshId);
+    replace("%{SUFFIX}", suffix);
     replace("%{EXT}", extension);
 
     return filename;
