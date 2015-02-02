@@ -7,7 +7,8 @@ using std::vector;
 
 SlidingContactCalculator::SlidingContactCalculator()
 {
-	type = "SlidingContactCalculator";
+    INIT_LOGGER("gcm.SlidingContactCalculator");
+    type = "SlidingContactCalculator";
 
     fbc = new FreeBorderCalculator();
     U_gsl = gsl_matrix_alloc (18, 18);
@@ -41,32 +42,50 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
     createLocalBasis(local_n[0], local_n[1], local_n[2]);
 
     //---------------------------------------Check if nodes fall apart
-    // TODO - may be '-'?
-    // FIXME_ASAP - it's regarding normals...
+    LOG_TRACE("Cur node: " << cur_node);
+    LOG_TRACE("Virt node: " << virt_node);
     float vel_rel[3] = {
+        cur_node.vx - virt_node.vx,
+        cur_node.vy - virt_node.vy,
+        cur_node.vz - virt_node.vz
+    };
+
+    float vel_avg[3] = {
         cur_node.vx + virt_node.vx,
         cur_node.vy + virt_node.vy,
         cur_node.vz + virt_node.vz
     };
-
+    float vel_avg_abs = vectorNorm(vel_avg[0], vel_avg[1], vel_avg[2]);
+    float vel_delta_abs = vectorNorm(vel_rel[0], vel_rel[1], vel_rel[2]);
+    
     float force_cur[3] = {
         cur_node.sxx*outer_normal[0] + cur_node.sxy*outer_normal[1] + cur_node.sxz*outer_normal[2],
         cur_node.sxy*outer_normal[0] + cur_node.syy*outer_normal[1] + cur_node.syz*outer_normal[2],
         cur_node.sxz*outer_normal[0] + cur_node.syz*outer_normal[1] + cur_node.szz*outer_normal[2]
     };
 
-    float vel_abs = -scalarProduct(vel_rel, outer_normal);
+    float vel_abs = scalarProduct(vel_rel, outer_normal);
     float force_cur_abs = scalarProduct(force_cur,outer_normal);
 
-    // TODO - remove magic number
-    float eps = 0.0005;
+    LOG_TRACE("Vrel: " << vel_rel[0] << " " << vel_rel[1] << " " << vel_rel[2]);
+    LOG_TRACE("Fcur: " << force_cur[0] << " " << force_cur[1] << " " << force_cur[2]);
+    LOG_TRACE("Vavg: " << vel_avg_abs << " Vdelta: " << vel_delta_abs);
+    LOG_TRACE("DeltaVabs: " << vel_abs << " Fabs: " << force_cur_abs);
+    
     bool free_border = false;
 
-    if (vel_abs < -eps)             //first check relative speed
-        free_border = true;
-    else if (vel_abs < eps)            //if relative speed is small, we check force
-        if (force_cur_abs > -eps)
+    // If relative speed is big enough,
+    if(vel_delta_abs / vel_avg_abs > 0.05) {
+        // use relative speed
+        if(vel_abs < 0)
             free_border = true;
+    } else {
+        // Otherwise use force
+        if (force_cur_abs > 0)
+            free_border = true;
+    }
+    
+    LOG_TRACE("Free border: " << free_border);
 
     if (free_border)
     {

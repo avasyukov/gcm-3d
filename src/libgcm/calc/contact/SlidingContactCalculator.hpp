@@ -6,6 +6,7 @@
 #include "libgcm/calc/contact/ContactCalculator.hpp"
 #include "libgcm/calc/border/FreeBorderCalculator.hpp"
 #include "libgcm/Math.hpp"
+#include "libgcm/Logging.hpp"
 
 namespace gcm
 {
@@ -19,6 +20,7 @@ namespace gcm
                                 RheologyMatrixPtr virt_matrix, std::vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
                                 float outer_normal[], float scale);
     private:
+        USE_LOGGER;
         FreeBorderCalculator *fbc;
         // Used for border calculation
         gsl_matrix *U_gsl;
