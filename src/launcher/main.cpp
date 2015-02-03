@@ -52,6 +52,7 @@ int main(int argc, char **argv, char **envp)
     string initialStateGroup;
     string dataDir;
     string outputDir;
+    string renderOutputDir;
 
     bool render = false;
 
@@ -70,6 +71,9 @@ int main(int argc, char **argv, char **envp)
 
         auto outputDirOption = TYPED_VALUE(outputDir);
         outputDirOption->value_name("out")->default_value(".");
+        
+        auto renderOutputDirOption = TYPED_VALUE(renderOutputDir);
+        renderOutputDirOption->value_name("render-out")->default_value(".")->composing();
 
         desc.add_options()
               ("help,h"                     ,                          "show this help message and exit")
@@ -77,6 +81,7 @@ int main(int argc, char **argv, char **envp)
               ("initial-state-group,i"      , initialStateGroupOption, "initial state group identifier")
               ("data-dir,d"                 , dataDirOption          , "directory with models specified in task")
               ("output-dir,o"               , outputDirOption        , "directory to write snapshots to")
+              ("render-output-dir,O"        , renderOutputDirOption  , "directory to write render results to")
               ("render,r"                   ,                          "render results using specified in task description")
          ;
 
@@ -208,7 +213,7 @@ int main(int argc, char **argv, char **envp)
                 pv_render.string().c_str(),
                 "--task", taskFile.c_str(),
                 "--snap-list", snapListFilePath.string().c_str(),
-                "--output-dir", outputDir.c_str(),
+                "--output-dir", renderOutputDir.c_str(),
                 "render-all",
                 NULL
             );
