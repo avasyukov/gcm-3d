@@ -215,7 +215,7 @@ int main(int argc, char **argv, char **envp)
             // FIXME this is not portable
             execl(
                 "/bin/env", "/bin/env",
-                "python2",
+                "pvbatch",
                 pv_render.string().c_str(),
                 "--task", taskFile.c_str(),
                 "--snap-list", snapListFilePath.string().c_str(),
