@@ -27,7 +27,6 @@
 
 using namespace gcm;
 using namespace launcher;
-using namespace boost::filesystem;
 using boost::property_tree::ptree;
 using boost::property_tree::write_json;
 
@@ -43,6 +42,7 @@ using std::get;
 
 namespace mpi = boost::mpi;
 namespace po = boost::program_options;
+namespace bfs = boost::filesystem;
 
 #define TYPED_VALUE(VAR) new po::typed_value<decltype(VAR)>(&VAR)
 
@@ -126,17 +126,18 @@ int main(int argc, char **argv, char **envp)
         Engine& engine = Engine::getInstance();
         FileFolderLookupService::getInstance().addPath(dataDir);
 
-        auto outputPathPattern = path(outputDir);
-        outputPathPattern /= path("snap_mesh_%{MESH}%{SUFFIX}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
+        auto outputPathPattern = bfs::path(outputDir);
+
+        outputPathPattern /= bfs::path("snap_mesh_%{MESH}%{SUFFIX}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
         engine.setOption(Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN, outputPathPattern.string());
+        
+        auto snapListFilePath = bfs::path(outputDir);
+        snapListFilePath /= bfs::path(taskFile).filename().string() + ".snapshots";
 
         launcher::Launcher launcher;
         //launcher.loadMaterialLibrary("materials");
         launcher.loadSceneFromFile(taskFile);
         engine.calculate();
-
-        auto snapListFilePath = path(outputDir);
-        snapListFilePath /= path(taskFile).filename().string() + ".snapshots";
 
         if (world.rank() == 0)
         {
@@ -191,9 +192,10 @@ int main(int argc, char **argv, char **envp)
         if (render)
         {
             LOG_DEBUG("Running pv_render");
-            path gcm3d = argv[0];
-            path pv_render = gcm3d.parent_path();
+            bfs::path gcm3d = argv[0];
+            bfs::path pv_render = gcm3d.parent_path();
             pv_render /= "gcm3d_pv_render.py";
+
             // FIXME this is not portable
             execl(
                 "/bin/env", "/bin/env",
