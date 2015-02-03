@@ -18,9 +18,25 @@
             <transform type="translate" moveX="0" moveY="0" moveZ="5.30" />
         </body>
     </bodies>
-    <initialState>
+
+    <initialState group="p-left-to-right">
         <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-3" maxZ="-1"/>
         <values vz="3" sxx="-700" syy="-700" szz="-900" />
+    </initialState>
+    
+    <initialState group="p-right-to-left">
+        <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
+        <values vz="-3" sxx="-700" syy="-700" szz="-900" />
+    </initialState>
+    
+    <initialState group="s-left-to-right">
+        <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-3" maxZ="-1"/>
+        <values vx="1" sxz="-100" />
+    </initialState>
+    
+    <initialState group="s-right-to-left">
+        <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
+        <values vx="1" sxz="100" />
     </initialState>
 
     <render>
