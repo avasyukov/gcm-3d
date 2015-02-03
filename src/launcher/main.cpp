@@ -49,6 +49,7 @@ namespace bfs = boost::filesystem;
 int main(int argc, char **argv, char **envp)
 {
     string taskFile;
+    string initialStateGroup;
     string dataDir;
     string outputDir;
 
@@ -61,6 +62,9 @@ int main(int argc, char **argv, char **envp)
         auto taskFileOption = TYPED_VALUE(taskFile);
         taskFileOption->value_name("task")->required();
 
+        auto initialStateGroupOption = TYPED_VALUE(initialStateGroup);
+        initialStateGroupOption->value_name("task")->default_value("");
+
         auto dataDirOption = TYPED_VALUE(dataDir);
         dataDirOption->value_name("data")->default_value(".");
 
@@ -68,11 +72,12 @@ int main(int argc, char **argv, char **envp)
         outputDirOption->value_name("out")->default_value(".");
 
         desc.add_options()
-              ("help,h"      ,                   "show this help message and exit")
-              ("task,t"      , taskFileOption  , "xml file with task description")
-              ("data-dir,d"  , dataDirOption   , "directory with models specified in task")
-              ("output-dir,o", outputDirOption , "directory to write snapshots to")
-              ("render,r"    ,                   "render results using specified in task description")
+              ("help,h"                     ,                          "show this help message and exit")
+              ("task,t"                     , taskFileOption         , "xml file with task description")
+              ("initial-state-group,i"      , initialStateGroupOption, "initial state group identifier")
+              ("data-dir,d"                 , dataDirOption          , "directory with models specified in task")
+              ("output-dir,o"               , outputDirOption        , "directory to write snapshots to")
+              ("render,r"                   ,                          "render results using specified in task description")
          ;
 
         po::variables_map vm;
@@ -136,7 +141,7 @@ int main(int argc, char **argv, char **envp)
 
         launcher::Launcher launcher;
         //launcher.loadMaterialLibrary("materials");
-        launcher.loadSceneFromFile(taskFile);
+        launcher.loadSceneFromFile(taskFile, initialStateGroup);
         engine.calculate();
 
         if (world.rank() == 0)

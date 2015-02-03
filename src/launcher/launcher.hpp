@@ -25,7 +25,7 @@ namespace launcher {
         Launcher();
 
         void loadMaterialLibrary(std::string path);
-        void loadSceneFromFile(std::string fileName);
+        void loadSceneFromFile(std::string fileName, std::string initialStateGroup="");
     };
 }
 

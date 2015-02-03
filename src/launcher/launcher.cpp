@@ -142,7 +142,7 @@ Area* launcher::Launcher::readCylinderArea(xml::Node areaNode)
     return new CylinderArea(r, x1, y1, z1, x2, y2, z2);
 }
 
-void launcher::Launcher::loadSceneFromFile(string fileName)
+void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateGroup)
 {
     Engine& engine = Engine::getInstance();
 
@@ -579,7 +579,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName)
     }
 
     // FIXME - rewrite this indian style code
-    NodeList initialStateNodes = rootNode.xpath("/task/initialState");
+    NodeList initialStateNodes = rootNode.xpath("/task/initialState" + (initialStateGroup == "" ? "" : "[@group=\"" + initialStateGroup + "\"]"));
     for(auto& initialStateNode: initialStateNodes)
     {
         NodeList areaNodes = initialStateNode.getChildrenByName("area");
