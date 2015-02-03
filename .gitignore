@@ -18,3 +18,4 @@ toplev*
 \!testsRun/*
 Makefile
 mkbuild.sh
+netgen.prof
