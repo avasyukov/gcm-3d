@@ -138,6 +138,9 @@ int main(int argc, char **argv, char **envp)
 
         auto outputPathPattern = bfs::path(outputDir);
 
+        if (!bfs::is_directory(outputPathPattern))
+            bfs::create_directories(outputPathPattern);
+
         outputPathPattern /= bfs::path("snap_mesh_%{MESH}%{SUFFIX}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
         engine.setOption(Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN, outputPathPattern.string());
         
@@ -205,6 +208,9 @@ int main(int argc, char **argv, char **envp)
             bfs::path gcm3d = argv[0];
             bfs::path pv_render = gcm3d.parent_path();
             pv_render /= "gcm3d_pv_render.py";
+
+            if (!bfs::is_directory(renderOutputDir))
+                bfs::create_directories(renderOutputDir);
 
             // FIXME this is not portable
             execl(
