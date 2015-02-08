@@ -5,7 +5,7 @@
 #include "libgcm/mesh/euler/markers/MarkeredSurfaceGeoGenerator.hpp"
 #include "libgcm/rheology/decomposers/IsotropicRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/setters/IsotropicRheologyMatrixSetter.hpp"
-#include "libgcm/node/CalcNode.hpp"
+#include "libgcm/config.hpp"
 
 class EulerMesh: public ::testing::Test
 {
@@ -46,7 +46,7 @@ class EulerMeshImpl: public gcm::EulerMesh
     }
 };
 
-#ifdef CONFIG_ENABLE_ASSERTIONS
+#if CONFIG_ENABLE_ASSERTIONS
 TEST_F(EulerMesh, genearteMeshInvalidDimensions)
 {
 
@@ -254,7 +254,7 @@ TEST_F(EulerMesh, getCellEulerIndexByCoords)
     ASSERT_EQ(index.y, 9);
     ASSERT_EQ(index.z, 9);
 
-#ifdef CONFIG_ENABLE_ASSERTIONS
+#if CONFIG_ENABLE_ASSERTIONS
     ASSERT_THROW(
         mesh.getCellEulerIndexByCoords(vector3r(-1, -0.79, -1.19)),
         Exception
@@ -279,7 +279,7 @@ TEST_F(EulerMesh, getCellCenter)
     ASSERT_FLOAT_EQ(center.y, 0.9);
     ASSERT_FLOAT_EQ(center.z, 1.35);
 
-#ifdef CONFIG_ENABLE_ASSERTIONS
+#if CONFIG_ENABLE_ASSERTIONS
     ASSERT_THROW(
         mesh.getCellCenter(vector3u(11, 0, 0)),
         Exception
