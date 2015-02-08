@@ -46,28 +46,6 @@ namespace gcm
             };
         };
 
-        class Matrix33Container
-        {
-            public:
-                union
-                {
-                    real values[9];
-                    struct
-                    {
-                        real xx;
-                        real xy;
-                        real xz;
-                        real yx;
-                        real yy;
-                        real yz;
-                        real zx;
-                        real zy;
-                        real zz;
-                    };
-                };
-        };
-
-
         /**
          * Genereic matrix class.
          *

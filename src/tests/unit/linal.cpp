@@ -1,4 +1,5 @@
 #include "libgcm/linal/Matrix.hpp"
+#include "libgcm/linal/Matrix33.hpp"
 
 #include <gtest/gtest.h>
 #include <cmath>
@@ -356,4 +357,55 @@ TEST(Linal, MatrixInvertInplace)
     m1.invertInplace();
 
     ASSERT_EQ(m1, m2);
+}
+
+TEST(Linal, Matrix33Construct)
+{
+    Matrix33 m1({
+        1.0, 2.0, 3.0,
+        4.0, 5.0, 6.0,
+        7.0, 8.0, 9.0
+    });
+
+    ASSERT_EQ(m1.xx, 1.0);
+    ASSERT_EQ(m1.xy, 2.0);
+    ASSERT_EQ(m1.xz, 3.0);
+    ASSERT_EQ(m1.yx, 4.0);
+    ASSERT_EQ(m1.yy, 5.0);
+    ASSERT_EQ(m1.yz, 6.0);
+    ASSERT_EQ(m1.zx, 7.0);
+    ASSERT_EQ(m1.zy, 8.0);
+    ASSERT_EQ(m1.zz, 9.0);
+}
+
+TEST(Linal, Matrix33Assign)
+{
+    Matrix33 m1({
+        1.0, 2.0, 3.0,
+        4.0, 5.0, 6.0,
+        7.0, 8.0, 9.0
+    });
+
+    auto m2 = m1;
+
+    ASSERT_EQ(m2.xx, 1.0);
+    ASSERT_EQ(m2.xy, 2.0);
+    ASSERT_EQ(m2.xz, 3.0);
+    ASSERT_EQ(m2.yx, 4.0);
+    ASSERT_EQ(m2.yy, 5.0);
+    ASSERT_EQ(m2.yz, 6.0);
+    ASSERT_EQ(m2.zx, 7.0);
+    ASSERT_EQ(m2.zy, 8.0);
+    ASSERT_EQ(m2.zz, 9.0);
+}
+
+TEST(Linal, Matrix33Determinant)
+{
+    Matrix33 m({
+        1.0, 2.0, 3.0,
+        3.0, 2.0, 1.0,
+        5.0, 7.0, 11.0
+    });
+
+    ASSERT_EQ(m.determinant(), -8.0);
 }
