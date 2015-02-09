@@ -251,7 +251,28 @@ namespace gcm
         {
             (*this) = invert();
         }
+        
+        /**
+         * Computes negative of matrix B
+         *
+         * @tparam M First matrix dimension
+         * @tparam N Second matrix dimension
+         * @tparam Container Matrix container type
+         * @param m Matrix to compute negative for.
+         *
+         * @return Negative of matrix
+         */
+        template<uint M, uint N, typename Container>
+        Matrix<M, N, Container> operator-(const Matrix<M, N, Container>& m)
+        {
+            Matrix<M, N, Container> result;
 
+            for (uint i = 0; i < M; i++)
+                for (uint j = 0; j < N; j++)
+                    result(i, j) = -m(i, j);
+
+            return result;
+        }
 
         /**
          * Computes summ of two matrixes. Generic implementation.

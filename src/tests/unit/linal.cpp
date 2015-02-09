@@ -1,5 +1,7 @@
 #include "libgcm/linal/Matrix.hpp"
 #include "libgcm/linal/Matrix33.hpp"
+#include "libgcm/linal/Vector3.hpp"
+#include "libgcm/linal/RotationMatrix.hpp"
 
 #include <gtest/gtest.h>
 #include <cmath>
@@ -160,6 +162,20 @@ TEST(Linal, MatrixSubtract)
     ASSERT_EQ(m3(1, 1), 0.0);
 }
 
+TEST(Linal, MatrixNegative)
+{
+    Matrix<2, 2> m1({
+        1.0, 2.0,
+        3.0, 4.0
+    });
+
+    auto m2 = -m1;
+    
+    ASSERT_EQ(m2(0, 0), -1.0);
+    ASSERT_EQ(m2(0, 1), -2.0);
+    ASSERT_EQ(m2(1, 0), -3.0);
+    ASSERT_EQ(m2(1, 1), -4.0);
+}
 
 TEST(Linal, MatrixSubtractCustomContainer)
 {
@@ -407,5 +423,176 @@ TEST(Linal, Matrix33Determinant)
         5.0, 7.0, 11.0
     });
 
-    ASSERT_EQ(m.determinant(), -8.0);
+    ASSERT_EQ(determinant(m), -8.0);
+}
+
+TEST(Linal, Vector3Construct)
+{
+    Vector3 m1({
+        1.0, 2.0, 3.0,
+    });
+
+    ASSERT_EQ(m1.x, 1.0);
+    ASSERT_EQ(m1.y, 2.0);
+    ASSERT_EQ(m1.z, 3.0);
+}
+
+TEST(Linal, Vector3Assign)
+{
+    Vector3 m1({
+        1.0, 2.0, 3.0,
+    });
+
+    auto m2 = m1;
+
+    ASSERT_EQ(m2.x, 1.0);
+    ASSERT_EQ(m2.y, 2.0);
+    ASSERT_EQ(m2.z, 3.0);
+}
+
+TEST(Linal, VectorLength)
+{
+    Vector3 v({
+        0.0, 3.0, 4.0,
+    });
+
+    ASSERT_EQ(vectorLength(v), 5.0);
+}
+
+TEST(Linal, VectorDotProduct)
+{
+    Vector3 v1({
+        1.0, 2.0, 3.0
+    });
+
+    Vector3 v2({
+        -2.0, 4.0, -2.0
+    });
+
+    ASSERT_EQ(dotProduct(v1, v2), 0.0);
+}
+
+TEST(Linal, VectorCrossProduct)
+{
+    Vector3 v1({
+        1.0, 0.0, 0.0
+    });
+
+    Vector3 v2({
+        0.0, 1.0, 0.0
+    });
+    
+    Vector3 v3({
+        0.0, 0.0, 1.0
+    });
+    
+    Vector3 z({
+        0.0, 0.0, 0.0
+    });
+
+    ASSERT_EQ(crossProduct(v1, v2), v3);
+    ASSERT_EQ(crossProduct(v2, v3), v1);
+    ASSERT_EQ(crossProduct(v3, v1), v2);
+    
+    ASSERT_EQ(crossProduct(v2, v1), -v3);
+    ASSERT_EQ(crossProduct(v3, v2), -v1);
+    ASSERT_EQ(crossProduct(v1, v3), -v2);
+    
+    ASSERT_EQ(crossProduct(v1, v1), z);
+    ASSERT_EQ(crossProduct(v2, v2), z);
+    ASSERT_EQ(crossProduct(v3, v3), z);
+}
+
+TEST(Linal, VectorNormalize)
+{
+    Vector3 v1({
+        2.0, 0.0, 0.0
+    });
+
+    auto v = vectorNormalize(v1);
+
+    ASSERT_NEAR(v.x, 1.0, 1e-5);
+    ASSERT_EQ(v.y, 0.0);
+    ASSERT_EQ(v.z, 0.0);
+
+    Vector3 v2({
+        1.0, 2.0, 3.0        
+    });
+
+    v = vectorNormalize(v2);
+
+    ASSERT_NEAR(vectorLength(v), 1.0, 1e-5);
+
+#if CONFIG_ENABLE_ASSERTIONS
+    Vector3 v3({
+        0.0, 0.0, 0.0
+    });
+
+    ASSERT_THROW(
+        vectorNormalize(v3),
+        Exception
+    );
+#endif
+}
+
+TEST(Linal, VectorNormalizeInplace)
+{
+    Vector3 v1({
+        2.0, 0.0, 0.0
+    });
+
+    vectorNormalizeInplace(v1);
+
+    ASSERT_NEAR(v1.x, 1.0, 1e-5);
+    ASSERT_EQ(v1.y, 0.0);
+    ASSERT_EQ(v1.z, 0.0);
+
+    Vector3 v2({
+        1.0, 2.0, 3.0        
+    });
+
+    vectorNormalizeInplace(v2);
+
+    ASSERT_NEAR(vectorLength(v2), 1.0, 1e-5);
+
+#if CONFIG_ENABLE_ASSERTIONS
+    Vector3 v3({
+        0.0, 0.0, 0.0
+    });
+
+    ASSERT_THROW(
+        vectorNormalizeInplace(v3),
+        Exception
+    );
+#endif
+}
+
+TEST(Linal, RotationMatrix)
+{
+    Vector3 x({
+        1.0, 0.0, 0.0
+    });
+    
+    Vector3 y({
+        0.0, 1.0, 0.0
+    });
+    
+    Vector3 z({
+        0.0, 0.0, 1.0
+    });
+
+    ASSERT_EQ(getXRotationMatrix(M_PI/2)*y, -z);
+    ASSERT_EQ(getXRotationMatrix(M_PI/2)*z, y);
+    ASSERT_EQ(getXRotationMatrix(-M_PI/2)*y, z);
+    ASSERT_EQ(getXRotationMatrix(-M_PI/2)*z, -y);
+    
+    ASSERT_EQ(getYRotationMatrix(M_PI/2)*x, z);
+    ASSERT_EQ(getYRotationMatrix(M_PI/2)*z, -x);
+    ASSERT_EQ(getYRotationMatrix(-M_PI/2)*z, x);
+    ASSERT_EQ(getYRotationMatrix(-M_PI/2)*x, -z);
+    
+    ASSERT_EQ(getZRotationMatrix(M_PI/2)*y, x);
+    ASSERT_EQ(getZRotationMatrix(M_PI/2)*x, -y);
+    ASSERT_EQ(getZRotationMatrix(-M_PI/2)*y, -x);
+    ASSERT_EQ(getZRotationMatrix(-M_PI/2)*x, y);
 }

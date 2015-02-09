@@ -69,42 +69,14 @@ namespace gcm
         /**
          * Specialized 3x3 matrix implementation.
          */
-        class Matrix33: public Matrix<3, 3, Matrix33Container>
-        {
-            public:
-                /**
-                 * Default constructor.
-                 */
-                Matrix33();
+        typedef Matrix<3, 3, Matrix33Container> Matrix33;
 
-                /**
-                 * Copy constructor
-                 *
-                 * @param m Matrix to construct from.
-                 */
-                Matrix33(const Matrix33& m);
-
-                /**
-                 * Assignment operator.
-                 *
-                 * @param m Matrix to assign values from.
-                 *
-                 * @return Reference to modified matrix instance.
-                 */
-                Matrix33& operator=(const Matrix33& m);
-                /**
-                 * Constructor that initializes matrix with specified values.
-                 *
-                 * @param values Values to initialize matrix with.
-                 */
-                Matrix33(std::initializer_list<real> values);
-                /**
-                 * Calculates matrix determinant.
-                 *
-                 * @return Determinant value.
-                 */
-                real determinant() const;
-        };
+        /**
+         * Calculates matrix determinant.
+         *
+         * @return Determinant value.
+         */
+        real determinant(const Matrix33& m);
     };
 };
 #endif 
