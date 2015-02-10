@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <algorithm>
+#include <functional>
 
 #include "libgcm/util/AABB.hpp"
 #include "libgcm/util/areas/Area.hpp"
@@ -224,6 +225,7 @@ namespace gcm {
         void preProcess();
 
         void setInitialState(Area* area, float* values);
+        void setInitialState(Area* area, std::function<void(CalcNode& node)> setter);
 		void setBorderCondition(Area* area, unsigned int num);
 		void setContactCondition(Area* area, unsigned int num);
         void setRheology(unsigned char matId);

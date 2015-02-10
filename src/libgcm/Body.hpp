@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 #include "libgcm/mesh/Mesh.hpp"
 #include "libgcm/Logging.hpp"
@@ -58,6 +59,7 @@ namespace gcm {
         std::string getId();
 
         void setInitialState(Area* area, float values[9]);
+        void setInitialState(Area* area, std::function<void(CalcNode&)> setter);
 		void setBorderCondition(Area* area, unsigned int num);
 		void setContactCondition(Area* area, unsigned int num);
 

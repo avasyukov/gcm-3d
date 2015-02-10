@@ -43,6 +43,11 @@ void Body::setInitialState(Area* area, float values[9]) {
         meshes[i]->setInitialState(area, values);
 }
 
+void Body::setInitialState(Area* area, std::function<void(CalcNode&)> setter) {
+    for( unsigned int i = 0; i < meshes.size(); i++ )
+        meshes[i]->setInitialState(area, setter);
+}
+
 void Body::setBorderCondition(Area* area, unsigned int num) {
     for( unsigned int i = 0; i < meshes.size(); i++ )
         meshes[i]->setBorderCondition(area, num);

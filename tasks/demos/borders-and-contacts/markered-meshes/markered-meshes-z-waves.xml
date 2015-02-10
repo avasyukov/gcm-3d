@@ -19,14 +19,24 @@
         </body>
     </bodies>
 
-    <initialState group="p-left-to-right">
+    <initialState group="p-left-to-right-compression">
         <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-3" maxZ="-1"/>
-        <values vz="3" sxx="-700" syy="-700" szz="-900" />
+        <pWave direction="0;0;1" amplitudeScale="0.01" type="compression"/>
+    </initialState>
+
+    <initialState group="p-left-to-right-rarefaction">
+        <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-3" maxZ="-1"/>
+        <pWave direction="0;0;1" amplitudeScale="0.01" type="rarefaction"/>
     </initialState>
     
-    <initialState group="p-right-to-left">
+    <initialState group="p-right-to-left-compression">
         <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
-        <values vz="-3" sxx="-700" syy="-700" szz="-900" />
+        <pWave direction="0;0;-1" amplitudeScale="0.01" type="compression"/>
+    </initialState>
+    
+    <initialState group="p-right-to-left-rarefaction">
+        <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
+        <pWave direction="0;0;-1" amplitudeScale="0.01" type="rarefaction"/>
     </initialState>
     
     <initialState group="s-left-to-right">

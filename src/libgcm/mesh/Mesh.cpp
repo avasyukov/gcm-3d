@@ -185,6 +185,16 @@ void Mesh::setInitialState(Area* area, float* values)
                 node.values[k] = values[k];
     }
 }
+        
+void Mesh::setInitialState(Area* area, std::function<void(CalcNode& node)> setter)
+{
+    for(int i = 0; i < getNodesNumber(); i++)
+    {
+        CalcNode& node = getNodeByLocalIndex(i);
+        if (area->isInArea(node))
+            setter(node);
+    }
+}
 
 void Mesh::setBorderCondition(Area* area, unsigned int num)
 {

@@ -1,6 +1,9 @@
 #include "launcher/launcher.hpp"
 
+#include <functional>
+
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
 
@@ -36,12 +39,19 @@
 #include "libgcm/rheology/Plasticity.hpp"
 #include "libgcm/rheology/Failure.hpp"
 
+#include "libgcm/linal/Matrix33.hpp"
+#include "libgcm/util/StressTensor.hpp"
+#include "libgcm/linal/RotationMatrix.hpp"
+
 namespace ba = boost::algorithm;
 namespace bfs = boost::filesystem;
 
 using namespace xml;
 using namespace gcm;
+using namespace gcm::linal;
 using boost::lexical_cast;
+using boost::split;
+using boost::is_any_of;
 using std::string;
 using std::vector;
 
@@ -578,53 +588,94 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
         LOG_DEBUG("Body '" << id << "' loaded");
     }
 
-    // FIXME - rewrite this indian style code
     NodeList initialStateNodes = rootNode.xpath("/task/initialState" + (initialStateGroup == "" ? "" : "[@group=\"" + initialStateGroup + "\"]"));
+    if (initialStateGroup != "" && initialStateNodes.size() == 0)
+        THROW_INVALID_ARG("Initial state group not found");
     for(auto& initialStateNode: initialStateNodes)
     {
         NodeList areaNodes = initialStateNode.getChildrenByName("area");
         NodeList valuesNodes = initialStateNode.getChildrenByName("values");
+        NodeList pWaveNodes = initialStateNode.getChildrenByName("pWave");
         if (areaNodes.size() == 0)
             THROW_INVALID_INPUT("Area element should be provided for initial state");
-        if (valuesNodes.size() != 1)
+        if (valuesNodes.size() > 1)
             THROW_INVALID_INPUT("Only one values element allowed for initial state");
-        xml::Node valuesNode = valuesNodes.front();
+        if (pWaveNodes.size() > 1)
+            THROW_INVALID_INPUT("Only one pWave element allowed for initial state");
+        if ((valuesNodes.size() == 1 && pWaveNodes.size() == 1) || (valuesNodes.size() == 0 && pWaveNodes.size() == 0))
+            THROW_INVALID_INPUT("You have to provide initial state by using exactly one tag of allowed ones: values, pWave");;
 
+        auto useValues = valuesNodes.size() == 1;
         real values[9];
-        
-        memset(values, 0, 9*sizeof(real));
-        string vx = valuesNode.getAttributes()["vx"];
-        if( !vx.empty() )
-            values[0] = lexical_cast<real>(vx);
-        string vy = valuesNode.getAttributes()["vy"];
-        if( !vy.empty() )
-            values[1] = lexical_cast<real>(vy);
-        string vz = valuesNode.getAttributes()["vz"];
-        if( !vz.empty() )
-            values[2] = lexical_cast<real>(vz);
-        string sxx = valuesNode.getAttributes()["sxx"];
-        if( !sxx.empty() )
-            values[3] = lexical_cast<real>(sxx);
-        string sxy = valuesNode.getAttributes()["sxy"];
-        if( !sxy.empty() )
-            values[4] = lexical_cast<real>(sxy);
-        string sxz = valuesNode.getAttributes()["sxz"];
-        if( !sxz.empty() )
-            values[5] = lexical_cast<real>(sxz);
-        string syy = valuesNode.getAttributes()["syy"];
-        if( !syy.empty() )
-            values[6] = lexical_cast<real>(syy);
-        string syz = valuesNode.getAttributes()["syz"];
-        if( !syz.empty() )
-            values[7] = lexical_cast<real>(syz);
-        string szz = valuesNode.getAttributes()["szz"];
-        if( !szz.empty() )
-            values[8] = lexical_cast<real>(szz);
-        LOG_DEBUG("Initial state values: "
-                        << values[0] << " " << values[1] << " " << values[2] << " "
-                        << values[3] << " " << values[4] << " " << values[5] << " "
-                        << values[6] << " " << values[7] << " " << values[8] );
-        
+
+        std::function<void(CalcNode&)> setter;
+
+        if (useValues)
+        {
+            xml::Node valuesNode = valuesNodes.front();
+
+            vector<string> names = {"vx", "vy", "vz", "sxx", "sxy", "sxz", "syy", "syz", "szz"};
+
+            int i = 0;
+            for (auto value_name: names)
+            {
+                string v = valuesNode.getAttributes()[value_name];
+                values[i++] = v.empty() ? 0.0 : lexical_cast<real>(v);
+
+            }
+            
+            LOG_DEBUG("Initial state values: "
+                            << values[0] << " " << values[1] << " " << values[2] << " "
+                            << values[3] << " " << values[4] << " " << values[5] << " "
+                            << values[6] << " " << values[7] << " " << values[8] );
+            
+        }
+        else
+        {
+            xml::Node pWaveNode = pWaveNodes.front();
+
+            auto attrs = pWaveNode.getAttributes();
+
+            auto direction = attrs["direction"];
+            if (direction.empty())
+                THROW_INVALID_INPUT("P-wave direction is not specified");
+
+            vector<string> _direction;
+            split(_direction, direction, is_any_of(";"));
+
+            if (_direction.size() != 3)
+                THROW_INVALID_INPUT("Invalid P-wave direction specified");
+
+            auto dx = lexical_cast<real>(_direction[0]);
+            auto dy = lexical_cast<real>(_direction[1]);
+            auto dz = lexical_cast<real>(_direction[2]);
+
+            Vector3 dir({dx, dy, dz});
+
+            if (dx == 0.0 && dy == 0.0 && dz == 0.0)
+                THROW_INVALID_INPUT("Invalid P-wave direction specified");
+
+            auto scale = attrs["amplitudeScale"];
+            if (scale.empty())
+                THROW_INVALID_INPUT("P-wave amplitude scale is not specified");
+
+            auto amplitudeScale = lexical_cast<real>(scale);
+            if (amplitudeScale <= 0.0)
+                THROW_INVALID_INPUT("P-wave amplitude must be positive");
+
+            auto type = attrs["type"];
+            if (type.empty())
+                THROW_INVALID_INPUT("P-wave type is not specified");
+            if (type != "compression" && type != "rarefaction")
+                THROW_INVALID_INPUT("Invalid P-wave type specified");
+            auto compression = type == "compression";
+
+            setter = [=](CalcNode& node)
+            {
+                setIsotropicElasticPWave(node, dir, amplitudeScale, compression);
+            };
+
+        }
         for(auto& areaNode: areaNodes)
         {
             Area* stateArea = readArea(areaNode);
@@ -633,7 +684,10 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
 
             for( int i = 0; i < engine.getNumberOfBodies(); i++ )
             {
-                engine.getBody(i)->setInitialState(stateArea, values);
+                if (useValues)
+                   engine.getBody(i)->setInitialState(stateArea, values);
+                else
+                   engine.getBody(i)->setInitialState(stateArea, setter);
                 engine.getBody(i)->getMeshes()->processStressState();
             }
         }
@@ -825,4 +879,59 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
     );
 
     LOG_DEBUG("Scene loaded");
+}
+
+void launcher::setIsotropicElasticPWave(CalcNode& node, const Vector3& direction, real amplitudeScale, bool compression)
+{
+    assert_gt(amplitudeScale, 0.0);
+
+    const MaterialPtr& mat = node.getMaterial();
+
+    auto la = mat->getLa();
+    auto  mu = mat->getMu();
+    auto  rho = mat->getRho();
+
+    auto pWaveVelocity = sqrt(la + 2 * mu / rho);
+
+    auto dir = vectorNormalize(direction);
+
+    auto sxx = la*amplitudeScale;
+    auto szz = sxx;
+    auto syy = (la + 2*mu)*amplitudeScale;
+
+    if (!compression)
+    {
+        sxx = -sxx;
+        syy = -syy;
+        szz = -szz;
+    }
+
+    StressTensor tensor({
+        sxx, 0.0, 0.0,
+             syy, 0.0,
+                  szz
+    });
+
+    auto alpha = atan2(dir.y, dir.x) - M_PI/2;
+    
+    auto _dir = getZRotationMatrix(alpha)*dir;
+
+    auto beta = atan2(_dir.z, _dir.y);
+
+    auto s = getZRotationMatrix(-alpha) *getXRotationMatrix(-beta);
+
+    tensor.transform(s);
+
+    node.sxx = tensor.xx;
+    node.sxy = tensor.xy;
+    node.sxz = tensor.xz;
+    node.syy = tensor.yy;
+    node.syz = tensor.yz;
+    node.szz = tensor.zz;
+
+    auto velocity = (compression ? -1 : 1) * vectorNormalize(dir)*pWaveVelocity*amplitudeScale;
+
+    node.vx = velocity.x;
+    node.vy = velocity.y;
+    node.vz = velocity.z;
 }
