@@ -185,6 +185,33 @@ void MarkeredMesh::reconstructBorder()
 
     LOG_DEBUG("Found " << innerCells << " inner cells");
 
+    LOG_DEBUG("Refining border");
+    
+    uint removed = 1;
+
+    while (removed > 0)
+    {
+        removed = 0;
+
+        for (uint i = 1; i < dimensions.x-1; i++)
+            for (uint j = 1; j < dimensions.y-1; j++)
+                for (uint k = 1; k < dimensions.z-1; k++)
+                    if (cellStatus[i][j][k])
+                    {
+                        uint neighbsUsed = 0;
+                        for (auto& neighb: neighbs)
+                            if (cellStatus[i+neighb.x][j+neighb.y][k+neighb.z])
+                                neighbsUsed++;
+                        if (neighbsUsed < 3)
+                        {
+                            cellStatus[i][j][k] = false;
+                            removed++;
+                        }
+                    }
+
+        LOG_DEBUG("Removed " << removed << " cells during refinement");
+    }
+
     outline.minX = numeric_limits<float>::infinity();
     outline.minY = numeric_limits<float>::infinity();
     outline.minZ = numeric_limits<float>::infinity();
@@ -334,7 +361,7 @@ void MarkeredMesh::moveCoords(float tau) {
         const auto& marker = markers[q];
         auto index = getCellEulerIndexByCoords(marker.coords);
 
-        assert_true(cellStatus[index.x][index.y][index.z]);
+//        assert_true(cellStatus[index.x][index.y][index.z]);
 
         auto& n000 = getNodeByEulerMeshIndex(index);
         auto& n010 = getNodeByEulerMeshIndex(index+vector3u(0, 1, 0));
