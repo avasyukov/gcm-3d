@@ -20,6 +20,9 @@ void VTKEulerMeshSnapshotWriter::dumpMeshSpecificData(EulerMesh* mesh, vtkSmartP
     auto cellStatus = vtkSmartPointer<vtkIntArray>::New();
     cellStatus->SetName("cellStatus");
 
+    auto cellError = vtkSmartPointer<vtkIntArray>::New();
+    cellError->SetName("cellError");
+
     for (uint i = 0; i < nodeDims.x; i++)
         for (uint j = 0; j < nodeDims.y; j++)
             for (uint k = 0; k < nodeDims.z; k++)
@@ -31,9 +34,21 @@ void VTKEulerMeshSnapshotWriter::dumpMeshSpecificData(EulerMesh* mesh, vtkSmartP
     for (uint i = 0; i < cellDims.x; i++)
         for (uint j = 0; j < cellDims.y; j++)
             for (uint k = 0; k < cellDims.z; k++)
+            {
                 cellStatus->InsertNextValue(mesh->getCellStatus(vector3u(i, j, k)) ? 1 : 0);
+                char flag = 0;
+
+                for (uint p = 0; p <= 1; p++)
+                    for (uint q = 0; q <= 1; q++)
+                        for (uint s = 0; s <= 1; s++)
+                            if ((flag = mesh->getNodeByEulerMeshIndex(vector3u(i+p, j+q, k+s)).getErrorFlags()))
+                                break;
+
+                cellError->InsertNextValue(flag);
+            }
 
     grid->GetCellData()->AddArray(cellStatus);
+    grid->GetCellData()->AddArray(cellError);
 
     grid->SetDimensions(nodeDims.x, nodeDims.y, nodeDims.z);
 }

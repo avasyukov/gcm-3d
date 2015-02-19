@@ -230,7 +230,15 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
     // Tmp value for GSL solver
     int s;
     gsl_linalg_LU_decomp (U_gsl, p_gsl, &s);
-    gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);
+    try
+    {
+        gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);
+    }
+    catch (Exception& e)
+    {
+        cur_node.setContactCalculationError();
+        throw;
+    }
 
     // Just get first 9 values (real node) and dump the rest 9 (virt node)
     for(int j = 0; j < 9; j++)

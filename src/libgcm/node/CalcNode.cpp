@@ -546,6 +546,11 @@ void CalcNode::setNeighError(unsigned int axisNum)
     }
 }
 
+void CalcNode::setContactCalculationError()
+{
+    errorFlags.contactCalculation = true;
+}
+
 bool CalcNode::getCustomFlag(uchar flag) const
 {
     switch (flag) {

@@ -148,8 +148,6 @@ gcm_matrix gcm_matrix::inv() const
     gcm_matrix res_matrix;
     // Invert the matrix using gsl library
 
-    gsl_set_error_handler_off();
-
     gsl_matrix* Z1 = gsl_matrix_alloc(GCM_MATRIX_SIZE, GCM_MATRIX_SIZE);
     gsl_matrix* Z = gsl_matrix_alloc(GCM_MATRIX_SIZE, GCM_MATRIX_SIZE);
     gsl_permutation* perm = gsl_permutation_alloc(GCM_MATRIX_SIZE);

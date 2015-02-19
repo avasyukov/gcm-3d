@@ -65,6 +65,7 @@ namespace gcm {
                 uchar yNeigh : 1;
                 uchar zNeigh : 1;
                 uchar outerNormal : 1;
+                uchar contactCalculation: 1;
             };
         } ErrorFlags;
 
@@ -371,6 +372,10 @@ namespace gcm {
          * @param axisName Number of axis to set error flag for.
          */
         void setNeighError(unsigned int axisNum);
+        /**
+         * Sets node contact calculation error. TODO document
+         */
+        void setContactCalculationError();
 
         /**
          * Returns value of specified custom flag.

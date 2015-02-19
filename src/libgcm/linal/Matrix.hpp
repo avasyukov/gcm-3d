@@ -218,8 +218,6 @@ namespace gcm
         {
             Matrix<N, M, Container> result;
 
-            gsl_set_error_handler_off();
-
             gsl_matrix* Z1 = gsl_matrix_alloc(M, M);
             gsl_matrix* Z = gsl_matrix_alloc(M, M);
             gsl_permutation* perm = gsl_permutation_alloc(M);

@@ -110,6 +110,10 @@ namespace gcm {
              * Invalid method exception code.
              */
             static const int BAD_METHOD    = 6;
+            /**
+             * GSL error
+             */
+            static const int GSL_ERROR     = 7;
     };
 }
 
@@ -121,5 +125,6 @@ namespace gcm {
 #define THROW_BAD_MESH(msg) THROW(gcm::Exception::BAD_MESH, msg)
 #define THROW_BAD_CONFIG(msg) THROW(gcm::Exception::BAD_CONFIG, msg)
 #define THROW_BAD_METHOD(msg) THROW(gcm::Exception::BAD_METHOD, msg)
+#define THROW_GSL_ERROR(msg) THROW(gcm::Exception::GSL_ERROR, msg)
 
 #endif

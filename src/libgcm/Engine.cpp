@@ -15,17 +15,28 @@
 #include "libgcm/rheology/DummyRheologyCalculator.hpp"
 #include "libgcm/BruteforceCollisionDetector.hpp"
 
+#include <exception>
+#include <gsl/gsl_errno.h>
+
 using namespace gcm;
 using std::string;
 using std::vector;
 using std::tuple;
 using std::numeric_limits;
 using std::function;
+using std::exception;
 
 const std::string Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN = "SNAPSHOT_OUTPUT_PATH_PATTERN";
 
+void GSLErrorHandler(const char * reason, const char * file,  int line,  int gsl_errno)
+{
+    THROW_GSL_ERROR(reason);
+}
+
 Engine::Engine()
 {
+    gsl_set_error_handler(GSLErrorHandler);
+
     rank = MPI::COMM_WORLD.Get_rank();
     numberOfWorkers = MPI::COMM_WORLD.Get_size();
     // get logger
@@ -495,7 +506,15 @@ void Engine::doNextStepStages(const float time_step)
         {
             Mesh* mesh = bodies[i]->getMeshes();
             LOG_DEBUG( "Doing calculations for mesh " << mesh->getId() );
-            mesh->doNextPartStep(time_step, j);
+            try
+            {
+                mesh->doNextPartStep(time_step, j);
+            }
+            catch (Exception& e)
+            {
+                mesh->snapshot(-1);
+                throw;
+            }
             LOG_DEBUG( "Mesh calculation done" );
             LOG_DEBUG( "Applying correctors for mesh " << mesh->getId() );
             mesh->applyCorrectors();
