@@ -306,7 +306,7 @@ def build(bld):
         bld(
             features='cxx cxxprogram',
             source=bld.path.ant_glob('src/tests/unit/**/*.cpp'),
-            use=['gcm', 'launcher_util', 'loaders'] + libs,
+            use=['gcm', 'launcher_util', 'loaders', 'launcher'] + libs,
             target='gcm3d_unit_tests',
             install_path=None
         )
