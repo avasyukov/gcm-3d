@@ -42,8 +42,8 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
     createLocalBasis(local_n[0], local_n[1], local_n[2]);
 
     //---------------------------------------Check if nodes fall apart
-    LOG_TRACE("Cur node: " << cur_node);
-    LOG_TRACE("Virt node: " << virt_node);
+    LOG_DEBUG("Cur node: " << cur_node);
+    LOG_DEBUG("Virt node: " << virt_node);
     float vel_rel[3] = {
         cur_node.vx - virt_node.vx,
         cur_node.vy - virt_node.vy,
@@ -67,10 +67,10 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
     float vel_abs = scalarProduct(vel_rel, outer_normal);
     float force_cur_abs = scalarProduct(force_cur,outer_normal);
 
-    LOG_TRACE("Vrel: " << vel_rel[0] << " " << vel_rel[1] << " " << vel_rel[2]);
-    LOG_TRACE("Fcur: " << force_cur[0] << " " << force_cur[1] << " " << force_cur[2]);
-    LOG_TRACE("Vavg: " << vel_avg_abs << " Vdelta: " << vel_delta_abs);
-    LOG_TRACE("DeltaVabs: " << vel_abs << " Fabs: " << force_cur_abs);
+    LOG_DEBUG("Vrel: " << vel_rel[0] << " " << vel_rel[1] << " " << vel_rel[2]);
+    LOG_DEBUG("Fcur: " << force_cur[0] << " " << force_cur[1] << " " << force_cur[2]);
+    LOG_DEBUG("Vavg: " << vel_avg_abs << " Vdelta: " << vel_delta_abs);
+    LOG_DEBUG("DeltaVabs: " << vel_abs << " Fabs: " << force_cur_abs);
     
     bool free_border = false;
 
@@ -85,7 +85,7 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
             free_border = true;
     }
     
-    LOG_TRACE("Free border: " << free_border);
+    LOG_DEBUG("Free border: " << free_border);
 
     if (free_border)
     {
@@ -105,9 +105,11 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
     // For all omegas of real node
     for(int i = 0; i < 9; i++)
     {
+        LOG_DEBUG("PrNode: " << previousNodes[i]);
         // If omega is 'inner'
         if(inner[i])
         {
+            LOG_DEBUG("INNER");
             // omega on new time layer is equal to omega on previous time layer along characteristic
             omega[i] = 0;
             for( int j = 0; j < 9; j++ ) {
@@ -132,9 +134,11 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
     // For all omegas of virtual node
     for(int i = 0; i < 9; i++)
     {
+        LOG_DEBUG("VirtPrNode: " << virtPreviousNodes[i]);
         // If omega is 'inner'
         if(virt_inner[i])
         {
+            LOG_DEBUG("INNER");
             // omega on new time layer is equal to omega on previous time layer along characteristic
             virt_omega[i] = 0;
             for( int j = 0; j < 9; j++ ) {
@@ -237,6 +241,17 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
     catch (Exception& e)
     {
         cur_node.setContactCalculationError();
+        for(int i = 0; i < 18; i++) {
+            std::stringstream matStr;
+            for(int j = 0; j < 18; j++)
+                matStr << gsl_matrix_get(U_gsl, i, j) << " ";
+            LOG_DEBUG(matStr.str());
+        }
+        LOG_DEBUG("Bad node: " << cur_node);
+        LOG_DEBUG("Normal: " << outer_normal[0] << " " << outer_normal[1] << " " << outer_normal[2]);
+        LOG_DEBUG("Delta: " << virt_node.coords[0] - cur_node.coords[0] 
+                        << " " << virt_node.coords[1] - cur_node.coords[1] 
+                        << " " << virt_node.coords[2] - cur_node.coords[2]);
         throw;
     }
 
