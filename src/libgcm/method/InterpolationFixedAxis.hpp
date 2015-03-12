@@ -38,6 +38,8 @@ namespace gcm
         int find_nodes_on_previous_time_layer(CalcNode& cur_node, int stage, Mesh* mesh,
                 float dksi[], bool inner[], std::vector<CalcNode>& previous_nodes,
                 float outer_normal[]);
+        
+        void __doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh);
 
         USE_LOGGER;
     };

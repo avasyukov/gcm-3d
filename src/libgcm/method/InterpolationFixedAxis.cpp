@@ -29,7 +29,7 @@ int InterpolationFixedAxis::getNumberOfStages()
     return 3;
 }
 
-void InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh)
+void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh)
 {
     assert_ge(stage, 0);
     assert_le(stage, 2);
@@ -282,6 +282,11 @@ void InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& new_no
         }
         LOG_TRACE("Done border node calc");
     }
+}
+
+void InterpolationFixedAxis::doNextPartStep(CalcNode& cur_node, CalcNode& new_node, float time_step, int stage, Mesh* mesh)
+{
+    TRACE_ON_EXCEPTION(__doNextPartStep(cur_node, new_node, time_step, stage, mesh));
 }
 
 int InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrixPtr rheologyMatrix,
