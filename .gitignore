@@ -13,7 +13,7 @@ bin/
 lib/
 include/
 share/
-*.log
+*.log*
 toplev*
 \!testsRun/*
 Makefile
