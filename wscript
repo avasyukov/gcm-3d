@@ -180,8 +180,9 @@ def configure(conf):
 
     conf.env.CXXFLAGS += ['-Wall']
     conf.env.CXXFLAGS += ['-std=c++11']
+    conf.env.CXXFLAGS += ['-pthread']
 
-    conf.env.LINKFLAGS += ['-lpthread', '-lrt', '-lstdc++']
+    conf.env.LINKFLAGS += ['-lpthread', '-lrt', '-lstdc++', '-pthread']
     if not conf.env.no_export_dynamic_symbols:
         conf.env.LINKFLAGS += ['-rdynamic']
 
