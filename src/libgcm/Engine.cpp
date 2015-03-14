@@ -14,7 +14,10 @@
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/rheology/DummyRheologyCalculator.hpp"
 #include "libgcm/BruteforceCollisionDetector.hpp"
+#include "Engine.hpp"
 
+#include <ctime>
+#include <cstdio>
 #include <exception>
 #include <gsl/gsl_errno.h>
 
@@ -449,7 +452,7 @@ void Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actualTim
     if (tau > maxAllowedStep) tau = maxAllowedStep;
     dataBus->syncTimeStep(&tau);
     actualTimeStep = tau;
-    LOG_INFO("Starting step "<< currentTimeStep << ". Current time: " << currentTime << ". "
+    LOG_INFO("Started step "<< currentTimeStep << ". Current time: " << currentTime << ". "
                 << "Time step: " << tau << ".");
 
     // Set contact threshold
@@ -552,6 +555,8 @@ void Engine::doNextStepAfterStages(const float time_step) {
         }
     }
     currentTime += time_step;
+
+    LOG_INFO("Finished step "<< currentTimeStep << ". Current time: " << currentTime << ". ");
 }
 
 float Engine::getCurrentTime() {
@@ -580,12 +585,35 @@ void Engine::calculate()
     // float tau = calculateRecommendedTimeStep();
     // setTimeStep( tau );
 
+    auto startTime = std::time(nullptr);
+
     for( int i = 0; i < numberOfSnaps; i++ )
     {
         snapshotTimestamps.push_back(getCurrentTime());
         createSnapshot(i);
         for( int j = 0; j < stepsPerSnap; j++ )
             doNextStep();
+
+        if (i == numberOfSnaps -1)
+        {
+            LOG_INFO("Calculation done");
+            break;
+        }
+
+        auto currentTime = std::time(nullptr);
+        auto diff = std::difftime(currentTime, startTime);
+
+        diff = diff / (i+1) * (numberOfSnaps-i-1);
+
+        uint hours = std::floor(diff/3600);
+        diff -= hours*3600;
+        uint minutes = std::floor(diff/60);
+        uint seconds = diff-minutes*60;
+
+        char eta[30];
+        sprintf(eta, "%02d:%02d:%02d", hours, minutes, seconds);
+
+        LOG_INFO("Estimated time of calculation completion: " << eta);
     }
 
     snapshotTimestamps.push_back(getCurrentTime());
