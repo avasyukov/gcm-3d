@@ -264,25 +264,38 @@ void MarkeredMesh::reconstructBorder()
                     if (node.coords.z > outline.maxZ)
                         outline.maxZ = node.coords.z;
 
-                    vector3r norm;
+                    vector3r norm, norm2;
                     uint cnt = 0;
                     for (uint p = 0; p <= 1; p++)
                         for (uint q = 0; q <= 1; q++)
                             for (uint s = 0; s <= 1; s++)
-                            {
-                                auto index = getCellLocalIndexByEulerIndex(vector3u(i-p, j-q, k-s));
-                                for (auto fnum: borderFacesMap[index])
-                                {
-                                    vector3r _norm;
-                                    findTriangleFaceNormal((const real *)nodes[faces[fnum].verts[0]].coords, (const real *)nodes[faces[fnum].verts[1]].coords, (const real *)nodes[faces[fnum].verts[2]].coords, &_norm.x, &_norm.y, &_norm.z);
-                                    norm += _norm;
-                                    cnt++;
-                                }
-                            }
+								if (cellStatus[i-p][j-q][k-s])
+								{
+                                    auto cellEulerIndex = vector3u(i-p, j-q, k-s);
+									auto index = getCellLocalIndexByEulerIndex(cellEulerIndex);
+//									assert_true(borderFacesMap.find(index) != borderFacesMap.end());
+									for (auto fnum: borderFacesMap[index])
+									{
+										vector3r _norm;
+										findTriangleFaceNormal((const real *)nodes[faces[fnum].verts[0]].coords, (const real *)nodes[faces[fnum].verts[1]].coords, (const real *)nodes[faces[fnum].verts[2]].coords, &_norm.x, &_norm.y, &_norm.z);
+										norm += _norm;
+										cnt++;
+									}
+                                    auto cellCenter = getCellCenter(cellEulerIndex);
+                                    auto& node = getNodeByEulerMeshIndex(vector3u(i, j, k));
+                                    norm2 += node.coords - cellCenter;
+								}
                     assert_gt(cnt, 0);
                     norm /= cnt;
                     norm.normalize();
-                    borderNormals[node.number] = norm;
+
+                    norm2.normalize();
+                    assert_gt(norm2.length(), 0.0);
+
+                    if  (norm*norm2 < 0.8) // angle between two normals greater then M_PI/6
+                        borderNormals[node.number] = norm2;
+                    else
+                        borderNormals[node.number] = norm;
                 }
 
             }
