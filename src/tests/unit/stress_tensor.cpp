@@ -71,7 +71,7 @@ protected:
 
     static void SetUpTestCase()
     {
-        gcm::Engine::getInstance().addMaterial(gcm::makeMaterialPtr("default", 1, 70000, 10000));
+        gcm::Engine::getInstance().addMaterial(gcm::makeMaterialPtr("StressTensorWavesMaterial", 1, 70000, 10000));
     }
 
 };
@@ -81,7 +81,8 @@ TEST_F(StressTensorWaves, IsotropicElasticPWaveAlongX)
     CalcNode node;
 
     auto& engine = Engine::getInstance();
-    auto mat = engine.getMaterial("default");
+    auto mat = engine.getMaterial("StressTensorWavesMaterial");
+    node.setMaterialId(engine.getMaterialIndex(mat->getName()));
     auto setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
     auto decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
     auto rm = makeRheologyMatrixPtr(mat, setter, decomposer);
@@ -97,7 +98,7 @@ TEST_F(StressTensorWaves, IsotropicElasticPWaveAlongX)
     ASSERT_NEAR(node.syz, 0.0, 1e-5);
     ASSERT_NEAR(node.szz, 700.0, 1e-5);
     
-    ASSERT_NEAR(node.vx, 3.0, 1e-5);
+    ASSERT_NEAR(node.vx, -3.0, 1e-5);
     ASSERT_NEAR(node.vy, 0.0, 1e-5);
     ASSERT_NEAR(node.vz, 0.0, 1e-5);
     
@@ -120,7 +121,8 @@ TEST_F(StressTensorWaves, IsotropicElasticPWaveAlongY)
     CalcNode node;
 
     auto& engine = Engine::getInstance();
-    auto mat = engine.getMaterial("default");
+    auto mat = engine.getMaterial("StressTensorWavesMaterial");
+    node.setMaterialId(engine.getMaterialIndex(mat->getName()));
     auto setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
     auto decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
     auto rm = makeRheologyMatrixPtr(mat, setter, decomposer);
@@ -137,7 +139,7 @@ TEST_F(StressTensorWaves, IsotropicElasticPWaveAlongY)
     ASSERT_NEAR(node.szz, 700.0, 1e-5);
     
     ASSERT_NEAR(node.vx, 0.0, 1e-5);
-    ASSERT_NEAR(node.vy, 3.0, 1e-5);
+    ASSERT_NEAR(node.vy, -3.0, 1e-5);
     ASSERT_NEAR(node.vz, 0.0, 1e-5);
     
     launcher::setIsotropicElasticPWave(node, Vector3({0.0, 1.0, 0.0}), 0.01, false);
@@ -159,7 +161,8 @@ TEST_F(StressTensorWaves, IsotropicElasticPWaveAlongZ)
     CalcNode node;
 
     auto& engine = Engine::getInstance();
-    auto mat = engine.getMaterial("default");
+    auto mat = engine.getMaterial("StressTensorWavesMaterial");
+    node.setMaterialId(engine.getMaterialIndex(mat->getName()));
     auto setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
     auto decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
     auto rm = makeRheologyMatrixPtr(mat, setter, decomposer);
@@ -177,7 +180,7 @@ TEST_F(StressTensorWaves, IsotropicElasticPWaveAlongZ)
     
     ASSERT_NEAR(node.vx, 0.0, 1e-5);
     ASSERT_NEAR(node.vy, 0.0, 1e-5);
-    ASSERT_NEAR(node.vz, 3.0, 1e-5);
+    ASSERT_NEAR(node.vz, -3.0, 1e-5);
     
     launcher::setIsotropicElasticPWave(node, Vector3({0.0, 0.0, 1.0}), 0.01, false);
 
