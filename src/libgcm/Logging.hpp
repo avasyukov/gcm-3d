@@ -21,7 +21,7 @@
         } \
     )
 #else
-    #define TRACE_ON_EXCEPTION(statement) DO_ONCE(statement);
+    #define TRACE_ON_EXCEPTION(statement) DO_ONCE(statement;);
 #endif
 #else
     #define USE_LOGGER ;
