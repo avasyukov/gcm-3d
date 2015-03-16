@@ -11,6 +11,7 @@
 		<collisionDetector static="true" />
 		<contactThreshold measure="abs" value="0.9" />
 		<defaultContactCalculator type="SlidingContactCalculator" />
+                <defaultFailureModel type="CrackFailureModel" />
 		<!--defaultFailureModel type="TsaiWuFailureModel" /-->
 		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
 		<!--contactThreshold measure="abs" value="0.5" /-->
@@ -36,7 +37,7 @@
 			<material id="__glue" />
 		</body>
 		<body id="glass_2">
-			<mesh id="glass_2" type="geo2" file="models/armor/layer_5mm.geo" tetrSize="1" />
+			<mesh id="glass_2" type="geo2" file="models/armor/layer_5mm.geo" tetrSize="2" />
             <transform type="translate" moveX="0" moveY="0" moveZ="16.54" />
 			<material id="__glass" />
 		</body>
@@ -51,47 +52,62 @@
 			<material id="__glass" />
 		</body>
 		<body id="ball_1">
-			<mesh id="ball_1" type="geo2" file="models/armor/ball.geo" tetrSize="2" />
+			<mesh id="ball_1" type="geo2" file="models/armor/ball.geo" tetrSize="1" />
             <transform type="translate" moveX="0" moveY="0" moveZ="36.07" />
 			<material id="__steel" />
 		</body>
 	</bodies>
 	<materials>
 		<material name="__glass" rheology="isotropic">
-            <!-- 2.25*10^9 Pa -->
+            		<!-- 2.25*10^9 Pa -->
 			<la>225</la>
-            <!-- 2.87*10^9 Pa -->
+            		<!-- 2.87*10^9 Pa -->
 			<mu>287</mu>
-            <!-- 2500 kg/m^3 -->
-            <rho>2.5</rho>
+            		<!-- 2500 kg/m^3 -->
+            		<rho>2.5</rho>
+                    	<failure type="maxStress">
+                        	<threshold>1.0</threshold>	<!-- GPa -->
+                    	</failure>
 		</material>
 		<material name="__glue" rheology="isotropic">
-            <!-- 8.29*10^9 Pa -->
+            		<!-- 8.29*10^9 Pa -->
 			<la>829</la>
-            <!-- 2.07*10^9 Pa -->
+            		<!-- 2.07*10^9 Pa -->
 			<mu>207</mu>
-            <!-- 1200 kg/m^3 -->
-            <rho>1.2</rho>
+            		<!-- 1200 kg/m^3 -->
+            		<rho>1.2</rho>
+                    	<failure type="maxStress">
+                        	<threshold>INF</threshold>	<!-- GPa -->
+                    	</failure>
 		</material>
 		<material name="__plastic" rheology="isotropic">
-            <!-- 2.12*10^9 Pa -->
+            		<!-- 2.12*10^9 Pa -->
 			<la>212</la>
-            <!-- 1.42*10^9 Pa -->
+            		<!-- 1.42*10^9 Pa -->
 			<mu>142</mu>
-            <!-- 1200 kg/m^3 -->
-            <rho>1.2</rho>
+            		<!-- 1200 kg/m^3 -->
+            		<rho>1.2</rho>
+                    	<failure type="maxStress">
+                        	<threshold>1.5</threshold>	<!-- GPa -->
+                    	</failure>
 		</material>
 		<material name="__steel" rheology="isotropic">
-            <!-- 1.21*10^11 Pa -->
+            		<!-- 1.21*10^11 Pa -->
 			<la>212</la>
-            <!-- 1.42*10^9 Pa -->
+            		<!-- 1.42*10^9 Pa -->
 			<mu>142</mu>
-            <!-- 7800 kg/m^3 -->
-            <rho>7.8</rho>
+            		<!-- 7800 kg/m^3 -->
+            		<rho>7.8</rho>
+                    	<failure type="maxStress">
+                        	<threshold>INF</threshold>	<!-- GPa -->
+                    	</failure>
 		</material>
 	</materials>
 	<initialState>
 		<area type="box" minX="-5.001" maxX="5.001" minY="-5.001" maxY="5.001" minZ="31.069" maxZ="41.071"/>
-		<values vz="100" />
+		<values vz="-100" />
 	</initialState>
+        <contactCondition calculator="AdhesionContactDestroyCalculator" adhesionThreshold="0.01"> <!-- GPa -->
+                <area type="box" minX="-1000" maxX="1000" minY="-1000" maxY="1000" minZ="-100" maxZ="31.0"/>
+        </contactCondition>
 </task>
