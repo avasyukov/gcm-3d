@@ -1,0 +1,366 @@
+<task numberOfSnaps="50" stepsPerSnap="1">
+        <system>
+                <defaultContactCalculator type="AdhesionContactCalculator"/>
+                <defaultFailureModel type="HashinFailureModel" />
+                <contactThreshold measure="abs" value="0.005" />
+                <meshMovement type="none" />
+                <collisionDetector static="true" />
+        </system>
+	<bodies>
+		<body id="cfrp_sph">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_sph" type="geo2" file="models/cfrp/cfrp_sph.geo" tetrSize="0.5" />
+                        <material id="steelB" />
+                </body>
+		<body id="cfrp_gen">
+			<rheology type="elastic" />
+			<mesh id="cfrp_gen" type="geo2" file="models/cfrp/cfrp_gen.geo" tetrSize="0.8" />
+			<material id="cfrp_000" />
+		</body>
+		<body id="cfrp_p00">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p00" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <material id="cfrp_045" />
+                </body>
+		<body id="cfrp_p01">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p01" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />                        
+			<transform type="translate" moveX="0.0" moveY="0.0" moveZ="-0.15" />
+                        <material id="cfrp_000" />
+		</body>
+                <body id="cfrp_p02">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p02" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-0.30" />
+                        <material id="cfrp_135" />
+                </body>
+                <body id="cfrp_p03">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p03" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-0.45" />
+                        <material id="cfrp_090" />
+                </body>
+                <body id="cfrp_p04">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p04" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-0.60" />
+                        <material id="cfrp_045" />
+                </body>
+                <body id="cfrp_p05">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p05" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-0.75" />
+                        <material id="cfrp_000" />
+                </body>
+                <body id="cfrp_p06">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p06" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-0.90" />
+                        <material id="cfrp_135" />
+                </body>
+                <body id="cfrp_p07">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p07" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-1.05" />
+                        <material id="cfrp_090" />
+                </body>
+                <body id="cfrp_p08">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p08" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-1.20" />
+                        <material id="cfrp_045" />
+                </body>
+                <body id="cfrp_p09">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p09" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-1.35" />
+                        <material id="cfrp_000" />
+                </body>
+                <body id="cfrp_p10">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p10" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-1.50" />
+                        <material id="cfrp_135" />
+                </body>
+                <body id="cfrp_p11">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p11" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-1.65" />
+                        <material id="cfrp_000" />
+                </body>
+                <body id="cfrp_p12">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p12" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-1.80" />
+                        <material id="cfrp_090" />
+                </body>
+                <body id="cfrp_p13">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p13" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-1.95" />
+                        <material id="cfrp_045" />
+                </body>
+                <body id="cfrp_p14">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p14" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-2.10" />
+                        <material id="cfrp_000" />
+                </body>
+                <body id="cfrp_p15">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p15" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-2.25" />
+                        <material id="cfrp_135" />
+                </body>
+                <body id="cfrp_p16">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p16" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-2.40" />
+                        <material id="cfrp_090" />
+                </body>
+                <body id="cfrp_p17">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p17" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-2.55" />
+                        <material id="cfrp_045" />
+                </body>
+                <body id="cfrp_p18">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p18" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-2.70" />
+                        <material id="cfrp_000" />
+                </body>
+                <body id="cfrp_p19">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p19" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-2.85" />
+                        <material id="cfrp_135" />
+                </body>
+                <body id="cfrp_p20">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p20" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-3.00" />
+                        <material id="cfrp_090" />
+                </body>
+                 <body id="cfrp_p21">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p21" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-3.15" />
+                        <material id="cfrp_045" />
+                </body>
+                <body id="cfrp_p22">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p22" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-3.30" />
+                        <material id="cfrp_000" />
+                </body>
+                <body id="cfrp_p23">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p23" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-3.45" />
+                        <material id="cfrp_135" />
+                </body>
+                <body id="cfrp_p24">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p24" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-3.60" />
+                        <material id="cfrp_090" />
+                </body>
+                <body id="cfrp_p25">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p25" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-3.75" />
+                        <material id="cfrp_045" />
+                </body>
+                <body id="cfrp_p26">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p26" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-3.90" />
+                        <material id="cfrp_000" />
+                </body>
+                <body id="cfrp_p27">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p27" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-4.05" />
+                        <material id="cfrp_135" />
+                </body>
+                <body id="cfrp_p28">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p28" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-4.20" />
+                        <material id="cfrp_090" />
+                </body>
+                <body id="cfrp_p29">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p29" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-4.35" />
+                        <material id="cfrp_045" />
+                </body>
+                <body id="cfrp_p30">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p30" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-4.50" />
+                        <material id="cfrp_000" />
+                </body>
+                <body id="cfrp_p31">
+                        <rheology type="elastic" />
+                        <mesh id="cfrp_p31" type="geo2" file="models/cfrp/cfrp_p0.geo" tetrSize="0.05" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="-4.65" />
+                        <material id="cfrp_135" />
+                </body>
+	</bodies>
+<materials>
+		 <material name="cfrp_000" rheology="anisotropic" failure="hashin">
+                        <c11>11780000000</c11>
+                        <c12>10000000000</c12>
+                        <c13>10000000000</c13>
+                        <c14>0</c14>
+                        <c15>0</c15>
+                        <c16>0</c16>
+                        <c22>158990000000</c22>
+                        <c23>10000000000</c23>
+                        <c24>0</c24>
+                        <c25>0</c25>
+                        <c26>0</c26>
+                        <c33>11780000000</c33>
+                        <c34>0</c34>
+                        <c35>0</c35>
+                        <c36>0</c36>
+                        <c44>5500000000</c44>
+                        <c45>0</c45>
+                        <c46>0</c46>
+                        <c55>4500000000</c55>
+                        <c56>0</c56>
+                        <c66>5500000000</c66>
+                        <rho>0.001489</rho>
+	            <failure type="hashin">
+	                <dir>2</dir>
+	                <Xc>20700000000</Xc>
+	                <Xt>2070000000</Xt>
+	                <Yc>237000000</Yc>
+	                <Yt>74000000</Yt>
+	                <St>120000000</St>
+	                 <S>64000000</S>
+	            </failure>
+                </material>
+                <material name="cfrp_045" rheology="anisotropic" failure="hashin">
+                        <c11>11780000000</c11>
+                        <c12>10000000000</c12>
+                        <c13>10000000000</c13>
+                        <c14>0</c14>
+                        <c15>0</c15>
+                        <c16>0</c16>
+                        <c22>158990000000</c22>
+                        <c23>10000000000</c23>
+                        <c24>0</c24>
+                        <c25>0</c25>
+                        <c26>0</c26>
+                        <c33>11780000000</c33>
+                        <c34>0</c34>
+                        <c35>0</c35>
+                        <c36>0</c36>
+                        <c44>5500000000</c44>
+                        <c45>0</c45>
+                        <c46>0</c46>
+                        <c55>4500000000</c55>
+                        <c56>0</c56>
+                        <c66>5500000000</c66>
+                        <rho>0.001489</rho>
+                    <failure type="hashin">
+                        <dir>2</dir>
+                        <Xc>20700000000</Xc>
+                        <Xt>2070000000</Xt>
+                        <Yc>237000000</Yc>
+                        <Yt>74000000</Yt>
+                        <St>120000000</St>
+                         <S>64000000</S>
+                    </failure>
+                    <rotate a1="45" a2="0" a3="0"/>
+                </material>
+		<material name="cfrp_090" rheology="anisotropic" failure="hashin">
+                        <c11>11780000000</c11>
+                        <c12>10000000000</c12>
+                        <c13>10000000000</c13>
+                        <c14>0</c14>
+                        <c15>0</c15>
+                        <c16>0</c16>
+                        <c22>11780000000</c22>
+                        <c23>10000000000</c23>
+                        <c24>0</c24>
+                        <c25>0</c25>
+                        <c26>0</c26>
+                        <c33>158990000000</c33>
+                        <c34>0</c34>
+                        <c35>0</c35>
+                        <c36>0</c36>
+                        <c44>5500000000</c44>
+                        <c45>0</c45>
+                        <c46>0</c46>
+                        <c55>5500000000</c55>
+                        <c56>0</c56>
+                        <c66>4500000000</c66>
+                        <rho>0.001489</rho>
+                    <failure type="hashin">
+                        <dir>3</dir>
+                        <Xc>20700000000</Xc>
+                        <Xt>2070000000</Xt>
+                        <Yc>237000000</Yc>
+                        <Yt>74000000</Yt>
+                        <St>120000000</St>
+                         <S>64000000</S>
+                    </failure>
+                </material>
+                <material name="cfrp_135" rheology="anisotropic" failure="hashin">
+                        <c11>11780000000</c11>
+                        <c12>10000000000</c12>
+                        <c13>10000000000</c13>
+                        <c14>0</c14>
+                        <c15>0</c15>
+                        <c16>0</c16>
+                        <c22>158990000000</c22>
+                        <c23>10000000000</c23>
+                        <c24>0</c24>
+                        <c25>0</c25>
+                        <c26>0</c26>
+                        <c33>11780000000</c33>
+                        <c34>0</c34>
+                        <c35>0</c35>
+                        <c36>0</c36>
+                        <c44>5500000000</c44>
+                        <c45>0</c45>
+                        <c46>0</c46>
+                        <c55>4500000000</c55>
+                        <c56>0</c56>
+                        <c66>5500000000</c66>
+                        <rho>0.001489</rho>
+                    <failure type="hashin">
+                        <dir>2</dir>
+                        <Xc>20700000000</Xc>
+                        <Xt>2070000000</Xt>
+                        <Yc>237000000</Yc>
+                        <Yt>74000000</Yt>
+                        <St>120000000</St>
+                         <S>64000000</S>
+                    </failure>
+                    <rotate a1="135" a2="0" a3="0"/>
+                </material>
+                <material name="steelB" rheology="isotropic">
+                        <la>99430000000</la>
+                        <mu>78130000000</mu>
+                        <rho>0.0078</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+	</materials>
+
+        <contactCondition calculator="AdhesionContactDestroyCalculator" adhesionThreshold="5000000">
+                <area type="box" minX="-17" maxX="17" minY="-17" maxY="17" minZ="-100" maxZ="-0.0001"/>
+        </contactCondition>
+        <contactCondition calculator="SlidingContactCalculator">
+                <area type="box" minX="-17" maxX="17" minY="-17" maxY="17" minZ="-0.00001" maxZ="100"/>
+        </contactCondition>
+
+	<initialState>
+		<area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="0.00001" maxZ="100"/>
+		<values vz="-17500" />
+	</initialState>
+</task>
