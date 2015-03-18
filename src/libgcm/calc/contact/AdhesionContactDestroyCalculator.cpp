@@ -33,7 +33,16 @@ void AdhesionContactDestroyCalculator::doCalc(CalcNode& cur_node, CalcNode& new_
             cur_node.sxz*outer_normal[0] + cur_node.syz*outer_normal[1] + cur_node.szz*outer_normal[2]
         };
 
-        float force_cur_abs = scalarProduct(force_cur, outer_normal);
+        float force_cur_p = scalarProduct(force_cur, outer_normal);
+
+	if (force_cur_p < 0)
+	{
+		force_cur[0] -= force_cur_p*outer_normal[0];
+		force_cur[1] -= force_cur_p*outer_normal[1];
+		force_cur[2] -= force_cur_p*outer_normal[2];
+	}
+
+	float force_cur_abs = sqrt(scalarProduct(force_cur, force_cur));
         float adhesionTreshold = Engine::getInstance().getContactCondition( 
                                         cur_node.getContactConditionId() )->getConditionParam();
         //if (force_cur_abs > 0.1 * adhesionTreshold)
@@ -47,7 +56,7 @@ void AdhesionContactDestroyCalculator::doCalc(CalcNode& cur_node, CalcNode& new_
     }
 
     //Check if we must use Sliding, otherwise use adhesion
-    if (cur_node.isContactDestroyed() || virt_node.isContactDestroyed())
+    if (cur_node.isContactDestroyed())// || virt_node.isContactDestroyed())
     {
         scc->doCalc(cur_node, new_node, virt_node, matrix, previousNodes, inner,
                         virt_matrix, virtPreviousNodes, virt_inner, outer_normal, scale);
