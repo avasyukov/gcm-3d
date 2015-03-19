@@ -1,113 +1,113 @@
-<task numberOfSnaps="300" stepsPerSnap="1">
-	<!-- 
-		L = 10^-3 m
-		P = 10^7 Pa
-		rho = 10^3 kg/m^3
-		v = 10^2 m/s
-		t = 10^-5 s
-	-->
-	<system>
-		<meshMovement type="none" />
-		<collisionDetector static="true" />
-		<contactThreshold measure="abs" value="0.9" />
-		<defaultContactCalculator type="SlidingContactCalculator" />
-                <defaultFailureModel type="CrackFailureModel" />
-		<!--defaultFailureModel type="TsaiWuFailureModel" /-->
-		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
-		<!--contactThreshold measure="abs" value="0.5" /-->
-	</system>
-	<bodies>
-		<body id="plastic_1">
-			<mesh id="plastic_1" type="geo2" file="models/armor/layer_10mm.geo" tetrSize="2" />
-			<material id="__plastic" />
-		</body>
-		<body id="glue_1">
-			<mesh id="glue_1" type="geo2" file="models/armor/layer_2mm.geo" tetrSize="0.5" />
+<task numberOfSnaps="1000" stepsPerSnap="1">
+    <!-- 
+        L = 10^-3 m
+        P = 10^7 Pa
+        rho = 10^3 kg/m^3
+        v = 10^2 m/s
+        t = 10^-5 s
+    -->
+    <system>
+        <meshMovement type="none" />
+        <collisionDetector static="true" />
+        <contactThreshold measure="abs" value="0.150" />
+        <defaultContactCalculator type="SlidingContactCalculator" />
+        <defaultFailureModel type="CrackFailureModel" />
+    </system>
+    <bodies>
+        <body id="plastic_1">
+            <mesh id="plastic_1" type="geo2" file="models/armor/layer_10mm.geo" tetrSize="0.97" />
+            <material id="__plastic" />
+        </body>
+        <body id="glue_1">
+            <mesh id="glue_1" type="geo2" file="models/armor/layer_2mm.geo" tetrSize="0.45" />
             <transform type="translate" moveX="0" moveY="0" moveZ="6.01" />
-			<material id="__glue" />
-		</body>
-		<body id="glass_1">
-			<mesh id="glass_1" type="geo2" file="models/armor/layer_5mm.geo" tetrSize="2" />
+            <material id="__glue" />
+        </body>
+        <body id="glass_1">
+            <mesh id="glass_1" type="geo2" file="models/armor/layer_5mm.geo" tetrSize="0.97" />
             <transform type="translate" moveX="0" moveY="0" moveZ="9.52" />
-			<material id="__glass" />
-		</body>
-		<body id="glue_2">
-			<mesh id="glue_2" type="geo2" file="models/armor/layer_2mm.geo" tetrSize="0.5" />
+            <material id="__glass" />
+        </body>
+        <body id="glue_2">
+            <mesh id="glue_2" type="geo2" file="models/armor/layer_2mm.geo" tetrSize="0.45" />
             <transform type="translate" moveX="0" moveY="0" moveZ="13.03" />
-			<material id="__glue" />
-		</body>
-		<body id="glass_2">
-			<mesh id="glass_2" type="geo2" file="models/armor/layer_5mm.geo" tetrSize="2" />
+            <material id="__glue" />
+        </body>
+        <body id="glass_2">
+            <mesh id="glass_2" type="geo2" file="models/armor/layer_5mm.geo" tetrSize="0.97" />
             <transform type="translate" moveX="0" moveY="0" moveZ="16.54" />
-			<material id="__glass" />
-		</body>
-		<body id="glue_3">
-			<mesh id="glue_3" type="geo2" file="models/armor/layer_2mm.geo" tetrSize="0.5" />
+            <material id="__glass" />
+        </body>
+        <body id="glue_3">
+            <mesh id="glue_3" type="geo2" file="models/armor/layer_2mm.geo" tetrSize="0.45" />
             <transform type="translate" moveX="0" moveY="0" moveZ="20.05" />
-			<material id="__glue" />
-		</body>
-		<body id="glass_4">
-			<mesh id="glass_4" type="geo2" file="models/armor/layer_10mm.geo" tetrSize="2" />
+            <material id="__glue" />
+        </body>
+        <body id="glass_4">
+            <mesh id="glass_4" type="geo2" file="models/armor/layer_10mm.geo" tetrSize="0.97" />
             <transform type="translate" moveX="0" moveY="0" moveZ="26.06" />
-			<material id="__glass" />
-		</body>
-		<body id="ball_1">
-			<mesh id="ball_1" type="geo2" file="models/armor/ball.geo" tetrSize="1" />
+            <material id="__glass" />
+        </body>
+        <body id="ball_1">
+            <mesh id="ball_1" type="geo2" file="models/armor/ball.geo" tetrSize="0.97" />
             <transform type="translate" moveX="0" moveY="0" moveZ="36.07" />
-			<material id="__steel" />
-		</body>
-	</bodies>
-	<materials>
-		<material name="__glass" rheology="isotropic">
-            		<!-- 2.25*10^9 Pa -->
-			<la>225</la>
-            		<!-- 2.87*10^9 Pa -->
-			<mu>287</mu>
-            		<!-- 2500 kg/m^3 -->
-            		<rho>2.5</rho>
-                    	<failure type="maxStress">
-                        	<threshold>1.0</threshold>	<!-- GPa -->
-                    	</failure>
-		</material>
-		<material name="__glue" rheology="isotropic">
-            		<!-- 8.29*10^9 Pa -->
-			<la>829</la>
-            		<!-- 2.07*10^9 Pa -->
-			<mu>207</mu>
-            		<!-- 1200 kg/m^3 -->
-            		<rho>1.2</rho>
-                    	<failure type="maxStress">
-                        	<threshold>INF</threshold>	<!-- GPa -->
-                    	</failure>
-		</material>
-		<material name="__plastic" rheology="isotropic">
-            		<!-- 2.12*10^9 Pa -->
-			<la>212</la>
-            		<!-- 1.42*10^9 Pa -->
-			<mu>142</mu>
-            		<!-- 1200 kg/m^3 -->
-            		<rho>1.2</rho>
-                    	<failure type="maxStress">
-                        	<threshold>1.5</threshold>	<!-- GPa -->
-                    	</failure>
-		</material>
-		<material name="__steel" rheology="isotropic">
-            		<!-- 1.21*10^11 Pa -->
-			<la>212</la>
-            		<!-- 1.42*10^9 Pa -->
-			<mu>142</mu>
-            		<!-- 7800 kg/m^3 -->
-            		<rho>7.8</rho>
-                    	<failure type="maxStress">
-                        	<threshold>INF</threshold>	<!-- GPa -->
-                    	</failure>
-		</material>
-	</materials>
-	<initialState>
-		<area type="box" minX="-5.001" maxX="5.001" minY="-5.001" maxY="5.001" minZ="31.069" maxZ="41.071"/>
-		<values vz="-100" />
-	</initialState>
-        <contactCondition calculator="AdhesionContactDestroyCalculator" adhesionThreshold="0.01"> <!-- GPa -->
-                <area type="box" minX="-1000" maxX="1000" minY="-1000" maxY="1000" minZ="-100" maxZ="31.0"/>
-        </contactCondition>
+            <material id="__steel" />
+        </body>
+    </bodies>
+    <materials>
+        <material name="__glass" rheology="isotropic">
+            <!-- 2.25*10^10 Pa -->
+            <la>2250</la>
+            <!-- 2.87*10^10 Pa -->
+            <mu>287</mu>
+            <!-- 2500 kg/m^3 -->
+            <rho>2.5</rho>
+            <failure type="maxStress">
+                <!-- 100*10^7 Pa -->
+                <threshold>100.0</threshold>
+            </failure>
+        </material>
+        <material name="__glue" rheology="isotropic">
+            <!-- 8.29*10^9 Pa -->
+            <la>829</la>
+            <!-- 2.07*10^9 Pa -->
+            <mu>207</mu>
+            <!-- 1200 kg/m^3 -->
+            <rho>1.2</rho>
+            <failure type="maxStress">
+                <threshold>INF</threshold>
+            </failure>
+        </material>
+        <material name="__plastic" rheology="isotropic">
+            <!-- 2.12*10^9 Pa -->
+            <la>212</la>
+            <!-- 1.42*10^9 Pa -->
+            <mu>142</mu>
+            <!-- 1200 kg/m^3 -->
+            <rho>1.2</rho>
+            <failure type="maxStress">
+                <!-- 150*10^7 Pa -->
+                <threshold>150</threshold>
+            </failure>
+        </material>
+        <material name="__steel" rheology="isotropic">
+            <!-- 1.21*10^11 Pa -->
+            <la>12000</la>
+            <!-- 8.1*10^10 Pa -->
+            <mu>8100</mu>
+            <!-- 7800 kg/m^3 -->
+            <rho>7.8</rho>
+            <failure type="maxStress">
+                <threshold>INF</threshold> 
+            </failure>
+        </material>
+    </materials>
+    <initialState>
+        <area type="box" minX="-5.001" maxX="5.001" minY="-5.001" maxY="5.001" minZ="31.069" maxZ="41.071"/>
+        <values vz="-100" />
+    </initialState>
+    <contactCondition calculator="AdhesionContactDestroyCalculator" adhesionThreshold="1">
+            <!-- 10^7 Pa -->
+            <area type="box" minX="-1000" maxX="1000" minY="-1000" maxY="1000" minZ="-100" maxZ="31.0"/>
+    </contactCondition>
 </task>
