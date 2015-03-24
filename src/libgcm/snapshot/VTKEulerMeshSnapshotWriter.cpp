@@ -22,20 +22,18 @@ void VTKEulerMeshSnapshotWriter::dumpMeshSpecificData(EulerMesh* mesh, vtkSmartP
 
     auto cellError = vtkSmartPointer<vtkIntArray>::New();
     cellError->SetName("cellError");
-
-    for (uint i = 0; i < nodeDims.x; i++)
+    for (uint k = 0; k < nodeDims.z; k++)
         for (uint j = 0; j < nodeDims.y; j++)
-            for (uint k = 0; k < nodeDims.z; k++)
+            for (uint i = 0; i < nodeDims.x; i++)
             {
                 auto& node = mesh->getNodeByEulerMeshIndex(vector3u(i, j, k));
                 points->InsertNextPoint(node.coords.x, node.coords.y, node.coords.z);
             }
-
-    for (uint i = 0; i < cellDims.x; i++)
+    for (uint k = 0; k < cellDims.z; k++)
         for (uint j = 0; j < cellDims.y; j++)
-            for (uint k = 0; k < cellDims.z; k++)
+            for (uint i = 0; i < cellDims.x; i++)
             {
-                cellStatus->InsertNextValue(mesh->getCellStatus(vector3u(i, j, k)) ? 1 : 0);
+                cellStatus->InsertNextValue(mesh->getCellStatus(vector3u(i, j, k)));
                 char flag = 0;
 
                 for (uint p = 0; p <= 1; p++)
