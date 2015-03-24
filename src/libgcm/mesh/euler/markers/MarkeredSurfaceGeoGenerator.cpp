@@ -105,6 +105,9 @@ MarkeredSurface MarkeredSurfaceGeoGenerator::generate(string fileName, real size
         }
     }
 
+    assert_gt(markers.size(), 0);
+    assert_gt(faces.size(), 0);
+
     delete[] newVertNums;
 
     return MarkeredSurface(markers, faces, regions);
