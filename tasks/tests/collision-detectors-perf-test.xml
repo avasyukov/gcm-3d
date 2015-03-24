@@ -1,0 +1,19 @@
+<task numberOfSnaps="0" stepsPerSnap="0">
+    <system>
+        <contactThreshold measure="abs" value="0.05"/>
+    </system>
+    <bodies>
+        <body id="cube1">
+            <rheology type="elastic" />
+            <mesh id="cube1" type="geo2" file="models/markered_cube.geo" tetrSize="0.2"/>
+            <material id="testMaterial" />
+            <transform type="translate" moveX="0" moveY="0" moveZ="-5.01" />
+        </body>
+        <body id="cube2">
+            <rheology type="elastic" />
+            <mesh id="cube2" type="geo2" file="models/markered_cube.geo" tetrSize="0.2"/>
+            <material id="testMaterial" />
+            <transform type="translate" moveX="0" moveY="0" moveZ="5.01" />
+        </body>
+    </bodies>
+</task>

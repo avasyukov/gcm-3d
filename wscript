@@ -328,7 +328,7 @@ def build(bld):
             bld(
                 features='cxx cxxprogram',
                 source=s,
-                use=['gcm', 'perf_util', 'launcher_util'] + libs,
+                use=['gcm', 'perf_util', 'launcher_util', 'launcher' ,'loaders'] + libs,
                 target='gcm3d_perf_%s' % s.name[:-4],
                 install_path=None
             )
