@@ -76,7 +76,7 @@ MarkeredSurface MarkeredSurfaceGeoGenerator::generate(string fileName, real size
 
     for (auto e: entities)
     {
-        if (e->geomType() == GEntity::RuledSurface)
+        if (e->geomType() == GEntity::RuledSurface || e->geomType() == GEntity::Plane)
         {
             regions.push_back(e->getNumMeshElements());
             for (unsigned int i = 0; i < e->getNumMeshElements(); i++)
