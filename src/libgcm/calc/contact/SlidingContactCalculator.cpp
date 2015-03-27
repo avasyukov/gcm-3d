@@ -1,6 +1,8 @@
 #include "libgcm/calc/contact/SlidingContactCalculator.hpp"
 
 #include "libgcm/node/CalcNode.hpp"
+//#include "libgcm/Math.hpp"
+
 
 using namespace gcm;
 using std::vector;
@@ -73,7 +75,7 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
     float vel_avg_p = scalarProduct(vel_avg, outer_normal);
     float force_cur_p = scalarProduct(force_cur,outer_normal);
     float force_virt_p = scalarProduct(force_virt,outer_normal);
-    float force_rel_p = force_cur_p - force_virt_p;
+    float force_rel_p = force_cur_p + force_virt_p;
 
 
     LOG_TRACE("Vrel: " << vel_rel[0] << " " << vel_rel[1] << " " << vel_rel[2]);
@@ -81,16 +83,18 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
     LOG_TRACE("Vavg: " << vel_avg_abs << " Vdelta: " << vel_rel_abs);
     LOG_TRACE("VrelP: " << vel_rel_p << " Fabs: " << force_rel_p);
     
-    bool free_border = true;
-    float eps = 0.0000001;
+    bool free_border = false;
+    float eps = 0.2*fabs(vel_avg_p);
     // If relative speed is positive
-    if(vel_rel_p > eps) {
-    	free_border = false;
-    } else if (vel_rel_p > -eps) {
-        // If relative speed is close to zero
+    if(vel_rel_p < -eps) {
+    	free_border = true;
+    } else if (vel_rel_p < eps) { 
+        // If relative speed is close to zero, check force
         if (force_rel_p > 0)
-            free_border = false;
-    }
+	{
+            free_border = true;
+	}
+    } 
     
     LOG_TRACE("Free border: " << free_border);
 
