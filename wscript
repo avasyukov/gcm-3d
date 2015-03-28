@@ -221,6 +221,7 @@ def configure(conf):
 
     if conf.options.profile:
         conf.env.CXXFLAGS += ['-pg']
+        conf.env.LINKFLAGS += ['-pg']
         build_variant += ['profile']
 
     if conf.options.coverage:
