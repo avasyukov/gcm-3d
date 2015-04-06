@@ -1,10 +1,10 @@
-<task numberOfSnaps="50" stepsPerSnap="50">
+<task numberOfSnaps="250" stepsPerSnap="10">
         <system>
                 <defaultContactCalculator type="SlidingContactCalculator"/>
                 <defaultFailureModel type="HashinFailureModel" />
                 <contactThreshold measure="abs" value="0.001" />
                 <meshMovement type="none" />
-                <collisionDetector static="true" />
+<!--                <collisionDetector static="true" /> -->
         </system>
 	<bodies>
 <!--		<body id="gfrp_sph_osk">
@@ -16,19 +16,19 @@
 -->
 		<body id="gfrp_sph_pan_u">
 			<rheology type="elastic" />
-			<mesh id="gfrp_sph_pan_u" type="geo2" file="models/gfrp_pn_u.geo" tetrSize="0.02" />
+			<mesh id="gfrp_sph_pan_u" type="geo2" file="models/gfrp_pn_u.geo" tetrSize="0.1" />
 <!--			<material id="steelB" /> -->
 			<material id="gfrp_u" /> 
 		</body>
 		<body id="gfrp_sph_pan_m">
                         <rheology type="elastic" />
-                        <mesh id="gfrp_sph_pan_m" type="geo2" file="models/gfrp_pn_m.geo" tetrSize="0.02" />
+                        <mesh id="gfrp_sph_pan_m" type="geo2" file="models/gfrp_pn_m.geo" tetrSize="0.1" />
 <!--			<material id="steelB" /> -->
                         <material id="gfrp_m" /> 
                 </body>
 		<body id="gfrp_sph_pan_d">
                         <rheology type="elastic" />
-                        <mesh id="gfrp_sph_pan_d" type="geo2" file="models/gfrp_pn_d.geo" tetrSize="0.02" />
+                        <mesh id="gfrp_sph_pan_d" type="geo2" file="models/gfrp_pn_d.geo" tetrSize="0.1" />
 <!--			<material id="steelB" /> -->
                         <material id="gfrp_u" /> 
                 </body>
@@ -108,18 +108,17 @@
                 </material>
 
 	</materials>
-
-        <contactCondition calculator="AdhesionContactDestroyCalculator" adhesionThreshold="5000000">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="0.4290"/>
+        <contactCondition calculator="AdhesionContactDestroyCalculator" adhesionThreshold="500">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="0.429" minZ="-100" maxZ="100"/>
         </contactCondition>
 
-	<initialState>
+<!--	<initialState>
                 <area type="box" minX="-0.25" maxX="0.25" minY="0.429" maxY="0.430" minZ="-0.25" maxZ="0.25"/>
-		<values vy="-10" />
-	</initialState>
+		<values vy="-100" />
+	</initialState> -->
 
 
-        <borderCondition calculator="ExternalVelocityCalculator" normalVelocity="-10" tangentialVelocity="0">
+        <borderCondition calculator="ExternalVelocityCalculator" normalVelocity="-1" tangentialVelocity="0">
                 <area type="box" minX="-0.25" maxX="0.25" minY="0.429" maxY="0.430" minZ="-0.25" maxZ="0.25"/>
         </borderCondition>
 

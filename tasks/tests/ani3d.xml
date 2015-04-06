@@ -4,20 +4,68 @@
 		<meshMovement type="none" />
 	</system>
 	<bodies>
-		<body id="tpn0">
+		<body id="a3d_trachea">
 			<rheology type="elastic" />
-			<mesh id="tpn0" type="ani3d2" file="models/ani3d/trachea.out" tetrSize="1.0" />
-			<material id="testMaterial" />
+			<mesh id="a3d_trachea" type="ani3d2" file="models/ani3d/trachea.out" tetrSize="1.0" />
+			<material id="steel" />
 		</body>
-<!--		<body id="tpn1">
+                <body id="a3d_bones">
+                        <rheology type="elastic" />
+                        <mesh id="a3d_bones" type="ani3d2" file="models/ani3d/bones.out" tetrSize="1.0" />
+                        <material id="steel" />
+                </body>
+                <body id="a3d_diapragm">
+                        <rheology type="elastic" />
+                        <mesh id="a3d_diapragm" type="ani3d2" file="models/ani3d/diapragm.out" tetrSize="1.0" />
+                        <material id="steel" />
+                </body>
+                <body id="a3d_digestive">
+                        <rheology type="elastic" />
+                        <mesh id="a3d_digestive" type="ani3d2" file="models/ani3d/digestive.out" tetrSize="1.0" />
+                        <material id="steel" />
+                </body>
+		<body id="a3d_fat">
 			<rheology type="elastic" />
-			<mesh id="tpn2" type="geo" file="models/cube.geo" tetrSize="1.0" />
-			<material id="testMaterial" />
-			<transform type="translate" moveX="10.01" moveY="0" moveZ="0" />
+			<mesh id="a3d_fat" type="ani3d2" file="models/ani3d/fat.out" tetrSize="1.0" />
+			<material id="steel" />
 		</body>-->
+                <body id="a3d_heart">
+                        <rheology type="elastic" />
+                        <mesh id="a3d_heart" type="ani3d2" file="models/ani3d/heart.out" tetrSize="1.0" />
+                        <material id="steel" />
+                </body>-->
+                <body id="a3d_liver">
+                        <rheology type="elastic" />
+                        <mesh id="a3d_liver" type="ani3d2" file="models/ani3d/liver.out" tetrSize="1.0" />
+                        <material id="steel" />
+                </body>-->
+                <body id="a3d_lungs">
+                        <rheology type="elastic" />
+                        <mesh id="a3d_lungs" type="ani3d2" file="models/ani3d/lungs.out" tetrSize="1.0" />
+                        <material id="steel" />
+                </body>-->
+                <body id="a3d_muscle">
+                        <rheology type="elastic" />
+                        <mesh id="a3d_muscle" type="ani3d2" file="models/ani3d/muscle.out" tetrSize="1.0" />
+                        <material id="steel" />
+                </body>-->
+                <body id="a3d_vessels">
+                        <rheology type="elastic" />
+                        <mesh id="a3d_vessels" type="ani3d2" file="models/ani3d/vessels.out" tetrSize="1.0" />
+                        <material id="steel" />
+                </body>-->
+
 	</bodies>
+        <materials>
+                <material name="steel" rheology="isotropic">
+                        <la>99430000000</la>
+                        <mu>78130000000</mu>
+                        <rho>0.0078</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+        </materials>
 	<initialState>
-		<area type="box" minX="6" maxX="8" minY="-10" maxY="10" minZ="-10" maxZ="10"/>
-		<values vx="30" sxx="9000" syy="7000" szz="7000" />
+		<area type="box" minX="-10000" maxX="10000" minY="-1" maxY="1" minZ="-1" maxZ="1"/>
+		<values vx="3" sxx="900" syy="700" szz="700" />
 	</initialState>
 </task>
