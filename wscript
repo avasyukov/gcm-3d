@@ -16,7 +16,7 @@ VERSION = '0.1'
 APPNAME = 'gcm3d'
 
 out = 'build'
-env_file = os.path.join(out, 'current_env.txt')
+env_file = os.path.join(out, 'current_env.py')
 
 
 def init(ctx):
