@@ -1,0 +1,23 @@
+<task numberOfSnaps="50" stepsPerSnap="1">
+	<system>
+		<defaultContactCalculator type="SlidingContactCalculator" />
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+		<body id="tpn0">
+			<rheology type="elastic" />
+			<mesh id="tpn0" type="ani3d2" file="models/ani3d/trachea.out" tetrSize="1.0" />
+			<material id="testMaterial" />
+		</body>
+<!--		<body id="tpn1">
+			<rheology type="elastic" />
+			<mesh id="tpn2" type="geo" file="models/cube.geo" tetrSize="1.0" />
+			<material id="testMaterial" />
+			<transform type="translate" moveX="10.01" moveY="0" moveZ="0" />
+		</body>-->
+	</bodies>
+	<initialState>
+		<area type="box" minX="6" maxX="8" minY="-10" maxY="10" minZ="-10" maxZ="10"/>
+		<values vx="30" sxx="9000" syy="7000" szz="7000" />
+	</initialState>
+</task>
