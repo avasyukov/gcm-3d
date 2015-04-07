@@ -678,6 +678,9 @@ void Engine::createSnapshot(int number)
             auto snapName = mesh->snapshot(number);
             snapshots.push_back(make_tuple(number, mesh->getId(), snapName));
         }
+        else
+            LOG_WARN( "Mesh '" << mesh->getId() << "' has no local nodes" );
+
     }
 }
 
