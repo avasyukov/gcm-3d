@@ -10,10 +10,12 @@
 #include <gmsh/MElement.h>
 
 #include <vector>
+#include <algorithm>
 
 using namespace gcm;
 using std::vector;
 using std::string;
+using std::min;
 
 MarkeredSurfaceGeoGenerator::MarkeredSurfaceGeoGenerator()
 {
@@ -42,11 +44,24 @@ MarkeredSurface MarkeredSurfaceGeoGenerator::generate(string fileName, real size
     }
     else
     {
-        auto min = gmshModel.bounds().min();
-        auto max = gmshModel.bounds().max();
-        auto d = min.distance(max);
-        clmin = d/50;
-        clmax = d/30;
+        auto _min = gmshModel.bounds().min();
+        auto _max = gmshModel.bounds().max();
+        auto d1 = _max.x() - _min.x();
+        auto d2 = _max.y() - _min.y();
+        auto d3 = _max.z() - _min.z();
+
+        if ((d1/d2 >= 0.8) && (d1/d2 <= 1.2) &&  (d1/d3 >= 0.8) && (d1/d3 <= 1.2))
+        {
+            auto d = gmshModel.bounds().diag();
+            clmin = d/80;
+            clmax = d/60;
+        }
+        else
+        {
+            auto d = min({d1, d2, d3});
+            clmin = d/10;
+            clmax = d/5;
+        }
     }
 
     GmshSetOption("Mesh", "CharacteristicLengthMin", clmin);
