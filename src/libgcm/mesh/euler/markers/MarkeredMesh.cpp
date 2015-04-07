@@ -285,17 +285,17 @@ void MarkeredMesh::reconstructBorder()
                                     auto& node = getNodeByEulerMeshIndex(vector3u(i, j, k));
                                     norm2 += node.coords - cellCenter;
 								}
-                    assert_gt(cnt, 0);
-                    norm /= cnt;
-                    norm.normalize();
+//                    assert_gt(cnt, 0);
+//                    norm /= cnt;
+//                    norm.normalize();
 
                     norm2.normalize();
                     assert_gt(norm2.length(), 0.0);
 
-                    if  (norm*norm2 < 0.8) // angle between two normals greater then M_PI/6
+//                    if  (norm*norm2 < 0.8) // angle between two normals greater then M_PI/6
                         borderNormals[node.number] = norm2;
-                    else
-                        borderNormals[node.number] = norm;
+//                    else
+//                        borderNormals[node.number] = norm;
                 }
 
             }
