@@ -10,6 +10,7 @@
 #include "launcher/loaders/material/MaterialLoader.hpp"
 #include "launcher/loaders/mesh/Geo2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Msh2MeshLoader.hpp"
+#include "launcher/loaders/mesh/Ani3D2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Vtu2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
 #include "launcher/loaders/mesh/MarkeredMeshGeoLoader.hpp"
@@ -380,6 +381,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 Geo2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == Msh2MeshLoader::MESH_TYPE)
                 Msh2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == Ani3D2MeshLoader::MESH_TYPE)
+                Ani3D2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == Vtu2MeshLoader::MESH_TYPE)
                 Vtu2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == Vtu2MeshZoneLoader::MESH_TYPE)
@@ -507,6 +510,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 mesh = Geo2MeshLoader::getInstance().load(meshNode, body);
             else if (type == Msh2MeshLoader::MESH_TYPE)
                 mesh = Msh2MeshLoader::getInstance().load(meshNode, body);
+            else if (type == Ani3D2MeshLoader::MESH_TYPE)
+                mesh = Ani3D2MeshLoader::getInstance().load(meshNode, body);
             else if (type == Vtu2MeshLoader::MESH_TYPE)
                 mesh = Vtu2MeshLoader::getInstance().load(meshNode, body);
             else if (type == Vtu2MeshZoneLoader::MESH_TYPE)
@@ -515,7 +520,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 mesh = CubicMeshLoader::getInstance().load(meshNode, body);
             else if (type == MarkeredMeshGeoLoader::MESH_TYPE)
                 mesh = MarkeredMeshGeoLoader::getInstance().load(meshNode, body);            
-
+	    LOG_INFO("Loaded mesh for body '" << id << "', started attaching to body");
             // attach mesh to body
             body->attachMesh(mesh);
             mesh->setBodyNum( engine.getBodyNum(id) );
