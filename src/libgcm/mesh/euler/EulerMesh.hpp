@@ -40,7 +40,7 @@ protected:
 	/**
 	 * Cell status.
 	 */
-    bool*** cellStatus = nullptr;
+    uchar*** cellStatus = nullptr;
     /**
      * Map containing border node normals.
      */
@@ -172,7 +172,7 @@ public:
     uint getCellLocalIndexByEulerIndex(const vector3u& index) const;
     vector3r getCellCenter(const vector3u& index) const;
 
-    bool getCellStatus(const vector3u& index) const;
+    uchar getCellStatus(const vector3u& index) const;
 };
 }
 

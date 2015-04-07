@@ -367,12 +367,12 @@ void EulerMesh::generateMesh() {
                 addNode(node);
             }
 
-    cellStatus = new bool**[dimensions.x];
+    cellStatus = new uchar**[dimensions.x];
     for (uint i = 0; i < dimensions.x; i++)
     {
-        cellStatus[i] = new bool*[dimensions.y];
+        cellStatus[i] = new uchar*[dimensions.y];
         for (uint j = 0; j < dimensions.y; j++)
-            cellStatus[i][j] = new bool[dimensions.z];
+            cellStatus[i][j] = new uchar[dimensions.z];
     }
 
 }
@@ -430,7 +430,7 @@ vector3i EulerMesh::getCellEulerIndexByCoordsUnsafe(const vector3r& coords) cons
     return vector3i(floor(index.x), floor(index.y), floor(index.z));
 }
 
-bool EulerMesh::getCellStatus(const vector3u& index) const
+uchar EulerMesh::getCellStatus(const vector3u& index) const
 {
     assert_lt(index.x, dimensions.x);
     assert_lt(index.y, dimensions.y);

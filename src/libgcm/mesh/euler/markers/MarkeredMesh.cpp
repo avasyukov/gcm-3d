@@ -147,6 +147,8 @@ void MarkeredMesh::reconstructBorder()
 
     uint innerCells = 0;
 
+    bool invert = false;
+
     while (!fill_queue.empty())
     {
         auto next = fill_queue.front();
@@ -154,25 +156,32 @@ void MarkeredMesh::reconstructBorder()
 
         if (cellStatus[next.x][next.y][next.z])
             continue;
-        cellStatus[next.x][next.y][next.z] = true;
+        cellStatus[next.x][next.y][next.z] = 2;
         innerCells++;
 
         for (auto& neigh: neighbs)
         {
             auto _next = next + neigh;
 
-            assert_gt(_next.x, 0);
-            assert_gt(_next.y, 0);
-            assert_gt(_next.z, 0);
-
-            assert_lt(_next.x, dimensions.x);
-            assert_lt(_next.y, dimensions.y);
-            assert_lt(_next.z, dimensions.z);
+            if (_next.x < 0 || _next.y < 0 || _next.z < 0 || _next.x == dimensions.x || _next.y == dimensions.y || _next.z == dimensions.z)
+            {
+                invert = true;
+                continue;
+            }
 
             if (!cellStatus[_next.x][_next.y][_next.z])
                 fill_queue.push(_next);
         }
     }
+
+    if (invert)
+        for (uint i = 0; i < dimensions.x; i++)
+            for (uint j = 0; j < dimensions.y; j++)
+                for (uint k = 0; k < dimensions.z; k++)
+                    if (cellStatus[i][j][k] == 2)
+                        cellStatus[i][j][k] = 0;
+                    else if (cellStatus[i][j][k] == 0)
+                        cellStatus[i][j][k] = 1;
 
     LOG_DEBUG("Found " << innerCells << " inner cells");
 
