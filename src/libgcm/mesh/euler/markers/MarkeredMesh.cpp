@@ -129,24 +129,11 @@ void MarkeredMesh::reconstructBorder()
 
     LOG_DEBUG("Filling mesh interior");
 
-    //auto index = surface.getRegions()[0]/2;
-    //const auto& face = surface.getMarkerFaces()[index];
-    //const auto& node = nodes[face.verts[0]];
-    //vector3r dir;
-    //findTriangleFaceNormal(nodes[face.verts[0]].coords, nodes[face.verts[1]].coords, nodes[face.verts[2]].coords, &dir.x, &dir.y, &dir.z);
-
-    //auto cellIndex = getCellEulerIndexByCoords(node.coords);
     auto cellIndex = getCellEulerIndexByCoords(surface.getAABB().getCenter());
 
-    //dir.normalize();
+    queue<vector3i> fill_queue;
 
-    //cellIndex.x -= sgn(dir.x)*ceil(fabs(dir.x));
-    //cellIndex.y -= sgn(dir.y)*ceil(fabs(dir.y));
-    //cellIndex.z -= sgn(dir.z)*ceil(fabs(dir.z));
-
-    queue<vector3u> fill_queue;
-
-    fill_queue.push(cellIndex);
+    fill_queue.push(vector3i(cellIndex.x, cellIndex.y, cellIndex.z));
 
     vector3i neighbs[] =
     {
