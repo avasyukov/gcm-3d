@@ -345,6 +345,7 @@ void EulerMesh::generateMesh() {
     auto point = center-halfSize;
 
     LOG_DEBUG("Generating Euler mesh with AABB: [" << point << ", " << point + 2*halfSize << "]");
+    LOG_DEBUG("Mesh center: " << center);
     LOG_DEBUG("Mesh dimensions: " << dimensions);
     LOG_DEBUG("Mesh element size: " << cellSize);
 

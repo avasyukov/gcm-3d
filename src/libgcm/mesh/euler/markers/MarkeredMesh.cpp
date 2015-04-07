@@ -44,6 +44,9 @@ const MarkeredSurface& MarkeredMesh::getSurface() {
 
 void MarkeredMesh::setSurface(const MarkeredSurface& surface) {
     this->surface = surface;
+    this->center = surface.getAABB().getCenter();
+    LOG_DEBUG("Mesh center: " << this->center);
+    LOG_DEBUG("AABB: " << surface.getAABB());
     markersOffset.resize(surface.getNumberOfMarkerNodes());
 }
 
@@ -81,9 +84,9 @@ void MarkeredMesh::reconstructBorder()
         auto minEulerCoords = getCellEulerIndexByCoords(minCoords)-vector3u(1, 1, 1);
         auto maxEulerCoords = getCellEulerIndexByCoords(maxCoords)+vector3u(1, 1, 1);
 
-        assert_lt(minEulerCoords.x, dimensions.x);
-        assert_lt(minEulerCoords.y, dimensions.y);
-        assert_lt(minEulerCoords.z, dimensions.z);
+        assert_lt(minEulerCoords.x, dimensions.x,{LOG_DEBUG(v1 << v2 << v3);});
+        assert_lt(minEulerCoords.y, dimensions.y,{LOG_DEBUG(v1 << v2 << v3);});
+        assert_lt(minEulerCoords.z, dimensions.z,{LOG_DEBUG(v1 << v2 << v3);});
 
         assert_lt(maxEulerCoords.x, dimensions.x);
         assert_lt(maxEulerCoords.y, dimensions.y);
