@@ -307,9 +307,12 @@ void MarkeredMesh::reconstructBorder()
         int y = index.y;
         int z = index.z;
 
-        for (int i = -1; i <= 1; i+=2)
-            for (int j = -1; j <= 1; j+=2)
-                for (int k = -1; k <= 1; k+=2)
+        float minDist = numeric_limits<float>::infinity();
+        int _i, _j, _k = -1;
+
+        for (int i = -5; i <= 5; i+=2)
+            for (int j = -5; j <= 5; j+=2)
+                for (int k = -5; k <= 5; k+=2)
                 {
                     int _x = x + i;
                     int _y = y + j;
@@ -326,10 +329,21 @@ void MarkeredMesh::reconstructBorder()
                     const auto& node  = this->getNodeByEulerMeshIndex(vector3u(_x, _y, _z));
 
                     if (wasUsed[node.number])
-                        return node;
+                    {
+                        float dist = vectorNorm(i, j, k);
+                        if (dist < minDist)
+                        {
+                            minDist = dist;
+                            _i = _x;
+                            _j = _y;
+                            _k = _z;
+                        }
+                    }
                 }
-
-        THROW_BAD_MESH("Can't find used neighbour node ");
+        if (_k != -1)
+            return this->getNodeByEulerMeshIndex(vector3u(_i, _j, _k));
+        else
+            THROW_BAD_MESH("Failed find used neighbour node ");
     };
 
     for (auto idx: nodesToFix)
