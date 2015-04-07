@@ -31,7 +31,8 @@ void MarkeredMesh::preProcessGeometry()
 }
 
 void MarkeredMesh::checkTopology(float tau) {
-    reconstructBorder();
+    if (movable)
+        reconstructBorder();
 }
 
 void MarkeredMesh::logMeshStats() {
