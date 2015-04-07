@@ -44,6 +44,8 @@ def configure(conf):
         '6': ['vtkCommonCore', 'vtkCommonDataModel', 'vtkCommonExecutionModel', 'vtkFiltersCore', 'vtkIOCore', 'vtkIOXML']
     }
 
+    LIBS['6.1'] = [l + '-6.1' for l in LIBS['6']]
+
     for v in LIBS:
         libs = LIBS[v]
         conf.env.LIB_LIBVTK = libs
@@ -65,7 +67,7 @@ def configure(conf):
             )
         except:
             continue
-        conf.define('CONFIG_VTK_%s' % v, 1)
+        conf.define('CONFIG_VTK_%s' % v[0], 1)
         conf.end_msg(version)
         return
     conf.end_msg('not found')
