@@ -1,0 +1,34 @@
+<task numberOfSnaps="150" stepsPerSnap="1">
+    <system>
+        <meshMovement type="none" />
+        <timeStep multiplier="1.0" />
+        <!--plasticity type="PrandtlRaussCorrector" />
+        <matrixDecomposition implementation="analytical" /-->
+        <defaultFailureModel type="CrackFailureModel" />
+    </system>
+	<bodies>
+		<body id="target">
+			<mesh id="target" type="geo2" file="models/laser_target.geo" tetrSize="0.001" />
+	    	<material id="__glass" />
+		</body>
+	</bodies>
+    <materials>
+        <material name="__glass" rheology="isotropic">
+            <la>2.25e10</la>
+            <mu>2.87e10</mu>
+            <rho>2500</rho>
+            <failure type="maxStress">
+                <threshold>1500e6</threshold>
+            </failure>
+            <plasticity type="PrandtlRauss">
+                <yieldStrength>100e6</yieldStrength>
+            </plasticity>
+            <plasticity type="PrandtlRaussCorrector">
+                <yieldStrength>100e6</yieldStrength>
+            </plasticity>
+        </material>
+    </materials>
+	<borderCondition calculator="ExternalForceCalculator" normalStress="-0.08e11" tangentialStress="0.0" startTime="0" duration="0.5e-6">
+		<area type="cylinder" x1="0" y1="0" z1="0.007" x2="0" y2="0" z2="0.011" r="0.005"/>
+	</borderCondition>
+</task>
