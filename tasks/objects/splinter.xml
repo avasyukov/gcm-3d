@@ -55,5 +55,14 @@
         <!--values vz="-801" vx="463" /-->
         <values vz="-1200" vx="700" />
     </initialState>
-    
+
+    <borderCondition calculator="FixedBorderCalculator">
+            <area type="box" minX="-0.030" maxX="-0.0249" minY="-1" maxY="1" minZ="-1" maxZ="1"/>
+            <area type="box" minX="0.0249" maxX="-0.030" minY="-1" maxY="1" minZ="-1" maxZ="1"/>
+            <area type="box" minX="-1" maxX="1" minY="-0.030" maxY="-0.0249" minZ="-1" maxZ="1"/>
+            <area type="box" minX="-1" maxX="1" minY="0.0249" maxY="-0.030" minZ="-1" maxZ="1" />
+            <area type="box" minX="-1" maxX="1" minY="-1" maxY="1" minZ="-0.31" maxZ="-0.0028"/>
+    </borderCondition>
+
+
 </task>
