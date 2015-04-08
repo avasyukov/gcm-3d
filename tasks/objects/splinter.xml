@@ -1,0 +1,59 @@
+<task numberOfSnaps="1500" stepsPerSnap="1">
+    <system>
+        <defaultContactCalculator type="SlidingContactCalculator" />
+        <contactThreshold measure="abs" value="0.002"/>
+        <plasticity type="PrandtlRaussCorrector" />
+        <matrixDecomposition implementation="analytical" />
+        <timeStep multiplier="0.99"/>
+    </system>
+    <bodies>
+        <body id="target">
+            <rheology type="elastic" />
+            <mesh id="target" type="markered-mesh-geo" cellSize="0.0003;0.0003;0.0003" cellsNum="200;200;20" file="models/markered_target_thin.geo" />
+            <!--mesh id="target" type="markered-mesh-geo" cellSize="0.0003;0.0003;0.0003" cellsNum="200;200;40" file="models/markered_target.geo" /-->
+            <material id="steel09g2s" />
+        </body>
+        <body id="striker">
+            <rheology type="elastic" />
+            <mesh id="striker" type="markered-mesh-geo" cellSize="0.0003;0.0003;0.0003" cellsNum="300;100;100" file="models/markered_striker.geo" />
+            <material id="steel20" />
+            <transform type="translate" moveX="-0.01" moveY="0" moveZ="0.007" />
+        </body>
+    </bodies>
+
+    <materials>
+        <material name="steel20" rheology="isotropic">
+            <!-- 113e9 -->
+            <la>200e9</la>
+            <!-- 82e9 -->
+            <mu>78e9</mu>
+            <rho>7860</rho>
+            <plasticity type="PrandtlRauss">
+                <yieldStrength>400e6</yieldStrength>
+            </plasticity>
+            <plasticity type="PrandtlRaussCorrector">
+                <yieldStrength>400e6</yieldStrength>
+            </plasticity>
+        </material>
+        <material name="steel09g2s" rheology="isotropic">
+            <!-- 166e9 -->
+            <la>200e9</la>
+            <mu>78e9</mu>
+            <!-- 7890 -->
+            <rho>7860</rho>
+            <plasticity type="PrandtlRauss">
+                <yieldStrength>200e6</yieldStrength>
+            </plasticity>
+            <plasticity type="PrandtlRaussCorrector">
+                <yieldStrength>200e6</yieldStrength>
+            </plasticity>
+        </material>
+    </materials>
+
+    <initialState>
+        <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="0.0035" maxZ="0.01"/>
+        <!--values vz="-801" vx="463" /-->
+        <values vz="-1200" vx="700" />
+    </initialState>
+    
+</task>
