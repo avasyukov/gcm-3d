@@ -33,11 +33,12 @@ def configure(conf):
         '/usr/lib'
     ]
     for l in  lib_path:
-        for d in os.listdir(l):
-            full_path = l + '/' + d
-            if os.path.isdir(full_path):
-                if d.startswith('vtk-'):
-                    conf.env.LIBPATH_LIBVTK += [full_path]
+        if os.path.isdir(l):
+            for d in os.listdir(l):
+                full_path = l + '/' + d
+                if os.path.isdir(full_path):
+                    if d.startswith('vtk-'):
+                        conf.env.LIBPATH_LIBVTK += [full_path]
 
     LIBS = {
         '5': ['vtkCommon', 'vtkFiltering', 'vtkIO'],
