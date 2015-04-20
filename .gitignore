@@ -14,7 +14,6 @@ lib/
 include/
 share/
 *.log*
-toplev*
 \!testsRun/*
 Makefile
 mkbuild.sh
