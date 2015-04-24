@@ -1,125 +1,107 @@
-<task numberOfSnaps="250" stepsPerSnap="10">
+<task numberOfSnaps="150" stepsPerSnap="10">
         <system>
                 <defaultContactCalculator type="SlidingContactCalculator"/>
                 <defaultFailureModel type="HashinFailureModel" />
                 <contactThreshold measure="abs" value="0.001" />
                 <meshMovement type="none" />
-<!--                <collisionDetector static="true" /> -->
+                <collisionDetector static="false" /> 
         </system>
 	<bodies>
-<!--		<body id="gfrp_sph_osk">
-                        <rheology type="elastic" />
-                        <mesh id="gfrp_sph_osk" type="geo2" file="models/gfrp_sph.geo" tetrSize="0.13" />
-                        <material id="steelB" />
-                        <transform type="translate" moveX="0.0" moveY="1.93" moveZ="0.0" />
-                </body>
--->
 		<body id="gfrp_sph_pan_u">
 			<rheology type="elastic" />
-			<mesh id="gfrp_sph_pan_u" type="geo2" file="models/gfrp_pn_u.geo" tetrSize="0.1" />
-<!--			<material id="steelB" /> -->
+			<mesh id="gfrp_sph_pan_u" type="geo2" file="models/gfrp_pn_u.geo" tetrSize="0.05" />
 			<material id="gfrp_u" /> 
 		</body>
 		<body id="gfrp_sph_pan_m">
                         <rheology type="elastic" />
-                        <mesh id="gfrp_sph_pan_m" type="geo2" file="models/gfrp_pn_m.geo" tetrSize="0.1" />
-<!--			<material id="steelB" /> -->
+                        <mesh id="gfrp_sph_pan_m" type="geo2" file="models/gfrp_pn_m.geo" tetrSize="0.05" />
                         <material id="gfrp_m" /> 
                 </body>
 		<body id="gfrp_sph_pan_d">
                         <rheology type="elastic" />
-                        <mesh id="gfrp_sph_pan_d" type="geo2" file="models/gfrp_pn_d.geo" tetrSize="0.1" />
-<!--			<material id="steelB" /> -->
+                        <mesh id="gfrp_sph_pan_d" type="geo2" file="models/gfrp_pn_d.geo" tetrSize="0.05" />
                         <material id="gfrp_u" /> 
                 </body>
 	</bodies>
 	<materials>
 		 <material name="gfrp_u" rheology="anisotropic" failure="hashin">
-                        <c11>41645000000</c11>
-                        <c12>10000000000</c12>
-                        <c13>10000000000</c13>
+                        <c11>416450000000</c11>
+                        <c12>100000000000</c12>
+                        <c13>100000000000</c13>
                         <c14>0</c14>
                         <c15>0</c15>
                         <c16>0</c16>
-                        <c22>12210000000</c22>
-                        <c23>10000000000</c23>
+                        <c22>114500000000</c22>
+                        <c23>100000000000</c23>
                         <c24>0</c24>
                         <c25>0</c25>
                         <c26>0</c26>
-                        <c33>12210000000</c33>
+                        <c33>153800000000</c33>
                         <c34>0</c34>
                         <c35>0</c35>
                         <c36>0</c36>
-                        <c44>3720000000</c44>
+                        <c44>37200000000</c44>
                         <c45>0</c45>
                         <c46>0</c46>
-                        <c55>3720000000</c55>
+                        <c55>37200000000</c55>
                         <c56>0</c56>
-                        <c66>3720000000</c66>
-                        <rho>0.001620</rho>
+                        <c66>37200000000</c66>
+                        <rho>1.620</rho>
 	            <failure type="hashin">
 	                <dir>1</dir>
-	                <Xc>9000000000</Xc>
-	                <Xt>900000000</Xt>
-	                <Yc>237000000</Yc>
-	                <Yt>74000000</Yt>
-	                <St>190000000</St>
-	                 <S>64000000</S>
+	                <Xc>90000000000</Xc>
+	                <Xt>9000000000</Xt>
+	                <Yc>2370000000</Yc>
+	                <Yt>740000000</Yt>
+	                <St>1900000000</St>
+	                 <S>640000000</S>
 	            </failure>
                 </material>
 		<material name="gfrp_m" rheology="anisotropic" failure="hashin">
-                        <c11>12210000000</c11>
-                        <c12>10000000000</c12>
-                        <c13>10000000000</c13>
+			<c11>153800000000</c11>
+                        <c12>100000000000</c12>
+                        <c13>100000000000</c13>
                         <c14>0</c14>
                         <c15>0</c15>
                         <c16>0</c16>
-                        <c22>12210000000</c22>
-                        <c23>10000000000</c23>
+                        <c22>114500000000</c22>
+                        <c23>100000000000</c23>
                         <c24>0</c24>
                         <c25>0</c25>
                         <c26>0</c26>
-                        <c33>41645000000</c33>
+                        <c33>416450000000</c33>
                         <c34>0</c34>
                         <c35>0</c35>
                         <c36>0</c36>
-                        <c44>3720000000</c44>
+                        <c44>37200000000</c44>
                         <c45>0</c45>
                         <c46>0</c46>
-                        <c55>3720000000</c55>
+                        <c55>37200000000</c55>
                         <c56>0</c56>
-                        <c66>3720000000</c66>
-                        <rho>0.001620</rho>
+                        <c66>37200000000</c66>
+                        <rho>1.620</rho>
                     <failure type="hashin">
                         <dir>3</dir>
-                        <Xc>9000000000</Xc>
-                        <Xt>900000000</Xt>
-                        <Yc>237000000</Yc>
-                        <Yt>74000000</Yt>
-                        <St>190000000</St>
-                         <S>64000000</S>
+                        <Xc>90000000000</Xc>
+                        <Xt>9000000000</Xt>
+                        <Yc>2370000000</Yc>
+                        <Yt>740000000</Yt>
+                        <St>1900000000</St>
+                         <S>640000000</S>
                     </failure>
                 </material>
-                <material name="steelB" rheology="isotropic">
-                        <la>99430000000</la>
-                        <mu>78130000000</mu>
-                        <rho>0.0078</rho>
-                        <crackThreshold>INF</crackThreshold>
-                </material>
-
 	</materials>
-        <contactCondition calculator="AdhesionContactDestroyCalculator" adhesionThreshold="500">
+        <contactCondition calculator="AdhesionContactDestroyCalculator" adhesionThreshold="1500">
                 <area type="box" minX="-100" maxX="100" minY="-100" maxY="0.429" minZ="-100" maxZ="100"/>
         </contactCondition>
 
-<!--	<initialState>
-                <area type="box" minX="-0.25" maxX="0.25" minY="0.429" maxY="0.430" minZ="-0.25" maxZ="0.25"/>
-		<values vy="-100" />
-	</initialState> -->
-
+	<initialState>
+                <area type="box" minX="-0.025" maxX="0.025" minY="0.429" maxY="0.430" minZ="-0.025" maxZ="0.025"/>
+		<values vy="-1" />
+	</initialState> 
 
         <borderCondition calculator="ExternalVelocityCalculator" normalVelocity="-1" tangentialVelocity="0">
-                <area type="box" minX="-0.25" maxX="0.25" minY="0.429" maxY="0.430" minZ="-0.25" maxZ="0.25"/>
+                <area type="box" minX="-0.025" maxX="0.025" minY="0.429" maxY="0.430" minZ="-0.025" maxZ="0.025"/>
         </borderCondition>
 
 </task>
