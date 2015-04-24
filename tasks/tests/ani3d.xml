@@ -1,71 +1,138 @@
-<task numberOfSnaps="50" stepsPerSnap="1">
+<task numberOfSnaps="50" stepsPerSnap="10">
 	<system>
-		<defaultContactCalculator type="SlidingContactCalculator" />
+		<defaultContactCalculator type="AdhesionContactCalculator" />
 		<meshMovement type="none" />
+<!--		<timeStep multiplier="0.1"/> -->
 	</system>
 	<bodies>
 		<body id="a3d_trachea">
 			<rheology type="elastic" />
-			<mesh id="a3d_trachea" type="ani3d2" file="models/ani3d/trachea.out" tetrSize="1.0" />
-			<material id="steel" />
+			<mesh id="a3d_trachea" type="ani3d2" file="models/ani3d/trachea.out" tetrSize="0.01" />
+			<material id="trachea" />
 		</body>
                 <body id="a3d_bones">
                         <rheology type="elastic" />
-                        <mesh id="a3d_bones" type="ani3d2" file="models/ani3d/bones.out" tetrSize="1.0" />
-                        <material id="steel" />
+                        <mesh id="a3d_bones" type="ani3d2" file="models/ani3d/bones.out" tetrSize="0.01" />
+                        <material id="bone" />
                 </body>
                 <body id="a3d_diapragm">
                         <rheology type="elastic" />
-                        <mesh id="a3d_diapragm" type="ani3d2" file="models/ani3d/diapragm.out" tetrSize="1.0" />
-                        <material id="steel" />
-                </body>
+                        <mesh id="a3d_diapragm" type="ani3d2" file="models/ani3d/diapragm.out" tetrSize="0.01" />
+                        <material id="diaphragm" />
+                </body> 
                 <body id="a3d_digestive">
                         <rheology type="elastic" />
-                        <mesh id="a3d_digestive" type="ani3d2" file="models/ani3d/digestive.out" tetrSize="1.0" />
-                        <material id="steel" />
+                        <mesh id="a3d_digestive" type="ani3d2" file="models/ani3d/digestive.out" tetrSize="0.01" />
+                        <material id="digestive" />
                 </body>
 		<body id="a3d_fat">
 			<rheology type="elastic" />
-			<mesh id="a3d_fat" type="ani3d2" file="models/ani3d/fat.out" tetrSize="1.0" />
-			<material id="steel" />
-		</body>-->
+			<mesh id="a3d_fat" type="ani3d2" file="models/ani3d/fat.out" tetrSize="0.01" />
+			<material id="fat" />
+		</body>
                 <body id="a3d_heart">
                         <rheology type="elastic" />
-                        <mesh id="a3d_heart" type="ani3d2" file="models/ani3d/heart.out" tetrSize="1.0" />
-                        <material id="steel" />
-                </body>-->
+                        <mesh id="a3d_heart" type="ani3d2" file="models/ani3d/heart.out" tetrSize="0.01" />
+                        <material id="heart" />
+                </body>
                 <body id="a3d_liver">
                         <rheology type="elastic" />
-                        <mesh id="a3d_liver" type="ani3d2" file="models/ani3d/liver.out" tetrSize="1.0" />
-                        <material id="steel" />
-                </body>-->
+                        <mesh id="a3d_liver" type="ani3d2" file="models/ani3d/liver.out" tetrSize="0.01" />
+                        <material id="liver" />
+                </body> 
                 <body id="a3d_lungs">
                         <rheology type="elastic" />
-                        <mesh id="a3d_lungs" type="ani3d2" file="models/ani3d/lungs.out" tetrSize="1.0" />
-                        <material id="steel" />
-                </body>-->
+                        <mesh id="a3d_lungs" type="ani3d2" file="models/ani3d/lungs.out" tetrSize="0.01" />
+                        <material id="lungs" />
+                </body>
                 <body id="a3d_muscle">
                         <rheology type="elastic" />
-                        <mesh id="a3d_muscle" type="ani3d2" file="models/ani3d/muscle.out" tetrSize="1.0" />
-                        <material id="steel" />
+                        <mesh id="a3d_muscle" type="ani3d2" file="models/ani3d/muscle.out" tetrSize="0.01" />
+                        <material id="muscle" />
                 </body>-->
                 <body id="a3d_vessels">
                         <rheology type="elastic" />
-                        <mesh id="a3d_vessels" type="ani3d2" file="models/ani3d/vessels.out" tetrSize="1.0" />
-                        <material id="steel" />
+                        <mesh id="a3d_vessels" type="ani3d2" file="models/ani3d/vessels.out" tetrSize="0.01" />
+                        <material id="vessels" />
                 </body>-->
 
 	</bodies>
         <materials>
-                <material name="steel" rheology="isotropic">
+<!--                <material name="steel" rheology="isotropic">
                         <la>99430000000</la>
                         <mu>78130000000</mu>
                         <rho>0.0078</rho>
                         <crackThreshold>INF</crackThreshold>
+                </material> -->
+                <material name="bone" rheology="isotropic">
+                        <la>786000000</la>
+                        <mu>1179000000</mu>
+                        <rho>0.001</rho>
+                        <crackThreshold>INF</crackThreshold>
                 </material>
-        </materials>
+                <material name="trachea" rheology="isotropic">
+                        <la>14286000</la>
+                        <mu>3571000</mu>
+                        <rho>0.002</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+                <material name="heart" rheology="isotropic">
+                        <la>238571</la>
+                        <mu>59643</mu>
+                        <rho>0.001</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+                <material name="vessels" rheology="isotropic">
+                        <la>28571000</la>
+                        <mu>7143000</mu>
+                        <rho>0.002</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+                <material name="lungs" rheology="isotropic">
+                        <la>2857</la>
+                        <mu>714</mu>
+                        <rho>0.0006</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+                <material name="digestive" rheology="isotropic">
+                        <la>7142857</la>
+                        <mu>1785714</mu>
+                        <rho>0.0012</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+                <material name="muscle" rheology="isotropic">
+                        <la>14714285</la>
+                        <mu>3678571</mu>
+                        <rho>0.001</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+                <material name="diaphragm" rheology="isotropic">
+                        <la>93571429</la>
+                        <mu>23392857</mu>
+                        <rho>0.001</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+                <material name="liver" rheology="isotropic">
+                        <la>7142857</la>
+                        <mu>1785714</mu>
+                        <rho>0.0012</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+                <material name="fat" rheology="isotropic">
+                        <la>238571</la>
+                        <mu>59643</mu>
+                        <rho>0.001</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+       </materials>
+
+
+<!--        <borderCondition calculator="ExternalVelocityCalculator" normalVelocity="-1" tangentialVelocity="0">
+                <area type="box" minX="350" maxX="400" minY="250" maxY="300" minZ="200" maxZ="250"/>
+        </borderCondition> -->
+
 	<initialState>
-		<area type="box" minX="-10000" maxX="10000" minY="-1" maxY="1" minZ="-1" maxZ="1"/>
-		<values vx="3" sxx="900" syy="700" szz="700" />
-	</initialState>
+                <area type="box" minX="350" maxX="400" minY="250" maxY="300" minZ="200" maxZ="250"/>
+		<values vy="-3" sxx="-700" syy="-900" szz="-700" />
+	</initialState> 
 </task>
