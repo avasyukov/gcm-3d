@@ -35,7 +35,7 @@ namespace gcm
     private:
         TetrFirstOrderInterpolator* interpolator;
 
-    protected:
+    public:
         std::unordered_map<int, int> tetrsMap;
 
         // Cache for characteristics hits

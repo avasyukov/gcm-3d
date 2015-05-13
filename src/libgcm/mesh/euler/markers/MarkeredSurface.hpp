@@ -2,8 +2,11 @@
 #define MARKEREDSURFACE_HPP 
 
 #include <vector>
+#include <utility>
+#include <string>
 
 #include "libgcm/elem/TriangleFirstOrder.hpp"
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.hpp"
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/util/AABB.hpp"
 #include "libgcm/util/Types.hpp"
@@ -20,9 +23,10 @@ namespace gcm
             
             
         public:
+            std::vector<std::pair<std::string, TetrMeshFirstOrder*>> meshes;
 			void updateAABB();
             MarkeredSurface();
-            MarkeredSurface(std::vector<CalcNode>& markers, std::vector<TriangleFirstOrder>& faces, std::vector<int>& regions);
+            MarkeredSurface(std::vector<CalcNode>& markers, std::vector<TriangleFirstOrder>& faces, std::vector<int>& regions, std::vector<std::pair<std::string, TetrMeshFirstOrder*>> meshes=std::vector<std::pair<std::string, TetrMeshFirstOrder*>>());
 
             const std::vector<CalcNode>& getMarkerNodes() const;
             unsigned int getNumberOfMarkerNodes() const;

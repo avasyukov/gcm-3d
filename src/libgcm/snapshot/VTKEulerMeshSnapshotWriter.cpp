@@ -4,7 +4,11 @@
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/mesh/euler/EulerMesh.hpp"
 
+#include <unordered_map>
+
 using namespace gcm;
+
+using std::unordered_map;
 
 namespace gcm
 {
@@ -84,6 +88,10 @@ void VTKEulerMeshSnapshotWriter::dumpMeshSpecificData(EulerMesh* mesh, vtkSmartP
 
     auto cellError = vtkSmartPointer<vtkIntArray>::New();
     cellError->SetName("cellError");
+
+    auto materialId = vtkSmartPointer<vtkIntArray>::New();
+    materialId->SetName("materialId");
+
     for (uint k = 0; k < nodeDims.z; k++)
         for (uint j = 0; j < nodeDims.y; j++)
             for (uint i = 0; i < nodeDims.x; i++)
@@ -91,6 +99,9 @@ void VTKEulerMeshSnapshotWriter::dumpMeshSpecificData(EulerMesh* mesh, vtkSmartP
                 auto& node = mesh->getNodeByEulerMeshIndex(vector3u(i, j, k));
                 points->InsertNextPoint(node.coords.x, node.coords.y, node.coords.z);
             }
+
+    unordered_map<int, int> materials;
+
     for (uint k = 0; k < cellDims.z; k++)
         for (uint j = 0; j < cellDims.y; j++)
             for (uint i = 0; i < cellDims.x; i++)
@@ -98,17 +109,32 @@ void VTKEulerMeshSnapshotWriter::dumpMeshSpecificData(EulerMesh* mesh, vtkSmartP
                 cellStatus->InsertNextValue(mesh->getCellStatus(vector3u(i, j, k)));
                 char flag = 0;
 
+                materials.clear();
                 for (uint p = 0; p <= 1; p++)
                     for (uint q = 0; q <= 1; q++)
                         for (uint s = 0; s <= 1; s++)
-                            if ((flag = mesh->getNodeByEulerMeshIndex(vector3u(i+p, j+q, k+s)).getErrorFlags()))
-                                break;
+                        {
+                            const auto& node = mesh->getNodeByEulerMeshIndex(vector3u(i+p, j+q, k+s));
+                            flag |= node.getErrorFlags();
+                            materials[node.getMaterialId()]++;
+                        }
+
+                int mat = -1;
+                int max = -1;
+                for (auto& m: materials)
+                    if (m.second > max)
+                    {
+                        max = m.second;
+                        mat = m.first;
+                    }
 
                 cellError->InsertNextValue(flag);
+                materialId->InsertNextValue(mat);
             }
 
     grid->GetCellData()->AddArray(cellStatus);
     grid->GetCellData()->AddArray(cellError);
+    grid->GetCellData()->AddArray(materialId);
 
     grid->SetDimensions(nodeDims.x, nodeDims.y, nodeDims.z);
 }

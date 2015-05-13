@@ -129,11 +129,11 @@ void TetrMeshFirstOrder::preProcessGeometry()
     calcMaxEdge();
 
     verifyTetrahedraVertices ();
-    build_volume_reverse_lookups();
+//    build_volume_reverse_lookups();
 
     //check_unused_nodes();
     build_border();
-    build_surface_reverse_lookups();
+//    build_surface_reverse_lookups();
 
     check_numbering();
     // check_outer_normals();

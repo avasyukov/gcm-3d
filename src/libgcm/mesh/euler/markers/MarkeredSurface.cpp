@@ -4,16 +4,19 @@
 
 using namespace gcm;
 using std::vector;
+using std::pair;
+using std::string;
 using std::move;
 
 MarkeredSurface::MarkeredSurface()
 {
 }
-MarkeredSurface::MarkeredSurface(vector<CalcNode>& markers, vector<TriangleFirstOrder>& faces, vector<int>& regions)
+MarkeredSurface::MarkeredSurface(vector<CalcNode>& markers, vector<TriangleFirstOrder>& faces, vector<int>& regions, vector<pair<string, TetrMeshFirstOrder*>> meshes)
 {
     this->markers = move(markers);
     this->faces = move(faces);
     this->regions = move(regions);
+    this->meshes = meshes;
 
     updateAABB();
 }

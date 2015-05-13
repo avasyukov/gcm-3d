@@ -14,6 +14,7 @@
 #include "launcher/loaders/mesh/Vtu2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
 #include "launcher/loaders/mesh/MarkeredMeshGeoLoader.hpp"
+#include "launcher/loaders/mesh/MarkeredMeshAniLoader.hpp"
 #include "launcher/loaders/mesh/CubicMeshLoader.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
 
@@ -391,6 +392,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 CubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == MarkeredMeshGeoLoader::MESH_TYPE)
                 MarkeredMeshGeoLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == MarkeredMeshAniLoader::MESH_TYPE)
+                MarkeredMeshAniLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else
                 THROW_UNSUPPORTED("Specified mesh loader is not supported");
 
@@ -520,6 +523,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 mesh = CubicMeshLoader::getInstance().load(meshNode, body);
             else if (type == MarkeredMeshGeoLoader::MESH_TYPE)
                 mesh = MarkeredMeshGeoLoader::getInstance().load(meshNode, body);            
+            else if (type == MarkeredMeshAniLoader::MESH_TYPE)
+                mesh = MarkeredMeshAniLoader::getInstance().load(meshNode, body);            
 	    LOG_INFO("Loaded mesh for body '" << id << "', started attaching to body");
             // attach mesh to body
             body->attachMesh(mesh);

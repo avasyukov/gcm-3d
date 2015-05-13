@@ -15,19 +15,50 @@ using std::numeric_limits;
 MarkeredMesh::MarkeredMesh()
 {
     INIT_LOGGER("gcm.mesh.euler.markers.MarkeredMesh");
-    movable = true;
+    movable = false;
 }
 
 MarkeredMesh::MarkeredMesh(MarkeredSurface surface, vector3u dimensions, vector3r cellSize, vector3r center): EulerMesh(dimensions, cellSize, center), surface(surface)
 {
     INIT_LOGGER("gcm.mesh.euler.markers.MarkeredMesh");
-    movable = true;
+    movable = false;
 }
 
 void MarkeredMesh::preProcessGeometry()
 {
     generateMesh();
     reconstructBorder();
+
+    Engine& engine = Engine::getInstance();
+    for (const auto& _m: surface.meshes)
+    {
+        const auto& mat = _m.first;
+        auto mesh = _m.second;
+        for (auto& t: mesh->tetrs1)
+        {
+            const auto& node1 = mesh->getNode(t.verts[0]);
+            const auto& node2 = mesh->getNode(t.verts[1]);
+            const auto& node3 = mesh->getNode(t.verts[2]);
+            const auto& node4 = mesh->getNode(t.verts[3]);
+
+
+            auto _min = vmin(vmin(node1.coords, node2.coords), vmin(node3.coords, node4.coords));
+            auto _max = vmax(vmax(node1.coords, node2.coords), vmax(node3.coords, node4.coords));
+
+            auto minCellIndex = getCellEulerIndexByCoords(_min);
+            auto maxCellIndex = getCellEulerIndexByCoords(_max);
+            for (uint i = minCellIndex.x; i <= maxCellIndex.x+1; i++)
+                for (uint j = minCellIndex.y; j <=maxCellIndex.y+1; j++)
+                    for (uint k = minCellIndex.z; k <= maxCellIndex.z+1; k++)
+                    {
+                        auto& node = getNodeByEulerMeshIndex(vector3u(i, j, k));
+                        node.setMaterialId(engine.getMaterialIndex(mat));
+                    }
+
+        }
+    }
+
+    surface.meshes.clear();
 }
 
 void MarkeredMesh::checkTopology(float tau) {
@@ -173,7 +204,7 @@ void MarkeredMesh::reconstructBorder()
                 fill_queue.push(_next);
         }
     }
-
+    
     if (invert)
         for (uint i = 0; i < dimensions.x; i++)
             for (uint j = 0; j < dimensions.y; j++)
@@ -182,6 +213,48 @@ void MarkeredMesh::reconstructBorder()
                         cellStatus[i][j][k] = 0;
                     else if (cellStatus[i][j][k] == 0)
                         cellStatus[i][j][k] = 1;
+    
+    fill_queue.push(vector3i(0, 0, 0));
+    while (!fill_queue.empty())
+    {
+        auto next = fill_queue.front();
+        fill_queue.pop();
+
+        if (cellStatus[next.x][next.y][next.z] == 0)
+            cellStatus[next.x][next.y][next.z] = 7;
+        else
+            continue;
+        
+        for (auto& neigh: neighbs)
+        {
+            auto _next = next + neigh;
+
+            if (_next.x < 0 || _next.y < 0 || _next.z < 0 || _next.x == dimensions.x || _next.y == dimensions.y || _next.z == dimensions.z)
+                continue;
+
+            if (cellStatus[_next.x][_next.y][_next.z] == 0)
+                fill_queue.push(_next);
+        }
+    }
+
+    int added = 0;
+
+    for (int i = 0; i < dimensions.x; i++)
+        for (int j = 0; j < dimensions.y; j++)
+            for (int k = 0; k < dimensions.z; k++)
+                if (cellStatus[i][j][k] == 0)
+                {
+                    cellStatus[i][j][k] = 1;
+                    added++;
+                }
+
+    LOG_INFO("Added " << added << " cells");
+    
+    for (int i = 0; i < dimensions.x; i++)
+        for (int j = 0; j < dimensions.y; j++)
+            for (int k = 0; k < dimensions.z; k++)
+                if (cellStatus[i][j][k] == 7)
+                    cellStatus[i][j][k] = 0;
 
     LOG_DEBUG("Found " << innerCells << " inner cells");
 
@@ -264,7 +337,7 @@ void MarkeredMesh::reconstructBorder()
                     if (node.coords.z > outline.maxZ)
                         outline.maxZ = node.coords.z;
 
-                    vector3r norm, norm2;
+                    vector3r norm/*, norm2*/;
                     uint cnt = 0;
                     for (uint p = 0; p <= 1; p++)
                         for (uint q = 0; q <= 1; q++)
@@ -273,7 +346,7 @@ void MarkeredMesh::reconstructBorder()
 								{
                                     auto cellEulerIndex = vector3u(i-p, j-q, k-s);
 									auto index = getCellLocalIndexByEulerIndex(cellEulerIndex);
-//									assert_true(borderFacesMap.find(index) != borderFacesMap.end());
+									assert_true(borderFacesMap.find(index) != borderFacesMap.end());
 									for (auto fnum: borderFacesMap[index])
 									{
 										vector3r _norm;
@@ -281,21 +354,21 @@ void MarkeredMesh::reconstructBorder()
 										norm += _norm;
 										cnt++;
 									}
-                                    auto cellCenter = getCellCenter(cellEulerIndex);
-                                    auto& node = getNodeByEulerMeshIndex(vector3u(i, j, k));
-                                    norm2 += node.coords - cellCenter;
+//                                    auto cellCenter = getCellCenter(cellEulerIndex);
+//                                    auto& node = getNodeByEulerMeshIndex(vector3u(i, j, k));
+//                                    norm2 += node.coords - cellCenter;
 								}
-//                    assert_gt(cnt, 0);
-//                    norm /= cnt;
-//                    norm.normalize();
+                    assert_gt(cnt, 0);
+                    norm /= cnt;
+                    norm.normalize();
 
-                    norm2.normalize();
-                    assert_gt(norm2.length(), 0.0);
+//                    norm2.normalize();
+//                    assert_gt(norm2.length(), 0.0);
 
 //                    if  (norm*norm2 < 0.8) // angle between two normals greater then M_PI/6
-                        borderNormals[node.number] = norm2;
+//                        borderNormals[node.number] = norm2;
 //                    else
-//                        borderNormals[node.number] = norm;
+                        borderNormals[node.number] = norm;
                 }
 
             }
