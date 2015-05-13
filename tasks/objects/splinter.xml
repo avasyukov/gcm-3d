@@ -1,4 +1,4 @@
-<task numberOfSnaps="1500" stepsPerSnap="1">
+<task numberOfSnaps="300" stepsPerSnap="1">
     <system>
         <defaultContactCalculator type="SlidingContactCalculator" />
         <contactThreshold measure="abs" value="0.002"/>
@@ -9,8 +9,8 @@
     <bodies>
         <body id="target">
             <rheology type="elastic" />
-            <mesh id="target" type="markered-mesh-geo" cellSize="0.0003;0.0003;0.0003" cellsNum="200;200;20" file="models/markered_target_thin.geo" />
-            <!--mesh id="target" type="markered-mesh-geo" cellSize="0.0003;0.0003;0.0003" cellsNum="200;200;40" file="models/markered_target.geo" /-->
+            <!--mesh id="target" type="markered-mesh-geo" cellSize="0.0003;0.0003;0.0003" cellsNum="200;200;20" file="models/markered_target_thin.geo" /-->
+            <mesh id="target" type="markered-mesh-geo" cellSize="0.0003;0.0003;0.0003" cellsNum="200;200;40" file="models/markered_target.geo" />
             <material id="steel09g2s" />
         </body>
         <body id="striker">

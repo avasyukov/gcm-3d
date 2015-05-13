@@ -1,0 +1,43 @@
+<task numberOfSnaps="300" stepsPerSnap="1">
+    <system>
+        <defaultContactCalculator type="SlidingContactCalculator" />
+        <contactThreshold measure="abs" value="0.06"/>
+        <timeStep multiplier="0.99"/>
+    </system>
+    <bodies>
+        <body id="cube">
+            <rheology type="elastic" />
+            <mesh id="cube" type="markered-mesh-geo" cellSize="0.02;0.02;0.02" cellsNum="80;80;80" file="models/markered_cube.geo" />
+            <material id="custom_steel" />
+            <transform type="translate" moveX="0" moveY="0" moveZ="0.53" />
+        </body>
+        <body id="sphere">
+            <rheology type="elastic" />
+            <mesh id="sphere" type="markered-mesh-geo" cellSize="0.004;0.004;0.004" cellsNum="150;150;150" file="models/markered_sphere.geo" />
+            <material id="crazy_rubber" />
+            <transform type="translate" moveX="0" moveY="0" moveZ="-0.10" />
+        </body>
+    </bodies>
+
+    <materials>
+        <material name="custom_steel" rheology="isotropic">
+            <la>1.21e11</la>
+            <mu>8.1e10</mu>
+            <rho>7800</rho>
+        </material>
+        <material name="crazy_rubber" rheology="isotropic">
+            <la>40e6</la>
+            <mu>10</mu>
+            <!--rho>1200</rho-->
+            <rho>120</rho>
+        </material>
+
+    </materials>
+
+    <initialState>
+        <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-0.21" maxZ="0.01"/>
+        <!--values vz="300" vx="-400" /-->
+        <values vz="500" />
+    </initialState>
+    
+</task>

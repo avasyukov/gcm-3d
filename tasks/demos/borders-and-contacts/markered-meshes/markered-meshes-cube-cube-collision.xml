@@ -1,0 +1,57 @@
+<task numberOfSnaps="200" stepsPerSnap="1">
+    <system>
+        <defaultContactCalculator type="SlidingContactCalculator" />
+        <contactThreshold measure="abs" value="0.8"/>
+        <timeStep multiplier="0.99"/>
+    </system>
+    <bodies>
+        <body id="cube1">
+            <rheology type="elastic" />
+            <mesh id="cube1" type="markered-mesh-geo" cellSize="0.2;0.2;0.2" cellsNum="80;80;80" file="models/cube.geo" />
+            <material id="testMaterial" />
+            <transform type="translate" moveX="0" moveY="0" moveZ="5.30" />
+        </body>
+        <body id="cube2">
+            <rheology type="elastic" />
+            <mesh id="cube2" type="markered-mesh-geo" cellSize="0.04;0.04;0.04" cellsNum="80;80;80" file="models/cube-small.geo" />
+            <material id="testMaterial" />
+            <transform type="translate" moveX="0" moveY="0" moveZ="-1.0" />
+        </body>
+    </bodies>
+
+    <initialState>
+        <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-2.1" maxZ="0.5"/>
+        <values vz="50"  />
+    </initialState>
+    
+    <render>
+        <renderConfig id="cfg1">
+            <meshes>
+                <mesh>cube1</mesh>
+                <mesh>cube2</mesh>
+            </meshes>
+            <plotOverLine from="0;0;-10" to="0;0;10" output="szz_%(step)02d.png">
+                <title>Wave propogation over the contact (along Z axis)</title>
+                <quantities>
+                    <quantity>sxz</quantity>
+                    <quantity>szz</quantity>
+                </quantities>
+                <axes>
+                    <left from="-1000" to="1000"/>
+                    <bottom from="-10" to="10"/>
+                </axes>
+            </plotOverLine>
+            <render3d output="szz_clipped_%(step)02d.png">
+                <title>Wave propogation over the contact (along Z axis)</title>
+                <quantity min="-1000" max="1000">szz</quantity>
+                <camera position="-40;0;0" up="0;1;0" focal="0;0;0" angle="30" />
+                <thresholds>
+                    <threshold scalar="cellStatus" min="1" max="1" />
+                </thresholds>
+                <clips>
+                    <clip origin="0;0;0" normal="1;0;0" />
+                </clips>
+            </render3d>
+        </renderConfig>
+    </render>
+</task>
