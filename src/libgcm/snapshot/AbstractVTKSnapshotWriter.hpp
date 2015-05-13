@@ -34,8 +34,14 @@ namespace gcm
      protected:
         MeshType* mesh;
         uint index = 0;
+        void* data = nullptr;
+        USE_LOGGER;
      public:
         MeshNodeIterator(MeshType* mesh): mesh(mesh)
+        {
+        }
+
+        ~MeshNodeIterator()
         {
         }
 
