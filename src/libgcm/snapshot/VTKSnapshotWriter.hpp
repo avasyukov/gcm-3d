@@ -8,15 +8,15 @@
 
 
 namespace gcm {
-    class TetrMeshSecondOrder;
+    class TetrMeshFirstOrder;
 
     template <>
-    MeshNodeIterator<TetrMeshSecondOrder, SNAPSHOTTER_ID_VTK>& MeshNodeIterator<TetrMeshSecondOrder, SNAPSHOTTER_ID_VTK>::operator++();
+    MeshNodeIterator<TetrMeshFirstOrder, SNAPSHOTTER_ID_VTK>& MeshNodeIterator<TetrMeshFirstOrder, SNAPSHOTTER_ID_VTK>::operator++();
 
-    class VTKSnapshotWriter : public UnstructuredVTKSnapshotWriter<TetrMeshSecondOrder, false, SNAPSHOTTER_ID_VTK>, public Singleton<VTKSnapshotWriter> {
+    class VTKSnapshotWriter : public UnstructuredVTKSnapshotWriter<TetrMeshFirstOrder, false, SNAPSHOTTER_ID_VTK>, public Singleton<VTKSnapshotWriter> {
      protected:
         USE_LOGGER;
-        void dumpMeshSpecificData(TetrMeshSecondOrder* mesh, vtkSmartPointer<vtkUnstructuredGrid>& grid, vtkSmartPointer<vtkPoints>& points) const override;
+        void dumpMeshSpecificData(TetrMeshFirstOrder* mesh, vtkSmartPointer<vtkUnstructuredGrid>& grid, vtkSmartPointer<vtkPoints>& points) const override;
      public:
         VTKSnapshotWriter();
     };

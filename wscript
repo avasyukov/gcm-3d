@@ -301,6 +301,12 @@ def build(bld):
             use=['gcm', 'launcher_util', 'loaders', 'launcher'] + libs,
             target='gcm3d'
         )
+        bld(
+            features='cxx cxxprogram',
+            source=bld.path.find_node('src/launcher/ani3d_interpolate.cpp'),
+            use=['gcm', 'launcher_util', 'loaders', 'launcher'] + libs,
+            target='ani3d_interpolate'
+        )
         bld.install_as('${PREFIX}/bin/gcm3d_pv_render.py', 'tools/pv_render.py')
 
 

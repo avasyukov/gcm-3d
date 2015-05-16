@@ -1880,8 +1880,8 @@ void TetrMeshFirstOrder::findBorderNodeNormal(const CalcNode& _node, float* x, f
 
     if( count <= 0 )
     {
-        LOG_WARN("Border node does not belong to any face");
-        LOG_WARN("Can not find normal for the node " << node);
+//        LOG_WARN("Border node does not belong to any face");
+//        LOG_WARN("Can not find normal for the node " << node);
         //node.setNormalError();
     }
 

@@ -1,6 +1,6 @@
 #include "libgcm/snapshot/VTKSnapshotWriter.hpp"
 
-#include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
+#include "libgcm/mesh/tetr/TetrMeshFirstOrder.hpp"
 
 #include <vtkTetra.h>
 
@@ -8,7 +8,7 @@ using namespace gcm;
 using std::map;
 
 template <>
-MeshNodeIterator<TetrMeshSecondOrder, SNAPSHOTTER_ID_VTK>& MeshNodeIterator<TetrMeshSecondOrder, SNAPSHOTTER_ID_VTK>::operator++()
+MeshNodeIterator<TetrMeshFirstOrder, SNAPSHOTTER_ID_VTK>& MeshNodeIterator<TetrMeshFirstOrder, SNAPSHOTTER_ID_VTK>::operator++()
 {
     index++;
     if (!hasNext())
@@ -24,7 +24,7 @@ VTKSnapshotWriter::VTKSnapshotWriter() {
     extension = "vtu";
 }
 
-void VTKSnapshotWriter::dumpMeshSpecificData(TetrMeshSecondOrder* mesh, vtkSmartPointer<vtkUnstructuredGrid>& grid, vtkSmartPointer<vtkPoints>& points) const
+void VTKSnapshotWriter::dumpMeshSpecificData(TetrMeshFirstOrder* mesh, vtkSmartPointer<vtkUnstructuredGrid>& grid, vtkSmartPointer<vtkPoints>& points) const
 {
     map<int, int> snapNodeMap;
     int snapNodeCount = 0;
@@ -42,7 +42,7 @@ void VTKSnapshotWriter::dumpMeshSpecificData(TetrMeshSecondOrder* mesh, vtkSmart
     auto tetra=vtkSmartPointer<vtkTetra>::New();
     for(int i = 0; i < mesh->getTetrsNumber(); i++)
     {
-        TetrSecondOrder& tetr = mesh->getTetr2ByLocalIndex(i);
+        TetrFirstOrder& tetr = mesh->getTetrByLocalIndex(i);
         for( int z = 0; z < 4; z++)
         {
             int snapIndex = snapNodeMap[tetr.verts[z]];
