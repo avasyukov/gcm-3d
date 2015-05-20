@@ -1,0 +1,114 @@
+<task numberOfSnaps="200" stepsPerSnap="5">
+    <system>
+        <!--meshMovement type="none" /-->
+        <timeStep multiplier="0.99"/>
+    </system>
+    <bodies>
+        <body id="body">
+            <rheology type="elastic" />
+            <mesh id="body" type="markered-mesh-ani" cellSize="2.4;2.4;2.4" cellsNum="238;125;138" source="muscle:models/ani3d/muscle.out diaphragm:models/ani3d/diapragm.out digestive:models/ani3d/digestive.out heart:models/ani3d/heart.out liver:models/ani3d/liver.out vessels:models/ani3d/vessels.out trachea:models/ani3d/trachea.out bones:models/ani3d/bones.out lungs:models/ani3d/lungs.out fat:models/ani3d/fat.out" />
+            <material id="bones">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="trachea">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="heart">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="vessels">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="lungs">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="digestive">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="muscle">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="diaphragm">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="liver">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="fat">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+        </body>
+    </bodies>
+
+    <materials>
+        <material name="bones" rheology="isotropic">
+                <la>100000000</la>
+                <mu>150000000</mu>
+                <rho>0.001</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="trachea" rheology="isotropic">
+                <la>60000000</la>
+                <mu>40000000</mu>
+                <rho>0.002</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="heart" rheology="isotropic">
+                <la>50000000</la>
+                <mu>35000000</mu>
+                <rho>0.0015</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="vessels" rheology="isotropic">
+                <la>50000000</la>
+                <mu>35000000</mu>
+                <rho>0.002</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="lungs" rheology="isotropic">
+                <la>500000</la>
+                <mu>350000</mu>
+                <rho>0.0006</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="digestive" rheology="isotropic">
+                <la>45000000</la>
+                <mu>30000000</mu>
+                <rho>0.0012</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="muscle" rheology="isotropic">
+                <la>55000000</la>
+                <mu>40000000</mu>
+                <rho>0.001</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="diaphragm" rheology="isotropic">
+                <la>55000000</la>
+                <mu>40000000</mu>
+                <rho>0.001</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="liver" rheology="isotropic">
+                <la>45000000</la>
+                <mu>30000000</mu>
+                <rho>0.0012</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="fat" rheology="isotropic">
+                <la>5000000</la>
+                <mu>3500000</mu>
+                <rho>0.001</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+
+    </materials>
+	<!--initialState>
+                <area type="box" minX="350" maxX="400" minY="250" maxY="300" minZ="200" maxZ="250"/>
+		<values vy="-3" sxx="-700" syy="-900" szz="-700" />
+	</initialState--> 
+ 
+        <borderCondition calculator="ExternalForceCalculator" normalStress="-2700000" tangentialStress="0" startTime="0" duration="0.000134">
+               <area type="box" minX="350" maxX="400" minY="250" maxY="300" minZ="200" maxZ="250"/>
+        </borderCondition>
+</task>
