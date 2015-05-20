@@ -212,6 +212,31 @@ void MarkeredMesh::reconstructBorder()
         LOG_DEBUG("Removed " << removed << " cells during refinement");
     }
 
+//    uint added = 1;
+//
+//    while (added > 0)
+//    {
+//        added = 0;
+//
+//        for (uint i = 1; i < dimensions.x-1; i++)
+//            for (uint j = 1; j < dimensions.y-1; j++)
+//                for (uint k = 1; k < dimensions.z-1; k++)
+//                    if (!cellStatus[i][j][k])
+//                    {
+//                        uint neighbsUsed = 0;
+//                        for (auto& neighb: neighbs)
+//                            if (cellStatus[i+neighb.x][j+neighb.y][k+neighb.z])
+//                                neighbsUsed++;
+//                        if (neighbsUsed >= 3)
+//                        {
+//                            cellStatus[i][j][k] = true;
+//                            added++;
+//                        }
+//                    }
+//
+//        LOG_DEBUG("Added " << added << " cells during refinement");
+//    }
+
     outline.minX = numeric_limits<float>::infinity();
     outline.minY = numeric_limits<float>::infinity();
     outline.minZ = numeric_limits<float>::infinity();
