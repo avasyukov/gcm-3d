@@ -85,12 +85,12 @@ int main(int argc, char** argv)
             
     auto pd = grid->GetPointData();
             
-    auto sxx = static_cast<vtkIntArray*>(pd->GetArray("sxx"));
-    auto sxy = static_cast<vtkIntArray*>(pd->GetArray("sxy"));
-    auto sxz = static_cast<vtkIntArray*>(pd->GetArray("sxz"));
-    auto syy = static_cast<vtkIntArray*>(pd->GetArray("syy"));
-    auto syz = static_cast<vtkIntArray*>(pd->GetArray("syz"));
-    auto szz = static_cast<vtkIntArray*>(pd->GetArray("szz"));
+    auto sxx = static_cast<vtkDoubleArray*>(pd->GetArray("sxx"));
+    auto sxy = static_cast<vtkDoubleArray*>(pd->GetArray("sxy"));
+    auto sxz = static_cast<vtkDoubleArray*>(pd->GetArray("sxz"));
+    auto syy = static_cast<vtkDoubleArray*>(pd->GetArray("syy"));
+    auto syz = static_cast<vtkDoubleArray*>(pd->GetArray("syz"));
+    auto szz = static_cast<vtkDoubleArray*>(pd->GetArray("szz"));
     auto v = static_cast<vtkDoubleArray*>(pd->GetArray("velocity"));
     auto used = static_cast<vtkIntArray*>(pd->GetArray("used"));
     auto bcid = static_cast<vtkIntArray*>(pd->GetArray("borderConditionId"));
