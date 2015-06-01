@@ -16,8 +16,11 @@
             <material id="heart">
                 <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
             </material>
-            <material id="vessels">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            <material id="veins">
+              <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+            </material>
+            <material id="aorta">
+              <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
             </material>
             <material id="lungs">
                 <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                

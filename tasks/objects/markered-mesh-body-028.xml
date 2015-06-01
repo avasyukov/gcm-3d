@@ -6,7 +6,7 @@
     <bodies>
         <body id="body">
             <rheology type="elastic" />
-            <mesh id="body" type="markered-mesh-ani" cellSize="2.4;2.4;2.4" cellsNum="238;125;138" source="muscle:models/ani3d/muscle_new.out diaphragm:models/ani3d/diapragm_new.out digestive:models/ani3d/digestive_new.out heart:models/ani3d/heart_new.out liver:models/ani3d/liver_new.out trachea:models/ani3d/trachea_new.out bones:models/ani3d/bones_new.out lungs:models/ani3d/lungs_new.out fat:models/ani3d/fat_new.out veins:models/ani3d/veins_new.out aorta:models/ani3d/aorta-walls.out blood:models/ani3d/aorta-blood.out" />
+            <mesh id="body" type="markered-mesh-ani" cellSize="2.4;2.4;2.4" cellsNum="238;125;138" source="muscle:models/ani3d/muscle_new.out diaphragm:models/ani3d/diapragm_new.out digestive:models/ani3d/digestive_new.out heart:models/ani3d/heart_new.out liver:models/ani3d/liver_new.out trachea:models/ani3d/trachea_new.out bones:models/ani3d/bones_new.out lungs:models/ani3d/lungs_new.out fat:models/ani3d/fat_new.out veins:models/ani3d/veins_new.out aorta:models/ani3d/aorta-walls_new.out blood:models/ani3d/aorta-blood_new.out" />
             <material id="bones">
                 <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
             </material>
@@ -16,8 +16,14 @@
             <material id="heart">
                 <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
             </material>
-            <material id="vessels">
+            <material id="veins">
                 <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="aorta">
+              <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+            </material>
+            <material id="blood">
+              <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
             </material>
             <material id="lungs">
                 <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
