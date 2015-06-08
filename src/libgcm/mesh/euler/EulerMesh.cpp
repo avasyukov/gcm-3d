@@ -362,6 +362,7 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 	    //Now we got R and we obtain R1=R^(-1) via identity permutation matrix
 	    gsl_permutation *p = gsl_permutation_alloc(9);
 	    gsl_permutation_init(p);
+	    int i = 0;
 	    gsl_linalg_LU_decomp(R, p, &i);
 	    gsl_linalg_LU_invert(R, p, R1);
 	    gsl_permutation_free(p);

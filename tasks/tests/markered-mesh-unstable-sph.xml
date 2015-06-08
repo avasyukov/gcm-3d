@@ -1,0 +1,49 @@
+<task numberOfSnaps="30" stepsPerSnap="1">
+	<system>
+		<meshMovement type="none"/>
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="markered-mesh-geo" cellSize="0.2;0.2;0.2" cellsNum="70;70;70" file="models/cube.geo" />
+			<material id="bones">                
+				<area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100.0001" maxZ="100"/>
+       	            	</material>
+                        <material id="lungs">
+                                <area type="sphere" r="5" x="0" y="0" z="-5"/>
+                        </material>
+		</body>
+	</bodies>
+
+    	<materials>
+		<material name="bones" rheology="isotropic">
+                	<la>786000000</la>
+                	<mu>1180000000</mu>
+                	<rho>0.001</rho>
+                	<crackThreshold>INF</crackThreshold>
+        	</material>
+
+        	<material name="lungs" rheology="isotropic">
+        	        <la>2860</la>
+                	<mu>714</mu>
+                	<rho>0.0006</rho>
+                	<crackThreshold>INF</crackThreshold>
+        	</material>
+	<material name="tm1" rheology="isotropic">
+	            	<la>70000</la>
+	            	<mu>10000</mu>
+	            	<rho>1</rho>
+                	<crackThreshold>INF</crackThreshold>
+        	</material>
+        	<material name="tm2" rheology="isotropic">
+	            	<la>0.07</la>
+	            	<mu>0.01</mu>
+	            	<rho>1</rho>
+                	<crackThreshold>INF</crackThreshold>
+        	</material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="2"/>
+		<values vz="3" sxx="700" syy="700" szz="900" />
+	</initialState>
+</task>
