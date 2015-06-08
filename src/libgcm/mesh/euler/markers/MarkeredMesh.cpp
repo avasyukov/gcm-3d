@@ -285,6 +285,35 @@ void MarkeredMesh::reconstructBorder()
         LOG_DEBUG("Removed " << removed << " cells during refinement");
     }
 
+    for (const auto& _m: surface.meshes)
+    {
+        const auto& mat = _m.first;
+        auto mesh = _m.second;
+        if (mat != "lungs")
+        	continue;
+        LOG_INFO("Removing cells that belong to mesh " << mesh->getId());
+        for (auto& t: mesh->tetrs1)
+        {
+            const auto& node1 = mesh->getNode(t.verts[0]);
+            const auto& node2 = mesh->getNode(t.verts[1]);
+            const auto& node3 = mesh->getNode(t.verts[2]);
+            const auto& node4 = mesh->getNode(t.verts[3]);
+
+
+            auto _min = vmin(vmin(node1.coords, node2.coords), vmin(node3.coords, node4.coords));
+            auto _max = vmax(vmax(node1.coords, node2.coords), vmax(node3.coords, node4.coords));
+
+            auto minCellIndex = getCellEulerIndexByCoords(_min);
+            auto maxCellIndex = getCellEulerIndexByCoords(_max);
+            for (uint i = minCellIndex.x; i <= maxCellIndex.x; i++)
+                for (uint j = minCellIndex.y; j <=maxCellIndex.y; j++)
+                    for (uint k = minCellIndex.z; k <= maxCellIndex.z; k++)
+                    	cellStatus[i][j][k] = 0;
+
+        }
+    }
+
+
     outline.minX = numeric_limits<float>::infinity();
     outline.minY = numeric_limits<float>::infinity();
     outline.minZ = numeric_limits<float>::infinity();
