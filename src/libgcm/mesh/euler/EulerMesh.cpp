@@ -242,14 +242,169 @@ bool EulerMesh::interpolateBorderNode(real x, real y, real z, real dx, real dy, 
 
 bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug, CalcNode& targetNode, bool& isInnerPoint)
 {
-    targetNode.coords = origin.coords+vector3r(dx, dy, dz);
-
     if (!origin.getCustomFlag(VIRT_FLAG))
     {
-        isInnerPoint = interpolateNode(targetNode);
-        return isInnerPoint;
+	//Primarily we search for a second interpolation node	
+       	float max = dx, min = dx;
+    	int dmin = 0, dmax = 0, d = 0, s = 0;
+    	if (dy > max) {max = dy; dmax = 1;};
+    	if (dy < min) {min = dy; dmin = 1;};
+    	if (dz > max) {max = dz; dmax = 2;};
+    	if (dz < min) {min = dz; dmin = 2;};    
+
+    	auto index = getCellEulerIndexByCoords(origin.coords);
+    	vector3u dindex = vector3u(0, 0, 0);
+    	if (fabs(max) > fabs(min))
+    	{
+	    s = 1;
+    	    dindex[dmax] = 1;
+            d = dmax;
+    	}
+    	else
+    	{
+ 	    s = -1;
+	    dindex[dmin] = -1;
+	    d = dmin;
+    	}
+    	CalcNode second = getNodeByEulerMeshIndex(index+dindex);
+
+        vector3r dc = vector3r(dx, dy, dz);
+        for (int i=0; i<3; i++) dc[i] *= (i == d);
+
+	//Now when we have a second node we must check materials
+	//!!!Disabled because of singular R, only boring linear is used
+	//if (origin.getMaterialId() == second.getMaterialId())
+	{ //if the same, boring linear interpolation in target node
+    	    vector3r dc = vector3r(dx, dy, dz); 
+    	    for (int i=0; i<3; i++) dc[i] *= (i == d);
+    	    targetNode.coords = origin.coords + dc;	
+            if (!outline.isInAABB(targetNode))
+                return false;
+            interpolateSegment( origin.coords[d], second.coords[d], targetNode.coords[d], origin.values, second.values, targetNode.values, VALUES_NUMBER);
+            return true;
+	}
+	//else //use Riemann solution
+	{
+	    RheologyMatrixPtr   orm = origin.getRheologyMatrix(),
+				srm = second.getRheologyMatrix();
+	    gsl_matrix  *R = gsl_matrix_alloc(9, 9),
+			*S = gsl_matrix_alloc(9, 9),
+			*R1 = gsl_matrix_alloc(9, 9);
+	    //First we fill R with eigen vectors of corresponding indices:
+	    //for negative lambdas from left material (less coordinate), 
+	    //for zero (???) from origin,
+	    //for positive from right material (larger coordinate).
+	    int n = 0;
+	    for (int j=0; j<9; j++) 
+	    {
+		if (s > 0)
+		{
+		    if (orm->getL(j, j) < 0)
+		    {
+			for (int i=0; i<9; i++)
+			    gsl_matrix_set(R, i, n, orm->getU(i, j));
+			n++;
+		    }	
+		}
+		if (s < 0)
+                {   
+                    if (srm->getL(j, j) < 0)
+                    {
+                        for (int i=0; i<9; i++)
+                            gsl_matrix_set(R, i, n, srm->getU(i, j));
+                        n++;
+                    }
+                }
+	    }
+	    if (n != 3) {LOG_INFO("Not 3 negative lambdas" << n); return false;};
+            for (int j=0; j<9; j++)
+            {
+                if (srm->getL(j, j) == 0)                    
+		{
+                    for (int i=0; i<9; i++)
+                        gsl_matrix_set(R, i, n, srm->getU(i, j));
+                    n++;
+                }
+	    }
+            if (n != 6) {LOG_INFO("Not 3 zero lambdas"); return false;};
+            for (int j=0; j<9; j++)
+            {
+                if (s > 0)
+                {
+                    if (srm->getL(j, j) > 0)
+                    {
+                        for (int i=0; i<9; i++)
+                            gsl_matrix_set(R, i, n, srm->getU(i, j));
+                        n++;
+                    }
+                }
+                if (s < 0)
+                {
+                    if (orm->getL(j, j) > 0)
+                    {
+                        for (int i=0; i<9; i++)
+                            gsl_matrix_set(R, i, n, orm->getU(i, j));
+                        n++;
+                    }
+                }
+            }
+            if (n != 9) {LOG_INFO("Not 3 pozitive lambdas"); return false;};
+
+//Attempt to use origin Omega matrix, but its determinant 
+//is almost zero, GSL treats it as singular
+//	    for (int i=0; i<9; i++)
+//		for (int j=0; j<9; j++)
+//		    gsl_matrix_set(R, i, j, orm->getU(i, j));
+//            for (int i=0; i<9; i++)
+//                for (int j=0; j<9; j++)
+//                    gsl_matrix_set(R1, i, j, orm->getU1(i, j));
+
+	    //Now we got R and we obtain R1=R^(-1) via identity permutation matrix
+	    gsl_permutation *p = gsl_permutation_alloc(9);
+	    gsl_permutation_init(p);
+	    int i = 0;
+	    gsl_linalg_LU_decomp(R, p, &i);
+	    gsl_linalg_LU_invert(R, p, R1);
+	    gsl_permutation_free(p);
+
+	    //Now we got R, R1 and all is left is S
+	    gsl_matrix_set_identity(S);
+	    gsl_matrix_set(S, 0, 0, -1);
+            gsl_matrix_set(S, 1, 1, -1);
+            gsl_matrix_set(S, 2, 2, -1);
+            gsl_matrix_set(S, 3, 3, 0);
+            gsl_matrix_set(S, 4, 4, 0);
+            gsl_matrix_set(S, 5, 5, 0);
+
+	    //When we have all the matrices, we can compute a Riemann solution
+            gsl_matrix  *res0 = gsl_matrix_alloc(9, 9),
+			*res1 = gsl_matrix_alloc(9, 9);
+	    gsl_matrix_set_zero(res0);
+            gsl_matrix_set_zero(res1);
+	    for (int i=0; i<9; i++)
+		for (int j=0; j<9; j++)
+		    for (int k=0; k<9; k++)
+			gsl_matrix_set(res0, i, j, gsl_matrix_get(res0, i, j) + gsl_matrix_get(R, i, k)*gsl_matrix_get(S, k, j));
+            for (int i=0; i<9; i++)
+                for (int j=0; j<9; j++)
+                    for (int k=0; k<9; k++)
+                        gsl_matrix_set(res1, i, j, gsl_matrix_get(res1, i, j) + gsl_matrix_get(res0, i, k)*gsl_matrix_get(R1, k, j));
+	    gcm::real res2[9] = {0};
+            for (int i=0; i<9; i++)
+	    {
+                for (int j=0; j<9; j++)
+		    res2[i] += gsl_matrix_get(res1, i, j)*s*(origin.values[j] - second.values[j])/2.0;
+	    	targetNode.values[i] = (origin.values[i] + second.values[i])*2.0 + res2[i];
+	    }
+
+	    gsl_matrix_free(R);
+            gsl_matrix_free(S);
+            gsl_matrix_free(R1);
+	    return true;
+	}
     } else
     {
+	targetNode.coords = origin.coords+vector3r(dx, dy, dz);
         assert_true(
             (dx == 0.0 && dy == 0.0) ||
             (dz == 0.0 && dy == 0.0) ||
