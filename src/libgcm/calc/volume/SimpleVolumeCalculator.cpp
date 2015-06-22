@@ -9,7 +9,7 @@ SimpleVolumeCalculator::SimpleVolumeCalculator() {
     INIT_LOGGER("gcm.SimpleVolumeCalculator");
 };
 
-void SimpleVolumeCalculator::doCalc(CalcNode& new_node, RheologyMatrixPtr matrix,
+void SimpleVolumeCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                                                         vector<CalcNode>& previousNodes)
 {
     assert_eq(previousNodes.size(), 9);
@@ -33,10 +33,13 @@ void SimpleVolumeCalculator::doCalc(CalcNode& new_node, RheologyMatrixPtr matrix
     // Calculate new values
     for(int i = 0; i < 9; i++)
     {
-        new_node.values[i] = 0;
+        float new_val = 0;
+        //new_node.values[i] = 0;
         for(int j = 0; j < 9; j++)
         {
-            new_node.values[i] += matrix->getU1(i,j) * omega[j]; }
+            new_val += matrix->getU1(i,j) * omega[j];
+        }
+        new_node.values[i] = new_node.values[i] + (new_val - cur_node.values[i]);
     }
     LOG_TRACE("Calc done");
 };

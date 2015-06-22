@@ -501,12 +501,28 @@ const SnapshotWriter& Mesh::getSnapshotter2() const {
 
 void Mesh::defaultNextPartStep(float tau, int stage)
 {
+    LOG_INFO("Stage: " << stage);
     LOG_DEBUG("Nodes: " << nodesNumber);
 
     if( stage == 0 )
     {
         LOG_DEBUG("Clear error flags on all nodes");
         clearNodesState();
+
+    }
+
+    // Clear new nodes
+    if( stage == 0 ) {
+        LOG_INFO("Set new nodes states");
+        for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+            int i = itr->first;
+            CalcNode& new_node = getNewNode(i);
+            CalcNode& node = getNode(i);
+            for(int j = 0; j < 9; j++)
+            {
+                new_node.values[j] = node.values[j];
+            }
+        }
     }
 
     NumericalMethod *method = Engine::getInstance().getNumericalMethod(numericalMethodType);
@@ -525,6 +541,10 @@ void Mesh::defaultNextPartStep(float tau, int stage)
     for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
         int i = itr->first;
         CalcNode& node = getNode(i);
+        if(node.number == -777) {
+            LOG_INFO("Stage. Node: " << node);
+            LOG_INFO("Stage. New node: " << getNewNode(i));
+        }
         if( node.isLocal() && node.isBorder() )
                 method->doNextPartStep( node, getNewNode(i), tau, stage, this );
     }
@@ -540,10 +560,17 @@ void Mesh::defaultNextPartStep(float tau, int stage)
 
     // Copy values
     LOG_DEBUG("Copying values");
-    for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
-        int i = itr->first;
-        CalcNode& node = getNode(i);
-        if( node.isLocal() )
-            memcpy( node.values, getNewNode(i).values, VALUES_NUMBER * sizeof(float) );
-    }
+//    if( stage == 2 ) {
+        LOG_INFO("Copy values");
+        for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+            int i = itr->first;
+            CalcNode& node = getNode(i);
+            if(node.number == -777) {
+               LOG_INFO("Stage. Node: " << node);
+               LOG_INFO("Stage. New node: " << getNewNode(i));
+            }
+            //if( node.isLocal() && (node.isBorder() || stage == 2) )
+                memcpy( node.values, getNewNode(i).values, VALUES_NUMBER * sizeof(float) );
+        }
+//    }
 }

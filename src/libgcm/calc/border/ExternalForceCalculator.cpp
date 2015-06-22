@@ -143,6 +143,11 @@ void ExternalForceCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rhe
     gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);
 
     for(int j = 0; j < 9; j++)
-        new_node.values[j] = gsl_vector_get(x_gsl, j);
+        new_node.values[j] = new_node.values[j] + (gsl_vector_get(x_gsl, j) - cur_node.values[j] );
+
+    if(cur_node.number == -777) {
+        LOG_INFO("EFC. Cur node: " << cur_node);
+        LOG_INFO("EFC. New node: " << new_node);
+    }
 
 };
