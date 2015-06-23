@@ -363,9 +363,11 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 	//!!!Disabled because of singular R, only boring linear is used
 	if (origin.getMaterialId() == second.getMaterialId())
 	{ //whether the same, boring linear interpolation in target node
-            interpolateSegment( origin.coords[d], second.coords[d], targetNode.coords[d], origin.values, second.values, targetNode.values, VALUES_NUMBER);
+            isInnerPoint = interpolateNode(targetNode);
+            return isInnerPoint;
+            //interpolateSegment( origin.coords[d], second.coords[d], targetNode.coords[d], origin.values, second.values, targetNode.values, VALUES_NUMBER);
 //	    LOG_INFO("Leaving ==");
-            return true;
+            //return true;
 	}
 
             //we will need surroungind nodes, so we check materials before anything else
