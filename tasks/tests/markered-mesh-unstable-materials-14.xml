@@ -1,0 +1,72 @@
+<task numberOfSnaps="30" stepsPerSnap="5">
+	<system>
+		<meshMovement type="none"/>
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<!--mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.4" /-->
+			<mesh id="mmum14" type="markered-mesh-geo" cellSize="0.2;0.2;0.2" cellsNum="60;60;60" file="models/cube.geo" />
+                        <material id="lungs">
+                                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+                        </material>
+                        <material id="fat">
+                                <area type="box" minX="-100" maxX="100" minY="-0.1" maxY="100" minZ="0.1" maxZ="100"/>
+                        </material>
+			<material id="bones">                
+				<area type="box" minX="-100" maxX="100" minY="-100" maxY="-0.1" minZ="-100" maxZ="0.1"/>
+       	            	</material>
+                        <material id="bones1">
+                                <area type="box" minX="-100" maxX="100" minY="-100" maxY="-0.3" minZ="-100" maxZ="100"/>
+                        </material>	
+                        <material id="lungs1">
+                                <area type="box" minX="0.1" maxX="100" minY="-0.5" maxY="100" minZ="-100" maxZ="100"/>
+                        </material>
+                        <material id="fat1">
+                                <area type="box" minX="-100" maxX="-0.1" minY="-0.3" maxY="100" minZ="-100" maxZ="100"/>
+                        </material>
+		</body>
+	</bodies>
+	<materials>
+		<material name="bones" rheology="isotropic">
+                	<la>786000000</la>
+                	<mu>1180000000</mu>
+                	<rho>0.001</rho>
+                	<crackThreshold>INF</crackThreshold>
+        	</material>
+                <material name="bones1" rheology="isotropic">
+                        <la>786000000</la>
+                        <mu>1180000000</mu>
+                        <rho>0.001</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+        	<material name="lungs" rheology="isotropic">
+        	        <la>2860</la>
+                	<mu>714</mu>
+                	<rho>0.0006</rho>
+                	<crackThreshold>INF</crackThreshold>
+        	</material>
+                <material name="lungs1" rheology="isotropic">
+                        <la>2860</la>
+                        <mu>714</mu>
+                        <rho>0.0006</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+        	<material name="fat" rheology="isotropic">
+                	<la>243000</la>
+                	<mu>60700</mu>
+                	<rho>0.001158</rho>
+                	<crackThreshold>INF</crackThreshold>
+        	</material>
+                <material name="fat1" rheology="isotropic">
+                        <la>243000</la>
+                        <mu>60700</mu>
+                        <rho>0.001158</rho>
+                        <crackThreshold>INF</crackThreshold>
+                </material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-1.0" maxZ="-0.5"/>
+                <values vx="-1" sxz="100" />
+	</initialState>
+</task>

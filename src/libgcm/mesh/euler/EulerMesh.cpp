@@ -71,7 +71,8 @@ float EulerMesh::getMinH()
 
 float EulerMesh::getRecommendedTimeStep()
 {
-    return getMinH()/getMaxEigenvalue();
+    if (tau < 0) tau = getMinH()/getMaxEigenvalue();
+    return tau;
 }
 
 void EulerMesh::doNextPartStep(float tau, int stage)
@@ -244,7 +245,6 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 {
     if (!origin.getCustomFlag(VIRT_FLAG))
     {
-//	LOG_INFO("Entering");
 	//Primarily we search for a second interpolation node	
        	float max = dx, min = dx;
     	int dmin = 0, dmax = 0, d = 0, s = 0;
@@ -298,22 +298,11 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                 if (i != n5o && fabs(bo1 - orm->getL(i, i)) < EQUALITY_TOLERANCE) n6o = i;
                 if (i != n2s && fabs(bs - srm->getL(i, i)) < EQUALITY_TOLERANCE) n3s = i;
             }
-            // *= -1; bo *= -1;
             as *= -1; bs *= -1;
             if (n1o == n2o || n1o == n3o || n2o == n3o || fabs(orm->getMaxEigenvalue()) < EQUALITY_TOLERANCE || fabs(orm->getMinEigenvalue()) < EQUALITY_TOLERANCE)
-            {
                 orm->decompose(origin, d);
-                LOG_INFO("No diff rows o" <<n1o <<n2o <<n3o);
-                for (int i=0; i<9; i++)
-                    LOG_INFO("Lo " <<orm->getL(i, i));
-            }
             if (n1s == n2s || n1s == n3s || n2s == n3s || fabs(srm->getMaxEigenvalue()) < EQUALITY_TOLERANCE || fabs(srm->getMinEigenvalue()) < EQUALITY_TOLERANCE)
-            {
                 srm->decompose(second, d);
-            //   LOG_INFO("No diff rows s" <<n1s <<n2s <<n3s);
-            //    for (int i=0; i<9; i++)
-            //        LOG_INFO("Ls " <<srm->getL(i, i));
-            }
         }
         else
         {
@@ -336,37 +325,24 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                 if (i != n2s && fabs(bs - srm->getL(i, i)) < EQUALITY_TOLERANCE) n3s = i;
             }
             ao *= -1; bo *= -1;
-            //as *= -1; bs *= -1;
             if (n1o == n2o || n1o == n3o || n2o == n3o|| fabs(orm->getMaxEigenvalue()) < EQUALITY_TOLERANCE || fabs(orm->getMinEigenvalue()) < EQUALITY_TOLERANCE)
-            {
-              //  orm->decompose(origin, d);
-                LOG_INFO("No diff rows o" <<n1o <<n2o <<n3o);
-                for (int i=0; i<9; i++)
-                    LOG_INFO("Lo " <<orm->getL(i, i));
-            }
+                orm->decompose(origin, d);
             if (n1s == n2s || n1s == n3s || n2s == n3s || fabs(srm->getMaxEigenvalue()) < EQUALITY_TOLERANCE || fabs(srm->getMinEigenvalue()) < EQUALITY_TOLERANCE)
-            {
-              //  srm->decompose(second, d);
-                LOG_INFO("No diff rows s" <<n1s <<n2s <<n3s);
-                for (int i=0; i<9; i++)
-                    LOG_INFO("Ls " <<srm->getL(i, i));
-            }
+                srm->decompose(second, d);
         }
 	
-        //dc = vector3r(dx, dy, dz);
-        //for (int i=0; i<3; i++) dc[i] *= (i == d);
         targetNode.coords = origin.coords + dc;
         if (!outline.isInAABB(targetNode))
             return false;
 
-	//Now when we have a second node we must check materials
-	//!!!Disabled because of singular R, only boring linear is used
+	
 	if (origin.getMaterialId() == second.getMaterialId())
 	{ //whether the same, boring linear interpolation in target node
             isInnerPoint = interpolateNode(targetNode);
             return isInnerPoint;
+	
+	    //Enabling these two strings will result to border failure
             //interpolateSegment( origin.coords[d], second.coords[d], targetNode.coords[d], origin.values, second.values, targetNode.values, VALUES_NUMBER);
-//	    LOG_INFO("Leaving ==");
             //return true;
 	}
 
@@ -376,23 +352,19 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 
             if (third.getMaterialId() != origin.getMaterialId())
             {   //it sucks, this is not normal situation, so we report it and try to make something from this crap
-//                LOG_INFO("One layer of nodes (origin) with material "<<(int)origin.getMaterialId() <<", surrounded by "<<(int)second.getMaterialId()<<" and "<<(int)third.getMaterialId());
                 //OMG, that's one twisted hack
                 origin.setMaterialId(second.getMaterialId());
-//                LOG_INFO("One layer of nodes (origin) with material "<<(int)origin.getMaterialId() <<", surrounded by "<<(int)second.getMaterialId()<<" and "<<(int)third.getMaterialId());
                 return interpolateNode(origin, dx, dy, dz, debug, targetNode, isInnerPoint);
             }
             if (fourth.getMaterialId() != second.getMaterialId())
             {   //it sucks, this is not normal situation, so we report it and try to make something from this crap
-//                LOG_INFO("One layer of nodes (second) with material "<<(int)second.getMaterialId() <<", surrounded by "<<(int)origin.getMaterialId()<<" and "<<(int)fourth.getMaterialId());
                 //OMG, that's one twisted hack
                 origin.setMaterialId(second.getMaterialId());
-//                LOG_INFO("One layer of nodes (second) with material "<<(int)second.getMaterialId() <<", surrounded by "<<(int)origin.getMaterialId()<<" and "<<(int)fourth.getMaterialId());
                 return interpolateNode(origin, dx, dy, dz, debug, targetNode, isInnerPoint);
-            }
-//	LOG_INFO("Leaving by !=");
-//Mathematically awrward attempt to replace interpolation with some sort of contact condition.
-	if (false)//origin.getMaterialId() != second.getMaterialId()) 
+            } 
+
+//Attempt to replace interpolation with some sort of contact condition.--------------------------------------------------------
+	if (origin.getMaterialId() != second.getMaterialId()) 
 	{
 	    //memory allocation
             gsl_matrix  *Go = gsl_matrix_alloc(6, 9),
@@ -456,6 +428,7 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                 }
 	    
 	    //creating C matrix by taking necessary columns from G*U1
+	    int noc[3] = {0}, nsc[3] = {0};
 	    if (s > 0)
 	    {
 		int nc = 0;
@@ -464,6 +437,7 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 		    {
 			for (int i=0; i<6; i++)
 			    gsl_matrix_set(C, i, nc, gsl_matrix_get(GU1o, i, j));
+			noc[nc] = j;
 			nc++;
 		    }
 		if (nc != 3) {LOG_INFO("Not three negative lambdas in ORM" <<nc); return false;};
@@ -472,6 +446,7 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                     {
                         for (int i=0; i<6; i++)
                             gsl_matrix_set(C, i, nc, -gsl_matrix_get(GU1s, i, j));
+			nsc[nc] = j;
                         nc++;
                     }
                 if (nc != 6) {LOG_INFO("Not three positive lambdas in SRM" <<nc); return false;};
@@ -480,10 +455,11 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
             {
                 int nc = 0;
                 for (int j=0; j<9; j++)
-                    if (orm->getL(j, j) > 1)
+                    if (orm->getL(j, j) > 0)
                     {
                         for (int i=0; i<6; i++)
                             gsl_matrix_set(C, i, nc, gsl_matrix_get(GU1o, i, j));
+			noc[nc] = j;
                         nc++;
                     }
                 if (nc != 3) {LOG_INFO("Not three positive lambdas in ORM" <<nc); return false;};
@@ -492,12 +468,15 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                     {
                         for (int i=0; i<6; i++)
                             gsl_matrix_set(C, i, nc, -gsl_matrix_get(GU1s, i, j));
+			nsc[nc] = j;
                         nc++;
                     }
                 if (nc != 6) {LOG_INFO("Not three negative lambdas in SRM" <<nc); return false;};
             }
 
 	    //counting rhp
+	    int no[6] = {0}, ns[6] = {0};
+	    gcm::real tau = getRecommendedTimeStep();
 	    {	//that's what we can work with
 		int nc = 0;
 		gcm::real res = 0;
@@ -509,17 +488,18 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 			for (int j=0; j<9; j++)
 			    res += orm->getU(i, j)*origin.values[j];
 			gsl_vector_set(omO, nc, res);
+			no[nc] = i;
 			nc++;
 	 	    }
 	
-		    gcm::real tau = 0.01*sqrt(dx*dx + dy*dy + dz*dz)/orm->getMaxEigenvalue();
 		    if (s > 0 && orm->getL(i, i) > 0)
                     {
-                        interpolateSegment( third.coords[d], origin.coords[d], origin.coords[d] - tau*orm->getL(i, i), third.values, origin.values, targetNode.values, VALUES_NUMBER);
+                        interpolateSegment( third.coords[d], origin.coords[d], origin.coords[d] - tau*orm->getL(i, i), origin.values, third.values, targetNode.values, VALUES_NUMBER);
                         res = 0;
                         for (int j=0; j<9; j++)
                             res += orm->getU(i, j)*targetNode.values[j];
                         gsl_vector_set(omO, nc, res);
+			no[nc] = i;
                         nc++;
                     }
 		    else
@@ -530,10 +510,11 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                         for (int j=0; j<9; j++)
                             res += orm->getU(i, j)*targetNode.values[j];
                         gsl_vector_set(omO, nc, res);
+			no[nc] = i;
                         nc++;
                     }		 
 		}
-                if (nc != 6) {LOG_INFO("Not enough lambdas in ORM" <<nc); return false;};
+                if (nc != 6) {LOG_INFO("Not enough lambdas in ORM 0 " <<nc); return false;};
 		nc = 0;
                 for (int i=0; i<9; i++)
 		{
@@ -543,9 +524,9 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                         for (int j=0; j<9; j++)
                             res += srm->getU(i, j)*second.values[j];
                         gsl_vector_set(omS, nc, res);
+			ns[nc] = i;
 			nc++;
                     }
-		    gcm::real tau = 0.01*sqrt(dx*dx + dy*dy + dz*dz)/srm->getMaxEigenvalue();
                     if (s > 0 && srm->getL(i, i) < 0)
                     {
                         interpolateSegment( second.coords[d], fourth.coords[d], second.coords[d] - tau*srm->getL(i, i), second.values, fourth.values, targetNode.values, VALUES_NUMBER);
@@ -553,16 +534,18 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                         for (int j=0; j<9; j++)
                             res += srm->getU(i, j)*targetNode.values[j];
                         gsl_vector_set(omS, nc, res);
+			ns[nc] = i;
                         nc++;
                     }
                     else
                     if (s < 0 && srm->getL(i, i) > 0)
                     {
-                        interpolateSegment( fourth.coords[d], second.coords[d], second.coords[d] - tau*srm->getL(i, i), fourth.values, second.values, targetNode.values, VALUES_NUMBER);
+                        interpolateSegment( fourth.coords[d], second.coords[d], second.coords[d] - tau*srm->getL(i, i), second.values, fourth.values, targetNode.values, VALUES_NUMBER);
                         res = 0;
                         for (int j=0; j<9; j++)
                             res += srm->getU(i, j)*targetNode.values[j];
                         gsl_vector_set(omS, nc, res);
+			ns[nc] = i;
                         nc++;
                     }
 
@@ -572,36 +555,11 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 	    //now we got omO and omS, can calculate rhp
 	    for (int i=0; i<6; i++)
 	    {
-		int nc = 0;
 		res = 0;
-		for (int j=0; j<9; j++)
-		    if (s > 0 && orm->getL(j, j) > -EQUALITY_TOLERANCE) 
-		    {
-			res -= gsl_matrix_get(GU1o, i, j)*gsl_vector_get(omO, nc);
-			nc++;
-		    }
-		nc = 0;
-                for (int j=0; j<9; j++)
-                    if (s < 0 && orm->getL(j, j) < EQUALITY_TOLERANCE)
-                    {
-                        res -= gsl_matrix_get(GU1o, i, j)*gsl_vector_get(omO, nc);
-                        nc++;
-                    }
-                nc = 0;
-                for (int j=0; j<9; j++)
-                    if (s > 0 && srm->getL(j, j) < EQUALITY_TOLERANCE)
-                    {
-                        res += gsl_matrix_get(GU1s, i, j)*gsl_vector_get(omS, nc);
-                        nc++;
-                    }
-		nc = 0;
-                for (int j=0; j<9; j++)
-                    if (s < 0 && srm->getL(j, j) > -EQUALITY_TOLERANCE)
-                    {
-                        res += gsl_matrix_get(GU1s, i, j)*gsl_vector_get(omS, nc);
-                        nc++;
-                    }
-                nc = 0;
+		for (int j=0; j<6; j++)
+		    res -= gsl_matrix_get(GU1o, i, no[j])*gsl_vector_get(omO, j);
+                for (int j=0; j<6; j++)
+                    res += gsl_matrix_get(GU1s, i, ns[j])*gsl_vector_get(omS, j);
 		gsl_vector_set(rhp, i, res);
 	    }
 
@@ -611,22 +569,14 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
             gsl_permutation_init(p);
 	    gsl_linalg_LU_decomp (C, p, &s);
 	    gsl_linalg_LU_solve (C, p, rhp, om);	
-//	    for (int i=0; i<6; i++) LOG_INFO("C: "<<gsl_matrix_get(C, i, 0)<<" "<<gsl_matrix_get(C, i, 1)<<" "<<gsl_matrix_get(C, i, 2)<<" "<<gsl_matrix_get(C, i, 3)<<" "<<gsl_matrix_get(C, i, 4)<<" "<<gsl_matrix_get(C, i, 5)<<" ");
-//	    for (int i=0; i<6; i++) if (gsl_vector_get(om, i) != 0) LOG_INFO("OM:" <<gsl_vector_get(om, i));
-//	    LOG_INFO("det " <<gsl_linalg_LU_det(C, 1));
-
-
+	    gsl_permutation_free(p);
+	    
 	    //obtaining target node values from calculated omegas
 	    for (int i=0; i<9; i++) targetNode.values[i] = 0;
-	    for (int j=0; j<9; j++)
+	    for (int j=0; j<3; j++)
 	    {
-		int nc = 0;
-		if ((orm->getL(j, j) < 0 && s > 0) || (orm->getL(j, j) > 0 && s < 0))
-		{
-		    for (int i=0; i<6; i++)
-			targetNode.values[i] += orm->getU1(i, j)*gsl_vector_get(om, nc);
-		    nc ++;
-		}
+	   	for (int i=0; i<9; i++)
+		    targetNode.values[i] += orm->getU1(i, noc[j])*gsl_vector_get(om, j);
 	    }
 
 	    //freeing the memory
@@ -641,24 +591,9 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
             gsl_vector_free(rhp);
 	    return true;
 	}
-/*	    char s[10000];
-	    for (int i=0; i<9; i++)
-	    {
-	    	sprintf(s, "U %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f ", orm->getU(i, 0), orm->getU(i, 1), orm->getU(i, 2), orm->getU(i, 3), orm->getU(i, 4), orm->getU(i, 5), orm->getU(i, 6), orm->getU(i, 7), orm->getU(i, 8));
-		LOG_INFO("U "<<s);	    
-		//= "";
-	    }
-            for (int i=0; i<9; i++)
-            {
-                sprintf(s, "U1 %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f %4.1f ", orm->getU1(i, 0), orm->getU1(i, 1), orm->getU1(i, 2), orm->getU1(i, 3), orm->getU1(i, 4), orm->getU1(i, 5), orm->getU1(i, 6), orm->getU1(i, 7), orm->getU1(i, 8));
-                LOG_INFO("U1 "<<s);
-                //s = "";
-            }
-	    LOG_INFO("n "<<n1o <<n2o <<n3o <<n1s <<n2s <<n3s);
-	    LOG_INFO("ao " <<ao <<" as " <<as <<" bo " <<bo <<" bs " <<bs); */
 
 //Formulas from Aki-Richards-----------------------------------------------------------------------------------------------------------
-	if (true)//false)
+	if (false)
 	{
 	    for (int i=0; i<9; i++)
 	    {
@@ -670,20 +605,10 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                 o3s += srm->getU(n3s, i)*second.values[i];
 	    }
 	    gcm::real resP = 0, resS1 = 0, resS2 = 0;
-//Aki-Richards
-//	    resP = (rs*as*(o1o + 2*o1s) - ro*ao*o1o)/(ro*ao + rs*as);
-//	    resS1 = (ro*bo*o2o + rs*bs*(2*o2s - o2o))/(ro*bo + rs*bs);
-//	    resS2 = (ro*bo*o3o + rs*bs*(2*o3s - o3o))/(ro*bo + rs*bs);
 	    resP = o1o*(rs*as - ro*ao)/(rs*as + ro*ao) + o1s*2*rs*as/(rs*as + ro*ao);
 	    resS1 = o2o*(ro*bo - rs*bs)/(ro*bo + rs*bs) + o2s*2*rs*bs/(ro*bo + rs*bs);
             resS2 = o3o*(ro*bo - rs*bs)/(ro*bo + rs*bs) + o3s*2*rs*bs/(ro*bo + rs*bs);
-//Our old calculations
-//	    resP = (rs*as*o1o + ro*ao*(2*o1s - o1o))/(ro*ao + rs*as);
-//	    resS1 = (ro*bo*(o2o + 2*o2s) - rs*bs*o2o)/(ro*bo + rs*bs);
-  //          resS2 = (ro*bo*(o3o + 2*o3s) - rs*bs*o3o)/(ro*bo + rs*bs);
-//	    resP = o1o;
-//	    resS1 = o2o;
-//	    resS2 = o3o;
+
 	    for (int i=0; i<9; i++)
 	    {
 		targetNode.values[i] = orm->getU1(i, n4o)*resP + orm->getU1(i, n5o)*resS1 + orm->getU1(i, n6o)*resS2;
@@ -694,10 +619,8 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 
 
 //Riemann solution from Vlad ----------------------------------------------------------------------------------------------------------
-	if (false)//origin.getMaterialId() != second.getMaterialId())
+	if (false)
 	{
-//	    RheologyMatrixPtr   orm = origin.getRheologyMatrix(),
-//				srm = second.getRheologyMatrix();
 	    gsl_matrix  *R = gsl_matrix_alloc(9, 9),
 			*S = gsl_matrix_alloc(9, 9),
 			*R1 = gsl_matrix_alloc(9, 9);
@@ -720,7 +643,6 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 			n++;
 		    }	
 		}
-		//if (s < 0)
                 else {   
                     if (srm->getL(j, j) < 0)
                     {
@@ -734,39 +656,7 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                 }
 	    }
 	    if (n != 3) {LOG_INFO("Not 3 negative lambdas" << n); return false;};
-	
-/*            gsl_matrix  *zo = gsl_matrix_alloc(3, 9),
-                        *zs = gsl_matrix_alloc(3, 9);
-	    int z=0;
-	    for (int j=0; j<9; j++)
-            {
-                if (orm->getL(j, j) == 0)
-		{
-                    for (int i=0; i<9; i++)
-                    	gsl_matrix_set(zo, z, i, orm->getU(j, i));
-		    z++;
-		}
-		//LOG_INFO(" " <<z);
-	    }
-	    z = 0;
-            for (int j=0; j<9; j++)
-            {
-                if (srm->getL(j, j) == 0)
-		{
-                    for (int i=0; i<9; i++)
-                        gsl_matrix_set(zs, z, i, srm->getU(j, i));
-                    z++;
-		}
-            }
-            for (int z=0; z<3; z++)
-            {
-                for (int i=0; i<9; i++)
-                    gsl_matrix_set(R, i, n, (gsl_matrix_get(zo, z, i) + gsl_matrix_get(zs, z, i))/2.0);
-                n++;
-	    } 
-	    gsl_matrix_free(zo);
-            gsl_matrix_free(zs); */
-	    
+ 
             for (int j=0; j<9; j++)
             {
                 if (orm->getL(j, j) == 0)
@@ -794,7 +684,6 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                         n++;
                     }
                 }
-                //if (s < 0)
                 else {
                     if (orm->getL(j, j) > 0)
                     {
@@ -808,35 +697,6 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                 }
             }
             if (n != 9) {LOG_INFO("Not 3 pozitive lambdas"); return false;};
-
-//Attempt to use origin Omega matrix, but its determinant 
-//is almost zero, GSL treats it as singular
-//	    for (int i=0; i<9; i++)
-//		for (int j=0; j<9; j++)
-//		    gsl_matrix_set(R, i, j, orm->getU(i, j));
-//            for (int i=0; i<9; i++)
-//                for (int j=0; j<9; j++)
-//                    gsl_matrix_set(R1, i, j, orm->getU1(i, j));
-
-	    //Now we got R and we obtain R1=R^(-1) via identity permutation matrix
-	    //gsl_permutation *p = gsl_permutation_alloc(9);
-	    //gsl_permutation_init(p);
-	    //int i = 0;
-	    //float det = gsl_linalg_LU_det(R, 1);
-//	    if (fabs(det) < EQUALITY_TOLERANCE)
-//	    {
-//	    	LOG_INFO("det "<<det <<" "<<fabs(det));
-   	    
-//	    	for (int i=0; i<n; i++)
-//		LOG_INFO("R " <<gsl_matrix_get(R, i, 0) <<" " <<gsl_matrix_get(R, i, 1) <<" " <<gsl_matrix_get(R, i, 2) <<" " <<gsl_matrix_get(R, i, 3) <<" " <<gsl_matrix_get(R, i, 4) <<" " <<gsl_matrix_get(R, i, 5) <<" " <<gsl_matrix_get(R, i, 6) <<" " <<gsl_matrix_get(R, i, 7) <<" " <<gsl_matrix_get(R, i, 8) <<" ");
-//	    }
-	    //gsl_linalg_LU_decomp(R, p, &i);
-	    //gsl_linalg_LU_invert(R, p, R1);
-	  //  for (int i=0; i<n; i++)
-            //    LOG_INFO("R1 " <<gsl_matrix_get(R1, i, 0) <<" " <<gsl_matrix_get(R1, i, 1) <<" " <<gsl_matrix_get(R1, i, 2) <<" " <<gsl_matrix_get(R1, i, 3) <<" " <<gsl_matrix_get(R1, i, 4) <<" " <<gsl_matrix_get(R1, i, 5) <<" " <<gsl_matrix_get(R1, i, 6) <<" " <<gsl_matrix_get(R1, i, 7) <<" " <<gsl_matrix_get(R1, i, 8) <<" ");
-            //gsl_linalg_LU_decomp(R, p, &i);
-
-	    //gsl_permutation_free(p);
 
 	    //Now we got R, R1 and all is left is S
 	    gsl_matrix_set_identity(S);
