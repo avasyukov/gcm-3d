@@ -121,6 +121,6 @@
       </material>
     </materials>
   <borderCondition calculator="ExternalForceCalculator" normalStress="-200000000" tangentialStress="0" startTime="0" duration="0.000134">
-    <area type="box" minX="350" maxX="400" minY="250" maxY="300" minZ="200" maxZ="250"/>
+    <area type="box" minX="-400" maxX="-350" minY="-300" maxY="-250" minZ="200" maxZ="250"/>
   </borderCondition>
 </task>
