@@ -41,5 +41,21 @@ void SimpleVolumeCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheo
         }
         new_node.values[i] = new_node.values[i] + (new_val - cur_node.values[i]);
     }
+
+//WARNING Toxic hack ahead ----------------------------------------------------------------------------
+    int nmax = 0, nmin = 0;
+    gcm::real max = matrix->getL(0, 0), min = matrix->getL(0, 0);
+    for(int i = 1; i < 9; i++)
+    {
+	if (matrix->getL(i, i) > max) {max = matrix->getL(i, i); nmax = i;};
+        if (matrix->getL(i, i) < min) {min = matrix->getL(i, i); nmin = i;};
+    }
+    if (previousNodes[nmax].getMaterialId() != cur_node.getMaterialId() || previousNodes[nmin].getMaterialId() != cur_node.getMaterialId())
+    {
+	for(int i = 0; i < 9; i++)
+	    new_node.values[i] = (previousNodes[nmax].values[i] + previousNodes[nmin].values[i])/2;
+    }
+
+//-----------------------------------------------------------------------------------------------------
     LOG_TRACE("Calc done");
 };

@@ -269,6 +269,8 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
     	}
     	CalcNode second = getNodeByEulerMeshIndex(index+dindex);
 
+	targetNode.setMaterialId(second.getMaterialId());
+
         vector3r dc = vector3r(dx, dy, dz);
         for (int i=0; i<3; i++) dc[i] *= (i == d);
 
@@ -349,6 +351,14 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
             //we will need surroungind nodes, so we check materials before anything else
             CalcNode third = getNodeByEulerMeshIndex(index-dindex);
             CalcNode fourth = getNodeByEulerMeshIndex(index+dindex+dindex);
+
+        if (true) //last desperate Chudov measure
+        {
+	    for (int i=0; i<9; i++)
+		targetNode.values[i] = second.values[i];
+	    isInnerPoint = true;
+	    return true;
+        }
 
             if (third.getMaterialId() != origin.getMaterialId())
             {   //it sucks, this is not normal situation, so we report it and try to make something from this crap
