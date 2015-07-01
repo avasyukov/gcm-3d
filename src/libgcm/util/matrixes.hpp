@@ -44,6 +44,9 @@ namespace gcm {
 		void setColumn(double *Clmn, int num);
 		gcm_matrix inv() const;
 
+        float getLNorm() const;
+        float getCond() const;
+
 		float p[GCM_MATRIX_SIZE][GCM_MATRIX_SIZE]; // Data
 	private:
 		USE_LOGGER;
