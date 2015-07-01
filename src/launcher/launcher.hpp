@@ -14,7 +14,6 @@ namespace launcher {
     class Launcher
     {
     private:
-        void loadMaterialsFromXml(xml::NodeList matNodes);
 		gcm::Area* readCylinderArea(xml::Node areaNode);
 		gcm::Area* readSphereArea(xml::Node areaNode);
 		gcm::Area* readBoxArea(xml::Node areaNode);
@@ -25,6 +24,8 @@ namespace launcher {
         USE_LOGGER;
     public:
         Launcher();
+        
+        void loadMaterialsFromXml(xml::NodeList matNodes);
 
         void loadMaterialLibrary(std::string path);
         void loadSceneFromFile(std::string fileName, std::string initialStateGroup="");

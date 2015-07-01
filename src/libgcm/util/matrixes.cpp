@@ -177,3 +177,24 @@ gcm_matrix gcm_matrix::inv() const
 
     return res_matrix;
 };
+
+float gcm_matrix::getLNorm() const
+{
+    float max_norm = 0.0;
+
+    for (int i = 0; i < GCM_MATRIX_SIZE; i++)
+    {
+        float norm = 0.0;
+        for (int j = 0; j < GCM_MATRIX_SIZE; j++)
+            norm += fabs(p[j][i]);
+        if (norm > max_norm)
+            max_norm = norm;
+    }
+
+    return max_norm;
+}
+
+float gcm_matrix::getCond() const
+{
+    return getLNorm()*(inv().getLNorm());
+}
