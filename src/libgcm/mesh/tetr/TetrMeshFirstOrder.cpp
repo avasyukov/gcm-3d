@@ -1123,6 +1123,7 @@ int TetrMeshFirstOrder::expandingScanForOwnerTetr (const CalcNode& node, float d
 
 int TetrMeshFirstOrder::orientedExpandingScanForOwnerTetr (const CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
 {
+    return expandingScanForOwnerTetr(node, dx, dy, dz, debug, coords, innerPoint);
     float x = node.coords[0] + dx;
     float y = node.coords[1] + dy;
     float z = node.coords[2] + dz;
@@ -2539,13 +2540,18 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
     direction[2] = dz / length;
     
     vector<int> targetFaces;
-    double pt[3] = { x + dx * 0.5, y + dy * 0.5, z + dz * 0.5 };
+    double pt[3] = { x + dx * 0.0, y + dy * 0.0, z + dz * 0.0 };
     double pos[3];
     CalcNode* pNode;
-    struct kdres *presults = kd_nearest_range(kdtree, pt, length * 0.5 + getMaxH());
+    struct kdres *presults = kd_nearest_range(kdtree, pt, length);
     while (!kd_res_end(presults)) {
         /* get the data and position of the current result item */
         pNode = (CalcNode*) kd_res_item(presults, pos);
+        //LOG_INFO("Proposed point: " << *pNode);
+        node.setRho(pNode->getRho());
+        node.setMaterialId(pNode->getMaterialId());
+        node.number = -1;
+        return true;
         vector<int> cf = getBorderElementsForNode(pNode->number);
         targetFaces.insert(targetFaces.end(), cf.begin(), cf.end());
         /* go to the next entry */
@@ -2588,19 +2594,19 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
 	if (x < xmin || x > xmax || y < ymin || y > ymax || z < zmin || z > zmax)
 		continue;
         
-        if(vectorIntersectsTriangle( n1.coords, n2.coords, n3.coords,
-                                     start, direction, length, node.coords, false))
+        //if(vectorIntersectsTriangle( n1.coords, n2.coords, n3.coords,
+        //                             start, direction, length, node.coords, false))
         {
             double d = vectorNorm(x - node.coords.x, y - node.coords.y, z - node.coords.z);
-            if( (node.coords.x - x) * dx + (node.coords.y - y) * dy + (node.coords.z - z) * dz < 0 
-               || d > length )
+            if( /*(node.coords.x - x) * dx + (node.coords.y - y) * dy + (node.coords.z - z) * dz < 0 */
+               /*||*/ d > length )
             {
                 LOG_DEBUG("Proposed point: " << node);
                 THROW_BAD_MESH("interpolateBorderNode did smth really bad");
             }
             
-            interpolateTriangle( n1.coords, n2.coords, n3.coords, node.coords,
-                                n1.values, n2.values, n3.values, node.values, 9);
+            //interpolateTriangle( n1.coords, n2.coords, n3.coords, node.coords,
+            //                    n1.values, n2.values, n3.values, node.values, 9);
             node.setRho((getNode(face.verts[0])).getRho());
             node.setMaterialId((getNode(face.verts[0])).getMaterialId());
 

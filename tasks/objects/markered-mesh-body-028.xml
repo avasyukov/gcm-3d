@@ -1,4 +1,4 @@
-<task numberOfSnaps="200" stepsPerSnap="5">
+<task numberOfSnaps="0" stepsPerSnap="1">
     <system>
         <meshMovement type="none" />
         <timeStep multiplier="0.99"/>
