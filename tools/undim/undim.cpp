@@ -70,8 +70,8 @@ int main(int argc, char** argv)
 
     auto& engine = Engine::getInstance();
 
-    float minCond = 1e9;
-    int _s0 = -100, _r0 = -100;
+    float minCond = 1e9, origMinCond;
+    int _s0 = -100, _r0 = -100, _l0 = -3, _v0, _t0;
 
     for (int s0 = -9; s0 <= 9; s0++)
         for (int r0 = -9; r0 <= 9; r0++)
@@ -83,6 +83,8 @@ int main(int argc, char** argv)
                 auto mat = engine.getMaterial(i);
                 auto undimMat = makeMaterialPtr("", mat->getRho()/r, mat->getLa()/s, mat->getMu()/s);
                 float cond = getCond(undimMat);
+                if (s0 == 0 && r0 == 0)
+                    origMinCond = cond;
                 if (cond < minCond)
                 {
                     minCond = cond;
@@ -92,8 +94,25 @@ int main(int argc, char** argv)
             }
         }
 
-    cout << "r0 = 1e" << _r0 << "; s0 = 1e" << _s0 << endl;
+    _t0 = (_r0 - _s0 + 2*_l0);
+
+    if (_t0 % 2 != 0)
+    {
+        cout << "OOOOPS" << endl;
+        return -1;
+    }
+
+    _t0 /= 2;
+    _v0 = _l0 -_t0;
+
+    cout << "r0 = 1e" << _r0 <<  endl;
+    cout << "s0 = 1e" << _s0 <<  endl;
+    cout << "l0 = 1e" << _l0 <<  endl;
+    cout << "v0 = 1e" << _v0 <<  endl;
+    cout << "t0 = 1e" << _t0 <<  endl;
     cout << "minCond = " << minCond << endl;
+
+    cout << "original minCond = " << origMinCond << endl;
 
     MPI_Finalize();
 }
