@@ -16,6 +16,7 @@
 #include "launcher/loaders/mesh/MarkeredMeshGeoLoader.hpp"
 #include "launcher/loaders/mesh/MarkeredMeshAniLoader.hpp"
 #include "launcher/loaders/mesh/CubicMeshLoader.hpp"
+#include "launcher/loaders/mesh/AniVtuMeshLoader.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
 
 #include "libgcm/util/areas/BoxArea.hpp"
@@ -394,6 +395,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 MarkeredMeshGeoLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == MarkeredMeshAniLoader::MESH_TYPE)
                 MarkeredMeshAniLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == AniVtuMeshLoader::MESH_TYPE)
+                AniVtuMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else
                 THROW_UNSUPPORTED("Specified mesh loader is not supported");
 
@@ -525,6 +528,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 mesh = MarkeredMeshGeoLoader::getInstance().load(meshNode, body);            
             else if (type == MarkeredMeshAniLoader::MESH_TYPE)
                 mesh = MarkeredMeshAniLoader::getInstance().load(meshNode, body);            
+            else if (type == AniVtuMeshLoader::MESH_TYPE)
+                mesh = AniVtuMeshLoader::getInstance().load(meshNode, body);            
 	    LOG_INFO("Loaded mesh for body '" << id << "', started attaching to body");
             // attach mesh to body
             body->attachMesh(mesh);
@@ -566,8 +571,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
 
         // set material properties
         NodeList matNodes = bodyNode.getChildrenByName("material");
-        if (matNodes.size() < 1)
-            THROW_INVALID_INPUT("Material not set");
+        //if (matNodes.size() < 1)
+        //    THROW_INVALID_INPUT("Material not set");
         for(auto& matNode: matNodes)
         {
             string id = matNode["id"];

@@ -409,7 +409,7 @@ float Mesh::getMaxEigenvalue()
         auto l3 = m->getMaxEigenvalue();
         maxLambda = max({maxLambda, l1, l2, l3});
     }
-    return maxLambda;
+    return maxLambda / 20; // FIXME - hack just for corpse with real params
 }
 
 float Mesh::getMaxPossibleTimeStep()

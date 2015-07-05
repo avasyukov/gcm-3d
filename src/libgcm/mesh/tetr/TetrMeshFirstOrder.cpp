@@ -1308,7 +1308,7 @@ int TetrMeshFirstOrder::orientedExpandingScanForOwnerTetr (const CalcNode& node,
     }
     
     // Oriented scan
-    while( facesCrossed.size() < 10 )
+    while( facesCrossed.size() < 500 )
     {
         int nextTetr = -1;
 
@@ -2358,6 +2358,9 @@ void TetrMeshFirstOrder::checkTopology(float tau)
 
 float TetrMeshFirstOrder::getRecommendedTimeStep()
 {
+    LOG_INFO( "AvgH = " << getAvgH() );
+    LOG_INFO( "Max EV = " << getMaxEigenvalue() );
+    LOG_INFO( "Tau = " << getAvgH() / getMaxEigenvalue() );
     return getAvgH() / getMaxEigenvalue();
 };
 

@@ -161,6 +161,10 @@ int main(int argc, char **argv, char **envp)
         auto nodeNumber = vtkSmartPointer<vtkIntArray>::New ();
         nodeNumber->SetName ("nodeNumber");
 
+	auto tetr1stOrderNodes = vtkSmartPointer<vtkIntArray>::New ();
+	tetr1stOrderNodes->SetNumberOfComponents (4);
+	tetr1stOrderNodes->SetName ("tetr1stOrderNodes");
+
         int nn = 0;
         for (uint i = 0; i < dims.x; i++)
             for (uint j = 0; j < dims.y; j++)
@@ -169,10 +173,10 @@ int main(int argc, char **argv, char **envp)
                     if (node.isUsed()){
                         int li = mesh->getNodeLocalIndexByEulerMeshIndex(vector3u(i,j,k));
                         ind[li] = nn;
+			nodeNumber->InsertNextValue(nn);
                         nn++;
 
                         matId->InsertNextValue(node.getMaterialId());
-                        nodeNumber->InsertNextValue(nn);
                         points->InsertNextPoint( node.coords[0], node.coords[1], node.coords[2] );
                     }
                 }
@@ -202,42 +206,73 @@ int main(int argc, char **argv, char **envp)
                         uint j7 = i110;
                         uint j8 = i100;
 
+			int verts[4];
 
                         tetra->GetPointIds()->SetId(0, j1);
                         tetra->GetPointIds()->SetId(1, j2);
                         tetra->GetPointIds()->SetId(2, j4);
                         tetra->GetPointIds()->SetId(3, j6);
                         grid->InsertNextCell(tetra->GetCellType(),tetra->GetPointIds());
+			verts[0] = j1;
+			verts[1] = j2;
+			verts[2] = j4;
+			verts[3] = j6;
+			tetr1stOrderNodes->InsertNextTupleValue (verts);
 
                         tetra->GetPointIds()->SetId(0, j1);
                         tetra->GetPointIds()->SetId(1, j4);
                         tetra->GetPointIds()->SetId(2, j6);
                         tetra->GetPointIds()->SetId(3, j8);
                         grid->InsertNextCell(tetra->GetCellType(),tetra->GetPointIds());
+                        verts[0] = j1;
+                        verts[1] = j4;
+                        verts[2] = j6;
+                        verts[3] = j8;
+                        tetr1stOrderNodes->InsertNextTupleValue (verts);
 
                         tetra->GetPointIds()->SetId(0, j1);
                         tetra->GetPointIds()->SetId(1, j5);
                         tetra->GetPointIds()->SetId(2, j6);
                         tetra->GetPointIds()->SetId(3, j8);
                         grid->InsertNextCell(tetra->GetCellType(),tetra->GetPointIds());
+                        verts[0] = j1;
+                        verts[1] = j5;
+                        verts[2] = j6;
+                        verts[3] = j8;
+                        tetr1stOrderNodes->InsertNextTupleValue (verts);
 
                         tetra->GetPointIds()->SetId(0, j2);
                         tetra->GetPointIds()->SetId(1, j3);
                         tetra->GetPointIds()->SetId(2, j4);
                         tetra->GetPointIds()->SetId(3, j6);
                         grid->InsertNextCell(tetra->GetCellType(),tetra->GetPointIds());
+                        verts[0] = j2;
+                        verts[1] = j3;
+                        verts[2] = j4;
+                        verts[3] = j6;
+                        tetr1stOrderNodes->InsertNextTupleValue (verts);
 
                         tetra->GetPointIds()->SetId(0, j3);
                         tetra->GetPointIds()->SetId(1, j4);
                         tetra->GetPointIds()->SetId(2, j6);
                         tetra->GetPointIds()->SetId(3, j8);
                         grid->InsertNextCell(tetra->GetCellType(),tetra->GetPointIds());
+                        verts[0] = j3;
+                        verts[1] = j4;
+                        verts[2] = j6;
+                        verts[3] = j8;
+                        tetr1stOrderNodes->InsertNextTupleValue (verts);
 
                         tetra->GetPointIds()->SetId(0, j3);
                         tetra->GetPointIds()->SetId(1, j6);
                         tetra->GetPointIds()->SetId(2, j7);
                         tetra->GetPointIds()->SetId(3, j8);
                         grid->InsertNextCell(tetra->GetCellType(),tetra->GetPointIds());
+                        verts[0] = j3;
+                        verts[1] = j6;
+                        verts[2] = j7;
+                        verts[3] = j8;
+                        tetr1stOrderNodes->InsertNextTupleValue (verts);
                     }
 
         vtkFieldData* fd = grid->GetPointData();
@@ -246,6 +281,8 @@ int main(int argc, char **argv, char **envp)
 
         fd->AddArray(matId);
         fd->AddArray(nodeNumber);
+	
+	grid->GetCellData ()->AddArray (tetr1stOrderNodes);
 
         // Write file
         auto writer = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();

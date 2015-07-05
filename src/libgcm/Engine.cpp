@@ -240,7 +240,7 @@ unsigned char Engine::addMaterial(MaterialPtr material)
         THROW_INVALID_ARG("Material parameter cannot be NULL");
     materials.push_back(material);
     unsigned char index = materials.size() - 1;
-    LOG_DEBUG("Added new material. Name: " << material->getName() << " Index: " << (int)index);
+    LOG_INFO("Added new material. Name: " << material->getName() << " Index: " << (int)index);
     return index;
 }
 

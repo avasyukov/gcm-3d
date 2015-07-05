@@ -22,6 +22,7 @@ namespace gcm {
         friend class DataBus;
         friend class VtuTetrFileReader;
         friend class Vtu2TetrFileReader;
+        friend class AniVtuTetrFileReader;
         friend class Mesh;
 
     protected:
