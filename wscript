@@ -50,7 +50,7 @@ def options(opt):
         default='trace',
         help='Disable libgcm logging routines'
     )
-    
+
     pcog.add_option(
         '--disable-assertions',
         action='store_true',
@@ -144,7 +144,7 @@ def configure(conf):
     def yes_no(b):
         return 'yes' if b else 'no'
 
-    logging_levels = ['none', 'fatal', 'error', 'warn', 'info', 'debug', 'trace'] 
+    logging_levels = ['none', 'fatal', 'error', 'warn', 'info', 'debug', 'trace']
     if not conf.options.logging_level in logging_levels:
         conf.fatal('Unknown logging level specified. Valid levels are ' + ', '.join(logging_levels))
 
@@ -190,7 +190,7 @@ def configure(conf):
 
     conf.define('CONFIG_INSTALL_PREFIX', os.path.abspath(conf.options.prefix))
     conf.define('CONFIG_SHARE_GCM', os.path.join(os.path.abspath(conf.options.prefix), 'share', 'gcm3d'))
-    
+
     idx = logging_levels.index(conf.env.logging_level)
     conf.define('CONFIG_ENABLE_LOGGING', int(idx != 0))
     for (i, l) in enumerate(logging_levels[1:]):
@@ -306,6 +306,12 @@ def build(bld):
             source=bld.path.find_node('src/launcher/ani3d_interpolate.cpp'),
             use=['gcm', 'launcher_util', 'loaders', 'launcher'] + libs,
             target='ani3d_interpolate'
+        )
+        bld(
+            features='cxx cxxprogram',
+            source=bld.path.find_node('src/launcher/get_tetr_mesh.cpp'),
+            use=['gcm', 'launcher_util', 'loaders', 'launcher'] + libs,
+            target='get_tetr_mesh'
         )
         bld(
             features='cxx cxxprogram',
