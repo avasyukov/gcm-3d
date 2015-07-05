@@ -1,0 +1,7 @@
+#!/bin/bash
+rm *mmum*.vt*
+time mpirun -np 1 ./build/optimize/gcm3d --data-dir . --task ./tasks/tests/markered-mesh-unstable-materials-8.xml
+time mpirun -np 1 ./build/optimize/gcm3d --data-dir . --task ./tasks/tests/markered-mesh-unstable-materials-9.xml
+time mpirun -np 1 ./build/optimize/gcm3d --data-dir . --task ./tasks/tests/markered-mesh-unstable-materials-10.xml
+time mpirun -np 1 ./build/optimize/gcm3d --data-dir . --task ./tasks/tests/markered-mesh-unstable-materials-14.xml
+

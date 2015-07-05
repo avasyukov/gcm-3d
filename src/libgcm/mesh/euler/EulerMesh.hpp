@@ -33,6 +33,7 @@ protected:
 	 * Mesh min h.
 	 */
 	float minH = 0.0;
+	float tau = -1.0;
 	/**
 	 * Logger.
 	 */

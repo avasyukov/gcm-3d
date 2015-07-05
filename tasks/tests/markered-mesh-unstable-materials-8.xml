@@ -1,0 +1,34 @@
+<task numberOfSnaps="30" stepsPerSnap="1">
+	<system>
+		<meshMovement type="none"/>
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<!--mesh id="main" type="geo2" file="models/cube.geo" tetrSize="0.4" /-->
+			<mesh id="mmum08" type="markered-mesh-geo" cellSize="0.2;0.2;0.2" cellsNum="60;60;60" file="models/cube.geo" />
+                        <material id="tm0">
+                                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+                        </material>
+                        <material id="tm1">
+                                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="0.1"/>
+                        </material>
+		</body>
+	</bodies>
+	<materials>
+	        <material name="tm0" rheology="isotropic">
+	            	<la>70000</la>
+	            	<mu>10000</mu>
+	            	<rho>1</rho>
+	        </material>
+                <material name="tm1" rheology="isotropic">
+                        <la>70000</la>
+                        <mu>10000</mu>
+                        <rho>1</rho>
+                </material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-1.0" maxZ="-0.5"/>
+		<values vz="-3" sxx="700" syy="700" szz="900" />
+	</initialState>
+</task>
