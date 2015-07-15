@@ -400,6 +400,8 @@ float Mesh::getMaxEigenvalue()
         CalcNode& node = getNodeByLocalIndex(i);
         if (!node.isUsed())
             continue;
+        if (node.getMaterial()->getName() == "lungs1")
+            continue;
         RheologyMatrixPtr m = node.getRheologyMatrix();
         m->decomposeX(node);
         auto l1 = m->getMaxEigenvalue();
