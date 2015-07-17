@@ -103,6 +103,7 @@ Engine::Engine()
     meshesMovable = true;
 
     gmshVerbosity = 0.0;
+    m_s = false;
 
     setOption(Options::SNAPSHOT_OUTPUT_PATH_PATTERN, "snap_mesh_%{MESH}%{SUFFIX}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
 }
@@ -809,7 +810,7 @@ bool Engine::interpolateNode(CalcNode& node)
     return false;
 }
         
-void Engine::setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode)
+void Engine::setRheologyMatrices()//function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode)
 {
     for (auto& b: bodies)
         for (auto& m: b->getMeshesVector())
@@ -817,9 +818,21 @@ void Engine::setRheologyMatrices(function<RheologyMatrixPtr (const CalcNode&)> g
             {
                 CalcNode& node = m->getNodeByLocalIndex(i);
                 if (node.isUsed() || node.isLocal(false))
-                    node.setRheologyMatrix(getMatrixForNode(node));
+                    node.setRheologyMatrix(matrices[node.getMaterialId()]);//getMatrixForNode(node));
             }
+    m_s = true;
 }
+
+void Engine::addRheologyMatrix(RheologyMatrixPtr m)
+{
+    matrices.push_back(m);
+}
+
+RheologyMatrixPtr Engine::getRheologyMatrix(int id)
+{
+    return matrices[id];
+}
+
 
 const vector<tuple<unsigned int, string, string>>& Engine::getSnapshotsList() const
 {

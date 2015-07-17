@@ -144,6 +144,8 @@ namespace gcm
 
         std::vector<std::tuple<unsigned int, std::string, std::string>> snapshots;
         std::vector<float> snapshotTimestamps;
+	std::vector<RheologyMatrixPtr> matrices;
+	bool m_s;
 
     protected:
         /*
@@ -291,7 +293,7 @@ namespace gcm
 
         bool interpolateNode(CalcNode& node);
 
-        void setRheologyMatrices(std::function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode);
+        void setRheologyMatrices();//std::function<RheologyMatrixPtr (const CalcNode&)> getMatrixForNode);
 
         const std::vector<std::tuple<unsigned int, std::string, std::string>>& getSnapshotsList() const;
         const std::vector<float>& getSnapshotTimestamps() const;
@@ -299,6 +301,10 @@ namespace gcm
         void setOption(std::string option, std::string value);
         const std::string& getOption(std::string option) const;
         bool hasOption(std::string option) const;
+
+	void addRheologyMatrix(RheologyMatrixPtr m);
+	RheologyMatrixPtr getRheologyMatrix(int id);
+	bool matricesSet() {return m_s;};
     };
 }
 

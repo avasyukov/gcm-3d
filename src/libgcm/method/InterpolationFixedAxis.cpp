@@ -65,6 +65,11 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
 
     LOG_TRACE("Done node prepare");
 
+    if(cur_node.number == -777) {
+        LOG_INFO("Met: " << cur_node);
+        LOG_INFO("Met: " << outer_count);
+    }
+
     // If all the omegas are 'inner'
     // omega = Matrix_OMEGA * u
     // new_u = Matrix_OMEGA^(-1) * omega
@@ -74,7 +79,7 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
         if (outer_count == 0)
             // FIXME - hardcoded name
             engine.getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
-                                                                          new_node, cur_node.getRheologyMatrix(), previous_nodes);
+                                                                          cur_node, new_node, cur_node.getRheologyMatrix(), previous_nodes);
         else
             THROW_BAD_MESH("Outer characteristic for internal node detected");
         LOG_TRACE("Done inner node calc");
@@ -86,6 +91,11 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
         // FIXME_ASAP - do smth with this!
         // It is not stable now. See ugly hack below.
         // Think about: (a) cube, (b) rotated cube, (c) sphere.
+        //int maxNormDirection = ( fabs(outer_normal[0]) > fabs(outer_normal[1])
+        //            ? ( fabs(outer_normal[0]) > fabs(outer_normal[2] ? 0 : 2 ) )
+        //            : ( fabs(outer_normal[1]) > fabs(outer_normal[2] ? 1 : 2 ) ) );
+        //if( maxNormDirection != stage )
+        //    return;
         float val = (outer_normal[stage] >= 0 ? 1.0 : -1.0);
         outer_normal[0] = outer_normal[1] = outer_normal[2] = 0;
         outer_normal[stage] = val;
@@ -93,8 +103,9 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
         if (outer_count == 0)
         {
             // FIXME - hardcoded name
-            engine.getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
-                                                                          new_node, cur_node.getRheologyMatrix(), previous_nodes);
+            //engine.getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
+            //                                                              new_node, cur_node.getRheologyMatrix(), previous_nodes);
+            return;
         }
             // If there are 3 'outer' omegas - we should use border or contact algorithm
         else if (outer_count == 3)
@@ -103,7 +114,8 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
             if (!cur_node.isInContact() || cur_node.contactDirection != stage) {
                 // FIXME
                 int borderCondId = cur_node.getBorderConditionId();
-                LOG_TRACE("Using calculator: " << engine.getBorderCondition(borderCondId)->calc->getType());
+                //if(engine.getBorderCondition(borderCondId)->calc->getType() != "FreeBorderCalculator")
+                //    LOG_INFO("Node: " << cur_node.number << ". Using calculator: " << engine.getBorderCondition(borderCondId)->calc->getType());
                 engine.getBorderCondition(borderCondId)->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
                                                                  new_node, cur_node.getRheologyMatrix(), previous_nodes, inner, outer_normal);
             }
@@ -278,7 +290,7 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
             LOG_TRACE("Using calculator: " << engine.getBorderCondition(0)->calc->getType());
             engine.getBorderCondition(0)->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
                                                   new_node, cur_node.getRheologyMatrix(), previous_nodes, inner, outer_normal);
-            cur_node.setNeighError(stage);
+            //cur_node.setNeighError(stage);
         }
         LOG_TRACE("Done border node calc");
     }

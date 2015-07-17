@@ -93,7 +93,7 @@ void FreeBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheolo
     gsl_linalg_LU_decomp (U_gsl, p_gsl, &s);
     gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);
 
-    for(int j = 0; j < 9; j++)
-        new_node.values[j] = gsl_vector_get(x_gsl, j);
+//    for(int j = 0; j < 9; j++)
+//        new_node.values[j] = new_node.values[j] + (gsl_vector_get(x_gsl, j) - cur_node.values[j] );
 
 };

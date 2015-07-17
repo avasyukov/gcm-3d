@@ -683,4 +683,16 @@ inline void interpolateBox(gcm::real x0, gcm::real y0, gcm::real z0, gcm::real x
     }
 }
 
+inline void interpolateSegment(gcm::real x0, gcm::real x1, gcm::real x, const gcm::real *cur, const gcm::real *sec, gcm::real* out, uint n)
+{
+    if (fabs(x1-x0) < EQUALITY_TOLERANCE)
+    {
+        for (uint i = 0; i < n; i++)
+            out[i] = cur[i];
+        return;
+    }
+    for (uint i = 0; i < n; i++)
+        out[i] = (x-x0)*(sec[i]-cur[i])/(x1-x0) + cur[i];
+}
+
 #endif    /* GCM_MATH_H */

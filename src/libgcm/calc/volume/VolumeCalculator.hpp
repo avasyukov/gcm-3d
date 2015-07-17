@@ -29,7 +29,7 @@ namespace gcm
         /*
          * Calculate next state for the given node
          */
-        virtual void doCalc(CalcNode& new_node, RheologyMatrixPtr matrix,
+        virtual void doCalc(CalcNode& cur_node, CalcNode& new_node, RheologyMatrixPtr matrix,
                                                 std::vector<CalcNode>& previousNodes) = 0;
         /*
          * Returns type of the calculator

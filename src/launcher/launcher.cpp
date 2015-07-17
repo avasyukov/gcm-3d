@@ -780,7 +780,6 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
     }
 
     // create rheology matrixes
-    vector<RheologyMatrixPtr> matrices;
     for (int i = 0; i < engine.getNumberOfMaterials(); i++)
     {
         MaterialPtr material = engine.getMaterial(i);
@@ -879,15 +878,9 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 decomposer = makeDecomposerPtr<AnalyticalRheologyMatrixDecomposer>();
         }
 
-        matrices.push_back(makeRheologyMatrixPtr(material, setter, decomposer, corrector));
+	engine.addRheologyMatrix(makeRheologyMatrixPtr(material, setter, decomposer, corrector));
     }
-
-    engine.setRheologyMatrices([&matrices](const CalcNode& node) -> RheologyMatrixPtr
-        {
-            return matrices[node.getMaterialId()];
-        }
-    );
-
+    engine.setRheologyMatrices();
     LOG_DEBUG("Scene loaded");
 }
 

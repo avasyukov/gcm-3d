@@ -597,6 +597,8 @@ void CalcNode::setMaterialId(uchar id)
 {
     materialId = id;
     rho = Engine::getInstance().getMaterial(id)->getRho();
+    if (Engine::getInstance().matricesSet())
+    	rheologyMatrix = Engine::getInstance().getRheologyMatrix(id);
 }
 
 uchar CalcNode::getMaterialId() const
