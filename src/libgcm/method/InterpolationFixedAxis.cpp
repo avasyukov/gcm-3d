@@ -103,8 +103,8 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
         if (outer_count == 0)
         {
             // FIXME - hardcoded name
-            //engine.getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
-            //                                                              new_node, cur_node.getRheologyMatrix(), previous_nodes);
+            engine.getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
+                                                                          cur_node, new_node, cur_node.getRheologyMatrix(), previous_nodes);
             return;
         }
             // If there are 3 'outer' omegas - we should use border or contact algorithm

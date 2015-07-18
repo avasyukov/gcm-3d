@@ -274,7 +274,7 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
         vector3r dc = vector3r(dx, dy, dz);
         for (int i=0; i<3; i++) dc[i] *= (i == d);
 
-        RheologyMatrixPtr   orm = origin.getRheologyMatrix(),
+        /*RheologyMatrixPtr   orm = origin.getRheologyMatrix(),
                             srm = second.getRheologyMatrix();
         gcm::real ao = 0, as = 0, bo = 0, bs = 0, ro = origin.getRho(), rs = second.getRho(), o1o = 0, o2o = 0, o3o = 0, o1s = 0, o2s = 0, o3s = 0, ao1 = 0, bo1 = 0;
         int n1o = 0, n2o = 0, n3o = 0, n1s = 0, n2s = 0, n3s = 0, n4o = 0, n5o = 0, n6o = 0;
@@ -331,11 +331,11 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
                 orm->decompose(origin, d);
             if (n1s == n2s || n1s == n3s || n2s == n3s || fabs(srm->getMaxEigenvalue()) < EQUALITY_TOLERANCE || fabs(srm->getMinEigenvalue()) < EQUALITY_TOLERANCE)
                 srm->decompose(second, d);
-        }
+        }*/
 	
         targetNode.coords = origin.coords + dc;
-        if (!outline.isInAABB(targetNode))
-            return false;
+//        if (!outline.isInAABB(targetNode))
+//            return false;
 
 	
 	if (origin.getMaterialId() == second.getMaterialId())
@@ -377,6 +377,11 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 	if (origin.getMaterialId() != second.getMaterialId()) 
 	{
 	    //memory allocation
+	    RheologyMatrixPtr 	orm = origin.getRheologyMatrix(),
+				srm = second.getRheologyMatrix();
+	    orm->decompose(origin, d);
+            srm->decompose(second, d);
+
             gsl_matrix  *Go = gsl_matrix_alloc(6, 9),
 			*Gs = gsl_matrix_alloc(6, 9),
                         *GU1o = gsl_matrix_alloc(6, 9),
@@ -603,7 +608,7 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 	}
 
 //Formulas from Aki-Richards-----------------------------------------------------------------------------------------------------------
-	if (false)
+/*	if (false)
 	{
 	    for (int i=0; i<9; i++)
 	    {
@@ -625,11 +630,11 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 	    }
 	    return true;
 	}
-
+*/
 
 
 //Riemann solution from Vlad ----------------------------------------------------------------------------------------------------------
-	if (false)
+/*	if (false)
 	{
 	    gsl_matrix  *R = gsl_matrix_alloc(9, 9),
 			*S = gsl_matrix_alloc(9, 9),
@@ -754,6 +759,7 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
             gsl_matrix_free(R1);
 	    return true;
 	}
+*/
     } else
     {
 	targetNode.coords = origin.coords+vector3r(dx, dy, dz);

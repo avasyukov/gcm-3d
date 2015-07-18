@@ -681,6 +681,27 @@ inline void interpolateBox(gcm::real x0, gcm::real y0, gcm::real z0, gcm::real x
 
         out[i] = c0*_zd+c1*zd;
     }
+
+    for (uint i = 0; i < n; i++)
+    {
+	auto max = q000[i], min = q000[i];
+	if (max < q001[i]) max = q001[i];
+	if (min > q001[i]) min = q001[i];	
+        if (max < q010[i]) max = q010[i];
+        if (min > q010[i]) min = q010[i];
+        if (max < q011[i]) max = q011[i];
+        if (min > q011[i]) min = q011[i];
+        if (max < q100[i]) max = q100[i];
+        if (min > q100[i]) min = q100[i];
+        if (max < q101[i]) max = q101[i];
+        if (min > q101[i]) min = q101[i];
+        if (max < q110[i]) max = q110[i];
+        if (min > q110[i]) min = q110[i];
+        if (max < q111[i]) max = q111[i];
+        if (min > q111[i]) min = q111[i];
+	if (out[i] > max) out[i] = max;
+	if (out[i] < min) out[i] = min;
+    }
 }
 
 inline void interpolateSegment(gcm::real x0, gcm::real x1, gcm::real x, const gcm::real *cur, const gcm::real *sec, gcm::real* out, uint n)
