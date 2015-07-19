@@ -1,48 +1,12 @@
-<task numberOfSnaps="200" stepsPerSnap="5">
+<task numberOfSnaps="10" stepsPerSnap="1">
     <system>
         <meshMovement type="none" />
         <timeStep multiplier="0.99"/>
     </system>
     <bodies>
-        <body id="body">
+        <body id="corpse">
             <rheology type="elastic" />
-            <mesh id="body" type="markered-mesh-ani" cellSize="2.4;2.4;2.4" cellsNum="238;125;138" source="muscle:models/ani3d/muscle_new.out diaphragm:models/ani3d/diapragm_new.out digestive:models/ani3d/digestive_new.out heart:models/ani3d/heart_new.out liver:models/ani3d/liver_new.out trachea:models/ani3d/trachea_new.out bones:models/ani3d/bones_new.out lungs:models/ani3d/lungs_new.out fat:models/ani3d/fat_new.out veins:models/ani3d/veins_new.out aorta:models/ani3d/aorta-walls_new.out blood:models/ani3d/aorta-blood_new.out" />
-            <material id="bones">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
-            </material>
-            <material id="trachea">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
-            </material>
-            <material id="heart">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
-            </material>
-            <material id="veins">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
-            </material>
-            <material id="aorta">
-              <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
-            </material>
-            <material id="blood">
-              <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
-            </material>
-            <material id="lungs">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
-            </material>
-            <material id="digestive">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
-            </material>
-            <material id="muscle">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
-            </material>
-            <material id="diaphragm">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
-            </material>
-            <material id="liver">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
-            </material>
-            <material id="fat">
-                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
-            </material>
+            <mesh id="corpse" type="anivtu" file="models/tetr_mesh.vtu" />
         </body>
     </bodies>
 
@@ -121,7 +85,7 @@
         </material>
 
     </materials> 
-        <borderCondition calculator="ExternalForceCalculator" normalStress="-60000000" tangentialStress="0" startTime="0" duration="0.000134">
-               <area type="box" minX="350" maxX="400" minY="250" maxY="300" minZ="200" maxZ="250"/>
-        </borderCondition>
+    <borderCondition calculator="ExternalForceCalculator" normalStress="-60000000" tangentialStress="0" startTime="0" duration="0.000134">
+        <area type="box" minX="-400" maxX="-350" minY="-300" maxY="-250" minZ="200" maxZ="250"/>
+    </borderCondition>
 </task>
