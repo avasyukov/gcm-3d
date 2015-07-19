@@ -87,6 +87,9 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
 
     if (cur_node.isBorder())
     {
+	cur_node.setMaterialId(engine.getMaterialIndex("fat"));
+	cur_node.getRheologyMatrix()->decompose(cur_node, stage);
+	
         LOG_TRACE("Start border node calc");
         // FIXME_ASAP - do smth with this!
         // It is not stable now. See ugly hack below.
