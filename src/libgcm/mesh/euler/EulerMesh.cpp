@@ -349,8 +349,16 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 	}
 
             //we will need surroungind nodes, so we check materials before anything else
-            CalcNode third = getNodeByEulerMeshIndex(index-dindex);
-            CalcNode fourth = getNodeByEulerMeshIndex(index+dindex+dindex);
+	    auto iT = index-dindex, iF = index+dindex+dindex;
+	    bool cST = true;//cellStatus[iT.x][iT.y][iT.z];
+	    bool cSF = true;//cellStatus[iF.x][iF.y][iF.z];
+	    //LOG_INFO("cST "<<iT <<" cSF " <<iF <<" nD "<<nodeDimensions[0] <<" "<<nodeDimensions[1]<<" "<<nodeDimensions[2]);
+	    if (iT.x > 0 && iT.x < nodeDimensions[0]-1 && iT.y > 0 && iT.y < nodeDimensions[1]-1 && iT.z > 0 && iT.z < nodeDimensions[2]-1)
+		cST = cellStatus[iT.x][iT.y][iT.z];           
+            if (iF.x > 0 && iF.x < nodeDimensions[0]-1 && iF.y > 0 && iF.y < nodeDimensions[1]-1 && iF.z > 0 && iF.z < nodeDimensions[2]-1)
+                cSF = cellStatus[iF.x][iF.y][iF.z];
+	    CalcNode third = getNodeByEulerMeshIndex(iT);
+            CalcNode fourth = getNodeByEulerMeshIndex(iF);
 
 /*        if (true) //last desperate Chudov measure
         {
@@ -360,19 +368,42 @@ bool EulerMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, 
 	    return true;
         } */
 
-            if (third.getMaterialId() != origin.getMaterialId())
-            {   //it sucks, this is not normal situation, so we report it and try to make something from this crap
-                //OMG, that's one twisted hack
-                origin.setMaterialId(second.getMaterialId());
-                return interpolateNode(origin, dx, dy, dz, debug, targetNode, isInnerPoint);
+            if (third.getMaterialId() != origin.getMaterialId() || !cST)
+	    {
+		//LOG_INFO("s->o "<<(int)second.getMaterialId() <<" > "<<(int)origin.getMaterialId());
+                if (!cST) 
+		{
+		    origin.setMaterialId(second.getMaterialId());//
+		    isInnerPoint = interpolateNode(targetNode);
+                    return isInnerPoint;
+		}
+		else origin.setMaterialId(third.getMaterialId()); //vv
+                //return interpolateNode(origin, dx, dy, dz, debug, targetNode, isInnerPoint);
+		//isInnerPoint = interpolateNode(targetNode);
+            	//return isInnerPoint;
             }
-            if (fourth.getMaterialId() != second.getMaterialId())
-            {   //it sucks, this is not normal situation, so we report it and try to make something from this crap
-                //OMG, that's one twisted hack
-                origin.setMaterialId(second.getMaterialId());
-                return interpolateNode(origin, dx, dy, dz, debug, targetNode, isInnerPoint);
+            else if (fourth.getMaterialId() != second.getMaterialId() || !cSF)
+            {   	
+		if (!cSF)
+		{
+                    origin.setMaterialId(second.getMaterialId());//
+                    isInnerPoint = interpolateNode(targetNode);
+                    return isInnerPoint;
+                }
+                second.setMaterialId(fourth.getMaterialId());
+                //return interpolateNode(origin, dx, dy, dz, debug, targetNode, isInnerPoint);
+		//isInnerPoint = interpolateNode(targetNode);
+                //return isInnerPoint;
             } 
+/*    if (true) //last desperate Chudov measure
+        {
+            for (int i=0; i<9; i++)
+                targetNode.values[i] = second.values[i];
+            isInnerPoint = true;
+            return true;
+        }*/
 
+	//LOG_INFO("s-<o done");
 //Attempt to replace interpolation with some sort of contact condition.--------------------------------------------------------
 	if (origin.getMaterialId() != second.getMaterialId()) 
 	{

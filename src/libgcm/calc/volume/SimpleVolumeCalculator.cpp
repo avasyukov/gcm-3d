@@ -39,7 +39,7 @@ void SimpleVolumeCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheo
         {
             new_val += matrix->getU1(i,j) * omega[j];
         }
-        new_node.values[i] = new_val;//new_node.values[i] + (new_val - cur_node.values[i]);
+        new_node.values[i] = new_node.values[i] + (new_val - cur_node.values[i]);
     }
     return;
 //WARNING Toxic hack ahead ----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ void SimpleVolumeCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheo
     if (previousNodes[nmax].getMaterialId() != cur_node.getMaterialId() || previousNodes[nmin].getMaterialId() != cur_node.getMaterialId())
     {
 	for(int i = 0; i < 9; i++)
-	    new_node.values[i] = (previousNodes[nmax].values[i] + previousNodes[nmin].values[i])/2;
+	    new_node.values[i] = (cur_node.values[i] + previousNodes[nmax].values[i] + previousNodes[nmin].values[i])/3;
     }
 
 //-----------------------------------------------------------------------------------------------------
