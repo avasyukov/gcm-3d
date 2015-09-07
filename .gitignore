@@ -18,3 +18,4 @@ share/
 Makefile
 mkbuild.sh
 netgen.prof
+*~
