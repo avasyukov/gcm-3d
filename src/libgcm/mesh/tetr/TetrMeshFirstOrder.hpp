@@ -90,7 +90,7 @@ namespace gcm
         void logMeshStats();
 
         void calcMinH();
-        void calcAvgH();
+		void calcAvgH();
         void calcMaxH();
         void calcMaxEdge();
         // It MUST take into account mesh topology.
@@ -151,10 +151,9 @@ namespace gcm
 
         // Finds minimum h over mesh
         float getMinH();
+        float getAvgH() override;
 
         float getMaxH();
-
-        float getAvgH();
 
         float getMaxEdge();
 

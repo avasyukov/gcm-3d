@@ -641,7 +641,7 @@ float Engine::calculateRecommendedContactTreshold(float tau)
     {
         for( int j = 0; j < getNumberOfBodies(); j++ )
         {
-            TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
+            Mesh* mesh = getBody(j)->getMeshes();
             float h = mesh->getAvgH();
             if( h < threshold )
                 threshold = h;

@@ -69,6 +69,10 @@ float EulerMesh::getMinH()
     return minH;
 }
 
+float EulerMesh::getAvgH() {
+	return minH;
+}
+
 float EulerMesh::getRecommendedTimeStep()
 {
     return getMinH()/getMaxEigenvalue();

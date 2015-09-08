@@ -106,6 +106,12 @@ void BasicCubicMesh::calcMinH()
     }
 };
 
+float BasicCubicMesh::getAvgH() {
+	if( isinf( meshH ) )
+        calcMinH();
+    return meshH;
+};
+
 float BasicCubicMesh::getMinH()
 {
     if( isinf( meshH ) )
@@ -250,7 +256,7 @@ bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z,
         
         return true;
     }
-
+	
     return false;
 };
 

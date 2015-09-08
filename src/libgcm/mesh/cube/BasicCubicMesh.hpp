@@ -44,6 +44,7 @@ namespace gcm
 
         float getRecommendedTimeStep();
         float getMinH();
+		float getAvgH() override;
         void doNextPartStep(float tau, int stage);
         void checkTopology(float tau);
 
