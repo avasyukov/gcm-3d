@@ -112,7 +112,8 @@ namespace gcm {
          * Returns pre-calculated minumum h
          */
         virtual float getMinH() = 0;
-
+		
+		virtual float getAvgH() = 0;
         /*
          * Performs mesh pre-processing
          * It is called

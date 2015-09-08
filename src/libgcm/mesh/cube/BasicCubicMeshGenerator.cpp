@@ -11,13 +11,14 @@ BasicCubicMeshGenerator::BasicCubicMeshGenerator() {
 BasicCubicMeshGenerator::~BasicCubicMeshGenerator() {
 }
 
-void BasicCubicMeshGenerator::loadMesh(BasicCubicMesh* mesh, GCMDispatcher* dispatcher, float h, int num)
+void BasicCubicMeshGenerator::loadMesh(BasicCubicMesh* mesh, 
+	GCMDispatcher* dispatcher, float h, int numX, int numY, int numZ)
 {
-    for( int k = 0; k <= num; k++ )
-        for( int j = 0; j <= num; j++ )
-            for( int i = 0; i <= num; i++ )
+    for( int k = 0; k <= numZ; k++ )
+        for( int j = 0; j <= numY; j++ )
+            for( int i = 0; i <= numX; i++ )
             {
-                int n = i*(num+1)*(num+1) + j*(num+1) + k;
+				int n = i*(numY+1)*(numZ+1) + j*(numZ+1) + k;
                 float x = i*h;
                 float y = j*h;
                 float z = k*h;
@@ -32,10 +33,13 @@ void BasicCubicMeshGenerator::loadMesh(BasicCubicMesh* mesh, GCMDispatcher* disp
     mesh->preProcess();
 }
 
-void BasicCubicMeshGenerator::preLoadMesh(AABB* scene, int& sliceDirection, int& numberOfNodes, float h, int num)
+void BasicCubicMeshGenerator::preLoadMesh(AABB* scene, int& sliceDirection, 
+	int& numberOfNodes, float h, int numX, int numY, int numZ)
 {
     sliceDirection = 0;
-    numberOfNodes = (num + 1) * (num + 1) * (num + 1);
+    numberOfNodes = (numX + 1) * (numY + 1) * (numZ + 1);
     scene->minX = scene->minY = scene->minZ = 0;
-    scene->maxX = scene->maxY = scene->maxZ = num * h;
+    scene->maxX = numX * h;
+	scene->maxY = numY * h;
+	scene->maxZ = numZ * h;
 }

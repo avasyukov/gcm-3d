@@ -127,8 +127,8 @@ void Mesh::preProcess()
     LOG_DEBUG("Preprocessing mesh started.");
     initNewNodes();
     calcMinH();
+	createOutline();
     preProcessGeometry();
-    createOutline();
     LOG_DEBUG("Preprocessing mesh done.");
     logMeshStats();
 }

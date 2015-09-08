@@ -23,7 +23,8 @@ VTKCubicSnapshotWriter::VTKCubicSnapshotWriter() {
     extension = "vts";
 }
 
-void VTKCubicSnapshotWriter::dumpMeshSpecificData(BasicCubicMesh* mesh, vtkSmartPointer<vtkStructuredGrid>& grid, vtkSmartPointer<vtkPoints>& points) const
+void VTKCubicSnapshotWriter::dumpMeshSpecificData(BasicCubicMesh* mesh, 
+	vtkSmartPointer<vtkStructuredGrid>& grid, vtkSmartPointer<vtkPoints>& points) const
 {
     for(int i = 0; i < mesh->getNodesNumber(); i++)
     {
@@ -35,6 +36,8 @@ void VTKCubicSnapshotWriter::dumpMeshSpecificData(BasicCubicMesh* mesh, vtkSmart
     AABB outline = mesh->getOutline();
     // We suppose that mesh is uniform
     float meshH = mesh->getMinH();
-    int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
-    grid->SetDimensions(meshSize, meshSize, meshSize);
+    int meshSizeX = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
+	int meshSizeY = 1 + (outline.maxY - outline.minY + meshH * 0.1) / meshH;
+	int meshSizeZ = 1 + (outline.maxZ - outline.minZ + meshH * 0.1) / meshH;
+    grid->SetDimensions(meshSizeX, meshSizeY, meshSizeZ);
 }

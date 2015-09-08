@@ -18,7 +18,7 @@ namespace launcher
     class CubicMeshLoader: public gcm::Singleton<launcher::CubicMeshLoader>, public launcher::MeshLoader<gcm::BasicCubicMesh>
     {
         protected:
-            void parseDesc(const xml::Node& desc, std::string& id, float& h, int& num);
+            void parseDesc(const xml::Node& desc, std::string& id, float& h, int& numX, int& numY, int& numZ);
             void loadMesh(const xml::Node& desc, gcm::BasicCubicMesh* mesh) override;
         public:
             void preLoadMesh(const xml::Node& desc, gcm::AABB& aabb, int& sliceDirection, int& numberOfNodes);

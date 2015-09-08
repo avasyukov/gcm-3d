@@ -34,6 +34,8 @@ BasicCubicMesh::~BasicCubicMesh()
 void BasicCubicMesh::preProcessGeometry()
 {
     LOG_DEBUG("Preprocessing mesh geometry started.");
+	for(int i = 0; i < getNodesNumber(); i++)
+		getNodeByLocalIndex(i).setIsBorder(false);
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
@@ -104,6 +106,12 @@ void BasicCubicMesh::calcMinH()
     }
 };
 
+float BasicCubicMesh::getAvgH() {
+	if( isinf( meshH ) )
+        calcMinH();
+    return meshH;
+};
+
 float BasicCubicMesh::getMinH()
 {
     if( isinf( meshH ) )
@@ -135,9 +143,12 @@ void BasicCubicMesh::findBorderNodeNormal(const CalcNode& node, float* x, float*
     *z = normal[2];
 };
 
-int BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint)
+int BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, float dz,
+	bool debug, float* coords, bool* innerPoint)
 {
-    int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
+    //int meshSizeX = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
+	int meshSizeY = 1 + (outline.maxY - outline.minY + meshH * 0.1) / meshH;
+	int meshSizeZ = 1 + (outline.maxZ - outline.minZ + meshH * 0.1) / meshH;
 
     assert_le(vectorSquareNorm(dx, dy, dz), getMinH() * getMinH() * (1 + EQUALITY_TOLERANCE) );
 
@@ -157,13 +168,13 @@ int BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, float
 
     int neighNum = node.number;
     if ( dx > EQUALITY_TOLERANCE )
-        neighNum += meshSize*meshSize;
+        neighNum += meshSizeY*meshSizeZ;
     else if ( dx < -EQUALITY_TOLERANCE )
-        neighNum -= meshSize*meshSize;
+        neighNum -= meshSizeY*meshSizeZ;
     else if ( dy > EQUALITY_TOLERANCE )
-        neighNum += meshSize;
+        neighNum += meshSizeZ;
     else if ( dy < -EQUALITY_TOLERANCE )
-        neighNum -= meshSize;
+        neighNum -= meshSizeZ;
     else if ( dz > EQUALITY_TOLERANCE )
         neighNum += 1;
     else if ( dz < -EQUALITY_TOLERANCE )
@@ -220,7 +231,7 @@ bool BasicCubicMesh::interpolateNode(CalcNode& node)
 bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node)
 {
-    //int meshSize = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
+    //int meshSizeX = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
     float coords[3];
     float tx = coords[0] = x + dx;
     float ty = coords[1] = y + dy;
@@ -245,7 +256,7 @@ bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z,
         
         return true;
     }
-
+	
     return false;
 };
 

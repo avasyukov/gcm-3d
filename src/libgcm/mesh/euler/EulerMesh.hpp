@@ -76,6 +76,10 @@ public:
      */
     float getMinH() override;
     /**
+     * @return minimal h of the mesh
+     */
+	float getAvgH() override;
+	/**
      * Returns recommended time step.
      * @return Recommended time step.
      */

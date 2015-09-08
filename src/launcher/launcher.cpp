@@ -487,11 +487,6 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 //real scaleX = lexical_cast<real>(transformNode["scaleX"]);
                 //real scaleY = lexical_cast<real>(transformNode["scaleY"]);
                 //real scaleZ = lexical_cast<real>(transformNode["scaleZ"]);
-                
-                // !!!!!!!!!!!!!!!!!!!!!!!!
-                // Здесь и в диспатчере надо что-то сделать
-                // по поводу растяжения, насколько я понимаю?
-                //
             }
         }
         engine.getDispatcher()->setTransferVector(dX, dY, dZ, id);
