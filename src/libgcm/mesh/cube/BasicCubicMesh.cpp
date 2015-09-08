@@ -34,6 +34,8 @@ BasicCubicMesh::~BasicCubicMesh()
 void BasicCubicMesh::preProcessGeometry()
 {
     LOG_DEBUG("Preprocessing mesh geometry started.");
+	for(int i = 0; i < getNodesNumber(); i++)
+		getNodeByLocalIndex(i).setIsBorder(false);
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
