@@ -2,7 +2,7 @@
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />
-			<mesh id="main" type="cube" h="0.2" num="50" />
+			<mesh id="main" type="cube" h="0.2" numX="50" numY="50" numZ="50" />
 			<material id="testMaterial" />
 			<transform type="translate" moveX="-5" moveY="-5" moveZ="-5" />
 		</body>
