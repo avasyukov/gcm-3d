@@ -1,0 +1,59 @@
+<task numberOfSnaps="30" stepsPerSnap="5">
+        <system>
+                <defaultContactCalculator type="AdhesionContactCalculator" />
+                <meshMovement type="none" />
+        </system>
+	<bodies>
+		<body id="ndc_002_steel0">
+                        <rheology type="elastic" />
+                        <mesh id="ndc_002_steel0" type="cube" h="0.25" numX="130" numY="280" numZ="40" />
+                        <material id="steel" />
+                        <transform type="translate" moveX="-0.001" moveY="0.0" moveZ="0.0" />
+                </body>
+                <body id="ndc_002_steel1">
+                        <rheology type="elastic" />
+                        <mesh id="ndc_002_steel1" type="cube" h="0.25" numX="130" numY="280" numZ="40" />
+                        <material id="steel" />
+                        <transform type="translate" moveX="37.501" moveY="0.0" moveZ="0.0" />
+                </body>
+                <body id="ndc_002_steel2">
+                        <rheology type="elastic" />
+                        <mesh id="ndc_002_steel2" type="cube" h="0.25" numX="20" numY="130" numZ="40" />
+                        <material id="steel" />
+                        <transform type="translate" moveX="32.5" moveY="-0.001" moveZ="0.0" />
+                </body>
+                <body id="ndc_002_steel3">
+                        <rheology type="elastic" />
+                        <mesh id="ndc_002_steel3" type="cube" h="0.25" numX="20" numY="130" numZ="40" />
+                        <material id="steel" />
+                        <transform type="translate" moveX="32.5" moveY="37.501" moveZ="0.0" />
+                </body>
+                <body id="ndc_002_steel4">
+                        <rheology type="elastic" />
+                        <mesh id="ndc_002_steel4" type="cube" h="0.25" numX="20" numY="20" numZ="20" />
+                        <material id="steel" />
+                        <transform type="translate" moveX="32.5" moveY="32.5" moveZ="5.0" />
+                </body>
+		<!--body id="ndc_000_steel">
+			<rheology type="elastic" />
+			<mesh id="ndc_000_steel" type="geo2" file="models/ndc_steel.geo" tetrSize="1.0" />
+			<material id="steel" />
+		</body-->
+                <!--body id="ndc_000_in">
+                        <rheology type="elastic" />
+                        <mesh id="ndc_000_in" type="geo2" file="models/ndc_in.geo" tetrSize="0.7" />
+                        <material id="steel" />
+			<transform type="translate" moveX="30.0" moveY="30.0" moveZ="0.0" />
+                </body-->
+                <!--body id="ndc_000_out">
+                        <rheology type="elastic" />
+                        <mesh id="ndc_000_out" type="geo2" file="models/ndc_out.geo" tetrSize="0.7" />
+                        <material id="steel" />
+			<transform type="translate" moveX="30.0" moveY="30.0" moveZ="0.0" />
+                </body-->
+	</bodies>
+	<initialState>
+		<area type="box" minX="34.7" maxX="35.3" minY="34.7" maxY="35.3" minZ="9.9995" maxZ="100"/>
+		<values vz="-1000.0" />
+	</initialState>
+</task>

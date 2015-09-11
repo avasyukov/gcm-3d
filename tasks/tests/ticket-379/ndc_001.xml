@@ -1,0 +1,35 @@
+<task numberOfSnaps="90" stepsPerSnap="5">
+        <system>
+                <defaultContactCalculator type="SlidingContactCalculator" />
+                <meshMovement type="none" />
+        </system>
+	<bodies>
+		<body id="ndc_001_steel">
+                        <rheology type="elastic" />
+                        <mesh id="ndc_001_steel" type="cube" h="0.25" numX="280" numY="280" numZ="40" />
+                        <material id="steel" />
+                        <transform type="translate" moveX="0.0" moveY="0.0" moveZ="0.0" />
+                </body>
+		<!--body id="ndc_000_steel">
+			<rheology type="elastic" />
+			<mesh id="ndc_000_steel" type="geo2" file="models/ndc_steel.geo" tetrSize="1.0" />
+			<material id="steel" />
+		</body-->
+                <body id="ndc_001_in">
+                        <rheology type="elastic" />
+                        <mesh id="ndc_001_in" type="geo2" file="models/ndc_in.geo" tetrSize="0.25" />
+                        <material id="steel" />
+			<transform type="translate" moveX="35.0" moveY="35.0" moveZ="0.0" />
+                </body>
+                <!--body id="ndc_000_out">
+                        <rheology type="elastic" />
+                        <mesh id="ndc_000_out" type="geo2" file="models/ndc_out.geo" tetrSize="0.7" />
+                        <material id="steel" />
+			<transform type="translate" moveX="30.0" moveY="30.0" moveZ="0.0" />
+                </body-->
+	</bodies>
+	<initialState>
+		<area type="box" minX="-34.7" maxX="135.3" minY="-34.7" maxY="135.3" minZ="10.0001" maxZ="100"/>
+		<values vz="-1000.0" />
+	</initialState>
+</task>

@@ -1,0 +1,14 @@
+<task numberOfSnaps="10" stepsPerSnap="1">
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="cube" h="0.2" numX="50" numY="50" numZ="50" />
+			<material id="testMaterial" />
+			<transform type="translate" moveX="-5" moveY="-5" moveZ="-5" />
+		</body>
+	</bodies>
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="1" maxZ="3"/>
+		<values vz="300" sxx="70000" syy="70000" szz="90000" />
+	</initialState>
+</task>
