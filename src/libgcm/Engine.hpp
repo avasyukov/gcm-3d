@@ -54,6 +54,8 @@
 
 namespace gcm
 {
+	class ContactCalculator;
+	class ContactCondition;
     /*
      * Main class to operate calculation scene.
      */

@@ -43,6 +43,8 @@
 #include "libgcm/linal/Matrix33.hpp"
 #include "libgcm/util/StressTensor.hpp"
 #include "libgcm/linal/RotationMatrix.hpp"
+#include "libgcm/calc/contact/AdhesionContactCalculator.hpp"
+#include "libgcm/calc/contact/SlidingContactCalculator.hpp"
 
 namespace ba = boost::algorithm;
 namespace bfs = boost::filesystem;
@@ -196,6 +198,24 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
         {
             real adhesionThreshold = lexical_cast<real>(defaultContactCalculator["adhesionThreshold"]);
             engine.getContactCondition(0)->setConditionParam(adhesionThreshold);
+        }
+		if (type == "ClosedFractureContactCalculator")
+        {
+			NodeList areaNodes = defaultContactCalculator.getChildrenByName("area");
+			if (areaNodes.size() != 1)
+				THROW_INVALID_INPUT("Exactly one area element can be provided for ClosedFractureCalculator");
+			Area* area = readArea(areaNodes[0]);
+			(static_cast<gcm::ClosedFractureContactCalculator*>
+				(engine.getContactCalculator(type)))->setFracArea(area);
+        }
+		if (type == "OpenFractureContactCalculator")
+        {
+			NodeList areaNodes = defaultContactCalculator.getChildrenByName("area");
+			if (areaNodes.size() != 1)
+				THROW_INVALID_INPUT("Exactly one area element can be provided for ClosedFractureCalculator");
+			Area* area = readArea(areaNodes[0]);
+			(static_cast<gcm::OpenFractureContactCalculator*>
+				(engine.getContactCalculator(type)))->setFracArea(area);
         }
     }
     

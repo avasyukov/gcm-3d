@@ -1,6 +1,5 @@
 #include "libgcm/calc/contact/SlidingContactCalculator.hpp"
 
-#include "libgcm/node/CalcNode.hpp"
 //#include "libgcm/Math.hpp"
 
 

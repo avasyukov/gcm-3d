@@ -1,6 +1,5 @@
 #include "libgcm/calc/contact/AdhesionContactCalculator.hpp"
 
-#include "libgcm/node/CalcNode.hpp"
 
 using namespace gcm;
 using std::vector;

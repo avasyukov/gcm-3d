@@ -77,7 +77,8 @@ void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
                         CalcNode new_node;
                         if( mesh2->interpolateBorderNode(
                                 local_nodes[k].coords[0], local_nodes[k].coords[1], local_nodes[k].coords[2],
-                                direction[0] * get_threshold(), direction[1] * get_threshold(), direction[2] * get_threshold(), new_node) )
+                                direction[0] * get_threshold(), direction[1] * get_threshold(),
+						        direction[2] * get_threshold(), new_node) )
                         {
                             new_node.setIsBorder(true);
                             new_node.setInContact(true);

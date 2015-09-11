@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "libgcm/rheology/RheologyMatrix.hpp"
+#include "libgcm/node/CalcNode.hpp"
 
 
 namespace gcm

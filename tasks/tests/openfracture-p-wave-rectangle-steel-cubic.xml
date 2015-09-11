@@ -1,0 +1,26 @@
+<task numberOfSnaps="20" stepsPerSnap="1">
+	<system>
+		<defaultContactCalculator type="OpenFractureContactCalculator" >
+			<area type="box" minX="-1" maxX="1" minY="-1" maxY="1" minZ="-10" maxZ="10"/>
+		</defaultContactCalculator>
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="cube" h="0.25" numX="40" numY="40" numZ="10" />
+			<material id="steel" />
+			<transform type="translate" moveX="-5" moveY="-5" moveZ="2.501" />
+		</body>
+		<body id="cube2">
+			<rheology type="elastic" />
+			<mesh id="main2" type="cube" h="0.25" numX="40" numY="40" numZ="10" />
+			<material id="steel" />
+			<transform type="translate" moveX="-5" moveY="-5" moveZ="0" />
+		</body>
+	</bodies>
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="4.8" maxZ="6"/>
+		<values vz="185.7" sxx="115000" syy="115000" szz="269000" />
+	</initialState>
+</task>

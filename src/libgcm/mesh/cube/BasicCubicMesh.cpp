@@ -240,17 +240,17 @@ bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z,
     if( outline.isInAABB(tx, ty, tz) != outline.isInAABB(x, y, z) )
     {
         // FIXME_ASAP
-        float minH = distance(coords, getNodeByLocalIndex(0).coords);
-        int num = 0;
-        for(int i = 1; i < getNodesNumber(); i++)
-        {
+        float minH = std::numeric_limits<float>::infinity();
+        int num = -1;
+        for(int i = 1; i < getNodesNumber(); i++) {
             CalcNode& node = getNodeByLocalIndex(i);
-            float h = distance(coords, node.coords);
-            if( h < minH )
-            {
-                minH = h;
-                num = i;
-            }
+			if(node.isBorder()) {
+				float h = distance(coords, node.coords);
+				if( h < minH ) {
+					minH = h;
+					num = i;
+				}
+			}
         }
         node = getNodeByLocalIndex(num);
         

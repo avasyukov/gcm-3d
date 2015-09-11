@@ -8,6 +8,7 @@
 namespace gcm {
     class PulseForm;
     class CalcNode;
+	class ContactCalculator;
 
     class ContactCondition
     {
@@ -27,9 +28,9 @@ namespace gcm {
         PulseForm* form;
         ContactCalculator* calc;
         void doCalc(float time, CalcNode& cur_node, CalcNode& new_node, CalcNode& virt_node,
-                            RheologyMatrixPtr matrix, std::vector<CalcNode>& previousNodes, bool inner[],
-                            RheologyMatrixPtr virt_matrix, std::vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
-                            float outer_normal[]);
+                    RheologyMatrixPtr matrix, std::vector<CalcNode>& previousNodes, bool inner[],
+                    RheologyMatrixPtr virt_matrix, std::vector<CalcNode>& virtPreviousNodes, bool virt_inner[],
+                    float outer_normal[]);
         
         void setConditionParam(real param);
         real getConditionParam() const;

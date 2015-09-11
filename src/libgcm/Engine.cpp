@@ -10,6 +10,8 @@
 #include "libgcm/calc/border/SmoothBorderCalculator.hpp"
 #include "libgcm/calc/contact/SlidingContactCalculator.hpp"
 #include "libgcm/calc/contact/AdhesionContactCalculator.hpp"
+#include "libgcm/calc/contact/ClosedFractureContactCalculator.hpp"
+#include "libgcm/calc/contact/OpenFractureContactCalculator.hpp"
 #include "libgcm/calc/contact/AdhesionContactDestroyCalculator.hpp"
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/rheology/DummyRheologyCalculator.hpp"
@@ -78,6 +80,8 @@ Engine::Engine()
     registerContactCalculator( new SlidingContactCalculator() );
     registerContactCalculator( new AdhesionContactCalculator() );
     registerContactCalculator( new AdhesionContactDestroyCalculator() );
+    registerContactCalculator( new ClosedFractureContactCalculator() );
+	registerContactCalculator( new OpenFractureContactCalculator() );
     LOG_DEBUG("Registering default border condition");
     // Failsafe border condition
     addBorderCondition( new BorderCondition( NULL, new StepPulseForm(-1, -1), getBorderCalculator("SmoothBorderCalculator") ) );

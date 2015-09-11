@@ -8,9 +8,11 @@
 #include "libgcm/util/areas/Area.hpp"
 #include "libgcm/linal/Vector3.hpp"
 #include "libgcm/node/CalcNode.hpp"
+#include "libgcm/calc/contact/ClosedFractureContactCalculator.hpp"
+#include "libgcm/calc/contact/OpenFractureContactCalculator.hpp"
 
 
-namespace launcher {
+namespace launcher {	
     class Launcher
     {
     private:
