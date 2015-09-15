@@ -289,5 +289,12 @@ namespace gcm
         return os;
     }
 
+    // For pair sorting
+    struct sort_pred {
+        bool operator()(const std::pair<int,int> &left, const std::pair<int,int> &right) {
+            return left.second < right.second;
+        }
+    };
+
 }
 #endif

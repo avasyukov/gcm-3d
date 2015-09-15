@@ -155,7 +155,12 @@ namespace gcm {
          * @param src Calc node to be copied.
          */
         CalcNode &operator=(const CalcNode &src);
-
+        /**
+         * Comparison operator.
+         *
+         * @param src Calc node to compare with.
+		 */
+		bool operator==(const CalcNode &src) const;
         /**
          * Clears flags state. Drops main stresses and error flags.
          */
