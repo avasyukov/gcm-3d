@@ -36,7 +36,7 @@ int main() {
     cout.flush();
 
     launcher::Launcher launcher;
-    launcher.loadSceneFromFile("tasks/tests/cubic-interp-border-node-test.xml");
+    launcher.loadSceneFromFile("tasks/tests/cubic-mesh-cd-test.xml");
 
     auto& engine = Engine::getInstance();
 
@@ -89,7 +89,7 @@ int main() {
         	        		direction[z] = 0;
 
         	        CalcNode new_node;
-        	        if( m2->interpolateBorderNode(
+        	        if( m2->interpolateBorderNode_old(
         	        		nodes[k].coords[0], nodes[k].coords[1], nodes[k].coords[2],
         	                direction[0] * bcd.get_threshold(), direction[1] * bcd.get_threshold(),
         					direction[2] * bcd.get_threshold(), new_node) )
@@ -112,7 +112,7 @@ int main() {
             vector<CalcNode> nodes;
             bcd.find_nodes_in_intersection(dynamic_cast<BasicCubicMesh*>(m1), intersection, nodes);
 
-        	vector3r direction;
+            float direction[3];
         	for (unsigned int k = 0; k < nodes.size(); k++)
         	{
         		for (int m = 0; m < 3; m++)
@@ -127,7 +127,10 @@ int main() {
         	        		direction[z] = 0;
 
         	        CalcNode new_node;
-        	        if( m2->interpolateBorderNode(nodes[k].coords, bcd.get_threshold() * direction, new_node) )
+        	        if( m2->interpolateBorderNode(
+        	        		nodes[k].coords[0], nodes[k].coords[1], nodes[k].coords[2],
+        	                direction[0] * bcd.get_threshold(), direction[1] * bcd.get_threshold(),
+        					direction[2] * bcd.get_threshold(), new_node) )
         	        {
         	        	new_node.setIsBorder(true);
         	            new_node.setInContact(true);

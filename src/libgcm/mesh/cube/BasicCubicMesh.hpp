@@ -65,8 +65,8 @@ namespace gcm
 
         bool interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node);
-
-        bool interpolateBorderNode(const vector3r& x, const vector3r& dx, CalcNode& node);
+        bool interpolateBorderNode_old(real x, real y, real z,
+                                        real dx, real dy, real dz, CalcNode& node);
 
         void setNumX(int _numX);
         void setNumY(int _numY);

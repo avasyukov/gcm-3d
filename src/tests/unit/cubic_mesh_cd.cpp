@@ -15,7 +15,7 @@ using namespace std;
 TEST(CubicMeshCD, NodesInIntersectionTest)
 {
     launcher::Launcher launcher;
-    launcher.loadSceneFromFile("../../tasks/tests/cubic-interp-border-node-test.xml");
+    launcher.loadSceneFromFile("../../tasks/tests/cubic-mesh-cd-test.xml");
 
     auto& engine = Engine::getInstance();
 
@@ -98,7 +98,7 @@ TEST(CubicMeshCD, VirtualNodesTest)
 					direction[z] = 0;
 
 			CalcNode new_node1;
-			if( m2->interpolateBorderNode(
+			if( m22->interpolateBorderNode_old(
 					nodes[k].coords[0], nodes[k].coords[1], nodes[k].coords[2],
 					direction[0] * bcd.get_threshold(), direction[1] * bcd.get_threshold(),
 					direction[2] * bcd.get_threshold(), new_node1) )
@@ -114,8 +114,10 @@ TEST(CubicMeshCD, VirtualNodesTest)
 			}
 
 	        CalcNode new_node2;
-	        vector3r direction3r = vector3r(direction[0], direction[1], direction[2]);
-	        if( m22->interpolateBorderNode(nodes[k].coords, bcd.get_threshold() * direction3r, new_node2) )
+	        if( m2->interpolateBorderNode(
+					nodes[k].coords[0], nodes[k].coords[1], nodes[k].coords[2],
+					direction[0] * bcd.get_threshold(), direction[1] * bcd.get_threshold(),
+					direction[2] * bcd.get_threshold(), new_node2) )
 	        {
 	        	new_node2.setIsBorder(true);
 	            new_node2.setInContact(true);

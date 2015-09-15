@@ -20,6 +20,15 @@ Mesh::Mesh()
     movable = false;
 }
 
+Mesh::Mesh(string _type) : type(_type)
+{
+    INIT_LOGGER("gcm.Mesh");
+    calc = false;
+    nodesNumber = 0;
+    nodesStorageSize = 0;
+    movable = false;
+}
+
 Mesh::~Mesh()
 {
 

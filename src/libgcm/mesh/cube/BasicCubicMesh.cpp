@@ -2,6 +2,7 @@
 
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
+#include "launcher/loaders/mesh/CubicMeshLoader.hpp"
 
 using namespace gcm;
 using std::numeric_limits;
@@ -13,7 +14,7 @@ using std::max;
 using std::min;
 
 
-BasicCubicMesh::BasicCubicMesh()
+BasicCubicMesh::BasicCubicMesh() : Mesh(launcher::CubicMeshLoader::MESH_TYPE)
 {
     meshH = numeric_limits<float>::infinity();
     // FIXME - hardcoded name
@@ -235,7 +236,7 @@ bool BasicCubicMesh::interpolateNode(CalcNode& node)
     return false;
 };
 
-bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z, 
+bool BasicCubicMesh::interpolateBorderNode_old(real x, real y, real z,
                                 real dx, real dy, real dz, CalcNode& node)
 {
     //int meshSizeX = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
@@ -291,13 +292,14 @@ void BasicCubicMesh::findNearestsNodes(const vector3r& coords, int N, vector< pa
 	        }
 }
 
-bool BasicCubicMesh::interpolateBorderNode(const vector3r& x, const vector3r& dx, CalcNode& node)
+bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z,
+        					real dx, real dy, real dz, CalcNode& node)
 {
 	// One cube
 	const int N = 8;
-	vector3r coords = x + dx;
+	vector3r coords = vector3r(x + dx, y + dy, z + dz);
 
-	if( outline.isInAABB(coords[0], coords[1], coords[2]) != outline.isInAABB(x[0], x[1], x[2]) )
+	if( outline.isInAABB(coords[0], coords[1], coords[2]) != outline.isInAABB(x, y, z) )
 	{
 		vector< pair<int,float> > result;
 
