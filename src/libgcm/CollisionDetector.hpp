@@ -6,8 +6,8 @@
 
 #include "libgcm/util/AABB.hpp"
 #include "libgcm/mesh/Mesh.hpp"
+#include "libgcm/mesh/cube/BasicCubicMesh.hpp"
 #include "libgcm/Logging.hpp"
-
 
 namespace gcm {
 
@@ -31,6 +31,7 @@ namespace gcm {
         bool find_intersection(AABB &outline1, AABB &outline2, AABB &intersection);
         // return elements that are in intersection
         void find_nodes_in_intersection(Mesh* mesh, AABB &intersection, std::vector<CalcNode> &result);
+        void find_nodes_in_intersection(BasicCubicMesh* mesh, AABB& intersection, std::vector<CalcNode>& result);
         void find_nodes_in_intersection(Mesh* mesh, AABB &intersection, std::vector<int> &result);
         // number returned surface elements (nodes and triangles) sequentially
         //void renumber_surface(std::vector<TriangleFirstOrder> &faces, std::vector<CalcNode> &nodes);

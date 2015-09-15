@@ -273,12 +273,12 @@ void BasicCubicMesh::findNearestsNodes(const vector3r& coords, int N, vector< pa
 
 	int n = 0;//floor( pow( (float)(N), 1.0 / 3.0 ) );
 
-	int i_min =	max( int( (coords[0] - outline.minX) / numX ) - n, 0);
-	int i_max =	min( int( (coords[0] - outline.minX) / numX ) + 1 + n, numX);
-	int j_min =	max( int( (coords[1] - outline.minY) / numY) - n, 0);
-	int j_max =	min( int( (coords[1] - outline.minY) / numY ) + 1 + n, numY);
-	int k_min =	max( int( (coords[2] - outline.minZ) / numZ ) - n, 0);
-	int k_max =	min( int( (coords[2] - outline.minZ) / numZ ) + 1 + n, numZ);
+	int i_min =	max( int( (coords[0] - outline.minX) / meshH ) - n, 0);
+	int i_max =	min( int( (coords[0] - outline.minX) / meshH ) + 1 + n, numX);
+	int j_min =	max( int( (coords[1] - outline.minY) / meshH ) - n, 0);
+	int j_max =	min( int( (coords[1] - outline.minY) / meshH ) + 1 + n, numY);
+	int k_min =	max( int( (coords[2] - outline.minZ) / meshH ) - n, 0);
+	int k_max =	min( int( (coords[2] - outline.minZ) / meshH ) + 1 + n, numZ);
 
 	int num;
 	for( int k = k_min; k <= k_max; k++ )
@@ -286,7 +286,7 @@ void BasicCubicMesh::findNearestsNodes(const vector3r& coords, int N, vector< pa
 			for( int i = i_min; i <= i_max; i++ )
 	        {
 				num = i * (numY + 1) * (numZ + 1) + j * (numZ + 1) + k;
-				CalcNode& node = getNodeByLocalIndex(num);
+				CalcNode& node = getNode(num);
 				result.push_back( make_pair(node.number, (coords - node.coords).length()) );
 	        }
 }
@@ -307,7 +307,7 @@ bool BasicCubicMesh::interpolateBorderNode(const vector3r& x, const vector3r& dx
 		sort(result.begin(), result.end(), sort_pred());
 
 		for(int i = 0; i < result.size(); i++) {
-			CalcNode& node1 = getNodeByLocalIndex( result[i].first );
+			CalcNode& node1 = getNode( result[i].first );
 			if( node1.isBorder() )
 			{
 				node = node1;
@@ -324,14 +324,34 @@ void BasicCubicMesh::setNumX(int _numX)
 	numX = _numX;
 }
 
+int BasicCubicMesh::getNumX() const
+{
+	return numX;
+}
+
 void BasicCubicMesh::setNumY(int _numY)
 {
 	numY = _numY;
 }
 
+int BasicCubicMesh::getNumY() const
+{
+	return numY;
+}
+
 void BasicCubicMesh::setNumZ(int _numZ)
 {
 	numZ = _numZ;
+}
+
+int BasicCubicMesh::getNumZ() const
+{
+	return numZ;
+}
+
+float BasicCubicMesh::getH() const
+{
+	return meshH;
 }
 
 const SnapshotWriter& BasicCubicMesh::getSnaphotter() const

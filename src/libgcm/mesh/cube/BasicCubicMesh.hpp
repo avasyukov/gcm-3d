@@ -72,6 +72,11 @@ namespace gcm
         void setNumY(int _numY);
         void setNumZ(int _numZ);
 
+        int getNumX() const;
+        int getNumY() const;
+        int getNumZ() const;
+        float getH() const;
+
         virtual const SnapshotWriter& getSnaphotter() const override;
         virtual const SnapshotWriter& getDumper() const override;
     };

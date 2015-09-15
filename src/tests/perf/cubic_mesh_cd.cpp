@@ -40,8 +40,9 @@ int main() {
 
     auto& engine = Engine::getInstance();
 
-    auto m1 = dynamic_cast<BasicCubicMesh*>(engine.getBodyById("cube1")->getMesh("cube1"));
+    auto m1 = engine.getBodyById("cube1")->getMesh("cube1");
     auto m2 = dynamic_cast<BasicCubicMesh*>(engine.getBodyById("cube2")->getMesh("cube2"));
+
 
     assert_true(m1);
     assert_true(m2);
@@ -51,16 +52,18 @@ int main() {
     AABB intersection;
 
     BruteforceCollisionDetector bcd;
+    bcd.set_threshold(0.002);
 
     assert_false(bcd.is_static());
 
     auto o1 = m1->getOutline();
     auto o2 = m2->getOutline();
 
-    bcd.find_intersection(o1, o2, intersection);
-
-    vector<CalcNode> nodes;
-    bcd.find_nodes_in_intersection(m1, intersection, nodes);
+    if( !bcd.find_intersection(o1, o2, intersection) )
+    {
+    	cout << "Can't find intersection\n";
+    	return -1;
+    }
 
     vector<CalcNode> virt_nodes1;
     vector<CalcNode> virt_nodes2;
@@ -68,6 +71,9 @@ int main() {
     auto t = measure_time2(
         [&](){ virt_nodes1.clear(); },
         [&](){
+            vector<CalcNode> nodes;
+            bcd.find_nodes_in_intersection(m1, intersection, nodes);
+
         	float direction[3];
         	for (unsigned int k = 0; k < nodes.size(); k++)
         	{
@@ -103,6 +109,9 @@ int main() {
         },
         [&](){ virt_nodes2.clear(); },
         [&](){
+            vector<CalcNode> nodes;
+            bcd.find_nodes_in_intersection(dynamic_cast<BasicCubicMesh*>(m1), intersection, nodes);
+
         	vector3r direction;
         	for (unsigned int k = 0; k < nodes.size(); k++)
         	{
@@ -118,9 +127,7 @@ int main() {
         	        		direction[z] = 0;
 
         	        CalcNode new_node;
-        	        if( m2->interpolateBorderNode(
-        	        		nodes[k].coords,
-        	                bcd.get_threshold() * direction, new_node) )
+        	        if( m2->interpolateBorderNode(nodes[k].coords, bcd.get_threshold() * direction, new_node) )
         	        {
         	        	new_node.setIsBorder(true);
         	            new_node.setInContact(true);
@@ -137,6 +144,12 @@ int main() {
          }
     );
 
+
+    // Comparison of virtual nodes
+    cout << "Starting comparison" << endl;
+    cout << "virt_nodes1 size: " << virt_nodes1.size() << endl;
+    cout << "virt_nodes2 size: " << virt_nodes2.size() << endl;
+
     vector<CalcNode>::iterator it;
     for(int i = 0; i < virt_nodes2.size(); i++) {
 		it = find(virt_nodes1.begin(), virt_nodes1.end(), virt_nodes2[i]);
@@ -146,6 +159,7 @@ int main() {
 		} else
 			virt_nodes1.erase(it);
 	}
+    cout << "Vectors are the same\n";
 
     print_test_results("Current variant", t.first, "New variant", t.second);
 
