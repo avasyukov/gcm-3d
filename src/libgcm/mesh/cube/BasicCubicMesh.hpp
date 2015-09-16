@@ -23,16 +23,16 @@ namespace gcm
     friend class BruteforceCollisionDetector;
 */
 
-    private:
+    protected:
         LineFirstOrderInterpolator* interpolator1;
 		LineSecondOrderInterpolator* interpolator2;
 
-    protected:
         void logMeshStats();
         void calcMinH();
-        void preProcessGeometry();
+        void preProcessGeometry() override;
 
-        int findNeighbourPoint(CalcNode& node, float dx, float dy, float dz, bool debug, float* coords, bool* innerPoint);
+        int findNeighbourPoint(CalcNode& node, float dx, float dy, float dz, 
+		                       bool debug, float* coords, bool* innerPoint);
 
         float meshH;
 
@@ -45,18 +45,18 @@ namespace gcm
         float getRecommendedTimeStep();
         float getMinH();
 		float getAvgH() override;
-        void doNextPartStep(float tau, int stage);
+        void doNextPartStep(float tau, int stage) override;
         void checkTopology(float tau);
 
-        void findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug);
+        void findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug) override;
 
         bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
-                                CalcNode& targetNode, bool& isInnerPoint);
+                                CalcNode& targetNode, bool& isInnerPoint) override;
 
-        bool interpolateNode(CalcNode& node);
+        bool interpolateNode(CalcNode& node) override;
 
         bool interpolateBorderNode(real x, real y, real z, 
-                                real dx, real dy, real dz, CalcNode& node);
+                                real dx, real dy, real dz, CalcNode& node) override;
 
         virtual const SnapshotWriter& getSnaphotter() const override;
         virtual const SnapshotWriter& getDumper() const override;

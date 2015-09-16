@@ -1,5 +1,5 @@
-#ifndef LAUNCHER_CUBICMESHLOADER_H
-#define LAUNCHER_CUBICMESHLOADER_H
+#ifndef LAUNCHER_BASICCUBICMESHLOADER_H
+#define LAUNCHER_BASICCUBICMESHLOADER_H
 
 #include <string>
 
@@ -15,7 +15,7 @@
 
 namespace launcher
 {
-    class CubicMeshLoader: public gcm::Singleton<launcher::CubicMeshLoader>, public launcher::MeshLoader<gcm::BasicCubicMesh>
+    class BasicCubicMeshLoader: public gcm::Singleton<launcher::BasicCubicMeshLoader>, public launcher::MeshLoader<gcm::BasicCubicMesh>
     {
         protected:
             void parseDesc(const xml::Node& desc, std::string& id, float& h, int& numX, int& numY, int& numZ);

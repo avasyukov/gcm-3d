@@ -1,4 +1,4 @@
-#include "launcher/loaders/mesh/CubicMeshLoader.hpp"
+#include "launcher/loaders/mesh/BasicCubicMeshLoader.hpp"
 #include "libgcm/mesh/cube/BasicCubicMeshGenerator.hpp"
 
 #include "libgcm/Engine.hpp"
@@ -10,9 +10,9 @@ using namespace gcm;
 using boost::lexical_cast;
 using std::string;
 
-const string launcher::CubicMeshLoader::MESH_TYPE = "cube";
+const string launcher::BasicCubicMeshLoader::MESH_TYPE = "cube";
 
-void launcher::CubicMeshLoader::parseDesc(const xml::Node& desc, string& id, 
+void launcher::BasicCubicMeshLoader::parseDesc(const xml::Node& desc, string& id, 
                                           float& h, int& numX, int& numY, int& numZ)
 {
     id = desc["id"];
@@ -22,7 +22,7 @@ void launcher::CubicMeshLoader::parseDesc(const xml::Node& desc, string& id,
 	numZ = lexical_cast<int>(desc["numZ"]);
 }
 
-void launcher::CubicMeshLoader::preLoadMesh(const xml::Node& desc, AABB& aabb, int& sliceDirection, int& numberOfNodes)
+void launcher::BasicCubicMeshLoader::preLoadMesh(const xml::Node& desc, AABB& aabb, int& sliceDirection, int& numberOfNodes)
 {
     string id;
     float h;
@@ -33,7 +33,7 @@ void launcher::CubicMeshLoader::preLoadMesh(const xml::Node& desc, AABB& aabb, i
     gcm::BasicCubicMeshGenerator::getInstance().preLoadMesh(&aabb, sliceDirection, numberOfNodes, h, numX, numY, numZ);
 }
 
-void launcher::CubicMeshLoader::loadMesh(const xml::Node& desc, BasicCubicMesh* mesh)
+void launcher::BasicCubicMeshLoader::loadMesh(const xml::Node& desc, BasicCubicMesh* mesh)
 {
     string id;
     float h;

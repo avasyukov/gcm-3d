@@ -44,6 +44,22 @@ bool AABB::isInAABB(const Node& node) const
     return isInAABB(node.coords.x, node.coords.y, node.coords.z);
 };
 
+bool AABB::isOutAABB(float x, float y, float z) const {
+	assert_ne(minX, maxX);
+    assert_ne(minY, maxY);
+    assert_ne(minZ, maxZ);
+    return ( x > maxX - EQUALITY_TOLERANCE
+                || x < minX + EQUALITY_TOLERANCE
+                || y > maxY - EQUALITY_TOLERANCE
+                || y < minY + EQUALITY_TOLERANCE
+                || z > maxZ - EQUALITY_TOLERANCE
+                || z < minZ + EQUALITY_TOLERANCE );
+};
+
+bool AABB::isOutAABB(const Node& node) const {
+	return isOutAABB(node.coords.x, node.coords.y, node.coords.z);
+};
+
 bool AABB::includes(const AABB* box) const
 {
     return ( minX <= box->minX ) && ( minY <= box->minY ) && ( minZ <= box->minZ )

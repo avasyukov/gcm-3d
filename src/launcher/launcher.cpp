@@ -14,7 +14,8 @@
 #include "launcher/loaders/mesh/Vtu2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
 #include "launcher/loaders/mesh/MarkeredMeshGeoLoader.hpp"
-#include "launcher/loaders/mesh/CubicMeshLoader.hpp"
+#include "launcher/loaders/mesh/BasicCubicMeshLoader.hpp"
+#include "launcher/loaders/mesh/RectangularCutCubicMeshLoader.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
 
 #include "libgcm/util/areas/BoxArea.hpp"
@@ -407,8 +408,10 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 Vtu2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == Vtu2MeshZoneLoader::MESH_TYPE)
                 Vtu2MeshZoneLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
-            else if (type == CubicMeshLoader::MESH_TYPE)
-                CubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == BasicCubicMeshLoader::MESH_TYPE)
+                BasicCubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == RectangularCutCubicMeshLoader::MESH_TYPE)
+                RectangularCutCubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == MarkeredMeshGeoLoader::MESH_TYPE)
                 MarkeredMeshGeoLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else
@@ -531,8 +534,10 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 mesh = Vtu2MeshLoader::getInstance().load(meshNode, body);
             else if (type == Vtu2MeshZoneLoader::MESH_TYPE)
                 mesh = Vtu2MeshZoneLoader::getInstance().load(meshNode, body);
-            else if (type == CubicMeshLoader::MESH_TYPE)
-                mesh = CubicMeshLoader::getInstance().load(meshNode, body);
+            else if (type == BasicCubicMeshLoader::MESH_TYPE)
+                mesh = BasicCubicMeshLoader::getInstance().load(meshNode, body);
+            else if (type == RectangularCutCubicMeshLoader::MESH_TYPE)
+                mesh = RectangularCutCubicMeshLoader::getInstance().load(meshNode, body);
             else if (type == MarkeredMeshGeoLoader::MESH_TYPE)
                 mesh = MarkeredMeshGeoLoader::getInstance().load(meshNode, body);            
 	    LOG_INFO("Loaded mesh for body '" << id << "', started attaching to body");
