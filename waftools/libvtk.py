@@ -12,13 +12,12 @@ def configure(conf):
     conf.check_linux()
 
     conf.env.INCLUDES_LIBVTK = [
-        '/usr/include/vtk',
+        '/usr/include/vtk-6.0',
     ]
 
     conf.env.LIBPATH_LIBVTK = [
         '/usr/lib',
-        '/usr/lib64',
-        '/usr/lib64/vtk',
+        '/usr/lib/x86_64-linux-gnu',
     ]
 
     include_path = '/usr/include'
@@ -30,7 +29,7 @@ def configure(conf):
     
     lib_path = [
         '/usr/lib64/',
-        '/usr/lib'
+        '/usr/lib/x86_64-linux-gnu'
     ]
     for l in  lib_path:
         if os.path.isdir(l):
@@ -42,7 +41,7 @@ def configure(conf):
 
     LIBS = {
         '5': ['vtkCommon', 'vtkFiltering', 'vtkIO'],
-        '6': ['vtkCommonCore', 'vtkCommonDataModel', 'vtkCommonExecutionModel', 'vtkFiltersCore', 'vtkIOCore', 'vtkIOXML']
+        '6': ['vtkCommonCore-6.0', 'vtkCommonDataModel-6.0', 'vtkCommonExecutionModel-6.0', 'vtkFiltersCore-6.0', 'vtkIOCore-6.0', 'vtkIOXML-6.0']
     }
 
     LIBS['6.1'] = [l + '-6.1' for l in LIBS['6']]

@@ -1,5 +1,6 @@
 #include "libgcm/BruteforceCollisionDetector.hpp"
 
+#include "launcher/loaders/mesh/BasicCubicMeshLoader.hpp"
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/Engine.hpp"
 
@@ -48,7 +49,11 @@ void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
                           << " and local mesh zone #" << mesh2->getId() << ". "
                           << "Intersection: " << intersection);
                 // find local nodes inside intersection
-                find_nodes_in_intersection(mesh1, intersection, local_nodes);
+                if(mesh1->getType() == launcher::BasicCubicMeshLoader::MESH_TYPE)
+                	find_nodes_in_intersection(dynamic_cast<BasicCubicMesh*>(mesh1), intersection, local_nodes);
+                else
+                	find_nodes_in_intersection(mesh1, intersection, local_nodes);
+
                 LOG_DEBUG("Got " << local_nodes.size() << " nodes");
 
                 LOG_DEBUG("Virt nodes size before processing: " << virt_nodes.size());

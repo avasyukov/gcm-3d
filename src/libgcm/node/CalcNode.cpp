@@ -56,6 +56,13 @@ CalcNode& CalcNode::operator=(const CalcNode &src)
     return *this;
 }
 
+bool CalcNode::operator==(const CalcNode &src) const
+{
+	return ( fabs(coords[0] == src.coords[0])
+				&& coords[1] == src.coords[1]
+				&& coords[2] == src.coords[2] );
+}
+
 CalcNode::~CalcNode()
 {
 }

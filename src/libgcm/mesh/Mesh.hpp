@@ -84,6 +84,8 @@ namespace gcm {
          */
         Mesh();
         // See http://stackoverflow.com/questions/461203/when-to-use-virtual-destructors
+        Mesh(std::string _type);
+
         virtual ~Mesh();
 
 

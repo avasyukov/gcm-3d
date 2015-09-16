@@ -17,7 +17,7 @@
 		</body>
 	</bodies>
 	<initialState>
-		<area type="box" minX="6" maxX="8" minY="-10" maxY="10" minZ="-10" maxZ="10"/>
-		<values vx="300" sxx="90000" syy="70000" szz="70000" />
+		<area type="box" minX="2" maxX="4" minY="-10" maxY="10" minZ="-10" maxZ="10"/>
+		<values vx="-300" sxx="90000" syy="70000" szz="70000" />
 	</initialState>
 </task>

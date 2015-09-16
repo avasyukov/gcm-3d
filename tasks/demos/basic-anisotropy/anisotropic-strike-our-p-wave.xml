@@ -1,0 +1,43 @@
+<task numberOfSnaps="100" stepsPerSnap="2">
+	<system>
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="geo2" file="models/layer-thin.geo" tetrSize="0.2" />
+			<material id="our" />
+		</body>
+	</bodies>
+	<materials>
+		<material name="our" rheology="anisotropic">
+			<c11>163944.8</c11>
+			<c12>3767.9</c12>
+			<c13>3767.9</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>8875.6</c22>
+			<c23>2899.1</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>8875.6</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>4282.6</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>4282.6</c55>
+			<c56>0</c56>
+			<c66>4282.6</c66>
+			<rho>1.6</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-1" maxX="1" minY="-1" maxY="1" minZ="-0.01" maxZ="0.01"/>
+		<values vz="-4.24" sxx="214.5" syy="165.04" szz="505.27" />
+	</initialState>
+</task>

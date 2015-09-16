@@ -2,11 +2,19 @@
 
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
+#include "launcher/loaders/mesh/BasicCubicMeshLoader.hpp"
 
 using namespace gcm;
 using std::numeric_limits;
+using std::pair;
+using std::make_pair;
+using std::vector;
+using std::sort;
+using std::max;
+using std::min;
 
-BasicCubicMesh::BasicCubicMesh()
+
+BasicCubicMesh::BasicCubicMesh() : Mesh(launcher::BasicCubicMeshLoader::MESH_TYPE)
 {
     meshH = numeric_limits<float>::infinity();
     // FIXME - hardcoded name
@@ -228,7 +236,7 @@ bool BasicCubicMesh::interpolateNode(CalcNode& node)
     return false;
 };
 
-bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z, 
+bool BasicCubicMesh::interpolateBorderNode_old(real x, real y, real z,
                                 real dx, real dy, real dz, CalcNode& node)
 {
     //int meshSizeX = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
@@ -259,6 +267,94 @@ bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z,
 	
     return false;
 };
+
+void BasicCubicMesh::findNearestsNodes(const vector3r& coords, int N, vector< pair<int,float> >& result)
+{
+	assert_true( outline.isInAABB(coords[0], coords[1], coords[2]) );
+
+	int n = 0;//floor( pow( (float)(N), 1.0 / 3.0 ) );
+
+	int i_min =	max( int( (coords[0] - outline.minX) / meshH ) - n, 0);
+	int i_max =	min( int( (coords[0] - outline.minX) / meshH ) + 1 + n, numX);
+	int j_min =	max( int( (coords[1] - outline.minY) / meshH ) - n, 0);
+	int j_max =	min( int( (coords[1] - outline.minY) / meshH ) + 1 + n, numY);
+	int k_min =	max( int( (coords[2] - outline.minZ) / meshH ) - n, 0);
+	int k_max =	min( int( (coords[2] - outline.minZ) / meshH ) + 1 + n, numZ);
+
+	int num;
+	for( int k = k_min; k <= k_max; k++ )
+		for( int j = j_min; j <= j_max; j++ )
+			for( int i = i_min; i <= i_max; i++ )
+	        {
+				num = i * (numY + 1) * (numZ + 1) + j * (numZ + 1) + k;
+				CalcNode& node = getNode(num);
+				result.push_back( make_pair(node.number, (coords - node.coords).length()) );
+	        }
+}
+
+bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z,
+        					real dx, real dy, real dz, CalcNode& node)
+{
+	// One cube
+	const int N = 8;
+	vector3r coords = vector3r(x + dx, y + dy, z + dz);
+
+	if( outline.isInAABB(coords[0], coords[1], coords[2]) != outline.isInAABB(x, y, z) )
+	{
+		vector< pair<int,float> > result;
+
+		findNearestsNodes(coords, N, result);
+
+		// Sorting nodes by distance
+		sort(result.begin(), result.end(), sort_pred());
+
+		for(int i = 0; i < result.size(); i++) {
+			CalcNode& node1 = getNode( result[i].first );
+			if( node1.isBorder() )
+			{
+				node = node1;
+				return true;
+			}
+		}
+	}
+
+    return false;
+};
+
+void BasicCubicMesh::setNumX(int _numX)
+{
+	numX = _numX;
+}
+
+int BasicCubicMesh::getNumX() const
+{
+	return numX;
+}
+
+void BasicCubicMesh::setNumY(int _numY)
+{
+	numY = _numY;
+}
+
+int BasicCubicMesh::getNumY() const
+{
+	return numY;
+}
+
+void BasicCubicMesh::setNumZ(int _numZ)
+{
+	numZ = _numZ;
+}
+
+int BasicCubicMesh::getNumZ() const
+{
+	return numZ;
+}
+
+float BasicCubicMesh::getH() const
+{
+	return meshH;
+}
 
 const SnapshotWriter& BasicCubicMesh::getSnaphotter() const
 {

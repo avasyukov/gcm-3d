@@ -10,6 +10,9 @@
 #include "libgcm/interpolator/LineSecondOrderInterpolator.hpp"
 
 
+#include <utility>
+#include <algorithm>
+
 namespace gcm
 {
     class CalcNode;
@@ -34,7 +37,12 @@ namespace gcm
         int findNeighbourPoint(CalcNode& node, float dx, float dy, float dz, 
 		                       bool debug, float* coords, bool* innerPoint);
 
+        void findNearestsNodes(const vector3r& coords, int N, std::vector< std::pair<int,float> >& result);
+
         float meshH;
+
+        // Number of cubes along axis
+        int numX, numY, numZ;
 
         USE_LOGGER;
 
@@ -57,6 +65,17 @@ namespace gcm
 
         bool interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node) override;
+        bool interpolateBorderNode_old(real x, real y, real z,
+                                        real dx, real dy, real dz, CalcNode& node);
+
+        void setNumX(int _numX);
+        void setNumY(int _numY);
+        void setNumZ(int _numZ);
+
+        int getNumX() const;
+        int getNumY() const;
+        int getNumZ() const;
+        float getH() const;
 
         virtual const SnapshotWriter& getSnaphotter() const override;
         virtual const SnapshotWriter& getDumper() const override;

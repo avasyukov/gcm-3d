@@ -1,0 +1,44 @@
+<task numberOfSnaps="150" stepsPerSnap="2">
+	<system>
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="cube" h="0.05" numX="200" numY="200" numZ="50" />
+			<transform type="translate" moveX="-5" moveY="-5" moveZ="0" />
+			<material id="boron-epoxy" />
+		</body>
+	</bodies>
+	<materials>
+		<material name="boron-epoxy" rheology="anisotropic">
+			<c11>210348</c11>
+			<c12>7011.6</c12>
+			<c13>7011.6</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>22297</c22>
+			<c23>5749.5</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>22297</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>4134.8</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>10342</c55>
+			<c56>0</c56>
+			<c66>10342</c66>
+			<rho>1.5</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-1" maxX="1" minY="-1" maxY="1" minZ="-0.01" maxZ="0.01"/>
+		<values vz="-4.24" sxx="243.84" syy="199.95" szz="775.416" />
+	</initialState>
+</task>

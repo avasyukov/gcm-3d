@@ -16,7 +16,7 @@ def configure(conf):
 
     conf.env.LIBPATH_LIBGTEST = [
         '/usr/lib',
-        '/usr/lib64'
+        '/usr/lib/x86_64-linux-gnu'
     ]
 
     LIBS = [
