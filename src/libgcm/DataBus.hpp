@@ -1,6 +1,8 @@
 #ifndef GCM_DATABUS_H
 #define    GCM_DATABUS_H
 
+#include <vector>
+
 #include "libgcm/GCMDispatcher.hpp"
 #include "libgcm/Logging.hpp"
 

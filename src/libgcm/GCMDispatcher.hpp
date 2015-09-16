@@ -2,6 +2,7 @@
 #define GCM_DISPATCHER_H_
 
 #include <string>
+#include <map>
 
 #include "libgcm/util/AABB.hpp"
 #include "libgcm/Logging.hpp"

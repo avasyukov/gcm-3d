@@ -2,6 +2,7 @@
 #define GCM_FailureModel_H
 
 #include <string>
+#include <vector>
 
 #include "libgcm/Math.hpp"
 #include "libgcm/Logging.hpp"

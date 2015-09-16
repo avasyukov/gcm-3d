@@ -25,10 +25,10 @@
 #endif
 #else
     #define USE_LOGGER ;
-    #define USE_AND_INIT_LOGGER(name) DO_ONCE(;)
-    #define INIT_LOGGER(name) DO_ONCE(;)
-    #define USE_AND_INIT_LOGGER(name) DO_ONCE(;)
-    #define TRACE_ON_EXCEPTION(statement;) DO_ONCE(statement;);
+    #define USE_AND_INIT_LOGGER(name) ;
+    #define INIT_LOGGER(name) ;
+    #define USE_AND_INIT_LOGGER(name) ;
+    #define TRACE_ON_EXCEPTION(statement) ;
 #endif
 
 
