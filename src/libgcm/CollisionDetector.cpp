@@ -72,12 +72,12 @@ void CollisionDetector::find_nodes_in_intersection(BasicCubicMesh* mesh, AABB& i
 	float h = mesh->getH();
 	AABB outline = mesh->getOutline();
 
-	int i_min =	max( int( fabs(intersection.minX - outline.minX) / h ), 0);
-	int i_max =	min( int( fabs(intersection.maxX - outline.minX) / h ) + 1, numX);
-	int j_min =	max( int( fabs(intersection.minY - outline.minY) / h ), 0);
-	int j_max =	min( int( fabs(intersection.maxY - outline.minY) / h ) + 1, numY);
-	int k_min =	max( int( fabs(intersection.minZ - outline.minZ) / h ), 0);
-	int k_max =	min( int( fabs(intersection.maxZ - outline.minZ) / h ) + 1, numZ);
+	int i_min =	max( int( (intersection.minX - outline.minX) / h ), 0);
+	int i_max =	min( int( (intersection.maxX - outline.minX) / h ) + 1, numX);
+	int j_min =	max( int( (intersection.minY - outline.minY) / h ), 0);
+	int j_max =	min( int( (intersection.maxY - outline.minY) / h ) + 1, numY);
+	int k_min =	max( int( (intersection.minZ - outline.minZ) / h ), 0);
+	int k_max =	min( int( (intersection.maxZ - outline.minZ) / h ) + 1, numZ);
 
 	int num;
 	for( int k = k_min; k <= k_max; k++ )
