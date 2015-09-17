@@ -533,6 +533,8 @@ namespace gcm {
          * Constant to access custom flag4 using getCustomFlag / setCustomFlag.
          */
         static const uchar FLAG_4 = 4;
+
+        char normal_flag;
     };
 }
 

@@ -1,4 +1,7 @@
-<task numberOfSnaps="25" stepsPerSnap="1">
+<task numberOfSnaps="50" stepsPerSnap="1">
+    <system>
+        <defaultBorderCalculator type="FreeBorderCalculator" />
+    </system>
 	<bodies>
 		<body id="cube">
 			<rheology type="elastic" />
@@ -8,7 +11,7 @@
 		</body>
 	</bodies>
 	<initialState>
-		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-3" maxZ="-1"/>
+		<area type="box" minX="-2" maxX="2" minY="-2" maxY="2" minZ="2" maxZ="2.5"/>
 		<values vz="300" sxx="70000" syy="70000" szz="90000" />
 	</initialState>
 </task>

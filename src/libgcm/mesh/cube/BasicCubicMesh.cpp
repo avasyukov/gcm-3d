@@ -42,8 +42,8 @@ BasicCubicMesh::~BasicCubicMesh()
 void BasicCubicMesh::preProcessGeometry()
 {
     LOG_DEBUG("Preprocessing mesh geometry started.");
-	for(int i = 0; i < getNodesNumber(); i++)
-		getNodeByLocalIndex(i).setIsBorder(false);
+//	for(int i = 0; i < getNodesNumber(); i++)
+//		getNodeByLocalIndex(i).setIsBorder(false);
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
@@ -133,17 +133,31 @@ void BasicCubicMesh::findBorderNodeNormal(const CalcNode& node, float* x, float*
     assert_true(node.isBorder() );
     float normal[3];
     normal[0] = normal[1] = normal[2] = 0.0;
-    for( int i = 0; i < 3; i ++)
-    {
-        if( fabs(node.coords[i] - outline.min_coords[i]) < EQUALITY_TOLERANCE )
-        {
-            normal[i] = -1;
-            break;
-        }
-        if( fabs(node.coords[i] - outline.max_coords[i]) < EQUALITY_TOLERANCE )
-        {
-            normal[i] = 1;
-            break;
+
+    if (node.normal_flag > 0) {
+        if (node.normal_flag == 1)
+            normal[0] = 1;
+        else if (node.normal_flag == 2)
+            normal[0] = -1;
+        else if (node.normal_flag == 3)
+            normal[1] = 1;
+        else if (node.normal_flag == 4)
+            normal[1] = -1;
+        else if (node.normal_flag == 5)
+            normal[2] = 1;
+        else if (node.normal_flag == 6)
+            normal[2] = -1;
+    }
+    else {
+        for (int i = 0; i < 3; i++) {
+            if (fabs(node.coords[i] - outline.min_coords[i]) < EQUALITY_TOLERANCE) {
+                normal[i] = -1;
+                break;
+            }
+            if (fabs(node.coords[i] - outline.max_coords[i]) < EQUALITY_TOLERANCE) {
+                normal[i] = 1;
+                break;
+            }
         }
     }
     *x = normal[0];

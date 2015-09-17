@@ -52,6 +52,7 @@ CalcNode& CalcNode::operator=(const CalcNode &src)
     borderConditionId = src.borderConditionId;
     contactConditionId = src.contactConditionId;
     rheologyMatrix = src.rheologyMatrix;
+	normal_flag = src.normal_flag;
 
     return *this;
 }
