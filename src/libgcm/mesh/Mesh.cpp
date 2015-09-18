@@ -535,7 +535,7 @@ void Mesh::defaultNextPartStep(float tau, int stage)
         int i = itr->first;
         CalcNode& node = getNode(i);
         if( node.isLocal() && node.isBorder() )
-                method->doNextPartStep( node, getNewNode(i), tau, stage, this );
+			method->doNextPartStep( node, getNewNode(i), tau, stage, this );
     }
 
     // Inner nodes

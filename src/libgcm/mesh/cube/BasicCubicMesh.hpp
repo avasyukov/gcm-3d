@@ -34,10 +34,10 @@ namespace gcm
         void calcMinH();
         void preProcessGeometry() override;
 
-        int findNeighbourPoint(CalcNode& node, float dx, float dy, float dz, 
+        virtual int findNeighbourPoint(CalcNode& node, float dx, float dy, float dz, 
 		                       bool debug, float* coords, bool* innerPoint);
 
-        void findNearestsNodes(const vector3r& coords, int N, std::vector< std::pair<int,float> >& result);
+        virtual void findNearestsNodes(const vector3r& coords, int N, std::vector< std::pair<int,float> >& result);
 
         float meshH;
 

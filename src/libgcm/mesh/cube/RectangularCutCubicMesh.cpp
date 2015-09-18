@@ -1,25 +1,23 @@
 #include "libgcm/mesh/cube/RectangularCutCubicMesh.hpp"
 
 #include "libgcm/node/CalcNode.hpp"
+#include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
+#include "launcher/loaders/mesh/RectangularCutCubicMeshLoader.hpp"
 
 using namespace gcm;
 using std::numeric_limits;
+using std::pair;
+using std::make_pair;
+using std::vector;
+using std::sort;
+using std::max;
+using std::min;
+
 
 RectangularCutCubicMesh::RectangularCutCubicMesh() :
 	BasicCubicMesh()
 {
 	INIT_LOGGER("gcm.RectangularCutCubicMesh");
-};
-
-void RectangularCutCubicMesh::doNextPartStep(float tau, int stage) {
-	defaultNextPartStep(tau, stage);
-	for(int i = 0; i < getNodesNumber(); i++) {
-		CalcNode& node = getNodeByLocalIndex(i);
-		if( !cutArea.isOutAABB(node) ) {
-			for(int i = 0; i < 9; i++)
-				node.values[i] = 0;
-		}
-	}
 };
 
 void RectangularCutCubicMesh::preProcessGeometry()
@@ -30,8 +28,10 @@ void RectangularCutCubicMesh::preProcessGeometry()
 		CalcNode& node = getNodeByLocalIndex(i);
 		node.setIsBorder(false);
 		node.setCustomFlag(1, false);
-		if( !cutArea.isOutAABB(node) )
+		if( !cutArea.isOutAABB(node) ) {
 			node.setCustomFlag(1, true);
+			node.setUsed(false);
+		}
 	}
 	
     // for usual AABB outline
@@ -62,35 +62,34 @@ void RectangularCutCubicMesh::preProcessGeometry()
 	}
 	
     LOG_DEBUG("Preprocessing mesh geometry done.");
-}
+};
 
-void RectangularCutCubicMesh::findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug)
+void RectangularCutCubicMesh::findBorderNodeNormal(const CalcNode& node, 
+	float* x, float* y, float* z, bool debug)
 {
     //CalcNode& node = getNode( border_node_index );
     assert_true(node.isBorder() );
     float normal[3];
     normal[0] = normal[1] = normal[2] = 0.0;
     for( int i = 0; i < 3; i++) {
-        if( fabs(node.coords[i] - outline.min_coords[i]) < EQUALITY_TOLERANCE )
-        {
+        if( fabs(node.coords[i] - outline.min_coords[i]) < EQUALITY_TOLERANCE ) {
             normal[i] = -1;
             break;
         }
-        if( fabs(node.coords[i] - outline.max_coords[i]) < EQUALITY_TOLERANCE )
-        {
+        if( fabs(node.coords[i] - outline.max_coords[i]) < EQUALITY_TOLERANCE ) {
             normal[i] = 1;
             break;
         }
-		if( fabs(node.coords[i] - cutArea.min_coords[i]) < EQUALITY_TOLERANCE )
-        {
-            normal[i] = 1;
-            break;
-        }
-        if( fabs(node.coords[i] - cutArea.max_coords[i]) < EQUALITY_TOLERANCE )
-        {
-            normal[i] = -1;
-            break;
-        }
+		if(cutArea.isInAABB(node)) {
+			if( fabs(node.coords[i] - cutArea.min_coords[i]) < EQUALITY_TOLERANCE ) {
+				normal[i] = 1;
+				break;
+			}
+			if( fabs(node.coords[i] - cutArea.max_coords[i]) < EQUALITY_TOLERANCE ) {
+				normal[i] = -1;
+				break;
+			}
+		}
     }
     *x = normal[0];
     *y = normal[1];
@@ -139,38 +138,61 @@ int RectangularCutCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float 
     return neighNum;
 };
 
-bool RectangularCutCubicMesh::interpolateBorderNode(real x, real y, real z, 
-                                real dx, real dy, real dz, CalcNode& node)
+void RectangularCutCubicMesh::findNearestsNodes(const vector3r& coords, int N, vector< pair<int,float> >& result)
 {
-    //int meshSizeX = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
-    float coords[3];
-    float tx = coords[0] = x + dx;
-    float ty = coords[1] = y + dy;
-    float tz = coords[2] = z + dz;
+	assert_true( outline.isInAABB(coords[0], coords[1], coords[2]) );
+	assert_true( cutArea.isOutAABB(coords[0], coords[1], coords[2]) );
 
-    if( (outline.isInAABB(tx, ty, tz) != outline.isInAABB(x, y, z)) ||
-		(cutArea.isOutAABB(tx, ty, tz) != cutArea.isOutAABB(x, y, z)) )
-    {
-        // FIXME_ASAP
-        float minH = std::numeric_limits<float>::infinity();
-        int num = -1;
-        for(int i = 1; i < getNodesNumber(); i++) {
-            CalcNode& node = getNodeByLocalIndex(i);
-			if(node.isBorder()) {
-				float h = distance(coords, node.coords);
-				if( h < minH ) {
-					minH = h;
-					num = i;
-				}
+	int n = 0;//floor( pow( (float)(N), 1.0 / 3.0 ) );
+
+	int i_min =	max( int( (coords[0] - outline.minX) / meshH ) - n, 0);
+	int i_max =	min( int( (coords[0] - outline.minX) / meshH ) + 1 + n, numX);
+	int j_min =	max( int( (coords[1] - outline.minY) / meshH ) - n, 0);
+	int j_max =	min( int( (coords[1] - outline.minY) / meshH ) + 1 + n, numY);
+	int k_min =	max( int( (coords[2] - outline.minZ) / meshH ) - n, 0);
+	int k_max =	min( int( (coords[2] - outline.minZ) / meshH ) + 1 + n, numZ);
+
+	int num;
+	for( int k = k_min; k <= k_max; k++ )
+		for( int j = j_min; j <= j_max; j++ )
+			for( int i = i_min; i <= i_max; i++ )
+	        {
+				num = i * (numY + 1) * (numZ + 1) + j * (numZ + 1) + k;
+				CalcNode& node = getNode(num);
+				result.push_back( make_pair(node.number, (coords - node.coords).length()) );
+	        }
+}
+
+bool RectangularCutCubicMesh::interpolateBorderNode(real x, real y, real z,
+        					real dx, real dy, real dz, CalcNode& node)
+{
+	// One cube
+	const int N = 8;
+	vector3r coords = vector3r(x + dx, y + dy, z + dz);
+
+	if( (outline.isInAABB(coords[0], coords[1], coords[2]) != outline.isInAABB(x, y, z)) ||
+		(cutArea.isOutAABB(coords[0], coords[1], coords[2]) != cutArea.isOutAABB(x, y, z)) )
+	{
+		vector< pair<int,float> > result;
+
+		findNearestsNodes(coords, N, result);
+
+		// Sorting nodes by distance
+		sort(result.begin(), result.end(), sort_pred());
+
+		for(int i = 0; i < result.size(); i++) {
+			CalcNode& node1 = getNode( result[i].first );
+			if( node1.isBorder() )
+			{
+				node = node1;
+				return true;
 			}
-        }
-        node = getNodeByLocalIndex(num);
-        
-        return true;
-    }
-	
+		}
+	}
+
     return false;
 };
+
 
 void RectangularCutCubicMesh::transfer(float x, float y, float z) {
 	for(int i = 0; i < getNodesNumber(); i++)
