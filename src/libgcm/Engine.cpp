@@ -15,8 +15,10 @@
 #include "libgcm/calc/contact/AdhesionContactDestroyCalculator.hpp"
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/rheology/DummyRheologyCalculator.hpp"
-#include "libgcm/BruteforceCollisionDetector.hpp"
 #include "Engine.hpp"
+#include "launcher/loaders/mesh/BasicCubicMeshLoader.hpp"
+#include "launcher/loaders/mesh/RectangularCutCubicMeshLoader.hpp"
+#include "libgcm/BruteforceCollisionDetector.hpp"
 
 #include <ctime>
 #include <cstdio>
@@ -509,8 +511,7 @@ void Engine::doNextStepStages(const float time_step)
         dataBus->syncNodes(time_step);
         LOG_DEBUG("Syncing remote nodes done");
 
-        for( unsigned int i = 0; i < bodies.size(); i++ )
-        {
+        for( unsigned int i = 0; i < bodies.size(); i++ ) {
             Mesh* mesh = bodies[i]->getMeshes();
             LOG_DEBUG( "Doing calculations for mesh " << mesh->getId() );
             try
@@ -523,10 +524,12 @@ void Engine::doNextStepStages(const float time_step)
                 throw;
             }
             LOG_DEBUG( "Mesh calculation done" );
-            LOG_DEBUG( "Applying correctors for mesh " << mesh->getId() );
-            mesh->applyCorrectors();
-            LOG_DEBUG( "Applying correctors done" );
         }
+		for( unsigned int i = 0; i < bodies.size(); i++ ) {
+            Mesh* mesh = bodies[i]->getMeshes();
+            LOG_DEBUG( "Copying values in mesh " << mesh->getId() );
+			mesh->copyValues();
+		}
         LOG_DEBUG( "Stage done" );
     }
     LOG_DEBUG("Step done");
@@ -537,6 +540,9 @@ void Engine::doNextStepAfterStages(const float time_step) {
     {
         RheologyCalculator* rc = getRheologyCalculator( bodies[i]->getRheologyCalculatorType() );
         Mesh* mesh = bodies[i]->getMeshes();
+		LOG_DEBUG("Applying correctors for mesh " << mesh->getId());
+		mesh->applyCorrectors();
+		LOG_DEBUG("Applying correctors done");
         LOG_DEBUG( "Applying rheology for mesh " << mesh->getId() );
         mesh->applyRheology(rc);
         LOG_DEBUG( "Applying rheology done" );
@@ -583,12 +589,26 @@ void Engine::syncOutlines() {
     LOG_DEBUG("Syncing outlines");
 }
 
+void Engine::determineTypeOfCollisionDetector() {
+	bool useStaticCollisionDetector = true;
+	for( unsigned int i = 0; i < bodies.size(); i++ ) {
+		Mesh* mesh = bodies[i]->getMeshes();
+		if( !( (mesh->getType() == launcher::BasicCubicMeshLoader::MESH_TYPE) ||
+		       (mesh->getType() == launcher::RectangularCutCubicMeshLoader::MESH_TYPE) ) )
+			useStaticCollisionDetector = false;
+	}
+	if( useStaticCollisionDetector )
+		colDet->set_static(true);
+}
+
 void Engine::calculate()
 {
     // We set time step once and do not change it during calculation
     // float tau = calculateRecommendedTimeStep();
     // setTimeStep( tau );
 
+	determineTypeOfCollisionDetector();
+	
     auto startTime = std::time(nullptr);
 
     for( int i = 0; i < numberOfSnaps; i++ )
@@ -648,7 +668,7 @@ float Engine::calculateRecommendedContactTreshold(float tau)
             Mesh* mesh = getBody(j)->getMeshes();
             float h = mesh->getAvgH();
             if( h < threshold )
-                threshold = h;
+                threshold = (1 - 5 * EQUALITY_TOLERANCE) * h;
         }
     }
     // Threshold depends on max lambda * tau

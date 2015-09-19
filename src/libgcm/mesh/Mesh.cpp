@@ -546,9 +546,10 @@ void Mesh::defaultNextPartStep(float tau, int stage)
         if( node.isLocal() && node.isInner() )
                 method->doNextPartStep( node, getNewNode(i), tau, stage, this );
     }
+}
 
-    // Copy values
-    LOG_DEBUG("Copying values");
+void Mesh::copyValues() {
+	LOG_DEBUG("Copying values");
     for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
         int i = itr->first;
         CalcNode& node = getNode(i);

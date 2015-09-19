@@ -30,7 +30,7 @@ namespace gcm {
         virtual void find_collisions(std::vector<CalcNode> &virt_nodes) = 0;
         bool find_intersection(AABB &outline1, AABB &outline2, AABB &intersection);
         // return elements that are in intersection
-        void find_nodes_in_intersection(Mesh* mesh, AABB &intersection, std::vector<CalcNode> &result);
+        virtual void find_nodes_in_intersection(Mesh* mesh, AABB &intersection, std::vector<CalcNode> &result);
         void find_nodes_in_intersection(BasicCubicMesh* mesh, AABB& intersection, std::vector<CalcNode>& result);
         void find_nodes_in_intersection(Mesh* mesh, AABB &intersection, std::vector<int> &result);
         // number returned surface elements (nodes and triangles) sequentially

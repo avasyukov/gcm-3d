@@ -48,6 +48,7 @@ namespace gcm
 
     public:
         BasicCubicMesh();
+		BasicCubicMesh(std::string _type);
         ~BasicCubicMesh();
 
         float getRecommendedTimeStep();

@@ -15,7 +15,7 @@ using std::min;
 
 
 RectangularCutCubicMesh::RectangularCutCubicMesh() :
-	BasicCubicMesh()
+	BasicCubicMesh(launcher::RectangularCutCubicMeshLoader::MESH_TYPE)
 {
 	INIT_LOGGER("gcm.RectangularCutCubicMesh");
 };

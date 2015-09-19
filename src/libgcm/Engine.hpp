@@ -164,6 +164,12 @@ namespace gcm
          * Destructor.
          */
         ~Engine();
+		
+		/**
+		 * Decide what collision detector to use:
+		 * When all meshes are cubic, use static
+         */
+		void determineTypeOfCollisionDetector();
 
     public:
         void clear();

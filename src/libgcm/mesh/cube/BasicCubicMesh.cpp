@@ -27,6 +27,19 @@ BasicCubicMesh::BasicCubicMesh() : Mesh(launcher::BasicCubicMeshLoader::MESH_TYP
     interpolator2 = new LineSecondOrderInterpolator();
 }
 
+BasicCubicMesh::BasicCubicMesh(std::string _type) : Mesh(_type)
+{
+    meshH = numeric_limits<float>::infinity();
+    // FIXME - hardcoded name
+    numericalMethodType = "InterpolationFixedAxis";
+    // FIXME - hardcoded parameter
+    numericalMethodOrder = 1;
+    INIT_LOGGER("gcm.BasicCubicMesh");
+    LOG_DEBUG("Creating mesh");
+    interpolator1 = new LineFirstOrderInterpolator();
+    interpolator2 = new LineSecondOrderInterpolator();
+}
+
 BasicCubicMesh::~BasicCubicMesh()
 {
     LOG_DEBUG("Destroying mesh '" << getId() << "'");
@@ -129,8 +142,8 @@ float BasicCubicMesh::getMinH()
 
 void BasicCubicMesh::findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug)
 {
-    //CalcNode& node = getNode( border_node_index );
     assert_true(node.isBorder() );
+	
     float normal[3];
     normal[0] = normal[1] = normal[2] = 0.0;
     for( int i = 0; i < 3; i ++)

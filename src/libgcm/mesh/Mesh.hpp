@@ -249,6 +249,7 @@ namespace gcm {
         float getMaxPossibleTimeStep();
 
         void defaultNextPartStep(float tau, int stage);
+		void copyValues();
     };
 
     /*
