@@ -41,8 +41,6 @@ namespace gcm {
          * Mesh id.
          */
         std::string id;
-
-        std::vector<int> _nodesMap;
     protected:
         /*
          * Body

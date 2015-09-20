@@ -529,30 +529,20 @@ void Mesh::defaultNextPartStep(float tau, int stage)
         assert_true(syncedArea.includes( &areaOfInterest ) );
     }
 
-    if (_nodesMap.size() == 0)
-    {
-        _nodesMap.reserve(nodesMap.size());
-        for (MapIter itr = nodesMap.cbegin(); itr != nodesMap.cend(); ++itr)
-            _nodesMap.push_back(itr->first);
-    }
-
-
     // Border nodes
     LOG_DEBUG("Processing border nodes");
-    #pragma omp parallel for
-    for (size_t j = 0; j < _nodesMap.size(); j++) {
-        int i = _nodesMap[j];
-        CalcNode &node = getNode(i);
+    #pragma omp parallel for schedule(static,50)
+    for (size_t i = 0; i < nodesNumber; i++) {
+        CalcNode &node = nodes[i];
         if (node.isLocal() && node.isBorder())
             method->doNextPartStep(node, getNewNode(i), tau, stage, this);
     }
 
     // Inner nodes
     LOG_DEBUG("Processing inner nodes");
-    #pragma omp parallel for
-    for (size_t j = 0; j < _nodesMap.size(); j++) {
-        int i = _nodesMap[j];
-        CalcNode &node = getNode(i);
+    #pragma omp parallel for schedule(static,50)
+    for (size_t i = 0; i < nodesNumber; i++) {
+        CalcNode &node = nodes[i];
         if (node.isLocal() && node.isInner())
             method->doNextPartStep(node, getNewNode(i), tau, stage, this);
     }
@@ -560,9 +550,8 @@ void Mesh::defaultNextPartStep(float tau, int stage)
 
 void Mesh::copyValues() {
 	LOG_DEBUG("Copying values");
-    for( MapIter itr = nodesMap.cbegin(); itr != nodesMap.cend(); ++itr ) {
-        int i = itr->first;
-        CalcNode &node = getNode(i);
+    for (size_t i = 0; i < nodesNumber; i++) {
+        CalcNode &node = nodes[i];
         if (node.isLocal())
             memcpy(node.values, getNewNode(i).values, VALUES_NUMBER * sizeof(float));
     }
