@@ -2,12 +2,15 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
+#include <vector>
+
 using namespace gcm;
 using std::string;
 using std::copy;
 using std::numeric_limits;
 using std::min;
 using std::max;
+using std::vector;
 using std::unordered_map;
 using std::function;
 
@@ -529,31 +532,46 @@ void Mesh::defaultNextPartStep(float tau, int stage)
         assert_true(syncedArea.includes( &areaOfInterest ) );
     }
 
+    vector<int> _nodesMap(nodesMap.size());
+
+    for( MapIter itr = nodesMap.cbegin(); itr != nodesMap.cend(); ++itr )
+        _nodesMap.push_back(itr->first);
+
+
     // Border nodes
     LOG_DEBUG("Processing border nodes");
-    for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
-        int i = itr->first;
-        CalcNode& node = getNode(i);
-        if( node.isLocal() && node.isBorder() )
-			method->doNextPartStep( node, getNewNode(i), tau, stage, this );
+    #pragma omp parallel for
+    for (size_t j = 0; j < _nodesMap.size(); j++) {
+        int i = _nodesMap[j];
+        CalcNode &node = getNode(i);
+        if (node.isLocal() && node.isBorder())
+            try {
+                method->doNextPartStep(node, getNewNode(i), tau, stage, this);
+            } catch (Exception &e) {
+                LOG_FATAL(
+                        "Exception was thrown: " << e.getMessage() << "\n @" << e.getFile() << ":" << e.getLine() <<
+                        "\nCall stack: \n" << e.getCallStack());
+                throw;
+            }
     }
 
     // Inner nodes
     LOG_DEBUG("Processing inner nodes");
-    for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
-        int i = itr->first;
-        CalcNode& node = getNode(i);
-        if( node.isLocal() && node.isInner() )
-                method->doNextPartStep( node, getNewNode(i), tau, stage, this );
+    #pragma omp parallel for
+    for (size_t j = 0; j < _nodesMap.size(); j++) {
+        int i = _nodesMap[j];
+        CalcNode &node = getNode(i);
+        if (node.isLocal() && node.isInner())
+            method->doNextPartStep(node, getNewNode(i), tau, stage, this);
     }
 }
 
 void Mesh::copyValues() {
 	LOG_DEBUG("Copying values");
-    for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
+    for( MapIter itr = nodesMap.cbegin(); itr != nodesMap.cend(); ++itr ) {
         int i = itr->first;
-        CalcNode& node = getNode(i);
-        if( node.isLocal() )
-            memcpy( node.values, getNewNode(i).values, VALUES_NUMBER * sizeof(float) );
+        CalcNode &node = getNode(i);
+        if (node.isLocal())
+            memcpy(node.values, getNewNode(i).values, VALUES_NUMBER * sizeof(float));
     }
 }

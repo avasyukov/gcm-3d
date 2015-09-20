@@ -2,24 +2,50 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
+#include <omp.h>
+
 using namespace gcm;
 using std::vector;
 
 FreeBorderCalculator::FreeBorderCalculator()
 {
-    U_gsl = gsl_matrix_alloc (9, 9);
-    om_gsl = gsl_vector_alloc (9);
-    x_gsl = gsl_vector_alloc (9);
-    p_gsl = gsl_permutation_alloc (9);
+    #pragma omp parallel
+    {
+        #pragma omp single
+        {
+            auto nt = omp_get_num_threads();
+            U_gsl = new gsl_matrix *[nt];
+            om_gsl = new gsl_vector *[nt];
+            x_gsl = new gsl_vector *[nt];
+            p_gsl = new gsl_permutation *[nt];
+        }
+
+        auto n = omp_get_thread_num();
+        U_gsl[n] = gsl_matrix_alloc (9, 9);
+        om_gsl[n] = gsl_vector_alloc (9);
+        x_gsl[n] = gsl_vector_alloc (9);
+        p_gsl[n] = gsl_permutation_alloc (9);
+    }
     INIT_LOGGER( "gcm.FreeBorderCalculator" );
 };
 
 FreeBorderCalculator::~FreeBorderCalculator()
 {
-    gsl_matrix_free(U_gsl);
-    gsl_vector_free(om_gsl);
-    gsl_vector_free(x_gsl);
-    gsl_permutation_free(p_gsl);
+#pragma omp parallel
+    {
+        auto n = omp_get_thread_num();
+        gsl_matrix_free(U_gsl[n]);
+        gsl_vector_free(om_gsl[n]);
+        gsl_vector_free(x_gsl[n]);
+        gsl_permutation_free(p_gsl[n]);
+        #pragma omp single
+        {
+            delete[] U_gsl;
+            delete[] om_gsl;
+            delete[] x_gsl;
+            delete[] p_gsl;
+        }
+    }
 };
 
 void FreeBorderCalculator::setParameters(const xml::Node& params)
@@ -41,6 +67,8 @@ void FreeBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheolo
     // Here we will store (omega = Matrix_OMEGA * u)
     float omega[9];
 
+    auto n = omp_get_thread_num();
+
     for(int i = 0; i < 9; i++)
     {
         // If omega is 'inner' one
@@ -53,47 +81,47 @@ void FreeBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheolo
                 omega[i] += matrix->getU(i,j) * previousNodes[i].values[j];
             }
             // Load appropriate values into GSL containers
-            gsl_vector_set(om_gsl, i, omega[i]);
+            gsl_vector_set(om_gsl[n], i, omega[i]);
             for(int j = 0; j < 9; j++)
-                gsl_matrix_set(U_gsl, i, j, matrix->getU(i,j));
+                gsl_matrix_set(U_gsl[n], i, j, matrix->getU(i,j));
         }
         // If omega is 'outer' one
         else
         {
             // omega (as right-hand part of OLE) is zero - it is free border, no external stress
-            gsl_vector_set(om_gsl, i, 0);
+            gsl_vector_set(om_gsl[n], i, 0);
             // corresponding string in matrix is zero ...
             for(int j = 0; j < 9; j++)
-                gsl_matrix_set(U_gsl, i, j, 0);
+                gsl_matrix_set(U_gsl[n], i, j, 0);
 
             // ... except normal and tangential stress
             // We use outer normal to find total stress vector (sigma * n) - sum of normal and shear - and tell it is zero
             // TODO - never-ending questions - is everything ok with (x-y-z) and (ksi-eta-dzeta) basises?
 
             if ( outer_count == 3 ) {
-                gsl_matrix_set(U_gsl, i, 3, outer_normal[0]);
-                gsl_matrix_set(U_gsl, i, 4, outer_normal[1]);
-                gsl_matrix_set(U_gsl, i, 5, outer_normal[2]);
+                gsl_matrix_set(U_gsl[n], i, 3, outer_normal[0]);
+                gsl_matrix_set(U_gsl[n], i, 4, outer_normal[1]);
+                gsl_matrix_set(U_gsl[n], i, 5, outer_normal[2]);
                 outer_count--;
             } else if ( outer_count == 2 ) {
-                gsl_matrix_set(U_gsl, i, 4, outer_normal[0]);
-                gsl_matrix_set(U_gsl, i, 6, outer_normal[1]);
-                gsl_matrix_set(U_gsl, i, 7, outer_normal[2]);
+                gsl_matrix_set(U_gsl[n], i, 4, outer_normal[0]);
+                gsl_matrix_set(U_gsl[n], i, 6, outer_normal[1]);
+                gsl_matrix_set(U_gsl[n], i, 7, outer_normal[2]);
                 outer_count--;
             } else if ( outer_count == 1 ) {
-                gsl_matrix_set(U_gsl, i, 5, outer_normal[0]);
-                gsl_matrix_set(U_gsl, i, 7, outer_normal[1]);
-                gsl_matrix_set(U_gsl, i, 8, outer_normal[2]);
+                gsl_matrix_set(U_gsl[n], i, 5, outer_normal[0]);
+                gsl_matrix_set(U_gsl[n], i, 7, outer_normal[1]);
+                gsl_matrix_set(U_gsl[n], i, 8, outer_normal[2]);
                 outer_count--;
             }
         }
     }
 
     // Solve linear equations using GSL tools
-    gsl_linalg_LU_decomp (U_gsl, p_gsl, &s);
-    gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);
+    gsl_linalg_LU_decomp (U_gsl[n], p_gsl[n], &s);
+    gsl_linalg_LU_solve (U_gsl[n], p_gsl[n], om_gsl[n], x_gsl[n]);
 
     for(int j = 0; j < 9; j++)
-        new_node.values[j] = gsl_vector_get(x_gsl, j);
+        new_node.values[j] = gsl_vector_get(x_gsl[n], j);
 
 };

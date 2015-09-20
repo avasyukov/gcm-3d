@@ -105,7 +105,8 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
                 int borderCondId = cur_node.getBorderConditionId();
                 LOG_TRACE("Using calculator: " << engine.getBorderCondition(borderCondId)->calc->getType());
                 engine.getBorderCondition(borderCondId)->doCalc(Engine::getInstance().getCurrentTime(), cur_node,
-                                                                 new_node, cur_node.getRheologyMatrix(), previous_nodes, inner, outer_normal);
+                                                                new_node, cur_node.getRheologyMatrix(),
+                                                                previous_nodes, inner, outer_normal);
             }
             // Contact
             else
