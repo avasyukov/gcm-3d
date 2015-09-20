@@ -278,6 +278,17 @@ inline bool vectorIntersectsTriangle(float *p1, float *p2, float *p3, float *p0,
     }
 
     if( debug ) {
+        LOG_DEBUG("Point: " << p0[0] + l*v[0] << " " << p0[1] + l*v[1] << " " << p0[2] + l*v[2]);
+        LOG_DEBUG("Verticle #1: " << p1[0] << " " << p1[1] << " " << p1[2]);
+        LOG_DEBUG("Verticle #2: " << p2[0] << " " << p2[1] << " " << p2[2]);
+        LOG_DEBUG("Verticle #3: " << p3[0] << " " << p3[1] << " " << p3[2]);
+        LOG_DEBUG("n: " << n[0] << " " << n[1] << " " << n[2]);
+        LOG_DEBUG("v: " << v[0] << " " << v[1] << " " << v[2]);
+        LOG_DEBUG("norm(n) = " << vectorSquareNorm (n[0], n[1], n[2]));
+        LOG_DEBUG("norm(v) = " << vectorSquareNorm (v[0], v[1], v[2]));
+        LOG_DEBUG("vn = " << vn);
+        LOG_DEBUG("d = -sp1 = " << d);
+        LOG_DEBUG("sp2 = " << scalarProduct(n[0], n[1], n[2], p0[0], p0[1], p0[2]));
         LOG_DEBUG("Parameter: t = " << t << " (l = " << l << ")");
     }
 
@@ -488,7 +499,7 @@ inline bool pointInTetr(float x, float y, float z,
     }
 
     // TODO REVIEW CONSTANT
-    if( vols[0] + vols[1] + vols[2] + vols[3] < vol * (1 + 10 * EQUALITY_TOLERANCE) ) {
+    if( vols[0] + vols[1] + vols[2] + vols[3] < vol * (1.01) ) {
         if(debug) { LOG_DEBUG("IN"); }
         return true;
     } else {
@@ -641,17 +652,6 @@ int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
-inline void interpolateSegment(gcm::real x0, gcm::real x1, gcm::real x, const gcm::real* cur, const gcm::real* sec, gcm::real* out, uint n)
-{
-    if (fabs(x1-x0) < EQUALITY_TOLERANCE)
-    {
-	for (uint i = 0; i < n; i++)
-            out[i] = cur[i];
-        return;
-    }
-    for (uint i = 0; i < n; i++)
-	out[i] = (x-x0)*(sec[i]-cur[i])/(x1-x0) + cur[i];
-}
 
 /*
  * Bilinear interpolation in rectangle. See http://en.wikipedia.org/wiki/Bilinear_interpolation.

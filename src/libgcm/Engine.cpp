@@ -410,8 +410,8 @@ void Engine::doNextStep()
 {
     float step;
     doNextStepBeforeStages(numeric_limits<float>::infinity(), step);
-    doNextStepStages(step);
-    doNextStepAfterStages(step);
+    //doNextStepStages(step);
+    //doNextStepAfterStages(step);
     currentTimeStep++;
 }
 

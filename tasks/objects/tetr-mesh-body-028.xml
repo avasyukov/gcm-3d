@@ -1,0 +1,99 @@
+<task numberOfSnaps="1" stepsPerSnap="1">
+    <system>
+        <meshMovement type="none" />
+        <timeStep multiplier="0.99"/>
+        <collisionDetector static="true" />
+        <contactThreshold measure="abs" value="5.0" />
+    </system>
+    <bodies>
+        <body id="a3d_fat">
+            <rheology type="elastic" />
+            <mesh id="a3d_fat" type="ani3d2" file="models/ani3d/fat_new.out" tetrSize="0.01" />
+            <material id="fat" />
+        </body>
+        <body id="a3d_muscle">
+            <rheology type="elastic" />
+            <mesh id="a3d_muscle" type="ani3d2" file="models/ani3d/muscle_new.out" tetrSize="0.01" />
+            <material id="muscle" />
+        </body>
+    </bodies>
+
+    <materials>
+        <material name="bones" rheology="isotropic">
+                <la>78600000</la>
+                <mu>118000000</mu>
+                <rho>0.001</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="trachea" rheology="isotropic">
+                <la>14300000</la>
+                <mu>3570000</mu>
+                <rho>0.002</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="heart" rheology="isotropic">
+                <la>239000</la>
+                <mu>59600</mu>
+                <rho>0.0015</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="veins" rheology="isotropic">
+                <la>72250000</la>
+                <mu>1470000</mu>
+                <rho>0.001</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="aorta" rheology="isotropic">
+                <la>20550000</la>
+                <mu>420000</mu>
+                <rho>0.001</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="blood" rheology="isotropic">
+                <la>239000</la>
+                <mu>59600</mu>
+                <rho>0.001</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="lungs" rheology="isotropic">
+                <la>286000</la>
+                <mu>71400</mu>
+                <rho>0.0006</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="digestive" rheology="isotropic">
+                <la>7140000</la>
+                <mu>1790000</mu>
+                <rho>0.0012</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="muscle" rheology="isotropic">
+                <la>3070000</la>
+                <mu>2050000</mu>
+                <rho>0.001</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="diaphragm" rheology="isotropic">
+                <la>5770000</la>
+                <mu>3850000</mu>
+                <rho>0.001</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="liver" rheology="isotropic">
+                <la>243000</la>
+                <mu>60700</mu>
+                <rho>0.001158</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+        <material name="fat" rheology="isotropic">
+                <la>243000</la>
+                <mu>60700</mu>
+                <rho>0.001158</rho>
+                <crackThreshold>INF</crackThreshold>
+        </material>
+
+    </materials> 
+    <!--borderCondition calculator="ExternalForceCalculator" normalStress="-60000000" tangentialStress="0" startTime="0" duration="0.000134">
+        <area type="box" minX="350" maxX="400" minY="250" maxY="300" minZ="200" maxZ="250"/>
+    </borderCondition-->
+</task>
