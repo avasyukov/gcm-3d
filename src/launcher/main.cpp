@@ -3,6 +3,7 @@
 #include <vector>
 #include <exception>
 #include <unistd.h>
+#include <omp.h>
 
 #include "libgcm/config.hpp"
 
@@ -135,6 +136,15 @@ int main(int argc, char **argv, char **envp)
 
         if( taskFile.empty() )
             THROW_INVALID_ARG("No task file provided");
+
+        #pragma omp parallel
+        {
+            #pragma omp single
+            {
+                auto nt = omp_get_num_threads();
+                LOG_INFO("Running via OpenMP with " << nt << " threads");
+            }
+        }
         LOG_INFO("Starting with taskFile '" << taskFile << "' and dataDir '" << dataDir << "'");
 
         Engine& engine = Engine::getInstance();

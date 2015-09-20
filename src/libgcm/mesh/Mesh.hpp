@@ -5,6 +5,7 @@
 #include <string>
 #include <algorithm>
 #include <functional>
+#include <vector>
 
 #include "libgcm/util/AABB.hpp"
 #include "libgcm/util/areas/Area.hpp"
@@ -41,6 +42,7 @@ namespace gcm {
          */
         std::string id;
 
+        std::vector<int> _nodesMap;
     protected:
         /*
          * Body

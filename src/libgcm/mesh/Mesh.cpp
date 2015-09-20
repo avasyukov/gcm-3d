@@ -2,15 +2,12 @@
 
 #include "libgcm/node/CalcNode.hpp"
 
-#include <vector>
-
 using namespace gcm;
 using std::string;
 using std::copy;
 using std::numeric_limits;
 using std::min;
 using std::max;
-using std::vector;
 using std::unordered_map;
 using std::function;
 
@@ -532,10 +529,12 @@ void Mesh::defaultNextPartStep(float tau, int stage)
         assert_true(syncedArea.includes( &areaOfInterest ) );
     }
 
-    vector<int> _nodesMap(nodesMap.size());
-
-    for( MapIter itr = nodesMap.cbegin(); itr != nodesMap.cend(); ++itr )
-        _nodesMap.push_back(itr->first);
+    if (_nodesMap.size() == 0)
+    {
+        _nodesMap.reserve(nodesMap.size());
+        for (MapIter itr = nodesMap.cbegin(); itr != nodesMap.cend(); ++itr)
+            _nodesMap.push_back(itr->first);
+    }
 
 
     // Border nodes
@@ -545,14 +544,7 @@ void Mesh::defaultNextPartStep(float tau, int stage)
         int i = _nodesMap[j];
         CalcNode &node = getNode(i);
         if (node.isLocal() && node.isBorder())
-            try {
-                method->doNextPartStep(node, getNewNode(i), tau, stage, this);
-            } catch (Exception &e) {
-                LOG_FATAL(
-                        "Exception was thrown: " << e.getMessage() << "\n @" << e.getFile() << ":" << e.getLine() <<
-                        "\nCall stack: \n" << e.getCallStack());
-                throw;
-            }
+            method->doNextPartStep(node, getNewNode(i), tau, stage, this);
     }
 
     // Inner nodes
