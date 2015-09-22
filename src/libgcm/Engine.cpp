@@ -597,8 +597,8 @@ void Engine::determineTypeOfCollisionDetector() {
 		       (mesh->getType() == launcher::RectangularCutCubicMeshLoader::MESH_TYPE) ) )
 			useStaticCollisionDetector = false;
 	}
-	if( useStaticCollisionDetector )
-		colDet->set_static(true);
+//	if( useStaticCollisionDetector )
+//		colDet->set_static(true);
 }
 
 void Engine::calculate()
@@ -668,7 +668,7 @@ float Engine::calculateRecommendedContactTreshold(float tau)
             Mesh* mesh = getBody(j)->getMeshes();
             float h = mesh->getAvgH();
             if( h < threshold )
-                threshold = (1 - 5 * EQUALITY_TOLERANCE) * h;
+                threshold = h / 4;
         }
     }
     // Threshold depends on max lambda * tau

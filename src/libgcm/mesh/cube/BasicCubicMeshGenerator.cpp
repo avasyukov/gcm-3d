@@ -17,12 +17,12 @@ void BasicCubicMeshGenerator::loadMesh(BasicCubicMesh* mesh,
 	mesh->setNumX(numX);
 	mesh->setNumY(numY);
 	mesh->setNumZ(numZ);
-
+	static int startNumber = 0;
     for( int k = 0; k <= numZ; k++ )
         for( int j = 0; j <= numY; j++ )
             for( int i = 0; i <= numX; i++ )
             {
-				int n = i*(numY+1)*(numZ+1) + j*(numZ+1) + k;
+				int n = i*(numY+1)*(numZ+1) + j*(numZ+1) + k + startNumber;
                 float x = float(i) * h;
                 float y = float(j) * h;
                 float z = float(k) * h;
@@ -35,6 +35,7 @@ void BasicCubicMeshGenerator::loadMesh(BasicCubicMesh* mesh,
                 mesh->addNode( *node );
             }
     mesh->preProcess();
+	startNumber += 100000000;
 }
 
 void BasicCubicMeshGenerator::preLoadMesh(AABB* scene, int& sliceDirection, 

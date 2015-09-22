@@ -27,6 +27,7 @@ namespace gcm
         gsl_vector *om_gsl;
         gsl_vector *x_gsl;
         gsl_permutation *p_gsl;
+		bool isFreeBorder(CalcNode& node, CalcNode& virt_node, float outer_normal[]);
     };
 }
 

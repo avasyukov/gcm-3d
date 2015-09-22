@@ -35,75 +35,11 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
     assert_eq(previousNodes.size(), 9);
     assert_eq(virtPreviousNodes.size(), 9);
 
-    float local_n[3][3];
-    local_n[0][0] = outer_normal[0];
-    local_n[0][1] = outer_normal[1];
-    local_n[0][2] = outer_normal[2];
-
-    createLocalBasis(local_n[0], local_n[1], local_n[2]);
-
-    //---------------------------------------Check if nodes fall apart
-    LOG_TRACE("Cur node: " << cur_node);
-    LOG_TRACE("Virt node: " << virt_node);
-
-    float vel_rel[3] = {
-        cur_node.vx - virt_node.vx,
-        cur_node.vy - virt_node.vy,
-        cur_node.vz - virt_node.vz
-    };
-    float vel_avg[3] = {
-        cur_node.vx + virt_node.vx,
-        cur_node.vy + virt_node.vy,
-        cur_node.vz + virt_node.vz
-    };
-    float vel_avg_abs = sqrt(scalarProduct(vel_avg, vel_avg));
-    float vel_rel_abs = sqrt(scalarProduct(vel_rel, vel_rel));
-    
-    float force_cur[3] = {
-        cur_node.sxx*outer_normal[0] + cur_node.sxy*outer_normal[1] + cur_node.sxz*outer_normal[2],
-        cur_node.sxy*outer_normal[0] + cur_node.syy*outer_normal[1] + cur_node.syz*outer_normal[2],
-        cur_node.sxz*outer_normal[0] + cur_node.syz*outer_normal[1] + cur_node.szz*outer_normal[2]
-    };
-    float force_virt[3] = {
-        virt_node.sxx*outer_normal[0] + virt_node.sxy*outer_normal[1] + virt_node.sxz*outer_normal[2],
-        virt_node.sxy*outer_normal[0] + virt_node.syy*outer_normal[1] + virt_node.syz*outer_normal[2],
-        virt_node.sxz*outer_normal[0] + virt_node.syz*outer_normal[1] + virt_node.szz*outer_normal[2]
-    };
-
-    float vel_rel_p = scalarProduct(vel_rel, outer_normal);
-    float vel_avg_p = scalarProduct(vel_avg, outer_normal);
-    float force_cur_p = scalarProduct(force_cur,outer_normal);
-    float force_virt_p = scalarProduct(force_virt,outer_normal);
-    float force_rel_p = force_cur_p + force_virt_p;
-
-
-    LOG_TRACE("Vrel: " << vel_rel[0] << " " << vel_rel[1] << " " << vel_rel[2]);
-    LOG_TRACE("Fcur: " << force_cur[0] << " " << force_cur[1] << " " << force_cur[2]);
-    LOG_TRACE("Vavg: " << vel_avg_abs << " Vdelta: " << vel_rel_abs);
-    LOG_TRACE("VrelP: " << vel_rel_p << " Fabs: " << force_rel_p);
-    
-    bool free_border = false;
-    float eps = 0.2*fabs(vel_avg_p);
-    // If relative speed is positive
-    if(vel_rel_p < -eps) {
-    	free_border = true;
-    } else if (vel_rel_p < eps) { 
-        // If relative speed is close to zero, check force
-        if (force_rel_p > 0)
-	{
-            free_border = true;
-	}
-    } 
-    
-    LOG_TRACE("Free border: " << free_border);
-
-    if (free_border)
+    if (isFreeBorder(cur_node, virt_node, outer_normal))
     {
         fbc->doCalc(cur_node, new_node, matrix, previousNodes, inner, outer_normal, scale);
         return;
     }
-    //--------------------------------------------------------------------
-
 
     // Here we will store (omega = Matrix_OMEGA * u)
     float omega[9];
@@ -177,8 +113,14 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
 
     for( int strN = 12; strN < 18; strN++ ) {
         gsl_vector_set( om_gsl, strN, 0 );
-    }
-
+	}
+	
+	float local_n[3][3];
+	local_n[0][0] = outer_normal[0];
+	local_n[0][1] = outer_normal[1];
+	local_n[0][2] = outer_normal[2];
+	createLocalBasis(local_n[0], local_n[1], local_n[2]);
+	
     // Normal velocities are equal
     gsl_matrix_set( U_gsl, 12, 0, local_n[0][0]);
     gsl_matrix_set( U_gsl, 12, 1, local_n[0][1]);
@@ -268,5 +210,82 @@ void SlidingContactCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Ca
     // Just get first 9 values (real node) and dump the rest 9 (virt node)
     for(int j = 0; j < 9; j++)
         new_node.values[j] = gsl_vector_get(x_gsl, j);
+	
+	CalcNode new_virt_node;
+	for(int j = 0; j < 9; j++)
+        new_virt_node.values[j] = gsl_vector_get(x_gsl, j + 9);
+	
+	if (isFreeBorder(new_node, new_virt_node, outer_normal))
+    {
+        fbc->doCalc(cur_node, new_node, matrix, previousNodes, inner, outer_normal, scale);
+        return;
+    }
 
+};
+
+bool SlidingContactCalculator::isFreeBorder(CalcNode& cur_node, 
+	CalcNode& virt_node, float outer_normal[])
+{	
+	float local_n[3][3];
+    local_n[0][0] = outer_normal[0];
+    local_n[0][1] = outer_normal[1];
+    local_n[0][2] = outer_normal[2];
+
+    createLocalBasis(local_n[0], local_n[1], local_n[2]);
+
+    //---------------------------------------Check if nodes fall apart
+    LOG_TRACE("Cur node: " << cur_node);
+    LOG_TRACE("Virt node: " << virt_node);
+
+    float vel_rel[3] = {
+        cur_node.vx - virt_node.vx,
+        cur_node.vy - virt_node.vy,
+        cur_node.vz - virt_node.vz
+    };
+    float vel_avg[3] = {
+        cur_node.vx + virt_node.vx,
+        cur_node.vy + virt_node.vy,
+        cur_node.vz + virt_node.vz
+    };
+    float vel_avg_abs = sqrt(scalarProduct(vel_avg, vel_avg));
+    float vel_rel_abs = sqrt(scalarProduct(vel_rel, vel_rel));
+    
+    float force_cur[3] = {
+        cur_node.sxx*outer_normal[0] + cur_node.sxy*outer_normal[1] + cur_node.sxz*outer_normal[2],
+        cur_node.sxy*outer_normal[0] + cur_node.syy*outer_normal[1] + cur_node.syz*outer_normal[2],
+        cur_node.sxz*outer_normal[0] + cur_node.syz*outer_normal[1] + cur_node.szz*outer_normal[2]
+    };
+    float force_virt[3] = {
+        virt_node.sxx*outer_normal[0] + virt_node.sxy*outer_normal[1] + virt_node.sxz*outer_normal[2],
+        virt_node.sxy*outer_normal[0] + virt_node.syy*outer_normal[1] + virt_node.syz*outer_normal[2],
+        virt_node.sxz*outer_normal[0] + virt_node.syz*outer_normal[1] + virt_node.szz*outer_normal[2]
+    };
+
+    float vel_rel_p = scalarProduct(vel_rel, outer_normal);
+    float vel_avg_p = scalarProduct(vel_avg, outer_normal);
+    float force_cur_p = scalarProduct(force_cur,outer_normal);
+    float force_virt_p = scalarProduct(force_virt,outer_normal);
+    float force_rel_p = force_cur_p + force_virt_p;
+
+
+    LOG_TRACE("Vrel: " << vel_rel[0] << " " << vel_rel[1] << " " << vel_rel[2]);
+    LOG_TRACE("Fcur: " << force_cur[0] << " " << force_cur[1] << " " << force_cur[2]);
+    LOG_TRACE("Vavg: " << vel_avg_abs << " Vdelta: " << vel_rel_abs);
+    LOG_TRACE("VrelP: " << vel_rel_p << " Fabs: " << force_rel_p);
+    
+    bool free_border = false;
+    float eps = 0.2*fabs(vel_avg_p);
+    // If relative speed is positive
+    if(vel_rel_p < -eps) {
+    	free_border = true;
+    } else if (vel_rel_p < eps) { 
+        // If relative speed is close to zero, check force
+        if (force_rel_p > 0)
+		{
+            free_border = true;
+		}
+    } 
+    
+    LOG_TRACE("Free border: " << free_border);
+	return free_border;
 };

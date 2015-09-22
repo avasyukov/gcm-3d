@@ -299,7 +299,7 @@ void BasicCubicMesh::findNearestsNodes(const vector3r& coords, int N, vector< pa
 		for( int j = j_min; j <= j_max; j++ )
 			for( int i = i_min; i <= i_max; i++ )
 	        {
-				num = i * (numY + 1) * (numZ + 1) + j * (numZ + 1) + k;
+				num = i * (numY + 1) * (numZ + 1) + j * (numZ + 1) + k + nodes[0].number;
 				CalcNode& node = getNode(num);
 				result.push_back( make_pair(node.number, (coords - node.coords).length()) );
 	        }

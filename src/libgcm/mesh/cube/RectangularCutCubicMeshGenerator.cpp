@@ -16,11 +16,16 @@ void RectangularCutCubicMeshGenerator::loadMesh(RectangularCutCubicMesh* mesh,
 	                                    int minX, int minY, int minZ,
 	                                    int maxX, int maxY, int maxZ)
 {
+	mesh->setNumX(numX);
+	mesh->setNumY(numY);
+	mesh->setNumZ(numZ);
+
+	static int startNumber = 0;
     for( int k = 0; k <= numZ; k++ )
         for( int j = 0; j <= numY; j++ )
             for( int i = 0; i <= numX; i++ )
             {
-				int n = i*(numY+1)*(numZ+1) + j*(numZ+1) + k;
+				int n = i*(numY+1)*(numZ+1) + j*(numZ+1) + k + startNumber;
                 float x = i*h;
                 float y = j*h;
                 float z = k*h;
@@ -34,6 +39,7 @@ void RectangularCutCubicMeshGenerator::loadMesh(RectangularCutCubicMesh* mesh,
             }
 	mesh->setCutArea( AABB(minX*h, maxX*h, minY*h, maxY*h, minZ*h, maxZ*h) );
     mesh->preProcess();
+	startNumber += 100000000;
 }
 
 void RectangularCutCubicMeshGenerator::preLoadMesh(AABB* scene, int& sliceDirection, 
