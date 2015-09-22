@@ -146,18 +146,18 @@ void BasicCubicMesh::findBorderNodeNormal(const CalcNode& node, float* x, float*
 	
     float normal[3];
     normal[0] = normal[1] = normal[2] = 0.0;
-    for( int i = 0; i < 3; i ++)
-    {
-        if( fabs(node.coords[i] - outline.min_coords[i]) < EQUALITY_TOLERANCE )
-        {
+
+	uint i = node.contactDirection;
+	for( int cntr = 0; cntr < 3; cntr ++) {
+        if( fabs(node.coords[i] - outline.min_coords[i]) < EQUALITY_TOLERANCE ) {
             normal[i] = -1;
             break;
         }
-        if( fabs(node.coords[i] - outline.max_coords[i]) < EQUALITY_TOLERANCE )
-        {
+        if( fabs(node.coords[i] - outline.max_coords[i]) < EQUALITY_TOLERANCE ) {
             normal[i] = 1;
             break;
         }
+		i = (i + 1) % 3;
     }
     *x = normal[0];
     *y = normal[1];

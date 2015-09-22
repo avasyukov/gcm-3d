@@ -68,6 +68,7 @@ void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
                     // Check axis directions
                     for (int m = 0; m < 3; m++) 
                     {
+						local_nodes[k].contactDirection = m;
                         mesh1->findBorderNodeNormal(local_nodes[k],
                                         &direction[0], &direction[1], &direction[2], false);
 
@@ -89,6 +90,7 @@ void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
                             new_node.setInContact(true);
                             new_node.contactNodeNum = j;
                             new_node.setCustomFlag(CalcNode::FLAG_1, 1);
+							new_node.contactDirection = m;
                             (mesh1->getNode(local_nodes[k].number)).setInContact(true);
                             (mesh1->getNode(local_nodes[k].number)).contactNodeNum = virt_nodes.size();
                             (mesh1->getNode(local_nodes[k].number)).contactDirection = m;

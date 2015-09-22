@@ -5,6 +5,7 @@ using std::copy;
 
 CalcNode::CalcNode() : CalcNode(-1)
 {
+	contactDirection = 0;
 }
 
 CalcNode::CalcNode(int num) : CalcNode(num, vector3r())
@@ -23,6 +24,7 @@ CalcNode::CalcNode(int num, const vector3r& coords) : ICalcNode(num, coords)
     // Border condition '1' is 'default' one, since '0' is reserved for 'failsafe' one
     borderConditionId = 1;
     contactConditionId = 0;
+	contactDirection = 0;
     crackDirection[0] = crackDirection[1] = crackDirection[2] = 0.0;
     damageMeasure = 0.0;
 }
