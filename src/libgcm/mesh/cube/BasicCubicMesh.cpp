@@ -208,6 +208,13 @@ int BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, float
 bool BasicCubicMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
                                 CalcNode& targetNode, bool& isInnerPoint)
 {
+	if(fabs(dx) < EQUALITY_TOLERANCE && fabs(dy) < EQUALITY_TOLERANCE && fabs(dz) < EQUALITY_TOLERANCE)
+	{
+		targetNode = origin;
+		isInnerPoint = true;
+		return true;
+	}
+
     int neighInd = findNeighbourPoint( origin, dx, dy, dz, debug,
                                     targetNode.coords, &isInnerPoint );
 
