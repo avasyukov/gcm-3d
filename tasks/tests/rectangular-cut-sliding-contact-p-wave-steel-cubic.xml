@@ -1,0 +1,28 @@
+<task numberOfSnaps="50" stepsPerSnap="1">
+	<system>
+		<defaultContactCalculator type="SlidingContactCalculator" />
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="cut_cube" h="0.2" numX="50" numY="50" numZ="25">
+				<cut minX="20" maxX="30" minY="20" maxY="30" minZ="-1" maxZ="10" />
+			</mesh>
+			<material id="steel" />
+			<transform type="translate" moveX="-5" moveY="-5" moveZ="5.01" />
+		</body>
+		<body id="cube2">
+			<rheology type="elastic" />
+			<mesh id="main2" type="cut_cube" h="0.2" numX="50" numY="50" numZ="25">
+				<cut minX="20" maxX="30" minY="20" maxY="30" minZ="15" maxZ="26" />
+			</mesh>
+			<material id="steel" />
+			<transform type="translate" moveX="-5" moveY="-5" moveZ="0" />
+		</body>
+	</bodies>
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="9.7" maxZ="11"/>
+		<values vz="185.7" sxx="115000" syy="115000" szz="269000" />
+	</initialState>
+</task>

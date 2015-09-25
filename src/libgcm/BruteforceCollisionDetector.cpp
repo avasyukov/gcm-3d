@@ -3,6 +3,7 @@
 #include "launcher/loaders/mesh/BasicCubicMeshLoader.hpp"
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/Engine.hpp"
+#include "launcher/loaders/mesh/RectangularCutCubicMeshLoader.hpp"
 
 using namespace gcm;
 using std::string;
@@ -49,8 +50,10 @@ void BruteforceCollisionDetector::find_collisions(vector<CalcNode> &virt_nodes)
                           << " and local mesh zone #" << mesh2->getId() << ". "
                           << "Intersection: " << intersection);
                 // find local nodes inside intersection
-                if(mesh1->getType() == launcher::BasicCubicMeshLoader::MESH_TYPE)
-                	find_nodes_in_intersection(dynamic_cast<BasicCubicMesh*>(mesh1), intersection, local_nodes);
+                if(mesh1->getType() == launcher::BasicCubicMeshLoader::MESH_TYPE ||
+				   mesh1->getType() == launcher::RectangularCutCubicMeshLoader::MESH_TYPE)
+                	find_nodes_in_intersection(dynamic_cast<BasicCubicMesh*>(mesh1),
+					                           intersection, local_nodes);
                 else
                 	find_nodes_in_intersection(mesh1, intersection, local_nodes);
 
