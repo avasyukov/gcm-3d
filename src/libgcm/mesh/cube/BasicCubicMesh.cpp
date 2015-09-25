@@ -283,8 +283,6 @@ bool BasicCubicMesh::interpolateBorderNode_old(real x, real y, real z,
 
 void BasicCubicMesh::findNearestsNodes(const vector3r& coords, int N, vector< pair<int,float> >& result)
 {
-	assert_true( outline.isInAABB(coords[0], coords[1], coords[2]) );
-
 	int n = 0;//floor( pow( (float)(N), 1.0 / 3.0 ) );
 
 	int i_min =	max( int( (coords[0] - outline.minX) / meshH ) - n, 0);
@@ -312,7 +310,10 @@ bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z,
 	const int N = 8;
 	vector3r coords = vector3r(x + dx, y + dy, z + dz);
 
-	if( outline.isInAABB(coords[0], coords[1], coords[2]) != outline.isInAABB(x, y, z) )
+	if( !outline.isInAABB(coords[0], coords[1], coords[2]) ) 
+		return false;
+	
+	if( !outline.isInAABB(x, y, z) )
 	{
 		vector< pair<int,float> > result;
 
