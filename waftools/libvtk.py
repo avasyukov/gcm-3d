@@ -13,6 +13,7 @@ def configure(conf):
 
     conf.env.INCLUDES_LIBVTK = [
         '/usr/include/vtk-6.0',
+        '/usr/include/vtk',
     ]
 
     conf.env.LIBPATH_LIBVTK = [
@@ -38,13 +39,22 @@ def configure(conf):
                 if os.path.isdir(full_path):
                     if d.startswith('vtk-'):
                         conf.env.LIBPATH_LIBVTK += [full_path]
+                        break
+            else:
+                continue
+            break
+    else:
+        conf.env.LIBPATH_LIBVTK.extend(lib_path)
+
+
 
     LIBS = {
         '5': ['vtkCommon', 'vtkFiltering', 'vtkIO'],
-        '6': ['vtkCommonCore-6.0', 'vtkCommonDataModel-6.0', 'vtkCommonExecutionModel-6.0', 'vtkFiltersCore-6.0', 'vtkIOCore-6.0', 'vtkIOXML-6.0']
+        '6': ['vtkCommonCore', 'vtkCommonDataModel', 'vtkCommonExecutionModel', 'vtkFiltersCore', 'vtkIOCore', 'vtkIOXML']
     }
 
-    LIBS['6.1'] = [l + '-6.1' for l in LIBS['6']]
+    for v in ['6.0', '6.1']:
+        LIBS[v] = [l+'-'+v for l in ['vtkCommonCore', 'vtkCommonDataModel', 'vtkCommonExecutionModel', 'vtkFiltersCore', 'vtkIOCore', 'vtkIOXML']]
 
     for v in LIBS:
         libs = LIBS[v]
