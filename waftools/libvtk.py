@@ -37,7 +37,7 @@ def configure(conf):
             for d in os.listdir(l):
                 full_path = l + '/' + d
                 if os.path.isdir(full_path):
-                    if d.startswith('vtk-'):
+                    if d.startswith('vtk-') or d == 'vtk':
                         conf.env.LIBPATH_LIBVTK += [full_path]
                         break
             else:
