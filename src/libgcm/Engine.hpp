@@ -68,6 +68,7 @@ namespace gcm
             Options();
          public:
             const static std::string SNAPSHOT_OUTPUT_PATH_PATTERN;
+            const static std::string SNAPSHOT_OUTPUT_DIRECTORY;
         };
 
     friend class Singleton;

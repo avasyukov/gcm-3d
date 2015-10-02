@@ -34,6 +34,7 @@ using std::function;
 using std::exception;
 
 const std::string Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN = "SNAPSHOT_OUTPUT_PATH_PATTERN";
+const std::string Engine::Options::SNAPSHOT_OUTPUT_DIRECTORY = "SNAPSHOT_OUTPUT_DIRECTORY";
 
 void GSLErrorHandler(const char * reason, const char * file,  int line,  int gsl_errno)
 {

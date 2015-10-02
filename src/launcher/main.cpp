@@ -150,6 +150,7 @@ int main(int argc, char **argv, char **envp)
         if (!bfs::is_directory(outputPathPattern))
             bfs::create_directories(outputPathPattern);
 
+        engine.setOption(Engine::Options::SNAPSHOT_OUTPUT_DIRECTORY, outputPathPattern.string());
         outputPathPattern /= bfs::path("snap_mesh_%{MESH}%{SUFFIX}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
         engine.setOption(Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN, outputPathPattern.string());
         
