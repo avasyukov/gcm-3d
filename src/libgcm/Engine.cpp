@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <exception>
 #include <gsl/gsl_errno.h>
+#include <dlfcn.h>
 
 using namespace gcm;
 using std::string;
@@ -145,6 +146,9 @@ void Engine::cleanUp()
     //delete vtkSnapshotWriter;
     //delete vtkDumpWriter;
     delete colDet;
+    for (auto plugin: plugins)
+        delete plugin;
+    plugins.clear();
     LOG_INFO("Clean up done");
 }
 
@@ -616,8 +620,11 @@ void Engine::calculate(bool save_snapshots) {
             snapshotTimestamps.push_back(getCurrentTime());
             createSnapshot(i);
         }
-        for (int j = 0; j < stepsPerSnap; j++)
+        for (int j = 0; j < stepsPerSnap; j++) {
             doNextStep();
+            for (auto plugin: plugins)
+                plugin->onCalculationStepDone();
+        }
 
         if (i == numberOfSnaps - 1) {
             LOG_INFO("Calculation done");
@@ -872,4 +879,26 @@ const string& Engine::getOption(string option) const
 bool Engine::hasOption(string option) const
 {
     return options.find(option) != options.end();
+}
+
+
+void Engine::loadPlugin(std::string name) {
+#if CONFIG_ENABLE_PLUGINS
+    LOG_INFO("Loading plugin: " << name);
+    void* handle = dlopen(("libgcm_" + name + ".so").c_str(), RTLD_LAZY);
+    if (!handle)
+        THROW_INVALID_ARG("Plugin not found: " + string(dlerror()));
+
+    auto init = reinterpret_cast<gcm_plugin_create_t>(dlsym(handle, "gcm_plugin_create"));
+    if (!init)
+        THROW_INVALID_ARG("Can't load plugin " + name + ": " + dlerror());
+
+    plugins.push_back(init(this));
+#else
+    THROW_UNSUPPORTED("Plugins are not supported in this build");
+#endif
+}
+
+const vector<Plugin*> Engine::getPlugins() const {
+    return plugins;
 }

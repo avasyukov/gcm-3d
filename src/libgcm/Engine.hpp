@@ -48,6 +48,8 @@
 #include "libgcm/Body.hpp"
 #include "libgcm/util/Singleton.hpp"
 
+#include "Plugin.hpp"
+
 #define CONTACT_THRESHOLD_BY_AVG_H 0
 #define CONTACT_THRESHOLD_BY_MAX_LT 1
 #define CONTACT_THRESHOLD_FIXED 2
@@ -171,6 +173,8 @@ namespace gcm
 		 * When all meshes are cubic, use static
          */
 		void determineTypeOfCollisionDetector();
+
+        std::vector<gcm::Plugin*> plugins;
 
     public:
         void clear();
@@ -308,6 +312,9 @@ namespace gcm
         void setOption(std::string option, std::string value);
         const std::string& getOption(std::string option) const;
         bool hasOption(std::string option) const;
+
+        void loadPlugin(std::string name);
+        const std::vector<Plugin*> getPlugins() const;
     };
 }
 

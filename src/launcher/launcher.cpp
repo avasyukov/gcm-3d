@@ -121,6 +121,11 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
         engine.setStepsPerSnap(stepsPerSnap);
     }
 
+    NodeList loadPluginsList = rootNode.xpath("/task/system/loadPlugin");
+    for (auto& plugin: loadPluginsList){
+        engine.loadPlugin(plugin["name"]);
+    }
+
     // reading system properties
     NodeList defaultContactCalculatorList = rootNode.xpath("/task/system/defaultContactCalculator");
     if( defaultContactCalculatorList.size() > 1 )
@@ -844,6 +849,11 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             return matrices[node.getMaterialId()];
         }
     );
+
+    LOG_DEBUG("Running plugin-specific initializations");
+
+    for (auto plugin: engine.getPlugins())
+        plugin ->parseTask(doc);
 
     LOG_DEBUG("Scene loaded");
 }
