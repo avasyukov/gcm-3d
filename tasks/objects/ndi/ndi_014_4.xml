@@ -4,9 +4,9 @@
 		<meshMovement type="none" />
 	</system>
 	<bodies>
-		<body id="ndc_014_4_steel">
+		<body id="ndi_014_4_steel">
 			<rheology type="elastic" />
-			<mesh id="ndc_014_4_steel" type="cut_cube" h="0.125" numX="560" numY="560" numZ="80" >
+			<mesh id="ndi_014_4_steel" type="cut_cube" h="0.125" numX="560" numY="560" numZ="80" >
 				<cut minX="240" maxX="257" minY="240" maxY="257" minZ="0" maxZ="30" />
 				<cut minX="261" maxX="278" minY="240" maxY="257" minZ="0" maxZ="30" />
 				<cut minX="282" maxX="299" minY="240" maxY="257" minZ="0" maxZ="30" />
