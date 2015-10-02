@@ -273,7 +273,7 @@ namespace gcm
         void setCurrentTime(float time);
         void syncNodes();
         void syncOutlines();
-        void calculate();
+        void calculate(bool save_snapshots = true);
         void setNumberOfSnaps(int number);
         void setStepsPerSnap(int number);
         AABB getScene();

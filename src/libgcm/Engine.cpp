@@ -601,25 +601,24 @@ void Engine::determineTypeOfCollisionDetector() {
 //		colDet->set_static(true);
 }
 
-void Engine::calculate()
-{
+void Engine::calculate(bool save_snapshots) {
     // We set time step once and do not change it during calculation
     // float tau = calculateRecommendedTimeStep();
     // setTimeStep( tau );
 
-	determineTypeOfCollisionDetector();
-	
+    determineTypeOfCollisionDetector();
+
     auto startTime = std::time(nullptr);
 
-    for( int i = 0; i < numberOfSnaps; i++ )
-    {
-        snapshotTimestamps.push_back(getCurrentTime());
-        createSnapshot(i);
-        for( int j = 0; j < stepsPerSnap; j++ )
+    for (int i = 0; i < numberOfSnaps; i++) {
+        if (save_snapshots) {
+            snapshotTimestamps.push_back(getCurrentTime());
+            createSnapshot(i);
+        }
+        for (int j = 0; j < stepsPerSnap; j++)
             doNextStep();
 
-        if (i == numberOfSnaps -1)
-        {
+        if (i == numberOfSnaps - 1) {
             LOG_INFO("Calculation done");
             break;
         }
@@ -627,12 +626,12 @@ void Engine::calculate()
         auto currentTime = std::time(nullptr);
         auto diff = std::difftime(currentTime, startTime);
 
-        diff = diff / (i+1) * (numberOfSnaps-i-1);
+        diff = diff / (i + 1) * (numberOfSnaps - i - 1);
 
-        uint hours = std::floor(diff/3600);
-        diff -= hours*3600;
-        uint minutes = std::floor(diff/60);
-        uint seconds = diff-minutes*60;
+        uint hours = std::floor(diff / 3600);
+        diff -= hours * 3600;
+        uint minutes = std::floor(diff / 60);
+        uint seconds = diff - minutes * 60;
 
         char eta[30];
         sprintf(eta, "%02d:%02d:%02d", hours, minutes, seconds);
@@ -640,9 +639,11 @@ void Engine::calculate()
         LOG_INFO("Estimated time of calculation completion: " << eta);
     }
 
-    snapshotTimestamps.push_back(getCurrentTime());
-    createSnapshot(numberOfSnaps);
-    createDump(numberOfSnaps);
+    if (save_snapshots) {
+        snapshotTimestamps.push_back(getCurrentTime());
+        createSnapshot(numberOfSnaps);
+        createDump(numberOfSnaps);
+    }
 }
 
 float Engine::calculateRecommendedTimeStep()
