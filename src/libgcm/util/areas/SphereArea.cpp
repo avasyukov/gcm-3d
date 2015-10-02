@@ -10,7 +10,7 @@ SphereArea::SphereArea( float _radius, float x, float y, float z )
     center[2] = z;
 };
 
-bool SphereArea::isInArea( Node& cur_node )
+bool SphereArea::isInArea( const Node& cur_node ) const
 {
     return ( vectorSquareNorm( cur_node.coords[0] - center[0],
                             cur_node.coords[1] - center[1],

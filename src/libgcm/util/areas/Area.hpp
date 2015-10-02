@@ -10,8 +10,8 @@ namespace gcm {
     {
     public:
         virtual ~Area() = 0;
-        bool isInArea( Node* cur_node );
-        virtual bool isInArea( Node& cur_node ) = 0;
+        bool isInArea( const Node* cur_node ) const;
+        virtual bool isInArea( const Node& cur_node ) const = 0;
     };
 }
 

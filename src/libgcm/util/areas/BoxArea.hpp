@@ -9,7 +9,7 @@ namespace gcm {
 	public:
 		~BoxArea();
 		BoxArea( float _minX, float _maxX, float _minY, float _maxY, float _minZ, float _maxZ );
-		bool isInArea( Node& cur_node );
+		bool isInArea(const Node& cur_node ) const;
 	private:
 		float minX, maxX;
 		float minY, maxY;
