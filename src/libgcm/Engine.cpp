@@ -667,8 +667,8 @@ float Engine::calculateRecommendedContactTreshold(float tau)
         {
             Mesh* mesh = getBody(j)->getMeshes();
             float h = mesh->getAvgH();
-            if( h < threshold )
-                threshold = h / 4;
+            if( h < threshold * 4.0 )
+                threshold = h / 4.0;
         }
     }
     // Threshold depends on max lambda * tau
