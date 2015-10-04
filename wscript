@@ -320,16 +320,18 @@ def build(bld):
         bld.install_as('${PREFIX}/bin/gcm3d_pv_render.py', 'tools/pv_render.py')
 
     if not bld.env.without_plugins:
-        for plugin in os.listdir(os.path.join('src', 'plugins')):
-            bld(
-                features='cxx cxxshlib',
-                source=bld.path.ant_glob('src/plugins/%s/**/*.cpp' % plugin) + [
-                    bld.path.find_node('src/launcher/util/helpers.cpp')
-                ],
-                use=libs + ['gcm'],
-                name='gcm_' + plugin,
-                target='gcm_' + plugin
-            )
+        plugins_dir = os.path.join('src', 'plugins')
+        if os.path.isdir(plugins_dir):
+            for plugin in os.listdir(plugins_dir):
+                bld(
+                    features='cxx cxxshlib',
+                    source=bld.path.ant_glob('src/plugins/%s/**/*.cpp' % plugin) + [
+                        bld.path.find_node('src/launcher/util/helpers.cpp')
+                    ],
+                    use=libs + ['gcm'],
+                    name='gcm_' + plugin,
+                    target='gcm_' + plugin
+                )
 
 
     if not bld.env.without_tests:
