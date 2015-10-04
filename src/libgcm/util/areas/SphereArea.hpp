@@ -8,7 +8,7 @@ namespace gcm {
 	{
 	public:
 		SphereArea( float _radius, float x, float y, float z );
-		bool isInArea( Node& cur_node );
+		bool isInArea(const Node& cur_node ) const;
 	private:
 		float radius;
 		float center[3];

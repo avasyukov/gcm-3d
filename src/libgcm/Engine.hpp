@@ -48,6 +48,8 @@
 #include "libgcm/Body.hpp"
 #include "libgcm/util/Singleton.hpp"
 
+#include "Plugin.hpp"
+
 #define CONTACT_THRESHOLD_BY_AVG_H 0
 #define CONTACT_THRESHOLD_BY_MAX_LT 1
 #define CONTACT_THRESHOLD_FIXED 2
@@ -68,6 +70,7 @@ namespace gcm
             Options();
          public:
             const static std::string SNAPSHOT_OUTPUT_PATH_PATTERN;
+            const static std::string SNAPSHOT_OUTPUT_DIRECTORY;
         };
 
     friend class Singleton;
@@ -171,6 +174,8 @@ namespace gcm
          */
 		void determineTypeOfCollisionDetector();
 
+        std::vector<gcm::Plugin*> plugins;
+
     public:
         void clear();
         void cleanUp();
@@ -273,7 +278,7 @@ namespace gcm
         void setCurrentTime(float time);
         void syncNodes();
         void syncOutlines();
-        void calculate();
+        void calculate(bool save_snapshots = true);
         void setNumberOfSnaps(int number);
         void setStepsPerSnap(int number);
         AABB getScene();
@@ -307,6 +312,9 @@ namespace gcm
         void setOption(std::string option, std::string value);
         const std::string& getOption(std::string option) const;
         bool hasOption(std::string option) const;
+
+        void loadPlugin(std::string name);
+        const std::vector<Plugin*> getPlugins() const;
     };
 }
 

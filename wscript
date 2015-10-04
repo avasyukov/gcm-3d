@@ -50,7 +50,7 @@ def options(opt):
         default='trace',
         help='Disable libgcm logging routines'
     )
-    
+
     pcog.add_option(
         '--disable-assertions',
         action='store_true',
@@ -70,6 +70,13 @@ def options(opt):
         action='store_true',
         default=False,
         help='Install header files'
+    )
+
+    pcog.add_option(
+        '--without-plugins',
+        action='store_true',
+        default=False,
+        help='Do not build plugins'
     )
 
     pcog.add_option(
@@ -144,9 +151,13 @@ def configure(conf):
     def yes_no(b):
         return 'yes' if b else 'no'
 
-    logging_levels = ['none', 'fatal', 'error', 'warn', 'info', 'debug', 'trace'] 
+    logging_levels = ['none', 'fatal', 'error', 'warn', 'info', 'debug', 'trace']
     if not conf.options.logging_level in logging_levels:
         conf.fatal('Unknown logging level specified. Valid levels are ' + ', '.join(logging_levels))
+
+    if conf.options.static and not conf.options.without_plugins:
+        conf.msg('WARNING: disabling plugins due to static linking')
+        conf.options.without_plugins = True
 
     conf.msg('Prefix', conf.options.prefix)
     conf.msg('Build static lib', yes_no(conf.options.static))
@@ -154,6 +165,7 @@ def configure(conf):
     conf.msg('Logging level', conf.options.logging_level)
     conf.msg('Enable assertions', yes_no(not conf.options.disable_assertions))
     conf.msg('Execute tests', yes_no(not conf.options.without_tests))
+    conf.msg('Build plugins', yes_no(not conf.options.without_plugins))
     conf.msg('Install headers', yes_no(conf.options.with_headers))
     conf.msg('Install resources', yes_no(conf.options.with_resources))
     conf.msg('Add debug symbols', yes_no(conf.options.debug_symbols))
@@ -185,18 +197,22 @@ def configure(conf):
     conf.env.LINKFLAGS += ['-lpthread', '-lrt', '-lstdc++', '-pthread']
     if not conf.env.no_export_dynamic_symbols:
         conf.env.LINKFLAGS += ['-rdynamic']
+    if not conf.env.without_plugins:
+        conf.env.LINKFLAGS += ['-ldl']
 
     conf.env.INCLUDES += [conf.path.find_dir('src').abspath()]
 
     conf.define('CONFIG_INSTALL_PREFIX', os.path.abspath(conf.options.prefix))
     conf.define('CONFIG_SHARE_GCM', os.path.join(os.path.abspath(conf.options.prefix), 'share', 'gcm3d'))
-    
+
     idx = logging_levels.index(conf.env.logging_level)
     conf.define('CONFIG_ENABLE_LOGGING', int(idx != 0))
     for (i, l) in enumerate(logging_levels[1:]):
         conf.define('CONFIG_ENABLE_LOGGING_' + l.upper(), int(i < idx))
 
     conf.define('CONFIG_ENABLE_ASSERTIONS', int(not conf.env.disable_assertions))
+
+    conf.define('CONFIG_ENABLE_PLUGINS', int(not conf.env.without_plugins))
 
     if conf.env.logging_level != 'none':
         libs.append('liblog4cxx')
@@ -302,6 +318,20 @@ def build(bld):
             target='gcm3d'
         )
         bld.install_as('${PREFIX}/bin/gcm3d_pv_render.py', 'tools/pv_render.py')
+
+    if not bld.env.without_plugins:
+        plugins_dir = os.path.join('src', 'plugins')
+        if os.path.isdir(plugins_dir):
+            for plugin in os.listdir(plugins_dir):
+                bld(
+                    features='cxx cxxshlib',
+                    source=bld.path.ant_glob('src/plugins/%s/**/*.cpp' % plugin) + [
+                        bld.path.find_node('src/launcher/util/helpers.cpp')
+                    ],
+                    use=libs + ['gcm'],
+                    name='gcm_' + plugin,
+                    target='gcm_' + plugin
+                )
 
 
     if not bld.env.without_tests:

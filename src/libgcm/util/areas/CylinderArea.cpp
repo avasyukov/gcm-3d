@@ -26,7 +26,7 @@ CylinderArea::CylinderArea( float _radius, float _bX, float _bY, float _bZ, floa
 // divide.  It might be faster to change this to a mult by also passing in
 // 1/lengthsq and using that instead.
 //-----------------------------------------------------------------------------
-bool CylinderArea::isInArea( Node& cur_node )
+bool CylinderArea::isInArea(const Node& cur_node ) const
 {
     real dx = end[0] - begin[0];
     real dy = end[1] - begin[1];
