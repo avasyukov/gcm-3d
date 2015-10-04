@@ -213,8 +213,12 @@ void testIsotropicTransition()
             }
 
             for (int j = 0; j < 9; j++)
-                for (int k = 0; k < 9; k++)
+                for (int k = 0; k < 9; k++) {
                     ASSERT_NEAR(anisotropicMatrix->getA(j, k), isotropicMatrix->getA(j, k), EQUALITY_TOLERANCE);
+					ASSERT_NEAR(anisotropicMatrix->getL(j, k), isotropicMatrix->getL(j, k), EQUALITY_TOLERANCE);
+					ASSERT_NEAR(anisotropicMatrix->getU(j, k), isotropicMatrix->getU(j, k), EQUALITY_TOLERANCE);
+					ASSERT_NEAR(anisotropicMatrix->getU1(j, k), isotropicMatrix->getU1(j, k), EQUALITY_TOLERANCE);
+				}
         }
         Engine::getInstance().clear();
     }
@@ -243,6 +247,9 @@ void compareInitialMatrices(MaterialGenerator generator)
                 break;
             }
             ASSERT_TRUE(analyticalMatrix->getA() == numericalMatrix->getA());
+			ASSERT_TRUE(analyticalMatrix->getL() == numericalMatrix->getL());
+			ASSERT_TRUE(analyticalMatrix->getU() == numericalMatrix->getU());
+			ASSERT_TRUE(analyticalMatrix->getU1() == numericalMatrix->getU1());
         }
         Engine::getInstance().clear();
     }
