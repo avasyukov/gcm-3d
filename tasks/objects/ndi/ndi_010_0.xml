@@ -1,4 +1,4 @@
-<task numberOfSnaps="75" stepsPerSnap="1" xmlns:ndi="gcm3d.plugins.ndi">
+<task numberOfSnaps="200" stepsPerSnap="1" xmlns:ndi="gcm3d.plugins.ndi">
 	<system>
         <defaultContactCalculator type="AdhesionContactCalculator" />
         <meshMovement type="none" />
