@@ -509,9 +509,11 @@ void Engine::doNextStepStages(const float time_step)
 {
     // FIXME - hardcoded name
     NumericalMethod *method = getNumericalMethod("InterpolationFixedAxis");
+	int* randomPermutation = generateRandomPermutation(method->getNumberOfStages());
     for( int j = 0;  j < method->getNumberOfStages(); j++ )
     {
-        LOG_DEBUG("Doing stage " << j);
+        LOG_DEBUG("Doing stage " << randomPermutation[j] << " that goes " << 
+		           j << "-th in the random sequence of stages");
         LOG_DEBUG("Syncing remote nodes");
         dataBus->syncNodes(time_step);
         LOG_DEBUG("Syncing remote nodes done");
@@ -521,7 +523,7 @@ void Engine::doNextStepStages(const float time_step)
             LOG_DEBUG( "Doing calculations for mesh " << mesh->getId() );
             try
             {
-                mesh->doNextPartStep(time_step, j);
+                mesh->doNextPartStep(time_step, randomPermutation[j]);
             }
             catch (Exception& e)
             {
