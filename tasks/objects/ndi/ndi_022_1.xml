@@ -1,0 +1,50 @@
+<task numberOfSnaps="200" stepsPerSnap="1" xmlns:ndi="gcm3d.plugins.ndi">
+	<system>
+        <defaultContactCalculator type="AdhesionContactCalculator" />
+        <meshMovement type="none" />
+        <loadPlugin name="ndi" />
+    </system>
+	<bodies>
+		<body id="ndi_022_1_our">
+			<rheology type="elastic" />
+			<mesh id="ndi_022_1_our" type="cut_cube" h="0.125" numX="560" numY="560" numZ="80" >
+				<cut minX="240" maxX="320" minY="240" maxY="320" minZ="0" maxZ="30" />
+			</mesh>
+            <material id="our" />
+    	</body>
+	</bodies>
+	<materials>
+		<material name="our" rheology="anisotropic">
+			<c11>163944.8</c11>
+			<c12>3767.9</c12>
+			<c13>3767.9</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>8875.6</c22>
+			<c23>2899.1</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>8875.6</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>4282.6</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>4282.6</c55>
+			<c56>0</c56>
+			<c66>4282.6</c66>
+			<rho>1.6</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+	</materials>
+	<ndi:emitter name="ndi_022_1_e" sensor="true">
+		<area type="box" minX="36.4" maxX="38.6" minY="33.9" maxY="36.1" minZ="9.9995" maxZ="11"/>
+		<values vz="-100.0" />
+	</ndi:emitter>
+	<ndi:sensor name="ndi_022_1_s">
+		<area type="box" minX="36.4" maxX="38.6" minY="36.1" maxY="38.1" minZ="9.9995" maxZ="11"/>
+	</ndi:sensor>
+</task>
