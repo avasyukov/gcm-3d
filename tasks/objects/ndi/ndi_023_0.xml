@@ -44,7 +44,10 @@
 		<area type="box" minX="34.7" maxX="35.3" minY="34.7" maxY="35.3" minZ="9.9995" maxZ="11"/>
 		<values vz="-100.0" />
 	</ndi:emitter>
-	<ndi:sensor name="ndi_023_0_s">
+	<ndi:sensor name="ndi_023_0_s_y">
 		<area type="box" minX="34.7" maxX="35.3" minY="35.3" maxY="35.9" minZ="9.9995" maxZ="11"/>
+	</ndi:sensor>
+	<ndi:sensor name="ndi_023_0_s_x">
+		<area type="box" minX="35.3" maxX="35.9" minY="34.7" maxY="35.3" minZ="9.9995" maxZ="11"/>
 	</ndi:sensor>
 </task>
