@@ -89,6 +89,15 @@ void FreeBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheolo
         }
     }
 
+	LOG_TRACE("Fucking FBC: outer_count = " << outer_count << "\nMatrix:\n");
+	for(int i = 0; i < 9; i++) {
+		for(int j = 0; j < 9; j++) {
+			LOG_TRACE(gsl_matrix_get(U_gsl, i, j) << "\t");
+		}
+		LOG_TRACE("\n");
+	}
+			
+			
     // Solve linear equations using GSL tools
     gsl_linalg_LU_decomp (U_gsl, p_gsl, &s);
     gsl_linalg_LU_solve (U_gsl, p_gsl, om_gsl, x_gsl);

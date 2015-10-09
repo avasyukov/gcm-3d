@@ -17,10 +17,6 @@ namespace launcher {
     {
     private:
         void loadMaterialsFromXml(xml::NodeList matNodes);
-		gcm::Area* readCylinderArea(xml::Node areaNode);
-		gcm::Area* readSphereArea(xml::Node areaNode);
-		gcm::Area* readBoxArea(xml::Node areaNode);
-		gcm::Area* readArea(xml::Node areaNode);
 
         std::vector<int> usedMaterialsIds;
 
@@ -30,7 +26,7 @@ namespace launcher {
 
         void loadMaterialLibrary(std::string path);
         void loadSceneFromFile(std::string fileName, std::string initialStateGroup="");
-        
+
     };
         
     void setIsotropicElasticPWave(gcm::CalcNode& node, const gcm::linal::Vector3& direction, gcm::real amplitudeScale, bool compression);

@@ -8,7 +8,7 @@ namespace gcm {
 	{
 	public:
 		CylinderArea( float _radius, float _bX, float _bY, float _bZ, float _eX, float _eY, float _eZ );
-		bool isInArea( Node& cur_node );
+		bool isInArea( const Node& cur_node ) const;
 	private:
 		float radius;
 		float begin[3];

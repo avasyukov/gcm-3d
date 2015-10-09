@@ -56,6 +56,7 @@ int main(int argc, char **argv, char **envp)
 
     bool render = false;
     bool render_only = false;
+    bool save_snapshots = true;
 
     try
     {
@@ -85,6 +86,7 @@ int main(int argc, char **argv, char **envp)
               ("render-output-dir,O"        , renderOutputDirOption  , "directory to write render results to")
               ("render,r"                   ,                          "render results using specified in task description")
               ("render-only,R"              ,                          "render results using specified in task description (skips calculations)")
+              ("without-snapshots,w"        ,                          "do not save snapshot files")
          ;
 
         po::variables_map vm;
@@ -102,6 +104,9 @@ int main(int argc, char **argv, char **envp)
             render = true;
         if (vm.count("render-only"))
             render = render_only = true;
+
+        if (vm.count("without-snapshots"))
+            save_snapshots = false;
     }
     catch(exception& e)
     {
@@ -145,6 +150,7 @@ int main(int argc, char **argv, char **envp)
         if (!bfs::is_directory(outputPathPattern))
             bfs::create_directories(outputPathPattern);
 
+        engine.setOption(Engine::Options::SNAPSHOT_OUTPUT_DIRECTORY, outputPathPattern.string());
         outputPathPattern /= bfs::path("snap_mesh_%{MESH}%{SUFFIX}_cpu_%{RANK}_step_%{STEP}.%{EXT}");
         engine.setOption(Engine::Options::SNAPSHOT_OUTPUT_PATH_PATTERN, outputPathPattern.string());
         
@@ -158,56 +164,51 @@ int main(int argc, char **argv, char **envp)
             launcher::Launcher launcher;
             //launcher.loadMaterialLibrary("materials");
             launcher.loadSceneFromFile(taskFile, initialStateGroup);
-            engine.calculate();
+            engine.calculate(save_snapshots);
 
 
-            if (world.rank() == 0)
-            {
-                vector<vector<tuple<unsigned int, string, string>>> snapshots;
-                mpi::gather(world, engine.getSnapshotsList(), snapshots, 0);
+            if (save_snapshots) {
+                if (world.rank() == 0) {
+                    vector<vector<tuple<unsigned int, string, string>>> snapshots;
+                    mpi::gather(world, engine.getSnapshotsList(), snapshots, 0);
 
-                ofstream snapListFile(snapListFilePath.string());
-                ptree snaps, root;
+                    ofstream snapListFile(snapListFilePath.string());
+                    ptree snaps, root;
 
-                const auto& timestamps = engine.getSnapshotTimestamps();
+                    const auto &timestamps = engine.getSnapshotTimestamps();
 
-                for (uint i = 0; i < timestamps.size(); i++)
-                {
-                    ptree stepSnaps, list;
-                    stepSnaps.put<int>("index", i);
-                    stepSnaps.put<float>("time", timestamps[i]);
-                    for (uint worker = 0; worker <  snapshots.size(); worker++)
-                    {
-                        for (auto snapInfo: snapshots[worker])
-                        {
-                            auto step = get<0>(snapInfo);
-                            auto meshId = get<1>(snapInfo);
-                            auto snapName = get<2>(snapInfo);
+                    for (uint i = 0; i < timestamps.size(); i++) {
+                        ptree stepSnaps, list;
+                        stepSnaps.put<int>("index", i);
+                        stepSnaps.put<float>("time", timestamps[i]);
+                        for (uint worker = 0; worker < snapshots.size(); worker++) {
+                            for (auto snapInfo: snapshots[worker]) {
+                                auto step = get<0>(snapInfo);
+                                auto meshId = get<1>(snapInfo);
+                                auto snapName = get<2>(snapInfo);
 
-                            if (step == i)
-                            {
-                                ptree snap;
-                                snap.put<string>("mesh", meshId);
-                                snap.put<string>("file", snapName);
-                                snap.put<int>("worker", worker);
-                                list.push_back(make_pair("", snap));
+                                if (step == i) {
+                                    ptree snap;
+                                    snap.put<string>("mesh", meshId);
+                                    snap.put<string>("file", snapName);
+                                    snap.put<int>("worker", worker);
+                                    list.push_back(make_pair("", snap));
 
-                            }
-                            else
-                                if (step > i)
+                                }
+                                else if (step > i)
                                     break;
+                            }
                         }
+                        stepSnaps.put_child("snaps", list);
+                        snaps.push_back(make_pair("", stepSnaps));
                     }
-                    stepSnaps.put_child("snaps", list);
-                    snaps.push_back(make_pair("", stepSnaps));
+
+                    root.put_child("snapshots", snaps);
+                    write_json(snapListFile, root);
                 }
-
-                root.put_child("snapshots", snaps);
-                write_json(snapListFile, root);
+                else
+                    mpi::gather(world, engine.getSnapshotsList(), 0);
             }
-            else
-                mpi::gather(world, engine.getSnapshotsList(), 0);
-
             engine.cleanUp();
             GmshFinalize();
         }
@@ -224,7 +225,7 @@ int main(int argc, char **argv, char **envp)
 
             // FIXME this is not portable
             execl(
-                "/bin/env", "/bin/env",
+                "/usr/bin/env", "/usr/bin/env",
                 "pvbatch",
                 pv_render.string().c_str(),
                 "--task", taskFile.c_str(),

@@ -683,4 +683,23 @@ inline void interpolateBox(gcm::real x0, gcm::real y0, gcm::real z0, gcm::real x
     }
 }
 
+/**
+ * Generate pseudorandom permutation of specified length
+ * @param length required length
+ * @return pointer to array contains permutation
+ */
+inline int* generateRandomPermutation(const int length) {
+	srand(time(0));
+	int* permutation = new int[length];
+	for(int i = 0; i < length; i++)
+		permutation[i] = i;
+	// Knuth shuffles from Wikipedia
+	for (int i = 0; i < length; i++) {
+        int j = rand() % (i+1); /* Random j: 0 <= j <= i */
+        permutation[i] = permutation[j]; /* Swap an existing element [j] to position [i] */
+        permutation[j] = i; /* ...and put newly-initialized element [i] in position [j] */
+    }
+	return permutation;
+}
+
 #endif    /* GCM_MATH_H */

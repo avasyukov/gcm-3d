@@ -16,7 +16,7 @@ BoxArea::~BoxArea() {
 
 }
 
-bool BoxArea::isInArea( Node& cur_node )
+bool BoxArea::isInArea( const Node& cur_node ) const
 {
     return ( cur_node.coords[0] < maxX &&
                 cur_node.coords[0] > minX &&

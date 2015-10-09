@@ -20,9 +20,10 @@ namespace xml {
     class Node {
     private:
         xmlNodePtr node;
+        xmlXPathContextPtr ctx = nullptr;
         USE_LOGGER;
     public:
-        Node(const xmlNodePtr node);
+        Node(const xmlNodePtr node, const xmlXPathContextPtr ctx);
 
         std::string getTagName() const;
         NodeList getChildNodes() const;
@@ -42,10 +43,13 @@ namespace xml {
     class Doc {
     private:
         xmlDocPtr doc;
+        xmlXPathContextPtr ctx = nullptr;
 
     public:
         Doc(const xmlDocPtr doc);
         Doc(Doc&& d);
+
+        void registerNamespace(const std::string& prefix, const std::string& uri);
 
         static Doc fromFile(const std::string& fname);
         static Doc fromString(const std::string& str);
