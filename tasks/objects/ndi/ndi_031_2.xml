@@ -1,4 +1,4 @@
-<task numberOfSnaps="200" stepsPerSnap="1" xmlns:ndi="gcm3d.plugins.ndi">
+<task numberOfSnaps="800" stepsPerSnap="1" xmlns:ndi="gcm3d.plugins.ndi">
 	<system>
         <defaultContactCalculator type="AdhesionContactCalculator" />
         <meshMovement type="none" />
@@ -7,8 +7,8 @@
 	<bodies>
 		<body id="ndi_031_2_our">
 			<rheology type="elastic" />
-			<mesh id="ndi_031_2_our" type="cut_cube" h="0.125" numX="560" numY="560" numZ="80" >
-				<cut minX="260" maxX="300" minY="240" maxY="320" minZ="0" maxZ="30" />
+			<mesh id="ndi_031_2_our" type="cut_cube" h="0.25" numX="280" numY="280" numZ="40" >
+				<cut minX="120" maxX="150" minY="130" maxY="150" minZ="0" maxZ="15" />
 			</mesh>
 			<material id="our_0">
 				<area type="box" minX="-1" maxX="100" minY="-1" maxY="100" minZ="-1" maxZ="100"/>

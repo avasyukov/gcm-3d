@@ -1,4 +1,4 @@
-<task numberOfSnaps="200" stepsPerSnap="1" xmlns:ndi="gcm3d.plugins.ndi">
+<task numberOfSnaps="800" stepsPerSnap="1" xmlns:ndi="gcm3d.plugins.ndi">
 	<system>
         <defaultContactCalculator type="AdhesionContactCalculator" />
         <meshMovement type="none" />
@@ -7,23 +7,23 @@
 	<bodies>
 		<body id="ndi_024_4_our">
 			<rheology type="elastic" />
-			<mesh id="ndi_024_4_our" type="cut_cube" h="0.125" numX="560" numY="560" numZ="80" >
-				<cut minX="240" maxX="257" minY="240" maxY="257" minZ="0" maxZ="30" />
-				<cut minX="261" maxX="278" minY="240" maxY="257" minZ="0" maxZ="30" />
-				<cut minX="282" maxX="299" minY="240" maxY="257" minZ="0" maxZ="30" />
-				<cut minX="303" maxX="320" minY="240" maxY="257" minZ="0" maxZ="30" />
-				<cut minX="240" maxX="257" minY="261" maxY="278" minZ="0" maxZ="30" />
-				<cut minX="261" maxX="278" minY="261" maxY="278" minZ="0" maxZ="30" />
-				<cut minX="282" maxX="299" minY="261" maxY="278" minZ="0" maxZ="30" />
-				<cut minX="303" maxX="320" minY="261" maxY="278" minZ="0" maxZ="30" />
-				<cut minX="240" maxX="257" minY="282" maxY="299" minZ="0" maxZ="30" />
-				<cut minX="261" maxX="278" minY="282" maxY="299" minZ="0" maxZ="30" />
-				<cut minX="282" maxX="299" minY="282" maxY="299" minZ="0" maxZ="30" />
-				<cut minX="303" maxX="320" minY="282" maxY="299" minZ="0" maxZ="30" />
-				<cut minX="240" maxX="257" minY="303" maxY="320" minZ="0" maxZ="30" />
-				<cut minX="261" maxX="278" minY="303" maxY="320" minZ="0" maxZ="30" />
-				<cut minX="282" maxX="299" minY="303" maxY="320" minZ="0" maxZ="30" />
-				<cut minX="303" maxX="320" minY="303" maxY="320" minZ="0" maxZ="30" />
+			<mesh id="ndi_024_4_our" type="cut_cube" h="0.25" numX="280" numY="280" numZ="40" >
+				<cut minX="120" maxX="127" minY="120" maxY="127" minZ="0" maxZ="15" />
+				<cut minX="131" maxX="138" minY="120" maxY="127" minZ="0" maxZ="15" />
+				<cut minX="142" maxX="149" minY="120" maxY="127" minZ="0" maxZ="15" />
+				<cut minX="153" maxX="160" minY="120" maxY="127" minZ="0" maxZ="15" />
+				<cut minX="120" maxX="127" minY="131" maxY="138" minZ="0" maxZ="15" />
+				<cut minX="131" maxX="138" minY="131" maxY="138" minZ="0" maxZ="15" />
+				<cut minX="142" maxX="149" minY="131" maxY="138" minZ="0" maxZ="15" />
+				<cut minX="153" maxX="160" minY="131" maxY="138" minZ="0" maxZ="15" />
+				<cut minX="120" maxX="127" minY="142" maxY="149" minZ="0" maxZ="15" />
+				<cut minX="131" maxX="138" minY="142" maxY="149" minZ="0" maxZ="15" />
+				<cut minX="142" maxX="149" minY="142" maxY="149" minZ="0" maxZ="15" />
+				<cut minX="153" maxX="160" minY="142" maxY="149" minZ="0" maxZ="15" />
+				<cut minX="120" maxX="127" minY="153" maxY="160" minZ="0" maxZ="15" />
+				<cut minX="131" maxX="168" minY="153" maxY="160" minZ="0" maxZ="15" />
+				<cut minX="142" maxX="149" minY="153" maxY="160" minZ="0" maxZ="15" />
+				<cut minX="153" maxX="160" minY="153" maxY="160" minZ="0" maxZ="15" />
 			</mesh>
             <material id="our" />
     	</body>
