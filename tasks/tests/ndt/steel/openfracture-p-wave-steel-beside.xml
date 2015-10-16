@@ -1,0 +1,45 @@
+<task numberOfSnaps="50" stepsPerSnap="1">
+	<system>
+		<defaultContactCalculator type="OpenFractureContactCalculator" >
+			<area type="box" minX="-1" maxX="1" minY="-1" maxY="1" minZ="-10" maxZ="10"/>
+		</defaultContactCalculator>
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="main" type="cube" h="0.1" numX="100" numY="100" numZ="25" />
+			<material id="steel" />
+			<transform type="translate" moveX="-5" moveY="-5" moveZ="2.501" />
+		</body>
+		<body id="cube2">
+			<rheology type="elastic" />
+			<mesh id="main2" type="cube" h="0.1" numX="100" numY="100" numZ="25" />
+			<material id="steel" />
+			<transform type="translate" moveX="-5" moveY="-5" moveZ="0" />
+		</body>
+	</bodies>
+	<borderCondition startTime="0.0" duration="0.002" calculator="ExternalForceCalculator"
+	 normalStress="-100" tangentialStress="0" tangentialX="0" tangentialY="1" tangentialZ="0" >
+		<area type="box" minX="-0.5" maxX="0.5" minY="2" maxY="3" minZ="4" maxZ="6"/>
+	</borderCondition>
+    <render>
+        <renderConfig id="cfg1">
+            <meshes>
+                <mesh>main</mesh>
+            </meshes>
+            <render3d output="velocity_clipped_%(step)02d.png">
+                <title>Velocity</title>
+                <quantity min="0" max="0.05">velocity</quantity>
+                <camera position="-15;0;2.5" up="0;0;1" focal="0;0;2.5" angle="30" />
+                <thresholds>
+                    <threshold scalar="used" min="1" max="1" />
+                </thresholds>
+                <clips>
+                    <clip origin="0;0;2.5" normal="1;0;0" />
+                </clips>
+            </render3d>
+        </renderConfig>
+    </render>
+
+</task>
