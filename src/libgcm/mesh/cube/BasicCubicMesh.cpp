@@ -77,20 +77,20 @@ void BasicCubicMesh::preProcessGeometry()
 
 void BasicCubicMesh::calcSpacialSteps()
 {
-	int baseNum = int(numX/2)*(numY+1)*(numZ+1) + int(numY/2)*(numZ+1) + int(numZ/2);
+	int baseNum = int(numZ/2)*(numY+1)*(numX+1) + int(numY/2)*(numX+1) + int(numX/2);
 	CalcNode& base = getNodeByLocalIndex(baseNum);
 
 	int idx;
 
-	idx = baseNum - (numY+1)*(numZ+1);
+	idx = baseNum - 1;
 	CalcNode& node_x = getNodeByLocalIndex(idx);
 	hx = distance(base.coords, node_x.coords);
 
-	idx = baseNum - (numZ+1);
+	idx = baseNum - (numX+1);
 	CalcNode& node_y = getNodeByLocalIndex(idx);
 	hy = distance(base.coords, node_y.coords);
 
-	idx = baseNum - 1;
+	idx = baseNum - (numY+1) * (numX+1);
 	CalcNode& node_z = getNodeByLocalIndex(idx);
 	hz = distance(base.coords, node_z.coords);
 }
