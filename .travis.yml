@@ -20,10 +20,12 @@ before_install:
   - export CXX="g++-4.8"
 
 before_script:
-  - ./waf configure --prefix=build/install --logging-level=info --optimize
-  - ./waf --jobs=4 install
+  - mkdir build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE=RELEASE ..
+  - make -j8
 
-script: ./waf unit-tests func-tests
+script: ./gcm3d_unit_tests && gcm3d_func_tests
 
 after_success:
   - echo 'Success!'
