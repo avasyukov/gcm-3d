@@ -123,6 +123,10 @@ namespace gcm {
          * Isotropic flag.
          */
         bool isotropic = false;
+        /**
+         * Angles of rotation of rheology properties around X, Y, Z axis
+         */
+        vector3r angles;
     public:
         /**
          * Constructor. Constructs isotropic material using specified parameters.
@@ -276,6 +280,12 @@ namespace gcm {
          * @return Plasticity properties.
          */
         const PlasticityProperties& getPlasticityProperties() const;
+        /**
+         * Returns angles of rotation of rheology properties
+         *
+         * @return Vector of three angles
+         */
+        const vector3r& getAngles() const;
     };
 
     typedef std::shared_ptr<Material> MaterialPtr;

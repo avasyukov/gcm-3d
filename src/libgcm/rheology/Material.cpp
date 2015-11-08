@@ -166,6 +166,10 @@ Material::Material(string name, real rho, RheologyProperties rheologyProps, Plas
         
 Material::Material(const shared_ptr<Material>& source, string name, double a1, double a2, double a3): Material(name, source->rho, source->rheologyProps, source->plasticityProps, source->failureProps)
 {
+	angles[0] = a1;
+	angles[1] = a2;
+	angles[2] = a3;
+
     rheologyProps.rotate(a1, a2, a3);
 }
 
@@ -214,3 +218,7 @@ const Material::FailureProperties& Material::getFailureProperties() const
     return failureProps;
 }
 
+const vector3r& Material::getAngles() const
+{
+	return angles;
+}
