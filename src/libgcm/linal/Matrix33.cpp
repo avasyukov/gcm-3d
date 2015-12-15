@@ -1,4 +1,5 @@
 #include "libgcm/linal/Matrix33.hpp"
+#include "libgcm/linal/RotationMatrix.hpp"
 #include "libgcm/util/Assertion.hpp"
 
 using namespace gcm;
@@ -11,29 +12,5 @@ real gcm::linal::determinant(const Matrix33& m)
 
 Matrix33 gcm::linal::rotate(const Matrix33& m, real a1, real a2, real a3)
 {
-	auto G1 = [](real a) {
-		return Matrix33({
-			1.0,		0.0,		0.0,
-			0.0,		cos(a),		-sin(a),
-			0.0,		sin(a),		cos(a)
-		});
-	};
-
-	auto G2 = [](real a) {
-		return Matrix33({
-			cos(a),		0.0,		sin(a),
-			0.0,		1.0,		0.0,
-			-sin(a),	0.0,		cos(a)
-		});
-	};
-
-	auto G3 = [](real a) {
-		return Matrix33({
-			cos(a),		-sin(a),	0.0,
-			sin(a),		cos(a),		0.0,
-			0.0,		0.0,		1.0
-		});
-	};
-
-	return G3(-a3) * G2(-a2) * G1(-a1) * m * G1(a1) * G2(a2) * G3(a3);
+	return getZRotationMatrix(-a3) * getYRotationMatrix(-a2) * getXRotationMatrix(-a1) * m * getXRotationMatrix(a1) * getYRotationMatrix(a2) * getZRotationMatrix(a3);
 };

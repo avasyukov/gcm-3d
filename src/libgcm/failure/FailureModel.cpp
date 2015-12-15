@@ -55,7 +55,7 @@ CalcNode FailureModel::prepare_node(ICalcNode& node)
 
 	const vector3r& angles = node.getMaterial()->getAngles();
 
-	Matrix33 rot = rotate(mat, angles[0], angles[1], angles[2]);
+	Matrix33 rot = rotate(mat, -angles[0], -angles[1], -angles[2]);
 
 	result.sxx = rot(0, 0);	result.sxy = rot(0, 1);	result.sxz = rot(0, 2);
 	result.syy = rot(1, 1);	result.syz = rot(1, 2);
