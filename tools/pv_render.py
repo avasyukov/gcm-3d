@@ -1,4 +1,4 @@
-#!/bin/env python2
+#!/usr/bin/env python
 
 import sys
 import libxml2
@@ -7,9 +7,9 @@ import os
 import argparse
 import logging
 
-from paraview.simple import GetParaViewVersion
+#from paraview.simple import GetParaViewVersion
 
-USE_API_4_2 = [int(x) for x in str(GetParaViewVersion()).split('.')] >= [4, 2]
+USE_API_4_2 = False #[int(x) for x in str(GetParaViewVersion()).split('.')] >= [4, 2]
 
 def render(step, output_pattern, out_dir):
     from paraview.simple import WriteImage
@@ -266,7 +266,7 @@ def render_all(args, task, snapshotsList):
         logger.info('Processing render config (%s)' % rc.prop('id'))
         for snaps in snapshotsList:
             cmd = [
-                '/bin/env',
+                '/usr/bin/env',
                 'pvbatch', '--use-offscreen-rendering',
                 sys.argv[0],
                 '--task', args.task,

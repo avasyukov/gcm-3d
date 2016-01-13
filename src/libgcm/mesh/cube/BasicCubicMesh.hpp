@@ -39,7 +39,14 @@ namespace gcm
 
         virtual void findNearestsNodes(const vector3r& coords, int N, std::vector< std::pair<int,float> >& result);
 
+        // Evaluates sizes of basic element along each axis
+        void calcSpacialSteps();
+
+        // Minimal size of basic element
         float meshH;
+
+        // Sizes of basic element along axis
+        float hx, hy, hz;
 
         // Number of cubes along axis
         int numX, numY, numZ;

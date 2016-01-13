@@ -35,9 +35,8 @@ void VTKCubicSnapshotWriter::dumpMeshSpecificData(BasicCubicMesh* mesh,
     // Specify the dimensions of the grid
     AABB outline = mesh->getOutline();
     // We suppose that mesh is uniform
-    float meshH = mesh->getMinH();
-    int meshSizeX = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
-	int meshSizeY = 1 + (outline.maxY - outline.minY + meshH * 0.1) / meshH;
-	int meshSizeZ = 1 + (outline.maxZ - outline.minZ + meshH * 0.1) / meshH;
+    int meshSizeX = 1 + mesh->getNumX();
+	int meshSizeY = 1 + mesh->getNumY();
+	int meshSizeZ = 1 + mesh->getNumZ();
     grid->SetDimensions(meshSizeX, meshSizeY, meshSizeZ);
 }

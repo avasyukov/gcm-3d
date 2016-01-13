@@ -1,39 +1,20 @@
+sudo: required
+
+services:
+  - docker
+
 language: cpp
 
-compiler:
-  - gcc
-
 before_install:
-  - echo $LANG
-  - echo $LC_ALL
-  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-  - sudo add-apt-repository ppa:boost-latest/ppa -y
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq openmpi-dev libgsl0-dev libxml2-dev libvtk5-dev liblog4cxx10-dev libgtest-dev cmake make libboost1.55-all-dev g++-4.8 gnuplot
-  - cd /usr/src/gtest
-  - sudo cmake .
-  - sudo make
-  - sudo mv libg* /usr/lib/
-  - cd -
-  - wget https://dl.dropboxusercontent.com/u/19548163/mipt/gcm3d-deps/debs/build_20150418-1_amd64.deb
-  - sudo dpkg -i build_20150418-1_amd64.deb
-  - export CXX="g++-4.8"
+  - cd ..
+  - cp gcm-3d/tools/docker/travis-ci-tests/run_tests.sh .
+  - docker build -t fufler/gcm3d-travis-ci-tests -f gcm-3d/tools/docker/travis-ci-tests/Dockerfile .
 
-before_script:
-  - ./waf configure --prefix=build/install --logging-level=info --optimize
-  - ./waf --jobs=4 install
-
-script: ./waf unit-tests func-tests
-
-after_success:
-  - echo 'Success!'
-
+script:
+  - docker run fufler/gcm3d-travis-ci-tests /bin/sh /root/gcm-3d/run_tests.sh
 branches:
   only:
     - master
 
 notifications:
   email: false
-
-os:
-  - linux

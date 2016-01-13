@@ -300,6 +300,9 @@ void Mesh::scale(float x0, float y0, float z0,
     {
         areaOfInterest.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
     }
+
+    preProcessGeometry();
+
     Engine::getInstance().scaleScene(x0, y0, z0, scaleX, scaleY, scaleZ);
 }
 

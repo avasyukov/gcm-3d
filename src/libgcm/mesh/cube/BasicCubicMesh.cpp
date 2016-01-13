@@ -16,7 +16,7 @@ using std::min;
 
 BasicCubicMesh::BasicCubicMesh() : Mesh(launcher::BasicCubicMeshLoader::MESH_TYPE)
 {
-    meshH = numeric_limits<float>::infinity();
+    hx = hy = hz = meshH = numeric_limits<float>::infinity();
     // FIXME - hardcoded name
     numericalMethodType = "InterpolationFixedAxis";
     // FIXME - hardcoded parameter
@@ -29,7 +29,7 @@ BasicCubicMesh::BasicCubicMesh() : Mesh(launcher::BasicCubicMeshLoader::MESH_TYP
 
 BasicCubicMesh::BasicCubicMesh(std::string _type) : Mesh(_type)
 {
-    meshH = numeric_limits<float>::infinity();
+    hx = hy = hz = meshH = numeric_limits<float>::infinity();
     // FIXME - hardcoded name
     numericalMethodType = "InterpolationFixedAxis";
     // FIXME - hardcoded parameter
@@ -69,7 +69,30 @@ void BasicCubicMesh::preProcessGeometry()
             }
         }
     }
+
+    calcSpacialSteps();
+
     LOG_DEBUG("Preprocessing mesh geometry done.");
+}
+
+void BasicCubicMesh::calcSpacialSteps()
+{
+	int baseNum = int(numZ/2)*(numY+1)*(numX+1) + int(numY/2)*(numX+1) + int(numX/2);
+	CalcNode& base = getNodeByLocalIndex(baseNum);
+
+	int idx;
+
+	idx = baseNum - 1;
+	CalcNode& node_x = getNodeByLocalIndex(idx);
+	hx = distance(base.coords, node_x.coords);
+
+	idx = baseNum - (numX+1);
+	CalcNode& node_y = getNodeByLocalIndex(idx);
+	hy = distance(base.coords, node_y.coords);
+
+	idx = baseNum - (numY+1) * (numX+1);
+	CalcNode& node_z = getNodeByLocalIndex(idx);
+	hz = distance(base.coords, node_z.coords);
 }
 
 void BasicCubicMesh::doNextPartStep(float tau, int stage)
@@ -168,8 +191,8 @@ int BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, float
 	bool debug, float* coords, bool* innerPoint)
 {
     //int meshSizeX = 1 + (outline.maxX - outline.minX + meshH * 0.1) / meshH;
-	int meshSizeY = 1 + (outline.maxY - outline.minY + meshH * 0.1) / meshH;
-	int meshSizeZ = 1 + (outline.maxZ - outline.minZ + meshH * 0.1) / meshH;
+	int meshSizeY = numY + 1;
+	int meshSizeZ = numZ + 1;
 
     assert_le(vectorSquareNorm(dx, dy, dz), getMinH() * getMinH() * (1 + EQUALITY_TOLERANCE) );
 
@@ -292,12 +315,12 @@ void BasicCubicMesh::findNearestsNodes(const vector3r& coords, int N, vector< pa
 {
 	int n = 0;//floor( pow( (float)(N), 1.0 / 3.0 ) );
 
-	int i_min =	max( int( (coords[0] - outline.minX) / meshH ) - n, 0);
-	int i_max =	min( int( (coords[0] - outline.minX) / meshH ) + 1 + n, numX);
-	int j_min =	max( int( (coords[1] - outline.minY) / meshH ) - n, 0);
-	int j_max =	min( int( (coords[1] - outline.minY) / meshH ) + 1 + n, numY);
-	int k_min =	max( int( (coords[2] - outline.minZ) / meshH ) - n, 0);
-	int k_max =	min( int( (coords[2] - outline.minZ) / meshH ) + 1 + n, numZ);
+	int i_min =	max( int( (coords[0] - outline.minX) / hx ) - n, 0);
+	int i_max =	min( int( (coords[0] - outline.minX) / hx ) + 1 + n, numX);
+	int j_min =	max( int( (coords[1] - outline.minY) / hy ) - n, 0);
+	int j_max =	min( int( (coords[1] - outline.minY) / hy ) + 1 + n, numY);
+	int k_min =	max( int( (coords[2] - outline.minZ) / hz ) - n, 0);
+	int k_max =	min( int( (coords[2] - outline.minZ) / hz ) + 1 + n, numZ);
 
 	int num;
 	for( int k = k_min; k <= k_max; k++ )
