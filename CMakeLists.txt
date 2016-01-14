@@ -82,7 +82,7 @@ set(LAUNCHER_COMMON_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/launcher/launcher.cpp
 )
 
-set(CMAKE_CONFIG_SHARE_GCM "${CMAKE_INSTAL_PREFIX}/share/gcm3d")
+set(CMAKE_CONFIG_SHARE_GCM "${CMAKE_INSTALL_PREFIX}/share/gcm3d")
 
 configure_file("${CMAKE_CURRENT_LIST_DIR}/cmake/config.hpp.in" "${CMAKE_CURRENT_BINARY_DIR}/generated_sources/libgcm/config.hpp")
 include_directories("${CMAKE_CURRENT_LIST_DIR}/src/" "${CMAKE_CURRENT_BINARY_DIR}/generated_sources/")
