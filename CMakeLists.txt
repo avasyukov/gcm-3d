@@ -124,3 +124,7 @@ install(
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
 )
+
+install(
+    FILES tools/pv_render.py DESTINATION bin RENAME gcm3d_pv_render.py
+)
