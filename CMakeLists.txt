@@ -68,7 +68,6 @@ endif()
 
 
 file(GLOB_RECURSE LIB_SOURCES        "${CMAKE_CURRENT_LIST_DIR}/src/libgcm/*.cpp")
-file(GLOB_RECURSE LAUNCHER_SOURCES   "${CMAKE_CURRENT_LIST_DIR}/src/launcher/*.cpp")
 file(GLOB_RECURSE UNIT_TESTS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/tests/unit/*.cpp")
 file(GLOB_RECURSE FUNC_TESTS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/tests/func/*.cpp")
 file(GLOB_RECURSE PERF_TESTS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/tests/perf/*.cpp")
@@ -90,7 +89,7 @@ include_directories("${CMAKE_CURRENT_LIST_DIR}/src/" "${CMAKE_CURRENT_BINARY_DIR
 
 add_library(gcm SHARED ${LIB_SOURCES})
 add_library(launcher OBJECT ${LAUNCHER_COMMON_SOURCES})
-add_executable(gcm3d ${LAUNCHER_SOURCES})
+add_executable(gcm3d "${CMAKE_CURRENT_LIST_DIR}/src/launcher/main.cpp" $<TARGET_OBJECTS:launcher>)
 
 add_executable(gcm3d_unit_tests ${UNIT_TESTS_SOURCES} $<TARGET_OBJECTS:launcher>)
 add_executable(gcm3d_func_tests ${FUNC_TESTS_SOURCES} $<TARGET_OBJECTS:launcher>)
