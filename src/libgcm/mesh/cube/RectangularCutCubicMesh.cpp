@@ -1,5 +1,7 @@
 #include "libgcm/mesh/cube/RectangularCutCubicMesh.hpp"
 
+#include <cmath>
+
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
 #include "launcher/loaders/mesh/RectangularCutCubicMeshLoader.hpp"
@@ -12,6 +14,7 @@ using std::vector;
 using std::sort;
 using std::max;
 using std::min;
+using std::isinf;
 
 
 RectangularCutCubicMesh::RectangularCutCubicMesh() :

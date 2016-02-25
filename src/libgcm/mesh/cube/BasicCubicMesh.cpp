@@ -1,5 +1,7 @@
 #include "libgcm/mesh/cube/BasicCubicMesh.hpp"
 
+#include <cmath>
+
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
 #include "launcher/loaders/mesh/BasicCubicMeshLoader.hpp"
@@ -12,6 +14,7 @@ using std::vector;
 using std::sort;
 using std::max;
 using std::min;
+using std::isinf;
 
 
 BasicCubicMesh::BasicCubicMesh() : Mesh(launcher::BasicCubicMeshLoader::MESH_TYPE)
