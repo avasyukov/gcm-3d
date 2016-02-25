@@ -1,5 +1,7 @@
 #include "libgcm/mesh/Mesh.hpp"
 
+#include <cmath>
+
 #include "libgcm/node/CalcNode.hpp"
 
 using namespace gcm;
@@ -10,6 +12,7 @@ using std::min;
 using std::max;
 using std::unordered_map;
 using std::function;
+using std::isinf;
 
 Mesh::Mesh()
 {

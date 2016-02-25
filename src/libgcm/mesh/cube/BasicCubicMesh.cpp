@@ -1,10 +1,19 @@
 #include "libgcm/mesh/cube/BasicCubicMesh.hpp"
 
+#include <cmath>
+
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/snapshot/VTKCubicSnapshotWriter.hpp"
 
 using namespace gcm;
 using std::numeric_limits;
+using std::pair;
+using std::make_pair;
+using std::vector;
+using std::sort;
+using std::max;
+using std::min;
+using std::isinf;
 
 BasicCubicMesh::BasicCubicMesh()
 {

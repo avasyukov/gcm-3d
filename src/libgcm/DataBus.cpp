@@ -1,5 +1,8 @@
 #include "libgcm/DataBus.hpp"
 
+#include <vector>
+#include <cmath>
+
 #include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/mesh/Mesh.hpp"
@@ -15,6 +18,7 @@ do { \
 using namespace gcm;
 using std::vector;
 using std::map;
+using std::isinf;
 
 DataBus::DataBus() {
     INIT_LOGGER("gcm.DataBus");
