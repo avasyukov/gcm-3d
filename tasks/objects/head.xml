@@ -4,13 +4,175 @@
         <timeStep multiplier="0.99"/>
     </system>
     <bodies>
-        <body id="corpse">
+        <body id="body">
             <rheology type="elastic" />
-            <mesh id="corpse" type="vtu2" file="models/ani3d/mesh.vtu" />
+            <mesh id="body" type="markered-mesh-ani-uber" cellSize="2.4;2.4;2.4" cellsNum="238;125;138" source="models/ani3d/mesh.out" />
+            <material id="3">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="4">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="11">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="12">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="21">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="22">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="24">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="25">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="26">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="27">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="28">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="29">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="30">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="31">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
+            <material id="32">
+                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>                
+            </material>
         </body>
     </bodies>
 
     <materials>
+      <!--
+
+        3 fat
+        4 muscle
+        11 thyroid gland
+        12 larynx
+        21 bones
+        22 trachea
+        24 white matter
+        25 esophagus
+        26 blood vessels
+        27 brain
+        28 eyes
+        29 eye nerves
+        30 tongue
+        31 tonsil
+        32 nose
+
+      -->
+      <material name="3" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="4" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="11" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="12" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="21" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="22" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="24" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="25" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="26" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="27" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="28" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="29" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="30" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="31" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="32" rheology="isotropic">
+        <la>786000000</la>
+        <mu>1180000000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+
+
+
+
+
+
+
+
       <material name="bones" rheology="isotropic">
         <la>786000000</la>
         <mu>1180000000</mu>

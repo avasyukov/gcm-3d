@@ -285,7 +285,7 @@ unsigned char Engine::getMaterialIndex(string name)
     for (unsigned char i = 0; i < materials.size(); i++)
         if (materials[i]->getName() == name)
             return i;
-    THROW_INVALID_ARG("Material was not found");
+    THROW_INVALID_ARG("Material was not found: " + name);
 }
 
 const MaterialPtr& Engine::getMaterial(string name)

@@ -226,7 +226,8 @@ void Ani3DTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDis
         tetrsCount++;
         int number = tetrs->size();
         int vert[4];
-        infile >> vert[0] >> vert[1] >> vert[2] >> vert[3] >> tmp_int;
+        int mat;
+        infile >> vert[0] >> vert[1] >> vert[2] >> vert[3] >> mat;
 
         if( (vert[0] <= 0) || (vert[1] <= 0) || (vert[2] <= 0) || (vert[3] <= 0) )
             THROW_INVALID_INPUT("Wrong file format");
@@ -237,7 +238,7 @@ void Ani3DTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDis
                 || mesh->hasNode(vert[1])
                 || mesh->hasNode(vert[2])
                 || mesh->hasNode(vert[3]) )
-            tetrs->push_back( new TetrFirstOrder( number, vert ) );
+            tetrs->push_back( new TetrFirstOrder( number, vert, mat ) );
 	else
 	{
 	    LOG_DEBUG("Unkndes: " << tetrsCount <<" v: " <<vert[0] <<" " <<vert[1] <<" " <<vert[2] <<" "  <<vert[3] 

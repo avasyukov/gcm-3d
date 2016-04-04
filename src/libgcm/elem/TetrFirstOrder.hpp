@@ -11,7 +11,7 @@ namespace gcm {
     class TetrFirstOrder {
     public:
         TetrFirstOrder();
-        TetrFirstOrder(int n, int v[4]);
+        TetrFirstOrder(int n, int v[4], int mat = -1);
         /*
          * Number of current tetr
          */
@@ -20,6 +20,7 @@ namespace gcm {
          * List of tetr vertices.
          */
         int verts[4];
+        int mat = -1;
     };
 }
 

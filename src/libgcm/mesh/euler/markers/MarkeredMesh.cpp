@@ -4,9 +4,12 @@
 
 #include <queue>
 #include <tuple>
+#include <string>
 
 using namespace gcm;
 
+using std::string;
+using std::to_string;
 using std::queue;
 using std::vector;
 using std::unordered_map;
@@ -32,7 +35,9 @@ void MarkeredMesh::preProcessGeometry()
     Engine& engine = Engine::getInstance();
     for (const auto& _m: surface.meshes)
     {
-        const auto& mat = _m.first;
+
+        string mat = _m.first;
+        bool matFromTetr = surface.meshes.size() == 1 && mat.empty();
         auto mesh = _m.second;
         for (auto& t: mesh->tetrs1)
         {
@@ -52,6 +57,8 @@ void MarkeredMesh::preProcessGeometry()
                     for (uint k = minCellIndex.z; k <= maxCellIndex.z+1; k++)
                     {
                         auto& node = getNodeByEulerMeshIndex(vector3u(i, j, k));
+                        if (matFromTetr)
+                            mat = to_string(t.mat);
                         node.setMaterialId(engine.getMaterialIndex(mat));
                     }
 
