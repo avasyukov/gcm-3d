@@ -1,0 +1,21 @@
+<task numberOfSnaps="25" stepsPerSnap="10">
+	<system>
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+		<body id="pw-cons">
+			<rheology type="elastic" />
+			<mesh id="pw-cons" type="geo2" file="models/cube.geo" tetrSize="0.4" />
+			<material id="testMaterial" />
+		</body>
+	</bodies>
+
+    	<borderCondition calculator="ConsumingBorderCalculator">
+      		<area type="box" minX="-360" maxX="199" minY="-300" maxY="250" minZ="-240" maxZ="270"/>
+    	</borderCondition>
+
+	<initialState>
+		<area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-3" maxZ="-1"/>
+		<values vz="300" sxx="70000" syy="70000" szz="90000" />
+	</initialState>
+</task>

@@ -8,6 +8,7 @@
 #include "libgcm/calc/border/FixedBorderCalculator.hpp"
 #include "libgcm/calc/border/FreeBorderCalculator.hpp"
 #include "libgcm/calc/border/SmoothBorderCalculator.hpp"
+#include "libgcm/calc/border/ConsumingBorderCalculator.hpp"
 #include "libgcm/calc/contact/SlidingContactCalculator.hpp"
 #include "libgcm/calc/contact/AdhesionContactCalculator.hpp"
 #include "libgcm/calc/contact/ClosedFractureContactCalculator.hpp"
@@ -81,6 +82,7 @@ Engine::Engine()
     registerBorderCalculator( new FixedBorderCalculator() );
     registerBorderCalculator( new FreeBorderCalculator() );
     registerBorderCalculator( new SmoothBorderCalculator() );
+    registerBorderCalculator( new ConsumingBorderCalculator() );
     registerContactCalculator( new SlidingContactCalculator() );
     registerContactCalculator( new AdhesionContactCalculator() );
     registerContactCalculator( new AdhesionContactDestroyCalculator() );
