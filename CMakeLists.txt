@@ -75,6 +75,8 @@ file(GLOB_RECURSE PERF_TESTS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/tests/perf/*
 file(GLOB_RECURSE LAUNCHER_UTILS_SOURCES   "${CMAKE_CURRENT_LIST_DIR}/src/launcher/util/*.cpp")
 file(GLOB_RECURSE LAUNCHER_LOADERS_SOURCES   "${CMAKE_CURRENT_LIST_DIR}/src/launcher/loaders/*.cpp")
 
+file(GLOB AVAILABLE_PLUGINS   "${CMAKE_CURRENT_LIST_DIR}/src/plugins/*")
+
 set(LAUNCHER_COMMON_SOURCES
     ${LAUNCHER_UTILS_SOURCES}
     ${LAUNCHER_LOADERS_SOURCES}
@@ -101,6 +103,14 @@ foreach(perftestsource ${PERF_TESTS_SOURCES})
         add_executable("gcm3d_perf_test_${perftest}" "${perftestsource}" $<TARGET_OBJECTS:perf_test_util> $<TARGET_OBJECTS:launcher>)
         target_link_libraries("gcm3d_perf_test_${perftest}" gcm)
     endif()
+endforeach()
+
+
+foreach(plugin ${AVAILABLE_PLUGINS})
+    file(GLOB_RECURSE PLUGIN_SOURCES   "${plugin}/*.cpp")
+    get_filename_component(plugin_name "${plugin}" NAME_WE)
+    add_library("gcm_${plugin_name}" SHARED ${PLUGIN_SOURCES})
+    target_link_libraries("gcm_${plugin_name}" gcm)
 endforeach()
 
 target_link_libraries(gcm ${MPI_CXX_LIBRARIES})
