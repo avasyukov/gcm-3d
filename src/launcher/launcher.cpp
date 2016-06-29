@@ -20,6 +20,8 @@
 #include "launcher/util/FileFolderLookupService.hpp"
 
 #include "libgcm/util/forms/StepPulseForm.hpp"
+#include "libgcm/util/forms/SinusGaussForm.hpp"
+
 #include "libgcm/mesh/Mesh.hpp"
 #include "libgcm/Engine.hpp"
 #include "libgcm/Logging.hpp"
@@ -669,6 +671,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
     for(auto& borderConditionNode: borderConditionNodes)
     {
         string calculator = borderConditionNode["calculator"];
+        unsigned int conditionId = -1;
         if( engine.getBorderCalculator(calculator) == NULL )
         {
             THROW_INVALID_INPUT("Unknown border calculator requested: " + calculator);
@@ -676,19 +679,33 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
         
         // FIXME_ASAP: calculators became statefull
         engine.getBorderCalculator(calculator)->setParameters( borderConditionNode );
+
+        if (borderConditionNode.getAttributeByName("type", "false") == "false") 
+        {
+            float startTime = lexical_cast<real>(borderConditionNode.getAttributeByName("startTime", "-1"));
+            float duration = lexical_cast<real>(borderConditionNode.getAttributeByName("duration", "-1"));
         
-        float startTime = lexical_cast<real>(borderConditionNode.getAttributeByName("startTime", "-1"));
-        float duration = lexical_cast<real>(borderConditionNode.getAttributeByName("duration", "-1"));
-        
-        unsigned int conditionId = engine.addBorderCondition(
+            conditionId = engine.addBorderCondition(
                 new BorderCondition(NULL, new StepPulseForm(startTime, duration), engine.getBorderCalculator(calculator) ) 
-        );
-        LOG_INFO("Border condition created with calculator: " + calculator);
+            );
+            LOG_INFO("Border condition (common) created with calculator: " + calculator);
         
+        }
+        else if (borderConditionNode.getAttributeByName("type", "false") == "sinus_gauss")
+        {
+            float omega = lexical_cast<real>(borderConditionNode.getAttributeByName("omega", "0"));
+            float tau = lexical_cast<real>(borderConditionNode.getAttributeByName("tau", "0"));
+            float startTime = lexical_cast<real>(borderConditionNode.getAttributeByName("startTime", "0"));
+
+            conditionId = engine.addBorderCondition(
+                new BorderCondition(NULL, new SinusGaussForm(omega, tau, startTime), engine.getBorderCalculator(calculator) )
+            );
+            LOG_INFO("Border condition (SinusGauss) created with calculator: " + calculator);
+
+        }
         NodeList areaNodes = borderConditionNode.getChildrenByName("area");
         if (areaNodes.size() == 0)
             THROW_INVALID_INPUT("Area should be specified for border condition");
-        
         for(auto& areaNode: areaNodes)
         {
             Area* conditionArea = readArea(areaNode);
@@ -700,6 +717,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 engine.getBody(i)->setBorderCondition(conditionArea, conditionId);
             }
         }
+    
     }
     
     NodeList contactConditionNodes = rootNode.xpath("/task/contactCondition");
