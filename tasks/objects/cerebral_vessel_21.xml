@@ -1,0 +1,56 @@
+<task numberOfSnaps="60" stepsPerSnap="5" xmlns:ndi="gcm3d.plugins.ndi">
+    <system>
+        <meshMovement type="none" />
+        <timeStep multiplier="0.5"/>
+        <loadPlugin name="ndi" />
+    </system>
+    <bodies>
+        <body id="cer_ves_21">
+            <rheology type="elastic" />
+            <mesh id="cer_ves_21" type="geo2" file="models/meat_cube.geo" tetrSize="0.5" />
+            <!--mesh id="cer_ves_2" type="cube" h="0.1" numX="100" numY="100" numZ="100" /-->
+            <!--transform type="translate" moveX="-5" moveY="-5" moveZ="-5" /-->
+            <material id="muscle">
+		        <area type="cylinder" r="100" x1="0" y1="0" z1="-100" x2="0" y2="0" z2="100" />
+	        </material>
+            <!--material id="aorta">
+                <area type="cylinder" r="1.5" x1="0" y1="0" z1="-100" x2="0" y2="0" z2="100" />
+            </material-->
+            <!--material id="blood">
+                <area type="cylinder" r="1" x1="0" y1="0" z1="-100" x2="0" y2="0" z2="100" />
+            </material-->
+        </body>
+    </bodies>
+
+    <materials>
+      <material name="aorta" rheology="isotropic">
+        <la>9210000</la>
+        <mu>190000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="blood" rheology="isotropic">
+        <la>239000</la>
+        <mu>500</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="muscle" rheology="isotropic">
+        <la>3070000</la>
+        <mu>2050000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+    </materials>
+
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="4.99" minY="-300" maxY="250" minZ="-240" maxZ="270"/>
+    </borderCondition>
+
+     <ndi:emitter name="cer_ves_21_e" sensor="true" type="array" axis="z" n="30" F="10" dF="0">
+                <borderCondition calculator="ExternalForceCalculator" normalStress="10000" tangentialStress="0.0" startTime = "0.0" type="sinus_gauss" omega="300000" tau="0.2e-9"/> 
+                <area type="box" minX="-200" maxX="-4.99" minY="-5" maxY="5" minZ="-5" maxZ="5"/>
+    </ndi:emitter>
+
+</task>
+

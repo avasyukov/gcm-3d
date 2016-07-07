@@ -8,6 +8,8 @@
 #include "launcher/util/helpers.hpp"
 
 #include "SimpleVolumeSensor.hpp"
+#include "DelayedSensor.hpp"
+
 #include "libgcm/util/areas/BoxArea.hpp"
 #include "libgcm/util/forms/SinusGaussForm.hpp"
 #include "libgcm/util/forms/StepPulseForm.hpp"
@@ -74,7 +76,7 @@ void NDIPlugin::parseTask(xml::Doc& doc)
         else if (emitter.getAttributeByName("type", "false") == "array") //phased arrat
         {       
 
-            //building sensors
+            //calculating area parameters
             float min, max;
             int n = lexical_cast<int>(emitter.getAttributeByName("n"));
             string a = emitter.getAttributeByName("axis");
@@ -87,20 +89,6 @@ void NDIPlugin::parseTask(xml::Doc& doc)
             else if (a == "z")
                 { min = b->minZ; max = b->maxZ; }
             float w = (max - min) / n;
-            if (emitter.getAttributeByName("sensor", "false") == "true")
-            {
-                for (int i=0; i<n; i++)
-                {
-                    if (a == "x")
-                        nb = new BoxArea(min + i*w, min + (i+1)*w, b->minY, b->maxY, b->minZ, b->maxZ);
-                    else if (a == "y")
-                        nb = new BoxArea(b->minX, b->maxX, min + i*w, min + (i+1)*w, b->minZ, b->maxZ);
-                    else
-                        nb = new BoxArea(b->minX, b->maxX, b->minY, b->maxY, min + i*w, min + (i+1)*w);
-                    this->sensors.push_back(new SimpleVolumeSensor(name + lexical_cast<string>(i), nb, engine)); // <--actually building sensors
-                }
-            }
-
 
             //calculator initialization - one for all coditions
             xml::Node borderConditionNode = emitter.getChildrenByName("borderCondition").front();
@@ -137,8 +125,9 @@ void NDIPlugin::parseTask(xml::Doc& doc)
             unsigned int conditionId = -1;
             for (int i=0; i<n; i++)
             {
-                dt = - (x[i] - Xmax) / vel;                
-                LOG_INFO("dt " <<dt);
+                dt = (Xmax - x[i]) / vel;                
+                if (F == 0) dt = 0;
+                //LOG_INFO("dt " <<dt);
                 if (calcType == "sinus_gauss")
                     conditionId = engine->addBorderCondition(
                         new BorderCondition(NULL, new SinusGaussForm(omega, tau, dt), engine->getBorderCalculator(calculator) )
@@ -161,6 +150,26 @@ void NDIPlugin::parseTask(xml::Doc& doc)
                 }
                 delete conditionArea;
             }
+
+            //building sensors
+            if (emitter.getAttributeByName("sensor", "false") == "true")
+            {
+                for (int i=0; i<n; i++)
+                {
+                    dt = (x[i]) / vel;
+                    if (F == 0) dt = 0;
+                    dt += tau * 35000; //magic constant tu cut the initial signal from sensors data
+                    if (a == "x")
+                        nb = new BoxArea(min + i*w, min + (i+1)*w, b->minY, b->maxY, b->minZ, b->maxZ);
+                    else if (a == "y")
+                        nb = new BoxArea(b->minX, b->maxX, min + i*w, min + (i+1)*w, b->minZ, b->maxZ);
+                    else
+                        nb = new BoxArea(b->minX, b->maxX, b->minY, b->maxY, min + i*w, min + (i+1)*w);
+                    LOG_INFO("ss " <<i <<" n " <<name + lexical_cast<string>(i) <<" mm " <<min + i*w <<" " <<min + (i+1)*w);
+                    this->sensors.push_back(new DelayedSensor(name + lexical_cast<string>(i), nb, engine, dt)); // <--actually building sensors
+                }
+            }
+
         }
     }
 
