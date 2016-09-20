@@ -1,16 +1,12 @@
 #include <time.h>
 
 #include <algorithm>
-#include <cmath>
-
 #include "libgcm/Math.hpp"
 #include "libgcm/node/CalcNode.hpp"
 
 #include <gtest/gtest.h>
 
 using namespace gcm;
-using std::isinf;
-using std::isnan;
 
 #define ITERATIONS 1000
 

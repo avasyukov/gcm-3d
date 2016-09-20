@@ -1,11 +1,8 @@
 #include "libgcm/interpolator/LineSecondOrderInterpolator.hpp"
 
-#include <cmath>
-
 #include "libgcm/node/CalcNode.hpp"
 
 using namespace gcm;
-using std::isinf;
 
 LineSecondOrderInterpolator::LineSecondOrderInterpolator()
 {

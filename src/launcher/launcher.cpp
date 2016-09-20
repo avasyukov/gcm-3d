@@ -1,7 +1,6 @@
 #include "launcher/launcher.hpp"
 
 #include <functional>
-#include <cmath>
 
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string.hpp>
@@ -56,7 +55,6 @@ using boost::split;
 using boost::is_any_of;
 using std::string;
 using std::vector;
-using std::isinf;
 
 
 launcher::Launcher::Launcher()

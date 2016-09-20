@@ -2,7 +2,6 @@
 
 #include <unordered_map>
 #include <unordered_set>
-#include <cmath>
 
 #include "libgcm/node/CalcNode.hpp"
 
@@ -11,7 +10,6 @@ using std::numeric_limits;
 using std::unordered_map;
 using std::make_pair;
 using std::vector;
-using std::isinf;
 
 TetrMeshFirstOrder::TetrMeshFirstOrder()
 {
