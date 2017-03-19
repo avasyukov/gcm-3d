@@ -40,6 +40,15 @@ parser.add_argument(
     help='Max length of sensor data'
 )
 
+parser.add_argument(
+    '-s',
+    '--skip',
+    default=80,
+    type=int,
+    metavar='SKIP',
+    help='Number of points to skip'
+)
+
 
 args = parser.parse_args()
 
@@ -56,7 +65,7 @@ files.sort(key=lambda x: x[0])
 values = []
 for (_, fpath) in files:
     with open(fpath) as f:
-        values.append([[float(x) for x in l.split()] for l in f.readlines()][80:args.max_length])
+        values.append([[float(x) for x in l.split()] for l in f.readlines()[args.skip:args.max_length]])
 
 sxx = [[abs(x[1]) for x in v] for v in values]
 max_sxx = max(map(max, sxx))
