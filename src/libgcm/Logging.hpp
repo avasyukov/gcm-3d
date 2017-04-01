@@ -3,6 +3,9 @@
 
 #include "libgcm/util/Macros.hpp"
 #include "libgcm/config.hpp"
+#include <iostream>
+using std::cout;
+using std::endl;
 
 #if CONFIG_ENABLE_LOGGING
     #include <log4cxx/logger.h>
@@ -33,37 +36,61 @@
 
 
 #if CONFIG_ENABLE_LOGGING_INFO
-    #define LOG_INFO(message)  DO_ONCE(LOG4CXX_INFO (logger, message))
+    #if CONFIG_ENABLE_LOGGING
+        #define LOG_INFO(message)  DO_ONCE(LOG4CXX_INFO (logger, message))
+    #else
+        #define LOG_INFO(message)  DO_ONCE(cout << message << endl;)
+    #endif
 #else
     #define LOG_INFO(message)  DO_ONCE(;)
 #endif
 
 #if CONFIG_ENABLE_LOGGING_WARN
-    #define LOG_WARN(message)  DO_ONCE(LOG4CXX_WARN (logger, message))
+    #if CONFIG_ENABLE_LOGGING
+        #define LOG_WARN(message)  DO_ONCE(LOG4CXX_WARN (logger, message))
+    #else
+        #define LOG_WARN(message)  DO_ONCE(cout << message << endl;)
+    #endif
 #else
     #define LOG_WARN(message)  DO_ONCE(;)
 #endif
 
 #if CONFIG_ENABLE_LOGGING_FATAL
-    #define LOG_FATAL(message)  DO_ONCE(LOG4CXX_FATAL (logger, message))
+    #if CONFIG_ENABLE_LOGGING
+        #define LOG_FATAL(message)  DO_ONCE(LOG4CXX_FATAL (logger, message))
+    #else
+        #define LOG_FATAL(message)  DO_ONCE(cout << message << endl;)
+    #endif
 #else
     #define LOG_FATAL(message)  DO_ONCE(;)
 #endif
 
 #if CONFIG_ENABLE_LOGGING_ERROR
-    #define LOG_ERROR(message)  DO_ONCE(LOG4CXX_ERROR (logger, message))
+    #if CONFIG_ENABLE_LOGGING
+        #define LOG_ERROR(message)  DO_ONCE(LOG4CXX_ERROR (logger, message))
+    #else
+        #define LOG_ERROR(message)  DO_ONCE(cout << message << endl;)
+    #endif
 #else
     #define LOG_ERROR(message)  DO_ONCE(;)
 #endif
 
 #if CONFIG_ENABLE_LOGGING_TRACE
-    #define LOG_TRACE(message)  DO_ONCE(LOG4CXX_TRACE (logger, message))
+    #if CONFIG_ENABLE_LOGGING
+        #define LOG_TRACE(message)  DO_ONCE(LOG4CXX_TRACE (logger, message))
+    #else
+        #define LOG_TRACE(message)  DO_ONCE(cout << message << endl;)
+    #endif
 #else
     #define LOG_TRACE(message)  DO_ONCE(;)
 #endif
 
 #if CONFIG_ENABLE_LOGGING_DEBUG
-    #define LOG_DEBUG(message)  DO_ONCE(LOG4CXX_DEBUG (logger, message))
+    #if CONFIG_ENABLE_LOGGING
+        #define LOG_DEBUG(message)  DO_ONCE(LOG4CXX_DEBUG (logger, message))
+    #else
+        #define LOG_DEBUG(message)  DO_ONCE(cout << message << endl;)
+    #endif
 #else
     #define LOG_DEBUG(message)  DO_ONCE(;)
 #endif
