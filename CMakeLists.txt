@@ -69,7 +69,7 @@ endif()
 
 if(VTK_MAJOR_VERSION EQUAL 5)
     set(CONFIG_VTK_5 1)
-elseif (VTK_MAJOR_VERSION EQUAL 6)
+elseif (VTK_MAJOR_VERSION GREATER 5)
     set(CONFIG_VTK_6 1)
 else()
     message(FATAL_ERROR "Unsupported VTK version found: ${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}")
