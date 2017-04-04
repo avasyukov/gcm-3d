@@ -2127,7 +2127,7 @@ void TetrMeshFirstOrder::doNextPartStep(float tau, int stage)
 
 void TetrMeshFirstOrder::logMeshStats()
 {
-    if( isinf( getMaxH() ) )
+    if( std::isinf( getMaxH() ) )
     {
         LOG_DEBUG("Mesh is empty");
         return;
@@ -2168,7 +2168,7 @@ void TetrMeshFirstOrder::checkTopology(float tau)
     initSpatialIndex();
     LOG_DEBUG("Creating spatial index done");
 
-    if( isinf( getMaxH() ) )
+    if( std::isinf( getMaxH() ) )
     {
         LOG_DEBUG("Mesh is empty");
         return;
@@ -2194,7 +2194,7 @@ void TetrMeshFirstOrder::checkTopology(float tau)
     }
 
     // FIXME@avasyukov - rethink it
-    if( isinf( syncedArea.minX ) )
+    if( std::isinf( syncedArea.minX ) )
     {
         memcpy( syncedArea.min_coords, outline.min_coords, 3 * sizeof(float) );
         memcpy( syncedArea.max_coords, outline.max_coords, 3 * sizeof(float) );
@@ -2363,28 +2363,28 @@ float TetrMeshFirstOrder::getRecommendedTimeStep()
 
 float TetrMeshFirstOrder::getMinH()
 {
-    if( isinf( mesh_min_h ) )
+    if( std::isinf( mesh_min_h ) )
         calcMinH();
     return mesh_min_h;
 }
 
 float TetrMeshFirstOrder::getMaxH()
 {
-    if( isinf( mesh_max_h ) )
+    if( std::isinf( mesh_max_h ) )
         calcMaxH();
     return mesh_max_h;
 }
 
 float TetrMeshFirstOrder::getMaxEdge()
 {
-    if( isinf( mesh_max_edge ) )
+    if( std::isinf( mesh_max_edge ) )
         calcMaxEdge();
     return mesh_max_edge;
 }
 
 float TetrMeshFirstOrder::getAvgH()
 {
-    if( isinf( mesh_avg_h ) )
+    if( std::isinf( mesh_avg_h ) )
         calcAvgH();
     return mesh_avg_h;
 }

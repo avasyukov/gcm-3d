@@ -253,19 +253,19 @@ void Mesh::transfer(float x, float y, float z)
         node.coords[1] += y;
         node.coords[2] += z;
     }
-    if( !isinf(outline.minX) )
+    if( !std::isinf(outline.minX) )
     {
         outline.transfer(x, y, z);
     }
-    if( !isinf(expandedOutline.minX) )
+    if( !std::isinf(expandedOutline.minX) )
     {
         expandedOutline.transfer(x, y, z);
     }
-    if( !isinf(syncedArea.minX) )
+    if( !std::isinf(syncedArea.minX) )
     {
         syncedArea.transfer(x, y, z);
     }
-    if( !isinf(areaOfInterest.minX) )
+    if( !std::isinf(areaOfInterest.minX) )
     {
         areaOfInterest.transfer(x, y, z);
     }
@@ -284,19 +284,19 @@ void Mesh::scale(float x0, float y0, float z0,
         node.coords[1] = (node.coords[1] - y0)*scaleY + y0;
         node.coords[2] = (node.coords[2] - z0)*scaleZ + z0;
     }
-    if( !isinf(outline.minX) )
+    if( !std::isinf(outline.minX) )
     {
         outline.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
     }
-    if( !isinf(expandedOutline.minX) )
+    if( !std::isinf(expandedOutline.minX) )
     {
         expandedOutline.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
     }
-    if( !isinf(syncedArea.minX) )
+    if( !std::isinf(syncedArea.minX) )
     {
         syncedArea.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
     }
-    if( !isinf(areaOfInterest.minX) )
+    if( !std::isinf(areaOfInterest.minX) )
     {
         areaOfInterest.scale(x0, y0, z0, scaleX, scaleY, scaleZ);
     }

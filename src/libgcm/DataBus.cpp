@@ -601,7 +601,7 @@ void DataBus::syncMissedNodes(Mesh* _mesh, float tau)
         for (int j = 0 ; j < numberOfWorkers; j++)
         {
             _reqZones[i].push_back(reqZones[i][j]);
-            if( !isinf(reqZones[i][j].minX) )
+            if( !std::isinf(reqZones[i][j].minX) )
             {
                 transferRequired = true;
             }
@@ -647,7 +647,7 @@ void DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZones)
 
     for (int i = 0 ; i < numberOfWorkers; i++)
         for (int j = 0 ; j < numberOfWorkers; j++)
-            if( !isinf(_reqZones[i][j].minX) )
+            if( !std::isinf(_reqZones[i][j].minX) )
             {
                 reqZones[i][j] = _reqZones[i].at(j);
                 LOG_DEBUG("CPU " << i << " asks from CPU " << j << " area: " << reqZones[i][j]);
@@ -673,7 +673,7 @@ void DataBus::transferNodes(TetrMeshSecondOrder* mesh, vector<AABB>* _reqZones)
 
     for (int i = 0 ; i < numberOfWorkers; i++)
     {
-        if( !isinf(reqZones[i][rank].minX) )
+        if( !std::isinf(reqZones[i][rank].minX) )
         {
             for( int j = 0; j < myMesh->nodesNumber; j++ )
             {

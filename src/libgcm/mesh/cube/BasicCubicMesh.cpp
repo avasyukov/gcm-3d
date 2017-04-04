@@ -102,7 +102,7 @@ void BasicCubicMesh::doNextPartStep(float tau, int stage)
 
 void BasicCubicMesh::logMeshStats()
 {
-    if( isinf( getMinH() ) )
+    if( std::isinf( getMinH() ) )
     {
         LOG_DEBUG("Mesh is empty");
         return;
@@ -151,14 +151,14 @@ void BasicCubicMesh::calcMinH()
 };
 
 float BasicCubicMesh::getAvgH() {
-	if( isinf( meshH ) )
+	if( std::isinf( meshH ) )
         calcMinH();
     return meshH;
 };
 
 float BasicCubicMesh::getMinH()
 {
-    if( isinf( meshH ) )
+    if( std::isinf( meshH ) )
         calcMinH();
     return meshH;
 };
