@@ -1,13 +1,13 @@
 meshPointDist = 0.2;
 
-Point(1) = {-5, -5, -5, meshPointDist};
-Point(2) = {-5, -5, 5, meshPointDist};
-Point(3) = {5, -5, 5, meshPointDist};
-Point(4) = {5, -5, -5, meshPointDist};
-Point(5) = {-5, 5, -5, meshPointDist};
-Point(6) = {-5, 5, 5, meshPointDist};
-Point(7) = {5, 5, 5, meshPointDist};
-Point(8) = {5, 5, -5, meshPointDist};
+Point(1) = {-10, -5, -5, meshPointDist};
+Point(2) = {-10, -5, 5, meshPointDist};
+Point(3) = {10, -5, 5, meshPointDist};
+Point(4) = {10, -5, -5, meshPointDist};
+Point(5) = {-10, 5, -5, meshPointDist};
+Point(6) = {-10, 5, 5, meshPointDist};
+Point(7) = {10, 5, 5, meshPointDist};
+Point(8) = {10, 5, -5, meshPointDist};
 Line(9) = {1, 2};
 Line(10) = {2, 3};
 Line(11) = {3, 4};
@@ -34,3 +34,5 @@ Line Loop(26) = {9, 18, -13, -17};
 Ruled Surface(26) = {26};
 Surface Loop(27) = {21, 22, 23, 24, 25, 26};
 Volume(36) = {27};
+
+

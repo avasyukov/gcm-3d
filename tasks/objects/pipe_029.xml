@@ -1,0 +1,171 @@
+<!-- g dm sec -->
+<task numberOfSnaps="80" stepsPerSnap="45" xmlns:ndi="gcm3d.plugins.ndi">
+    <system>
+        <meshMovement type="none" />
+        <timeStep multiplier="0.99"/>
+        <defaultFailureModel type="HashinFailureModel" />
+        <anisotropicMatrix implementation="analytical" />
+        <loadPlugin name="ndi" />
+    </system>
+    <bodies>
+        <body id="pipe_029">
+            <rheology type="elastic" />
+            <mesh id="pipe_029" type="geo2" file="models/meat_cube.geo" tetrSize="0.3" />
+            <material id="ground">
+                        <area type="cylinder" r="100" x1="0" y1="0" z1="-100" x2="0" y2="0" z2="100" />
+                </material>
+            <material id="oil">
+                <area type="cylinder" r="2.5" x1="-100" y1="0" z1="0" x2="100" y2="0" z2="0" />
+            </material>
+            <material id="composite_00">
+                <area type="cylinder" r="0.6" x1="-100" y1="2.5" z1="0" x2="100" y2="2.5" z2="0" />
+            </material>
+            <material id="composite_01">
+                <area type="cylinder" r="0.6" x1="-100" y1="-2.5" z1="0" x2="100" y2="-2.5" z2="0" />
+            </material>
+            <material id="composite_02">
+                <area type="cylinder" r="0.6" x1="-100" y1="0" z1="2.5" x2="100" y2="0" z2="2.5" />
+            </material>
+            <material id="composite_03">
+                <area type="cylinder" r="0.6" x1="-100" y1="0" z1="-2.5" x2="100" y2="0" z2="-2.5" />
+            </material>
+            <material id="composite_04">
+                <area type="cylinder" r="0.6" x1="-100" y1="1.7678" z1="1.7678" x2="100" y2="1.7678" z2="1.7678" />
+            </material>
+            <material id="composite_05">
+                <area type="cylinder" r="0.6" x1="-100" y1="-1.7678" z1="-1.7678" x2="100" y2="-1.7678" z2="-1.7678" />
+            </material>
+            <material id="composite_06">
+                <area type="cylinder" r="0.6" x1="-100" y1="1.7678" z1="-1.7678" x2="100" y2="1.7678" z2="-1.7678" />
+            </material>
+            <material id="composite_07">
+                <area type="cylinder" r="0.6" x1="-100" y1="-1.7678" z1="1.7678" x2="100" y2="-1.7678" z2="1.7678" />
+            </material>
+            <material id="composite_08">
+                <area type="cylinder" r="0.6" x1="-100" y1="0.957" z1="2.31" x2="100" y2="0.957" z2="2.31" />
+            </material>
+            <material id="composite_09">
+                <area type="cylinder" r="0.6" x1="-100" y1="2.31" z1="0.957" x2="100" y2="2.31" z2="0.957" />
+            </material>
+            <material id="composite_10">
+                <area type="cylinder" r="0.6" x1="-100" y1="-0.957" z1="-2.31" x2="100" y2="-0.957" z2="-2.31" />
+            </material>
+            <material id="composite_11">
+                <area type="cylinder" r="0.6" x1="-100" y1="-2.31" z1="-0.957" x2="100" y2="-2.31" z2="-0.957" />
+            </material>
+            <material id="composite_12">
+                <area type="cylinder" r="0.6" x1="-100" y1="-0.957" z1="2.31" x2="100" y2="-0.957" z2="2.31" />
+            </material>
+            <material id="composite_13">
+                <area type="cylinder" r="0.6" x1="-100" y1="0.957" z1="-2.31" x2="100" y2="0.957" z2="-2.31" />
+            </material>
+            <material id="composite_14">
+                <area type="cylinder" r="0.6" x1="-100" y1="2.31" z1="-0.957" x2="100" y2="2.31" z2="-0.957" />
+            </material>
+            <material id="composite_15">
+                <area type="cylinder" r="0.6" x1="-100" y1="-2.31" z1="0.957" x2="100" y2="-2.31" z2="0.957" />
+            </material>
+        </body>
+    </bodies>
+
+    <materials>
+      <material name="ground" rheology="isotropic">
+        <la>0.307</la>
+        <mu>0.205</mu>
+        <rho>4500</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="oil" rheology="isotropic">
+        <la>0.107</la>
+        <mu>0.001</mu>
+        <rho>1200</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+                <material name="composite_00" rheology="anisotropic">
+                        <c11>232500000000</c11>
+                        <c12>69600000000</c12>
+                        <c13>69600000000</c13>
+                        <c14>0</c14>
+                        <c15>0</c15>
+                        <c16>0</c16>
+                        <c22>103000000000</c22>
+                        <c23>69600000000</c23>
+                        <c24>0</c24>
+                        <c25>0</c25>
+                        <c26>0</c26>
+                        <c33>103000000000</c33>
+                        <c34>0</c34>
+                        <c35>0</c35>
+                        <c36>0</c36>
+                        <c44>16700000000</c44>
+                        <c45>0</c45>
+                        <c46>0</c46>
+                        <c55>50100000000</c55>
+                        <c56>0</c56>
+                        <c66>50100000000</c66>
+                        <rho>1580</rho>
+                        <failure type="hashin">
+                                <dir>1</dir>
+                                <Xc>153000000</Xc>
+                                <Xt>263000000</Xt>
+                                <Yc>21300000</Yc>
+                                <Yt>8600000</Yt>
+                                <St>153000000</St>
+                                <S>11200000</S>
+                        </failure>
+                </material>                
+		<material name="composite_01" rheology="anisotropic" source="composite_00">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_02" rheology="anisotropic" source="composite_01">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_03" rheology="anisotropic" source="composite_02">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_04" rheology="anisotropic" source="composite_03">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_05" rheology="anisotropic" source="composite_04">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_06" rheology="anisotropic" source="composite_05">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_07" rheology="anisotropic" source="composite_06">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+		<material name="composite_08" rheology="anisotropic" source="composite_07">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_09" rheology="anisotropic" source="composite_08">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_10" rheology="anisotropic" source="composite_09">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_11" rheology="anisotropic" source="composite_10">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_12" rheology="anisotropic" source="composite_11">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_13" rheology="anisotropic" source="composite_12">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_14" rheology="anisotropic" source="composite_13">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+                <material name="composite_15" rheology="anisotropic" source="composite_14">
+                        <rotate a1="45" a2="0" a3="0"/>
+                </material>
+    </materials>
+
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="300" minY="-300" maxY="250" minZ="-240" maxZ="270"/>
+    </borderCondition>
+    <borderCondition calculator="ExternalFileCalculator" fname="./tasks/objects/data.csv" stepmin="240" stepmax="366">
+      <area type="box" minX="-100" maxX="300" minY="-300" maxY="-4.99" minZ="-240" maxZ="270"/>
+    </borderCondition>
+</task>
+
