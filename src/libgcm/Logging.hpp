@@ -31,7 +31,7 @@ using std::endl;
     #define USE_AND_INIT_LOGGER(name) ;
     #define INIT_LOGGER(name) ;
     #define USE_AND_INIT_LOGGER(name) ;
-    #define TRACE_ON_EXCEPTION(statement) ;
+    #define TRACE_ON_EXCEPTION(statement) DO_ONCE(statement;);
 #endif
 
 
