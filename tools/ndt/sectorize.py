@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import scipy.misc
-import matplotlib.image
+import numpy as np
 import sys
 import math
 
@@ -29,7 +29,7 @@ q = r*math.cos(angle_rad/2)
 nh = math.ceil(R - q)
 nw = math.ceil(2*R*math.sin(angle_rad/2))
 
-new_data = [[None]*nw for i in range(nh)]
+new_data = np.zeros((nh, nw, 3))
 
 cx = nw/2
 cy = q
@@ -55,8 +55,8 @@ for i in range(nh):
             r1v = interpolate(data[ray1][d1], data[ray1][d2], math.modf(d)[0])
             r2v = interpolate(data[ray2][d1], data[ray2][d2], math.modf(d)[0])
             v = interpolate(r1v, r2v, math.modf(a)[0])
-            new_data[i][j] = v/255
+            new_data[i][j] = v
         else:
             new_data[i][j] = (0, 0, 0)
 
-matplotlib.image.imsave(sys.argv[2], new_data)
+scipy.misc.imsave(sys.argv[2], new_data)
