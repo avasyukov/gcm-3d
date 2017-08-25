@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import scipy.misc
+import matplotlib.image
 import sys
 import math
 
@@ -8,7 +9,7 @@ import math
 def interpolate(v1, v2, factor):
     return v1*(1-factor) + v2*factor
 
-ANGLE = 120
+ANGLE = 60
 
 if len(sys.argv) != 3:
     print('Usage: sectorize.py <in> <out>', file=sys.stderr)
@@ -54,8 +55,8 @@ for i in range(nh):
             r1v = interpolate(data[ray1][d1], data[ray1][d2], math.modf(d)[0])
             r2v = interpolate(data[ray2][d1], data[ray2][d2], math.modf(d)[0])
             v = interpolate(r1v, r2v, math.modf(a)[0])
-            new_data[i][j] = v
+            new_data[i][j] = v/255
         else:
             new_data[i][j] = (0, 0, 0)
 
-scipy.misc.imsave(sys.argv[2], new_data, 'JPEG')
+matplotlib.image.imsave(sys.argv[2], new_data)
