@@ -112,27 +112,36 @@ for k, snap in enumerate(values):
 delay = [0 for i in range(len(values))]
 res = [[0 for j in range(args.max_length)] for i in range(args.rays_num)]
 for rays in range(args.rays_num):
-    alpha = (math.pi*2.0/3.0/len(res))*(len(res)/2-rays)
+    alpha = (math.pi*2.0/3.0/args.rays_num)*(args.rays_num/2-rays)
+    s = math.sin(alpha)
+    c = math.cos(alpha)
     for k, snap in enumerate(values_compressed):
-        h = len(values)/2 - k
-        R = math.sqrt(math.pow(args.focus*math.cos(alpha), 2) + math.pow(args.focus*math.sin(alpha) + len(values)/2, 2))
-        r = math.sqrt(math.pow(args.focus*math.cos(alpha), 2) + math.pow(args.focus*math.sin(alpha) - h, 2))
-        delay[k] = R - r
-    min_delay = min(delay)
-    for k, d in enumerate(delay):
-        delay[k] -= min_delay
-    delay_int = [int(delay[k]) for k in range(len(delay))]
+        h = len(values_compressed)/2 - k
+        r = math.sqrt(math.pow(args.focus*c, 2) + math.pow(args.focus*s - h, 2))
+        delay[k] = args.focus - r
 
     #calculatin' each ray of result with necessary delays
     for k, snap in enumerate(values_compressed):
         for i,row in enumerate(snap):
             for j in range(len(res[i])):
-                res[rays][j] += row[j - int(delay[k] + delay[i])]
+                lower = j - int(math.ceil(delay[k] + delay[i]))
+                higher = j - int(math.floor(delay[k] + delay[i]))
+                if (lower != higher):
+                    delta = abs(delay[k] + delay[i] - math.floor(delay[k] + delay[i]))
+                    res[rays][j] += row[lower] + delta*(row[higher] - row[lower])
+                else:
+                    res[rays][j] += row[lower]
 
 #Narrowband filtering + Hilbert transformation
 res_fft = []
 for i,row in enumerate(res):
     fft = np.fft.rfft(row)
+
+    #this is to check the spectrum and find the carrying freauency
+    #plt.plot(np.abs(fft)[10:]) #near-zero freqencies somehow are exremely large
+    #plt.savefig(args.output + "_fft_" + str(i) + ".png")
+    #plt.clf()
+
     for j,freq in enumerate(fft):
         if not (args.freq_min <= j <= args.freq_max):
             fft[j] = 0
@@ -140,7 +149,7 @@ for i,row in enumerate(res):
 
 #results -> 255 grayscale
 max_res_fft = max(map(max, res_fft))
-res_fft_color = [[int(255*x/max_res_fft) for x in l] for l in res_fft]
+res_fft_color = [[int(255*math.pow(x/max_res_fft, 0.25)) for x in l] for l in res_fft]
 max_res = max(map(max, res))
 min_res = min(map(min, res))
 res_color = [[int(255*(x-min_res)/(max_res-min_res)) for x in l] for l in res]
