@@ -80,6 +80,14 @@ parser.add_argument(
 
 )
 
+parser.add_argument(
+    '--magic',
+    required=True,
+    type=float,
+    metavar='MAGIC',
+    help='Magic number to compensate X-Y anisotropy in raw data'
+
+)
 
 
 args = parser.parse_args()
@@ -97,8 +105,11 @@ files.sort(key=lambda x: x[0])
 #readin' data from files as a 3D array
 values = []
 for (_, fpath) in files:
+    tv = []
     with open(fpath) as f:
-        values.append([[int(x) for x in l.split()] for l in f.readlines()])
+        for row in csv.reader(f, delimiter=','):
+            tv.append(list(map(int, row)))
+    values.append(tv)
 
 #dekulbergin' data: from 153 pixels of height to 48 as is was supposed to be
 values_compressed = [[[0 for j in range(len(values[0][0]))] for i in range(len(values))] for k in range(len(values))]
@@ -123,11 +134,11 @@ for rays in range(args.rays_num):
     #calculatin' each ray of result with necessary delays
     for k, snap in enumerate(values_compressed):
         for i,row in enumerate(snap):
-            for j in range(len(res[i])):
-                lower = j - int(math.ceil(delay[k] + delay[i]))
-                higher = j - int(math.floor(delay[k] + delay[i]))
+            for j in range(args.max_length):
+                lower = int(args.magic*j)- math.ceil(args.magic*(delay[k] + delay[i]))
+                higher = int(args.magic*j)- math.floor(args.magic*(delay[k] + delay[i]))
                 if (lower != higher):
-                    delta = abs(delay[k] + delay[i] - math.floor(delay[k] + delay[i]))
+                    delta = abs(args.magic*(delay[k] + delay[i]) - math.floor(args.magic*(delay[k] + delay[i])))
                     res[rays][j] += row[lower] + delta*(row[higher] - row[lower])
                 else:
                     res[rays][j] += row[lower]
@@ -149,7 +160,7 @@ for i,row in enumerate(res):
 
 #results -> 255 grayscale
 max_res_fft = max(map(max, res_fft))
-res_fft_color = [[int(255*math.pow(x/max_res_fft, 0.25)) for x in l] for l in res_fft]
+res_fft_color = [[int(255*math.pow(x/max_res_fft, 0.20)) for x in l] for l in res_fft]
 max_res = max(map(max, res))
 min_res = min(map(min, res))
 res_color = [[int(255*(x-min_res)/(max_res-min_res)) for x in l] for l in res]

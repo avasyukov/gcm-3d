@@ -9,10 +9,10 @@ import math
 def interpolate(v1, v2, factor):
     return v1*(1-factor) + v2*factor
 
-ANGLE = 90
+ANGLE = float(sys.argv[3])
 
-if len(sys.argv) != 3:
-    print('Usage: sectorize.py <in> <out>', file=sys.stderr)
+if len(sys.argv) != 4:
+    print('Usage: sectorize.py <in> <out> <angle>', file=sys.stderr)
     sys.exit(-1)
 
 data = scipy.misc.imread(sys.argv[1])
