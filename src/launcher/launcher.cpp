@@ -9,6 +9,7 @@
 
 #include "launcher/util/helpers.hpp"
 #include "launcher/loaders/material/MaterialLoader.hpp"
+#include "launcher/loaders/mesh/StlMeshLoader.hpp"
 #include "launcher/loaders/mesh/Geo2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Msh2MeshLoader.hpp"
 #include "launcher/loaders/mesh/Ani3D2MeshLoader.hpp"
@@ -347,6 +348,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
 
             if (type == Geo2MeshLoader::MESH_TYPE)
                 Geo2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == StlMeshLoader::MESH_TYPE)
+                StlMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == Msh2MeshLoader::MESH_TYPE)
                 Msh2MeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == Ani3D2MeshLoader::MESH_TYPE)
@@ -473,6 +476,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
 
             if (type == Geo2MeshLoader::MESH_TYPE)
                 mesh = Geo2MeshLoader::getInstance().load(meshNode, body);
+            else if (type == StlMeshLoader::MESH_TYPE)
+                mesh = StlMeshLoader::getInstance().load(meshNode, body);
             else if (type == Msh2MeshLoader::MESH_TYPE)
                 mesh = Msh2MeshLoader::getInstance().load(meshNode, body);
             else if (type == Ani3D2MeshLoader::MESH_TYPE)

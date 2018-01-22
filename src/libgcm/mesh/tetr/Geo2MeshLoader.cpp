@@ -84,6 +84,7 @@ void Geo2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatch
 
     //IBody* body = mesh->getBody();
     Engine& engine = Engine::getInstance();
+    int nodes_count = 0;
     if( engine.getRank() == 0 )
     {
         LOG_DEBUG("Worker 0 started generating second order mesh from first order msh file");
@@ -103,6 +104,7 @@ void Geo2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatch
         reader->readFile(getMshFileName(fileName), foMesh, myDispatcher, engine.getRank(), true);
         soMesh->copyMesh(foMesh);
         soMesh->preProcess();
+        nodes_count = soMesh->firstOrderNodesNumber;
 
         VTK2SnapshotWriter* sw = new VTK2SnapshotWriter();
         sw->dump(soMesh, -1, getVtkFileName(fileName));
@@ -119,6 +121,7 @@ void Geo2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispatch
     LOG_DEBUG("Starting reading mesh");
     Vtu2TetrFileReader* reader = new Vtu2TetrFileReader();
     reader->readFile(getVtkFileName(fileName), mesh, dispatcher, engine.getRank());
+    mesh->firstOrderNodesNumber = nodes_count;
     delete reader;
 
     mesh->preProcess();

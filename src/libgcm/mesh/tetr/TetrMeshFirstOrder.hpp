@@ -36,7 +36,7 @@ namespace gcm
         TetrFirstOrderInterpolator* interpolator;
 
     protected:
-        std::unordered_map<int, int> tetrsMap;
+        //std::unordered_map<int, int> tetrsMap;
 
         // Cache for characteristics hits
         bool charactCacheAvailable();
@@ -116,6 +116,7 @@ namespace gcm
         gsl_permutation *P;
 
     public:
+        std::unordered_map<int, int> tetrsMap;
         /*
          * Constructor and destructor.
          */
