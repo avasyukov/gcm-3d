@@ -120,7 +120,15 @@ void Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDis
             node->coords[0] = dp[0];
             node->coords[1] = dp[1];
             node->coords[2] = dp[2];
-            vel->GetTupleValue(i, v);
+
+            // changed by Fedor
+            #if VTK_MAJOR_VERSION < 7
+                vel->GetTupleValue(i, v);
+            #else
+                vel->GetTypedTuple(i, v);
+            #endif
+            // changed by Fedor
+
             node->vx = v[0];
             node->vy = v[1];
             node->vz = v[2];
@@ -166,8 +174,14 @@ void Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDis
     for( int i = 0; i < g->GetNumberOfCells(); i++ )
     {
         new_tetr.number = tetrNumber->GetValue(i);
-        tetr1stOrderNodes->GetTupleValue (i, new_tetr.verts);
-        tetr2ndOrderNodes->GetTupleValue (i, new_tetr.addVerts);
+
+        #if VTK_MAJOR_VERSION < 7
+            tetr1stOrderNodes->GetTupleValue (i, new_tetr.verts);
+            tetr2ndOrderNodes->GetTupleValue (i, new_tetr.addVerts);
+        #else
+            tetr1stOrderNodes->GetTypedTuple (i, new_tetr.verts);
+            tetr2ndOrderNodes->GetTypedTuple (i, new_tetr.addVerts);
+        #endif
 
         /*vtkTetra *vt = (vtkTetra*) g->GetCell(i);
 
@@ -223,7 +237,14 @@ void Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDis
             tmpNode.coords[0] = dp[0];
             tmpNode.coords[1] = dp[1];
             tmpNode.coords[2] = dp[2];
-            vel->GetTupleValue(i, v);
+
+            #if VTK_MAJOR_VERSION < 7
+                vel->GetTupleValue(i, v);
+            #else
+                vel->GetTypedTuple(i, v);
+            #endif
+
+            //vel->GetTupleValue(i, v);
             tmpNode.vx = v[0];
             tmpNode.vy = v[1];
             tmpNode.vz = v[2];

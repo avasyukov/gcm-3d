@@ -91,8 +91,16 @@ void VTK2SnapshotWriter::dumpMeshSpecificData(TetrMeshSecondOrder* mesh, vtkSmar
         }
         grid->InsertNextCell(tetra->GetCellType(),tetra->GetPointIds());
 
-        tetr1stOrderNodes->InsertNextTupleValue (tetr.verts);
-        tetr2ndOrderNodes->InsertNextTupleValue (tetr.addVerts);
+        #if VTK_MAJOR_VERSION < 7
+            tetr1stOrderNodes->InsertNextTupleValue (tetr.verts);
+            tetr2ndOrderNodes->InsertNextTupleValue (tetr.addVerts);
+        #else
+            tetr1stOrderNodes->InsertNextTypedTuple (tetr.verts);
+            tetr2ndOrderNodes->InsertNextTypedTuple (tetr.addVerts);
+        #endif
+
+        //tetr1stOrderNodes->InsertNextTupleValue (tetr.verts);
+        //tetr2ndOrderNodes->InsertNextTupleValue (tetr.addVerts);
         tetrNumber->InsertNextValue (tetr.number);
     }
 
