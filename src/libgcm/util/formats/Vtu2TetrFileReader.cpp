@@ -121,13 +121,11 @@ void Vtu2TetrFileReader::readFile(string file, TetrMeshSecondOrder* mesh, GCMDis
             node->coords[1] = dp[1];
             node->coords[2] = dp[2];
 
-            // changed by Fedor
             #if VTK_MAJOR_VERSION < 7
                 vel->GetTupleValue(i, v);
             #else
                 vel->GetTypedTuple(i, v);
             #endif
-            // changed by Fedor
 
             node->vx = v[0];
             node->vy = v[1];
