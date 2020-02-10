@@ -103,7 +103,13 @@ void VtuTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispa
             node->coords[0] = dp[0];
             node->coords[1] = dp[1];
             node->coords[2] = dp[2];
-            vel->GetTupleValue(i, v);
+
+            #if VTK_MAJOR_VERSION < 7
+                vel->GetTupleValue(i, v);
+            #else
+                vel->GetTypedTuple(i, v);
+            #endif
+
             node->vx = v[0];
             node->vy = v[1];
             node->vz = v[2];
@@ -185,7 +191,13 @@ void VtuTetrFileReader::readFile(string file, TetrMeshFirstOrder* mesh, GCMDispa
             tmpNode.coords[0] = dp[0];
             tmpNode.coords[1] = dp[1];
             tmpNode.coords[2] = dp[2];
-            vel->GetTupleValue(i, v);
+
+            #if VTK_MAJOR_VERSION < 7
+                vel->GetTupleValue(i, v);
+            #else
+                vel->GetTypedTuple(i, v);
+            #endif
+
             tmpNode.vx = v[0];
             tmpNode.vy = v[1];
             tmpNode.vz = v[2];
