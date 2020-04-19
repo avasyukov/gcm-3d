@@ -125,14 +125,6 @@ foreach(plugin ${AVAILABLE_PLUGINS})
     target_link_libraries("gcm_${plugin_name}" gcm)
 endforeach()
 
-
-foreach(plugin ${AVAILABLE_PLUGINS})
-    file(GLOB_RECURSE PLUGIN_SOURCES   "${plugin}/*.cpp")
-    get_filename_component(plugin_name "${plugin}" NAME_WE)
-    add_library("gcm_${plugin_name}" SHARED ${PLUGIN_SOURCES})
-    target_link_libraries("gcm_${plugin_name}" gcm)
-endforeach()
-
 target_link_libraries(gcm ${MPI_CXX_LIBRARIES})
 target_link_libraries(gcm ${LIBXML2_LIBRARIES})
 if(NOT WITHOUT_LOG4CXX)
