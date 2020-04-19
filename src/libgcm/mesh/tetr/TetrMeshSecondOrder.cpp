@@ -41,20 +41,48 @@ void TetrMeshSecondOrder::createTriangles(int number)
 
 TetrFirstOrder& TetrMeshSecondOrder::getTetr(unsigned int index)
 {
-    assert_ge(index, 0);
-    unordered_map<int, int>::const_iterator itr;
-    itr = tetrsMap.find(index);
-    assert_true(itr != tetrsMap.end());
-    return tetrs2[itr->second];
+    if(USE_FAST_UNSAFE_SEARCH_FOR_TETRS) {
+        return tetrs2[index];
+
+    } else {
+        assert_ge(index, 0);
+
+        // Shortcut: index can almost always be used to get tetr from vector directly
+        if (index < tetrs2.size()) {
+            TetrFirstOrder &tetr = tetrs2[index];
+            if (tetr.number == index)
+                return tetr;
+        }
+
+        // If shortcut failed, use slow complete search
+        unordered_map<int, int>::const_iterator itr;
+        itr = tetrsMap.find(index);
+        assert_true(itr != tetrsMap.end());
+        return tetrs2[itr->second];
+    }
 }
 
 TetrSecondOrder& TetrMeshSecondOrder::getTetr2(int index)
 {
-    assert_ge(index, 0);
-    unordered_map<int, int>::const_iterator itr;
-    itr = tetrsMap.find(index);
-    assert_true(itr != tetrsMap.end());
-    return tetrs2[itr->second];
+    if(USE_FAST_UNSAFE_SEARCH_FOR_TETRS) {
+        return tetrs2[index];
+
+    } else {
+        assert_ge(index, 0);
+
+        // Shortcut: index can almost always be used to get tetr from vector directly
+        if (index < tetrs2.size()) {
+            TetrSecondOrder &tetr = tetrs2[index];
+            if (tetr.number == index)
+                return tetr;
+        }
+
+        // If shortcut failed, use slow complete search
+        unordered_map<int, int>::const_iterator itr;
+        itr = tetrsMap.find(index);
+        assert_true(itr != tetrsMap.end());
+        return tetrs2[itr->second];
+    }
 }
 
 TetrFirstOrder& TetrMeshSecondOrder::getTetrByLocalIndex(unsigned int index)

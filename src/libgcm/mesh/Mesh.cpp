@@ -468,19 +468,48 @@ bool Mesh::hasNode(int index)
 
 CalcNode& Mesh::getNode(int index)
 {
-    assert_ge(index, 0 );
-    unordered_map<int, int>::const_iterator itr;
-    itr = nodesMap.find(index);
-    assert_true(itr != nodesMap.end() );
-    return nodes[itr->second];
+    if(USE_FAST_UNSAFE_SEARCH_FOR_NODES) {
+        return nodes[index];
+
+    } else {
+        assert_ge(index, 0);
+
+        // Shortcut: index can almost always be used to get node from vector directly
+        if (index < nodes.size()) {
+            CalcNode &node = nodes[index];
+            if (node.number == index)
+                return node;
+        }
+
+        // If shortcut failed, use slow complete search
+        unordered_map<int, int>::const_iterator itr;
+        itr = nodesMap.find(index);
+        assert_true(itr != nodesMap.end());
+        return nodes[itr->second];
+    }
 }
 
 CalcNode& Mesh::getNewNode(int index) {
-    assert_ge(index, 0 );
-    unordered_map<int, int>::const_iterator itr;
-    itr = nodesMap.find(index);
-    assert_true(itr != nodesMap.end() );
-    return new_nodes[itr->second];
+
+    if(USE_FAST_UNSAFE_SEARCH_FOR_NODES) {
+        return new_nodes[index];
+
+    } else {
+        assert_ge(index, 0);
+
+        // Shortcut: index can almost always be used to get node from vector directly
+        if (index < nodes.size()) {
+            CalcNode &node = new_nodes[index];
+            if (node.number == index)
+                return node;
+        }
+
+        // If shortcut failed, use slow complete search
+        unordered_map<int, int>::const_iterator itr;
+        itr = nodesMap.find(index);
+        assert_true(itr != nodesMap.end());
+        return new_nodes[itr->second];
+    }
 }
 
 CalcNode& Mesh::getNodeByLocalIndex(unsigned int index) {

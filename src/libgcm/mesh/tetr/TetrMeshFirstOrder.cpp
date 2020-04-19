@@ -58,11 +58,27 @@ int TetrMeshFirstOrder::getTriangleNumber()
     return faceNumber;
 }
 
-TetrFirstOrder& TetrMeshFirstOrder::getTetr(unsigned int index) {
-    unordered_map<int, int>::const_iterator itr;
-    itr = tetrsMap.find(index);
-    assert_true(itr != tetrsMap.end() );
-    return tetrs1[itr->second];
+TetrFirstOrder& TetrMeshFirstOrder::getTetr(unsigned int index)
+{
+    if(USE_FAST_UNSAFE_SEARCH_FOR_TETRS) {
+        return tetrs1[index];
+
+    } else {
+        assert_ge(index, 0);
+
+        // Shortcut: index can almost always be used to get tetr from vector directly
+        if (index < tetrs1.size()) {
+            TetrFirstOrder &tetr = tetrs1[index];
+            if (tetr.number == index)
+                return tetr;
+        }
+
+        // If shortcut failed, use slow complete search
+        unordered_map<int, int>::const_iterator itr;
+        itr = tetrsMap.find(index);
+        assert_true(itr != tetrsMap.end());
+        return tetrs1[itr->second];
+    }
 }
 
 bool TetrMeshFirstOrder::hasTetr(unsigned int index) {
@@ -2394,12 +2410,13 @@ bool TetrMeshFirstOrder::checkCharactCache(const CalcNode& node, float dx, float
     unordered_map<int, std::unordered_set<int>>::const_iterator itr = charactCache.find(node.number);
     if( itr == charactCache.cend() )
         return false;
-    std::unordered_set<int> candidates = itr->second;
-    for(int c : candidates) {
-        if(c < 0)
+    std::unordered_set<int>::const_iterator candidate = (itr->second).cbegin();
+    std::unordered_set<int>::const_iterator end = (itr->second).cend();
+    for(; candidate != end; ++candidate) {
+        if(*candidate < 0)
             continue;
 
-        TetrFirstOrder &curTetr = getTetr(c);
+        TetrFirstOrder &curTetr = getTetr(*candidate);
         bool check = pointInTetr(
                 node.coords[0] + dx, node.coords[1] + dy, node.coords[2] + dz,
                 getNode(curTetr.verts[0]).coords,
@@ -2408,7 +2425,7 @@ bool TetrMeshFirstOrder::checkCharactCache(const CalcNode& node, float dx, float
                 getNode(curTetr.verts[3]).coords,
                 false);
         if(check) {
-            tetrNum = c;
+            tetrNum = *candidate;
             return check;
         }
     }
