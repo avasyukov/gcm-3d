@@ -398,7 +398,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             engine.getDispatcher()->addBodySlicingDirection(id, slicingDirection);
             engine.getDispatcher()->addBodyNodesNumber(id, numberOfNodes);
 
-            if( isinf(globalScene.maxX) )
+            if( std::isinf(globalScene.maxX) )
             {
                 globalScene = localScene;
             }

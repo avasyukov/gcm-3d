@@ -1,0 +1,71 @@
+<task numberOfSnaps="80" stepsPerSnap="10">
+	<system>
+		<meshMovement type="none" />
+		<defaultFailureModel type="DruckerPragerFailureModel" />
+	</system>
+	<bodies>
+		<body id="layer1">
+			<rheology type="elastic" />
+			<mesh id="layer1" type="cube" h="0.2" numX="100" numY="100" numZ="25" />
+			<transform type="scale" x0="10" y0="10" z0="2.5" scaleX="4" scaleY="4" scaleZ="1" />
+			<transform type="translate" moveX="-10" moveY="-10" moveZ="-5.001" />
+			<material id="our" />
+		</body>
+		<body id="layer2">
+			<rheology type="elastic" />
+			<mesh id="layer2" type="cube" h="0.2" numX="100" numY="100" numZ="25" />
+			<transform type="scale" x0="10" y0="10" z0="2.5" scaleX="4" scaleY="4" scaleZ="1" />
+			<transform type="translate" moveX="-10" moveY="-10" moveZ="0" />
+			<material id="our1" />
+		</body>
+			<body id="layer3">
+			<rheology type="elastic" />
+			<mesh id="layer3" type="cube" h="0.2" numX="100" numY="100" numZ="25" />
+			<transform type="scale" x0="10" y0="10" z0="2.5" scaleX="4" scaleY="4" scaleZ="1" />
+			<transform type="translate" moveX="-10" moveY="-10" moveZ="5.001" />
+			<material id="our" />
+		</body>
+	</bodies>
+	<materials>
+		<material name="our" rheology="anisotropic">
+			<c11>163944.8</c11>
+			<c12>3767.9</c12>
+			<c13>3767.9</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>8875.6</c22>
+			<c23>2899.1</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>8875.6</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>4282.6</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>4282.6</c55>
+			<c56>0</c56>
+			<c66>4282.6</c66>
+			<rho>1.6</rho>
+			<failure type="hashin">
+				<dir>2</dir>
+				<Xc>1530</Xc>
+				<Xt>2630</Xt>
+				<Yc>213</Yc>
+				<Yt>86</Yt>
+				<St>153</St>
+				<S>112</S>
+			</failure>
+		</material>
+		<material name="our1" rheology="anisotropic" source="our">
+			<rotate a1="0" a2="0" a3="90"/>
+		</material>
+	</materials>
+	<borderCondition startTime="0.0" duration="0.002" calculator="ExternalForceCalculator"
+	 normalStress="-5000" tangentialStress="0" tangentialX="0" tangentialY="1" tangentialZ="0" >
+		<area type="cylinder" r="2" x1="0" y1="0" z1="9.5" x2="0" y2="0" z2="10.5" />
+	</borderCondition>
+</task>

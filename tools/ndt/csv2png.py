@@ -49,7 +49,6 @@ parser.add_argument(
     help='Number of points to skip'
 )
 
-
 args = parser.parse_args()
 
 regexp = re.compile(args.number_regexp)

@@ -77,6 +77,17 @@ namespace gcm
          * @return Determinant value.
          */
         real determinant(const Matrix33& m);
+
+        /**
+         * Rotate 3*3 matrix by angles around the axis.
+         *
+         * @param m Reference to original matrix
+         * @param a1 An angle to rotate around X axis
+         * @param a2 An angle to rotate around Y axis
+         * @param a3 An angle to rotate around Z axis
+         * @return Rotated matrix.
+         */
+        Matrix33 rotate(const Matrix33& m, real a1, real a2, real a3);
     };
 };
 #endif 

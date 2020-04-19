@@ -204,23 +204,23 @@ void RectangularCutCubicMesh::transfer(float x, float y, float z) {
         node.coords[1] += y;
         node.coords[2] += z;
     }
-    if( !isinf(outline.minX) )
+    if( !std::isinf(outline.minX) )
     {
         outline.transfer(x, y, z);
     }
-    if( !isinf(expandedOutline.minX) )
+    if( !std::isinf(expandedOutline.minX) )
     {
         expandedOutline.transfer(x, y, z);
     }
-    if( !isinf(syncedArea.minX) )
+    if( !std::isinf(syncedArea.minX) )
     {
         syncedArea.transfer(x, y, z);
     }
-    if( !isinf(areaOfInterest.minX) )
+    if( !std::isinf(areaOfInterest.minX) )
     {
         areaOfInterest.transfer(x, y, z);
     }
-	if( !isinf(cutArea.minX) )
+	if( !std::isinf(cutArea.minX) )
     {
         cutArea.transfer(x, y, z);
     }

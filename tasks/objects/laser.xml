@@ -20,15 +20,32 @@
             <failure type="maxStress">
                 <threshold>1500e6</threshold>
             </failure>
-            <plasticity type="PrandtlRauss">
-                <yieldStrength>100e6</yieldStrength>
-            </plasticity>
-            <plasticity type="PrandtlRaussCorrector">
-                <yieldStrength>100e6</yieldStrength>
-            </plasticity>
         </material>
     </materials>
 	<borderCondition calculator="ExternalForceCalculator" normalStress="-0.08e11" tangentialStress="0.0" startTime="0" duration="0.5e-6">
 		<area type="cylinder" x1="0" y1="0" z1="0.007" x2="0" y2="0" z2="0.011" r="0.005"/>
 	</borderCondition>
+    <render>
+        <renderConfig id="cfg1">
+            <meshes>
+                <mesh>target</mesh>
+            </meshes>
+            <render3d output="velocity_clipped_%(step)02d.png">
+                <title>Wave propogation</title>
+                <quantity min="0" max="600">velocity</quantity>
+                <camera position="-0.138550093316348;0;0" up="0;0;1" focal="0;0;0" angle="30" />
+                <clips>
+                    <clip origin="0;0;0" normal="1;0;0" />
+                </clips>
+            </render3d>
+            <render3d output="crack_clipped_%(step)02d.png">
+                <title>Wave propogation</title>
+                <quantity min="0" max="1">crack</quantity>
+                <camera position="-0.138550093316348;0;0" up="0;0;1" focal="0;0;0" angle="30" />
+                <clips>
+                    <clip origin="0;0;0" normal="1;0;0" />
+                </clips>
+            </render3d>
+        </renderConfig>
+    </render>
 </task>

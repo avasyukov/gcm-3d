@@ -58,11 +58,27 @@ int TetrMeshFirstOrder::getTriangleNumber()
     return faceNumber;
 }
 
-TetrFirstOrder& TetrMeshFirstOrder::getTetr(unsigned int index) {
-    unordered_map<int, int>::const_iterator itr;
-    itr = tetrsMap.find(index);
-    assert_true(itr != tetrsMap.end() );
-    return tetrs1[itr->second];
+TetrFirstOrder& TetrMeshFirstOrder::getTetr(unsigned int index)
+{
+    if(USE_FAST_UNSAFE_SEARCH_FOR_TETRS) {
+        return tetrs1[index];
+
+    } else {
+        assert_ge(index, 0);
+
+        // Shortcut: index can almost always be used to get tetr from vector directly
+        if (index < tetrs1.size()) {
+            TetrFirstOrder &tetr = tetrs1[index];
+            if (tetr.number == index)
+                return tetr;
+        }
+
+        // If shortcut failed, use slow complete search
+        unordered_map<int, int>::const_iterator itr;
+        itr = tetrsMap.find(index);
+        assert_true(itr != tetrsMap.end());
+        return tetrs1[itr->second];
+    }
 }
 
 bool TetrMeshFirstOrder::hasTetr(unsigned int index) {
@@ -602,6 +618,19 @@ int TetrMeshFirstOrder::fastScanForOwnerTetr(const CalcNode& node, float dx, flo
         LOG_TRACE("Fast scan - debug ON (however, consider !inAABB condition)");
     //assert_le(vectorSquareNorm(dx, dy, dz), mesh_min_h * mesh_min_h );
 
+    float x = node.coords[0] + dx;
+    float y = node.coords[1] + dy;
+    float z = node.coords[2] + dz;
+
+    // Disable it since it causes issues with parallel computation
+    // - it becomes not clear how we should use here outline, expandedOutline, 'zone of interest'
+    if( ! outline.isInAABB(x, y, z) )
+    {
+        if( debug )
+            LOG_TRACE("Not in AABB");
+        return -1;
+    }
+
     int res;
     if( charactCacheAvailable() )
     {
@@ -612,19 +641,6 @@ int TetrMeshFirstOrder::fastScanForOwnerTetr(const CalcNode& node, float dx, flo
         }
         cacheMisses++;
     }
-
-    float x = node.coords[0] + dx;
-    float y = node.coords[1] + dy;
-    float z = node.coords[2] + dz;
-
-    // Disable it since it causes issues with parallel computation
-    // - it becomes not clear how we should use here outline, expandedOutline, 'zone of interest'
-    /*if( ! outline.isInAABB(x, y, z) )
-    {
-        if( debug )
-            LOG_TRACE("Not in AABB");
-        return -1;
-    }*/
 
     vector<int>& elements = getVolumeElementsForNode(node.number);
 
@@ -1134,16 +1150,16 @@ int TetrMeshFirstOrder::orientedExpandingScanForOwnerTetr (const CalcNode& node,
         LOG_DEBUG("Target point: " << x << " " << y << " " << z);
     }
     
-    /*if( !outline.isInAABB(x, y, z) ) {
+    if( !outline.isInAABB(x, y, z) ) {
         if( debug )
             LOG_DEBUG("Not in AABB");
         coords[0] = x;    coords[1] = y;    coords[2] = z;
         *innerPoint = false;
         updateCharactCache(node, dx, dy, dz, -1);
         return -1;
-    }*/
+    }
     
-    /*int res;
+    int res;
     if( charactCacheAvailable() )
     {
         if( checkCharactCache(node, dx, dy, dz, res) )
@@ -1157,7 +1173,7 @@ int TetrMeshFirstOrder::orientedExpandingScanForOwnerTetr (const CalcNode& node,
             return res;
         }
         cacheMisses++;
-    }*/
+    }
 
     // A square of distance between point in question and local node
     // Will be used to check if it is worth to continue search or point in question is out of body
@@ -2127,7 +2143,7 @@ void TetrMeshFirstOrder::doNextPartStep(float tau, int stage)
 
 void TetrMeshFirstOrder::logMeshStats()
 {
-    if( isinf( getMaxH() ) )
+    if( std::isinf( getMaxH() ) )
     {
         LOG_DEBUG("Mesh is empty");
         return;
@@ -2168,7 +2184,7 @@ void TetrMeshFirstOrder::checkTopology(float tau)
     initSpatialIndex();
     LOG_DEBUG("Creating spatial index done");
 
-    if( isinf( getMaxH() ) )
+    if( std::isinf( getMaxH() ) )
     {
         LOG_DEBUG("Mesh is empty");
         return;
@@ -2194,7 +2210,7 @@ void TetrMeshFirstOrder::checkTopology(float tau)
     }
 
     // FIXME@avasyukov - rethink it
-    if( isinf( syncedArea.minX ) )
+    if( std::isinf( syncedArea.minX ) )
     {
         memcpy( syncedArea.min_coords, outline.min_coords, 3 * sizeof(float) );
         memcpy( syncedArea.max_coords, outline.max_coords, 3 * sizeof(float) );
@@ -2363,58 +2379,64 @@ float TetrMeshFirstOrder::getRecommendedTimeStep()
 
 float TetrMeshFirstOrder::getMinH()
 {
-    if( isinf( mesh_min_h ) )
+    if( std::isinf( mesh_min_h ) )
         calcMinH();
     return mesh_min_h;
 }
 
 float TetrMeshFirstOrder::getMaxH()
 {
-    if( isinf( mesh_max_h ) )
+    if( std::isinf( mesh_max_h ) )
         calcMaxH();
     return mesh_max_h;
 }
 
 float TetrMeshFirstOrder::getMaxEdge()
 {
-    if( isinf( mesh_max_edge ) )
+    if( std::isinf( mesh_max_edge ) )
         calcMaxEdge();
     return mesh_max_edge;
 }
 
 float TetrMeshFirstOrder::getAvgH()
 {
-    if( isinf( mesh_avg_h ) )
+    if( std::isinf( mesh_avg_h ) )
         calcAvgH();
     return mesh_avg_h;
 }
 
 bool TetrMeshFirstOrder::checkCharactCache(const CalcNode& node, float dx, float dy, float dz, int& tetrNum)
 {
-    int cacheIndex = getCharactCacheIndex(node, dx, dy, dz);
-    unordered_map<int, int>::const_iterator itr;
-    itr = charactCache[cacheIndex].find(node.number);
-    if( itr == charactCache[cacheIndex].end() )
+    unordered_map<int, std::unordered_set<int>>::const_iterator itr = charactCache.find(node.number);
+    if( itr == charactCache.cend() )
         return false;
-    tetrNum = itr->second;
-    if( tetrNum == -1 )
-        return false;
-    TetrFirstOrder& curTetr = getTetr(tetrNum);
-    return pointInTetr(
-                    node.coords[0] + dx, node.coords[1] + dy, node.coords[2] + dz,
-                    getNode( curTetr.verts[0] ).coords,
-                    getNode( curTetr.verts[1] ).coords,
-                    getNode( curTetr.verts[2] ).coords,
-                    getNode( curTetr.verts[3] ).coords,
+    std::unordered_set<int>::const_iterator candidate = (itr->second).cbegin();
+    std::unordered_set<int>::const_iterator end = (itr->second).cend();
+    for(; candidate != end; ++candidate) {
+        if(*candidate < 0)
+            continue;
+
+        TetrFirstOrder &curTetr = getTetr(*candidate);
+        bool check = pointInTetr(
+                node.coords[0] + dx, node.coords[1] + dy, node.coords[2] + dz,
+                getNode(curTetr.verts[0]).coords,
+                getNode(curTetr.verts[1]).coords,
+                getNode(curTetr.verts[2]).coords,
+                getNode(curTetr.verts[3]).coords,
                 false);
+        if(check) {
+            tetrNum = *candidate;
+            return check;
+        }
+    }
+    return false;
 }
 
 void TetrMeshFirstOrder::updateCharactCache(const CalcNode& node, float dx, float dy, float dz, int tetrNum)
 {
     if( !charactCacheAvailable() )
         return;
-    int cacheIndex = getCharactCacheIndex(node, dx, dy, dz);
-    charactCache[cacheIndex][node.number] = tetrNum;
+    charactCache[node.number].insert(tetrNum);
 }
 
 int TetrMeshFirstOrder::getCharactCacheIndex(const CalcNode& node, float dx, float dy, float dz)
@@ -2481,7 +2503,7 @@ int TetrMeshFirstOrder::getCharactCacheIndex(const CalcNode& node, float dx, flo
 
 bool TetrMeshFirstOrder::charactCacheAvailable()
 {
-    return false;
+    return true;
     /*return ( nodesNumber > 0
             && Engine::getInstance().getTimeStep() > 0
             && getNodeByLocalIndex(0).getMaterialId() >= 0

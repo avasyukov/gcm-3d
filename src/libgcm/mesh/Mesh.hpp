@@ -17,6 +17,9 @@
 #define STORAGE_OVERCOMMIT_RATIO 1.0
 #define STORAGE_ONDEMAND_GROW_RATE 1.25
 
+#define USE_FAST_UNSAFE_SEARCH_FOR_NODES false
+#define USE_FAST_UNSAFE_SEARCH_FOR_TETRS false
+
 
 typedef std::unordered_map<int, int>::const_iterator MapIter;
 
