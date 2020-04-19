@@ -1,5 +1,4 @@
 nbproject/
-cmake-build-debug/
 *.vtu
 *.vts
 *.xml.snapshots

@@ -2,7 +2,6 @@
 
 #include "libgcm/method/DummyMethod.hpp"
 #include "libgcm/method/InterpolationFixedAxis.hpp"
-#include "libgcm/method/StaticCalc.hpp"
 #include "libgcm/calc/volume/SimpleVolumeCalculator.hpp"
 #include "libgcm/calc/border/ExternalVelocityCalculator.hpp"
 #include "libgcm/calc/border/ExternalForceCalculator.hpp"
@@ -57,7 +56,6 @@ Engine::Engine()
     LOG_DEBUG("Registering default methods");
     registerNumericalMethod( new DummyMethod() );
     registerNumericalMethod( new InterpolationFixedAxis() );
-    registerNumericalMethod( new StaticCalc() );
     LOG_DEBUG("Registering default interpolators");
     registerInterpolator( new TetrFirstOrderInterpolator() );
     registerInterpolator( new TetrSecondOrderMinMaxInterpolator() );
@@ -612,44 +610,10 @@ void Engine::determineTypeOfCollisionDetector() {
 //		colDet->set_static(true);
 }
 
-void Engine::calculate_static(bool save_snapshots) {
-
-    if (save_snapshots) {
-        snapshotTimestamps.push_back(getCurrentTime());
-        createSnapshot(0);
-    }
-
-    NumericalMethod *method = getNumericalMethod("StaticCalc");
-    CalcNode tmp_node;
-    for( unsigned int i = 0; i < bodies.size(); i++ ) {
-        Mesh *mesh = bodies[i]->getMeshes();
-        LOG_DEBUG("Doing calculations for mesh " << mesh->getId());
-        for( unsigned int j = 0; j < 1; j++ ) {
-            method->doNextPartStep(tmp_node, tmp_node, 0, 0, mesh);
-            if (save_snapshots) {
-                snapshotTimestamps.push_back(getCurrentTime());
-                createSnapshot(j+1);
-            }
-        }
-        LOG_DEBUG("Calculation complete");
-    }
-
-    if (save_snapshots) {
-        //snapshotTimestamps.push_back(getCurrentTime());
-        //createSnapshot(1);
-        //createDump(1);
-    }
-}
-
 void Engine::calculate(bool save_snapshots) {
     // We set time step once and do not change it during calculation
     // float tau = calculateRecommendedTimeStep();
     // setTimeStep( tau );
-    if(numberOfSnaps < 0) {
-        LOG_INFO("Doing static calculation");
-        calculate_static(save_snapshots);
-        return;
-    }
 
     determineTypeOfCollisionDetector();
 
