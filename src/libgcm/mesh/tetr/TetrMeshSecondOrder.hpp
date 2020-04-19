@@ -28,8 +28,6 @@ namespace gcm {
         std::vector<TetrSecondOrder> tetrs2;
         std::vector<TriangleSecondOrder> border2;
         bool secondOrderNodesAreGenerated;
-        int firstOrderNodesNumber;
-        int secondOrderNodesNumber;
 
         TetrSecondOrderMinMaxInterpolator* interpolator;
 
@@ -46,6 +44,8 @@ namespace gcm {
         void moveSecondOrderNode(int nodeIdx, int nodeIdx1, int nodeIdx2);
 
     public:
+        int firstOrderNodesNumber;
+        int secondOrderNodesNumber;
         TetrMeshSecondOrder();
         ~TetrMeshSecondOrder();
         void copyMesh(TetrMeshFirstOrder* src);

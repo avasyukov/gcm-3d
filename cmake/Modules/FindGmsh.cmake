@@ -25,8 +25,8 @@ include (FindPackageHandleStandardArgs)
 INCLUDE(CheckIncludeFileCXX)
 
 FIND_PATH(GMSH_INCLUDE_DIR
-  Gmsh.h Context.h GModel.h
-  PATHS ${CMAKE_SYSTEM_PREFIX_PATH} $ENV{GMSH_DIR}/include/gmsh
+  gmsh/Gmsh.h gmsh/Context.h gmsh/GModel.h
+  PATHS ${CMAKE_SYSTEM_PREFIX_PATH} $ENV{GMSH_DIR}/include
   PATH_SUFFIXES include include/gmsh
   DOC "Directory where GMSH header files are stored" )
 include_directories(${GMSH_INCLUDE_DIR})
@@ -70,7 +70,7 @@ FIND_LIBRARY(GL_LIBRARY NAMES GL
    PATH_SUFFIXES
    lib  )
 
-find_program( GMSH_EXECUTABLE gmsh DOC "GMSH mesh generator" )
+find_program( GMSH_EXECUTABLE gmsh DOC "GMSH mesh generator" PATH $ENV{GMSH_DIR}/bin )
 
 # handle the QUIETLY and REQUIRED arguments and set Madlib_FOUND to TRUE if
 # all listed variables are TRUE

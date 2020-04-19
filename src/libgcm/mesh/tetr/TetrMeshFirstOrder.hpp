@@ -2,6 +2,7 @@
 #define GCM_TETR_MESH_FIRST_ORDER_H_
 
 #include <unordered_map>
+#include <unordered_set>
 #include <algorithm>
 
 #include <gsl/gsl_linalg.h>
@@ -36,14 +37,14 @@ namespace gcm
         TetrFirstOrderInterpolator* interpolator;
 
     protected:
-        std::unordered_map<int, int> tetrsMap;
+        //std::unordered_map<int, int> tetrsMap;
 
         // Cache for characteristics hits
         bool charactCacheAvailable();
         bool checkCharactCache(const CalcNode& node, float dx, float dy, float dz, int& tetrNum);
         void updateCharactCache(const CalcNode& node, float dx, float dy, float dz, int tetrNum);
         int getCharactCacheIndex(const CalcNode& node, float dx, float dy, float dz);
-        std::unordered_map<int, int> charactCache[18];
+        std::unordered_map<int, std::unordered_set<int>> charactCache;
         // Spatial index based on KD-Tree
         struct kdtree* kdtree;
         void initSpatialIndex();
@@ -116,6 +117,7 @@ namespace gcm
         gsl_permutation *P;
 
     public:
+        std::unordered_map<int, int> tetrsMap;
         /*
          * Constructor and destructor.
          */

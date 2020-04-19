@@ -8,7 +8,11 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE DEBUG CACHE STRING "Choose the type of build, options are: DEBUG, RELEASE" FORCE)
 endif()
 
-set(CMAKE_CONFIG_ENABLE_LOGGING 1)
+if(WITHOUT_LOG4CXX)
+    set(CMAKE_CONFIG_ENABLE_LOGGING 0)
+else()
+    set(CMAKE_CONFIG_ENABLE_LOGGING 1)
+endif()
 set(CMAKE_CONFIG_ENABLE_PLUGINS 1)
 
 if(CMAKE_BUILD_TYPE EQUAL "DEBUG")
@@ -30,9 +34,11 @@ else()
 endif()
 
 
-set(CMAKE_CXX_FLAGS "-std=c++11")
+set(CMAKE_CXX_FLAGS "-std=c++11 -fno-omit-frame-pointer -frecord-gcc-switches")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O0 -g")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -g")
+
+include_directories("${CMAKE_CURRENT_LIST_DIR}/src/eigen")
 
 find_package(LibXml2 REQUIRED)
 include_directories(${LIBXML2_INCLUDE_DIR})
@@ -43,8 +49,10 @@ INCLUDE(${VTK_USE_FILE})
 find_package(MPI REQUIRED)
 include_directories(${MPI_CXX_INCLUDE_PATH})
 
-find_package(Log4cxx REQUIRED)
-include_directories(${LOG4CXX_INCLUDE_DIRS})
+if(NOT WITHOUT_LOG4CXX)
+    find_package(Log4cxx REQUIRED)
+    include_directories(${LOG4CXX_INCLUDE_DIRS})
+endif()
 
 find_package(GSL REQUIRED)
 include_directories(${GSL_INCLUDE_DIRS})
@@ -54,9 +62,12 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 find_package(Gmsh REQUIRED)
 include_directories(${GMSH_INCLUDE_DIR})
+#link_directories(${GMSH_LIB_DIR})
 
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
+if(WITH_TESTS)
+    find_package(GTest REQUIRED)
+    include_directories(${GTEST_INCLUDE_DIRS})
+endif()
 
 if(VTK_MAJOR_VERSION EQUAL 5)
     set(CONFIG_VTK_5 1)
@@ -68,10 +79,11 @@ endif()
 
 
 file(GLOB_RECURSE LIB_SOURCES        "${CMAKE_CURRENT_LIST_DIR}/src/libgcm/*.cpp")
-file(GLOB_RECURSE LAUNCHER_SOURCES   "${CMAKE_CURRENT_LIST_DIR}/src/launcher/*.cpp")
-file(GLOB_RECURSE UNIT_TESTS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/tests/unit/*.cpp")
-file(GLOB_RECURSE FUNC_TESTS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/tests/func/*.cpp")
-file(GLOB_RECURSE PERF_TESTS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/tests/perf/*.cpp")
+if(WITH_TESTS)
+    file(GLOB_RECURSE UNIT_TESTS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/tests/unit/*.cpp")
+    file(GLOB_RECURSE FUNC_TESTS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/tests/func/*.cpp")
+    file(GLOB_RECURSE PERF_TESTS_SOURCES "${CMAKE_CURRENT_LIST_DIR}/src/tests/perf/*.cpp")
+endif()
 
 file(GLOB_RECURSE LAUNCHER_UTILS_SOURCES   "${CMAKE_CURRENT_LIST_DIR}/src/launcher/util/*.cpp")
 file(GLOB_RECURSE LAUNCHER_LOADERS_SOURCES   "${CMAKE_CURRENT_LIST_DIR}/src/launcher/loaders/*.cpp")
@@ -84,7 +96,7 @@ set(LAUNCHER_COMMON_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/launcher/launcher.cpp
 )
 
-set(CMAKE_CONFIG_SHARE_GCM "${CMAKE_INSTAL_PREFIX}/share/gcm3d")
+set(CMAKE_CONFIG_SHARE_GCM "${CMAKE_INSTALL_PREFIX}/share/gcm3d")
 
 configure_file("${CMAKE_CURRENT_LIST_DIR}/cmake/config.hpp.in" "${CMAKE_CURRENT_BINARY_DIR}/generated_sources/libgcm/config.hpp")
 include_directories("${CMAKE_CURRENT_LIST_DIR}/src/" "${CMAKE_CURRENT_BINARY_DIR}/generated_sources/")
@@ -92,18 +104,27 @@ include_directories("${CMAKE_CURRENT_LIST_DIR}/src/" "${CMAKE_CURRENT_BINARY_DIR
 
 add_library(gcm SHARED ${LIB_SOURCES})
 add_library(launcher OBJECT ${LAUNCHER_COMMON_SOURCES})
-add_executable(gcm3d ${LAUNCHER_SOURCES})
+add_executable(gcm3d "${CMAKE_CURRENT_LIST_DIR}/src/launcher/main.cpp" $<TARGET_OBJECTS:launcher>)
 
-add_executable(gcm3d_unit_tests ${UNIT_TESTS_SOURCES} $<TARGET_OBJECTS:launcher>)
-add_executable(gcm3d_func_tests ${FUNC_TESTS_SOURCES} $<TARGET_OBJECTS:launcher>)
+if(WITH_TESTS)
+    add_executable(gcm3d_unit_tests ${UNIT_TESTS_SOURCES} $<TARGET_OBJECTS:launcher>)
+    add_executable(gcm3d_func_tests ${FUNC_TESTS_SOURCES} $<TARGET_OBJECTS:launcher>)
 
-add_library(perf_test_util OBJECT "${CMAKE_CURRENT_LIST_DIR}/src/tests/perf/util.cpp")
-foreach(perftestsource ${PERF_TESTS_SOURCES})
-    get_filename_component(perftest "${perftestsource}" NAME_WE)
-    if(NOT ("${perftest}" STREQUAL "util"))
-        add_executable("gcm3d_perf_test_${perftest}" "${perftestsource}" $<TARGET_OBJECTS:perf_test_util> $<TARGET_OBJECTS:launcher>)
-        target_link_libraries("gcm3d_perf_test_${perftest}" gcm)
-    endif()
+    add_library(perf_test_util OBJECT "${CMAKE_CURRENT_LIST_DIR}/src/tests/perf/util.cpp")
+    foreach(perftestsource ${PERF_TESTS_SOURCES})
+        get_filename_component(perftest "${perftestsource}" NAME_WE)
+        if(NOT ("${perftest}" STREQUAL "util"))
+            add_executable("gcm3d_perf_test_${perftest}" "${perftestsource}" $<TARGET_OBJECTS:perf_test_util> $<TARGET_OBJECTS:launcher>)
+            target_link_libraries("gcm3d_perf_test_${perftest}" gcm)
+        endif()
+    endforeach()
+endif()
+
+foreach(plugin ${AVAILABLE_PLUGINS})
+    file(GLOB_RECURSE PLUGIN_SOURCES   "${plugin}/*.cpp")
+    get_filename_component(plugin_name "${plugin}" NAME_WE)
+    add_library("gcm_${plugin_name}" SHARED ${PLUGIN_SOURCES})
+    target_link_libraries("gcm_${plugin_name}" gcm)
 endforeach()
 
 
@@ -116,7 +137,9 @@ endforeach()
 
 target_link_libraries(gcm ${MPI_CXX_LIBRARIES})
 target_link_libraries(gcm ${LIBXML2_LIBRARIES})
-target_link_libraries(gcm ${LOG4CXX_LIBRARIES})
+if(NOT WITHOUT_LOG4CXX)
+    target_link_libraries(gcm ${LOG4CXX_LIBRARIES})
+endif()
 target_link_libraries(gcm ${GSL_LIBRARIES})
 target_link_libraries(gcm ${Boost_LIBRARIES})
 target_link_libraries(gcm ${GMSH_LIBRARY})
@@ -124,14 +147,20 @@ target_link_libraries(gcm ${VTK_LIBRARIES})
 
 target_link_libraries(gcm3d gcm)
 
-target_link_libraries(gcm3d_unit_tests gcm)
-target_link_libraries(gcm3d_unit_tests ${GTEST_LIBRARIES})
+if(WITH_TESTS)
+    target_link_libraries(gcm3d_unit_tests gcm)
+    target_link_libraries(gcm3d_unit_tests ${GTEST_LIBRARIES})
 
-target_link_libraries(gcm3d_func_tests gcm)
-target_link_libraries(gcm3d_func_tests ${GTEST_LIBRARIES})
+    target_link_libraries(gcm3d_func_tests gcm)
+    target_link_libraries(gcm3d_func_tests ${GTEST_LIBRARIES})
+endif()
 
 install(
     TARGETS gcm gcm3d
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
+)
+
+install(
+    FILES tools/pv_render.py DESTINATION bin RENAME gcm3d_pv_render.py
 )

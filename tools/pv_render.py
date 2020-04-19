@@ -7,9 +7,9 @@ import os
 import argparse
 import logging
 
-#from paraview.simple import GetParaViewVersion
+from paraview.simple import GetParaViewVersion
 
-USE_API_4_2 = False #[int(x) for x in str(GetParaViewVersion()).split('.')] >= [4, 2]
+USE_API_4_2 = [int(x) for x in str(GetParaViewVersion()).split('.')] >= [4, 2]
 
 def render(step, output_pattern, out_dir):
     from paraview.simple import WriteImage

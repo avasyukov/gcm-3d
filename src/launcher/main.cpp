@@ -25,6 +25,8 @@
 #include "launcher/util/FileFolderLookupService.hpp"
 #include "libgcm/Engine.hpp"
 
+#include <stdlib.h>
+
 using namespace gcm;
 using namespace launcher;
 using boost::property_tree::ptree;
@@ -213,17 +215,16 @@ int main(int argc, char **argv, char **envp)
             GmshFinalize();
         }
 
+        // FIXME this is not portable
         if (render)
         {
             LOG_DEBUG("Running pv_render");
-            bfs::path gcm3d = argv[0];
-            bfs::path pv_render = gcm3d.parent_path();
-            pv_render /= "gcm3d_pv_render.py";
+            bfs::path gcm3d = bfs::path(realpath("/proc/self/exe", NULL));
+            bfs::path pv_render = gcm3d.parent_path() / "gcm3d_pv_render.py";
 
             if (!bfs::is_directory(renderOutputDir))
                 bfs::create_directories(renderOutputDir);
 
-            // FIXME this is not portable
             execl(
                 "/usr/bin/env", "/usr/bin/env",
                 "pvbatch",
@@ -232,7 +233,7 @@ int main(int argc, char **argv, char **envp)
                 "--snap-list", snapListFilePath.string().c_str(),
                 "--output-dir", renderOutputDir.c_str(),
                 "render-all",
-                NULL
+                (char*)NULL
             );
         }
     } catch (Exception &e) {

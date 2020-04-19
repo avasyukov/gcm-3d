@@ -31,7 +31,7 @@ bool solveThirdOrderTest(real a1, real a2, real a3)
     std::sort(std::begin(r), std::end(r));
     bool match = true;
     for( int i = 0; i < 3; i++ )
-        if( fabs(e[i] - r[i]) > 0.025 * fabs(e[i] + r[i]) || isnan(r[i]) )
+        if( fabs(e[i] - r[i]) > 0.025 * fabs(e[i] + r[i]) || std::isnan(r[i]) )
             match = false;
     return match;
 };
@@ -105,7 +105,7 @@ TEST(Math, solvePolynomialThirdOrderHydrostaticStress)
 
         bool match = true;
         for( int i = 0; i < 3; i++ )
-            if( fabs(p - r[i]) > 0.025 * fabs(p + r[i]) || isnan(r[i]) )
+            if( fabs(p - r[i]) > 0.025 * fabs(p + r[i]) || std::isnan(r[i]) )
                 match = false;
         
         ASSERT_TRUE( match );
