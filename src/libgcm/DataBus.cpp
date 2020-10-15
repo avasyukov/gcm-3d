@@ -1,5 +1,6 @@
 #include "libgcm/DataBus.hpp"
 
+#include <cstddef>
 #include <vector>
 
 #include "libgcm/mesh/tetr/TetrMeshSecondOrder.hpp"
@@ -134,19 +135,19 @@ void DataBus::createStaticTypes()
     TetrSecondOrder tetrs[2];
 
     MPI::Datatype outl_types[] = {
-        MPI::LB,
+//        MPI::LB,
         MPI::FLOAT,
-        MPI::FLOAT,
-        MPI::UB
+        MPI::FLOAT//,
+//        MPI::UB
     };
 
     int outl_lengths[] = {
-        1,
+//        1,
         3,
-        3,
-        1
+        3//,
+//        1
     };
-
+/*
     MPI::Aint outl_displacements[] = {
         MPI::Get_address(&outlines[0]),
         MPI::Get_address(&outlines[0].min_coords[0]),
@@ -156,28 +157,32 @@ void DataBus::createStaticTypes()
 
     for (int i = 3; i >=0; i--)
         outl_displacements[i] -= MPI::Get_address(&outlines[0]);
-
+*/
+    MPI::Aint outl_displacements[] = {
+        offsetof(AABB, min_coords[0]),
+        offsetof(AABB, max_coords[0])
+    };
     MPI_OUTLINE = MPI::Datatype::Create_struct(
-        4,
+        2,//4,
         outl_lengths,
         outl_displacements,
         outl_types
     );
 
     MPI::Datatype mesh_outl_types[] = {
-        MPI::LB,
+//        MPI::LB,
         MPI::FLOAT,
-        MPI::FLOAT,
-        MPI::UB
+        MPI::FLOAT//,
+//        MPI::UB
     };
 
     int mesh_outl_lengths[] = {
-        1,
+//        1,
         3,
-        3,
-        1
+        3//,
+//        1
     };
-
+/*
     MPI::Aint mesh_outl_displacements[] = {
         MPI::Get_address(&meshes[0]),
         MPI::Get_address(&meshes[0].outline.min_coords[0]),
@@ -187,9 +192,13 @@ void DataBus::createStaticTypes()
 
     for (int i = 3; i >=0; i--)
         mesh_outl_displacements[i] -= mesh_outl_displacements[0];
-
+*/
+    MPI::Aint mesh_outl_displacements[] = {
+        offsetof(TetrMeshSecondOrder, outline.min_coords[0]),
+        offsetof(TetrMeshSecondOrder, outline.max_coords[0])
+    };
     MPI_MESH_OUTLINE = MPI::Datatype::Create_struct(
-        4,
+        2,//4,
         mesh_outl_lengths,
         mesh_outl_displacements,
         mesh_outl_types
@@ -197,31 +206,35 @@ void DataBus::createStaticTypes()
 
     MPI::Datatype face_types[] =
     {
-        MPI::LB,
+//        MPI::LB,
         MPI::INT,
-        MPI::INT,
-        MPI::UB
+        MPI::INT//,
+//        MPI::UB
     };
 
     int face_lens[] = {
+//        1,
         1,
-        1,
-        3,
-        1
+        3//,
+//        1
     };
-
+/*
     MPI::Aint face_displ[] = {
         MPI::Get_address(&faces[0]),
         MPI::Get_address(&faces[0].number),
-        MPI::Get_address(&faces[0].verts[0]),
+        MPI::Get_address(&faces[0].verts[0])//,
         MPI::Get_address(&faces[1])
     };
 
     for (int i = 3; i >= 0; i--)
         face_displ[i] -= face_displ[0];
-
+*/
+    MPI::Aint face_displ[] = {
+        offsetof(TriangleSecondOrder, number),
+        offsetof(TriangleSecondOrder, verts[0])
+    };
     MPI_FACE_NUMBERED = MPI::Datatype::Create_struct(
-        4,
+        2,//4,
         face_lens,
         face_displ,
         face_types
@@ -229,21 +242,21 @@ void DataBus::createStaticTypes()
 
     MPI::Datatype tetr_types[] =
     {
-        MPI::LB,
+//        MPI::LB,
         MPI::INT,
         MPI::INT,
-        MPI::INT,
-        MPI::UB
+        MPI::INT//,
+//        MPI::UB
     };
 
     int tetr_lens[] = {
-        1,
+//        1,
         1,
         4,
-        6,
-        1
+        6//,
+//        1
     };
-
+/*
     MPI::Aint tetr_displ[] = {
         MPI::Get_address(&tetrs[0]),
         MPI::Get_address(&tetrs[0].number),
@@ -254,9 +267,14 @@ void DataBus::createStaticTypes()
 
     for (int i = 4; i >= 0; i--)
         tetr_displ[i] -= tetr_displ[0];
-
+*/
+    MPI::Aint tetr_displ[] = {
+        offsetof(TetrSecondOrder, number),
+        offsetof(TetrSecondOrder, verts[0]),
+        offsetof(TetrSecondOrder, addVerts[0])
+    };
     MPI_TETR_NUMBERED = MPI::Datatype::Create_struct(
-        5,
+        3,//5,
         tetr_lens,
         tetr_displ,
         tetr_types
@@ -264,29 +282,29 @@ void DataBus::createStaticTypes()
 
     CalcNode elnodes[2];
     MPI::Datatype elnode_types[] = {
-        MPI::LB,
+//        MPI::LB,
         MPI::FLOAT,
         MPI::FLOAT,
         MPI::FLOAT,
         MPI::UNSIGNED_CHAR,
         MPI::UNSIGNED_CHAR,
         MPI::UNSIGNED,
-        MPI::UNSIGNED_CHAR,
-        MPI::UB
+        MPI::UNSIGNED_CHAR//,
+//        MPI::UB
     };
 
     int elnode_lens[] = {
-        1,
+//        1,
         9,
         3,
         1,
         1,
         1,
         1,
-        1,
-        1
+        1//,
+//        1
     };
-
+/*
     MPI::Aint elnode_displs[] = {
         MPI::Get_address(&elnodes[0]),
         MPI::Get_address(&elnodes[0].values[0]),
@@ -300,9 +318,18 @@ void DataBus::createStaticTypes()
     };
     for (int i = 8; i >= 0; i--)
         elnode_displs[i] -= elnode_displs[0];
-
+*/
+    MPI::Aint elnode_displs[] = {
+        offsetof(CalcNode, values[0]),
+        offsetof(CalcNode, coords/*[0]*/),
+        offsetof(CalcNode, rho),
+        offsetof(CalcNode, bodyId),
+        offsetof(CalcNode, materialId),
+        offsetof(CalcNode, publicFlags),
+        offsetof(CalcNode, borderConditionId)
+    };
     MPI_ELNODE = MPI::Datatype::Create_struct(
-        9,
+        7,//9,
         elnode_lens,
         elnode_displs,
         elnode_types
@@ -310,7 +337,7 @@ void DataBus::createStaticTypes()
     MPI_ELNODE.Commit();
 
     MPI::Datatype elnoden_types[] = {
-        MPI::LB,
+//        MPI::LB,
         MPI::INT,
         MPI::FLOAT,
         MPI::FLOAT,
@@ -318,12 +345,12 @@ void DataBus::createStaticTypes()
         MPI::UNSIGNED_CHAR,
         MPI::UNSIGNED_CHAR,
         MPI::UNSIGNED,
-        MPI::UNSIGNED_CHAR,
-        MPI::UB
+        MPI::UNSIGNED_CHAR//,
+//        MPI::UB
     };
 
     int elnoden_lens[] = {
-        1,
+//        1,
         1,
         9,
         3,
@@ -331,10 +358,10 @@ void DataBus::createStaticTypes()
         1,
         1,
         1,
-        1,
-        1
+        1//,
+//        1
     };
-
+/*
     MPI::Aint elnoden_displs[] = {
         MPI::Get_address(&elnodes[0]),
         MPI::Get_address(&elnodes[0].number),
@@ -349,9 +376,20 @@ void DataBus::createStaticTypes()
     };
     for (int i = 9; i >= 0; i--)
         elnoden_displs[i] -= elnoden_displs[0];
+*/
+    MPI::Aint elnoden_displs[] = {
+        offsetof(CalcNode, number),
+        offsetof(CalcNode, values[0]),
+        offsetof(CalcNode, coords/*[0]*/),
+        offsetof(CalcNode, rho),
+        offsetof(CalcNode, bodyId),
+        offsetof(CalcNode, materialId),
+        offsetof(CalcNode, publicFlags),
+        offsetof(CalcNode, borderConditionId)
+    };
 
     MPI_ELNODE_NUMBERED = MPI::Datatype::Create_struct(
-        10,
+        8,//10,
         elnoden_lens,
         elnoden_displs,
         elnoden_types
