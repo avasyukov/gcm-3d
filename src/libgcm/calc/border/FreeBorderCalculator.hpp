@@ -27,9 +27,22 @@ namespace gcm
     private:
         USE_LOGGER;
         // Used for border calculation
-        gsl_matrix *U_gsl;
-        gsl_vector *om_gsl;
+        //
+        // Matrix for transformation into inner Riemann Invariants
+        gsl_matrix *A_gsl;
+        // Vector for inner Riemann Invariants
+        gsl_vector *r_gsl;
+        // Matrix for the final solution
+        gsl_matrix *M_gsl;
+        // right hand side of the final solution
+        gsl_matrix_view M_tl_gsl;
+        // top left part of matrix M
+        gsl_vector *rhs_gsl;
+        // part of rhs that is A^Tr
+        gsl_vector_view rhs_t_gsl;
+        // result of the final solution
         gsl_vector *x_gsl;
+        // permutation for LU solver
         gsl_permutation *p_gsl;
     };
 }
