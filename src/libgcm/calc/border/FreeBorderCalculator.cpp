@@ -82,7 +82,7 @@ void FreeBorderCalculator::doCalc(CalcNode& cur_node, CalcNode& new_node, Rheolo
     assert_eq(k, 6);
 
     // evaluate 2*A^T*A and write it to top left side of M
-    gsl_blas_dgemm(CblasTrans, CblasNoTrans, 2., A_gsl, A_gsl, 0., &M_tl_gsl.matrix);
+    gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1., A_gsl, A_gsl, 0., &M_tl_gsl.matrix);
 
     // add regularization term
     for(int i = 0; i < 9; i++)
