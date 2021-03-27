@@ -25,7 +25,7 @@ include (FindPackageHandleStandardArgs)
 INCLUDE(CheckIncludeFileCXX)
 
 FIND_PATH(GMSH_INCLUDE_DIR
-  gmsh/Gmsh.h gmsh/Context.h gmsh/GModel.h
+  gmsh.h
   PATHS ${CMAKE_SYSTEM_PREFIX_PATH} $ENV{GMSH_DIR}/include
   PATH_SUFFIXES include include/gmsh
   DOC "Directory where GMSH header files are stored" )
@@ -51,10 +51,10 @@ FIND_LIBRARY(GMSH_LIBRARY NAMES Gmsh gmsh-2.5.1 gmsh1 gmsh
   lib  )
 if( NOT GMSH_LIBRARY )
  FIND_PATH(GMSH_LIBRARY_PATH
-  libGmsh.so
+  libgmsh.so
   PATHS ${CMAKE_SYSTEM_PREFIX_PATH} $ENV{GMSH_DIR}/
-  PATH_SUFFIXES lib )
-  set(GMSH_LIBRARY "${GMSH_LIBRARY_PATH}/libGmsh.so" )
+  PATH_SUFFIXES lib lib64 )
+  set(GMSH_LIBRARY "${GMSH_LIBRARY_PATH}/libgmsh.so" )
 endif()
 
 FIND_LIBRARY(GL2PS_LIBRARY NAMES gl2ps

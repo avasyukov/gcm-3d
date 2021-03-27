@@ -14,16 +14,6 @@
 #include "libgcm/DummyDispatcher.hpp"
 
 
-
-#include <gmsh/Gmsh.h>
-#include <gmsh/GModel.h>
-#include <gmsh/GEntity.h>
-#include <gmsh/MElement.h>
-#include <gmsh/MVertex.h>
-#include <gmsh/MTriangle.h>
-#include <gmsh/MTetrahedron.h>
-
-
 namespace gcm {
     class Geo2MeshLoader: public Singleton<Geo2MeshLoader>
     {

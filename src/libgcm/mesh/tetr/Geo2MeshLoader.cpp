@@ -2,6 +2,8 @@
 
 #include "libgcm/Engine.hpp"
 
+#include <gmsh.h>
+
 using namespace gcm;
 using std::string;
 using std::find;
@@ -53,24 +55,41 @@ void Geo2MeshLoader::createMshFile(string fileName, float tetrSize)
             return;
         }
     }
+
+    LOG_DEBUG("loadGeoScriptFile (" << fileName << "): will mesh with H = " << tetrSize);
+
     /*
      * TODO@ashevtsov: I don't really understand the meaning of all these options, values
      * have been guessed to get a mesh with acceptable tetrahedra sizes.
      * In future need to undestand GMsh meshing algorithms and set these options correctly.
      */
-    LOG_DEBUG("loadGeoScriptFile (" << fileName << "): will mesh with H = " << tetrSize);
-    GmshSetOption("General", "Terminal", 1.0);
-    GmshSetOption("General", "Verbosity", engine.getGmshVerbosity());
-    GmshSetOption("Mesh", "CharacteristicLengthMin", tetrSize);
-    GmshSetOption("Mesh", "CharacteristicLengthMax", tetrSize);
-    GmshSetOption("Mesh", "Optimize", 1.0);
+//    GmshSetOption("General", "Terminal", 1.0);
+//    GmshSetOption("General", "Verbosity", engine.getGmshVerbosity());
+//    GmshSetOption("Mesh", "CharacteristicLengthMin", tetrSize);
+//    GmshSetOption("Mesh", "CharacteristicLengthMax", tetrSize);
+//    GmshSetOption("Mesh", "Optimize", 1.0);
+//
+//    GModel gmshModel;
+//    gmshModel.setFactory ("Gmsh");
+//    gmshModel.readGEO (fileName);
+//    LOG_INFO("Creating mesh using gmsh library");
+//    gmshModel.mesh (3);
+//    gmshModel.writeMSH (getMshFileName(fileName));
 
-    GModel gmshModel;
-    gmshModel.setFactory ("Gmsh");
-    gmshModel.readGEO (fileName);
-    LOG_INFO("Creating mesh using gmsh library");
-    gmshModel.mesh (3);
-    gmshModel.writeMSH (getMshFileName(fileName));
+    // Read .geo file
+    gmsh::initialize();
+    gmsh::open(fileName);
+    gmsh::model::geo::synchronize();
+
+    // Set desired element size
+    gmsh::option::setNumber("Mesh.CharacteristicLengthMin", tetrSize);
+    gmsh::option::setNumber("Mesh.CharacteristicLengthMax", tetrSize);
+
+    // Build and save mesh
+    gmsh::model::mesh::generate(3);
+    gmsh::write(getMshFileName(fileName));
+    gmsh::finalize();
+
     createdFiles[fileName] = true;
 
 //    if (engine.getNumberOfWorkers() > 1)

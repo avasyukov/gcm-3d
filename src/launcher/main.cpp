@@ -21,7 +21,7 @@
 #include <boost/serialization/vector.hpp>
 #include "launcher/util/serialize_tuple.hpp"
 
-#include <gmsh/Gmsh.h>
+//#include <gmsh/Gmsh.h>
 
 #include "launcher/launcher.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
@@ -139,7 +139,7 @@ int main(int argc, char **argv, char **envp)
 //        mpi::environment env(argc, argv, false);
 //        mpi::communicator world;
 
-        GmshInitialize();
+        //GmshInitialize();
         #if CONFIG_ENABLE_LOGGING
         char pe[5] = "MAIN";
 //        sprintf(pe, "%d", world.rank());
@@ -221,7 +221,7 @@ int main(int argc, char **argv, char **envp)
 //                    mpi::gather(world, engine.getSnapshotsList(), 0);
 //            }
             engine.cleanUp();
-            GmshFinalize();
+            //GmshFinalize();
         }
 
         // FIXME this is not portable
