@@ -349,14 +349,14 @@ void Mesh::processMaterialFailure(FailureModel* failureModel, const float tau)
     }
 }
 
-void Mesh::applyCorrectors()
+void Mesh::applyCorrectors(float time_step)
 {
     for(int i = 0; i < getNodesNumber(); i++)
     {
         CalcNode& node = getNodeByLocalIndex(i);
         if( node.isLocal() )
         {
-            node.getRheologyMatrix()->applyCorrector(node);
+            node.getRheologyMatrix()->applyCorrector(node, time_step);
         }
     }
 }

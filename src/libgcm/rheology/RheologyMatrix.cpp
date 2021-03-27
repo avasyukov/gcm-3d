@@ -156,10 +156,10 @@ void RheologyMatrix::decompose(const ICalcNode& node, unsigned int direction)
     this->index = s;
 }
 
-void RheologyMatrix::applyCorrector(ICalcNode& node)
+void RheologyMatrix::applyCorrector(ICalcNode& node, float time_step)
 {
     if( corrector != nullptr)
-        corrector->correctNodeState(node, material);
+        corrector->correctNodeState(node, material, time_step);
 }
 
 // ====================================================================================================================

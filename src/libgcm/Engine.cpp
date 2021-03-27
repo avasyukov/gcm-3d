@@ -552,7 +552,7 @@ void Engine::doNextStepAfterStages(const float time_step) {
         RheologyCalculator* rc = getRheologyCalculator( bodies[i]->getRheologyCalculatorType() );
         Mesh* mesh = bodies[i]->getMeshes();
 		LOG_DEBUG("Applying correctors for mesh " << mesh->getId());
-		mesh->applyCorrectors();
+		mesh->applyCorrectors(time_step);
 		LOG_DEBUG("Applying correctors done");
         LOG_DEBUG( "Applying rheology for mesh " << mesh->getId() );
         mesh->applyRheology(rc);

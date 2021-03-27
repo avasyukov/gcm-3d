@@ -245,7 +245,7 @@ namespace gcm {
         void clearNodesState();
         void processStressState();
         void processMaterialFailure(FailureModel* failureModel, const float tau);
-        void applyCorrectors();
+        void applyCorrectors(float time_step);
         virtual void moveCoords(float tau);
 
         float getMaxEigenvalue();

@@ -1,5 +1,5 @@
-#ifndef IDEALPLASTICFLOWCORRECTOR_HPP
-#define IDEALPLASTICFLOWCORRECTOR_HPP 
+#ifndef MaxwellViscosityCorrector_HPP
+#define MaxwellViscosityCorrector_HPP
 #include "libgcm/rheology/correctors/ICorrector.hpp"
 #include <cmath>
 
@@ -7,7 +7,7 @@
 
 namespace gcm
 {
-        class IdealPlasticFlowCorrector: public ICorrector
+        class MaxwellViscosityCorrector: public ICorrector
         {
             public:
             /**
@@ -18,4 +18,4 @@ namespace gcm
             void correctNodeState(ICalcNode& node, const MaterialPtr& material, float time_step);
         };
 }
-#endif /* IDEALPLASTICFLOWCORRECTOR_HPP */
+#endif /* MaxwellViscosityCorrector_HPP */

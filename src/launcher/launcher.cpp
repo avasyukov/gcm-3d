@@ -36,6 +36,7 @@
 #include "libgcm/rheology/decomposers/NumericalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/correctors/IdealPlasticFlowCorrector.hpp"
+#include "libgcm/rheology/correctors/MaxwellViscosityCorrector.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
 #include "libgcm/rheology/Failure.hpp"
 
@@ -767,7 +768,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
         {
             if(materialUsedInTask)
             {
-                LOG_INFO("Using \"" << plasticityType << "\" plasticity model " 
+                LOG_INFO("Using \"" << plasticityType << "\" viscosity/plasticity model "
                         << "and \""  + failureMode + "\" failure mode "
                         << "for isotropic material \"" << material->getName() << "\".");
                 if( !plasticityPropsPresent )
@@ -777,6 +778,12 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             if (plasticityType == PLASTICITY_TYPE_NONE)
             {
                 corrector = nullptr;
+                setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
+                decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
+            }
+            else if (plasticityType == PLASTICITY_TYPE_MAXWELL)
+            {
+                corrector = makeCorrectorPtr<MaxwellViscosityCorrector>();
                 setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
                 decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
             }
@@ -802,13 +809,13 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             
             if (failureMode == FAILURE_MODE_DISCRETE)
             {
-                corrector = nullptr;
+                //corrector = nullptr;
                 setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
                 decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
             }
             else if (failureMode == FAILURE_MODE_CONTINUAL)
             {
-                corrector = nullptr;
+                //corrector = nullptr;
                 setter = makeSetterPtr<IsotropicDamagedRheologyMatrixSetter>();
                 decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
             }

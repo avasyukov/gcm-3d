@@ -173,7 +173,7 @@ namespace gcm
          */
         void decompose(const ICalcNode& node, unsigned int direction);
         
-        void applyCorrector(ICalcNode& node);
+        void applyCorrector(ICalcNode& node, float time_step);
     };
 
     typedef std::shared_ptr<RheologyMatrix> RheologyMatrixPtr;
