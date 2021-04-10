@@ -34,7 +34,7 @@ else()
 endif()
 
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -fno-omit-frame-pointer -frecord-gcc-switches")
+set(CMAKE_CXX_FLAGS "-std=c++11 -fno-omit-frame-pointer -frecord-gcc-switches -fopenmp")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O0 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -g")
 
@@ -44,8 +44,8 @@ include_directories(${LIBXML2_INCLUDE_DIR})
 find_package(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
 
-find_package(MPI REQUIRED)
-include_directories(${MPI_CXX_INCLUDE_PATH})
+#find_package(MPI REQUIRED)
+#include_directories(${MPI_CXX_INCLUDE_PATH})
 
 if(NOT WITHOUT_LOG4CXX)
     find_package(Log4cxx REQUIRED)
@@ -55,7 +55,7 @@ endif()
 find_package(GSL REQUIRED)
 include_directories(${GSL_INCLUDE_DIRS})
 
-find_package(Boost REQUIRED COMPONENTS filesystem system program_options mpi serialization)
+find_package(Boost REQUIRED COMPONENTS filesystem system program_options serialization)
 include_directories(${Boost_INCLUDE_DIRS})
 
 find_package(Gmsh REQUIRED)
@@ -125,7 +125,7 @@ foreach(plugin ${AVAILABLE_PLUGINS})
     target_link_libraries("gcm_${plugin_name}" gcm)
 endforeach()
 
-target_link_libraries(gcm ${MPI_CXX_LIBRARIES})
+#target_link_libraries(gcm ${MPI_CXX_LIBRARIES})
 target_link_libraries(gcm ${LIBXML2_LIBRARIES})
 if(NOT WITHOUT_LOG4CXX)
     target_link_libraries(gcm ${LOG4CXX_LIBRARIES})

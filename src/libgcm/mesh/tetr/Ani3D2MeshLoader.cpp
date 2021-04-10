@@ -56,7 +56,7 @@ void Ani3D2MeshLoader::loadMesh(TetrMeshSecondOrder* mesh, GCMDispatcher* dispat
         LOG_DEBUG("Worker 0 completed generating second order mesh");
     }
 
-    MPI::COMM_WORLD.Barrier();
+//    MPI::COMM_WORLD.Barrier();
 
     LOG_DEBUG("Starting reading mesh");
     Vtu2TetrFileReader* reader = new Vtu2TetrFileReader();

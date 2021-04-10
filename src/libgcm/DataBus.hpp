@@ -6,7 +6,7 @@
 #include "libgcm/GCMDispatcher.hpp"
 #include "libgcm/Logging.hpp"
 
-#include <mpi.h>
+//#include <mpi.h>
 
 
 namespace gcm
@@ -29,10 +29,10 @@ namespace gcm
         void syncNodes(int bodyNum, float tau);
         void createDynamicTypes(int bodyNum);
         USE_LOGGER;
-        MPI::Datatype **MPI_NODE_TYPES;
+//        MPI::Datatype **MPI_NODE_TYPES;
         std::vector<int> **local_numbers;
-        int numberOfWorkers;
-        int rank;
+//        int numberOfWorkers;
+//        int rank;
 
         // MPI tags
         static const int TAG_SYNC_NODE         =  2000;
@@ -53,12 +53,12 @@ namespace gcm
 
     public:
         // MPI types
-        MPI::Datatype MPI_ELNODE;
-        MPI::Datatype MPI_ELNODE_NUMBERED;
-        MPI::Datatype MPI_FACE_NUMBERED;
-        MPI::Datatype MPI_TETR_NUMBERED;
-        MPI::Datatype MPI_MESH_OUTLINE;
-        MPI::Datatype MPI_OUTLINE;
+//        MPI::Datatype MPI_ELNODE;
+//        MPI::Datatype MPI_ELNODE_NUMBERED;
+//        MPI::Datatype MPI_FACE_NUMBERED;
+//        MPI::Datatype MPI_TETR_NUMBERED;
+//        MPI::Datatype MPI_MESH_OUTLINE;
+//        MPI::Datatype MPI_OUTLINE;
 
         // return code on termination
         static const int MPI_CODE_TERMINATED = 0;
