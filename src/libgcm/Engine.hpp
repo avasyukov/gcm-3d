@@ -6,7 +6,7 @@
 #include <tuple>
 #include <stdexcept>
 #include <vector>
-#include <mpi.h>
+//#include <mpi.h>
 #include <limits>
 #include <functional>
 
@@ -79,8 +79,8 @@ namespace gcm
         /*
          * Process rank in MPI communicator.
          */
-        int rank;
-        int numberOfWorkers;
+//        int rank;
+//        int numberOfWorkers;
         /*
          * Numerical methods
          */

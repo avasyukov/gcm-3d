@@ -48,8 +48,8 @@ Engine::Engine()
 {
     gsl_set_error_handler(GSLErrorHandler);
 
-    rank = MPI::COMM_WORLD.Get_rank();
-    numberOfWorkers = MPI::COMM_WORLD.Get_size();
+//    rank = MPI::COMM_WORLD.Get_rank();
+//    numberOfWorkers = MPI::COMM_WORLD.Get_size();
     // get logger
     INIT_LOGGER("gcm.Engine");
     LOG_DEBUG("GCM engine created");
@@ -158,12 +158,12 @@ void Engine::cleanUp()
 
 int Engine::getRank()
 {
-    return rank;
+    return 0;//rank;
 }
 
 int Engine::getNumberOfWorkers()
 {
-    return numberOfWorkers;
+    return 1;//numberOfWorkers;
 }
 
 void Engine::setTimeStep(float dt)
