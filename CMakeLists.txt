@@ -46,7 +46,7 @@ find_package(LibXml2 REQUIRED)
 include_directories(${LIBXML2_INCLUDE_DIR})
 
 find_package(VTK REQUIRED)
-INCLUDE(${VTK_USE_FILE})
+include_directories(${VTK_INCLUDE_DIRS})
 
 find_package(MPI REQUIRED)
 include_directories(${MPI_CXX_INCLUDE_PATH})
@@ -105,8 +105,12 @@ include_directories("${CMAKE_CURRENT_LIST_DIR}/src/" "${CMAKE_CURRENT_BINARY_DIR
 
 
 add_library(gcm SHARED ${LIB_SOURCES})
-add_library(launcher OBJECT ${LAUNCHER_COMMON_SOURCES})
-add_executable(gcm3d "${CMAKE_CURRENT_LIST_DIR}/src/launcher/main.cpp" $<TARGET_OBJECTS:launcher>)
+
+# TODO: return launcher target (it was removed since it failed to build with new VTK9 modules and so on)
+#add_library(launcher OBJECT ${LAUNCHER_COMMON_SOURCES})
+#add_executable(gcm3d "${CMAKE_CURRENT_LIST_DIR}/src/launcher/main.cpp" $<TARGET_OBJECTS:launcher>)
+
+add_executable(gcm3d "${CMAKE_CURRENT_LIST_DIR}/src/launcher/main.cpp" ${LAUNCHER_COMMON_SOURCES})
 
 if(WITH_TESTS)
     add_executable(gcm3d_unit_tests ${UNIT_TESTS_SOURCES} $<TARGET_OBJECTS:launcher>)

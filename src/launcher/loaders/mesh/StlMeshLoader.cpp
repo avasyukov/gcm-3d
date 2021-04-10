@@ -4,8 +4,11 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
 
+#include <iostream>
+
 using namespace gcm;
 using boost::lexical_cast;
+using std::ofstream;
 using std::string;
 
 const string launcher::StlMeshLoader::MESH_TYPE = "stl";
