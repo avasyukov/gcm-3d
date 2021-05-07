@@ -1,0 +1,24 @@
+<task numberOfSnaps="150" stepsPerSnap="10" xmlns:ndi="gcm3d.plugins.ndi">
+	<system>
+        <defaultContactCalculator type="AdhesionContactCalculator" />
+        <meshMovement type="none" />
+        <loadPlugin name="ndi" />
+    </system>
+	<bodies>
+		<body id="ndi_cscan_steel_0">
+        	<rheology type="elastic" />
+                <mesh id="ndi_cscan_steel_0" type="geo2" file="models/ndi_plate.geo" tetrSize="1.0" />
+                <material id="steel" />
+        </body>
+	</bodies>
+	<ndi:emitter name="ndi_cscan_e_0" 
+		type="cscan" z="10"
+		min_x="10" min_y="10" step_x="10" step_y="10"
+                n_x="9" n_y="9"
+		r="3"
+		duration="0.05"
+		dt="0.05"
+		normalStress="-1000"
+		tangentialStress="0">
+	</ndi:emitter>
+</task>
