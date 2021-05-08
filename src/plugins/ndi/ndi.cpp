@@ -86,20 +86,39 @@ void NDIPlugin::parseTask(xml::Doc& doc)
             for (unsigned int i = 0; i < n_x; ++i)
                 for (unsigned int j = 0; j < n_y; ++j)
                 {
-                    engine->getBorderCalculator("ExternalForceCalculator")->setParameters( emitter );
-                    auto area = new CylinderArea(r, min_x + step_x * i, min_y + step_y * j, z - 0.1, min_x + step_x * i, min_y + step_y * j, z + 0.1);
+                    engine->getBorderCalculator("ExternalForceCalculator")->setParameters(emitter);
+                    auto area = new CylinderArea(r, min_x + step_x * i, min_y + step_y * j, z - 0.1, min_x + step_x * i,
+                                                 min_y + step_y * j, z + 0.1);
                     unsigned int conditionId = engine->addBorderCondition(
-                            new BorderCondition(NULL, new StepPulseForm(dt * (j + i * n_y), duration), engine->getBorderCalculator("ExternalForceCalculator") )
+                            new BorderCondition(NULL, new StepPulseForm(dt * (j + i * n_y), duration),
+                                                engine->getBorderCalculator("ExternalForceCalculator"))
                     );
-                    for( int i = 0; i < engine->getNumberOfBodies(); i++ )
-                    {
+                    for (int i = 0; i < engine->getNumberOfBodies(); i++) {
                         engine->getBody(i)->setBorderCondition(area, conditionId);
                     }
-
-                    string sname = name + to_string(i) + to_string(j);
-                    this->sensors.push_back(new SimpleVolumeSensor(sname, area, engine));
                 }
 
+            if (emitter.getAttributeByName("reflection", "false") == "true")
+                for (unsigned int i = 0; i < n_x; ++i)
+                    for (unsigned int j = 0; j < n_y; ++j)
+                    {
+                        float zr  = lexical_cast<real>(emitter["z_reflection"]);
+                        string sname = name + "_r_" + to_string(i) + to_string(j);
+                        auto area = new CylinderArea(r, min_x + step_x * i, min_y + step_y * j, zr - 0.1,
+                                                     min_x + step_x * i, min_y + step_y * j, zr + 0.1);
+                        this->sensors.push_back(new SimpleVolumeSensor(sname, area, engine));
+                    }
+
+            if (emitter.getAttributeByName("transmission", "false") == "true")
+                for (unsigned int i = 0; i < n_x; ++i)
+                    for (unsigned int j = 0; j < n_y; ++j)
+                    {
+                        float zt  = lexical_cast<real>(emitter["z_transmission"]);
+                        string sname = name + "_t_" + to_string(i) + to_string(j);
+                        auto area = new CylinderArea(r, min_x + step_x * i, min_y + step_y * j, zt - 0.1,
+                                                     min_x + step_x * i, min_y + step_y * j, zt + 0.1);
+                        this->sensors.push_back(new SimpleVolumeSensor(sname, area, engine));
+                    }
         }
     }
 
