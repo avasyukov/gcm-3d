@@ -5,6 +5,7 @@ nbproject/
 *.msh
 *.cas
 *.pyc
+*.csv
 .*
 build
 install

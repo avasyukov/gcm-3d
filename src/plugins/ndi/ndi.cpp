@@ -71,7 +71,7 @@ void NDIPlugin::parseTask(xml::Doc& doc)
         }
         else if (type == "cscan")
         {
-            LOG_INFO("C-scan in in progress. Please note that it only works in XY plane.");
+            LOG_INFO("C-scan is in progress. Please note that it only works in XY plane.");
             float min_x = lexical_cast<real>(emitter["min_x"]);
             float min_y = lexical_cast<real>(emitter["min_y"]);
             float step_x = lexical_cast<real>(emitter["step_x"]);
