@@ -1,8 +1,9 @@
-<task numberOfSnaps="120" stepsPerSnap="30" xmlns:ndi="gcm3d.plugins.ndi">
+<task numberOfSnaps="100" stepsPerSnap="76" xmlns:ndi="gcm3d.plugins.ndi">
         <system>
         <defaultContactCalculator type="AdhesionContactCalculator" />
         <meshMovement type="none" />
         <loadPlugin name="ndi" />
+        <timeStep fixed="0.0025" />
     </system>
         <bodies>
                 <body id="ndi_cscan_011">

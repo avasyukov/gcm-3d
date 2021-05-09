@@ -273,9 +273,20 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
     if( timeStepList.size() == 1 )
     {
         xml::Node timeStep = timeStepList.front();
-        real value = lexical_cast<real>(timeStep["multiplier"]);
-        engine.setTimeStepMultiplier(value);
-        LOG_INFO("Using time step multiplier: " << value);
+
+        if (timeStep.getAttributeByName("multiplier", "NOPE") != "NOPE")
+        {
+            real value = lexical_cast<real>(timeStep["multiplier"]);
+            engine.setTimeStepMultiplier(value);
+            LOG_INFO("Using time step multiplier: " << value);
+        }
+
+        if (timeStep.getAttributeByName("fixed", "NOPE") != "NOPE")
+        {
+            real value = lexical_cast<real>(timeStep["fixed"]);
+            engine.setTimeStep(value);
+            LOG_INFO("Using time step: " << value);
+        }
     }
     
     NodeList plasticityTypeList = rootNode.xpath("/task/system/plasticity");
