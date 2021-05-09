@@ -14,24 +14,28 @@ using std::get;
 SimpleVolumeSensor::SimpleVolumeSensor(const std::string& name, const Area* area, gcm::Engine* engine): Sensor(name, area, engine)
 {
     INIT_LOGGER("gcm.plugins.ndi.SimpleVolumeSensor");
-    if (nodes.size() != 1)
-        THROW_UNSUPPORTED("SimpleVolumeSensor supports only one mesh");
+//    if (nodes.size() != 1)
+//        THROW_UNSUPPORTED("SimpleVolumeSensor supports only one mesh");
 
-    if (get<1>(nodes.front()).size() == 0)
-        THROW_UNSUPPORTED("SimpleVolumeSensor need at least one node to gather values from");
+//    if (get<1>(nodes.front()).size() == 0)
+//        THROW_UNSUPPORTED("SimpleVolumeSensor need at least one node to gather values from");
 }
 
 void SimpleVolumeSensor::saveData(const string& fileName)
 {
     real values[9] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    unsigned int n = 0;
 
-    Mesh* mesh = get<0>(nodes.front());
-    auto& _nodes = get<1>(nodes.front());
-    for (auto i: _nodes)
+    for (auto t : nodes)
     {
-        CalcNode& node = mesh->getNode(i);
-        for (int j = 0; j < 9; j++)
-            values[j] += node.values[j];
+        Mesh *mesh = get<0>(t);
+        auto &_nodes = get<1>(t);
+        for (auto i: _nodes) {
+            CalcNode &node = mesh->getNode(i);
+            for (int j = 0; j < 9; j++)
+                values[j] += node.values[j];
+        }
+        n += _nodes.size();
     }
 
     ofstream out;
@@ -39,7 +43,7 @@ void SimpleVolumeSensor::saveData(const string& fileName)
     out << engine->getCurrentTime();
     for (int j = 0; j < 9; j++)
     {
-        out << " " << values[j]/_nodes.size();
+        out << " " << values[j]/n;
     }
     out << endl;
     out.close();

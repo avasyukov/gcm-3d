@@ -10,6 +10,7 @@
 #include "SimpleVolumeSensor.hpp"
 #include "libgcm/util/areas/CylinderArea.hpp"
 #include "libgcm/util/forms/StepPulseForm.hpp"
+#include "libgcm/util/forms/SinusGaussForm.hpp"
 
 using namespace gcm;
 using namespace launcher;
@@ -79,20 +80,30 @@ void NDIPlugin::parseTask(xml::Doc& doc)
             unsigned int n_x = lexical_cast<unsigned int>(emitter["n_x"]);
             unsigned int n_y = lexical_cast<unsigned int>(emitter["n_y"]);
             float r = lexical_cast<real>(emitter["r"]);
-            float duration  = lexical_cast<real>(emitter["duration"]);
             float dt  = lexical_cast<real>(emitter["dt"]);
             float z  = lexical_cast<real>(emitter["z"]);
+            string form = emitter.getAttributeByName("form", "step");
+
+            float omega = lexical_cast<real>(emitter.getAttributeByName("omega", "0"));
+            float tau = lexical_cast<real>(emitter.getAttributeByName("tau", "0"));
+            float duration = lexical_cast<real>(emitter.getAttributeByName("duration", "0"));
 
             for (unsigned int i = 0; i < n_x; ++i)
                 for (unsigned int j = 0; j < n_y; ++j)
                 {
                     engine->getBorderCalculator("ExternalForceCalculator")->setParameters(emitter);
-                    auto area = new CylinderArea(r, min_x + step_x * i, min_y + step_y * j, z - 0.1, min_x + step_x * i,
-                                                 min_y + step_y * j, z + 0.1);
+                    auto area = new CylinderArea(r, min_x + step_x * i, min_y + step_y * j, z - 0.1,
+                                                 min_x + step_x * i, min_y + step_y * j, z + 0.1);
+
+                    PulseForm* f = form == "sinusgauss"
+                            ? static_cast<PulseForm*>(new SinusGaussForm(omega, tau, dt * (j + i * n_y)))
+                            : static_cast<PulseForm*>(new StepPulseForm(dt * (j + i * n_y), duration));
+
                     unsigned int conditionId = engine->addBorderCondition(
-                            new BorderCondition(NULL, new StepPulseForm(dt * (j + i * n_y), duration),
+                            new BorderCondition(NULL, f,
                                                 engine->getBorderCalculator("ExternalForceCalculator"))
                     );
+
                     for (int i = 0; i < engine->getNumberOfBodies(); i++) {
                         engine->getBody(i)->setBorderCondition(area, conditionId);
                     }

@@ -1,0 +1,44 @@
+<task numberOfSnaps="120" stepsPerSnap="30" xmlns:ndi="gcm3d.plugins.ndi">
+        <system>
+        <defaultContactCalculator type="AdhesionContactCalculator" />
+        <meshMovement type="none" />
+        <loadPlugin name="ndi" />
+    </system>
+        <bodies>
+                <body id="ndi_cscan_012">
+                <rheology type="elastic" />
+                <mesh id="ndi_cscan_012" type="geo2" file="models/ndi_plate_cut_square.geo" tetrSize="1.0" />
+                <!--mesh id="ndi_cscan_cube_000" type="cube" h="1.0" numX="100" numY="100" numZ="10" /-->
+                <material id="steel" />
+        </body>
+        </bodies>
+
+        <ndi:emitter name="ndi_cscan_012"
+                type="cscan" z="10"
+		reflection="true" z_reflection="10"
+		transmission="true" z_transmission="0"
+                min_x="10" min_y="10" step_x="10" step_y="10"
+                n_x="9" n_y="9"
+                r="3"
+                dt="0.2"
+		form="sinusgauss"
+		omega="1000"
+		tau="0.0006"
+                normalStress="-1000"
+                tangentialStress="0">
+        </ndi:emitter>
+
+	<borderCondition calculator="ConsumingBorderCalculator">
+		<area type="box" minX="-1000" maxX="0.01" minY="-1000" maxY="1000" minZ="-1000" maxZ="1000"/>
+	</borderCondition>
+	<borderCondition calculator="ConsumingBorderCalculator">
+		<area type="box" minX="99.99" maxX="1000" minY="-1000" maxY="1000" minZ="-1000" maxZ="1000"/>
+	</borderCondition>
+	<borderCondition calculator="ConsumingBorderCalculator">
+		<area type="box" minX="-1000" maxX="1000" minY="-1000" maxY="0.01" minZ="-1000" maxZ="1000"/>
+	</borderCondition>
+	<borderCondition calculator="ConsumingBorderCalculator">
+		<area type="box" minX="-1000" maxX="1000" minY="99.99" maxY="1000" minZ="-1000" maxZ="1000"/>
+	</borderCondition>
+</task>
+
