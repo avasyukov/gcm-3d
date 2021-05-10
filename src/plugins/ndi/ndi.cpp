@@ -8,6 +8,7 @@
 #include "launcher/util/helpers.hpp"
 
 #include "SimpleVolumeSensor.hpp"
+#include "TimeFrameSensor.hpp"
 #include "libgcm/util/areas/CylinderArea.hpp"
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/util/forms/SinusGaussForm.hpp"
@@ -69,6 +70,42 @@ void NDIPlugin::parseTask(xml::Doc& doc)
 
             if (emitter.getAttributeByName("sensor", "false") == "true")
                 this->sensors.push_back(new SimpleVolumeSensor(name, area, engine));
+        }
+        else if (type == "timeframe")
+        {
+            NodeList areaNodes = emitter.getChildrenByName("area");
+            NodeList valuesNodes = emitter.getChildrenByName("values");
+            if (areaNodes.size() != 1)
+                THROW_INVALID_INPUT("Exactly one area element should be provided for initial state");
+            if (valuesNodes.size() != 1)
+                THROW_INVALID_INPUT("Exactly one values element should be provided for initial state");
+
+            real values[9];
+
+            xml::Node valuesNode = valuesNodes.front();
+
+            vector <string> names = {"vx", "vy", "vz", "sxx", "sxy", "sxz", "syy", "syz", "szz"};
+
+            int i = 0;
+            for (auto value_name: names) {
+                string v = valuesNode.getAttributes()[value_name];
+                values[i++] = v.empty() ? 0.0 : lexical_cast<real>(v);
+            }
+
+            Area *area = readArea(areaNodes.front());
+            if (area == NULL)
+                THROW_INVALID_INPUT("Can not read area");
+
+            for (int i = 0; i < engine->getNumberOfBodies(); i++) {
+                engine->getBody(i)->setInitialState(area, values);
+                engine->getBody(i)->getMeshes()->processStressState();
+            }
+
+            float start = lexical_cast<real>(emitter["start"]);
+            float finish = lexical_cast<real>(emitter["finish"]);
+
+            if (emitter.getAttributeByName("sensor", "false") == "true")
+                this->sensors.push_back(new TimeFrameSensor(name, area, engine, start, finish));
         }
         else if (type == "cscan")
         {
