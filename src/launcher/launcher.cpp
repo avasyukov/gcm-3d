@@ -20,6 +20,8 @@
 #include "launcher/util/FileFolderLookupService.hpp"
 
 #include "libgcm/util/forms/StepPulseForm.hpp"
+#include "libgcm/util/forms/AntiStepPulseForm.hpp"
+#include "libgcm/util/forms/LinearPulseForm.hpp"
 #include "libgcm/util/forms/SinusGaussForm.hpp"
 
 #include "libgcm/mesh/Mesh.hpp"
@@ -700,7 +702,26 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 new BorderCondition(NULL, new StepPulseForm(startTime, duration), engine.getBorderCalculator(calculator) ) 
             );
             LOG_INFO("Border condition (common) created with calculator: " + calculator);
-        
+        }
+        else if (borderConditionNode.getAttributeByName("type", "false") == "antistep")
+        {
+            float startTime = lexical_cast<real>(borderConditionNode.getAttributeByName("startTime", "-1"));
+            float duration = lexical_cast<real>(borderConditionNode.getAttributeByName("duration", "-1"));
+
+            conditionId = engine.addBorderCondition(
+                    new BorderCondition(NULL, new AntiStepPulseForm(startTime, duration), engine.getBorderCalculator(calculator) )
+            );
+            LOG_INFO("Border condition (common) created with calculator: " + calculator);
+        }
+        else if (borderConditionNode.getAttributeByName("type", "false") == "linear")
+        {
+            float startTime = lexical_cast<real>(borderConditionNode.getAttributeByName("startTime", "-1"));
+            float duration = lexical_cast<real>(borderConditionNode.getAttributeByName("duration", "-1"));
+
+            conditionId = engine.addBorderCondition(
+                    new BorderCondition(NULL, new LinearPulseForm(startTime, duration), engine.getBorderCalculator(calculator) )
+            );
+            LOG_INFO("Border condition (common) created with calculator: " + calculator);
         }
         else if (borderConditionNode.getAttributeByName("type", "false") == "sinus_gauss")
         {
@@ -712,7 +733,6 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 new BorderCondition(NULL, new SinusGaussForm(omega, tau, startTime), engine.getBorderCalculator(calculator) )
             );
             LOG_INFO("Border condition (SinusGauss) created with calculator: " + calculator);
-
         }
         NodeList areaNodes = borderConditionNode.getChildrenByName("area");
         if (areaNodes.size() == 0)
