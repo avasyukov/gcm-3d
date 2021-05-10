@@ -96,13 +96,26 @@ void NDIPlugin::parseTask(xml::Doc& doc)
             if (area == NULL)
                 THROW_INVALID_INPUT("Can not read area");
 
-            for (int i = 0; i < engine->getNumberOfBodies(); i++) {
-                engine->getBody(i)->setInitialState(area, values);
-                engine->getBody(i)->getMeshes()->processStressState();
-            }
-
             float start = lexical_cast<real>(emitter["start"]);
             float finish = lexical_cast<real>(emitter["finish"]);
+
+            string form = emitter.getAttributeByName("form", "step");
+            float omega = lexical_cast<real>(emitter.getAttributeByName("omega", "0"));
+            float tau = lexical_cast<real>(emitter.getAttributeByName("tau", "0"));
+            float duration = lexical_cast<real>(emitter.getAttributeByName("duration", "0"));
+            engine->getBorderCalculator("ExternalForceCalculator")->setParameters(emitter);
+            PulseForm* f = form == "sinusgauss"
+                           ? static_cast<PulseForm*>(new SinusGaussForm(omega, tau, 0))
+                           : static_cast<PulseForm*>(new StepPulseForm(start, duration));
+
+            unsigned int conditionId = engine->addBorderCondition(
+                    new BorderCondition(NULL, f,
+                                        engine->getBorderCalculator("ExternalForceCalculator"))
+            );
+
+            for (int i = 0; i < engine->getNumberOfBodies(); i++) {
+                engine->getBody(i)->setBorderCondition(area, conditionId);
+            }
 
             if (emitter.getAttributeByName("sensor", "false") == "true")
                 this->sensors.push_back(new TimeFrameSensor(name, area, engine, start, finish));
