@@ -308,6 +308,13 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
 
     LOG_INFO("Using matrix decomposition: " << matrixDecompositionImplementation);
 
+    string prefix = "";
+    NodeList prefixNodeList = rootNode.xpath("/task/system/prefix");
+    if( prefixNodeList.size() == 1 )
+    {
+        prefix = prefixNodeList.front()["front"];
+    }
+
     loadMaterialLibrary("materials");
     
     // reading materials
@@ -322,7 +329,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
     // prepare basic bodies parameters
     for(auto& bodyNode: bodyNodes)
     {
-        string id = bodyNode.getAttributes()["id"];
+        string id = prefix + bodyNode.getAttributes()["id"];
         LOG_DEBUG("Loading body '" << id << "'");
         // create body instance
         Body* body = new Body(id);
@@ -432,7 +439,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
     // read meshes for all bodies
     for(auto& bodyNode: bodyNodes)
     {
-        string id = bodyNode.getAttributes()["id"];
+        string id = prefix + bodyNode.getAttributes()["id"];
         LOG_DEBUG("Loading meshes for body '" << id << "'");
         // get body instance
         Body* body = engine.getBodyById(id);
@@ -493,6 +500,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             // attach mesh to body
             body->attachMesh(mesh);
             mesh->setBodyNum( engine.getBodyNum(id) );
+            mesh->setId(id);
             LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  type << "' created. "
                         << "Number of nodes: " << mesh->getNodesNumber() << ".");
         }
