@@ -34,12 +34,16 @@ void Geo2MeshLoader::cleanUp() {
 
 string Geo2MeshLoader::getMshFileName(string geoFile)
 {
-    return geoFile + ".tmp.msh";
+    string dir = Engine::getInstance().getOption(Engine::Options::SNAPSHOT_OUTPUT_DIRECTORY);
+    string n = geoFile.substr(geoFile.rfind('/'));
+    return dir + n + ".tmp.msh";
 }
 
 string Geo2MeshLoader::getVtkFileName(string geoFile)
 {
-    return geoFile + ".tmp.vtu";
+    string dir = Engine::getInstance().getOption(Engine::Options::SNAPSHOT_OUTPUT_DIRECTORY);
+    string n = geoFile.substr(geoFile.rfind('/'));
+    return dir + n + ".tmp.vtu";
 }
 
 void Geo2MeshLoader::createMshFile(string fileName, float tetrSize)
