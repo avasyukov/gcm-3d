@@ -1,0 +1,41 @@
+<task numberOfSnaps="20" stepsPerSnap="40" xmlns:ndi="gcm3d.plugins.ndi">
+	<system>
+		<meshMovement type="none" />
+		<timeStep multiplier="0.5" />
+		<loadPlugin name="ndi" />
+	</system>
+
+	<bodies>
+		<body id="phased_linear_base">
+			<rheology type="elastic" />
+			<mesh id="phased_linear_base" type="geo2" file="models/phased_cube.geo" tetrSize="20" />
+			<material id="steelA">
+				<area type="box" minX="-100000" maxX="100000" minY="-100000" maxY="100000" minZ="-100000" maxZ="100000"/>
+			</material>
+			<material id="steelB">
+				<area type="aberrator" minX="100" maxX="1100" minY="100" maxY="1100" flatZ="200" curve="models/aberrator/1A-MARCH-12_actual_1D.txt"/>
+			</material>
+		</body>
+	</bodies>
+
+	<materials>
+		<material name="steelA" rheology="isotropic">
+			<la>99430000000</la>
+			<mu>78130000000</mu>
+			<rho>0.0078</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+		<material name="steelB" rheology="isotropic">
+			<la>79430000000</la>
+			<mu>58130000000</mu>
+			<rho>0.0058</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+	</materials>
+
+	<ndi:emitter name="phased_linear_base_" sensor="true" type="array" axis="x" n="16" F="600" dF="0">
+		<borderCondition calculator="ExternalForceCalculator" normalStress="-10000" tangentialStress="0.0" startTime="0.0" type="sinus_gauss" omega="500000" tau="3e-9" />
+		<area type="box" minX="100" maxX="1100" minY="100" maxY="1100" minZ="-100" maxZ="0.01" />
+	</ndi:emitter>
+
+</task>

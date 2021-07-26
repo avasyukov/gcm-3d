@@ -6,8 +6,13 @@
 #include "libgcm/util/areas/BoxArea.hpp"
 #include "libgcm/util/areas/SphereArea.hpp"
 #include "libgcm/util/areas/CylinderArea.hpp"
+#include "libgcm/util/areas/AberratorArea.hpp"
+
+#include <boost/filesystem.hpp>
+#include <fstream>
 
 using namespace gcm;
+namespace bfs = boost::filesystem;
 using std::string;
 using boost::lexical_cast;
 
@@ -50,6 +55,30 @@ Area* launcher::readCylinderArea(const xml::Node& areaNode)
     return new CylinderArea(r, x1, y1, z1, x2, y2, z2);
 }
 
+Area* launcher::readAberratorArea(const xml::Node& areaNode)
+{
+    real minX = lexical_cast<real>(areaNode["minX"]);
+    real maxX = lexical_cast<real>(areaNode["maxX"]);
+    real minY = lexical_cast<real>(areaNode["minY"]);
+    real maxY = lexical_cast<real>(areaNode["maxY"]);
+    real flatZ = lexical_cast<real>(areaNode["flatZ"]);
+    string fcurve = areaNode["curve"];
+    LOG_DEBUG("Aberrator size: [" << minX << ", " << maxX << "] "
+                            << "[" << minY << ", " << maxY << "] "
+                            << "[" << flatZ << ", " << fcurve << "]");
+
+    if ( ! bfs::is_regular_file(fcurve))
+        THROW_INVALID_ARG("File not found: " + fcurve);
+    std::ifstream istrm(fcurve, std::ios::in);
+    std::vector<real> curve;
+    real tmp;
+    while (istrm >> tmp)
+        curve.push_back(tmp);
+    istrm.close();
+
+    return new AberratorArea(minX, maxX, minY, maxY, flatZ, curve);
+}
+
 Area* launcher::readArea(const xml::Node& areaNode)
 {
     string areaType = areaNode["type"];
@@ -61,6 +90,8 @@ Area* launcher::readArea(const xml::Node& areaNode)
         return readSphereArea(areaNode);
     else if (areaType == "cylinder")
         return readCylinderArea(areaNode);
+    else if (areaType == "aberrator")
+        return readAberratorArea(areaNode);
 
     LOG_ERROR("Unknown initial state area: " << areaType);
     return NULL;

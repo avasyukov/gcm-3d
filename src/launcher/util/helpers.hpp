@@ -10,6 +10,7 @@
 
 namespace launcher
 {
+    gcm::Area* readAberratorArea(const xml::Node& areaNode);
     gcm::Area* readCylinderArea(const xml::Node& areaNode);
     gcm::Area* readSphereArea(const xml::Node& areaNode);
     gcm::Area* readBoxArea(const xml::Node& areaNode);
