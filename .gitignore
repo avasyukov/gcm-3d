@@ -21,3 +21,4 @@ mkbuild.sh
 netgen.prof
 *~
 results/*
+*.sif

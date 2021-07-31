@@ -1,0 +1,11 @@
+Bootstrap: docker
+From: fedora:33
+
+%post
+    yum install --nogpgcheck -y git gcc-c++ cmake libxml2-devel eigen3-devel boost-devel vtk-devel gmsh-devel log4cxx-devel gsl-devel
+
+%labels
+    Author a.vasyukov@phystech.edu
+
+%help
+    This is a container with ready to use env for gcm-3d solver (but without the solver).
