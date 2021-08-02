@@ -9,6 +9,7 @@
 #include "libgcm/config.hpp"
 
 #if CONFIG_ENABLE_LOGGING
+#include "log4cxx/basicconfigurator.h"
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/mdc.h>
 #endif
@@ -144,7 +145,12 @@ int main(int argc, char **argv, char **envp)
         char pe[5] = "MAIN";
 //        sprintf(pe, "%d", world.rank());
         log4cxx::MDC::put("PE", pe);
-        log4cxx::PropertyConfigurator::configure(fls.lookupFile("log4cxx.properties"));
+        try {
+            string path = fls.lookupFile("log4cxx.properties");
+            log4cxx::PropertyConfigurator::configure(path);
+        } catch(...) {
+            log4cxx::BasicConfigurator::configure();
+        }
         #endif
 
         if( taskFile.empty() )
