@@ -159,6 +159,7 @@ int main(int argc, char **argv, char **envp)
         LOG_INFO("Starting with taskFile '" << taskFile << "' and dataDir '" << dataDir << "'");
 
         Engine& engine = Engine::getInstance();
+        FileFolderLookupService::getInstance().addPath(".");
         FileFolderLookupService::getInstance().addPath(dataDir);
 
         auto outputPathPattern = bfs::path(outputDir);

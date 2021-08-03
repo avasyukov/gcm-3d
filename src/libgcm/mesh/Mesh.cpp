@@ -561,6 +561,15 @@ void Mesh::defaultNextPartStep(float tau, int stage)
         assert_true(syncedArea.includes( &areaOfInterest ) );
     }
 
+    // OpenMP part: make an array of iterators
+    // Adapted solution from https://stackoverflow.com/questions/10433048/c-openmp-and-non-random-access-stl-containers-a-possible-workaround
+//    unsigned long loop_length = nodesMap.size();
+//    int loop_array[loop_length];
+//    int j = 0;
+//    for( MapIter itr = nodesMap.cbegin(); itr != nodesMap.cend(); ++itr ) {
+//        loop_array[j++] = itr->first;
+//    }
+
     // Border nodes
     LOG_DEBUG("Processing border nodes");
     for( MapIter itr = nodesMap.begin(); itr != nodesMap.end(); ++itr ) {
