@@ -150,6 +150,7 @@ int main(int argc, char **argv, char **envp)
             log4cxx::PropertyConfigurator::configure(path);
         } catch(...) {
             log4cxx::BasicConfigurator::configure();
+            LOG_INFO("Can not find log4cxx config, starting with the default basic one");
         }
         #endif
 

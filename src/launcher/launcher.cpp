@@ -308,8 +308,12 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
 
     LOG_INFO("Using matrix decomposition: " << matrixDecompositionImplementation);
 
-    string mlpath = ffls.lookupFolder("materials");
-    loadMaterialLibrary(mlpath);
+    try {
+        string mlpath = ffls.lookupFolder("materials");
+        loadMaterialLibrary(mlpath);
+    } catch (...) {
+        LOG_INFO("Can not find materials library, using only materials defined in task file");
+    }
     
     // reading materials
     loadMaterialsFromXml(rootNode.xpath("/task/materials/material"));
