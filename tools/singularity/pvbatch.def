@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: fedora:33
+From: fedora:30
 
 %post
     yum install --nogpgcheck -y paraview
