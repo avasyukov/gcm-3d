@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+from datetime import datetime
+
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
+
+def run(folder, chunk_size, partition, comment):
+    folder = os.path.join(*[_ for _ in folder.split(os.path.sep) if _ is not None and _ != ''])
+
+    if not os.path.isdir(folder):
+        raise RuntimeError("Can not read folder %s" % folder)
+
+    tasks = [_ for _ in os.listdir(folder) if os.path.splitext(_)[1].lower() == ".xml"]
+    task_chunks = chunks(tasks, chunk_size)
+
+    slurm_dir = os.path.join(os.path.expanduser("~"), "slurm_jobs_gcm3d")
+    os.makedirs(slurm_dir, exist_ok=True)
+
+    ts_string = datetime.now().strftime("%Y-%m-%d--%H:%M:%S")
+
+    for i, chunk in enumerate(task_chunks):
+        batch_file = os.path.join(slurm_dir, f'{ts_string}--{i}.sh')
+        with open(batch_file, 'w') as fd:
+            fd.write(f'#!/bin/bash\n')
+            fd.write(f'#SBATCH --job-name="{ts_string}--{i}"\n')
+            fd.write(f'#SBATCH --comment="{comment}"\n')
+            fd.write(f'#SBATCH --partition={partition}\n')
+            fd.write(f'#SBATCH --nodes=1\n')
+            fd.write(f'#SBATCH --ntasks-per-node={chunk_size}\n')
+            fd.write(f'#SBATCH --ntasks={len(chunk)}\n')
+            fd.write(f'#SBATCH --output={folder}/slurm-%j.out\n')
+            for task in chunk:
+                name, ext = os.path.splitext(task)
+                fd.write(f'srun --exclusive --ntasks 1 --output {folder}/{name}.%J.out ')
+                fd.write(f'singularity exec ~/gcm3d.sif /opt/gcm3d/build/gcm3d ')
+                fd.write(f'--task {task} --data-dir {folder} --output-dir {folder}/{name} &\n')
+            fd.write(f'wait\n')
+        os.system(f'sbatch {batch_file}')
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--folder', help='folder with tasks and models', type=str, required=True)
+    parser.add_argument('--comment', help='short human readable comment for Slurm', type=str, required=True)
+    parser.add_argument('--chunk', help='chunk size (number of CPUs per node', type=int, required=False, default=16)
+    parser.add_argument('--partition', help='cluster partition name', type=str, required=False, default='RT')
+    args = parser.parse_args()
+
+    run(args.folder, args.chunk, args.partition, args.comment)
