@@ -1,0 +1,11 @@
+Bootstrap: docker
+From: fedora:33
+
+%post
+    yum install --nogpgcheck -y paraview
+
+%labels
+    Author a.vasyukov@phystech.edu
+
+%help
+    This is a container with paraview and pvbatch to render gcm-3d results.
