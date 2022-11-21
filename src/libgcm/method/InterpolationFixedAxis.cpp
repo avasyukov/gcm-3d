@@ -183,7 +183,7 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
                     LOG_DEBUG("EXTENDED DEBUG INFO BEGINS");
                     prepare_node(virt_node, virt_node.getRheologyMatrix(), time_step, stage, virtMesh, 
                                  virt_dksi, virt_inner, virt_previous_nodes, virt_outer_normal, true);
-                    LOG_INFO("EXTENDED DEBUG INFO ENDS");
+                    LOG_DEBUG("EXTENDED DEBUG INFO ENDS");
                     LOG_DEBUG("Calc contact failed. Mesh: " << mesh->getId()
                           << " Virt mesh: " << virtMesh->getId()
                           << "\nReal node: " << cur_node << "\nVirt node: " << virt_node);
