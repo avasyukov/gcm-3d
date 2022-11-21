@@ -789,7 +789,6 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             }
             else if (plasticityType == PLASTICITY_TYPE_MAXWELL)
             {
-                LOG_INFO("maxwell got from file");
                 corrector = makeCorrectorPtr<MaxwellViscosityCorrector>();
                 setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
                 decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();

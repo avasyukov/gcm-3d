@@ -245,7 +245,7 @@ namespace gcm {
          * @return True in case rheology is valid and false otherwise.
          */
         bool rheologyIsValid() const;
-        
+
         /**
          * Indicates whether node is in contact or not.
          *

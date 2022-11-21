@@ -22,9 +22,7 @@ void FoightCorrector::correctNodeState(ICalcNode& node, Mesh& mesh, const Materi
     float ax_node = (newNode.vx - oldNode.vx) / time_step;
     float ay_node = (newNode.vy - oldNode.vy) / time_step;
     float az_node = (newNode.vz - oldNode.vz) / time_step;
-    // real factor = time_step / maxwellTau;
 
-    //std::cout << node.stress[5] << std::endl;
     vector<int> result;
     BasicCubicMesh& cubeMesh = dynamic_cast<BasicCubicMesh&>(mesh);
     cubeMesh.findNearestsNodesForNode(node.coords, result);

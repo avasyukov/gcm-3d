@@ -180,18 +180,18 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
 
                 // TODO - merge this condition with the next ones
                 if (virt_outer_count != 3) {
-                    std::cout << "EXTENDED DEBUG INFO BEGINS" << std::endl;
+                    LOG_DEBUG("EXTENDED DEBUG INFO BEGINS");
                     prepare_node(virt_node, virt_node.getRheologyMatrix(), time_step, stage, virtMesh, 
                                  virt_dksi, virt_inner, virt_previous_nodes, virt_outer_normal, true);
                     LOG_INFO("EXTENDED DEBUG INFO ENDS");
-                    std::cout << "Calc contact failed. Mesh: " << mesh->getId()
+                    LOG_DEBUG("Calc contact failed. Mesh: " << mesh->getId()
                           << " Virt mesh: " << virtMesh->getId()
-                          << "\nReal node: " << cur_node << "\nVirt node: " << virt_node << std::endl;
-                    std::cout << "There are " << virt_outer_count << " 'outer' characteristics for virt node." << std::endl;
+                          << "\nReal node: " << cur_node << "\nVirt node: " << virt_node);
+                    LOG_DEBUG("There are " << virt_outer_count << " 'outer' characteristics for virt node.");
                     for (int z = 0; z < 9; z++) {
-                        std::cout << "Dksi[" << z << "]: " << virt_dksi[z] << std::endl;
-                        std::cout << "Inner[" << z << "]: " << virt_inner[z] << std::endl;
-                        std::cout << "PrNodes[" << z << "]: " << virt_previous_nodes[z] << std::endl;
+                        LOG_DEBUG("Dksi[" << z << "]: " << virt_dksi[z]);
+                        LOG_DEBUG("Inner[" << z << "]: " << virt_inner[z]);
+                        LOG_DEBUG("PrNodes[" << z << "]: " << virt_previous_nodes[z]);
                     }
                     THROW_BAD_METHOD("Illegal number of outer characteristics");
                 }
