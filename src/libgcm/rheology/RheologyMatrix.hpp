@@ -5,6 +5,7 @@
 
 #include "libgcm/node/ICalcNode.hpp"
 #include "libgcm/util/matrixes.hpp"
+#include "libgcm/mesh/Mesh.hpp"
 #include "libgcm/Exception.hpp"
 #include "libgcm/util/Types.hpp"
 #include "libgcm/util/Assertion.hpp"
@@ -173,7 +174,7 @@ namespace gcm
          */
         void decompose(const ICalcNode& node, unsigned int direction);
         
-        void applyCorrector(ICalcNode& node, float time_step);
+        void applyCorrector(ICalcNode& node, Mesh& mesh, float time_step);
     };
 
     typedef std::shared_ptr<RheologyMatrix> RheologyMatrixPtr;

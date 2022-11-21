@@ -356,7 +356,7 @@ void Mesh::applyCorrectors(float time_step)
         CalcNode& node = getNodeByLocalIndex(i);
         if( node.isLocal() )
         {
-            node.getRheologyMatrix()->applyCorrector(node, time_step);
+            node.getRheologyMatrix()->applyCorrector(node, *this, time_step);
         }
     }
 }

@@ -333,6 +333,41 @@ void BasicCubicMesh::findNearestsNodes(const vector3r& coords, int N, vector< pa
 	        }
 }
 
+void BasicCubicMesh::findNearestsNodesForNode(const vector3r& coords, vector<int>& result)
+{
+	int i =	max( int( (coords[0] - outline.minX) / hx ), 0);
+	int j =	max( int( (coords[1] - outline.minY) / hy ), 0);
+	int k =	max( int( (coords[2] - outline.minZ) / hz ), 0);
+
+	int num;
+    for (int i_0 = -1; i_0 < 2; i_0 += 2) {
+        num = (i + i_0) * (numY + 1) * (numZ + 1) + j * (numZ + 1) + k + nodes[0].number;
+        // CalcNode node = getNode(num);
+        result.push_back(num);
+    }
+    for (int j_0 = -1; j_0 < 2; j_0 += 2) {
+        num = i * (numY + 1) * (numZ + 1) + (j + j_0)* (numZ + 1) + k + nodes[0].number;
+        // CalcNode node = getNode(num);
+        result.push_back(num);
+    }
+    for (int k_0 = -1; k_0 < 2; k_0 += 2) {
+        num = i * (numY + 1) * (numZ + 1) + j* (numZ + 1) + k + k_0 + nodes[0].number;
+        // CalcNode node = getNode(num);
+        result.push_back(num);
+    }
+
+}
+
+float BasicCubicMesh::getHx() const {
+    return hx;
+};
+float BasicCubicMesh::getHy() const {
+    return hy;
+};
+float BasicCubicMesh::getHz() const {
+    return hz;
+};
+
 bool BasicCubicMesh::interpolateBorderNode(real x, real y, real z,
         					real dx, real dy, real dz, CalcNode& node)
 {

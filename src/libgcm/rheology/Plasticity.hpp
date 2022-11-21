@@ -11,5 +11,7 @@ namespace gcm
     const std::string PLASTICITY_PROP_YIELD_STRENGTH = "yieldStrength";
     const std::string PLASTICITY_TYPE_MAXWELL = "maxwell";
     const std::string PLASTICITY_PROP_MAXWELL_TAU = "tau";
+    const std::string PLASTICITY_TYPE_FOIGHT = "foight";
+    const std::string PLASTICITY_PROP_FOIGHT_ETA = "eta";
 }
 #endif /* PLASTICITY_HPP */

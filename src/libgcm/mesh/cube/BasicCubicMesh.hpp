@@ -37,7 +37,6 @@ namespace gcm
         virtual int findNeighbourPoint(CalcNode& node, float dx, float dy, float dz, 
 		                       bool debug, float* coords, bool* innerPoint);
 
-        virtual void findNearestsNodes(const vector3r& coords, int N, std::vector< std::pair<int,float> >& result);
 
         // Evaluates sizes of basic element along each axis
         void calcSpacialSteps();
@@ -64,6 +63,10 @@ namespace gcm
         void doNextPartStep(float tau, int stage) override;
         void checkTopology(float tau);
 
+        void findNearestsNodes(const vector3r& coords, int N, std::vector< std::pair<int,float> >& result);
+
+        void findNearestsNodesForNode(const vector3r& coords, std::vector<int>& result);
+
         void findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug) override;
 
         bool interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
@@ -84,6 +87,10 @@ namespace gcm
         int getNumY() const;
         int getNumZ() const;
         float getH() const;
+
+        float getHx() const;
+        float getHy() const;
+        float getHz() const;
 
         virtual const SnapshotWriter& getSnaphotter() const override;
         virtual const SnapshotWriter& getDumper() const override;

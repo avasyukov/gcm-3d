@@ -17,10 +17,11 @@ namespace gcm
 		                       bool debug, float* coords, bool* innerPoint) override;
         USE_LOGGER;
 
-        void findNearestsNodes(const vector3r& coords, int N, std::vector< std::pair<int,float> >& result) override;
 
     public:
 		RectangularCutCubicMesh();
+    void findNearestsNodes(const vector3r& coords, int N, std::vector< std::pair<int,float> >& result);
+
 		
 		void findBorderNodeNormal(const CalcNode& node, float* x, float* y, float* z, bool debug) override;
         bool interpolateBorderNode(real x, real y, real z, 

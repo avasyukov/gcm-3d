@@ -1,14 +1,16 @@
-#ifndef MaxwellViscosityCorrector_HPP
-#define MaxwellViscosityCorrector_HPP
+#ifndef FoightCorrector_HPP
+#define FoightCorrector_HPP
 #include "libgcm/rheology/correctors/ICorrector.hpp"
-#include "libgcm/mesh/Mesh.hpp"
 #include <cmath>
+#include "libgcm/Logging.hpp"
+#include "libgcm/Exception.hpp"
+#include "libgcm/mesh/Mesh.hpp"
 
 #include <iostream>
 
 namespace gcm
 {
-        class MaxwellViscosityCorrector: public ICorrector
+        class FoightCorrector: public ICorrector
         {
             public:
             /**
@@ -19,4 +21,4 @@ namespace gcm
             void correctNodeState(ICalcNode& node, Mesh& mesh, const MaterialPtr& material, float time_step);
         };
 }
-#endif /* MaxwellViscosityCorrector_HPP */
+#endif /* FoightCorrector_HPP */
