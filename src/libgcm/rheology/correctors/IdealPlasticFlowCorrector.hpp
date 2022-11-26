@@ -2,6 +2,7 @@
 #define IDEALPLASTICFLOWCORRECTOR_HPP 
 #include "libgcm/rheology/correctors/ICorrector.hpp"
 #include <cmath>
+#include "libgcm/mesh/Mesh.hpp"
 
 #include <iostream>
 
@@ -15,7 +16,7 @@ namespace gcm
              *
              * @param node Node to perform correction on
              */
-            void correctNodeState(ICalcNode& node, const MaterialPtr& material, float time_step);
+            void correctNodeState(ICalcNode& node, Mesh& mesh, const MaterialPtr& material, float time_step);
         };
 }
 #endif /* IDEALPLASTICFLOWCORRECTOR_HPP */

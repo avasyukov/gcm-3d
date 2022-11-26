@@ -37,6 +37,7 @@
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/correctors/IdealPlasticFlowCorrector.hpp"
 #include "libgcm/rheology/correctors/MaxwellViscosityCorrector.hpp"
+#include "libgcm/rheology/correctors/FoightCorrector.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
 #include "libgcm/rheology/Failure.hpp"
 
@@ -789,6 +790,12 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             else if (plasticityType == PLASTICITY_TYPE_MAXWELL)
             {
                 corrector = makeCorrectorPtr<MaxwellViscosityCorrector>();
+                setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
+                decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
+            }
+            else if (plasticityType == PLASTICITY_TYPE_FOIGHT)
+            {
+                corrector = makeCorrectorPtr<FoightCorrector>();
                 setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
                 decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
             }

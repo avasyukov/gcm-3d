@@ -2,6 +2,7 @@
 #define ICORRECTOR_HPP 
 
 #include "libgcm/node/ICalcNode.hpp"
+#include "libgcm/mesh/Mesh.hpp"
 
 #include <memory>
 
@@ -19,7 +20,7 @@ namespace gcm
              *
              * @param node Node to perform correction on
              */
-            virtual void correctNodeState(ICalcNode& node, const MaterialPtr& material, float time_step) = 0;
+            virtual void correctNodeState(ICalcNode& node, Mesh& mesh, const MaterialPtr& material, float time_step) = 0;
     };
 
     typedef std::shared_ptr<ICorrector> CorrectorPtr;

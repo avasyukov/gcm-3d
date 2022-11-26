@@ -1,9 +1,11 @@
 #include "libgcm/rheology/correctors/MaxwellViscosityCorrector.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
+#include "libgcm/Logging.hpp"
+#include "libgcm/mesh/Mesh.hpp"
 
 using namespace gcm;
 
-void MaxwellViscosityCorrector::correctNodeState(ICalcNode& node, const MaterialPtr& material, float time_step)
+void MaxwellViscosityCorrector::correctNodeState(ICalcNode& node, Mesh& mesh, const MaterialPtr& material, float time_step)
 {
     auto props = material->getPlasticityProperties();
     real maxwellTau = props[PLASTICITY_TYPE_MAXWELL][PLASTICITY_PROP_MAXWELL_TAU];

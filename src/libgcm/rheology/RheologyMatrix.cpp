@@ -1,6 +1,7 @@
 #include "libgcm/rheology/RheologyMatrix.hpp"
 
 #include "libgcm/util/Assertion.hpp"
+#include "libgcm/mesh/Mesh.hpp"
 
 using namespace gcm;
 #include <iostream>
@@ -156,10 +157,11 @@ void RheologyMatrix::decompose(const ICalcNode& node, unsigned int direction)
     this->index = s;
 }
 
-void RheologyMatrix::applyCorrector(ICalcNode& node, float time_step)
+void RheologyMatrix::applyCorrector(ICalcNode& node, Mesh& mesh, float time_step)
 {
-    if( corrector != nullptr)
-        corrector->correctNodeState(node, material, time_step);
+    if( corrector != nullptr){
+        corrector->correctNodeState(node, mesh, material, time_step);
+    }
 }
 
 // ====================================================================================================================
