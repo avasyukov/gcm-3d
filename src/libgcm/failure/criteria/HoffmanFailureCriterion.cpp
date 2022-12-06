@@ -59,6 +59,5 @@ void gcm::HoffmanFailureCriterion::checkFailure(ICalcNode& node, const float tau
 													            - F13*s11*s33 + s11/Xt/Xc + s22/Yt/Yc + s33/Zt/Zc) >= 1.0 )
 	{
 		node.setDestroyed(true);
-		//node.setDamageMeasure(4);
 	}
 }
