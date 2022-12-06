@@ -1,0 +1,105 @@
+<task numberOfSnaps="100" stepsPerSnap="1">
+	<!-- 
+		L = 10^-3 m
+		P = 10^10 Pa
+		rho = 10^4 kg/m^3
+		v = 10^3 m/s
+		t = 10^-6 s
+	-->
+	<system>
+		<meshMovement type="none" />
+		<collisionDetector static="true" />
+		<contactThreshold measure="avgH" value="2.0" />
+		<defaultContactCalculator type="SlidingContactCalculator" />
+		<defaultFailureModel type="HoffmanFailureModel" />
+		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
+		<!--contactThreshold measure="abs" value="0.5" /-->
+		<anisotropicMatrix implementation="analytical" />
+	</system>
+	<bodies>
+		<body id="target">
+			<rheology type="elastic" />
+			<mesh id="target" type="geo2" file="models/cover-sample.geo" tetrSize="1.5" />
+			<material id="subpacketS" />
+		</body>
+		<!--body id="striker">
+			<rheology type="elastic" />
+			<mesh id="striker" type="geo2" file="models/striker-sample.geo" tetrSize="1.5" />
+			<material id="steelS" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-13.0" />
+		</body-->
+	</bodies>
+	<materials>
+		<material name="subpacketS" rheology="anisotropic">
+			<!--la>0.572</la>
+			<mu>0.322</mu-->
+			<c11>1.03</c11>
+			<c12>0.696</c12>
+			<c13>0.696</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>2.325</c22>
+			<c23>0.696</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>1.03</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>0.501</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>0.167</c55>
+			<c56>0</c56>
+			<c66>0.501</c66>
+			<rho>0.158</rho>
+			<failure type="hashin">
+			<!-- Уменьшено в 10 раз!!! -->
+				<dir>2</dir>
+				<Xc>0.00153</Xc>
+				<Xt>0.00263</Xt>
+				<Yc>0.000213</Yc>
+				<Yt>0.000086</Yt>
+				<St>0.00153</St>
+				<S>0.000112</S>
+			</failure>
+		</material>
+		<material name="steelS"  rheology="anisotropic">
+			<!--la>9.943</la>
+			<mu>7.813</mu-->
+			<c11>25.569</c11>
+			<c12>9.943</c12>
+			<c13>9.9430</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>25.569</c22>
+			<c23>9.943</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>25.569</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>7.813</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>7.813</c55>
+			<c56>0</c56>
+			<c66>7.813</c66>
+			<rho>0.78</rho>
+		</material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-20" maxX="20" minY="-20" maxY="20" minZ="-120" maxZ="-0.00001"/>
+		<values vz="0.0052" />
+		<!-- E(J)	45	85	135	205	235	/-->
+		<!-- v(mm/sec)	14500	19900	25100	30900	33100	/-->
+	</initialState>
+	<borderCondition calculator="ExternalVelocityCalculator" normalVelocity="-0.0052" tangentialVelocity="0.0">
+		<area type="sphere" r="12.7" x="0" y="0" z="-12"/>
+	</borderCondition>
+</task>
