@@ -30,6 +30,7 @@
 #include "libgcm/failure/DebugFailureModel.hpp"
 #include "libgcm/failure/HashinFailureModel.hpp"
 #include "libgcm/failure/TsaiHillFailureModel.hpp"
+#include "libgcm/failure/HoffmanFailureModel.hpp"
 #include "libgcm/failure/TsaiWuFailureModel.hpp"
 #include "libgcm/failure/DruckerPragerFailureModel.hpp"
 #include "libgcm/failure/PuckFailureModel.hpp"

@@ -73,6 +73,7 @@ Engine::Engine()
     registerFailureModel( new DebugFailureModel() );
     registerFailureModel( new HashinFailureModel() );
     registerFailureModel( new TsaiHillFailureModel() );
+    registerFailureModel( new HoffmanFailureModel() );
     registerFailureModel( new TsaiWuFailureModel() );
     registerFailureModel( new DruckerPragerFailureModel() );
     registerFailureModel( new PuckFailureModel() );
