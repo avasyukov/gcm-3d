@@ -1,0 +1,98 @@
+<task numberOfSnaps="300" stepsPerSnap="8" xmlns:ndi="gcm3d.plugins.ndi">
+	<system>
+		<loadPlugin name="ndi" />
+		<timeStep multiplier="0.25" />                
+		<meshMovement type="none" />
+	        <prefix front="victorian_031_"/>
+	</system>
+	<bodies>
+		<body id="ice">
+        		<rheology type="elastic" />
+            		<mesh id="ice" type="geo2" file="models/ice_puff.geo" tetrSize="0.25" /> <!-- sm -->
+            		<material id="iceA">
+				<area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+ 			</material>
+                        <!--material id="iceB">
+                                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-2" maxZ="-1"/>
+                        </material>
+                        <material id="iceC">
+                                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-1" maxZ="100"/>
+                        </material-->
+        	</body>
+	</bodies>
+
+    <materials>
+                <material name="iceA" rheology="isotropic" viscous="yep">
+			<!-- g / (sm * s^2 ) == 0.1 Pa-->
+                        <la>114e9</la>
+                        <mu>34e9</mu>
+			<!-- g / sm^3 -->
+                        <rho>0.9</rho>
+			<!-- 1 / s -->
+                        <tau>10.0</tau>
+                </material>
+                <material name="iceB" rheology="isotropic" viscous="yep">
+                        <!-- g / (sm * s^2 ) == 0.1 Pa-->
+                        <la>80e9</la>
+                        <mu>20e9</mu>
+                        <!-- g / sm^3 -->
+                        <rho>0.8</rho>
+                        <!-- 1 / s -->
+                        <tau>10.0</tau>
+                </material>
+                <material name="iceC" rheology="isotropic" viscous="yep">
+                        <!-- g / (sm * s^2 ) == 0.1 Pa-->
+                        <la>18e9</la>
+                        <mu>60e9</mu>
+                        <!-- g / sm^3 -->
+                        <rho>1.2</rho>
+                        <!-- 1 / s -->
+                        <tau>10.0</tau>
+                </material>
+    </materials>
+
+	<!--ndi:emitter name="em" sensor="true"-->
+                <!--borderCondition calculator="ExternalForceCalculator" normalStress="1" tangentialStress="0.0" startTime = "0.0" type="sinus_gauss" omega="50000" tau="100e5">
+		<area type="box" minX="4.5" maxX="5.5" minY="-0.01" maxY="0.01" minZ="-0.5" maxZ="0.5"/>
+</borderCondition-->
+		<!--values vy="100.0" /-->
+	<!--/ndi:emitter-->
+
+	<ndi:sensor name="victorian_031_em">
+		<area type="box" minX="-0.5" maxX="0.5" minY="-0.5" maxY="0.5" minZ="-0.5" maxZ="0.5"/>
+	</ndi:sensor>
+
+        <ndi:sensor name="victorian_031_pl_0">
+                <area type="box" minX="4.0" maxX="5.0" minY="-0.5" maxY="0.5" minZ="-0.5" maxZ="0.5"/>
+        </ndi:sensor>
+
+        <ndi:sensor name="victorian_031_pl_1">
+                <area type="box" minX="9.0" maxX="10.0" minY="-0.5" maxY="0.5" minZ="-0.5" maxZ="0.5"/>
+        </ndi:sensor>
+
+        <ndi:sensor name="victorian_031_pl_2">
+                <area type="box" minX="14.0" maxX="15.0" minY="-0.5" maxY="0.5" minZ="-0.5" maxZ="0.5"/>
+        </ndi:sensor>
+
+        <!--initialState-->
+        <borderCondition calculator="ExternalVelocityCalculator" normalVelocity="-10000" tangentialVelocity="0.0" startTime = "0.0" duration="5e-6">
+                <area type="box" minX="-0.5" maxX="0.5" minY="-0.5" maxY="0.5" minZ="-0.5" maxZ="0.5"/>
+	</borderCondition>
+
+                <!--values vz="-10"/>
+        </initialState-->
+
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="-14.99" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="14.99" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="100" minY="-100" maxY="-14.99" minZ="-100" maxZ="100"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="100" minY="14.99" maxY="100" minZ="-100" maxZ="100"/>
+    </borderCondition>
+
+</task>
