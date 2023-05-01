@@ -74,6 +74,8 @@ Engine::Engine()
     registerFailureModel( new HashinFailureModel() );
     registerFailureModel( new TsaiHillFailureModel() );
     registerFailureModel( new HoffmanFailureModel() );
+    registerFailureModel( new LaRC03FailureModel() );
+    registerFailureModel( new LaRC04FailureModel() );
     registerFailureModel( new TsaiWuFailureModel() );
     registerFailureModel( new DruckerPragerFailureModel() );
     registerFailureModel( new PuckFailureModel() );
