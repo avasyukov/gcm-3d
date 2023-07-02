@@ -54,17 +54,17 @@ void FoightCorrector::correctNodeState(ICalcNode& node, Mesh& mesh, const Materi
     float az_node_lz = (mesh.getNewNode(result[4]).vz - mesh.getNode(result[4]).vz) / time_step;
     float az_node_rz = (mesh.getNewNode(result[5]).vz - mesh.getNode(result[5]).vz) / time_step;
 
-    float a11 = (ax_node_lx - 2 * ax_node + ax_node_rx) / (2 * cubeMesh.getHx());
-    float a12 = (ay_node_lx - 2 * ay_node + ay_node_rx) / (2 * cubeMesh.getHy());
-    float a13 = (az_node_lx - 2 * az_node + az_node_rx) / (2 * cubeMesh.getHz());
+    float a11 = (ax_node_lx - 2 * ax_node + ax_node_rx) / (cubeMesh.getHx() * cubeMesh.getHx());
+    float a12 = (ay_node_lx - 2 * ay_node + ay_node_rx) / (cubeMesh.getHy() * cubeMesh.getHy());
+    float a13 = (az_node_lx - 2 * az_node + az_node_rx) / (cubeMesh.getHz() * cubeMesh.getHz());
 
-    float a21 = (ax_node_ly - 2 * ax_node + ax_node_ry) / (2 * cubeMesh.getHx());
-    float a22 = (ay_node_ly - 2 * ay_node + ay_node_ry) / (2 * cubeMesh.getHy());
-    float a23 = (az_node_ly - 2 * az_node + az_node_ry) / (2 * cubeMesh.getHz());
+    float a21 = (ax_node_ly - 2 * ax_node + ax_node_ry) / (cubeMesh.getHx() * cubeMesh.getHx());
+    float a22 = (ay_node_ly - 2 * ay_node + ay_node_ry) / (cubeMesh.getHy() * cubeMesh.getHy());
+    float a23 = (az_node_ly - 2 * az_node + az_node_ry) / (cubeMesh.getHz() * cubeMesh.getHz());
 
-    float a31 = (ax_node_lz - 2 * ax_node + ax_node_rz) / (2 * cubeMesh.getHx());
-    float a32 = (ay_node_lz - 2 * ay_node + ay_node_rz) / (2 * cubeMesh.getHy());
-    float a33 = (az_node_lz - 2 * az_node + az_node_rz) / (2 * cubeMesh.getHz());
+    float a31 = (ax_node_lz - 2 * ax_node + ax_node_rz) / (cubeMesh.getHx()) * cubeMesh.getHx();
+    float a32 = (ay_node_lz - 2 * ay_node + ay_node_rz) / (cubeMesh.getHy() * cubeMesh.getHy());
+    float a33 = (az_node_lz - 2 * az_node + az_node_rz) / (cubeMesh.getHz() * cubeMesh.getHz());
 
 
     // Diagonal
