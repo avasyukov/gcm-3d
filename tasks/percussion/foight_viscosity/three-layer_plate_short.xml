@@ -1,0 +1,90 @@
+<task numberOfSnaps="400" stepsPerSnap="15">
+	<system>
+		<!-- <loadPlugin name="ndi" /> -->
+		<timeStep multiplier="0.25" />                
+		<meshMovement type="none" />
+	        <prefix front="victorian_003_"/>
+        <plasticity type="foight" />
+	</system>
+	<bodies>
+		<body id="ice">
+        		<rheology type="elastic" />
+                    <mesh id="ice" type="cube" h="0.2" numX="150" numY="150" numZ="15"/>  <!-- ice_puff.geo -->
+                        <transform type="translate" moveX="-15" moveY="-15" moveZ="-3"/>
+            		<material id="iceA">
+				<area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="-1"/>
+ 			</material>
+                        <material id="iceB">
+                                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-1" maxZ="-0.4"/>
+                        </material>
+                        <material id="iceC">
+                                <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-0.4" maxZ="100"/>
+                        </material>
+        	</body>
+	</bodies>
+
+    <materials>
+                <material name="iceA" rheology="isotropic" viscous="yep">  <!--поверхностный слой-->
+			<!-- g / (sm * s^2 ) == 0.1 Pa-->
+                        <la>685670</la>
+                        <mu>13990</mu>
+			<!-- g / sm^3 -->
+                        <rho>1.109</rho>
+			<!-- 1 / s -->
+                        <plasticity type="foight">
+                            <eta>2.9</eta>
+                        </plasticity>
+                </material>
+                <material name="iceB" rheology="isotropic" viscous="yep">  <!--серединный мышечно-реберный слой-->
+			<!-- g / (sm * s^2 ) == 0.1 Pa-->
+                        <la>293980</la>
+                        <mu>201340</mu>
+			<!-- g / sm^3 -->
+                        <rho>1.2</rho>
+			<!-- 1 / s -->
+                        <!-- <tau>10.0</tau> -->
+                        <plasticity type="foight">
+                            <eta>30</eta>
+                        </plasticity>
+                </material>
+                <material name="iceC" rheology="isotropic" viscous="yep"> <!--глубинный слой-->
+                        <!-- g / (sm * s^2 ) == 0.1 Pa-->
+                        <la>651720</la>
+                        <mu>7240</mu>
+                        <!-- g / sm^3 -->
+                        <rho>0.0005</rho>
+                        <!-- 1 / s -->
+                        <plasticity type="foight">
+                            <eta>2</eta>
+                        </plasticity>
+                </material>
+    </materials>
+
+        <!--initialState-->
+        <borderCondition calculator="ExternalForceCalculator" normalStress="10" tangentialStress="0.0" startTime = "0.0" type="step" duration="1e-7">
+                <area type="box" minX="-0.5" maxX="0.5" minY="-0.5" maxY="0.5" minZ="-0.5" maxZ="0.5"/>
+	</borderCondition>
+
+                <!--values vz="-10"/>
+        </initialState-->
+
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="-14.99" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="14.99" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="100" minY="-100" maxY="-14.99" minZ="-100" maxZ="100"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="100" minY="14.99" maxY="100" minZ="-100" maxZ="100"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="-4.99"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="4.99" maxZ="100"/>
+    </borderCondition>
+
+</task>

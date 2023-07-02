@@ -1,0 +1,53 @@
+<task numberOfSnaps="100" stepsPerSnap="4">
+	<system>
+		<!-- <loadPlugin name="ndi" /> -->
+		<timeStep multiplier="0.25" />                
+		<meshMovement type="none" />
+	        <prefix front="victorian_005_"/>
+        <plasticity type="maxwell" />
+	</system>
+	<bodies>
+		<body id="ice">
+        		<rheology type="elastic" />
+            		<mesh id="ice" type="geo2" file="models/ice_highhalfspace.geo" tetrSize="0.25" /> <!-- sm -->
+            		<material id="ice" />
+        	</body>
+	</bodies>
+
+    <materials>
+                <material name="ice" rheology="isotropic" viscous="yep">
+			<!-- g / (sm * s^2 ) == 0.1 Pa-->
+                        <la>114e9</la>
+                        <mu>34e9</mu>
+			<!-- g / sm^3 -->
+                        <rho>0.9</rho>
+			<!-- 1 / s -->
+                        <tau>10.0</tau>
+                </material>
+    </materials>
+
+        <initialState>
+                <area type="box" minX="-0.5" maxX="0.5" minY="-0.5" maxY="0.5" minZ="-0.5" maxZ="0.5"/>
+                <values sxx="-10000" syy="-10000" szz="-10000" />
+        </initialState>
+
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="-4.99" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="4.99" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="100"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="100" minY="-100" maxY="-4.99" minZ="-100" maxZ="100"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="100" minY="4.99" maxY="100" minZ="-100" maxZ="100"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="-4.99"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="4.99" maxZ="100"/>
+    </borderCondition>
+
+</task>
