@@ -1,0 +1,54 @@
+<task numberOfSnaps="16" stepsPerSnap="40" xmlns:ndi="gcm3d.plugins.ndi">
+        <system>
+                <meshMovement type="none" />
+                <timeStep multiplier="0.5" />
+                <loadPlugin name="ndi" />
+                <prefix front="curve_bug_140_05_" />
+        </system>
+        <bodies>
+                <body id="body">
+                        <rheology type="elastic" />
+                        <mesh id="body" type="geo2" file="models/layer_phased_140_05.geo" tetrSize="20.0" />
+                        <material id="steel2">
+                                <area type="box" minX="-10000" maxX="10000" minY="-10000" maxY="10000" minZ="-10000" maxZ="10000" />
+                        </material>
+                        <material id="steel1">
+                                <area type="box" minX="-10000" maxX="10000" minY="-10000" maxY="10000" minZ="600" maxZ="700" />
+                        </material>
+                </body>
+        </bodies>
+
+        <materials>
+        <material name="steel1" rheology="isotropic">
+            <la>115000</la>
+            <mu>77000</mu>
+            <rho>7.8</rho>
+        </material>
+        <material name="steel2" rheology="isotropic">
+            <la>70000</la>
+            <mu>50000</mu>
+            <rho>5.3</rho>
+        </material>
+        </materials>
+
+        <ndi:emitter name="curve_bug_140_05_" sensor="true" type="array" axis="x" n="20" F="600" dF="0">
+                <borderCondition calculator="ExternalForceCalculator" normalStress="-10000" tangentialStress="0.0" startTime="0.0" type="sinus_gauss" omega="30" tau="1e-1" />
+                <area type="box" minX="278.947" maxX="598.947" minY="280" maxY="920" minZ="-0.01" maxZ="0.01" />
+        </ndi:emitter>
+
+        <borderCondition calculator="ConsumingBorderCalculator">
+                <area type="box" minX="-10000" maxX="0.01" minY="-10000" maxY="10000" minZ="-10000" maxZ="10000" />
+        </borderCondition>
+        <borderCondition calculator="ConsumingBorderCalculator">
+                <area type="box" minX="1199.99" maxX="10000" minY="-10000" maxY="10000" minZ="-10000" maxZ="10000" />
+        </borderCondition>
+        <borderCondition calculator="ConsumingBorderCalculator">
+                <area type="box" minX="-10000" maxX="10000" minY="-10000" maxY="0.01" minZ="-10000" maxZ="10000" />
+        </borderCondition>
+        <borderCondition calculator="ConsumingBorderCalculator">
+                <area type="box" minX="-10000" maxX="10000" minY="1199.99" maxY="10000" minZ="-10000" maxZ="10000" />
+        </borderCondition>
+        <borderCondition calculator="ConsumingBorderCalculator">
+                <area type="box" minX="-10000" maxX="10000" minY="-10000" maxY="10000" minZ="1199.99" maxZ="10000" />
+        </borderCondition>
+</task>
