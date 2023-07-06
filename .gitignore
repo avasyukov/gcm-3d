@@ -20,3 +20,5 @@ Makefile
 mkbuild.sh
 netgen.prof
 *~
+tasks/tests/aberration_000_*
+tools/ndt/taskmaker_curve_bug
