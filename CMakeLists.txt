@@ -4,6 +4,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake/Modu
 
 project (gcm3d)
 
+# set(WITHOUT_LOG4CXX 1)
+
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE DEBUG CACHE STRING "Choose the type of build, options are: DEBUG, RELEASE" FORCE)
 endif()
@@ -34,6 +36,7 @@ else()
 endif()
 
 
+# set(CMAKE_CXX_FLAGS "-std=c++17 -fno-omit-frame-pointer -frecord-gcc-switches -fopenmp")
 set(CMAKE_CXX_FLAGS "-std=c++11 -fno-omit-frame-pointer -frecord-gcc-switches -fopenmp")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O0 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -g")
@@ -43,6 +46,7 @@ include_directories(${LIBXML2_INCLUDE_DIR})
 
 find_package(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
+# include_directories("/usr/include/vtk-9.1")
 
 #find_package(MPI REQUIRED)
 #include_directories(${MPI_CXX_INCLUDE_PATH})
