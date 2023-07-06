@@ -9,6 +9,8 @@
 
 #include "SimpleVolumeSensor.hpp"
 #include "TimeFrameSensor.hpp"
+#include "DelayedSensor.hpp"
+
 #include "libgcm/util/areas/CylinderArea.hpp"
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/util/forms/SinusGaussForm.hpp"
@@ -70,6 +72,105 @@ void NDIPlugin::parseTask(xml::Doc& doc)
 
             if (emitter.getAttributeByName("sensor", "false") == "true")
                 this->sensors.push_back(new SimpleVolumeSensor(name, area, engine));
+        }
+        else if (type == "array")
+        {
+            NodeList areaNodes = emitter.getChildrenByName("area");
+            Area *area = readArea(areaNodes.front());
+            if (area == NULL)
+                THROW_INVALID_INPUT("Can not read area");
+
+            //calculating area parameters
+            float min, max;
+            int n = lexical_cast<int>(emitter.getAttributeByName("n"));
+            string a = emitter.getAttributeByName("axis");
+            BoxArea* b = dynamic_cast<BoxArea*>(area), *nb;
+            if (!b) THROW_INVALID_INPUT("Wrong type of area");
+            if (a == "x")
+                { min = b->minX; max = b->maxX; }
+            else if (a == "y")
+                { min = b->minY; max = b->maxY; }
+            else if (a == "z")
+                { min = b->minZ; max = b->maxZ; }
+            float w = (max - min) / n;
+
+            //calculator initialization - one for all coditions
+            xml::Node borderConditionNode = emitter.getChildrenByName("borderCondition").front();
+            string calculator = borderConditionNode["calculator"];
+            if( engine->getBorderCalculator(calculator) == NULL )
+                THROW_INVALID_INPUT("Unknown border calculator requested: " + calculator);
+            engine->getBorderCalculator(calculator)->setParameters( borderConditionNode );
+            string calcType = lexical_cast<string>(borderConditionNode.getAttributeByName("type", ""));
+
+            //reading parameters
+            float omega = lexical_cast<real>(borderConditionNode.getAttributeByName("omega", "0"));
+            float tau = lexical_cast<real>(borderConditionNode.getAttributeByName("tau", "0"));
+            float startTime = lexical_cast<real>(borderConditionNode.getAttributeByName("startTime", "0"));
+            float duration = lexical_cast<real>(borderConditionNode.getAttributeByName("duration", "0"));
+            float F = lexical_cast<real>(emitter.getAttributeByName("F", "0"));
+            float dF = lexical_cast<real>(emitter.getAttributeByName("dF", "0"));
+
+            //calculating the focusing - delay parameters for each of n emitters
+            float M = (max - min)/2, m, dt;
+            vector<float> x;
+            float R = sqrt(F*F + dF*dF), Xmax;
+            float vel = engine->getBody(0)->getMeshes()->getMaxEigenvalue();//getAvgH() / engine->getTimeStep();
+            for (int i=0; i<n; i++)
+            {
+                //calculate phase
+                m = M - 2*i*M/n;
+                x.push_back(sqrt((m+dF)*(m+dF) + F*F) - F);
+                if (!i) Xmax = x[i];
+                if (x[i] > Xmax) Xmax = x[i];
+            }
+
+            //creating conditions
+            unsigned int conditionId = -1;
+            for (int i=0; i<n; i++)
+            {
+                dt = (Xmax - x[i]) / vel;
+                if (F == 0) dt = 0;
+                //LOG_INFO("dt " <<dt);
+                if (calcType == "sinus_gauss")
+                    conditionId = engine->addBorderCondition(
+                        new BorderCondition(NULL, new SinusGaussForm(omega, tau, dt), engine->getBorderCalculator(calculator) )
+                    );
+                else if (calcType == "step")
+                    conditionId = engine->addBorderCondition(
+                        new BorderCondition(NULL, new StepPulseForm(startTime, duration), engine->getBorderCalculator(calculator) )
+                    );
+                LOG_INFO("Border condition (SinusGauss) created with calculator: " + calculator);
+                BoxArea* conditionArea = NULL;
+                if (a == "x")
+                    conditionArea = new BoxArea(min + i*w, min + (i+1)*w, b->minY, b->maxY, b->minZ, b->maxZ);
+                else if (a == "y")
+                    conditionArea = new BoxArea(b->minX, b->maxX, min + i*w, min + (i+1)*w, b->minZ, b->maxZ);
+                else
+                    conditionArea = new BoxArea(b->minX, b->maxX, b->minY, b->maxY, min + i*w, min + (i+1)*w);
+                for( int j = 0; j < engine->getNumberOfBodies(); j++ )
+                {
+                    engine->getBody(j)->setBorderCondition(conditionArea, conditionId);
+                }
+                delete conditionArea;
+            }
+            //building sensors
+            if (emitter.getAttributeByName("sensor", "false") == "true")
+            {
+                for (int i=0; i<n; i++)
+                {
+                    dt = (x[i]) / vel;
+                    if (F == 0) dt = 0;
+                    //dt += tau * 35000; //magic constant tu cut the initial signal from sensors data
+                    if (a == "x")
+                        nb = new BoxArea(min + i*w, min + (i+1)*w, b->minY, b->maxY, b->minZ, b->maxZ);
+                    else if (a == "y")
+                        nb = new BoxArea(b->minX, b->maxX, min + i*w, min + (i+1)*w, b->minZ, b->maxZ);
+                    else
+                        nb = new BoxArea(b->minX, b->maxX, b->minY, b->maxY, min + i*w, min + (i+1)*w);
+                    LOG_INFO("ss " <<i <<" n " <<name + lexical_cast<string>(i) <<" mm " <<min + i*w <<" " <<min + (i+1)*w);
+                    this->sensors.push_back(new DelayedSensor(name + lexical_cast<string>(i), nb, engine, dt)); // <--actually building sensors
+                }
+            }
         }
         else if (type == "timeframe")
         {
