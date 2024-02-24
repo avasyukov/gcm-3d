@@ -25,32 +25,23 @@ void LaRC04FailureCriterion::checkFailure(ICalcNode& node, const float tau) {
 
     gcm::real Yis = 1.12 * sqrt(2) * Yt;
 	gcm::real Sis = sqrt(2) * S;
-	double g = 0.35; //Fracture stiffness coefficient
-    double G12 = 79.3; //Shift modulus, GPa
-    double E1 = 128; //GPa
-    double E2 = 7.63; //GPa
-    double nu21 = 0.25; //Poisson's coefficient
+	double g = 0.7; //Fracture stiffness coefficient
+    double G12 = 43.7; //Shift modulus, GPa
+    double E1 = 133.76; //GPa
+    double E2 = 8.05; //GPa
+    double nu21 = 0.32; //Poisson's coefficient
 
     double lambda23 = 2 * (1 / E2 - nu21 * nu21 / E1);
 
-    double a0 = 53 / 57.3; //angle from test data
+    double a0 = 53; //angle from test data
     double etaT = -1 / tan(2 * a0);
     double etaL = -Sis * cos(2* a0) / (Yc * cos(a0) * cos(a0));  //approximate
 
     double ST = Yc * cos(a0) * sin(a0 + cos(a0) / tan(2 * a0));
 
-    // double tauEffT = - s22 * cos(a0) * (sin(a0) - etaT * cos(a0));
-    // double tauEffL = cos(a0) * (abs(s12) + etaL * s22 * cos(a0));
+    double psi = atan(2 * s23 / (s22 + s33)) / 2 * 57.3; 
 
-    double psi = atan(2 * s23 / (s22 + s33)) / 2; 
-
-    double phiC = atan(1 - sqrt((1 - 4 * (Sis/Xc + etaL) * (Sis / Xc)) / (2 * (Sis/Xc + etaL))));
-    // double phi = (abs(s12) + (G12 - Xc) * phiC) / (G12 + s11 - s22);
-
-
-    // double s11m = cos(phi) * cos(phi) * s11 + sin(phi) * sin(phi) * s22 + 2 * sin(phi) * cos(phi) * s12;
-    // double s22m = sin(phi) * sin(phi) * s11 + cos(phi) * cos(phi) * s22 - 2 * sin(phi) * cos(phi) * s12;
-    // double s12m = -sin(phi) * cos(phi) * s11 + sin(phi) * cos(phi) *s22 + (cos(phi) * cos(phi) - sin(phi) * sin(phi)) * s12;
+    double phiC = atan(1 - sqrt((1 - 4 * (Sis/Xc + etaL) * (Sis / Xc)) / (2 * (Sis/Xc + etaL)))) * 57.3;
 
     double s_2psi_2psi = (s22 + s33) / 2 + (s22 + s33) * cos(2 * psi) / 2 + s23 * sin(2 * psi);
     double s_3psi_3psi = s22 + s33 - 2 * s_2psi_2psi;

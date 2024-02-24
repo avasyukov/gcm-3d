@@ -57,9 +57,18 @@ void gcm::TsaiHillFailureCriterion::checkFailure(ICalcNode& node, const float ta
 		L = 1/St/St/2.0,
 		M = 1/S/S/2.0,
 		N = M;
+
+	// tsai-hill
 	if ( (F*(s22-s33)*(s22-s33) + G*(s33-s11)*(s33-s11) + H*(s11-s22)*(s11-s22) + 2*L*s23*s23 + 2*M*s12*s12 + 2*N*s13*s13) >= 1.0 )
 	{
 		node.setDestroyed(true);
 		//node.setDamageMeasure(4);
 	}
+
+	// azzi-tsai-hill
+	// if ( (F*(s22*s22-2*abs(s33*s22)+s33*s33) + G*(s33*s33-2*abs(s11*s33)+s11*s11) + H*(s11*s11-2*abs(s22*s11)-s22*s22) + (2*L*s23*s23 + 2*M*s12*s12 + 2*N*s13*s13)) >= 1.0 )
+	// {
+	// 	node.setDestroyed(true);
+	// 	//node.setDamageMeasure(4);
+	// }
 }
