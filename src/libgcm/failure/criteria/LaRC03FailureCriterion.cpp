@@ -25,10 +25,10 @@ void LaRC03FailureCriterion::checkFailure(ICalcNode& node, const float tau) {
 
     gcm::real Yis = 1.12 * sqrt(2) * Yt;
 	gcm::real Sis = sqrt(2) * S;
-	double g = 0.35; //Fracture stiffness coefficient
+	double g = 0.9; //Fracture stiffness coefficient
     double G12 = 79.3; //Shift modulus, GPa
 
-    double a0 = 53 / 57.3; //angle from test data
+    double a0 = 53; //angle from test data
     double etaT = -1 / tan(2 * a0);
     double etaL = -Sis * cos(2* a0) / (Yc * cos(a0) * cos(a0));  //approximate
 
@@ -37,8 +37,8 @@ void LaRC03FailureCriterion::checkFailure(ICalcNode& node, const float tau) {
     double tauEffT = - s22 * cos(a0) * (sin(a0) - etaT * cos(a0));
     double tauEffL = cos(a0) * (abs(s12) + etaL * s22 * cos(a0));
 
-    double phiC = atan(1 - sqrt((1 - 4 * (Sis/Xc + etaL) * (Sis / Xc)) / (2 * (Sis/Xc + etaL))));
-    double phi = (abs(s12) + (G12 - Xc) * phiC) / (G12 + s11 - s22);
+    double phiC = atan(1 - sqrt((1 - 4 * (Sis/Xc + etaL) * (Sis / Xc)) / (2 * (Sis/Xc + etaL)))) * 57.3;
+    double phi = (abs(s12) + (G12 - Xc) * phiC) / (G12 + s11 - s22) * 57.3;
 
 
     double s11m = cos(phi) * cos(phi) * s11 + sin(phi) * sin(phi) * s22 + 2 * sin(phi) * cos(phi) * s12;
