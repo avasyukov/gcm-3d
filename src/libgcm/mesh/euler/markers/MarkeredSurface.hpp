@@ -15,14 +15,14 @@ namespace gcm
         protected:
             std::vector<CalcNode> markers;
             std::vector<TriangleFirstOrder> faces;
-            std::vector<int> regions;
+//            std::vector<int> regions;
             AABB aabb;
             
             
         public:
 			void updateAABB();
             MarkeredSurface();
-            MarkeredSurface(std::vector<CalcNode>& markers, std::vector<TriangleFirstOrder>& faces, std::vector<int>& regions);
+            MarkeredSurface(std::vector<CalcNode>& markers, std::vector<TriangleFirstOrder>& faces/*, std::vector<int>& regions*/);
 
             const std::vector<CalcNode>& getMarkerNodes() const;
             unsigned int getNumberOfMarkerNodes() const;
@@ -31,7 +31,7 @@ namespace gcm
 
             const AABB& getAABB() const;
             
-            const std::vector<int> getRegions() const;
+//            const std::vector<int> getRegions() const;
 
             void moveMarker(uint index, const vector3r& ds);
     };

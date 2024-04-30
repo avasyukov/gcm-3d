@@ -20,7 +20,7 @@
     </bodies>
 
     <initialState>
-        <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-2.1" maxZ="0.5"/>
+        <area type="box" minX="-10" maxX="10" minY="-10" maxY="10" minZ="-2.1" maxZ="0.1"/>
         <values vz="50"  />
     </initialState>
     
