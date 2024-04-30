@@ -113,6 +113,7 @@ Engine::Engine()
     timeStepMultiplier = 1.0;
     numberOfSnaps = 0;
     stepsPerSnap = 1;
+    targetTime = 0.0;
     contactThresholdType = CONTACT_THRESHOLD_BY_AVG_H;
     contactThresholdFactor = 1.0;
     meshesMovable = true;
@@ -658,7 +659,10 @@ void Engine::calculate(bool save_snapshots) {
 
     auto startTime = std::time(nullptr);
 
-    for (int i = 0; i < numberOfSnaps; i++) {
+    int i = 0;
+    // numberOfSnaps > 0 : 'traditional' mode when we set number of snapshots and get a series of snapshots
+    // numberOfSnaps == 0 : we are interested in the state defined as physical targetTime
+    while ((numberOfSnaps > 0 && i < numberOfSnaps) || (numberOfSnaps == 0 && currentTime < targetTime)) {
         if (save_snapshots) {
             snapshotTimestamps.push_back(getCurrentTime());
             createSnapshot(i);
@@ -669,31 +673,36 @@ void Engine::calculate(bool save_snapshots) {
                 plugin->onCalculationStepDone();
         }
 
-        if (i == numberOfSnaps - 1) {
-            LOG_INFO("Calculation done");
-            break;
+        if(numberOfSnaps > 0) {
+            if (i == numberOfSnaps - 1) {
+                LOG_INFO("Calculation done");
+                break;
+            }
+
+            auto currentTime = std::time(nullptr);
+            auto diff = std::difftime(currentTime, startTime);
+
+            diff = diff / (i + 1) * (numberOfSnaps - i - 1);
+
+            uint hours = std::floor(diff / 3600);
+            diff -= hours * 3600;
+            uint minutes = std::floor(diff / 60);
+            uint seconds = diff - minutes * 60;
+
+            char eta[30];
+            sprintf(eta, "%02d:%02d:%02d", hours, minutes, seconds);
+
+            LOG_INFO("Estimated time of calculation completion: " << eta);
         }
 
-        auto currentTime = std::time(nullptr);
-        auto diff = std::difftime(currentTime, startTime);
-
-        diff = diff / (i + 1) * (numberOfSnaps - i - 1);
-
-        uint hours = std::floor(diff / 3600);
-        diff -= hours * 3600;
-        uint minutes = std::floor(diff / 60);
-        uint seconds = diff - minutes * 60;
-
-        char eta[30];
-        sprintf(eta, "%02d:%02d:%02d", hours, minutes, seconds);
-
-        LOG_INFO("Estimated time of calculation completion: " << eta);
+        i++;
     }
 
+    int last_idx = numberOfSnaps > 0 ? numberOfSnaps : i;
     if (save_snapshots) {
         snapshotTimestamps.push_back(getCurrentTime());
-        createSnapshot(numberOfSnaps);
-        createDump(numberOfSnaps);
+        createSnapshot(last_idx);
+        createDump(last_idx);
     }
 }
 
@@ -750,7 +759,7 @@ void Engine::createSnapshot(int number)
         Mesh* mesh = getBody(j)->getMeshes();
         if( mesh->getNumberOfLocalNodes() != 0 )
         {
-            LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
+            LOG_INFO( "Creating snapshot " << number << " for mesh '" << mesh->getId() << "'" );
             auto snapName = mesh->snapshot(number);
             snapshots.push_back(make_tuple(number, mesh->getId(), snapName));
         }
@@ -779,6 +788,11 @@ void Engine::setNumberOfSnaps(int number) {
 
 void Engine::setStepsPerSnap(int number) {
     stepsPerSnap = number;
+}
+
+void Engine::setTargetTime(double T) {
+    targetTime = T;
+    numberOfSnaps = 0;
 }
 
 DataBus* Engine::getDataBus() {

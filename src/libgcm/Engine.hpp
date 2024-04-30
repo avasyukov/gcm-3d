@@ -136,6 +136,8 @@ namespace gcm
         int numberOfSnaps;
         int stepsPerSnap;
 
+        double targetTime;
+
         bool meshesMovable;
 
         AABB scene;
@@ -284,6 +286,7 @@ namespace gcm
         void calculate_static(bool save_snapshots = true);
         void calculate(bool save_snapshots = true);
         void setNumberOfSnaps(int number);
+        void setTargetTime(double T);
         void setStepsPerSnap(int number);
         AABB getScene();
         void setScene(AABB src);

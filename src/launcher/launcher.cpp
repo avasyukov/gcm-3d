@@ -122,6 +122,11 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
         int stepsPerSnap = lexical_cast<int>(taskNode["stepsPerSnap"]);
         engine.setNumberOfSnaps(numberOfSnaps);
         engine.setStepsPerSnap(stepsPerSnap);
+
+        double targetTime = lexical_cast<double>(taskNode.getAttributeByName("targetTime", "-1"));
+        if(targetTime > 0) {
+            engine.setTargetTime(targetTime);
+        }
     }
 
     NodeList loadPluginsList = rootNode.xpath("/task/system/loadPlugin");
