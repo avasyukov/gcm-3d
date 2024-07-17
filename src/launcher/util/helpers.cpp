@@ -6,6 +6,7 @@
 #include "libgcm/util/areas/BoxArea.hpp"
 #include "libgcm/util/areas/SphereArea.hpp"
 #include "libgcm/util/areas/CylinderArea.hpp"
+#include "libgcm/util/areas/HalfSpaceArea.hpp"
 
 using namespace gcm;
 using std::string;
@@ -50,6 +51,20 @@ Area* launcher::readCylinderArea(const xml::Node& areaNode)
     return new CylinderArea(r, x1, y1, z1, x2, y2, z2);
 }
 
+Area* launcher::readHalfSpaceArea(const xml::Node& areaNode)
+{
+    real x = lexical_cast<real>(areaNode["x"]);
+    real y = lexical_cast<real>(areaNode["y"]);
+    real z = lexical_cast<real>(areaNode["z"]);
+    real nx = lexical_cast<real>(areaNode["nx"]);
+    real ny = lexical_cast<real>(areaNode["ny"]);
+    real nz = lexical_cast<real>(areaNode["nz"]);
+    LOG_DEBUG("Half space: [" << x << ", " << nx << "] "
+              << "[" << y << ", " << ny << "] "
+              << "[" << z << ", " << nz << "]");
+    return new HalfSpaceArea(x, y, z, nx, ny, nz);
+}
+
 Area* launcher::readArea(const xml::Node& areaNode)
 {
     string areaType = areaNode["type"];
@@ -61,6 +76,8 @@ Area* launcher::readArea(const xml::Node& areaNode)
         return readSphereArea(areaNode);
     else if (areaType == "cylinder")
         return readCylinderArea(areaNode);
+    else if (areaType == "halfspace")
+        return readHalfSpaceArea(areaNode);
 
     LOG_ERROR("Unknown initial state area: " << areaType);
     return NULL;

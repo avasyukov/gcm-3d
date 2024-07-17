@@ -267,21 +267,37 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
     {
         xml::Node meshMovement = meshMovementList.front();
         string meshMovementType = meshMovement["type"];
-        if( meshMovementType == "none" )
+        if( meshMovementType == "none" || meshMovementType == "false" )
         {
             engine.setMeshesMovable(false);
+        }
+        else if( meshMovementType == "true" )
+        {
+            engine.setMeshesMovable(true);
         }
     }
     
     NodeList timeStepList = rootNode.xpath("/task/system/timeStep");
     if( timeStepList.size() > 1 )
         THROW_INVALID_INPUT("Config file can contain only one <timeStepList/> element");
+
     if( timeStepList.size() == 1 )
     {
         xml::Node timeStep = timeStepList.front();
-        real value = lexical_cast<real>(timeStep["multiplier"]);
-        engine.setTimeStepMultiplier(value);
-        LOG_INFO("Using time step multiplier: " << value);
+
+        if (timeStep.getAttributeByName("multiplier", "NOPE") != "NOPE")
+        {
+            real value = lexical_cast<real>(timeStep["multiplier"]);
+            engine.setTimeStepMultiplier(value);
+            LOG_INFO("Using time step multiplier: " << value);
+        }
+
+        if (timeStep.getAttributeByName("fixed", "NOPE") != "NOPE")
+        {
+            real value = lexical_cast<real>(timeStep["fixed"]);
+            engine.setTimeStep(value);
+            LOG_INFO("Using time step: " << value);
+        }
     }
     
     NodeList plasticityTypeList = rootNode.xpath("/task/system/plasticity");
