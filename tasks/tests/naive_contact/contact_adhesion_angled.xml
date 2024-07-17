@@ -1,0 +1,26 @@
+<task numberOfSnaps="33" stepsPerSnap="10">
+    <system>
+        <contactThreshold measure="abs" value="0.05"/>
+		<meshMovement type="none" />
+		<defaultContactCalculator type="AdhesionContactCalculator" />
+		<defaultBorderCalculator type="FreeBorderCalculator" />
+    </system>
+    <bodies>
+        <body id="angle_cube_1">
+            <rheology type="elastic" />
+            <mesh id="angle_cube_1" type="geo2" file="models/cube_yrotated.geo" tetrSize="0.2"/>
+            <material id="testMaterial" />
+            <transform type="translate" moveX="-7.08" moveY="0" moveZ="-7.08" />
+        </body>
+        <body id="angle_cube_2">
+            <rheology type="elastic" />
+            <mesh id="angle_cube_2" type="geo2" file="models/cube_yrotated.geo" tetrSize="0.2"/>
+            <material id="testMaterial" />
+        </body>
+    </bodies>
+    
+	<initialState>
+		<area type="halfspace" x="-3.550533905932738" y="0" z="-3.550533905932738" nx="-1" ny="0" nz="-1"/>
+		<values vx="7.071067811865475" vz="7.071067811865475" />
+	</initialState>
+</task>

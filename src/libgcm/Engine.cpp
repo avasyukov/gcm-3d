@@ -12,6 +12,10 @@
 #include "libgcm/calc/border/ConsumingBorderCalculator.hpp"
 #include "libgcm/calc/contact/SlidingContactCalculator.hpp"
 #include "libgcm/calc/contact/AdhesionContactCalculator.hpp"
+#include "libgcm/calc/contact/AdhesionNaiveContactCalculator.hpp"
+#include "libgcm/calc/border/ConsumingNaiveBorderCalculator.hpp"
+#include "libgcm/calc/border/FreeNaiveBorderCalculator.hpp"
+#include "libgcm/calc/border/ExternalForceNaiveCalculator.hpp"
 #include "libgcm/calc/contact/ClosedFractureContactCalculator.hpp"
 #include "libgcm/calc/contact/OpenFractureContactCalculator.hpp"
 #include "libgcm/calc/contact/AdhesionContactDestroyCalculator.hpp"
@@ -88,9 +92,13 @@ Engine::Engine()
     registerBorderCalculator( new FreeBorderCalculator() );
     registerBorderCalculator( new SmoothBorderCalculator() );
     registerBorderCalculator( new ConsumingBorderCalculator() );
+    registerBorderCalculator( new ConsumingNaiveBorderCalculator() );
+    registerBorderCalculator( new FreeNaiveBorderCalculator() );
+    registerBorderCalculator( new ExternalForceNaiveCalculator() );
     registerContactCalculator( new SlidingContactCalculator() );
     registerContactCalculator( new AdhesionContactCalculator() );
     registerContactCalculator( new AdhesionContactDestroyCalculator() );
+    registerContactCalculator( new AdhesionNaiveContactCalculator() );
     registerContactCalculator( new ClosedFractureContactCalculator() );
 	registerContactCalculator( new OpenFractureContactCalculator() );
     LOG_DEBUG("Registering default border condition");

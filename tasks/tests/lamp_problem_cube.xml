@@ -1,0 +1,24 @@
+<task numberOfSnaps="150" stepsPerSnap="4">
+	<system>
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+		<body id="cube">
+			<rheology type="elastic" />
+			<mesh id="cube" type="geo2" file="models/cube.geo" tetrSize="0.2" />
+			<material id="testMaterial" />
+		</body>
+	</bodies>
+
+	
+
+	<borderCondition startTime="0.0" duration="1.0" calculator="FreeBorderCalculator">
+		<area type="box" minX="-200" maxX="200" minY="-200" maxY="200" minZ="-100" maxZ="100"/>
+	</borderCondition>
+	
+	<borderCondition startTime="0.0" duration="0.05" calculator="ExternalForceCalculator"
+	 normalStress="0" tangentialStress="100" tangentialX="0" tangentialY="1" tangentialZ="0" >
+		<area type="box" minX="-1" maxX="1" minY="-1" maxY="1" minZ="4" maxZ="6"/>
+	</borderCondition>
+
+</task>

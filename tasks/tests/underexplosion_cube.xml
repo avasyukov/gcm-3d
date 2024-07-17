@@ -1,0 +1,20 @@
+<task numberOfSnaps="50" stepsPerSnap="1">
+	<system>
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+		<body id="explosion">
+			<rheology type="elastic" />
+			<mesh id="explosion" type="geo2" file="models/cube.geo" tetrSize="0.3" />
+			<material id="testMaterial" />
+		</body>
+	</bodies>
+	<initialState>
+		<area type="box" minX="-0.5" maxX="0.5" minY="-0.5" maxY="0.5" minZ="4" maxZ="4.5"/>
+		<values sxx="-100000" syy="-100000" szz="-100000" />
+	</initialState>
+
+	<borderCondition startTime="0.0" duration="1.0" calculator="FreeBorderCalculator">
+		<area type="box" minX="-200" maxX="200" minY="-200" maxY="200" minZ="-100" maxZ="100"/>
+	</borderCondition>
+</task>

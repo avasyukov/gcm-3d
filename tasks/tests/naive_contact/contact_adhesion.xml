@@ -1,0 +1,27 @@
+<task numberOfSnaps="50" stepsPerSnap="10">
+    <system>
+        <contactThreshold measure="abs" value="0.05"/>
+		<meshMovement type="none" />
+		<defaultContactCalculator type="AdhesionContactCalculator" />
+		<defaultBorderCalculator type="FreeBorderCalculator" />
+    </system>
+    <bodies>
+        <body id="cube_1">
+            <rheology type="elastic" />
+            <mesh id="cube_1" type="geo2" file="models/cube.geo" tetrSize="0.2"/>
+            <material id="testMaterial" />
+            <transform type="translate" moveX="0" moveY="0" moveZ="-5.01" />
+        </body>
+        <body id="cube_2">
+            <rheology type="elastic" />
+            <mesh id="cube_2" type="geo2" file="models/cube.geo" tetrSize="0.2"/>
+            <material id="testMaterial" />
+            <transform type="translate" moveX="0" moveY="0" moveZ="5.01" />
+        </body>
+    </bodies>
+    
+	<initialState>
+		<area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="0"/>
+		<values vz="10" />
+	</initialState>
+</task>

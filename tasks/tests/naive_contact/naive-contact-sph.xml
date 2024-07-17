@@ -1,0 +1,25 @@
+<task numberOfSnaps="50" stepsPerSnap="5">
+	<system>
+		<defaultContactCalculator type="AdhesionNaiveContactCalculator" />
+		<defaultBorderCalculator type="FreeNaiveBorderCalculator" />
+        <contactThreshold measure="abs" value="0.3"/>
+		<meshMovement type="true" />
+	</system>
+	<bodies>
+		<body id="csph_plate">
+			<rheology type="elastic" />
+			<mesh id="csph_plate" type="geo2" file="models/cover-small.geo" tetrSize="0.8" />
+			<material id="testMaterial" />
+		</body>
+        <body id="csph_sph">
+                <rheology type="elastic" />
+                <mesh id="csph_sph" type="geo2" file="models/sphere.geo" tetrSize="0.6" />
+                <material id="testMaterial" />
+                <transform type="translate" moveX="0" moveY="0" moveZ="11.05" />
+        </body>
+        </bodies>
+	<initialState>
+		<area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="6.02" maxZ="100"/>
+		<values vz="-10"/>
+	</initialState>
+</task>
