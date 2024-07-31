@@ -11,6 +11,7 @@
 #include "libgcm/calc/border/SmoothBorderCalculator.hpp"
 #include "libgcm/calc/border/ConsumingBorderCalculator.hpp"
 #include "libgcm/calc/contact/SlidingContactCalculator.hpp"
+#include "libgcm/calc/contact/SlidingNaiveContactCalculator.hpp"
 #include "libgcm/calc/contact/AdhesionContactCalculator.hpp"
 #include "libgcm/calc/contact/AdhesionNaiveContactCalculator.hpp"
 #include "libgcm/calc/border/ConsumingNaiveBorderCalculator.hpp"
@@ -19,6 +20,7 @@
 #include "libgcm/calc/contact/ClosedFractureContactCalculator.hpp"
 #include "libgcm/calc/contact/OpenFractureContactCalculator.hpp"
 #include "libgcm/calc/contact/AdhesionContactDestroyCalculator.hpp"
+#include "libgcm/calc/contact/AdhesionNaiveContactDestroyCalculator.hpp"
 #include "libgcm/util/forms/StepPulseForm.hpp"
 #include "libgcm/rheology/DummyRheologyCalculator.hpp"
 #include "Engine.hpp"
@@ -98,7 +100,9 @@ Engine::Engine()
     registerContactCalculator( new SlidingContactCalculator() );
     registerContactCalculator( new AdhesionContactCalculator() );
     registerContactCalculator( new AdhesionContactDestroyCalculator() );
+    registerContactCalculator( new AdhesionNaiveContactDestroyCalculator() );
     registerContactCalculator( new AdhesionNaiveContactCalculator() );
+    registerContactCalculator( new SlidingNaiveContactCalculator() );
     registerContactCalculator( new ClosedFractureContactCalculator() );
 	registerContactCalculator( new OpenFractureContactCalculator() );
     LOG_DEBUG("Registering default border condition");

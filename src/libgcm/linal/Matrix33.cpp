@@ -14,3 +14,18 @@ Matrix33 gcm::linal::rotate(const Matrix33& m, real a1, real a2, real a3)
 {
 	return getZRotationMatrix(-a3) * getYRotationMatrix(-a2) * getXRotationMatrix(-a1) * m * getXRotationMatrix(a1) * getYRotationMatrix(a2) * getZRotationMatrix(a3);
 };
+
+
+void gcm::linal::Matrix33Container::transpose()
+{
+    real tmp;
+    tmp = a12;
+    a12 = a21;
+    a21 = tmp;
+    tmp = a13;
+    a13 = a31;
+    a31 = tmp;
+    tmp = a32;
+    a32 = a23;
+    a23 = tmp;
+};

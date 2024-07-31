@@ -83,7 +83,9 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
     if (cur_node.isBorder())
     {
         if (cur_node.isInContact())
-            if (engine.getContactCondition(cur_node.getContactConditionId())->calc->getType() == "AdhesionNaiveContactCalculator")
+            if (    engine.getContactCondition(cur_node.getContactConditionId())->calc->getType() == "AdhesionNaiveContactCalculator"
+                 || engine.getContactCondition(cur_node.getContactConditionId())->calc->getType() == "AdhesionNaiveContactDestroyCalculator"
+                 || engine.getContactCondition(cur_node.getContactConditionId())->calc->getType() == "SlidingNaiveContactCalculator")
             {
                 CalcNode& virt_node = engine.getVirtNode(cur_node.contactNodeNum);
                 vector<CalcNode> dummy; bool booldummy[1];

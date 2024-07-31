@@ -1,0 +1,23 @@
+<task numberOfSnaps="30" stepsPerSnap="3">
+	<system>
+		<defaultContactCalculator type="SlidingNaiveContactCalculator" />
+		<meshMovement type="none" />
+	</system>
+	<bodies>
+		<body id="sliding_neg_naive_cube1">
+			<rheology type="elastic" />
+			<mesh id="sliding_neg_naive_cube1" type="geo2" file="models/cube.geo" tetrSize="0.25" />
+			<material id="testMaterial" />
+		</body>
+		<body id="sliding_neg_naive_cube2">
+			<rheology type="elastic" />
+			<mesh id="sliding_neg_naive_cube2" type="geo2" file="models/cube.geo" tetrSize="0.25" />
+			<material id="testMaterial" />
+			<transform type="translate" moveX="10.01" moveY="0" moveZ="0" />
+		</body>
+	</bodies>
+	<initialState>
+		<area type="box" minX="9" maxX="9.8" minY="-10" maxY="10" minZ="-10" maxZ="10"/>
+		<values vx="0.03" sxx="9" syy="7" szz="7" />
+	</initialState>
+</task>

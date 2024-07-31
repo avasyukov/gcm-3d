@@ -2,19 +2,19 @@
     <system>
         <contactThreshold measure="abs" value="0.05"/>
 		<meshMovement type="none" />
-		<defaultContactCalculator type="AdhesionNaiveContactCalculator" />
-		<defaultBorderCalculator type="FreeNaiveBorderCalculator" />
+		<defaultContactCalculator type="SlidingContactCalculator" />
+		<defaultBorderCalculator type="FreeBorderCalculator" />
     </system>
     <bodies>
-        <body id="contact_adhesion_naive_cube_1">
+        <body id="contact_sliding_cube_1">
             <rheology type="elastic" />
-            <mesh id="contact_adhesion_naive_cube_1" type="geo2" file="models/cube.geo" tetrSize="0.2"/>
+            <mesh id="contact_sliding_cube_1" type="geo2" file="models/cube.geo" tetrSize="0.2"/>
             <material id="testMaterial" />
             <transform type="translate" moveX="0" moveY="0" moveZ="-5.01" />
         </body>
-        <body id="contact_adhesion_naive_cube_2">
+        <body id="contact_sliding_cube_2">
             <rheology type="elastic" />
-            <mesh id="contact_adhesion_naive_cube_2" type="geo2" file="models/cube.geo" tetrSize="0.2"/>
+            <mesh id="contact_sliding_cube_2" type="geo2" file="models/cube.geo" tetrSize="0.2"/>
             <material id="testMaterial" />
             <transform type="translate" moveX="0" moveY="0" moveZ="5.01" />
         </body>
@@ -22,6 +22,6 @@
     
 	<initialState>
 		<area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="0"/>
-		<values vz="10" />
+		<values vx="10" />
 	</initialState>
 </task>

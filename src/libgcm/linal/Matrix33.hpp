@@ -65,6 +65,12 @@ namespace gcm
                         };
                     };
                 };
+
+            /**
+             * Transposes the matrix.
+             *
+             */
+            void transpose();
         };
         /**
          * Specialized 3x3 matrix implementation.

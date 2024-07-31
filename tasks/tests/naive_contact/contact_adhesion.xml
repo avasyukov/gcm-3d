@@ -6,15 +6,15 @@
 		<defaultBorderCalculator type="FreeBorderCalculator" />
     </system>
     <bodies>
-        <body id="cube_1">
+        <body id="contact_adhesion_cube_1">
             <rheology type="elastic" />
-            <mesh id="cube_1" type="geo2" file="models/cube.geo" tetrSize="0.2"/>
+            <mesh id="contact_adhesion_cube_1" type="geo2" file="models/cube.geo" tetrSize="0.2"/>
             <material id="testMaterial" />
             <transform type="translate" moveX="0" moveY="0" moveZ="-5.01" />
         </body>
-        <body id="cube_2">
+        <body id="contact_adhesion_cube_2">
             <rheology type="elastic" />
-            <mesh id="cube_2" type="geo2" file="models/cube.geo" tetrSize="0.2"/>
+            <mesh id="contact_adhesion_cube_2" type="geo2" file="models/cube.geo" tetrSize="0.2"/>
             <material id="testMaterial" />
             <transform type="translate" moveX="0" moveY="0" moveZ="5.01" />
         </body>

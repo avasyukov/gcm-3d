@@ -1,0 +1,118 @@
+<task numberOfSnaps="50" stepsPerSnap="10">
+	<system>
+		<defaultContactCalculator type="AdhesionNaiveContactDestroyCalculator" adhesionThreshold="42000000" />
+		<defaultBorderCalculator  type="FreeNaiveBorderCalculator" />
+		<defaultFailureModel type="HashinFailureModel" />
+		<contactThreshold measure="abs" value="0.003"/>
+		<meshMovement type="true" />
+		<collisionDetector static="false" />
+	</system>
+	<bodies>
+		<body id="mahmoud_000_sph">
+			<rheology type="elastic" />
+			<mesh id="mahmoud_000_sph" type="geo2" file="models/mahmoud-striker.geo" tetrSize="0.15" />
+			<material id="m_steel" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="-8.001" />
+		</body>
+		<body id="mahmoud_000_plate_0">
+			<rheology type="elastic" />
+			<mesh id="mahmoud_000_plate_0" type="geo2" file="models/mahmoud-cover.geo" tetrSize="0.10" />
+			<material id="m_cfrp_000" />
+		</body>
+		<body id="mahmoud_000_plate_1">
+			<rheology type="elastic" />
+			<mesh id="mahmoud_000_plate_1" type="geo2" file="models/mahmoud-cover.geo" tetrSize="0.08" />
+			<material id="m_cfrp_090" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="0.481" />
+		</body>
+		<body id="mahmoud_000_plate_2">
+			<rheology type="elastic" />
+			<mesh id="mahmoud_000_plate_2" type="geo2" file="models/mahmoud-cover.geo" tetrSize="0.08" />
+			<material id="m_cfrp_000" />
+			<transform type="translate" moveX="0" moveY="0" moveZ="0.962" />
+		</body>
+	</bodies>
+
+	<materials>
+		<material name="m_steel" rheology="isotropic">
+			<la>99430000000</la>
+			<mu>78130000000</mu>
+			<rho>0.0078</rho>
+			<crackThreshold>INF</crackThreshold>
+		</material>
+		<material name="m_cfrp_000" rheology="anisotropic" failure="hashin">
+			<c11>158990000000</c11>
+			<c12>10000000000</c12>
+			<c13>10000000000</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>11780000000</c22>
+			<c23>10000000000</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>11780000000</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>4500000000</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>5500000000</c55>
+			<c56>0</c56>
+			<c66>5500000000</c66>
+			<rho>0.001489</rho>
+			<failure type="hashin">
+				<dir>1</dir>
+				<Xc>20700000000</Xc>
+				<Xt>2070000000</Xt>
+				<Yc>237000000</Yc>
+				<Yt>74000000</Yt>
+				<St>120000000</St>
+				<S>64000000</S>
+			</failure>
+		</material>
+		<material name="m_cfrp_090" rheology="anisotropic" failure="hashin">
+			<c11>11780000000</c11>
+			<c12>10000000000</c12>
+			<c13>10000000000</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>158990000000</c22>
+			<c23>10000000000</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>11780000000</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>5500000000</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>4500000000</c55>
+			<c56>0</c56>
+			<c66>5500000000</c66>
+			<rho>0.001489</rho>
+			<failure type="hashin">
+				<dir>2</dir>
+				<Xc>20700000000</Xc>
+				<Xt>2070000000</Xt>
+				<Yc>237000000</Yc>
+				<Yt>74000000</Yt>
+				<St>120000000</St>
+				<S>64000000</S>
+			</failure>
+		</material>
+	</materials>
+
+	<contactCondition calculator="SlidingContactCalculator">
+			<area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="0.0001"/>
+	</contactCondition>
+	<initialState>
+		<area type="box" minX="-100" maxX="100" minY="-100" maxY="100" minZ="-100" maxZ="-0.0001"/>
+		<values vz="2000"/>
+	</initialState>
+</task>
