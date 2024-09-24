@@ -150,7 +150,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 new ContactCondition(NULL, new StepPulseForm(-1, -1), engine.getContactCalculator(type) ) 
         );
         LOG_INFO("Default contact calculator set to: " + type);
-        if (type == "AdhesionContactDestroyCalculator")
+        if (type == "AdhesionContactDestroyCalculator" || type == "AdhesionNaiveContactDestroyCalculator")
         {
             real adhesionThreshold = lexical_cast<real>(defaultContactCalculator["adhesionThreshold"]);
             engine.getContactCondition(0)->setConditionParam(adhesionThreshold);
@@ -750,7 +750,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
         unsigned int conditionId = engine.addContactCondition(
                 new ContactCondition(NULL, new StepPulseForm(startTime, duration), engine.getContactCalculator(calculator) ) 
         );
-        if (calculator == "AdhesionContactDestroyCalculator")
+        if (calculator == "AdhesionContactDestroyCalculator" || calculator == "AdhesionNaiveContactDestroyCalculator")
         {
             real adhesionThreshold = lexical_cast<real>(contactConditionNode["adhesionThreshold"]);
             engine.getContactCondition(conditionId)->setConditionParam(adhesionThreshold);
