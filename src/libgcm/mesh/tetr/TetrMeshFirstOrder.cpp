@@ -2618,7 +2618,7 @@ bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z,
                || d > length )
             {
                 LOG_DEBUG("Proposed point: " << node);
-                THROW_BAD_MESH("interpolateBorderNode did smth really bad");
+                //THROW_BAD_MESH("interpolateBorderNode did smth really bad");
             }
             
             interpolateTriangle( n1.coords, n2.coords, n3.coords, node.coords,

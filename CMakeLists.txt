@@ -34,7 +34,7 @@ else()
 endif()
 
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -fno-omit-frame-pointer -frecord-gcc-switches -fopenmp")
+set(CMAKE_CXX_FLAGS "-std=c++11 -fno-omit-frame-pointer -frecord-gcc-switches")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O0 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -g")
 
@@ -46,10 +46,10 @@ find_package(LibXml2 REQUIRED)
 include_directories(${LIBXML2_INCLUDE_DIR})
 
 find_package(VTK REQUIRED)
-include_directories(${VTK_INCLUDE_DIRS})
+INCLUDE(${VTK_USE_FILE})
 
-#find_package(MPI REQUIRED)
-#include_directories(${MPI_CXX_INCLUDE_PATH})
+find_package(MPI REQUIRED)
+include_directories(${MPI_CXX_INCLUDE_PATH})
 
 if(NOT WITHOUT_LOG4CXX)
     find_package(Log4cxx REQUIRED)
@@ -59,12 +59,18 @@ endif()
 find_package(GSL REQUIRED)
 include_directories(${GSL_INCLUDE_DIRS})
 
-find_package(Boost REQUIRED COMPONENTS filesystem system program_options serialization)
+find_package(Boost REQUIRED COMPONENTS filesystem system program_options mpi serialization)
 include_directories(${Boost_INCLUDE_DIRS})
 
-find_package(Gmsh REQUIRED)
-include_directories(${GMSH_INCLUDE_DIR})
-#link_directories(${GMSH_LIB_DIR})
+add_library(gmsh SHARED IMPORTED)
+
+set_target_properties(gmsh PROPERTIES
+    IMPORTED_LOCATION "/home/amisto/gmsh-4.12.0/lib64/libgmsh.so"
+    INTERFACE_INCLUDE_DIRECTORIES "/home/amisto/gmsh-4.12.0/include"
+)
+
+set(GMSH_LIBRARY gmsh)
+
 
 if(WITH_TESTS)
     find_package(GTest REQUIRED)
@@ -105,12 +111,8 @@ include_directories("${CMAKE_CURRENT_LIST_DIR}/src/" "${CMAKE_CURRENT_BINARY_DIR
 
 
 add_library(gcm SHARED ${LIB_SOURCES})
-
-# TODO: return launcher target (it was removed since it failed to build with new VTK9 modules and so on)
-#add_library(launcher OBJECT ${LAUNCHER_COMMON_SOURCES})
-#add_executable(gcm3d "${CMAKE_CURRENT_LIST_DIR}/src/launcher/main.cpp" $<TARGET_OBJECTS:launcher>)
-
-add_executable(gcm3d "${CMAKE_CURRENT_LIST_DIR}/src/launcher/main.cpp" ${LAUNCHER_COMMON_SOURCES})
+add_library(launcher OBJECT ${LAUNCHER_COMMON_SOURCES})
+add_executable(gcm3d "${CMAKE_CURRENT_LIST_DIR}/src/launcher/main.cpp" $<TARGET_OBJECTS:launcher>)
 
 if(WITH_TESTS)
     add_executable(gcm3d_unit_tests ${UNIT_TESTS_SOURCES} $<TARGET_OBJECTS:launcher>)
@@ -133,7 +135,7 @@ foreach(plugin ${AVAILABLE_PLUGINS})
     target_link_libraries("gcm_${plugin_name}" gcm)
 endforeach()
 
-#target_link_libraries(gcm ${MPI_CXX_LIBRARIES})
+target_link_libraries(gcm ${MPI_CXX_LIBRARIES})
 target_link_libraries(gcm ${LIBXML2_LIBRARIES})
 if(NOT WITHOUT_LOG4CXX)
     target_link_libraries(gcm ${LOG4CXX_LIBRARIES})

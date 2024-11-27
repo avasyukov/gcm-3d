@@ -4,7 +4,7 @@
 #include <exception>
 #include <unistd.h>
 
-#include <omp.h>
+//#include <omp.h>
 
 #include "libgcm/config.hpp"
 
@@ -178,7 +178,7 @@ int main(int argc, char **argv, char **envp)
             LOG_INFO("Skipping calculation, render-only mode");
         else
         {
-            omp_set_num_threads(ompThreadsNumber);
+            //omp_set_num_threads(ompThreadsNumber);
 
             launcher::Launcher launcher;
             //launcher.loadMaterialLibrary("materials");
