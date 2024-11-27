@@ -1,0 +1,85 @@
+<task numberOfSnaps="80" stepsPerSnap="5" xmlns:ndi="gcm3d.plugins.ndi">
+    <system>
+        <meshMovement type="none" />
+        <timeStep multiplier="0.99"/>
+        <loadPlugin name="ndi" />
+    </system>
+    <bodies>
+        <body id="cer_ves_9">
+            <rheology type="elastic" />
+            <mesh id="cer_ves_9" type="geo2" file="models/meat_cube.geo" tetrSize="0.2" />
+            <!--mesh id="cer_ves_2" type="cube" h="0.1" numX="100" numY="100" numZ="100" /-->
+            <!--transform type="translate" moveX="-5" moveY="-5" moveZ="-5" /-->
+            <material id="muscle">
+		        <area type="cylinder" r="100" x1="0" y1="0" z1="-100" x2="0" y2="0" z2="100" />
+	        </material>
+            <!--material id="aorta">
+                <area type="cylinder" r="1.5" x1="0" y1="0" z1="-100" x2="0" y2="0" z2="100" />
+            </material-->
+            <!--material id="blood">
+                <area type="cylinder" r="1" x1="0" y1="0" z1="-100" x2="0" y2="0" z2="100" />
+            </material-->
+        </body>
+    </bodies>
+
+    <materials>
+      <material name="aorta" rheology="isotropic">
+        <la>9210000</la>
+        <mu>190000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="blood" rheology="isotropic">
+        <la>239000</la>
+        <mu>500</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+      <material name="muscle" rheology="isotropic">
+        <la>3070000</la>
+        <mu>2050000</mu>
+        <rho>0.001</rho>
+        <crackThreshold>INF</crackThreshold>
+      </material>
+    </materials>
+
+        <!--initialState>
+                <area type="box" minX="-200" maxX="-4.99" minY="-0.5" maxY="0.5" minZ="-0.5" maxZ="0.5"/>
+                <values vx="25100" />
+        </initialState-->
+
+    <!--ndi:emitter name="cer_ves_6_e" sensor="true">
+                <area type="box" minX="-200" maxX="-4.99" minY="-0.5" maxY="0.5" minZ="-0.5" maxZ="0.5"/>
+                <values vx="25100" />
+    </ndi:emitter-->
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-100" maxX="300" minY="-300" maxY="250" minZ="-240" maxZ="270"/>
+    </borderCondition>
+
+
+    <borderCondition calculator="ExternalForceCalculator" normalStress="10000" tangentialStress="0.0" startTime = "0.0" type="sinus_gauss" omega="1500000" tau="0.00000000020">
+      <area type="box" minX="-360" maxX="-4.99" minY="-0.5" maxY="0.5" minZ="-0.5" maxZ="0.5"/>
+    </borderCondition>
+
+    <ndi:sensor name="cer_ves_9">
+      <area type="box" minX="-360" maxX="-4.99" minY="-0.5" maxY="0.5" minZ="-0.5" maxZ="0.5"/>
+    </ndi:sensor>
+
+    <!--borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="4.99" maxX="300" minY="-300" maxY="250" minZ="-240" maxZ="270"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-360" maxX="300" minY="-300" maxY="-4.99" minZ="-240" maxZ="270"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-360" maxX="300" minY="4.99" maxY="250" minZ="-240" maxZ="270"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-360" maxX="300" minY="-300" maxY="250" minZ="-240" maxZ="-4.99"/>
+    </borderCondition>
+    <borderCondition calculator="ConsumingBorderCalculator">
+      <area type="box" minX="-360" maxX="300" minY="-300" maxY="250" minZ="4.99" maxZ="270"/>
+    </borderCondition-->
+
+</task>
+

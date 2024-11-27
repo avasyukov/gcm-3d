@@ -1,0 +1,61 @@
+<task numberOfSnaps="16" stepsPerSnap="40" xmlns:ndi="gcm3d.plugins.ndi">
+        <system>
+                <meshMovement type="none" />
+                <timeStep multiplier="0.5" />
+                <loadPlugin name="ndi" />
+                <prefix front="aberration_000_$TASKNUMBER$_" />
+        </system>
+        <bodies>
+                <body id="body">
+                        <rheology type="elastic" />
+                        <mesh id="body" type="geo2" file="models/aberration_000_$TASKNUMBER$.geo" tetrSize="20.0" />
+                        <material id="steel1">
+                                <area type="cylinder" x1="600" y1="-10000" z1="-100" x2="600" y2="10000" z2="-100" r="7000"/>
+                        </material>
+                        <material id="steel2">
+                                <area type="aberrator" minX="-0.01" maxX="1200.01" minY="-0.01" maxY="1200.01" flatZ="-0.01" curve="models/aberrator/sine_wide_low.txt"/>
+                        </material>
+                        <material id="steel1">
+                                <area type="box" minX="-10000" maxX="200" minY="-10000" maxY="10000" minZ="700" maxZ="10000" />
+                        </material>
+                        <material id="steel1">
+                                <area type="box" minX="1000" maxX="10000" minY="-10000" maxY="10000" minZ="700" maxZ="10000" />
+                        </material>
+                </body>
+        </bodies>
+
+        <materials>
+        <material name="steel1" rheology="isotropic">
+            <la>115000</la>
+            <mu>77000</mu>
+            <rho>7.8</rho>
+        </material>
+        <material name="steel2" rheology="isotropic">
+            <la>70000</la>
+            <mu>50000</mu>
+            <rho>5.3</rho>
+        </material>
+        </materials>
+
+        <ndi:emitter name="aberration_000_$TASKNUMBER$_" sensor="true" type="array" axis="x" n="20" F="600" dF="0">
+                <borderCondition calculator="ExternalForceCalculator" normalStress="-10000" tangentialStress="0.0" startTime="0.0" type="sinus_gauss" omega="10" tau="1e-1" />
+                <area type="box" minX="$XMIN$" maxX="$XMAX$" minY="280" maxY="920" minZ="-0.01" maxZ="0.01" />
+        </ndi:emitter>
+
+        <borderCondition calculator="ConsumingBorderCalculator">
+                <area type="box" minX="-10000" maxX="0.01" minY="-10000" maxY="10000" minZ="-10000" maxZ="10000" />
+        </borderCondition>
+        <borderCondition calculator="ConsumingBorderCalculator">
+                <area type="box" minX="1199.99" maxX="10000" minY="-10000" maxY="10000" minZ="-10000" maxZ="10000" />
+        </borderCondition>
+        <borderCondition calculator="ConsumingBorderCalculator">
+                <area type="box" minX="-10000" maxX="10000" minY="-10000" maxY="0.01" minZ="-10000" maxZ="10000" />
+        </borderCondition>
+        <borderCondition calculator="ConsumingBorderCalculator">
+                <area type="box" minX="-10000" maxX="10000" minY="1199.99" maxY="10000" minZ="-10000" maxZ="10000" />
+        </borderCondition>
+        <borderCondition calculator="ConsumingBorderCalculator">
+                <area type="box" minX="-10000" maxX="10000" minY="-10000" maxY="10000" minZ="1199.99" maxZ="10000" />
+        </borderCondition>
+</task>
+

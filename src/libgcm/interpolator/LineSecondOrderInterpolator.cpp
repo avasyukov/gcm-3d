@@ -20,8 +20,8 @@ void LineSecondOrderInterpolator::interpolate(CalcNode& node, CalcNode& nodeLeft
 
     float lenLeft = distance(nodeCur.coords, nodeLeft.coords);
     float lenRight = distance(nodeCur.coords, nodeRight.coords);
-    if( fabs(lenLeft - lenRight) > EQUALITY_TOLERANCE * (lenLeft + lenRight) * 0.5 )
-        THROW_BAD_MESH("LineSecondOrderInterpolator can work on uniform grid only");
+    //if( fabs(lenLeft - lenRight) > EQUALITY_TOLERANCE * (lenLeft + lenRight) * 0.5 )
+    //    THROW_BAD_MESH("LineSecondOrderInterpolator can work on uniform grid only");
     
     float h = (lenLeft + lenRight) * 0.5;
     // FIXME_ASAP

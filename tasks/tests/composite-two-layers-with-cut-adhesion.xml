@@ -1,0 +1,61 @@
+<task numberOfSnaps="100" stepsPerSnap="1">
+	<system>
+		<meshMovement type="none" />
+		<matrixDecomposition implementation="numerical" />
+		<defaultContactCalculator type="AdhesionContactCalculator" />
+	</system>
+	<bodies>
+		<body id="layer1">
+			<rheology type="elastic" />
+			<mesh id="layer1main" type="cube" h="0.2" numX="100" numY="100" numZ="15">
+				<!--cut minX="20" maxX="30" minY="20" maxY="30" minZ="10" maxZ="15" /-->
+			</mesh>
+			<material id="layer1mat" />
+			<transform type="translate" moveX="-10" moveY="-10" moveZ="0" />
+		</body>
+		<body id="layer2">
+			<rheology type="elastic" />
+			<mesh id="layer2main" type="cut_cube" h="0.2" numX="100" numY="100" numZ="15">
+				<cut minX="45" maxX="55" minY="45" maxY="55" minZ="0" maxZ="5" />
+			</mesh>
+			<material id="layer2mat" />
+			<transform type="translate" moveX="-10" moveY="-10" moveZ="-3.001" />
+		</body>
+	</bodies>
+	<materials>
+		<material name="subpacketS" rheology="anisotropic">
+			<c11>1.03</c11>
+			<c12>0.696</c12>
+			<c13>0.696</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>2.325</c22>
+			<c23>0.696</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>1.03</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>0.501</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>0.167</c55>
+			<c56>0</c56>
+			<c66>0.501</c66>
+			<rho>0.158</rho>
+		</material>
+               <material name="layer1mat" rheology="anisotropic" source="subpacketS">
+                        <rotate a1="0" a2="0" a3="0"/>
+                </material>
+                <material name="layer2mat" rheology="anisotropic" source="subpacketS">
+                        <rotate a1="0" a2="0" a3="90"/>
+                </material>
+	</materials>
+	<initialState>
+		<area type="box" minX="-1.5" maxX="1.5" minY="-1.5" maxY="1.5" minZ="2.8" maxZ="3.2"/>
+		<values vz="185.7" sxx="115000" syy="115000" szz="269000" />
+	</initialState>
+</task>

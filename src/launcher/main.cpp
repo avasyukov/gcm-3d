@@ -4,8 +4,6 @@
 #include <exception>
 #include <unistd.h>
 
-//#include <omp.h>
-
 #include "libgcm/config.hpp"
 
 #if CONFIG_ENABLE_LOGGING
@@ -178,8 +176,6 @@ int main(int argc, char **argv, char **envp)
             LOG_INFO("Skipping calculation, render-only mode");
         else
         {
-            //omp_set_num_threads(ompThreadsNumber);
-
             launcher::Launcher launcher;
             //launcher.loadMaterialLibrary("materials");
             launcher.loadSceneFromFile(taskFile, initialStateGroup);

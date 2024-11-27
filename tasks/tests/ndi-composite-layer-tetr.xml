@@ -1,0 +1,50 @@
+<task numberOfSnaps="75" stepsPerSnap="1" xmlns:ndi="gcm3d.plugins.ndi">
+	<system>
+		<defaultContactCalculator type="AdhesionContactCalculator" />
+		<meshMovement type="none" />
+		<loadPlugin name="ndi" />
+	</system>
+	<bodies>
+		<body id="ndc_010_0_subpacketS">
+			<rheology type="elastic" />
+			<mesh id="ndc_010_0_subpacketS" type="geo2" file="models/layer-70x70x10.geo" tetrSize="1.0" />
+			<material id="subpacketS" />
+		</body>
+	</bodies>
+
+	<materials>
+		<material name="subpacketS" rheology="anisotropic">
+			<c11>1.03</c11>
+			<c12>0.696</c12>
+			<c13>0.696</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>2.325</c22>
+			<c23>0.696</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>1.03</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>0.501</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>0.167</c55>
+			<c56>0</c56>
+			<c66>0.501</c66>
+			<rho>0.158</rho>
+		</material>
+	</materials>
+
+	<ndi:emitter name="emitter_and_sensor" sensor="true">
+		<area type="box" minX="33.9" maxX="36.1" minY="33.9" maxY="36.1" minZ="9.9995" maxZ="11"/>
+		<values vz="-100.0" />
+	</ndi:emitter>
+
+	<ndi:sensor name="just_sensor">
+		<area type="box" minX="33.9" maxX="36.1" minY="33.9" maxY="36.1" minZ="-1" maxZ="0.0005"/>
+	</ndi:sensor>
+</task>

@@ -7,6 +7,7 @@
 #include "libgcm/util/areas/SphereArea.hpp"
 #include "libgcm/util/areas/CylinderArea.hpp"
 #include "libgcm/util/areas/HalfSpaceArea.hpp"
+#include "libgcm/util/areas/PrismArea.hpp"
 
 using namespace gcm;
 using std::string;
@@ -65,6 +66,19 @@ Area* launcher::readHalfSpaceArea(const xml::Node& areaNode)
     return new HalfSpaceArea(x, y, z, nx, ny, nz);
 }
 
+Area* launcher::readPrismArea(const xml::Node& areaNode)
+{
+    real p0[3] = {lexical_cast<real>(areaNode["x0"]), lexical_cast<real>(areaNode["y0"]), lexical_cast<real>(areaNode["z0"])};
+    real p1[3] = {lexical_cast<real>(areaNode["x1"]), lexical_cast<real>(areaNode["y1"]), lexical_cast<real>(areaNode["z1"])};
+    real p2[3] = {lexical_cast<real>(areaNode["x2"]), lexical_cast<real>(areaNode["y2"]), lexical_cast<real>(areaNode["z2"])};
+    real p3[3] = {lexical_cast<real>(areaNode["x3"]), lexical_cast<real>(areaNode["y3"]), lexical_cast<real>(areaNode["z3"])};
+    LOG_DEBUG("Prism Point0: (" << p0[0] << ", " << p0[1] << ", " << p0[2] << "), "
+                 << "Point1: (" << p1[0] << ", " << p1[1] << ", " << p1[2] << "), "
+                 << "Point2: (" << p2[0] << ", " << p2[1] << ", " << p2[2] << "), "
+                 << "Point3: (" << p3[0] << ", " << p3[1] << ", " << p3[2] << ")");
+    return new PrismArea(p0, p1, p2, p3);
+}
+
 Area* launcher::readArea(const xml::Node& areaNode)
 {
     string areaType = areaNode["type"];
@@ -78,6 +92,8 @@ Area* launcher::readArea(const xml::Node& areaNode)
         return readCylinderArea(areaNode);
     else if (areaType == "halfspace")
         return readHalfSpaceArea(areaNode);
+    else if (areaType == "prism")
+        return readPrismArea(areaNode);
 
     LOG_ERROR("Unknown initial state area: " << areaType);
     return NULL;

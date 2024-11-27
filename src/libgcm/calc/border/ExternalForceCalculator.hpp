@@ -20,13 +20,13 @@ namespace gcm
             return "ExternalForceCalculator";
         }
         void setParameters(const xml::Node& params);
-        float tangential_direction[3];
-        float normal_stress;
-        float tangential_stress;
 
     protected:
 
     private:
+        float normal_stress;
+        float tangential_stress;
+        float tangential_direction[3];
 
         // Used for border calculation
         gsl_matrix *U_gsl;

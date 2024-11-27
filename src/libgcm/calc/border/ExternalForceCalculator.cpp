@@ -26,14 +26,14 @@ ExternalForceCalculator::~ExternalForceCalculator()
 
 void ExternalForceCalculator::setParameters(const xml::Node& params)
 {
-    real normalStress = lexical_cast<real>(params.getAttributeByName("normalStress", "0.0"));
-    real tangentialStress = lexical_cast<real>(params.getAttributeByName("tangentialStress", "0.0"));
+    real normalStress = lexical_cast<real>(params["normalStress"]);
+    real tangentialStress = lexical_cast<real>(params["tangentialStress"]);
     real tangentialDirection[3];
     if(tangentialStress == 0.0)
     {
-        tangentialDirection[0] = lexical_cast<real>(params.getAttributeByName("tangentialX", "1.0"));
-        tangentialDirection[1] = lexical_cast<real>(params.getAttributeByName("tangentialY", "0.0"));
-        tangentialDirection[2] = lexical_cast<real>(params.getAttributeByName("tangentialZ", "0.0"));
+        tangentialDirection[0] = 1.0;
+        tangentialDirection[1] = 0.0;
+        tangentialDirection[2] = 0.0;
     }
     else
     {

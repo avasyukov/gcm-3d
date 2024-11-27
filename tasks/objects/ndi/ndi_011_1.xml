@@ -1,0 +1,23 @@
+<task numberOfSnaps="200" stepsPerSnap="1" xmlns:ndi="gcm3d.plugins.ndi">
+	<system>
+        <defaultContactCalculator type="AdhesionContactCalculator" />
+        <meshMovement type="none" />
+        <loadPlugin name="ndi" />
+    </system>
+	<bodies>
+		<body id="ndi_011_1_steel">
+			<rheology type="elastic" />
+			<mesh id="ndi_011_1_steel" type="cut_cube" h="0.125" numX="560" numY="560" numZ="80" >
+				<cut minX="270" maxX="290" minY="270" maxY="290" minZ="0" maxZ="30" />
+			</mesh>
+            <material id="steel" />
+    	</body>
+	</bodies>
+	<ndi:emitter name="ndi_011_1_e" sensor="true">
+		<area type="box" minX="33.9" maxX="36.1" minY="33.9" maxY="36.1" minZ="9.9995" maxZ="11"/>
+		<values vz="-100.0" />
+	</ndi:emitter>
+	<ndi:sensor name="ndi_011_1_s">
+		<area type="box" minX="33.9" maxX="36.1" minY="36.1" maxY="38.1" minZ="9.9995" maxZ="11"/>
+	</ndi:sensor>
+</task>

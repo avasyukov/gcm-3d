@@ -283,7 +283,6 @@ namespace gcm
         void setCurrentTime(float time);
         void syncNodes();
         void syncOutlines();
-        void calculate_static(bool save_snapshots = true);
         void calculate(bool save_snapshots = true);
         void setNumberOfSnaps(int number);
         void setTargetTime(double T);

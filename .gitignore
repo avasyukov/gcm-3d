@@ -1,11 +1,11 @@
 nbproject/
-cmake-build-debug/
 *.vtu
 *.vts
 *.xml.snapshots
 *.msh
 *.cas
 *.pyc
+*.csv
 .*
 build
 install
@@ -22,3 +22,5 @@ netgen.prof
 *~
 results/*
 *.sif
+tasks/tests/aberration_000_*
+tools/ndt/taskmaker_curve_bug
