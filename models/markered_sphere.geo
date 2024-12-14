@@ -40,3 +40,5 @@ Ruled Surface(28) = {27};
 Surface Loop(29) = {28,26,16,14,20,24,22,18};
 Volume(30) = {29};
 
+//Physical Surface(1) = {28,26,16,14,20,24,22,18};
+//Physical Volume(2) = 30;
