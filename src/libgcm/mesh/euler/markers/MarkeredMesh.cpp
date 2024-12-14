@@ -125,9 +125,9 @@ void MarkeredMesh::reconstructBorder()
             borderFacesMap[getCellLocalIndexByEulerIndex(index)].push_back(f.number);
         }
     }
-    LOG_DEBUG("Found " << borderFacesMap.size() << " border cells");
+    LOG_INFO("Found " << borderFacesMap.size() << " border cells");
 
-    LOG_DEBUG("Filling mesh interior");
+    LOG_INFO("Filling mesh interior");
 
     auto cellIndex = getCellEulerIndexByCoords(surface.getAABB().getCenter());
 
@@ -183,9 +183,9 @@ void MarkeredMesh::reconstructBorder()
                     else if (cellStatus[i][j][k] == 0)
                         cellStatus[i][j][k] = 1;
 
-    LOG_DEBUG("Found " << innerCells << " inner cells");
+    LOG_INFO("Found " << innerCells << " inner cells");
 
-    LOG_DEBUG("Refining border");
+    LOG_INFO("Refining border");
     
     uint removed = 1;
 
@@ -209,7 +209,7 @@ void MarkeredMesh::reconstructBorder()
                         }
                     }
 
-        LOG_DEBUG("Removed " << removed << " cells during refinement");
+        LOG_INFO("Removed " << removed << " cells during refinement");
     }
 
 //    uint added = 1;
@@ -324,7 +324,7 @@ void MarkeredMesh::reconstructBorder()
                 }
 
             }
-    LOG_DEBUG("Fixing values at " << nodesToFix.size() << " nodes");
+    LOG_INFO("Fixing values at " << nodesToFix.size() << " nodes");
 
     auto findNeighb = [this, &wasUsed](const vector3u& index) -> const CalcNode&
     {
@@ -371,27 +371,26 @@ void MarkeredMesh::reconstructBorder()
             THROW_BAD_MESH("Failed find used neighbour node ");
     };
 
-    for (auto idx: nodesToFix)
-    {
-        auto& node = getNode(idx);
-        vector3u index;
+    // for (auto idx: nodesToFix)
+    // {
+    //     auto& node = getNode(idx);
+    //     vector3u index;
+    //     auto result = getNodeEulerMeshIndex(node, index);
+    //     assert_true(result);
 
-        auto result = getNodeEulerMeshIndex(node, index);
-        assert_true(result);
+    //     const auto& neighb = findNeighb(index);
 
-        const auto& neighb = findNeighb(index);
+    //     node.sxx = neighb.sxx;
+    //     node.sxy = neighb.sxy;
+    //     node.sxz = neighb.sxz;
+    //     node.syy = neighb.syy;
+    //     node.syz = neighb.syz;
+    //     node.szz = neighb.szz;
 
-        node.sxx = neighb.sxx;
-        node.sxy = neighb.sxy;
-        node.sxz = neighb.sxz;
-        node.syy = neighb.syy;
-        node.syz = neighb.syz;
-        node.szz = neighb.szz;
-
-        node.vx = neighb.vx;
-        node.vy = neighb.vy;
-        node.vz = neighb.vz;
-    }
+    //     node.vx = neighb.vx;
+    //     node.vy = neighb.vy;
+    //     node.vz = neighb.vz;
+    // }
     initialized = true;
 }
 

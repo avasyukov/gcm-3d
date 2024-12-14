@@ -1,0 +1,41 @@
+<task numberOfSnaps="100" stepsPerSnap="1">
+    <system>
+        <defaultContactCalculator type="SlidingContactCalculator" />
+        <contactThreshold measure="abs" value="0.06"/>
+        <timeStep multiplier="0.99"/>
+    </system>
+    <bodies>
+        <body id="cube">
+            <rheology type="elastic" />
+            <mesh id="cube" type="markered-mesh-geo" cellSize="0.015;0.015;0.015" cellsNum="121;121;121" file="models/markered_cube.geo" />
+            <material id="custom_ice" />
+            <transform type="translate" moveX="0" moveY="0" moveZ="0.43" />
+        </body>
+    </bodies>
+
+    <materials>
+        <material name="custom_steel" rheology="isotropic">
+            <la>1.21e11</la>
+            <mu>8.1e10</mu>
+            <rho>7800</rho>
+        </material>
+        <material name="crazy_rubber" rheology="isotropic">
+            <la>40e6</la>
+            <mu>10</mu>
+            <!--rho>1200</rho-->
+            <rho>120</rho>
+        </material>
+            <material name="custom_ice" rheology="isotropic">
+            <la>3.96e9</la> 
+            <mu>1.87e9</mu>
+            <rho>900</rho>
+        </material>
+
+    </materials>
+
+    <initialState>
+        <area type="sphere" r="0.09" x="0" y="0" z="-0.11"/>
+        <values vz="10000" />
+    </initialState>
+    
+</task>
