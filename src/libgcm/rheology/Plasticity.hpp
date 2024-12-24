@@ -13,5 +13,12 @@ namespace gcm
     const std::string PLASTICITY_PROP_MAXWELL_TAU = "tau";
     const std::string PLASTICITY_TYPE_FOIGHT = "foight";
     const std::string PLASTICITY_PROP_FOIGHT_ETA = "eta";
+    const std::string PLASTICITY_TYPE_PIEZO = "piezo";
+    const std::string PLASTICITY_PROP_PIEZO_S = "s";
+    const std::string PLASTICITY_PROP_PIEZO_FX = "fx";
+    const std::string PLASTICITY_PROP_PIEZO_FY = "fy";
+    const std::string PLASTICITY_PROP_PIEZO_FZ = "fz";
+    const std::string PLASTICITY_PROP_PIEZO_START = "start";
+    const std::string PLASTICITY_PROP_PIEZO_DURATION = "duration";
 }
 #endif /* PLASTICITY_HPP */

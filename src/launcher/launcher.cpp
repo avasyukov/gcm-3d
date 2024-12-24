@@ -40,6 +40,7 @@
 #include "libgcm/rheology/decomposers/AnalyticalRheologyMatrixDecomposer.hpp"
 #include "libgcm/rheology/correctors/IdealPlasticFlowCorrector.hpp"
 #include "libgcm/rheology/correctors/MaxwellViscosityCorrector.hpp"
+#include "libgcm/rheology/correctors/PiezoCorrector.hpp"
 #include "libgcm/rheology/correctors/FoightCorrector.hpp"
 #include "libgcm/rheology/Plasticity.hpp"
 #include "libgcm/rheology/Failure.hpp"
@@ -848,6 +849,16 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             if (plasticityType == PLASTICITY_TYPE_NONE)
             {
                 corrector = nullptr;
+                setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
+                decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
+            }
+            else if (plasticityType == PLASTICITY_TYPE_PIEZO)
+            {
+                corrector = std::make_shared<PiezoCorrector>(props[PLASTICITY_TYPE_PIEZO][PLASTICITY_PROP_PIEZO_FX], 
+                                                        props[PLASTICITY_TYPE_PIEZO][PLASTICITY_PROP_PIEZO_FY], 
+                                                        props[PLASTICITY_TYPE_PIEZO][PLASTICITY_PROP_PIEZO_FZ],
+                                                        props[PLASTICITY_TYPE_PIEZO][PLASTICITY_PROP_PIEZO_START],
+                                                        props[PLASTICITY_TYPE_PIEZO][PLASTICITY_PROP_PIEZO_DURATION]);
                 setter = makeSetterPtr<IsotropicRheologyMatrixSetter>();
                 decomposer = makeDecomposerPtr<IsotropicRheologyMatrixDecomposer>();
             }
