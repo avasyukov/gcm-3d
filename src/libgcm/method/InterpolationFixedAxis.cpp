@@ -78,6 +78,15 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
         else
             THROW_BAD_MESH("Outer characteristic for internal node detected");
         LOG_TRACE("Done inner node calc");
+        int dksi_min = 0, dksi_max = 0;
+        
+        for (int i = 1; i < 9; i++)
+        {
+            if (dksi[i] < dksi[dksi_min]) dksi_min = i;
+            if (dksi[i] > dksi[dksi_max]) dksi_max = i;
+        }
+        new_node.e[stage] = cur_node.e[stage] + time_step * (previous_nodes[dksi_max].velocity[stage] - previous_nodes[dksi_min].velocity[stage])
+                                                          / (abs(dksi[dksi_min]) + abs(dksi[dksi_max]));
     }
 
     if (cur_node.isBorder())
@@ -145,6 +154,14 @@ void InterpolationFixedAxis::__doNextPartStep(CalcNode& cur_node, CalcNode& new_
                 // FIXME - hardcoded name
                 engine.getVolumeCalculator("SimpleVolumeCalculator")->doCalc(
                                                                             new_node, cur_node.getRheologyMatrix(), previous_nodes);
+                int dksi_min = 0, dksi_max = 0;
+                for (int i = 1; i < 9; i++)
+                {
+                    if (dksi[i] < dksi[dksi_min]) dksi_min = i;
+                    if (dksi[i] > dksi[dksi_max]) dksi_max = i;
+                }
+                new_node.e[stage] = cur_node.e[stage] + time_step * (previous_nodes[dksi_max].velocity[stage] - previous_nodes[dksi_min].velocity[stage]) 
+                                                                  / (abs(dksi_min) + abs(dksi_max));
             }
                 // If there are 3 'outer' omegas - we should use border or contact algorithm
             else if (outer_count == 3)

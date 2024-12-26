@@ -14,7 +14,9 @@ void PiezoCorrector::correctNodeState(ICalcNode& node, Mesh& mesh, const Materia
     auto props = material->getPlasticityProperties();
     real s = props[PLASTICITY_TYPE_PIEZO][PLASTICITY_PROP_PIEZO_S];
     real factor = form->calcMagnitudeNorm(Engine::getInstance().getCurrentTime(), node.coords, nullptr);
-    node.stress[0] += s * fx * factor;
-    node.stress[3] += s * fy * factor;
-    node.stress[5] += s * fz * factor;
+    real la = node.getMaterial()->getLa();
+    real mu = node.getMaterial()->getMu();
+    node.stress[0] += s * fx * factor - node.e[0] * (la + 2 * mu);
+    node.stress[3] += s * fy * factor - node.e[1] * (la + 2 * mu);
+    node.stress[5] += s * fz * factor - node.e[2] * (la + 2 * mu);
 }

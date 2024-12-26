@@ -595,6 +595,12 @@ void Mesh::copyValues() {
         int i = itr->first;
         CalcNode& node = getNode(i);
         if( node.isLocal() )
+        {
             memcpy( node.values, getNewNode(i).values, VALUES_NUMBER * sizeof(float) );
+            node.e[0] = getNewNode(i).e[0];
+            node.e[1] = getNewNode(i).e[1];
+            node.e[2] = getNewNode(i).e[2];
+
+        }
     }
 }

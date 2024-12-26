@@ -128,6 +128,15 @@ namespace gcm
             auto szz = vtkSmartPointer<vtkDoubleArray>::New();
             szz->SetName("szz");
 
+            auto exx = vtkSmartPointer<vtkDoubleArray>::New();
+            exx->SetName("exx");
+
+            auto eyy = vtkSmartPointer<vtkDoubleArray>::New();
+            eyy->SetName("eyy");
+
+            auto ezz = vtkSmartPointer<vtkDoubleArray>::New();
+            ezz->SetName("ezz");
+
             auto compression = vtkSmartPointer<vtkDoubleArray>::New();
             compression->SetName("compression");
 
@@ -202,6 +211,9 @@ namespace gcm
                 syy->InsertNextValue(node.syy);
                 syz->InsertNextValue(node.syz);
                 szz->InsertNextValue(node.szz);
+                exx->InsertNextValue(node.e[0]);
+                eyy->InsertNextValue(node.e[1]);
+                ezz->InsertNextValue(node.e[2]);
                 compression->InsertNextValue(node.getCompression());
                 tension->InsertNextValue(node.getTension());
                 shear->InsertNextValue(node.getShear());
@@ -240,6 +252,9 @@ namespace gcm
            fd->AddArray(syy);
            fd->AddArray(syz);
            fd->AddArray(szz);
+           fd->AddArray(exx);
+           fd->AddArray(eyy);
+           fd->AddArray(ezz);
            fd->AddArray(compression);
            fd->AddArray(tension);
            fd->AddArray(shear);

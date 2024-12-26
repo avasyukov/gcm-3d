@@ -80,6 +80,7 @@ namespace gcm
                 };
             };
         };
+        real e[3];
 
         /**
          * Returns density value for node.

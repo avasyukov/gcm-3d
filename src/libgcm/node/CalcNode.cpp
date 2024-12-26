@@ -16,6 +16,7 @@ CalcNode::CalcNode(int num, const vector3r& coords) : ICalcNode(num, coords)
 {
     bodyId = -1;
     memset(values, 0, VALUES_NUMBER * sizeof (real));
+    e[0] = e[1] = e[2] = 0;
     rho = 0;
     materialId = 0;
     publicFlags.flags = 0;
@@ -40,6 +41,9 @@ CalcNode& CalcNode::operator=(const CalcNode &src)
 
     coords = src.coords;
     copy(src.values, src.values + VALUES_NUMBER, values);
+    e[0] = src.e[0];
+    e[1] = src.e[1];
+    e[2] = src.e[2];
     crackDirection = src.crackDirection;
     damageMeasure = src.damageMeasure;
 

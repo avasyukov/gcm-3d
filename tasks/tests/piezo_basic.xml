@@ -1,4 +1,4 @@
-<task numberOfSnaps="1000" stepsPerSnap="4">
+<task numberOfSnaps="1000" stepsPerSnap="5">
 	<system>
 		<timeStep multiplier="0.25" />                
 		<meshMovement type="true" />
@@ -22,7 +22,7 @@
                         <!-- g / mm^3 -->
                         <rho>0.0075</rho>
                         <plasticity type="piezo">
-                            <s>1000000.0</s>
+                            <s>1000.0</s>
                             <fx>0.0</fx>
                             <fy>0.0</fy>
                             <fz>1.0</fz>
