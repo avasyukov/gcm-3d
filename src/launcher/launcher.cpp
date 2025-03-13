@@ -490,6 +490,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             LOG_INFO("Loading mesh for body '" << id << "'");
 
             string type = meshNode["type"];
+            string mesh_id = meshNode["id"];
 
             Mesh* mesh = nullptr;
 
@@ -513,7 +514,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             // attach mesh to body
             body->attachMesh(mesh);
             mesh->setBodyNum( engine.getBodyNum(id) );
-            mesh->setId(id);
+            mesh->setId(mesh_id);
             LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  type << "' created. "
                         << "Number of nodes: " << mesh->getNodesNumber() << ".");
         }
@@ -523,13 +524,15 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
         for(auto& transformNode: transformNodes)
         {
             string transformType = transformNode["type"];
+            int TransformMeshIndex = stoi(transformNode.getAttributeByName("i_mesh", "0"));
+
             if( transformType == "translate" )
             {
                 real x = lexical_cast<real>(transformNode["moveX"]);
                 real y = lexical_cast<real>(transformNode["moveY"]);
                 real z = lexical_cast<real>(transformNode["moveZ"]);
                 LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
-                body->getMeshes()->transfer(x, y, z);
+                body->getMeshes(TransformMeshIndex)->transfer(x, y, z);
             }
             if ( transformType == "scale" )
             {
@@ -541,7 +544,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 real scaleZ = lexical_cast<real>(transformNode["scaleZ"]);
                 LOG_DEBUG("Scaling body: [" << x0 << "; " << scaleX << "; " 
                                 << y0 << "; " << scaleY << "; " << z0 << "; " << scaleZ << "]");
-                body->getMeshes()->scale(x0, y0, z0, scaleX, scaleY, scaleZ);
+                body->getMeshes(TransformMeshIndex)->scale(x0, y0, z0, scaleX, scaleY, scaleZ);
             }
         }
 

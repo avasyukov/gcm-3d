@@ -1,4 +1,4 @@
-<task numberOfSnaps="130" stepsPerSnap="2" xmlns:ndi="gcm3d.plugins.ndi">
+<task numberOfSnaps="20" stepsPerSnap="2" xmlns:ndi="gcm3d.plugins.ndi">
 	<system>
 		<loadPlugin name="ndi" />
 		<timeStep fixed="0.02" />                
@@ -7,13 +7,15 @@
 	</system>
 	<bodies>
 		<body id="steel">
-                <rheology type="elastic" />
-                <mesh id="steel" type="geo2" calc="true" file="models/my_models/papper_z_$HEIGHT$.geo" tetrSize="$TETR_SIZE$" /> <!-- sm -->
-                
-                <mesh id="steel" type="geo2" calc="false" file="models/my_models/papper_z_$HEIGHT$.geo" tetrSize="$TETR_SIZE$"/>  <!-- sm. Mesh for calculating moments -->
-                
-                <material id="steel" />
-        </body>
+                        <rheology type="elastic" />
+                        <mesh id="main_mesh" type="geo2" file="models/my_models/papper_z_$HEIGHT$.geo" tetrSize="$TETR_SIZE$" /> <!-- sm -->
+
+                        <mesh id="interp_mesh" type="cube" calc="false" h="$CUBE_H$" numX="$NUM_X$" numY="$NUM_Y$" numZ="2" />  <!-- sm. Mesh for calculating moments -->                
+                        <!-- i_mesh needed here for moving interp_mesh -->
+                        <transform type="translate" i_mesh="1" moveX="$MOVE_X$" moveY="$MOVE_Y$" moveZ="$MOVE_Z$" />
+
+                        <material id="steel" />
+                </body>
 	</bodies>
 
     <materials>

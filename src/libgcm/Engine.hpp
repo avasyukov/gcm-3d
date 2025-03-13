@@ -301,6 +301,8 @@ namespace gcm
 
         float getGmshVerbosity();
         void setGmshVerbosity(float verbosity);
+        
+        bool doInterpolationOnAnotherMesh(int body_index, int mesh_index);
 
         bool interpolateNode(CalcNode& node);
 

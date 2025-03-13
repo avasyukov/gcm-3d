@@ -626,6 +626,10 @@ void Engine::calculate(bool save_snapshots) {
         }
         for (int j = 0; j < stepsPerSnap; j++) {
             doNextStep();
+            // if we dont need to do interpolation this func will be 
+            // degenerate to simple if
+            doInterpolationOnAnotherMesh(0, 1);
+
             for (auto plugin: plugins)
                 plugin->onCalculationStepDone();
         }
@@ -838,11 +842,26 @@ void Engine::setGmshVerbosity(float verbosity) {
     gmshVerbosity = verbosity;
 }
 
+// this function makes interpolation from bodies[body_index].meshes[0]
+// to bodies[body_index].meshes[mesh_index]
+bool Engine::doInterpolationOnAnotherMesh(int body_index, int mesh_index) {
+    if (mesh_index >= bodies[body_index]->getMeshesSize())
+        return false;
+
+    for (unsigned i = 0; i < bodies[body_index]->getMeshes(mesh_index)->getNodesNumber(); ++i) {
+        if (!interpolateNode(bodies[body_index]->getMeshes(mesh_index)->getNode(i))) {
+            std::cout << "Something went wrong in interpolation on node " << i << std::endl;
+            return false;
+        }
+    }
+    return true;
+}
+
 bool Engine::interpolateNode(CalcNode& node)
 {
     for( unsigned int i = 0; i < bodies.size(); i++ )
     {
-        Mesh* mesh = bodies[i]->getMeshes(0);
+        Mesh* mesh = bodies[i]->getMeshes();
         if( mesh->interpolateNode(node) )
             return true;
     }

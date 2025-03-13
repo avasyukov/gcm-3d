@@ -9,9 +9,11 @@
 		<body id="steel">
                         <rheology type="elastic" />
                         <mesh id="main_mesh" type="geo2" file="models/my_models/papper_z_100.geo" tetrSize="33" /> <!-- sm -->
-                        
-                        <mesh id="interp_mesh" type="cube" calc="false" h="50" numX="50" numY="50" numZ="2" />  <!-- sm. Mesh for calculating moments -->
-                        
+
+                        <mesh id="interp_mesh" type="cube" calc="false" h="50" numX="20" numY="20" numZ="2" />  <!-- sm. Mesh for calculating moments -->                
+                        <!-- i_mesh needed here for moving interp_mesh -->
+                        <transform type="translate" i_mesh="1" moveX="-500" moveY="-500" moveZ="-100" />
+
                         <material id="steel" />
                 </body>
 	</bodies>
