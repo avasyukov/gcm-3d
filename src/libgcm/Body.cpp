@@ -27,8 +27,18 @@ void Body::attachMesh(Mesh* mesh) {
     meshes.push_back(mesh);
 }
 
+Mesh* Body::getMeshes(unsigned index) {
+    if (meshes.size() > index) return meshes[index];
+    return NULL;
+}
+
+// legacy investigation
 Mesh* Body::getMeshes() {
-    return meshes.size() ?  meshes[0] : NULL;
+    return getMeshes(0);
+}
+
+unsigned Body::getMeshesSize() {
+    return meshes.size();
 }
 
 Mesh* Body::getMesh(string id) {

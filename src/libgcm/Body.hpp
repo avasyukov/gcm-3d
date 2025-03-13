@@ -20,7 +20,7 @@ namespace gcm {
          * like calculation, visualization etc.
          */
         std::vector<Mesh*> meshes;
-        /*
+       /*
          * Body id. May be empty or non-unique, but it's not recommended.
          */
         std::string id;
@@ -42,12 +42,14 @@ namespace gcm {
         /*
          * Returns all meshes associated with body.
          */
+        Mesh* getMeshes(unsigned index);
         Mesh* getMeshes();
         // FIXME merge with method above
         const std::vector<Mesh*>& getMeshesVector();
         /*
          * Returns mesh by id.
          */
+        unsigned getMeshesSize();
         Mesh* getMesh(std::string id);
         /*
          * Attaches new mesh to body.

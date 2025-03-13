@@ -439,7 +439,7 @@ void Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actualTim
         for( unsigned int i = 0; i < bodies.size(); i++ )
         {
                 LOG_DEBUG("Clear contact state for body " << i );
-                Mesh* mesh = bodies[i]->getMeshes();
+                Mesh* mesh = bodies[i]->getMeshes(0);
                 mesh->clearContactState();
         }
     }
@@ -482,7 +482,7 @@ void Engine::doNextStepBeforeStages(const float maxAllowedStep, float& actualTim
 
     for( unsigned int i = 0; i < bodies.size(); i++ )
     {
-        Mesh* mesh = bodies[i]->getMeshes();
+        Mesh* mesh = bodies[i]->getMeshes(0);
         LOG_DEBUG("Checking topology for mesh " << mesh->getId() );
         mesh->checkTopology(tau);
         LOG_DEBUG("Checking topology done");
@@ -521,7 +521,7 @@ void Engine::doNextStepStages(const float time_step)
         LOG_DEBUG("Syncing remote nodes done");
 
         for( unsigned int i = 0; i < bodies.size(); i++ ) {
-            Mesh* mesh = bodies[i]->getMeshes();
+            Mesh* mesh = bodies[i]->getMeshes(0);
             LOG_DEBUG( "Doing calculations for mesh " << mesh->getId() );
             try
             {
@@ -535,7 +535,7 @@ void Engine::doNextStepStages(const float time_step)
             LOG_DEBUG( "Mesh calculation done" );
         }
 		for( unsigned int i = 0; i < bodies.size(); i++ ) {
-            Mesh* mesh = bodies[i]->getMeshes();
+            Mesh* mesh = bodies[i]->getMeshes(0);
             LOG_DEBUG( "Copying values in mesh " << mesh->getId() );
 			mesh->copyValues();
 		}
@@ -548,7 +548,7 @@ void Engine::doNextStepAfterStages(const float time_step) {
     for( unsigned int i = 0; i < bodies.size(); i++ )
     {
         RheologyCalculator* rc = getRheologyCalculator( bodies[i]->getRheologyCalculatorType() );
-        Mesh* mesh = bodies[i]->getMeshes();
+        Mesh* mesh = bodies[i]->getMeshes(0);
 		LOG_DEBUG("Applying correctors for mesh " << mesh->getId());
 		mesh->applyCorrectors();
 		LOG_DEBUG("Applying correctors done");
@@ -601,7 +601,7 @@ void Engine::syncOutlines() {
 void Engine::determineTypeOfCollisionDetector() {
 	bool useStaticCollisionDetector = true;
 	for( unsigned int i = 0; i < bodies.size(); i++ ) {
-		Mesh* mesh = bodies[i]->getMeshes();
+		Mesh* mesh = bodies[i]->getMeshes(0);
 		if( !( (mesh->getType() == launcher::BasicCubicMeshLoader::MESH_TYPE) ||
 		       (mesh->getType() == launcher::RectangularCutCubicMeshLoader::MESH_TYPE) ) )
 			useStaticCollisionDetector = false;
@@ -663,7 +663,7 @@ float Engine::calculateRecommendedTimeStep()
     float timeStep = numeric_limits<float>::infinity();
     for( int j = 0; j < getNumberOfBodies(); j++ )
     {
-        float tau = getBody(j)->getMeshes()->getRecommendedTimeStep();
+        float tau = getBody(j)->getMeshes(0)->getRecommendedTimeStep();
         if( tau < timeStep )
             timeStep = tau;
     }
@@ -678,7 +678,7 @@ float Engine::calculateRecommendedContactTreshold(float tau)
     {
         for( int j = 0; j < getNumberOfBodies(); j++ )
         {
-            Mesh* mesh = getBody(j)->getMeshes();
+            Mesh* mesh = getBody(j)->getMeshes(0);
             float h = mesh->getAvgH();
             if( h < threshold * 4.0 )
                 threshold = h / 4.0;
@@ -708,16 +708,19 @@ void Engine::createSnapshot(int number)
 {
     for( int j = 0; j < getNumberOfBodies(); j++ )
     {
-        Mesh* mesh = getBody(j)->getMeshes();
-        if( mesh->getNumberOfLocalNodes() != 0 )
+        for (unsigned k = 0; k < static_cast<unsigned>(getBody(j)->getMeshesSize()); ++k)
         {
-            LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
-            auto snapName = mesh->snapshot(number);
-            snapshots.push_back(make_tuple(number, mesh->getId(), snapName));
+            // the next line cuts the number of meshes to 1 so second-mesh snapshots are not saving
+            Mesh* mesh = getBody(j)->getMeshes(k);
+            if( mesh->getNumberOfLocalNodes() != 0 )
+            {
+                LOG_INFO( "Creating snapshot for mesh '" << mesh->getId() << "'" );
+                auto snapName = mesh->snapshot(number);
+                snapshots.push_back(make_tuple(number, mesh->getId(), snapName));
+            }
+            else
+                LOG_WARN( "Mesh '" << mesh->getId() << "' has no local nodes" );
         }
-        else
-            LOG_WARN( "Mesh '" << mesh->getId() << "' has no local nodes" );
-
     }
 }
 
@@ -725,7 +728,7 @@ void Engine::createDump(int number)
 {
     for( int j = 0; j < getNumberOfBodies(); j++ )
     {
-        TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes();
+        TetrMeshSecondOrder* mesh = (TetrMeshSecondOrder*)getBody(j)->getMeshes(0);
         if( mesh->getNodesNumber() != 0 )
         {
             LOG_INFO( "Creating dump for mesh '" << mesh->getId() << "'" );
@@ -839,7 +842,7 @@ bool Engine::interpolateNode(CalcNode& node)
 {
     for( unsigned int i = 0; i < bodies.size(); i++ )
     {
-        Mesh* mesh = bodies[i]->getMeshes();
+        Mesh* mesh = bodies[i]->getMeshes(0);
         if( mesh->interpolateNode(node) )
             return true;
     }

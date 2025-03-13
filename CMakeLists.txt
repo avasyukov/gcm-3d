@@ -44,9 +44,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -g")
 find_package(LibXml2 REQUIRED)
 include_directories(${LIBXML2_INCLUDE_DIR})
 
+
+# message("!! ", ${LD_LIBRARY_PATH})
 find_package(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
-# include_directories("/usr/include/vtk-9.1")
+include_directories("/usr/local/include/vtk-9.4")
 
 #find_package(MPI REQUIRED)
 #include_directories(${MPI_CXX_INCLUDE_PATH})

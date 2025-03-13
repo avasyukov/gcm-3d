@@ -14,15 +14,14 @@ int main()
 {       
         std::cout << "Begining" << endl;
         // int N = 20;
-        // double tetr_size;
-
+        double tetr_size;
         // float dx = (1200.0 - xmin - xmax) / (N - 1);
         for (int height = 100; height > 20; height -= 10)
         {       
-                ifstream fi("../../tasks/objects/my_tasks/papper_i.xml", std::ios::in);
+                ifstream fi("../../models/my_models/papper_z_i.geo", std::ios::in);
 
                 //string tns = (tasknumber < 10 ? "0" : "") + to_string(tasknumber);
-                ofstream fo("../../tasks/objects/my_tasks/papper_" + to_string(height) + ".xml");
+                ofstream fo("../../models/my_models/papper_z_" + to_string(height) + ".geo");
                 
                 char c = fi.get();
                 while (!fi.eof()) {
@@ -38,9 +37,7 @@ int main()
                                 if (codename == "HEIGHT")
                                         fo << height;
                                 else if (codename == "TETR_SIZE")
-                                        // fo << static_cast<int>(height / 10);
-                                        fo << static_cast<int>(height / 3);
-
+                                        fo << static_cast<int>(height / 10);
                                 // else if (codename == "XMAX")
                                 //         fo << xmax + tasknumber * dx;
                         }
@@ -49,16 +46,17 @@ int main()
                         c = fi.get();
                 }
 
-                std::cout << "Maked xml with height " << height << ";\n";
+                std::cout << "Maked geo with height " << height << ";\n";
                 fi.close();
                 fo.close();
         }
 
         for (int height = 20; height > 0; height -= 5)
         {
-                ifstream fi("../../tasks/objects/my_tasks/papper_i.xml", std::ios::in);
+                ifstream fi("../../models/my_models/papper_z_i.geo", std::ios::in);
+
                 //string tns = (tasknumber < 10 ? "0" : "") + to_string(tasknumber);
-                ofstream fo("../../tasks/objects/my_tasks/papper_" + to_string(height) + ".xml");
+                ofstream fo("../../models/my_models/papper_z_" + to_string(height) + ".geo");
                 
                 char c = fi.get();
                 while (!fi.eof())
@@ -86,7 +84,7 @@ int main()
                         c = fi.get();
                 }
 
-                std::cout << "Maked xml with height " << height << ";\n";
+                std::cout << "Maked geo with height " << height << ";\n";
                 fi.close();
                 fo.close();
         }
