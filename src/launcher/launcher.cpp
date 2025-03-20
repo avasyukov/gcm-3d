@@ -16,6 +16,7 @@
 #include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
 #include "launcher/loaders/mesh/MarkeredMeshGeoLoader.hpp"
 #include "launcher/loaders/mesh/BasicCubicMeshLoader.hpp"
+#include "launcher/loaders/mesh/RectangularMeshLoader.hpp"
 #include "launcher/loaders/mesh/RectangularCutCubicMeshLoader.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
 
@@ -379,6 +380,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 Vtu2MeshZoneLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == BasicCubicMeshLoader::MESH_TYPE)
                 BasicCubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == RectangularMeshLoader::MESH_TYPE) {}
+                // RectangularMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == RectangularCutCubicMeshLoader::MESH_TYPE)
                 RectangularCutCubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == MarkeredMeshGeoLoader::MESH_TYPE)
@@ -506,6 +509,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 mesh = Vtu2MeshZoneLoader::getInstance().load(meshNode, body);
             else if (type == BasicCubicMeshLoader::MESH_TYPE)
                 mesh = BasicCubicMeshLoader::getInstance().load(meshNode, body);
+            else if (type == RectangularMeshLoader::MESH_TYPE)
+                mesh = RectangularMeshLoader::getInstance().load(meshNode, body);
             else if (type == RectangularCutCubicMeshLoader::MESH_TYPE)
                 mesh = RectangularCutCubicMeshLoader::getInstance().load(meshNode, body);
             else if (type == MarkeredMeshGeoLoader::MESH_TYPE)

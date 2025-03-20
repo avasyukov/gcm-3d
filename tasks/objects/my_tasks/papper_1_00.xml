@@ -1,0 +1,44 @@
+<task numberOfSnaps="100" stepsPerSnap="2" xmlns:ndi="gcm3d.plugins.ndi">
+	<system>
+		<loadPlugin name="ndi" />
+		<timeStep fixed="0.0002" />                
+		<meshMovement type="none" />
+	        <prefix front="papper_1_00_"/>
+	</system>
+	<bodies>
+		<body id="steel">
+                        <rheology type="elastic" />
+
+                        <mesh id="interp_mesh" type="rectangle" sx="0.2" sy="0.1" sz="0.1" numX="50" numY="100" numZ="10" />  <!-- sm. Mesh for calculating moments -->                
+                        <!-- i_mesh needed here for moving interp_mesh -->
+                        <transform type="translate" i_mesh="0" moveX="-5" moveY="-5" moveZ="-1" />
+
+                        <material id="steel" />
+                </body>
+	</bodies>
+
+    <materials>
+                <material name="steel" rheology="isotropic">
+
+                        <la>121153.84615384615</la>
+                        <mu>80769.23076923077</mu>
+
+                        <rho>7800</rho>
+                </material>
+    </materials>
+
+	<!--ndi:emitter name="em" sensor="true"-->
+                <!--borderCondition calculator="ExternalForceCalculator" normalStress="1" tangentialStress="0.0" startTime = "0.0" type="sinus_gauss" omega="50000" tau="100e5">
+		<area type="box" minX="4.5" maxX="5.5" minY="-0.01" maxY="0.01" minZ="-0.5" maxZ="0.5"/>
+</borderCondition-->
+		<!--values vy="100.0" /-->
+	<!--/ndi:emitter-->
+
+        <!-- there could be the moment sensor -->
+
+        <initialState>
+                <area type="box" minX="-0.075" maxX="0.075" minY="-0.075" maxY="0.075" minZ="-1.1" maxZ="0.1"/>
+                <values vz="100" />
+        </initialState>
+
+</task>
