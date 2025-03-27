@@ -5,6 +5,7 @@
 #include "libgcm/util/Assertion.hpp"
 #include "libgcm/node/CalcNode.hpp"
 #include "libgcm/Logging.hpp"
+#include "libgcm/mesh/cube/RectangularMesh.hpp"
 
 #ifdef CONFIG_VTK_5
 #include <vtkstd/string>
@@ -64,6 +65,10 @@ namespace gcm
         CalcNode& operator*()
         {
             return mesh->getNodeByLocalIndex(index);
+        }
+
+        uint getIndex() {
+            return index;
         }
     };
 
@@ -127,6 +132,18 @@ namespace gcm
 
             auto szz = vtkSmartPointer<vtkDoubleArray>::New();
             szz->SetName("szz");
+
+            bool calculate_moments = (_mesh->getId() == "interp_mesh");
+
+            // I have to declare this three objects here out of ifв
+            auto Myy = vtkSmartPointer<vtkDoubleArray>::New();
+            auto Mxx = vtkSmartPointer<vtkDoubleArray>::New();
+            auto Mxy = vtkSmartPointer<vtkDoubleArray>::New();
+            if (calculate_moments) {
+                Mxx->SetName("Mxx");
+                Myy->SetName("Myy");
+                Mxy->SetName("Mxy");
+            } 
 
             auto compression = vtkSmartPointer<vtkDoubleArray>::New();
             compression->SetName("compression");
@@ -202,6 +219,36 @@ namespace gcm
                 syy->InsertNextValue(node.syy);
                 syz->InsertNextValue(node.syz);
                 szz->InsertNextValue(node.szz);
+                
+                if (calculate_moments) {
+
+                    if (node.isBorder()) {
+                        Mxx->InsertNextValue(0);
+                        Myy->InsertNextValue(0);
+                        Mxy->InsertNextValue(0);
+                    }
+
+                    else {
+                        CalcNode upper_neighbour, lower_neighbour;
+
+                        auto rect_mesh = dynamic_cast<RectangularMesh*>(_mesh);
+                        if (! rect_mesh->findUpperNeighbour(upper_neighbour, it.getIndex())) {
+                            LOG_ERROR("Problens with upper neighbour in calculating momets of strength.");
+                        }
+                        if (! rect_mesh->findLowerNeighbour(lower_neighbour, it.getIndex())) {
+                            LOG_ERROR("Problens with lower neighbour in calculating momets of strength.");
+                        }
+                        else {
+                            double h = (upper_neighbour.coords[2] - lower_neighbour.coords[2]) / 2.;
+
+                            Mxx->InsertNextValue((upper_neighbour.sxx - lower_neighbour.sxx) / 12 * h * h);
+                            Myy->InsertNextValue((upper_neighbour.syy - lower_neighbour.syy) / 12 * h * h);
+                            Mxy->InsertNextValue(-1 * (upper_neighbour.sxy - lower_neighbour.sxy) / 12 * h * h);
+                        }
+                    }
+
+                }
+
                 compression->InsertNextValue(node.getCompression());
                 tension->InsertNextValue(node.getTension());
                 shear->InsertNextValue(node.getShear());
@@ -213,62 +260,70 @@ namespace gcm
                 nodePublicFlags->InsertNextValue (node.getPublicFlags());
                 nodeErrorFlags->InsertNextValue (node.getErrorFlags());
                 nodeBorderConditionId->InsertNextValue (node.getBorderConditionId());
-				nodeContactConditionId->InsertNextValue(node.getContactConditionId());
+                nodeContactConditionId->InsertNextValue(node.getContactConditionId());
                 nodeNumber->InsertNextValue(node.number);
                 contactDestroyed->InsertNextValue(node.isContactDestroyed() ? 1 : 0);
                 nodeDestroyed->InsertNextValue(node.isDestroyed() ? 1 : 0);
                 nodeFailureMeasure->InsertNextValue(node.getDamageMeasure());
             }
 
-           vtkFieldData* fd;
+            vtkFieldData* fd;
 
-           if (useCells)
-               fd = grid->GetCellData();
-           else
-               fd = grid->GetPointData();
+            if (useCells)
+                fd = grid->GetCellData();
+            else
+                fd = grid->GetPointData();
 
-           grid->SetPoints(points);
+            grid->SetPoints(points);
 
-           fd->AddArray(contact);
-           fd->AddArray(border);
-           fd->AddArray(used);
-           fd->AddArray(norm);
-           fd->AddArray(crack);
-           fd->AddArray(sxx);
-           fd->AddArray(sxy);
-           fd->AddArray(sxz);
-           fd->AddArray(syy);
-           fd->AddArray(syz);
-           fd->AddArray(szz);
-           fd->AddArray(compression);
-           fd->AddArray(tension);
-           fd->AddArray(shear);
-           fd->AddArray(deviator);
-           fd->AddArray(matId);
-           fd->AddArray(rho);
-           fd->AddArray(mpiState);
-           fd->AddArray (nodePrivateFlags);
-           fd->AddArray (nodePublicFlags);
-           fd->AddArray (nodeErrorFlags);
-           fd->AddArray (nodeBorderConditionId);
-           fd->AddArray (nodeContactConditionId);
-           fd->AddArray(vel);
-           fd->AddArray(nodeNumber);
-           fd->AddArray(contactDestroyed);
-           fd->AddArray(nodeDestroyed);
-           fd->AddArray(nodeFailureMeasure);
+            fd->AddArray(contact);
+            fd->AddArray(border);
+            fd->AddArray(used);
+            fd->AddArray(norm);
+            fd->AddArray(crack);
+            fd->AddArray(sxx);
+            fd->AddArray(sxy);
+            fd->AddArray(sxz);
+            fd->AddArray(syy);
+            fd->AddArray(syz);
+            fd->AddArray(szz);
 
-           // Write file
-           auto writer = vtkSmartPointer<GridWriterType>::New();
-           writer->SetFileName(fileName.c_str());
-           #ifdef CONFIG_VTK_5
-           writer->SetInput(grid);
-           #else
-           writer->SetInputData(grid);
-           #endif
-           writer->Write();
 
-           return fileName;
+            if (calculate_moments) {
+                fd->AddArray(Mxx);
+                fd->AddArray(Myy);
+                fd->AddArray(Mxy);
+            }
+
+            fd->AddArray(compression);
+            fd->AddArray(tension);
+            fd->AddArray(shear);
+            fd->AddArray(deviator);
+            fd->AddArray(matId);
+            fd->AddArray(rho);
+            fd->AddArray(mpiState);
+            fd->AddArray (nodePrivateFlags);
+            fd->AddArray (nodePublicFlags);
+            fd->AddArray (nodeErrorFlags);
+            fd->AddArray (nodeBorderConditionId);
+            fd->AddArray (nodeContactConditionId);
+            fd->AddArray(vel);
+            fd->AddArray(nodeNumber);
+            fd->AddArray(contactDestroyed);
+            fd->AddArray(nodeDestroyed);
+            fd->AddArray(nodeFailureMeasure);
+
+            // Write file
+            auto writer = vtkSmartPointer<GridWriterType>::New();
+            writer->SetFileName(fileName.c_str());
+            #ifdef CONFIG_VTK_5
+            writer->SetInput(grid);
+            #else
+            writer->SetInputData(grid);
+            #endif
+            writer->Write();
+
+            return fileName;
         }
     };
 

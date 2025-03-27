@@ -622,6 +622,8 @@ void Engine::calculate(bool save_snapshots) {
     for (int i = 0; i < numberOfSnaps; i++) {
         if (save_snapshots) {
             snapshotTimestamps.push_back(getCurrentTime());
+            // For calculating moment of strength per normal unit name interpolation mesh
+            // "interp_mesh". For another meshes moments will not be calculated.
             createSnapshot(i);
         }
         for (int j = 0; j < stepsPerSnap; j++) {
@@ -847,10 +849,23 @@ void Engine::setGmshVerbosity(float verbosity) {
 bool Engine::doInterpolationOnAnotherMesh(int body_index, int mesh_index) {
     if (mesh_index >= bodies[body_index]->getMeshesSize())
         return false;
+    if (body_index >= bodies.size()) {
+        THROW_INVALID_ARG("Interpolation on another mesh was failed. \n Body \"" + bodies[body_index]->getId() + "\" not found");
+        return false;
+    }
+    
+    LOG_INFO("Interpolation on another mesh in body \"" + bodies[body_index]->getId() + "\" was started.");
+    unsigned count_nodes = bodies[body_index]->getMeshes(mesh_index)->getNodesNumber();
+    for (unsigned i = 0; i < count_nodes; ++i) {
+        
+        if (i == count_nodes - 1) {
+            std::cout << '\r' << std::flush;
+        }
+        else
+            std::cout << "\rInterpolated " << i << " nodes out of " << count_nodes << std::flush;
 
-    for (unsigned i = 0; i < bodies[body_index]->getMeshes(mesh_index)->getNodesNumber(); ++i) {
         if (!interpolateNode(bodies[body_index]->getMeshes(mesh_index)->getNode(i))) {
-            std::cout << "Something went wrong in interpolation on node " << i << std::endl;
+            THROW_INVALID_ARG("Something went wrong in interpolation on node " + std::to_string(i));
             return false;
         }
     }

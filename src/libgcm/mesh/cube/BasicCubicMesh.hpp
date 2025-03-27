@@ -56,7 +56,7 @@ namespace gcm
     public:
         BasicCubicMesh();
 		BasicCubicMesh(std::string _type);
-        ~BasicCubicMesh();
+        virtual ~BasicCubicMesh();
 
         float getRecommendedTimeStep();
         float getMinH();
@@ -75,6 +75,10 @@ namespace gcm
                                 real dx, real dy, real dz, CalcNode& node) override;
         bool interpolateBorderNode_old(real x, real y, real z,
                                         real dx, real dy, real dz, CalcNode& node);
+
+        // index_this is the number of the node that neighbors are looking for
+        bool findLowerNeighbour(CalcNode& neigh, uint index_this);
+        bool findUpperNeighbour(CalcNode& neigh, uint index_this);
 
         void setNumX(int _numX);
         void setNumY(int _numY);
