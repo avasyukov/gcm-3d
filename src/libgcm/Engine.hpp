@@ -301,8 +301,12 @@ namespace gcm
 
         float getGmshVerbosity();
         void setGmshVerbosity(float verbosity);
-        
-        bool doInterpolationOnAnotherMesh(int body_index, int mesh_index);
+
+        // this function makes interpolation from bodies[body_index].meshes[0]
+        // to bodies[body_index].meshes[mesh_index]
+        // Caching should be done at a fixed position of the nodes of the meshes used.
+        // cache_usp - unique_ptr for caching an interpolation mesh by a tetrahedral bodies[body_index].meshes[0]
+        bool doInterpolationOnAnotherMesh(int body_index, int mesh_index, std::unique_ptr<std::vector<uint>>& cache_usp);
 
         bool interpolateNode(CalcNode& node);
 

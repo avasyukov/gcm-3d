@@ -75,6 +75,11 @@ namespace gcm {
                                 CalcNode& targetNode, bool& isInnerPoint);
 
         bool interpolateNode(CalcNode& node);
+
+        int findTetrIndex(CalcNode& node);
+        
+        // interpolation by tetraedra index
+        bool interpolateNode(CalcNode& node, int tetr_index);
 		
 		bool belongsToTetr(int nodeNum, int tetrNum, int faceNum);
 

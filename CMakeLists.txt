@@ -37,7 +37,7 @@ endif()
 
 
 # set(CMAKE_CXX_FLAGS "-std=c++17 -fno-omit-frame-pointer -frecord-gcc-switches -fopenmp")
-set(CMAKE_CXX_FLAGS "-std=c++11 -fno-omit-frame-pointer -frecord-gcc-switches -fopenmp")
+set(CMAKE_CXX_FLAGS "-std=c++17 -fno-omit-frame-pointer -frecord-gcc-switches -fopenmp")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -O0 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3 -g")
 

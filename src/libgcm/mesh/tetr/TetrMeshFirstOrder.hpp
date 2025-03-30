@@ -167,6 +167,11 @@ namespace gcm
                                 CalcNode& targetNode, bool& isInnerPoint);
 
         bool interpolateNode(CalcNode& node);
+
+        int findTetrIndex(CalcNode& node);
+        
+        // interpolation by tetraedra index
+        bool interpolateNode(CalcNode& node, int tetr_index);
 		
         bool interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node);
