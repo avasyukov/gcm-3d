@@ -23,12 +23,17 @@ int main()
         // double tetr_size;
 
         // float dx = (1200.0 - xmin - xmax) / (N - 1);
-        for (double height = 1; height >= 0.2; height -= 0.1)
+        for (double height = 1; height > -0.0001; height -= 0.1)
         {       
-                ifstream fi("../../tasks/objects/my_tasks/papper_i.xml", std::ios::in);
+                // lazy potato
+                if (fabs(height - 0) < 0.0001) {
+                        height = 0.04;
+                }
+
+                ifstream fi("../../tasks/objects/shells/papper_i.xml", std::ios::in);
 
                 //string tns = (tasknumber < 10 ? "0" : "") + to_string(tasknumber);
-                ofstream fo("../../tasks/objects/my_tasks/papper_" + round3(height, '_') + ".xml");
+                ofstream fo("../../tasks/objects/shells/papper_" + round3(height, '_') + ".xml");
                 
                 char c = fi.get();
                 while (!fi.eof()) {
@@ -48,10 +53,61 @@ int main()
                                 else if (codename == "HEIGHT_")
                                         fo << round3(height, '_');
 
-                                else if (codename == "TETR_SIZE")
-                                        fo << round3(height / 10., '.');
+                                else if (codename == "TETR_SIZE") {
 
-                                else if (codename == "CUBE_H")
+                                        if (height == 0.04)
+                                                fo << 0.004;
+                                        else
+                                                fo << round3(height / 10., '.');
+
+                                }
+
+                                else if (codename == "TAU") {
+                                        // 0.6-9, 1
+                                        if (height > 0.55)
+                                                fo << 0.0001;
+                                        // 0.3-5
+                                        else if (height > 0.25)
+                                                fo << 0.00005;
+                                        // 0.1-2
+                                        else if (height > 0.09)
+                                                fo << 0.00002;
+                                        // 0.04
+                                        else
+                                                fo << 0.000005;
+                                }
+
+                                else if (codename == "NUM_SNAPS") {
+                                        // 0.6-9, 1
+                                        if (height > 0.55)
+                                                fo << 200;
+                                        // 0.3-5
+                                        else if (height > 0.25)
+                                                fo << 400;
+                                        // 0.1-2
+                                        else if (height > 0.09)
+                                                fo << 1000;
+                                        // 0.04
+                                        else
+                                                fo << 4000;
+                                }
+
+                                else if (codename == "PER_SNAP") {
+                                        // 0.6-9, 1
+                                        if (height > 0.55)
+                                                fo << 2;
+                                        // 0.3-5
+                                        else if (height > 0.25)
+                                                fo << 4;
+                                        // 0.1-2
+                                        else if (height > 0.09)
+                                                fo << 10;
+                                        // 0.04
+                                        else
+                                                fo << 40;
+                                }
+
+                                else if (codename == "SZ")
                                         fo << round3(height / 2., '.');
                                 
                                 else if (codename == "NUM_X" || codename == "NUM_Y")
@@ -59,9 +115,6 @@ int main()
                                 
                                 else if (codename == "MOVE_X" || codename == "MOVE_Y")
                                         fo << -5;
-
-                                else if (codename == "MOVE_Z")
-                                        fo << static_cast<int>(-1 * height);
 
                         }
                         else

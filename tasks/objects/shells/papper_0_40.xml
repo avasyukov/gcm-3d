@@ -1,33 +1,33 @@
-<task numberOfSnaps="20" stepsPerSnap="2" xmlns:ndi="gcm3d.plugins.ndi">
+<task numberOfSnaps="400" stepsPerSnap="4" xmlns:ndi="gcm3d.plugins.ndi">
 	<system>
 		<loadPlugin name="ndi" />
-		<timeStep fixed="0.02" />                
+		<timeStep fixed="5e-05" />                
 		<meshMovement type="none" />
-	        <prefix front="papper_100_"/>
+	        <prefix front="papper_0_40_"/>
 	</system>
 	<bodies>
 		<body id="steel">
                         <rheology type="elastic" />
-                        <mesh id="main_mesh" type="geo2" file="models/my_models/papper_z_100.geo" tetrSize="33" /> <!-- sm -->
+                        <mesh id="main_mesh" type="geo2" file="models/shells/papper_z_0_40.geo" tetrSize="0.04" />
+                        
 
-                        <mesh id="interp_mesh" type="cube" calc="false" h="50" numX="20" numY="20" numZ="2" />  <!-- sm. Mesh for calculating moments -->                
+                        <mesh id="interp_mesh" type="rectangle" calc="false" sx="0.1" sy="0.1" sz="0.20" numX="100" numY="100" numZ="2" />  <!-- sm. Mesh for calculating moments -->                
                         <!-- i_mesh needed here for moving interp_mesh -->
-                        <transform type="translate" i_mesh="1" moveX="-500" moveY="-500" moveZ="-100" />
+                        <transform type="translate" i_mesh="1" moveX="-5" moveY="-5" moveZ="-0.40" />
 
                         <material id="steel" />
                 </body>
 	</bodies>
 
-    <materials>
+        <materials>
                 <material name="steel" rheology="isotropic">
-			<!-- g / (sm * s^2 ) == 0.1 Pa-->
-            <!-- -->
-                        <la>8e11</la>
-                        <mu>8e11</mu>
-			<!-- g / sm^3 -->
-                        <rho>7.8</rho>
+
+                        <la>121153.84615384615</la>
+                        <mu>80769.23076923077</mu>
+
+                        <rho>7800</rho>
                 </material>
-    </materials>
+        </materials>
 
 	<!--ndi:emitter name="em" sensor="true"-->
                 <!--borderCondition calculator="ExternalForceCalculator" normalStress="1" tangentialStress="0.0" startTime = "0.0" type="sinus_gauss" omega="50000" tau="100e5">
@@ -39,7 +39,7 @@
         <!-- there could be the moment sensor -->
 
         <initialState>
-                <area type="box" minX="-20" maxX="20" minY="-20" maxY="20" minZ="-110" maxZ="10"/>
+                <area type="box" minX="-0.05" maxX="0.05" minY="-0.05" maxY="0.05" minZ="-1.1" maxZ="0.1"/>
                 <values vx="100" />
         </initialState>
 

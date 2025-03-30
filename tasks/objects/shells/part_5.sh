@@ -1,0 +1,1 @@
+./build/gcm3d --task ./tasks/objects/shells/papper_0_10.xml --output-dir ./result/papper_z_0_10

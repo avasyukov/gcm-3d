@@ -1,23 +1,25 @@
-<task numberOfSnaps="100" stepsPerSnap="2" xmlns:ndi="gcm3d.plugins.ndi">
+<task numberOfSnaps="$NUM_SNAPS$" stepsPerSnap="$PER_SNAP$" xmlns:ndi="gcm3d.plugins.ndi">
 	<system>
 		<loadPlugin name="ndi" />
-		<timeStep fixed="0.0002" />                
+		<timeStep fixed="$TAU$" />                
 		<meshMovement type="none" />
-	        <prefix front="papper_1_00_"/>
+	        <prefix front="papper_$HEIGHT_$_"/>
 	</system>
 	<bodies>
 		<body id="steel">
                         <rheology type="elastic" />
+                        <mesh id="main_mesh" type="geo2" file="models/shells/papper_z_$HEIGHT_$.geo" tetrSize="$TETR_SIZE$" />
+                        
 
-                        <mesh id="interp_mesh" type="rectangle" sx="0.2" sy="0.1" sz="0.1" numX="50" numY="100" numZ="10" />  <!-- sm. Mesh for calculating moments -->                
+                        <mesh id="interp_mesh" type="rectangle" calc="false" sx="0.1" sy="0.1" sz="$SZ$" numX="100" numY="100" numZ="2" />  <!-- sm. Mesh for calculating moments -->                
                         <!-- i_mesh needed here for moving interp_mesh -->
-                        <transform type="translate" i_mesh="0" moveX="-5" moveY="-5" moveZ="-1" />
+                        <transform type="translate" i_mesh="1" moveX="$MOVE_X$" moveY="$MOVE_Y$" moveZ="-$HEIGHT$" />
 
                         <material id="steel" />
                 </body>
 	</bodies>
 
-    <materials>
+        <materials>
                 <material name="steel" rheology="isotropic">
 
                         <la>121153.84615384615</la>
@@ -25,7 +27,7 @@
 
                         <rho>7800</rho>
                 </material>
-    </materials>
+        </materials>
 
 	<!--ndi:emitter name="em" sensor="true"-->
                 <!--borderCondition calculator="ExternalForceCalculator" normalStress="1" tangentialStress="0.0" startTime = "0.0" type="sinus_gauss" omega="50000" tau="100e5">
@@ -37,8 +39,8 @@
         <!-- there could be the moment sensor -->
 
         <initialState>
-                <area type="box" minX="-0.075" maxX="0.075" minY="-0.075" maxY="0.075" minZ="-1.1" maxZ="0.1"/>
-                <values vz="100" />
+                <area type="box" minX="-0.05" maxX="0.05" minY="-0.05" maxY="0.05" minZ="-1.1" maxZ="0.1"/>
+                <values vx="100" />
         </initialState>
 
 </task>
