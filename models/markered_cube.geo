@@ -1,4 +1,4 @@
-meshPointDist = 0.2;
+meshPointDist = 0.1;
 
 Point(1) = {-0.495, -0.495, -0.495, meshPointDist};
 Point(2) = {-0.495, -0.495, 0.495, meshPointDist};
