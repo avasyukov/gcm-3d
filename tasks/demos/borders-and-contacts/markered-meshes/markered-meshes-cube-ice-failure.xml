@@ -1,0 +1,81 @@
+<task numberOfSnaps="100" stepsPerSnap="1">
+    <system>
+		<!-- <meshMovement type="none" /> -->
+		<collisionDetector static="true" />
+        <contactThreshold measure="abs" value="0.8"/>
+        <timeStep multiplier="0.99"/>
+		<defaultContactCalculator type="SlidingContactCalculator" />
+		<defaultFailureModel type="PuckFailureModel" />
+		<!--contactThreshold measure="lambdaTau" value="1.0" /-->
+		<!--contactThreshold measure="abs" value="0.5" /-->
+		<anisotropicMatrix implementation="analytical" />
+    </system>
+    <bodies>
+        <body id="cube">
+            <rheology type="elastic" />
+            <mesh id="cube" type="markered-mesh-geo" cellSize="0.015;0.015;0.015" cellsNum="121;121;121" file="models/markered_cube.geo" />
+            <material id="custom_ice" />
+            <transform type="translate" moveX="0" moveY="0" moveZ="0.43" />
+        </body>
+    </bodies>
+
+    <materials>
+        <material name="custom_steel" rheology="isotropic">
+            <la>1.21e11</la>
+            <mu>8.1e10</mu>
+            <rho>7800</rho>
+        </material>
+        <material name="crazy_rubber" rheology="isotropic">
+            <la>40e6</la>
+            <mu>10</mu>
+            <!--rho>1200</rho-->
+            <rho>120</rho>
+        </material>
+            <material name="custom_ice" rheology="isotropic">
+            <!-- <la>1.21e11</la>
+            <mu>8.1e10</mu> -->
+            <!-- <rho>7800</rho> -->
+			<la>0.396</la>
+			<mu>0.187</mu>
+			<c11>1.03</c11>
+			<c12>0.696</c12>
+			<c13>0.696</c13>
+			<c14>0</c14>
+			<c15>0</c15>
+			<c16>0</c16>
+			<c22>2.325</c22>
+			<c23>0.696</c23>
+			<c24>0</c24>
+			<c25>0</c25>
+			<c26>0</c26>
+			<c33>1.03</c33>
+			<c34>0</c34>
+			<c35>0</c35>
+			<c36>0</c36>
+			<c44>0.501</c44>
+			<c45>0</c45>
+			<c46>0</c46>
+			<c55>0.167</c55>
+			<c56>0</c56>
+			<c66>0.501</c66>
+			<rho>0.9</rho>
+			<failure type="hashin">
+			<!-- Уменьшено в 10 раз!!! -->
+				<dir>2</dir>
+				<Xc>0.153</Xc>
+				<Xt>0.263</Xt>
+				<Yc>0.0213</Yc>
+				<Yt>0.0086</Yt>
+				<St>0.153</St>
+				<S>0.0112</S>
+			</failure>
+        </material>
+
+    </materials>
+
+    <initialState>
+        <area type="sphere" r="0.08" x="0" y="0" z="-0.11"/>
+        <values vz="0.5" />
+    </initialState>
+    
+</task>
