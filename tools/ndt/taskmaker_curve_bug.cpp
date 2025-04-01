@@ -19,6 +19,11 @@ string round3(double a, char q) {
 int main()
 {       
         std::cout << "Begining" << endl;
+
+        string inp;
+        std::cout << "Введите с каким типом таска работаете\n";
+        std::cin >> inp;
+
         // int N = 20;
         // double tetr_size;
 
@@ -29,11 +34,10 @@ int main()
                 if (fabs(height - 0) < 0.0001) {
                         height = 0.04;
                 }
-
-                ifstream fi("../../tasks/objects/shells/papper_i.xml", std::ios::in);
+                ifstream fi("../../tasks/objects/shells/" + inp + "/papper_i.xml", std::ios::in);
 
                 //string tns = (tasknumber < 10 ? "0" : "") + to_string(tasknumber);
-                ofstream fo("../../tasks/objects/shells/papper_" + round3(height, '_') + ".xml");
+                ofstream fo("../../tasks/objects/shells/" + inp + "/papper_" + round3(height, '_') + ".xml");
                 
                 char c = fi.get();
                 while (!fi.eof()) {
@@ -75,21 +79,6 @@ int main()
                                         // 0.04
                                         else
                                                 fo << 0.000005;
-                                }
-
-                                else if (codename == "NUM_SNAPS") {
-                                        // 0.6-9, 1
-                                        if (height > 0.55)
-                                                fo << 200;
-                                        // 0.3-5
-                                        else if (height > 0.25)
-                                                fo << 400;
-                                        // 0.1-2
-                                        else if (height > 0.09)
-                                                fo << 1000;
-                                        // 0.04
-                                        else
-                                                fo << 4000;
                                 }
 
                                 else if (codename == "PER_SNAP") {

@@ -53,6 +53,11 @@ void Body::setInitialState(Area* area, float values[9]) {
         meshes[i]->setInitialState(area, values);
 }
 
+void Body::setInitialStateGradient(Area* area, float values[9], real height, uint index_of_axes, real zero_move) {
+    for( unsigned int i = 0; i < meshes.size(); i++ )
+        meshes[i]->setInitialStateGradient(area, values, height, index_of_axes, zero_move);
+}
+
 void Body::setInitialState(Area* area, std::function<void(CalcNode&)> setter) {
     for( unsigned int i = 0; i < meshes.size(); i++ )
         meshes[i]->setInitialState(area, setter);

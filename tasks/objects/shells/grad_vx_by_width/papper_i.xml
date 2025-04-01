@@ -1,19 +1,19 @@
-<task numberOfSnaps="400" stepsPerSnap="4" xmlns:ndi="gcm3d.plugins.ndi">
+<task numberOfSnaps="150" stepsPerSnap="$PER_SNAP$" xmlns:ndi="gcm3d.plugins.ndi">
 	<system>
 		<loadPlugin name="ndi" />
-		<timeStep fixed="5e-05" />                
+		<timeStep fixed="$TAU$" />                
 		<meshMovement type="none" />
-	        <prefix front="papper_0_40_"/>
+	        <prefix front="papper_$HEIGHT_$_"/>
 	</system>
 	<bodies>
 		<body id="steel">
                         <rheology type="elastic" />
-                        <mesh id="main_mesh" type="geo2" file="models/shells/papper_z_0_40.geo" tetrSize="0.04" />
+                        <mesh id="main_mesh" type="geo2" file="models/shells/papper_z_$HEIGHT_$.geo" tetrSize="$TETR_SIZE$" />
                         
 
-                        <mesh id="interp_mesh" type="rectangle" calc="false" sx="0.1" sy="0.1" sz="0.20" numX="100" numY="100" numZ="2" />  <!-- sm. Mesh for calculating moments -->                
+                        <mesh id="interp_mesh" type="rectangle" calc="false" sx="0.1" sy="0.1" sz="$SZ$" numX="100" numY="100" numZ="2" />  <!-- sm. Mesh for calculating moments -->                
                         <!-- i_mesh needed here for moving interp_mesh -->
-                        <transform type="translate" i_mesh="1" moveX="-5" moveY="-5" moveZ="-0.40" />
+                        <transform type="translate" i_mesh="1" moveX="$MOVE_X$" moveY="$MOVE_Y$" moveZ="-$HEIGHT$" />
 
                         <material id="steel" />
                 </body>
@@ -39,8 +39,8 @@
         <!-- there could be the moment sensor -->
 
         <initialState>
-                <area type="box" minX="-0.05" maxX="0.05" minY="-0.05" maxY="0.05" minZ="-1.1" maxZ="0.1"/>
-                <values vx="100" />
+                <area type="box" minX="-2.5" maxX="2.5" minY="-1.5" maxY="1.5" minZ="-1.1" maxZ="0.1"/>
+                <values vx="100" grad_hight="5" axes="0" zero_move="-2.5" />
         </initialState>
 
 </task>

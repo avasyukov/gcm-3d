@@ -194,6 +194,17 @@ void Mesh::setInitialState(Area* area, float* values)
                 node.values[k] = values[k];
     }
 }
+
+void Mesh::setInitialStateGradient(Area* area, float* values, real height, uint index_of_axes, real zero_move)
+{
+    for(int i = 0; i < getNodesNumber(); i++)
+    {
+        CalcNode& node = getNodeByLocalIndex(i);
+        if( area->isInArea( node ) )
+            for( int k = 0; k < 9; k++ )
+                node.values[k] = 2 * values[k] * (node.coords[index_of_axes] + zero_move) / height + values[k];
+    }
+}
         
 void Mesh::setInitialState(Area* area, std::function<void(CalcNode& node)> setter)
 {

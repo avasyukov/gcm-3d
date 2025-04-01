@@ -61,6 +61,10 @@ namespace gcm {
         std::string getId();
 
         void setInitialState(Area* area, float values[9]);
+        
+        // TODO rewrite it. It works very not ever
+        void setInitialStateGradient(Area* area, float values[9], real height, uint index_of_axes, real zero_move);
+
         void setInitialState(Area* area, std::function<void(CalcNode&)> setter);
 		void setBorderCondition(Area* area, unsigned int num);
 		void setContactCondition(Area* area, unsigned int num);

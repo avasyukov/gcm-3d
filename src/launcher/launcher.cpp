@@ -610,6 +610,11 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
 
         auto useValues = valuesNodes.size() == 1;
         real values[9];
+        // this boolian needed for calculating gradient in area box
+        // in future will begreat to rewrite it nominally
+        real grad_z_height = -1;
+        uint index_of_axes = 2;
+        real zero_move = 0;
 
         std::function<void(CalcNode&)> setter;
 
@@ -626,6 +631,14 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 values[i++] = v.empty() ? 0.0 : lexical_cast<real>(v);
 
             }
+
+            // new parametr in values
+            if (!valuesNode.getAttributes()["grad_hight"].empty()) 
+                grad_z_height = lexical_cast<real>(valuesNode.getAttributes()["grad_hight"]);
+            if (!valuesNode.getAttributes()["axes"].empty())
+                index_of_axes = lexical_cast<uint>(valuesNode.getAttributes()["axes"]);
+            if (!valuesNode.getAttributes()["zero_move"].empty())
+                zero_move = lexical_cast<real>(valuesNode.getAttributes()["zero_move"]);
             
             LOG_DEBUG("Initial state values: "
                             << values[0] << " " << values[1] << " " << values[2] << " "
@@ -687,8 +700,15 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
 
             for( int i = 0; i < engine.getNumberOfBodies(); i++ )
             {
-                if (useValues)
-                   engine.getBody(i)->setInitialState(stateArea, values);
+                if (useValues) {
+
+                    // parametr grad_z_height also used like boolian
+                    if (grad_z_height > 0)
+                        engine.getBody(i)->setInitialStateGradient(stateArea, values, grad_z_height, index_of_axes, zero_move);
+                    else
+                        engine.getBody(i)->setInitialState(stateArea, values);
+                
+                }
                 else
                    engine.getBody(i)->setInitialState(stateArea, setter);
                 engine.getBody(i)->getMeshes()->processStressState();

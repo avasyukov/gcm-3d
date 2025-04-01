@@ -1,4 +1,4 @@
-<task numberOfSnaps="$NUM_SNAPS$" stepsPerSnap="$PER_SNAP$" xmlns:ndi="gcm3d.plugins.ndi">
+<task numberOfSnaps="150" stepsPerSnap="$PER_SNAP$" xmlns:ndi="gcm3d.plugins.ndi">
 	<system>
 		<loadPlugin name="ndi" />
 		<timeStep fixed="$TAU$" />                

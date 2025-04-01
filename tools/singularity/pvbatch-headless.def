@@ -1,0 +1,16 @@
+Bootstrap: docker
+From: fedora:30
+
+%files
+    ./ParaView-5.7.0-osmesa-MPI-Linux-Python3.7-64bit.tar.gz /opt
+
+%post
+    cd /opt
+    tar xzvf ParaView-5.7.0-osmesa-MPI-Linux-Python3.7-64bit.tar.gz
+    rm ParaView-5.7.0-osmesa-MPI-Linux-Python3.7-64bit.tar.gz
+
+%labels
+    Author a.vasyukov@phystech.edu
+
+%help
+    This is a container with paraview and pvbatch to render gcm-3d results.
