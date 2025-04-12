@@ -17,5 +17,8 @@ void MaxStressCrackFailureCriterion::checkFailure(ICalcNode& node, const float t
     auto props = mat->getFailureProperties();
     real limit = props[FAILURE_TYPE_MAX_STRESS][FAILURE_TYPE_MAX_STRESS_THRESHOLD];
     if (m_s[i_ms] > limit)
-        node.createCrack(i_ms);
+    {
+        // node.createCrack(i_ms);
+        node.setDestroyed(true);
+    }
 }
