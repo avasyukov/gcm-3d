@@ -8,7 +8,7 @@
         <body id="cube">
             <rheology type="elastic" />
             <mesh id="cube" type="markered-mesh-geo" cellSize="0.015;0.015;0.015" cellsNum="121;121;121" file="models/markered_cube.geo" />
-            <material id="custom_ice" />
+            <material id="custom_steel" />
             <transform type="translate" moveX="0" moveY="0" moveZ="0.43" />
         </body>
     </bodies>
@@ -26,6 +26,9 @@
             <rho>120</rho>
         </material>
             <material name="custom_ice" rheology="isotropic">
+            <!-- <la>3.96e1</la> 
+            <mu>1.87e1</mu>
+            <rho>0.9</rho> -->
             <la>3.96e9</la> 
             <mu>1.87e9</mu>
             <rho>900</rho>
@@ -34,8 +37,9 @@
     </materials>
 
     <initialState>
-        <area type="sphere" r="0.09" x="0" y="0" z="-0.11"/>
-        <values vz="10000" />
+        <area type="sphere" r="0.18" x="0" y="0" z="-0.11"/>
+        <values vz="7000" />  <!-- steel --> 
+		<!--<values vz="4" />  ice -->
     </initialState>
     
 </task>

@@ -326,17 +326,17 @@ int InterpolationFixedAxis::prepare_node(CalcNode& cur_node, RheologyMatrixPtr r
     for (int i = 0; i < 9; i++)
         dksi[i] = -rheologyMatrix->getL(i, i) * time_step;
 
-    return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal, debug);
+    return find_nodes_on_previous_time_layer(cur_node, stage, time_step, mesh, dksi, inner, previous_nodes, outer_normal, debug);
 }
 
-int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node, int stage, Mesh* mesh,
+int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node, int stage, float time_step, Mesh* mesh,
                                                                    float dksi[], bool inner[], vector<CalcNode>& previous_nodes,
                                                                    float outer_normal[])
 {
-    return find_nodes_on_previous_time_layer(cur_node, stage, mesh, dksi, inner, previous_nodes, outer_normal, false);
+    return find_nodes_on_previous_time_layer(cur_node, stage, time_step, mesh, dksi, inner, previous_nodes, outer_normal, false);
 }
 
-int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node, int stage, Mesh* mesh,
+int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node, int stage, float time_step, Mesh* mesh,
                                                                    float dksi[], bool inner[], vector<CalcNode>& previous_nodes,
                                                                    float outer_normal[], bool debug)
 {
@@ -380,8 +380,13 @@ int InterpolationFixedAxis::find_nodes_on_previous_time_layer(CalcNode& cur_node
                 LOG_TRACE("Checking inner node");
                 // ... Find owner tetrahedron ...
                 bool isInnerPoint;
-                mesh->interpolateNode(cur_node, dx[0], dx[1], dx[2], debug,
-                                      previous_nodes[i], isInnerPoint);
+
+                // add -vt
+                mesh->interpolateNode(cur_node, dx[0] - cur_node.vx * time_step, dx[1] - cur_node.vy * time_step, dx[2] - cur_node.vz * time_step, 
+                    debug, previous_nodes[i], isInnerPoint);
+
+                // mesh->interpolateNode(cur_node, dx[0], dx[1], dx[2], debug,
+                //                       previous_nodes[i], isInnerPoint);
 
                 if (!isInnerPoint) {
                     LOG_TRACE("Inner node: we need new method here!");

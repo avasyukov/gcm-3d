@@ -1,0 +1,32 @@
+<task numberOfSnaps="100" stepsPerSnap="1">
+    <system>
+		<collisionDetector static="true" />
+        <contactThreshold measure="abs" value="0.8"/>
+        <timeStep multiplier="0.99"/>
+		<defaultContactCalculator type="SlidingContactCalculator" />
+		<defaultFailureModel type="CrackFailureModel" />
+		<anisotropicMatrix implementation="analytical" />
+    </system>
+    <bodies>
+        <body id="cube">
+            <rheology type="elastic" />
+            <mesh id="cube" type="markered-mesh-geo" cellSize="0.0006;0.0006;0.0006" cellsNum="140;140;40" file="models/laser_target.geo" />
+            <material id="__glass" />
+        </body>
+    </bodies>
+
+    <materials>
+		<material name="__glass" rheology="isotropic">
+            <la>2.25e10</la>
+            <mu>2.87e10</mu>
+            <rho>2500</rho>
+            <failure type="maxStress">
+                <threshold>1700e6</threshold>
+            </failure>
+        </material>
+    </materials>
+	<borderCondition calculator="ExternalForceCalculator" normalStress="-0.08e11" tangentialStress="0.0" startTime="0" duration="0.5e-6">
+		<area type="cylinder" x1="0" y1="0" z1="0.007" x2="0" y2="0" z2="0.011" r="0.005"/>
+	</borderCondition>
+    
+</task>
