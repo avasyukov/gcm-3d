@@ -624,13 +624,16 @@ void Engine::calculate(bool save_snapshots) {
     // в дальнейшем если надо будет делать под много тел, можно делать массив ю-птр-ов
     // interp_mesh - hardcoded value. Also used in snapshots writing
     // Also there hardcoded index of interp_mesh = 1
-    std::unique_ptr<std::vector<uint>> cache_usp = std::make_unique<std::vector<uint>>();
+    std::unique_ptr<std::vector<uint>> cache_usp;
 
-    if (!((!getMeshesMovable()) && 
+    if ((!getMeshesMovable()) && 
             (bodies[0]->getMeshesSize() > 1) &&
-            (bodies[0]->getMeshes(1)->getId() == "interp_mesh"))) 
+            (bodies[0]->getMeshes(1)->getId() == "interp_mesh")) 
     {
-        cache_usp=nullptr;
+        cache_usp = std::make_unique<std::vector<uint>>();
+    }
+    else {
+        cache_usp = nullptr;
     }
 
     for (int i = 0; i < numberOfSnaps; i++) {

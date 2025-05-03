@@ -61,24 +61,29 @@ int main()
 
                                         if (height == 0.04)
                                                 fo << 0.004;
-                                        else
-                                                fo << round3(height / 10., '.');
+                                        else {
+                                                // 0.6-9, 1
+                                                if (height > 0.55)
+                                                        fo << round3(0.6 / 10., '.');
+                                                else
+                                                        fo << round3(height / 10., '.');
+                                        }
 
                                 }
 
                                 else if (codename == "TAU") {
                                         // 0.6-9, 1
                                         if (height > 0.55)
-                                                fo << 0.0001;
+                                                fo << 0.000001;
                                         // 0.3-5
                                         else if (height > 0.25)
-                                                fo << 0.00005;
+                                                fo << 0.0000005;
                                         // 0.1-2
                                         else if (height > 0.09)
-                                                fo << 0.00002;
+                                                fo << 0.0000002;
                                         // 0.04
                                         else
-                                                fo << 0.000005;
+                                                fo << 0.00000005;
                                 }
 
                                 else if (codename == "PER_SNAP") {

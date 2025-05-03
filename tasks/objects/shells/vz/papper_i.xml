@@ -10,7 +10,7 @@
                         <rheology type="elastic" />
                         <mesh id="main_mesh" type="geo2" file="models/shells/papper_z_$HEIGHT_$.geo" tetrSize="$TETR_SIZE$" />
                         
-
+                        
                         <mesh id="interp_mesh" type="rectangle" calc="false" sx="0.0625" sy="0.0625" sz="$SZ$" numX="160" numY="160" numZ="2" />  <!-- sm. Mesh for calculating moments -->                
                         <!-- i_mesh needed here for moving interp_mesh -->
                         <transform type="translate" i_mesh="1" moveX="$MOVE_X$" moveY="$MOVE_Y$" moveZ="-$HEIGHT$" />
@@ -29,7 +29,6 @@
                 </material>
         </materials>
 
-
 	<!--ndi:emitter name="em" sensor="true"-->
                 <!--borderCondition calculator="ExternalForceCalculator" normalStress="1" tangentialStress="0.0" startTime = "0.0" type="sinus_gauss" omega="50000" tau="100e5">
 		<area type="box" minX="4.5" maxX="5.5" minY="-0.01" maxY="0.01" minZ="-0.5" maxZ="0.5"/>
@@ -41,7 +40,7 @@
 
         <initialState>
                 <area type="box" minX="-0.05" maxX="0.05" minY="-0.05" maxY="0.05" minZ="-1.1" maxZ="0.1"/>
-                <values vx="100" />
+                <values vz="100" />
         </initialState>
 
 </task>

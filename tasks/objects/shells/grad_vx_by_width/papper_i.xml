@@ -40,7 +40,7 @@
 
         <initialState>
                 <area type="box" minX="-2.5" maxX="2.5" minY="-1.5" maxY="1.5" minZ="-1.1" maxZ="0.1"/>
-                <values vx="100" grad_hight="5" axes="0" zero_move="-2.5" />
+                <values vx="100" grad_hight="5" axes="1" zero_move="-2.5" />
         </initialState>
 
 </task>
