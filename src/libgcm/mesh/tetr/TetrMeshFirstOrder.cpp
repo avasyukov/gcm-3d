@@ -2546,6 +2546,40 @@ bool TetrMeshFirstOrder::interpolateNode(CalcNode& node)
     return false;
 }
 
+int TetrMeshFirstOrder::findTetrIndex(CalcNode& node) {
+    for (int i = 0; i < getTetrsNumber(); i++)
+    {
+        TetrFirstOrder& t = getTetrByLocalIndex(i);
+        if ( pointInTetr(node.coords.x, node.coords.y, node.coords.z,
+                getNode(t.verts[0]).coords, getNode(t.verts[1]).coords,
+                getNode(t.verts[2]).coords, getNode(t.verts[3]).coords, false) )
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+// this is nessesery when we want to cash tetraedra
+bool TetrMeshFirstOrder::interpolateNode(CalcNode& node, int tetr_index)
+{
+    try {
+        TetrFirstOrder& t = getTetrByLocalIndex(tetr_index);
+        interpolator->interpolate( node,
+                getNode( t.verts[0] ), getNode( t.verts[1] ),
+                getNode( t.verts[2] ), getNode( t.verts[3] ) );
+        return true;
+    }
+
+    catch (Exception& e)
+    {
+        LOG_ERROR("Interpolation on first order tetraedra by index error");
+        throw;
+    }
+    return false;
+}
+
 bool TetrMeshFirstOrder::interpolateBorderNode(real x, real y, real z, 
                                 real dx, real dy, real dz, CalcNode& node)
 {

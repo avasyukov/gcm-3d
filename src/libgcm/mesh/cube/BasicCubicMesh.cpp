@@ -228,6 +228,26 @@ int BasicCubicMesh::findNeighbourPoint(CalcNode& node, float dx, float dy, float
     return neighNum;
 };
 
+// Чуть костыльно, потому что узел сетки не знает свое положение в ее массиве узлов
+// index_this это номер узла, у которого мы ищем соседей
+bool BasicCubicMesh::findLowerNeighbour(CalcNode& neigh, uint index_this) {
+    if (getNodeByLocalIndex(index_this).isBorder())
+        return false;
+
+    // формулы я выводил на листочках
+    neigh = getNodeByLocalIndex(index_this - (numX * numY + numX + numY + 1));
+    return true;
+}
+
+// index_this это номер узла, у которого мы ищем соседей
+bool BasicCubicMesh::findUpperNeighbour(CalcNode& neigh, uint index_this) {
+    if (getNodeByLocalIndex(index_this).isBorder())
+        return false;
+
+    neigh = getNodeByLocalIndex(index_this + (numX * numY + numX + numY + 1));
+    return true;
+}
+
 bool BasicCubicMesh::interpolateNode(CalcNode& origin, float dx, float dy, float dz, bool debug,
                                 CalcNode& targetNode, bool& isInnerPoint)
 {

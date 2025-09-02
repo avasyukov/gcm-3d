@@ -27,8 +27,18 @@ void Body::attachMesh(Mesh* mesh) {
     meshes.push_back(mesh);
 }
 
+Mesh* Body::getMeshes(unsigned index) {
+    if (meshes.size() > index) return meshes[index];
+    return NULL;
+}
+
+// legacy investigation
 Mesh* Body::getMeshes() {
-    return meshes.size() ?  meshes[0] : NULL;
+    return getMeshes(0);
+}
+
+unsigned Body::getMeshesSize() {
+    return meshes.size();
 }
 
 Mesh* Body::getMesh(string id) {
@@ -41,6 +51,11 @@ Mesh* Body::getMesh(string id) {
 void Body::setInitialState(Area* area, float values[9]) {
     for( unsigned int i = 0; i < meshes.size(); i++ )
         meshes[i]->setInitialState(area, values);
+}
+
+void Body::setInitialStateGradient(Area* area, float values[9], real height, uint index_of_axes, real zero_move) {
+    for( unsigned int i = 0; i < meshes.size(); i++ )
+        meshes[i]->setInitialStateGradient(area, values, height, index_of_axes, zero_move);
 }
 
 void Body::setInitialState(Area* area, std::function<void(CalcNode&)> setter) {

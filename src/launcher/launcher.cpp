@@ -16,6 +16,7 @@
 #include "launcher/loaders/mesh/Vtu2MeshZoneLoader.hpp"
 #include "launcher/loaders/mesh/MarkeredMeshGeoLoader.hpp"
 #include "launcher/loaders/mesh/BasicCubicMeshLoader.hpp"
+#include "launcher/loaders/mesh/RectangularMeshLoader.hpp"
 #include "launcher/loaders/mesh/RectangularCutCubicMeshLoader.hpp"
 #include "launcher/util/FileFolderLookupService.hpp"
 
@@ -379,6 +380,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 Vtu2MeshZoneLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == BasicCubicMeshLoader::MESH_TYPE)
                 BasicCubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
+            else if (type == RectangularMeshLoader::MESH_TYPE) {}
+                // RectangularMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == RectangularCutCubicMeshLoader::MESH_TYPE)
                 RectangularCutCubicMeshLoader::getInstance().preLoadMesh(meshNode, localScene, slicingDirection, numberOfNodes);
             else if (type == MarkeredMeshGeoLoader::MESH_TYPE)
@@ -490,6 +493,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             LOG_INFO("Loading mesh for body '" << id << "'");
 
             string type = meshNode["type"];
+            string mesh_id = meshNode["id"];
 
             Mesh* mesh = nullptr;
 
@@ -505,6 +509,8 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 mesh = Vtu2MeshZoneLoader::getInstance().load(meshNode, body);
             else if (type == BasicCubicMeshLoader::MESH_TYPE)
                 mesh = BasicCubicMeshLoader::getInstance().load(meshNode, body);
+            else if (type == RectangularMeshLoader::MESH_TYPE)
+                mesh = RectangularMeshLoader::getInstance().load(meshNode, body);
             else if (type == RectangularCutCubicMeshLoader::MESH_TYPE)
                 mesh = RectangularCutCubicMeshLoader::getInstance().load(meshNode, body);
             else if (type == MarkeredMeshGeoLoader::MESH_TYPE)
@@ -513,7 +519,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
             // attach mesh to body
             body->attachMesh(mesh);
             mesh->setBodyNum( engine.getBodyNum(id) );
-            mesh->setId(id);
+            mesh->setId(mesh_id);
             LOG_INFO("Mesh '" << mesh->getId() << "' of type '" <<  type << "' created. "
                         << "Number of nodes: " << mesh->getNodesNumber() << ".");
         }
@@ -523,13 +529,15 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
         for(auto& transformNode: transformNodes)
         {
             string transformType = transformNode["type"];
+            int TransformMeshIndex = stoi(transformNode.getAttributeByName("i_mesh", "0"));
+
             if( transformType == "translate" )
             {
                 real x = lexical_cast<real>(transformNode["moveX"]);
                 real y = lexical_cast<real>(transformNode["moveY"]);
                 real z = lexical_cast<real>(transformNode["moveZ"]);
                 LOG_DEBUG("Moving body: [" << x << "; " << y << "; " << z << "]");
-                body->getMeshes()->transfer(x, y, z);
+                body->getMeshes(TransformMeshIndex)->transfer(x, y, z);
             }
             if ( transformType == "scale" )
             {
@@ -541,7 +549,7 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 real scaleZ = lexical_cast<real>(transformNode["scaleZ"]);
                 LOG_DEBUG("Scaling body: [" << x0 << "; " << scaleX << "; " 
                                 << y0 << "; " << scaleY << "; " << z0 << "; " << scaleZ << "]");
-                body->getMeshes()->scale(x0, y0, z0, scaleX, scaleY, scaleZ);
+                body->getMeshes(TransformMeshIndex)->scale(x0, y0, z0, scaleX, scaleY, scaleZ);
             }
         }
 
@@ -602,6 +610,11 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
 
         auto useValues = valuesNodes.size() == 1;
         real values[9];
+        // this boolian needed for calculating gradient in area box
+        // in future will begreat to rewrite it nominally
+        real grad_z_height = -1;
+        uint index_of_axes = 2;
+        real zero_move = 0;
 
         std::function<void(CalcNode&)> setter;
 
@@ -618,6 +631,14 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
                 values[i++] = v.empty() ? 0.0 : lexical_cast<real>(v);
 
             }
+
+            // new parametr in values
+            if (!valuesNode.getAttributes()["grad_hight"].empty()) 
+                grad_z_height = lexical_cast<real>(valuesNode.getAttributes()["grad_hight"]);
+            if (!valuesNode.getAttributes()["axes"].empty())
+                index_of_axes = lexical_cast<uint>(valuesNode.getAttributes()["axes"]);
+            if (!valuesNode.getAttributes()["zero_move"].empty())
+                zero_move = lexical_cast<real>(valuesNode.getAttributes()["zero_move"]);
             
             LOG_DEBUG("Initial state values: "
                             << values[0] << " " << values[1] << " " << values[2] << " "
@@ -679,8 +700,15 @@ void launcher::Launcher::loadSceneFromFile(string fileName, string initialStateG
 
             for( int i = 0; i < engine.getNumberOfBodies(); i++ )
             {
-                if (useValues)
-                   engine.getBody(i)->setInitialState(stateArea, values);
+                if (useValues) {
+
+                    // parametr grad_z_height also used like boolian
+                    if (grad_z_height > 0)
+                        engine.getBody(i)->setInitialStateGradient(stateArea, values, grad_z_height, index_of_axes, zero_move);
+                    else
+                        engine.getBody(i)->setInitialState(stateArea, values);
+                
+                }
                 else
                    engine.getBody(i)->setInitialState(stateArea, setter);
                 engine.getBody(i)->getMeshes()->processStressState();

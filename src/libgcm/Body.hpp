@@ -20,7 +20,7 @@ namespace gcm {
          * like calculation, visualization etc.
          */
         std::vector<Mesh*> meshes;
-        /*
+       /*
          * Body id. May be empty or non-unique, but it's not recommended.
          */
         std::string id;
@@ -42,12 +42,14 @@ namespace gcm {
         /*
          * Returns all meshes associated with body.
          */
+        Mesh* getMeshes(unsigned index);
         Mesh* getMeshes();
         // FIXME merge with method above
         const std::vector<Mesh*>& getMeshesVector();
         /*
          * Returns mesh by id.
          */
+        unsigned getMeshesSize();
         Mesh* getMesh(std::string id);
         /*
          * Attaches new mesh to body.
@@ -59,6 +61,10 @@ namespace gcm {
         std::string getId();
 
         void setInitialState(Area* area, float values[9]);
+        
+        // TODO rewrite it. It works very not ever
+        void setInitialStateGradient(Area* area, float values[9], real height, uint index_of_axes, real zero_move);
+
         void setInitialState(Area* area, std::function<void(CalcNode&)> setter);
 		void setBorderCondition(Area* area, unsigned int num);
 		void setContactCondition(Area* area, unsigned int num);

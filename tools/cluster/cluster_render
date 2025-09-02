@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+from datetime import datetime
+
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
+
+def run(folder, chunk_size, partition, comment, objects, limit_min, limit_max):
+    folder = os.path.join(*[_ for _ in folder.split(os.path.sep) if _ is not None and _ != ''])
+
+    if not os.path.isdir(folder):
+        raise RuntimeError("Can not read folder %s" % folder)
+
+    tasks = [_ for _ in os.listdir(folder) if os.path.splitext(_)[1].lower() == ".xml"]
+    task_names = [os.path.splitext(_)[0] for _ in tasks]
+    snap_folders = [_ for _ in task_names if os.path.isdir(os.path.join(folder, _))]
+
+    if not len(tasks) == len(snap_folders):
+        raise RuntimeError("Number of tasks and folder do not match")
+
+    snap_chunks = chunks(snap_folders, chunk_size)
+
+    slurm_dir = os.path.join(os.path.expanduser("~"), "slurm_jobs_gcm3d")
+    os.makedirs(slurm_dir, exist_ok=True)
+
+    img_path = os.path.join(folder, 'img')
+    os.makedirs(img_path, exist_ok=True)
+
+    ts_string = datetime.now().strftime("%Y-%m-%d--%H:%M:%S")
+
+    for i, chunk in enumerate(snap_chunks):
+        batch_file = os.path.join(slurm_dir, f'render-{ts_string}--{i}.sh')
+        with open(batch_file, 'w') as fd:
+            fd.write(f'#!/bin/bash\n')
+            fd.write(f'#SBATCH --job-name="render-{ts_string}--{i}"\n')
+            fd.write(f'#SBATCH --comment="{comment}"\n')
+            fd.write(f'#SBATCH --partition={partition}\n')
+            fd.write(f'#SBATCH --nodes=1\n')
+            fd.write(f'#SBATCH --ntasks-per-node={chunk_size}\n')
+            fd.write(f'#SBATCH --ntasks={len(chunk)}\n')
+            fd.write(f'#SBATCH --output={folder}/slurm-%j.out\n')
+            for snap_folder in chunk:
+                fd.write(f'srun --exclusive --ntasks 1 --output {folder}/{snap_folder}-render.%J.out ')
+                fd.write(f'singularity exec ~/pvbatch.sif /opt/ParaView-5.7.0-osmesa-MPI-Linux-Python3.7-64bit/bin/pvbatch ')
+                fd.write(f'--force-offscreen-rendering render.py ')
+                fd.write(f'--folder {folder}/{snap_folder} --output_dir {img_path} ')
+                fd.write(f'--objects {objects} --min {limit_min} --max {limit_max} &\n')
+            fd.write(f'wait\n')
+        os.system(f'sbatch {batch_file}')
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--folder', help='folder with snapshots', type=str, required=True)
+    parser.add_argument('--comment', help='short human readable comment for Slurm', type=str, required=True)
+    parser.add_argument('--chunk', help='chunk size (number of CPUs per node', type=int, required=False, default=16)
+    parser.add_argument('--partition', help='cluster partition name', type=str, required=False, default='RT')
+
+    parser.add_argument('--objects', help='comma separated list of objects to render', type=str, required=True)
+    parser.add_argument('--min', help='min value', type=float, required=False, default=0.0)
+    parser.add_argument('--max', help='max value', type=float, required=False, default=7e7)
+
+    args = parser.parse_args()
+
+    run(args.folder, args.chunk, args.partition, args.comment, args.objects, args.min, args.max)

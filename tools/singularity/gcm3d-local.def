@@ -1,0 +1,22 @@
+Bootstrap: library
+From: avasyukov/gcm3d/gcm3d-fedora33-env:latest
+
+%setup
+    mkdir ${SINGULARITY_ROOTFS}/opt/gcm3d
+
+%files
+    ./src /opt/gcm3d
+    ./cmake /opt/gcm3d
+    ./CMakeLists.txt /opt/gcm3d
+
+%post
+    mkdir /opt/gcm3d/build/
+    cd /opt/gcm3d/build/
+    cmake -Wno-dev -DCMAKE_BUILD_TYPE=Release ..
+    make
+
+%labels
+    Author a.vasyukov@phystech.edu
+
+%help
+    This is a container with gcm-3d solver build from the local sources.

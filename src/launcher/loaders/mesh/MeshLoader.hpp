@@ -18,7 +18,7 @@ namespace launcher
             {
                 MeshType* mesh = new MeshType();
                 mesh->setId(desc["id"]);
-                mesh->setCalc(desc.getAttributeByName("calc", "false") == "true");
+                mesh->setCalc(desc.getAttributeByName("calc", "true") == "true");
                 mesh->setBody(body);
                 loadMesh(desc, mesh);
                 return mesh;

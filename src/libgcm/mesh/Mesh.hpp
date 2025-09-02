@@ -231,6 +231,12 @@ namespace gcm {
         void preProcess();
 
         void setInitialState(Area* area, float* values);
+
+        // zero_move - сдвиг нуля относительно верхней по координате стороны коробки
+        // то есть если считается градиент по высоте и вся она лежит от 0 до -h, то 
+        // zero_move = 0
+        void setInitialStateGradient(Area* area, float* values, real height, uint index_of_axes, real zero_move);
+
         void setInitialState(Area* area, std::function<void(CalcNode& node)> setter);
 		void setBorderCondition(Area* area, unsigned int num);
 		void setContactCondition(Area* area, unsigned int num);

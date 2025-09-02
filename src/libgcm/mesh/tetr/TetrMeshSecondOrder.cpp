@@ -745,6 +745,42 @@ bool TetrMeshSecondOrder::interpolateNode(CalcNode& node)
     return false;
 }
 
+int TetrMeshSecondOrder::findTetrIndex(CalcNode& node) {
+    for (int i = 0; i < getTetrsNumber(); i++)
+    {
+        TetrSecondOrder& t = getTetr2ByLocalIndex(i);
+        if ( pointInTetr(node.coords.x, node.coords.y, node.coords.z,
+                getNode(t.verts[0]).coords, getNode(t.verts[1]).coords,
+                getNode(t.verts[2]).coords, getNode(t.verts[3]).coords, false) )
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+// this is nessesery when we want to cache tetraedra
+bool TetrMeshSecondOrder::interpolateNode(CalcNode& node, int tetr_index)
+{
+    try {
+        TetrSecondOrder& t = getTetr2ByLocalIndex(tetr_index);
+        interpolator->interpolate( node,
+            getNode(t.verts[0]), getNode(t.verts[1]),
+            getNode(t.verts[2]), getNode(t.verts[3]),
+            getNode(t.addVerts[0]), getNode(t.addVerts[1]),
+            getNode(t.addVerts[2]), getNode(t.addVerts[3]),
+            getNode(t.addVerts[4]), getNode(t.addVerts[5]));
+        return true;
+    }
+
+    catch (Exception& e)
+    {
+        LOG_ERROR("Interpolation on second order tetraedra by index error");
+        throw;
+    }
+    return false;
+}
 
 const SnapshotWriter& TetrMeshSecondOrder::getSnaphotter() const
 {
