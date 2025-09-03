@@ -1,0 +1,2 @@
+./build/gcm3d --task ./tasks/objects/shells/Mxx_wave/papper_1_00.xml --output-dir ./result/Mxx_wave/papper_z_1_00 &
+./build/gcm3d --task ./tasks/objects/shells/Mxx_wave/papper_0_70.xml --output-dir ./result/Mxx_wave/papper_z_0_70 &

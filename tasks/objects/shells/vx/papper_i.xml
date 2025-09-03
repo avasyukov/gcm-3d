@@ -1,4 +1,4 @@
-<task numberOfSnaps="150" stepsPerSnap="$PER_SNAP$" xmlns:ndi="gcm3d.plugins.ndi">
+<task numberOfSnaps="350" stepsPerSnap="$PER_SNAP$" xmlns:ndi="gcm3d.plugins.ndi">
 	<system>
 		<loadPlugin name="ndi" />
 		<timeStep fixed="$TAU$" />                
@@ -11,7 +11,7 @@
                         <mesh id="main_mesh" type="geo2" file="models/shells/papper_z_$HEIGHT_$.geo" tetrSize="$TETR_SIZE$" />
                         
 
-                        <mesh id="interp_mesh" type="rectangle" calc="false" sx="0.0625" sy="0.0625" sz="$SZ$" numX="160" numY="160" numZ="2" />  <!-- sm. Mesh for calculating moments -->                
+                        <mesh id="interp_mesh" type="rectangle" calc="false" sx="0.1" sy="0.1" sz="$SZ$" numX="100" numY="100" numZ="2" />  <!-- sm. Mesh for calculating moments -->                
                         <!-- i_mesh needed here for moving interp_mesh -->
                         <transform type="translate" i_mesh="1" moveX="$MOVE_X$" moveY="$MOVE_Y$" moveZ="-$HEIGHT$" />
 
